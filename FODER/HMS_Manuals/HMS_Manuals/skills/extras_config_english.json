@@ -1,0 +1,369 @@
+{
+ "module": "EXTRAs MODULE",
+ "subtitle": "Master → Operations → Transactions → Reports → Appendix",
+ "property": "Property: Analysis Demonstration Package (103)",
+ "version": "Version 2026-27  |  Training Manual for Admin/IT Staff",
+ "header": "Analysis HMS — EXTRAs Module Training Manual",
+ "footerText": "Analysis HMS EXTRAs Training Manual | Property 103 | 2026-27",
+ "output": "HMS_Manuals/Extras/Extras_Module_Training_Manual_English.docx",
+ "imageRoot": ".",
+ "theme": {
+  "color": "00838F",
+  "dark": "006064",
+  "light": "E0F7FA"
+ },
+ "sections": [
+  {
+   "title": "1. Introduction & Module Overview",
+   "intro": "EXTRAs module integration tools ka collection hai — jo hotel ko external systems se connect karte hain:\n\n- Channel Manager: OTA bookings (MakeMyTrip, Booking.com etc.) aur rate/inventory sync\n- WhatsApp: automatic guest messages (booking confirm, check-in/out, offers)\n- Smart Card: card based payments (Members module ke saath)\n- E-Invoice: GST e-invoice generation (IRN) for B2B bills\n\nYe module mostly admin/IT use karta hai — ek baar setup hota hai, phir automatic chalta hai.",
+   "subsections": [
+    {
+     "title": "Module Sections Overview",
+     "table": {
+      "headers": [
+       "Section",
+       "Purpose",
+       "Key Screens"
+      ],
+      "rows": [
+       [
+        "Channel Manager",
+        "OTA sync",
+        "Update Rates, Run Derived Pricing, Channel Enviro, Data Push"
+       ],
+       [
+        "WhatsApp",
+        "Guest messaging",
+        "WhatsApp Enviro, Templates"
+       ],
+       [
+        "Smart Card",
+        "Card system",
+        "Card Initialization, Registration, Recharge, Refund"
+       ],
+       [
+        "EInvoice",
+        "GST e-invoicing",
+        "EInvoice Parameter, EInvoice Report"
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "2. Channel Manager",
+   "subsections": [
+    {
+     "title": "2.1 Update Rates & Derived Pricing",
+     "navPath": "EXTRAs ▶ Channel Manager ▶ Update Rates / Run Derived Pricing",
+     "screenshot": "HMS_Manuals/Extras/screenshots/01_ChannelManager/01_Update_Rates.png",
+     "paragraph": "Update room rates in HMS and push rates on OTAs from derived pricing rules (e.g. HMS rate +15% = OTA rate). Run Derived Pricing syncs rates on all channels.",
+     "table": {
+      "headers": [
+       "Screen",
+       "Function"
+      ],
+      "rows": [
+       [
+        "Update Rates",
+        "Room type wise rates set karo (date range wise)"
+       ],
+       [
+        "Run Derived Pricing",
+        "Channel-specific markup/discount rules apply karke push"
+       ],
+       [
+        "Channel Enviro",
+        "OTA credentials — kaunsa channel, API keys, mapping"
+       ],
+       [
+        "Data Push",
+        "Rates/availability/inventory manually push karo"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "2.2 OTA Booking Flow",
+     "steps": [
+      "Guest OTA for book card hai",
+      "Channel manager pulls/drops booking in HMS.",
+      "Reservation List me booking dikh jati hai (source = OTA)",
+      "Advance/amount reconciliation monthly statement se",
+      "Check-in normal Front Office se hi hota hai"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "3. WhatsApp Integration",
+   "subsections": [
+    {
+     "title": "3.1 WhatsApp Enviro & Templates",
+     "navPath": "EXTRAs ▶ What's App ▶ WhatsApp Enviro / Templates",
+     "screenshot": "HMS_Manuals/Extras/screenshots/02_WhatsApp/01_WhatsApp_Enviro.png",
+     "paragraph": "WhatsApp API provider credentials setup aur message templates. Templates: booking confirmation, check-in instructions, welcome, checkout bill, feedback link, offers. Template me dynamic variables (guest name, room no., dates) hote hain.",
+     "table": {
+      "headers": [
+       "Setup",
+       "Description"
+      ],
+      "rows": [
+       [
+        "WhatsApp Enviro",
+        "API URL, key, sender number, balance status"
+       ],
+       [
+        "Templates",
+        "Event-based messages — trigger points set karo"
+       ],
+       [
+        "Triggers",
+        "Booking created / Day before arrival / On check-in / On checkout / Payment received"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.2 How Auto-Messages Work",
+     "steps": [
+      "Template approve karwao (WhatsApp policy) — system me setup",
+      "Trigger event hotel me hota hai (e.g. guest check-in)",
+      "System guest ke number pe template message bhejta hai",
+      "Delivery report/balance is visible in the dashboard",
+      "Balance is low to recharge (dashboard warning shows)"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "4. Smart Card",
+   "subsections": [
+    {
+     "title": "4.1 Card Lifecycle Screens",
+     "navPath": "EXTRAs ▶ Smart Card",
+     "screenshot": "HMS_Manuals/MembersMgmt/screenshots/02_SmartCard/04_Card_Refund.png",
+     "caption": "Card Refund — last step of card lifecycle",
+     "paragraph": "Members module ke saath card based payment system — blank cards initialize karo, member ko issue karo (registration), recharge karo, cancel pe refund. Detail training Members Management manual me hai — yahan admin setup side hai.",
+     "table": {
+      "headers": [
+       "Screen",
+       "Purpose"
+      ],
+      "rows": [
+       [
+        "Card Initialization",
+        "Blank cards system me register"
+       ],
+       [
+        "Card Registration",
+        "Link to card member"
+       ],
+       [
+        "Card Recharge",
+        "Balance load – along with payment"
+       ],
+       [
+        "Card Refund",
+        "Membership surrender — balance wapas"
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "5. E-Invoice (GST)",
+   "subsections": [
+    {
+     "title": "5.1 EInvoice Parameter",
+     "navPath": "EXTRAs ▶ EInvoice ▶ EInvoice Parameter",
+     "screenshot": "HMS_Manuals/Extras/screenshots/04_EInvoice/01_EInvoice_Parameter.png",
+     "paragraph": "GST portal/API credentials — company GSTIN, e-invoice API keys, applicable document types (B2B invoices only), auto-generate threshold (Rs 5 crore turnover wale ke liye mandatory).",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "GSTIN + Place",
+        "Seller details"
+       ],
+       [
+        "API Credentials",
+        "NIC/einvoice API access"
+       ],
+       [
+        "Applicability",
+        "Kaunse bills pe e-invoice banega"
+       ],
+       [
+        "Auto/Manual",
+        "Bill save pe auto IRN ya manual trigger"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "5.2 EInvoice Flow & Report",
+     "navPath": "EXTRAs ▶ EInvoice ▶ EInvoice Report",
+     "screenshot": "HMS_Manuals/Extras/screenshots/04_EInvoice/02_EInvoice_Report.png",
+     "paragraph": "B2B bill settle hone pe e-invoice generate hota hai — IRN (Invoice Reference Number) + QR code milta hai jo bill pe print hota hai. EInvoice Report me saare generated e-invoices ka record + cancellation option.",
+     "steps": [
+      "Settle your B2B guest/company bill.",
+      "E-invoice auto-generate — IRN + QR is sent on bill",
+      "Galat hua to EInvoice Report se cancel (24hr window)",
+      "Monthly — GSTR-1 me ye invoices auto-match"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "6. Appendix",
+   "subsections": [
+    {
+     "title": "Admin Setup Checklist (One-time)",
+     "table": {
+      "headers": [
+       "Order",
+       "Task",
+       "Screen"
+      ],
+      "rows": [
+       [
+        "1",
+        "OTA channels ke credentials + room mapping",
+        "Channel Enviro"
+       ],
+       [
+        "2",
+        "Derived pricing rules set karo",
+        "Run Derived Pricing"
+       ],
+       [
+        "3",
+        "WhatsApp provider + templates approve",
+        "WhatsApp Enviro / Templates"
+       ],
+       [
+        "4",
+        "Card system activated (if club is there)",
+        "Card Initialization"
+       ],
+       [
+        "5",
+        "E-invoice API credentials + thresholds",
+        "EInvoice Parameter"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Common Scenarios (Training Q&A)",
+     "table": {
+      "headers": [
+       "Scenario",
+       "what to do"
+      ],
+      "rows": [
+       [
+        "OTA pe rate sync nahi hua",
+        "Data Push manually chalao; Channel Enviro credentials verify"
+       ],
+       [
+        "OTA booking HMS me nahi aayi",
+        "Check booking status in Channel manager portal; Data Push/logs check"
+       ],
+       [
+        "WhatsApp balance khatam",
+        "Dashboard warning pe recharge karo — provider portal se"
+       ],
+       [
+        "Template reject ho gaya",
+        "WhatsApp policy follow karke revise — variable format check"
+       ],
+       [
+        "E-invoice failed",
+        "See the error in EInvoice Report — fix GSTIN/pan validation and retry."
+       ],
+       [
+        "Card reader not working",
+        "View card status in Card Initialization; hardware service ticket"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Troubleshooting",
+     "table": {
+      "headers": [
+       "Issue",
+       "Cause",
+       "Solution"
+      ],
+      "rows": [
+       [
+        "Rates push fail",
+        "API/network issue",
+        "Connection test in Channel Environment; retry data push"
+       ],
+       [
+        "Duplicate OTA booking",
+        "Pull + manual dono se",
+        "Manual one cancel karo, source OTA rakho"
+       ],
+       [
+        "WhatsApp messages nahi ja rahe",
+        "Balance low / template unapproved",
+        "Balance recharge + template status check"
+       ],
+       [
+        "IRN has not been generated",
+        "GSTIN invalid/blocked",
+        "Party master me GSTIN verify karo"
+       ],
+       [
+        "E-invoice is not being canceled",
+        "24hr window cross",
+        "Credit note process (accountant se)"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Contact & Support",
+     "table": {
+      "headers": [
+       "Contact",
+       "Details"
+      ],
+      "rows": [
+       [
+        "Website",
+        "https://analysishms.com"
+       ],
+       [
+        "Support Email",
+        "support@analysishms.com"
+       ],
+       [
+        "Phone",
+        "+91 9161380170"
+       ],
+       [
+        "Training Login",
+        "User: sa | Pass: balaji | Property: 103"
+       ],
+       [
+        "Software Version",
+        "Analysis HMS 2026-27"
+       ]
+      ]
+     }
+    }
+   ]
+  }
+ ]
+}

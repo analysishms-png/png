@@ -1,0 +1,222 @@
+{
+  "module": "NIGHT AUDIT MODULE",
+  "subtitle": "Operations · Reports · Logs · GST · Appendix",
+  "property": "Property: Analysis Demonstration Package (103)",
+  "version": "Version 2026-27  |  Training Manual for Night Auditor",
+  "header": "Analysis HMS — Night Audit Module Training Manual",
+  "footerText": "Analysis HMS Night Audit Training Manual | Property 103 | 2026-27",
+  "output": "HMS_Manuals/NightAudit/NightAudit_Module_Training_Manual.docx",
+  "imageRoot": ".",
+  "theme": { "color": "37474F", "dark": "263238", "light": "ECEFF1" },
+  "sections": [
+    {
+      "title": "1. Introduction & Module Overview",
+      "intro": "Night Audit din ka business close karne ka process hai — hotel ka 'day end'. Raat ko ek designated auditor ye karta hai:\n\n1. Saare outlets ke settlements verify karna 2. In-house guests pe room charges + plan meals post karna 3. Departures/no-shows handle karna 4. Reports (Daily Report, FOCC) print karna 5. Software date aage badhana (rollover).\n\nAnalysis HMS me Night Audit ek guided process hai — Charges Posting (Shift+C) se shuru hota hai aur Night Audit Process (Shift+N) se complete hota hai. Galat ho jaye to Reverse Night Audit se rollback kiya ja sakta hai.",
+      "subsections": [
+        {
+          "title": "Module Sections Overview",
+          "table": {
+            "headers": ["Section", "Purpose", "Key Screens"],
+            "rows": [
+              ["OPERATION", "Day close process", "Charges Posting (Shift+C), Night Audit Process (Shift+N), Reverse Night Audit, Account Posting"],
+              ["REPORTS", "Day-end reports", "FOCC Report, Daily Report, Credit Report, Feedback Report, Service Request Register"],
+              ["LOG", "Audit trail", "Night Audit Log, Charges Remove Log"],
+              ["GST", "Compliance", "GSTR-1"]
+            ]
+          }
+        },
+        {
+          "title": "Night Audit Data Flow (Technical Understanding)",
+          "table": {
+            "headers": ["Step", "Database", "Kya hota hai"],
+            "rows": [
+              ["Room charges post", "guestfolio", "Har in-house room pe daily rent + plan meals entry"],
+              ["Software date advance", "nightauditlog", "Nayi business date ka log entry"],
+              ["No-show handling", "roomocc/reservations", "Aa na sake guests ki status update"],
+              ["Audit trail", "kotlog, sale1log", "Kya kya hua din bhar — immutable logs"]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "title": "2. Operations Module — Day Close Process",
+      "subsections": [
+        {
+          "title": "2.1 Charges Posting (Shift+C)",
+          "navPath": "Night Audit ▶ Operation ▶ Charges Posting",
+          "screenshot": "HMS_Manuals/NightAudit/screenshots/01_Operations/01_Charges_Posting.png",
+          "paragraph": "Night audit ka pehla step — saare in-house rooms pe aaj ka room rent + plan meals (CP/MAP/AP ke hisaab se) automatically post hota hai. Extra charges (restaurant, laundry) already folio me hote hain. Yahan se manual charge bhi post ho sakta hai.",
+          "table": {
+            "headers": ["Field", "Description"],
+            "rows": [
+              ["Date", "Kis date ka charge post karna"],
+              ["Room/Folio", "Kis room pe"],
+              ["Charge Head", "Room Rent / Breakfast / Dinner etc."],
+              ["Amount", "Rate/plan based (auto) ya manual"],
+              ["Post All", "Ek click me saare rooms pe — bulk posting"]
+            ]
+          }
+        },
+        {
+          "title": "2.2 Night Audit Process (Shift+N) — Main Process",
+          "navPath": "Night Audit ▶ Operation ▶ Night Audit Process",
+          "screenshot": "HMS_Manuals/NightAudit/screenshots/01_Operations/02_Night_Audit_Process.png",
+          "paragraph": "Day close ka master wizard — step by step checks chalte hain: pending KOTs, unsettled bills, no-show processing, room charge posting verify, date rollover. Har step pass hone ke baad hi next step hota hai.",
+          "table": {
+            "headers": ["Check/Step", "Kya hota hai"],
+            "rows": [
+              ["Pending KOTs", "Kisi outlet ka KOT bill pending to pehle settle karo"],
+              ["Unsettled bills", "Settlement pending bills clear karo"],
+              ["No-show", "Aaj ki non-arrived reservations no-show mark"],
+              ["Charges verify", "Sab rooms pe rent post hua?"],
+              ["Date Rollover", "Software date +1 — naya business day shuru"]
+            ]
+          }
+        },
+        {
+          "title": "2.3 Reverse Night Audit",
+          "navPath": "Night Audit ▶ Operation ▶ Reverse Night Audit",
+          "screenshot": "HMS_Manuals/NightAudit/screenshots/01_Operations/03_Reverse_Night_Audit.png",
+          "paragraph": "Galti se audit ho gaya (koi charge miss/post galat)? Reverse se pichhle audit rollback hota hai — date wapas aati hai, corrections karo, phir dobara audit. Restricted permission hoti hai (manager/admin).",
+          "steps": [
+            "Reverse karne ki date select karo",
+            "Reason likho (log me save hota hai)",
+            "Confirm — date rollback + charges reverse",
+            "Correction karo → dobara Night Audit Process chalao"
+          ]
+        },
+        {
+          "title": "2.4 Account Posting",
+          "navPath": "Night Audit ▶ Operation ▶ Account Posting",
+          "screenshot": "HMS_Manuals/NightAudit/screenshots/01_Operations/04_Account_Posting.png",
+          "paragraph": "Day ke revenue heads ko finance ke ledger accounts me post karna — room revenue, F&B revenue, tax heads. Ye FO/POS aur Finance module ka bridge hai.",
+          "table": {
+            "headers": ["Field", "Description"],
+            "rows": [
+              ["Revenue Head", "Room Rent, F&B, Laundry etc."],
+              ["Ledger Account", "Finance me kaunse ledger me post hoga"],
+              ["Amount/Period", "Kis date range ka posting"]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "title": "3. Reports Module",
+      "subsections": [
+        {
+          "title": "3.1 Day-End Reports",
+          "navPath": "Night Audit ▶ Reports",
+          "screenshot": "HMS_Manuals/NightAudit/screenshots/02_Reports/02_Daily_Report.png",
+          "caption": "Daily Report — manager ka morning report",
+          "table": {
+            "headers": ["Report", "Kya dikhata hai"],
+            "rows": [
+              ["FOCC Report", "Foreign & Indian guest count — FRRO/police compliance data"],
+              ["Daily Report", "Manager report — occupancy, ARR, revenue, arrivals/departures, collection"],
+              ["Credit Report", "Credit/City ledger balances — company wise pending"],
+              ["Feedback Report", "Guest feedback QR submissions ka summary"],
+              ["Service Request Register", "Guest requests — status wise"],
+              ["Daily Service Summary", "Service performance summary"]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "title": "4. Logs & GST",
+      "subsections": [
+        {
+          "title": "4.1 Audit Logs",
+          "navPath": "Night Audit ▶ Log",
+          "screenshot": "HMS_Manuals/NightAudit/screenshots/03_Log_GST/01_Night_Audit_Log.png",
+          "paragraph": "Night Audit Log: kab kaunsa audit hua, kisne kiya, kitni date aage badhi. Charges Remove Log: kaunsa charge kisne remove kiya — audit control. Ye dono dispute/audit ke waqt evidence hote hain.",
+          "table": {
+            "headers": ["Log", "Use"],
+            "rows": [
+              ["Night Audit Log", "Audit history — date, time, user"],
+              ["Charges Remove Log", "Charge deletion trail — user + reason"]
+            ]
+          }
+        },
+        {
+          "title": "4.2 GSTR-1",
+          "navPath": "Night Audit ▶ GST Reports ▶ GSTR-1",
+          "screenshot": "HMS_Manuals/NightAudit/screenshots/03_Log_GST/03_GSTR1.png",
+          "paragraph": "GSTR-1 format me invoice-wise outward supply data — accountant ise JSON/Excel me export karke GST portal pe file karta hai. B2B (company GSTIN) aur B2C alag sections me aate hain.",
+          "table": {
+            "headers": ["Field", "Description"],
+            "rows": [
+              ["Period", "Kis month ka GSTR-1"],
+              ["B2B/B2C", "Registered vs unregistered guests invoices"],
+              ["Export", "Portal-ready format"]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "title": "5. Appendix — Night Auditor Checklist",
+      "subsections": [
+        {
+          "title": "Night Shift Checklist (Sequence me)",
+          "table": {
+            "headers": ["Order", "Task", "Screen"],
+            "rows": [
+            ["1", "Sab outlets ke unsettled bills clear karo", "Settlement Entry (POS)"],
+            ["2", "Pending KOTs check karo", "Pending KOT (POS)"],
+            ["3", "Aaj ke expected departures settle hue?", "Expected CheckOut (FO)"],
+            ["4", "Non-arrivals (no-show) mark karo", "Reservation List (FO)"],
+            ["5", "Charges posting — rent + meals", "Charges Posting (Shift+C)"],
+            ["6", "Cash/counter summary match", "Cashier Reports"],
+            ["7", "Night Audit Process run karo", "Night Audit (Shift+N)"],
+            ["8", "Daily Report + FOCC print karo", "Reports"],
+            ["9", "Account posting verify", "Account Posting"],
+            ["10", "Log entry check — sab theek?", "Night Audit Log"]
+            ]
+          }
+        },
+        {
+          "title": "Common Scenarios (Training Q&A)",
+          "table": {
+            "headers": ["Scenario", "Kya karo"],
+            "rows": [
+            ["Audit chalte waqt pending KOT dikha", "Rok kar pehle POS me us KOT ka bill/void karo, phir audit resume"],
+            ["Kisi room ka rent post nahi hua", "Reverse audit karo ya manually Charges Posting se us room pe post karo"],
+            ["Date aage badh gayi par koi bill miss hua", "Reverse Night Audit → correction → re-audit"],
+            ["No-show guest baad me aa gaya", "Reservation List me status wapas confirm → check-in (ya nayi booking)"],
+            ["Account posting me revenue mismatch", "Revenue heads vs ledger mapping verify karo — FA Parameter"]
+            ]
+          }
+        },
+        {
+          "title": "Troubleshooting",
+          "table": {
+            "headers": ["Issue", "Cause", "Solution"],
+            "rows": [
+            ["Night audit process ruk jata hai", "Pending bills/KOT", "Wizard ka error message padho — wo screen pe jao clear karo"],
+            ["Date double advance ho gayi", "Audit do baar chala", "Reverse audit se rollback karo"],
+            ["Charges duplicate post hue", "Double posting", "Charges Remove Log dekho, galat remove karo (log me jayega)"],
+            ["GSTR-1 me invoice missing", "Bill date period bahar", "Period select sahi karo"],
+            ["Credit report me company nahi", "Bill direct settle ho gaya", "City ledger posting verify karo"]
+            ]
+          }
+        },
+        {
+          "title": "Contact & Support",
+          "table": {
+            "headers": ["Contact", "Details"],
+            "rows": [
+            ["Website", "https://analysishms.com"],
+            ["Support Email", "support@analysishms.com"],
+            ["Phone", "+91 9161380170"],
+            ["Training Login", "User: sa | Pass: balaji | Property: 103"],
+            ["Software Version", "Analysis HMS 2026-27"]
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

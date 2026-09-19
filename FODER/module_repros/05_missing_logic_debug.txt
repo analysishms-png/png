@@ -1,0 +1,70 @@
+MISSING LOGIC / DEBUG / REPAIR NOTES
+===================================
+
+This file captures missing logic that was not obvious from Python-only startup checks but was revealed by live DB and VB6 behavior comparison.
+
+1) Reservation voucher/site bug
+--------------------------------
+Evidence:
+- VB6 reservation flow uses VType and Site_Code values in docid and queries.
+- Python code had hard-coded defaults and failed to honor caller arguments.
+
+Root cause:
+- make_docid() did not accept vtype override.
+- list_reservations() ignored site argument.
+
+Fix:
+- Updated HMS_py\core\reservation.py to preserve VB6 compat while honoring site and vtype.
+
+Verified:
+- make_docid("KK", "2026", 12, "CHK") -> DKKCHK   2026      12
+- list_reservations(site="KK", top=3) now works with no TypeError.
+
+2) Test collection contamination from FODER
+-------------------------------------------
+Evidence:
+- Running pytest from project root collected legacy VB6 automation scripts under FODER.
+- Those scripts required pywinauto and failed during collection.
+
+Root cause:
+- No pytest config excluded FODER or .venv.
+
+Fix:
+- Added project-level pytest.ini with testpaths and norecursedirs.
+
+Verified:
+- pytest now runs only HMS_py/tests and passes.
+
+3) DB config and startup safety
+-------------------------------
+Evidence:
+- Config had to resolve from project-local Analysis.ini.
+- Hardcoded C:\Drive paths were not reliable.
+
+Fix:
+- db.py load_config() prefers project-local Analysis.ini and resolves safe fallback values.
+
+Verified:
+- SQL Server connection succeeded and live tables were readable.
+
+4) Temp and reports discipline
+------------------------------
+Evidence:
+- The project has Temp and Reports directories and external crystal/report assets.
+- These should be treated as production runtime dependencies, not random cleanup targets.
+
+Rule:
+- Only write temp/report files in project-safe locations.
+- Preserve .rpt and runtime dependencies unless verified intentionally.
+
+5) Business rule safety
+------------------------
+Evidence:
+- Occupied rooms cannot be marked Dirty or Clean without checking RoomOcc.
+- Cancelled bookings cannot be cancelled again.
+- Only test records should be deleted under safe logic.
+
+This is the kind of missing logic that must be implemented with DB checks, not guessed from UI labels.
+
+Final note:
+The project is not yet globally complete, but the real startup path, DB layer, and first business repair are now grounded in evidence and regression-tested.

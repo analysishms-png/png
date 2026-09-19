@@ -1,0 +1,251 @@
+Night audit ka pehla step — saare in-house rooms pe aaj ka room rent + plan meals (CP/MAP/AP ke hisaab se) automatically post hota hai. Extra charges (restaurant, laundry) already folio me hote hain. Yahan se manual charge bhi post ho sakta hai.
+Night audit process ruk jata hai
+Nights badlo to checkout auto-update
+Nights change karne pe checkout auto-update hota hai
+No data in filters
+No-show guest baad me aa gaya
+Non-arrivals (no-show) mark karo
+Non-chargeable KOT ke reasons (complimentary, staff, wastage)
+Non-guest payments ya corrections — expense sheet entry: cash received/paid outside folio, petty cash, rectification entries. Cashier report me dikhta hai.
+Not-cleared cheques + bank charges journal check karo
+OTA booking HMS me nahi aayi
+OTA channels ke credentials + room mapping
+OTA pe rate sync nahi hua
+OTA se booking aayi
+Occupancy forecast — aane wale dinon ka room/sold picture
+Opening Stock screen se correct (year start pe hi)
+Operations module housekeeping ki daily kaafi ka core hai — room status dekhna, kaam assign karna, cleaning track karna, inspection aur lost & found.
+Order aaye to KOT banao
+Original bill select karo
+Outlet Setup me outlet bante hain (name, code, type, printers). Table Master me har outlet ki tables define hoti hain (table no., capacity, zone). Menu Item screen se items aur rates manage hote hain, POS Parameter se module behaviour.
+Outlet Setup me printer path verify karo
+Outlet advance cash record karo — baad me bill me adjust
+Outlet ka live floor map — kaunsi table free, kaunsi pe KOT pending, kaunsi pe bill pending. Captain/waiter isi se tables track karte hain.
+Outstanding Report (bill detail ke saath)
+Overbooking se bachna
+Overtime auto-calculation in salary
+Overtime entry date check karo — salary month ke andar honi chahiye
+P&L me gross me aayega ya nahi
+PF/ESI deduct nahi hua
+PO pending qty check karo / naya PO
+PO screen kholo → vendor select karo
+POS (Point of Sale) module hotel ke saare F&B outlets ka complete billing system hai — Restaurant, Bar, Room Service aur speciality outlets (jaise TADKA).
+
+Analysis HMS me POS ka workflow hai: Guest order deta hai → Captain/Waiter KOT banata hai (Kitchen Order Ticket) → Kitchen item banata hai → Bill generate hota hai → Settlement (Cash/UPI/Card/Room) hota hai. Room settlement me bill direct guest ke folio me post ho jata hai.
+
+POS OUTLETS (Property 103 demo me):
+RES103 = Restaurant | RS103 = Room Service | BA103 = Bar | TAD103 = TADKA (speciality). Har outlet ka apna menu, tables, rates aur settings hote hain — par system same hai.
+POS billing me points redemption (Reward Parameter rules)
+POS ki har entry database me in tables me jaati hai — training me ye samajhna zaroori hai:
+POS se direct folio post
+POS/FO me member no. — auto discount + points
+Party master me GSTIN verify karo
+Payment aaye to settlement entry
+Payment mode select karo — Cash / UPI / Card / City Ledger (company bill)
+Payments record karo
+Rate auto nahi aaya
+Rates verify karo (quotation ke hisaab se)
+Rates/availability/inventory manually push karo
+Re-login karo (sa/balaji/103)
+Reading correction karo
+Reading edit/correct entry (permission ke saath)
+Reason daalo (optional) aur save karo
+Reason likho (log me save hota hai)
+Recharge balance update nahi hua
+Recharge history me entry verify
+Recharge history verify — discrepancy entry karo
+Record karo + venue availability check
+Record save karta hai
+Refresh karo; phir bhi issue ho to Pending KOT report me bill no. check karo
+Remarks add karo
+Rent badhana hai (escalation)
+Rent payment to landlord
+Repeat guest ya company/agent ka profile pehle se bana do — check-in ke time sirf select karna hota hai. Guest profile me name, contact, ID, preferences, GSTIN save hote hain.
+Report me short form
+Reports section housekeeping ke complete analytics deta hai. Sab reports me common filters hain: Date Range, Floor, Room Type, Housekeeper, Status. Export: Print / Excel / PDF.
+Request process karo
+Requisition approve karke issue karo
+Reservation List me booking dikh jati hai (source = OTA)
+Reservation List me date range aur status check karo
+Reservation List me status wapas confirm → check-in (ya nayi booking)
+Reservation List → Cancel → cancellation letter print (policy ke hisaab se advance refund note)
+Reservation edit karke advance entry verify karo
+Reservation entry banti hai (chkoutdate, status)
+Reservation form me advance ya Front Office → Advance Deposit Entry
+Reservation kahan se book hui — Direct, Agent, Corporate, OTA. Business Source se alag: ye booking channel track karta hai.
+Reservation module future bookings ka system hai — guest aaj call kare aur agle hafte ka room book kare, to wo entry yahin hoti hai. Front Office ka extension hai: reservation check-in pe convert hoti hai.
+
+Analysis HMS me Reservation flow: Enquiry → Booking create (guest + room type + dates + advance) → Confirmation → Arrival day pe Front Office me Check-In → No-show/cancellation handling. Channel Manager (EXTRAs me) OTA bookings bhi isi me pull hoti hain.
+Reservation save nahi ho raha
+Reservation se in-room ban jata hai
+Restaurant bill guest ke room me
+Return/coming items ka inward record
+Revenue heads vs ledger mapping verify karo — FA Parameter
+Reverse audit karo ya manually Charges Posting se us room pe post karo
+Reverse audit se rollback karo
+Reverse hone wala record
+Reverse karne ki date select karo
+Reward Parameter me redemption rules dekho
+Rok kar pehle POS me us KOT ka bill/void karo, phir audit resume
+Room No. / Guest Name / Bar Code se bill dhundo
+Room OOO status FO me nahi gaya
+Room OOO/block manage karo FO ke saath
+Room Service ka bill direct guest ke room folio me jata hai — table ki jagah Room No. search hota hai.
+Room Status check — aaj kitne rooms available
+Room Status dekho — category change karo ya HK se cleaning karwao
+Room aapko assigned nahi
+Room active hai ya nahi
+Room assignment me nahi dikh raha
+Room available nahi
+Room block nahi kiya
+Room changes — from/to room, reason, user
+Room charge nahi mil raha
+Room clean, check-in ready
+Room cleaning activities ka complete summary
+Room damages ki register
+Room ke alawa jo charges post ho sakte hain unki list — Laundry, Restaurant, Mini Bar, Extra Bed, Late Checkout. Ye charges guest folio me post hote hain.
+Room ki special features — Sea View, Balcony, Jacuzzi, Connecting Door. Room master me inhe attach karte hain.
+Room ko cleaning chahiye
+Room maintenance ka HK/FO integration — OOO/blocked rooms track
+Room me diye jane wale linen, amenities aur chemicals ki master list.
+Room me koi damage milne par report karo — item description ke saath. Ye Damage Report me aggregate hota hai.
+Room move karo housekeeper me/out
+Room no, check-in date/time, adult/child, rate, plan, expected checkout
+Room plans — EP (sirf room), CP (room + breakfast), MAP (breakfast + dinner), AP (all meals). Plan ka rate structure aur included meals yahin define hote hain.
+Room select karo inspection list se
+Room status 'Vacant Dirty' ho jata hai — HK ko inform karo
+Room status update karke Submit karo
+Room tha to HK ko inform karo — room status update (cleaning ke liye)
+Room type me availability 0
+Room type wise rates set karo (date range wise)
+Room types define karo — Deluxe, Super Deluxe, Suite, Executive. Har category ka rate, occupancy (multiper) aur revenue code yahan set hota hai. Ye saare rates aur occupancy reports ki base hai.
+Room-wise maintenance complaints ka register — Housekeeping ya FO complaint raise karte hain (room pe AC kharab hai etc.), technician status update karta hai (Pending → In Progress → Done). Room block/OOO bhi yahin manage hota hai.
+Rooms automatically distribute karo
+Rooms ko housekeepers ko assign karne ka interface. Left panel me unassigned rooms, right me har housekeeper ka bucket.
+Rooms me mile items ka record: Date Found, Room Number, Item Description, Found By, Custody, Status (Pending/Claimed/Returned), Remarks.
+Row pe click karo
+START CLEANING button click karo (start time record hota hai)
+Saal ke holidays declare karo — leave calculation aur overtime (holiday pe kaam) me use hota hai.
+Saare accounts ka summary — Dr total = Cr total hona chahiye
+Saare charges verify karo — room nights, POS, laundry, minibar
+Saare ledgers ka Dr/Cr closing balance — tally check
+Saari bookings ki list — date range filter ke saath. Yahan se reservation edit, cancel, arrival letter print, ya check-in me convert karo.
+Sab outlets ke unsettled bills clear karo
+Sab rooms pe rent post hua?
+Salary me OT include nahi hua
+Salary me employee nahi dikh raha
+Salary month select karo
+Sale Bill Entry me edit (authorized user hi), Sale Bill Change Report me log aayega
+Sale Bill Entry → Room Charge → foliono verify karo
+Sales register print karo
+Same screens, different outlet code. Room Service me table ki jagah Room No. hota hai aur bill direct room folio me jata hai. Bar me happy hours rates auto-apply hote hain.
+Save + Print — vendor ko bhejo
+Save nahi hua
+Save — folio me difference post ho jayega
+Save/post ke baad hi print hoga
+Sb tenants ka bill generate karo
+Screen load nahi ho raha
+Search click karo — item-wise details load hongi
+Search se check nahi kiya
+Select Assigned Room dropdown me apna room choose karo
+Service Desk / Service Request Register me accept karo
+Service requests QR portal se bhi aati hain (guest portal)
+Service types define karo — Electrical, Plumbing, AC, Carpentry, IT. Complaint category isi se aati hai, department wise assignment ke liye.
+Settle click karo — GST auto-calculate hota hai
+Settle karne wala bill
+Settled bill me galti ho jaye (galat payment mode, amount, ya guest wapas aaye) — to purana settlement reverse karke naya settlement kiya jata hai. Room/folio select karo → purana settlement load → modify → re-settle.
+Settlement me bill nahi dikh raha
+Settlement pending bills clear karo
+Shift handover — cash match karna
+Shift+Q se 2 second me naya reservation form
+Shop Master me shop already hoga — Lease Agreement entry banao
+Shop bill me nahi dikh raha
+Shop/tenant select karo — lease details load
+Shuruaat ka balance
+Sidebar me 'Front Office' expand karo
+Sidebar me 'Point Of Sale' expand karo
+Sidebar me 'Reservations' expand karo
+Skip, baad me try
+Slab-wise monthly summary — filing ke liye
+Software date +1 — naya business day shuru
+Software date advance ka log
+Software ko access karne ke liye pehle login karna hota hai. Housekeeping staff ke liye dedicated login credentials hote hain.
+Source table/outlet se KOT select karo
+Split amounts define karo per account
+Staff ka full name (required)
+Start to end date
+Status No-Show karo — night audit auto bhi karta hai (parameter ke hisaab se)
+Status update nahi ho raha
+Stock In Hand
+Stock In Hand dekho — pehle receive karo
+Stock Issue on Requisition — approved slip pe issue karo (stock out)
+Stock Movement: item ka pura safar (receive → transfer → issue). Kitchen-wise Issue & Sale: kitchen me kya issue hua vs kitna bikaa — variance/wastage analysis. Ye food cost control ka core report hai.
+Stock Register/Summary/In Hand, Purchase Register/Summary
+Stock in hand dekho — min level below items
+Stock issue karo
+Stock report me item nahi dikh raha
+Supervisor cleaned rooms ko inspect karta hai: checklist review → before/after photos verify → remarks add → Approve (room Clean mark) ya Reject (re-cleaning me bhejo).
+Supervisor ka full name
+Supervisor select karo
+Supervisors register karo jo housekeepers ko manage karte hain aur inspection karte hain.
+Suppliers/vendors ki master — naam, address, GSTIN, payment terms, TDS category. Purchase Order aur Purchase Bill me yahin se party select hoti hai.
+System Kaise Kaam Karta Hai (Technical Understanding)
+System entries vs bank statement compare karo
+System guest ke number pe template message bhejta hai
+TB me imbalance
+TDS Report: category-wise TDS deducted — quarterly e-TDS filing ke liye. Cheque Registers: cleared aur not-cleared cheques — bank follow-up ke liye.
+TDS report me entry missing
+Table khali hai
+Table status dekho
+Tax calculate (parameter ke hisaab se)
+Tax calculate hota hai
+Tax galat lag raha hai
+Technician assign karo — status In-Progress
+Template approve karwao (WhatsApp policy) — system me setup
+Template reject ho gaya
+Tenant ka lease record — agreement no., tenant details, monthly rent, escalation %, security deposit, lease start/end dates, CAM charges. Expiry pe renewal follow-up.
+Tenant ka monthly bill — rent + meter consumption + CAM/service charges + GST. Bill print hota hai, tenant ledger me post hota hai. Payment receive hone pe settle hota hai.
+Tenant ka shop mapping
+Tenant shop khali kar raha
+Tentative bookings confirm karo (deadline check)
+Tentative bookings deadline ke saath
+Tentative/confirmed booking hai
+Thorough cleaning — sab surfaces/fixtures
+To store/location select karo
+Top menu me 'Login' link pe click karo
+Trail Group: group-wise TB summary. Detailed Trial Ledger: har ledger ki date-wise transactions with running balance — party statement jaisa.
+Transfer confirm karo
+Trigger event hotel me hota hai (e.g. guest check-in)
+Type karo
+Urgent turnover ke liye quick clean
+Us date ko rooms full
+Us type ka koi vacant clean room nahi
+User/Pass/103 verify karo
+User/Pass/Property verify karo (103)
+Vendor ka actual bill entry — MR ke against bill amount, tax (GST input credit), sundry charges. Ye entry stock value + vendor liability (finance me payable) dono bana deti hai. Duplicate bill check bhi hota hai (same bill no. block).
+Vendor ka naam
+Vendor ko kitna dena hai
+Vendor ledger pe TDS category set karo
+Vendor pe TDS category nahi
+Vendor type ke hisaab se TDS
+Vendor, item, rate, validity — compare karne ke liye
+Venue Status me kisne book kiya dekho
+Venue Status: aaj/ise hafte ka live position. Daily Function Sheet: aaj ke events ki full detail — venue, timings, menu, pax, contact person. Ye sheet kitchen, service, housekeeping sabko morning me milti hai.
+Venue availability me booked dikha
+Venue status live dekho
+Venue/menu/timing fields verify karo
+Verification ka wait kar rahe vouchers
+Voucher audit — verification dashboard se rejected dekho
+Voucher save nahi ho raha
+Walk-In Check In
+Walk-in guests check-in karo
+WalkIn me room list khali
+WhatsApp API provider credentials setup aur message templates. Templates: booking confirmation, check-in instructions, welcome, checkout bill, feedback link, offers. Template me dynamic variables (guest name, room no., dates) hote hain.
+WhatsApp balance khatam
+WhatsApp messages nahi ja rahe
+WhatsApp policy follow karke revise — variable format check
+Wizard ka error message padho — wo screen pe jao clear karo
+Workload equally distribute karo
+Ye front desk ka daily kaam hai — guest aaye to check-in, stay me manage, room status dekho. Training ka core section: har screen pehletry karo demo data ke saath.
+Ye sabse important training flow hai — guest jaate waqt:
+Year + Bill No. se purana bill dekho — items, tax, settlement

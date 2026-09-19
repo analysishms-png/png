@@ -1,0 +1,53 @@
+FRONT OFFICE / CHECK-IN / FOLIO LOGIC
+====================================
+
+VB6 source evidence:
+- fdCheckIn.frm
+- fdRoomChange.frm
+- FdCheckOut.frm
+- fdDisplayFolio.frm
+- fdPostChrg.frm
+- fdPaymentCharge.frm
+- fdAmendEntry.frm
+- FdReSetlement.frm
+
+Related tables:
+- RoomOcc
+- GuestFolio
+- GuestProfile
+- Booking
+- RoomMast
+
+Core flow:
+1. Reservation converts into an active room booking.
+2. Check-in creates RoomOcc row and folio.
+3. Room assignment is linked to room and guest.
+4. Folio is updated with charges, payments, discounts, refunds.
+5. Check-out settles balance and marks occupancy closed.
+
+Key business rules:
+- Occupied room cannot be simply marked dirty/clean without checking RoomOcc.
+- Room move is handled by updating RoomOcc row with NewRoomNo and reason.
+- Reverse checkout is recognized by ChkOutTime / ChkOutDate being null or blank.
+- Charge posting and payment settlement must respect folio balance and tax logic.
+
+Python mapping:
+- HMS_py\core\checkin.py
+- HMS_py\core\checkout.py
+- HMS_py\core\folio.py
+- HMS_py\core\roomstatus.py
+- HMS_py\ui\frontoffice.py
+- HMS_py\ui\checkout_ui.py
+- HMS_py\ui\folio_ui.py
+
+Important debug note:
+The project structure already contains a real front-office data model, but the highest-value missing logic to fix first was the reservation/site issue because it sits at the start of the business flow.
+
+Temp/report logic:
+- Folio and charge posting likely use DB rows more than temporary files.
+- Print/report flow should use existing report templates and the Reports/Temp folders safely.
+- PDF generation should not bypass DB-driven values; all totals must come from the same booking/folio tables.
+
+Reproduction expectation:
+- A valid reservation should be able to convert to check-in and produce RoomOcc + folio records.
+- Room changes and check-out settlement must reflect real DB status and not rely on in-memory-only state.

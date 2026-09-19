@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.venv/
+venv/
+*.egg
+
+# Binaries
+*.exe
+*.ocx
+*.rar
+*.zip
+
+# Temp
+*.log
+*.tmp
+*.pyc
+ErrorLog.Log
+pytest_output.txt
+
+# IDE
+.vscode/
+.idea/

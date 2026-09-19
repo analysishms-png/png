@@ -1,0 +1,1263 @@
+{
+ "module": "FRONT OFFICE MODULE",
+ "subtitle": "Master → Operations → Transactions → Reports → Appendix",
+ "property": "Property: Analysis Demonstration Package (103)",
+ "version": "Version 2026-27  |  Training Manual for Front Desk Staff",
+ "header": "Analysis HMS — Front Office Module Training Manual",
+ "footerText": "Analysis HMS Front Office Training Manual | Property 103 | 2026-27",
+ "output": "HMS_Manuals/FrontOffice/FrontOffice_Module_Training_Manual_English.docx",
+ "imageRoot": ".",
+ "theme": {
+  "color": "3F51B5",
+  "dark": "283593",
+  "light": "E8EAF6"
+ },
+ "sections": [
+  {
+   "title": "1. Introduction & Module Overview",
+   "intro": "Front Office hotel ka sabse important module hai — yahi guest ka pehle contact (check-in) se last contact (check-out & billing) tak ka pura journey manage karta hai.\n\nAnalysis HMS me Front Office Module guest registration, room assignment, folio (bill) management, in-house guest tracking, check-out settlement aur saare related reports handle karta hai. Ye training manual front desk staff ko step-by-step system operate karna sikhata hai.\n\nGUEST JOURNEY (Training Flow):\nReservation/Enquiry → Guest Arrival → Registration (GRC) → Room Assign → Check-In → Stay (charges post, room change, folio merge) → Check-Out → Bill Settlement → Bill Print → Guest History",
+   "subsections": [
+    {
+     "title": "Module Sections Overview",
+     "table": {
+      "headers": [
+       "Section",
+       "Purpose",
+       "Key Screens"
+      ],
+      "rows": [
+       [
+        "MASTER (Setup)",
+        "I bear setup — rooms, plans, sources",
+        "FOM Parameter, Business Source, Guest Status, Charge/Plan Master, Room Category/Master, Booking Source, Building"
+       ],
+       [
+        "OPERATIONS",
+        "Daily guest lifecycle",
+        "Blank GRC, Walk-In Check-In, CheckIn List, Room Status, In-House Status, Add New Profile"
+       ],
+       [
+        "TRANSACTIONS",
+        "Billing & folio",
+        "Bill Reprint, Bill Re-Settlement, Misc Payment, Merge/Reverse Merge Folio"
+       ],
+       [
+        "REPORTS",
+        "Daily register & audit",
+        "CheckIn/CheckOut Register, Cashier, Occupancy, Expected CheckOut, Complimentary, Room Change History"
+       ],
+       [
+        "MIS REPORTS",
+        "Management analytics",
+        "Room Inventory, Sale Summary, Company Contribution, Guest Trail, Revenue Source"
+       ],
+       [
+        "TAX REPORTS",
+        "GST compliance",
+        "FOM Tax Detail"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Keyboard Shortcuts (for Front Desk)",
+     "table": {
+      "headers": [
+       "Shortcut",
+       "Screen",
+       "when to use"
+      ],
+      "rows": [
+       [
+        "Shift + W",
+        "Walk-In Check In",
+        "Guest directly aake room maange"
+       ],
+       [
+        "Shift + S",
+        "Room Status",
+        "Available/dirty rooms dekhne"
+       ],
+       [
+        "Shift + I",
+        "In-House Room Status",
+        "In-house guests ka status"
+       ],
+       [
+        "Shift + H",
+        "Housekeeping Screen",
+        "Coordinate with HK team"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Key Benefits",
+     "bullets": [
+      "Fast walk-in check-in — 2 minute me room assign",
+      "Digital GRC (Guest Registration Card) — paperless",
+      "Live room status — kaunsa room available/dirty/occupied",
+      "Folio-based billing — saare charges ek jagah",
+      "Multiple payment modes with GST auto-calculation",
+      "Merge folio — family/group ek bill me",
+      "Complete guest history — repeat guest recognition",
+      "Night audit integration — automatic day close"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "2. Login & Navigation",
+   "screenshot": "HMS_Manuals/FrontOffice/screenshots/00_Login/01_Login_Page.png",
+   "caption": "Analysis HMS Login Screen — analysishms.com/login",
+   "subsections": [
+    {
+     "title": "Login Steps (Training Exercise 1)",
+     "table": {
+      "headers": [
+       "Step",
+       "Action",
+       "Details"
+      ],
+      "rows": [
+       [
+        "1",
+        "Browser kholo",
+        "https://analysishms.com → Login"
+       ],
+       [
+        "2",
+        "Username",
+        "Front desk user ID (demo: sa)"
+       ],
+       [
+        "3",
+        "Password",
+        "Assigned password (demo: balaji)"
+       ],
+       [
+        "4",
+        "Property ID",
+        "103"
+       ],
+       [
+        "5",
+        "Login click",
+        "Dashboard khul jayega"
+       ],
+       [
+        "6",
+        "Sidebar me 'Front Office' expand karo",
+        "Operations / Reports / MIS / Tax sub-menus"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Front Office Menu Structure",
+     "bullets": [
+      "Front Office → Operations: Blank GRC, WalkIn Check In (Shift+W), CheckIn List, Room Status (Shift+S), Bill Reprint, Bill Re-Settlement, Misc Payment/Rect., Merge Folio, Reverse Merge Folio, In House Room Status (Shift+I), Add New Profile",
+      "Front Office → Reports: CheckIn Register, CheckOut Register, Cashier Report, Cancel Bill Details, Occupancy Report, Expected CheckOut, Complimentary Report, Room Change History",
+      "Front Office → MIS Report: Room Inventory, Sale Summary, Company Contribution, Guest Trail, Company wise Analysis, Revenue Source Report",
+      "Front Office → Tax Reports: FOM Tax Detail",
+      "Main Setup → Front Office: FOM Parameter, Business Source, Guest Status, Charge Master, Plan Master, Room Features, Room Category, Room Master, Booking Source, Building Master"
+     ]
+    },
+    {
+     "title": "System Kaise Kaam Karta Hai (Technical Understanding)",
+     "paragraph": "The entire data of Front Office is saved in the cloud database. For training it is important to understand which table your entry goes into:",
+     "table": {
+      "headers": [
+       "what are you doing",
+       "Database Table",
+       "What store is there?"
+      ],
+      "rows": [
+       [
+        "Guest check-in karo",
+        "roomocc",
+        "Room no, check-in date/time, adult/child, rate, plan, expected checkout"
+       ],
+       [
+        "Guest details bharo",
+        "guestprof",
+        "Name, mobile, email, address, nationality, ID details"
+       ],
+       [
+        "Folio/bill is made",
+        "guestfolio",
+        "Har charge, tax, payment ki ledger entry"
+       ],
+       [
+        "Room setup (admin)",
+        "room_mast",
+        "Room no, category, floor, building, status"
+       ],
+       [
+        "Room types (admin)",
+        "room_cat",
+        "Category name, rate code, occupancy"
+       ],
+       [
+        "Night audit",
+        "nightauditlog",
+        "Software date advance ka log"
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "3. Master Module — Setup & Configuration",
+   "intro": "Master setup happens once — defining the property's rooms, rates, sources and parameters. Front desk needs this only for coordination, entries are mainly administered.",
+   "subsections": [
+    {
+     "title": "3.1 FOM Parameter",
+     "navPath": "Main Setup ▶ Front Office ▶ Fom Parameter",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/01_Master/01_FOM_Parameter.png",
+     "paragraph": "Front Office Module ke global settings — check-in/check-out time, tax rules, folio printing rules, GRC format parameters etc. Ye poore module ka behaviour control karte hain.",
+     "table": {
+      "headers": [
+       "Parameter Group",
+       "What controls?"
+      ],
+      "rows": [
+       [
+        "Check-In / Check-Out Time",
+        "Default arrival/departure time"
+       ],
+       [
+        "Tax Parameters",
+        "GST slabs, tax inclusive/exclusive"
+       ],
+       [
+        "Folio/GRC Params",
+        "Print format, numbering"
+       ],
+       [
+        "Night Audit Settings",
+        "Auto no-show, day close rules"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.2 Business Source",
+     "navPath": "Main Setup ▶ Front Office ▶ Business Source",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/01_Master/02_Business_Source.png",
+     "paragraph": "Where is business coming from – Walk-In, Phone, WhatsApp, OTA (MakeMyTrip, Booking.com), Corporate etc. On every check-in, business source is selected, after which Revenue Source Report is created.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description",
+       "Example"
+      ],
+      "rows": [
+       [
+        "Source Name",
+        "Business source name",
+        "MakeMyTrip"
+       ],
+       [
+        "Code",
+        "Short code",
+        "MMT"
+       ],
+       [
+        "Active",
+        "Enabled/disabled",
+        "Yes"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.3 Guest Status",
+     "navPath": "Main Setup ▶ Front Office ▶ Guest Status",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/01_Master/03_Guest_Status.png",
+     "paragraph": "Guest categories define karo — Regular, VIP, Corporate Guest, Complimentary etc. VIP guest ka special handling aur alerts isi se hote hain.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Status Name",
+        "Regular / VIP / Semi-VIP / Complimentary"
+       ],
+       [
+        "Description",
+        "Is status ka matlab"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.4 Charge Master",
+     "navPath": "Main Setup ▶ Front Office ▶ Charge Master",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/01_Master/04_Charge_Master.png",
+     "paragraph": "Room ke alawa jo charges post ho sakte hain unki list — Laundry, Restaurant, Mini Bar, Extra Bed, Late Checkout. Ye charges guest folio me post hote hain.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description",
+       "Example"
+      ],
+      "rows": [
+       [
+        "Charge Name",
+        "Charge name",
+        "Extra Bed"
+       ],
+       [
+        "Rate",
+        "Default rate",
+        "800.00"
+       ],
+       [
+        "Tax Code",
+        "Kaunsa GST lage",
+        "12%"
+       ],
+       [
+        "Post To",
+        "Folio posting group",
+        "Room Service"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.5 Plan Master",
+     "navPath": "Main Setup ▶ Front Office ▶ Plan Master",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/01_Master/05_Plan_Master.png",
+     "paragraph": "Room plans — EP (sirf room), CP (room + breakfast), MAP (breakfast + dinner), AP (all meals). Plan ka rate structure aur included meals yahin define hote hain.",
+     "table": {
+      "headers": [
+       "Plan",
+       "Full Form",
+       "Includes"
+      ],
+      "rows": [
+       [
+        "EP",
+        "European Plan",
+        "Sirf room"
+       ],
+       [
+        "CP",
+        "Continental Plan",
+        "Room + Breakfast"
+       ],
+       [
+        "MAP",
+        "Modified American Plan",
+        "Room + Breakfast + Dinner"
+       ],
+       [
+        "AP",
+        "American Plan",
+        "Room + Breakfast + Lunch + Dinner"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.6 Room Features",
+     "navPath": "Main Setup ▶ Front Office ▶ Room Features",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/01_Master/06_Room_Features.png",
+     "paragraph": "Room ki special features — Sea View, Balcony, Jacuzzi, Connecting Door. Room master me inhe attach karte hain.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Feature Name",
+        "Sea View / Balcony / Bathtub"
+       ],
+       [
+        "Description",
+        "what is in detail"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.7 Room Category",
+     "navPath": "Main Setup ▶ Front Office ▶ Room Category",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/01_Master/07_Room_Category.png",
+     "paragraph": "Room types define karo — Deluxe, Super Deluxe, Suite, Executive. Har category ka rate, occupancy (multiper) aur revenue code yahan set hota hai. Ye saare rates aur occupancy reports ki base hai.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description",
+       "Example"
+      ],
+      "rows": [
+       [
+        "Category Name",
+        "Room type",
+        "Deluxe"
+       ],
+       [
+        "Short Name",
+        "Report me short form",
+        "DLX"
+       ],
+       [
+        "Rate Code / Rev Code",
+        "Revenue mapping",
+        "R1"
+       ],
+       [
+        "Max Occupancy",
+        "Kitne guests",
+        "2 + 1 child"
+       ],
+       [
+        "No. of Rooms",
+        "Is category ke total rooms",
+        "10"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.8 Room Master",
+     "navPath": "Main Setup ▶ Front Office ▶ Room Master",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/01_Master/08_Room_Master.png",
+     "paragraph": "Every physical room entry — room number, category, floor, building, features and QR code. Room QR generator is also distributed from here (for housekeeper QR login).",
+     "table": {
+      "headers": [
+       "Field",
+       "Description",
+       "Example"
+      ],
+      "rows": [
+       [
+        "Room No.",
+        "Physical room number",
+        "101"
+       ],
+       [
+        "Category",
+        "Room type dropdown",
+        "Deluxe"
+       ],
+       [
+        "Floor",
+        "Kaunsi floor",
+        "1ST FLOOR"
+       ],
+       [
+        "Building",
+        "Building name",
+        "Main Block"
+       ],
+       [
+        "Features",
+        "Attached features",
+        "Sea View, Balcony"
+       ],
+       [
+        "Status",
+        "Room active hai ya nahi",
+        "Active"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.9 Booking Source",
+     "navPath": "Main Setup ▶ Front Office ▶ Booking Source",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/01_Master/09_Booking_Source.png",
+     "paragraph": "Reservation kahan se book hui — Direct, Agent, Corporate, OTA. Business Source se alag: ye booking channel track karta hai.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Source Name",
+        "Direct / Travel Agent / Company"
+       ],
+       [
+        "Type",
+        "Online / Offline"
+       ],
+       [
+        "Commission %",
+        "Agent commission (if any)"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.10 Building Master",
+     "navPath": "Main Setup ▶ Front Office ▶ Building Master",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/01_Master/10_Building_Master.png",
+     "paragraph": "Multi-building property me buildings define karo — Main Block, Annex, Service Wing. Rooms in buildings me distribute hote hain.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Building Name",
+        "Main Block / Annex"
+       ],
+       [
+        "Description",
+        "Building detail"
+       ],
+       [
+        "Floors",
+        "How many floors are there?"
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "4. Operations Module — Guest Lifecycle",
+   "intro": "Ye front desk ka daily kaam hai — guest aaye to check-in, stay me manage, room status dekho. Training ka core section: har screen pehletry karo demo data ke saath.",
+   "subsections": [
+    {
+     "title": "4.1 Blank GRC (Guest Registration Card)",
+     "navPath": "Front Office ▶ Operations ▶ Blank GRC",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/02_Operations/01_Blank_GRC.png",
+     "paragraph": "To print blank registration card — when system is down or immediate paper record of walk-in guest is required. Later this data is entered into the system.",
+     "table": {
+      "headers": [
+       "when to use",
+       "how"
+      ],
+      "rows": [
+       [
+        "System slow/down ho",
+        "Screen kholo → Print"
+       ],
+       [
+        "Training/practice",
+        "Fill out the blank form by printing it."
+       ],
+       [
+        "Backup paper record",
+        "For guest signature"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "4.2 Walk-In Check In (Shift+W) — Most Important Screen",
+     "navPath": "Front Office ▶ Operations ▶ WalkIn Check In",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/02_Operations/02_WalkIn_CheckIn.png",
+     "paragraph": "Guest directly goes to hotel to check-in. This 3-part form is: (1) Stay details above, (2) Room/Rate details in the middle, (3) Guest information below. Complete check-in is done from one screen.",
+     "table": {
+      "headers": [
+       "Section",
+       "Fields",
+       "kya bharna hai"
+      ],
+      "rows": [
+       [
+        "Stay Details",
+        "Check-In date/time, Nights, Checkout, Room, Remarks, Pick Up/Drop",
+        "Nights change karne pe checkout auto-update hota hai"
+       ],
+       [
+        "Source Details",
+        "Company, Booking Source, Business Source, Bill To",
+        "Dropdowns se select karo — na ho to '+' se quick add"
+       ],
+       [
+        "Room Row",
+        "Room Type, Room No, Adult, Child, Plan, Rate, Tax Inc., Leader",
+        "First type → then available room → rate will appear, check tax inclusive toggle"
+       ],
+       [
+        "Add Room",
+        "Multi-room check-in",
+        "Ek guest ko multiple rooms — Add Room button"
+       ],
+       [
+        "Guest Information",
+        "Prefix, Full Name, Mobile, Email, City, State, Country, Nationality, Zip, Address",
+        "Mobile & name required — may be updated later"
+       ],
+       [
+        "Other Information",
+        "WhatsApp at checkout, No Charge Post, Suppress Rate on GRC",
+        "Complimentary room ho to checkbox tick karo"
+       ],
+       [
+        "Buttons",
+        "Cancel / Check In",
+        "Check In click → room assigned, folio banned"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "4.3 CheckIn List",
+     "navPath": "Front Office ▶ Operations ▶ CheckIn List",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/02_Operations/03_CheckIn_List.png",
+     "paragraph": "List of all check-ins for today (or any date) — guest name, room, plan, rate, status. From here you can take any action on in-house guest: room change, amend stay, profile update, view folio, checkout.",
+     "table": {
+      "headers": [
+       "Column/Action",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Guest / Folio No.",
+        "Guest name aur folio number"
+       ],
+       [
+        "Room / Category",
+        "Assigned room"
+       ],
+       [
+        "Arrival / Departure",
+        "Stay dates"
+       ],
+       [
+        "Rate / Plan",
+        "Rate and plan"
+       ],
+       [
+        "Action Icons",
+        "Room Change, Ammend Stay, Profile Edit, Folio, Checkout, Room Key print"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "4.4 Room Status (Shift+S)",
+     "navPath": "Front Office ▶ Operations ▶ Room Status",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/02_Operations/04_Room_Status.png",
+     "paragraph": "Poore property ka live room map — kaunsa room vacant clean, vacant dirty, occupied, out of order. The front desk searches for available rooms during check-in. Meaning of Colors: Green=available, Red=occupied, Yellow=dirty, Gray=OOO.",
+     "table": {
+      "headers": [
+       "Status",
+       "Matlab",
+       "Front Desk Action"
+      ],
+      "rows": [
+       [
+        "Vacant Clean",
+        "Khali + saaf",
+        "Check-in de sakte ho"
+       ],
+       [
+        "Vacant Dirty",
+        "Khali + gandagi",
+        "get cleaning done from HK"
+       ],
+       [
+        "Occupied",
+        "Guest hai",
+        "Check-in nahi de sakte"
+       ],
+       [
+        "Expected Checkout",
+        "Checkout will happen today",
+        "Checkout ke baad allocate karo"
+       ],
+       [
+        "Out of Order",
+        "Repair me",
+        "My engineering follow up"
+       ],
+       [
+        "Blocked",
+        "Reserve/Group block",
+        " sirf authorized release pe"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "4.5 In-House Room Status (Shift+I)",
+     "navPath": "Front Office ▶ Operations ▶ In House Room Status",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/02_Operations/10_InHouse_Room_Status.png",
+     "paragraph": "Now detailed view of all the guests staying in the hotel — room wise guest, folio balance, arrival/departure. With room-wise guest lookup and DND/vacant status.",
+     "table": {
+      "headers": [
+       "Info",
+       "Use"
+      ],
+      "rows": [
+       [
+        "Room-wise guest list",
+        "Who is in which room?"
+       ],
+       [
+        "Folio balance",
+        "How much is the charge/pending?"
+       ],
+       [
+        "Departure date",
+        "Who is there today?"
+       ],
+       [
+        "Guest contact",
+        "For call/message"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "4.6 Add New Profile",
+     "navPath": "Front Office ▶ Operations ▶ Add New Profile",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/02_Operations/11_Add_New_Profile.png",
+     "paragraph": "Repeat guest ya company/agent ka profile pehle se bana do — check-in ke time sirf select karna hota hai. Guest profile me name, contact, ID, preferences, GSTIN save hote hain.",
+     "table": {
+      "headers": [
+       "Profile Type",
+       "What has been saved?"
+      ],
+      "rows": [
+       [
+        "Guest Profile",
+        "Name, mobile, email, address, ID proof, DOB/Anniversary"
+       ],
+       [
+        "Company Profile",
+        "Company name, GSTIN, address, billing contact"
+       ],
+       [
+        "Travel Agent",
+        "Agent name, commission %, contact"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "4.7 Room Change (CheckIn List se)",
+     "paragraph": "Guest room change required: CheckIn List → guest select → Room Change → new room (vacant must be cleaned) → reason → save. The old room is becoming vacant, the folio is being shifted to the new room. History is mentioned in 'Room Change History' report.",
+     "steps": [
+      "CheckIn List kholo",
+      "Guest row pe Room Change action click karo",
+      "Available rooms se naya room select karo",
+      "Reason daalo (optional) aur save karo"
+     ]
+    },
+    {
+     "title": "4.8 Ammend Stay (Date/Rate Change)",
+     "paragraph": "Guest stay extend/shorten kare ya rate change ho: CheckIn List → Ammend Stay → nayi departure date ya rate → update. Nights auto-recalculate hote hain aur folio me room charges adjust hote hain.",
+     "steps": [
+      "CheckIn List → guest select karo",
+      "Amend Stay click karo",
+      "Nayi departure date / rate daalo",
+      "Save — folio me difference post ho jayega"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "5. Transactions Module — Billing & Folio",
+   "intro": "Check-out ke time ya stay ke dauran billing related saare kaam. Folio = guest ka bill ledger, jisme room charges, POS charges, payments sab post hote hain.",
+   "subsections": [
+    {
+     "title": "5.1 Bill Reprint",
+     "navPath": "Front Office ▶ Operations ▶ Bill Reprint",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/02_Operations/05_Bill_Reprint.png",
+     "paragraph": "Old printed bill should be printed again – guest copy should be kept or duplicate should be kept. Year + Bill No. daalo → Search → details → Print. If the bill was wrong then a new bill is made after re-settlement.",
+     "steps": [
+      "For Year select karo",
+      "Bill No. enter karo",
+      "Search — bill details load hongi",
+      "Bill Print click karo (duplicate copy)"
+     ]
+    },
+    {
+     "title": "5.2 Bill Re-Settlement",
+     "navPath": "Front Office ▶ Operations ▶ Bill Re-Settlement",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/02_Operations/06_Bill_ReSettlement.png",
+     "paragraph": "Settled bill me galti ho jaye (galat payment mode, amount, ya guest wapas aaye) — to purana settlement reverse karke naya settlement kiya jata hai. Room/folio select karo → purana settlement load → modify → re-settle.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Room/Folio No.",
+        "Which room's bill has to be re-settled?"
+       ],
+       [
+        "Old Settlement",
+        "Reverse hone wala record"
+       ],
+       [
+        "New Settlement",
+        "Sahi payment mode + amount"
+       ],
+       [
+        "Reason/Narration",
+        "Why re-settled (required for audit)"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "5.3 Misc Payment / Rectification",
+     "navPath": "Front Office ▶ Operations ▶ Misc Payment /Rect.",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/02_Operations/07_Misc_Payment.png",
+     "paragraph": "Non-guest payments ya corrections — expense sheet entry: cash received/paid outside folio, petty cash, rectification entries. Cashier report me dikhta hai.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Voucher Type",
+        "Payment / Receipt / Rectification"
+       ],
+       [
+        "Account Head",
+        "In whose head should I post?"
+       ],
+       [
+        "Amount + Mode",
+        "Cash/UPI/Card/Cheque"
+       ],
+       [
+        "Narration",
+        "Why entry?"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "5.4 Merge Folio",
+     "navPath": "Front Office ▶ Operations ▶ Merge Folio",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/02_Operations/08_Merge_Folio.png",
+     "paragraph": "Combine separate folios of multiple rooms of one guest/family into one — one bill at checkout. E.g. Room 101 and 102 both for the same guest – one bill by merging both the folios.",
+     "steps": [
+      "Merge Folio screen kholo",
+      "By selecting master folio (which has to be merged)",
+      "Merge hone wale folios select karo",
+      "Confirm — saare charges master folio me aa jayenge"
+     ]
+    },
+    {
+     "title": "5.5 Reverse Merge Folio",
+     "navPath": "Front Office ▶ Operations ▶ Reverse Merge Folio",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/02_Operations/09_Reverse_Merge_Folio.png",
+     "paragraph": "Have you merged by mistake? Reverse Merge separates the folios back — charges go back to their original rooms.",
+     "steps": [
+      "Reverse Merge Folio kholo",
+      "Merged folio select karo",
+      "Select which charges to reverse?",
+      "Confirm — folios alag ho jayenge"
+     ]
+    },
+    {
+     "title": "5.6 Check-Out & Settlement Process (Complete Flow)",
+     "paragraph": "Ye sabse important training flow hai — guest jaate waqt:",
+     "steps": [
+      "In-House/CheckIn List se guest ka folio kholo",
+      "Saare charges verify karo — room nights, POS, laundry, minibar",
+      "Discount agar lagna ho — authorized discount % me hi",
+      "Advance/deposit adjust karo",
+      "Payment mode select karo — Cash / UPI / Card / City Ledger (company bill)",
+      "Settle click karo — GST auto-calculate hota hai",
+      "Bill print karo — guest copy + hotel copy",
+      "Room status 'Vacant Dirty' ho jata hai — HK ko inform karo"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "6. Reports Module — Daily Registers",
+   "intro": "Registers of daily operations — for shift handover, audit and record keeping. All reports have date filter + print/export.",
+   "subsections": [
+    {
+     "title": "6.1 Available Reports",
+     "navPath": "Front Office ▶ Reports",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/03_Reports/01_CheckIn_Register.png",
+     "caption": "Check-In Register — Reports module",
+     "table": {
+      "headers": [
+       "Report",
+       "what do you see",
+       "when to use"
+      ],
+      "rows": [
+       [
+        "Check In Register",
+        "Date-wise saare check-ins — guest, room, rate, source",
+        "Daily audit, police records"
+       ],
+       [
+        "Check Out Register",
+        "Date-wise checkouts — bill amount, payment mode",
+        "Cashier reconciliation"
+       ],
+       [
+        "Cashier Report",
+        "Shift-wise cash/UPI/card collection",
+        "Shift handover — cash match karna"
+       ],
+       [
+        "Cancel Bill Details",
+        "Canceled bills – when, when, why",
+        "Audit trail"
+       ],
+       [
+        "Occupancy Report",
+        "Occupancy % — room type/floor wise",
+        "Daily management review"
+       ],
+       [
+        "Expected CheckOut",
+        "Today's expected departures",
+        "Morning duty list"
+       ],
+       [
+        "Complimentary Report",
+        "Free/complimentary rooms — reason ke saath",
+        "Management approval audit"
+       ],
+       [
+        "Room Change History",
+        "Room changes — from/to room, reason, user",
+        "Dispute resolution"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "6.2 Common Report Filters",
+     "table": {
+      "headers": [
+       "Filter",
+       "Options"
+      ],
+      "rows": [
+       [
+        "Date Range",
+        "From–To date"
+       ],
+       [
+        "Shift",
+        "Morning / Evening / Night (Cashier me)"
+       ],
+       [
+        "Room Type",
+        "All / specific category"
+       ],
+       [
+        "Payment Mode",
+        "Cash / UPI / Card / City Ledger"
+       ],
+       [
+        "Export",
+        "Print / Excel / PDF"
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "7. MIS Reports — Management Analytics",
+   "intro": "Management-level analytics — revenue, company contribution, guest behaviour. Owner/GM ke liye.",
+   "subsections": [
+    {
+     "title": "7.1 Available MIS Reports",
+     "navPath": "Front Office ▶ MIS Report",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/04_MIS/02_Sale_Summary.png",
+     "caption": "FOM Sale Summary — revenue breakdown",
+     "table": {
+      "headers": [
+       "Report",
+       "what do you see"
+      ],
+      "rows": [
+       [
+        "Room Inventory",
+        "Category-wise rooms — total, occupied, vacant, OOO, ADR"
+       ],
+       [
+        "Sale Summary (FOM)",
+        "Revenue summary — room rent, extra charges, tax, discounts"
+       ],
+       [
+        "Company Contribution Report",
+        "Which company has how much revenue?"
+       ],
+       [
+        "Guest Trail",
+        "Repeat guest history — visits, spend, preferences"
+       ],
+       [
+        "Company wise Analysis",
+        "Company-wise room nights + revenue + ADR"
+       ],
+       [
+        "Revenue Source Report",
+        "Business source-wise revenue — OTA vs Direct vs Corporate"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "7.2 Tax Reports",
+     "navPath": "Front Office ▶ Tax Reports",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/05_Tax/01_FOM_Tax_Detail.png",
+     "paragraph": "GST compliance report — FOM Tax Detail: date-wise room revenue ka GST breakdown (CGST/SGST), HSN code wise summary. Accountant isse GSTR filing me use karta hai.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Date Range",
+        "By selecting period"
+       ],
+       [
+        "Tax Slab",
+        "0% / 12% (room rate based)"
+       ],
+       [
+        "Output",
+        "CGST + SGST breakdown, invoice-wise detail"
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "8. Appendix — Training Reference",
+   "intro": "Front desk training me quick reference — daily workflow, status codes, troubleshooting aur contact.",
+   "subsections": [
+    {
+     "title": "Front Desk Daily Workflow (Training Timetable)",
+     "table": {
+      "headers": [
+       "Time",
+       "Activity",
+       "Screen"
+      ],
+      "rows": [
+       [
+        "Shift start",
+        "Take over from cashier report, cash count",
+        "Cashier Report"
+       ],
+       [
+        "Morning",
+        "Expected CheckOut dekho — departure list ready",
+        "Expected CheckOut"
+       ],
+       [
+        "Morning",
+        "Room Status check — aaj kitne rooms available",
+        "Room Status (Shift+S)"
+       ],
+       [
+        "All day",
+        "Walk-in guests check-in karo",
+        "WalkIn CheckIn (Shift+W)"
+       ],
+       [
+        "All day",
+        "By posting charges — restaurant, laundry",
+        "Guest Folio"
+       ],
+       [
+        "12:00",
+        "Checkouts process karo — bill settle + print",
+        "CheckIn List → Checkout"
+       ],
+       [
+        "Evening",
+        "Verify today's check-ins/checkouts",
+        "CheckIn/CheckOut Register"
+       ],
+       [
+        "Night",
+        "Cash match karo, shift close",
+        "Cashier Report"
+       ],
+       [
+        "Night audit",
+        "Day close — software date advance",
+        "Night Audit module"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Reservation Screen (Related Module)",
+     "paragraph": "Front Office ka extension — future bookings. Reservation screen me: guest details, room type, dates, advance amount. Expected arrivals isi se Room Status Board aur Expected CheckOut reports me dikhte hain. Quick-add: Company (Alt: reservation/quick-add-company), Travel Agent, City — reservation form se hi bante hain.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Check-In / Checkout Date",
+        "Stay dates"
+       ],
+       [
+        "Room Type + Nos",
+        "Kaunsa room, kitne"
+       ],
+       [
+        "Guest Details",
+        "Name, mobile"
+       ],
+       [
+        "Advance",
+        "Deposit amount — folio me adjust hota hai"
+       ],
+       [
+        "Status",
+        "Confirmed / Tentative / Cancelled"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Folio Me Charge Kaise Post Hota Hai (Data Flow)",
+     "table": {
+      "headers": [
+       "Source",
+       "Charge",
+       "Folio Entry"
+      ],
+      "rows": [
+       [
+        "Room night",
+        "Room rent + plan meals",
+        "Auto — night audit me daily post"
+       ],
+       [
+        "Restaurant bill",
+        "F&B charge — 'Room' pe bill kiya",
+        "POS se direct folio post"
+       ],
+       [
+        "Laundry",
+        "HK laundry memo",
+        "Laundry module se folio post"
+       ],
+       [
+        "Manual",
+        "Minibar, damage, extra bed",
+        "Guest Folio → Post Charge → Charge Master se select"
+       ],
+       [
+        "Advance",
+        "Guest gave first",
+        "Advance Entry — settlement pe adjust"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Troubleshooting (Common Training Issues)",
+     "table": {
+      "headers": [
+       "Issue",
+       "Cause",
+       "Solution"
+      ],
+      "rows": [
+       [
+        "Cannot login",
+        "Wrong credentials/property ID",
+        "User/Pass/103 verify karo"
+       ],
+       [
+        "WalkIn me room list khali",
+        "Us type ka koi vacant clean room nahi",
+        "Room Status dekho — category change karo ya HK se cleaning karwao"
+       ],
+       [
+        "Rate auto nahi aaya",
+        "Plan/category rate not set",
+        "Set rate in Plan Master / Room Category"
+       ],
+       [
+        "Check-In button disabled",
+        "Required fields missing",
+        "Guest name + mobile + room row complete karo"
+       ],
+       [
+        "Bill is not being printed",
+        "Printer ya bill not saved",
+        "First settle/save, then print; printer check"
+       ],
+       [
+        "Folio me galat charge",
+        "Wrong charge posted",
+        "Charge reverse karke sahi post karo — likho narration"
+       ],
+       [
+        "Guest history not visible",
+        "Profile is duplicate",
+        "Use one profile from Add New Profile."
+       ],
+       [
+        "Screen load nahi ho raha",
+        "Session expire",
+        "Re-login karo (sa/balaji/103)"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Contact & Support",
+     "table": {
+      "headers": [
+       "Contact",
+       "Details"
+      ],
+      "rows": [
+       [
+        "Website",
+        "https://analysishms.com"
+       ],
+       [
+        "Support Email",
+        "support@analysishms.com"
+       ],
+       [
+        "Phone",
+        "+91 9161380170"
+       ],
+       [
+        "Training Login",
+        "User: sa | Pass: balaji | Property: 103 (demo data)"
+       ],
+       [
+        "Staff Login",
+        "Admin assigned user for front desk"
+       ],
+       [
+        "Software Version",
+        "Analysis HMS 2026-27"
+       ]
+      ]
+     }
+    }
+   ]
+  }
+ ]
+}

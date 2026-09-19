@@ -1,0 +1,331 @@
+{
+ "module": "MAINTENANCE MODULE",
+ "subtitle": "Master → Operations → Transactions → Reports → Appendix",
+ "property": "Property: Analysis Demonstration Package (103)",
+ "version": "Version 2026-27  |  Training Manual for Engineering/Maintenance Team",
+ "header": "Analysis HMS — Maintenance Module Training Manual",
+ "footerText": "Analysis HMS Maintenance Training Manual | Property 103 | 2026-27",
+ "output": "HMS_Manuals/Maintenance/Maintenance_Module_Training_Manual_English.docx",
+ "imageRoot": ".",
+ "theme": {
+  "color": "546E7A",
+  "dark": "37474F",
+  "light": "ECEFF1"
+ },
+ "sections": [
+  {
+   "title": "1. Introduction & Module Overview",
+   "intro": "Maintenance module hotel ki assets (AC, geyser, lights, lift, generator) aur unke repairs ka system hai. Guest rooms, public areas aur kitchen ke maintenance requests track hote hain.\n\nMAINTENANCE FLOW: Assets register (Location + Asset Master) → Complaint/request aayi (room me ya HK/FO se) → Technician assign → Repair complete → Asset history. Preventive maintenance schedule bhi track hota hai.",
+   "subsections": [
+    {
+     "title": "Module Sections Overview",
+     "table": {
+      "headers": [
+       "Section",
+       "Purpose",
+       "Key Screens"
+      ],
+      "rows": [
+       [
+        "MASTERS",
+        "Assets & locations register",
+        "Location Master, Assets Master"
+       ],
+       [
+        "WORKFLOW",
+        "Repair process",
+        "Maintenance Master (HK linked), Service Master"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Key Benefits",
+     "bullets": [
+      "Asset-wise complete repair history",
+      "Room maintenance ka HK/FO integration — OOO/blocked rooms track",
+      "Service requests QR portal se bhi aati hain (guest portal)",
+      "Preventive maintenance reminders"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "2. Masters Module",
+   "subsections": [
+    {
+     "title": "2.1 Location Master",
+     "navPath": "Maintenance ▶ Location Master",
+     "screenshot": "HMS_Manuals/Maintenance/screenshots/01_Masters/01_Location_Master.png",
+     "paragraph": "Property maintenance locations — Guest Rooms (floor wise), Lobby, Restaurant, Kitchen, Pool, Generator Room, Lifts etc. Complaint and assets are tagged hote at this location.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Location Name",
+        "Room 201 / Main Kitchen / Rooftop"
+       ],
+       [
+        "Type",
+        "Room / Public Area / Back Area"
+       ],
+       [
+        "Active",
+        "Is the location in use or not?"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "2.2 Assets Master",
+     "navPath": "Maintenance ▶ Assets Master",
+     "screenshot": "HMS_Manuals/Maintenance/screenshots/01_Masters/02_Assets_Master.png",
+     "paragraph": "Har asset ka record — AC unit, geyser, TV, kettle, lift, pump. Asset code, location, brand/model, purchase date, warranty, AMC details. Repair history isi pe attach hoti hai. Excel export bhi hai.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Asset Code/Name",
+        "Unique ID + naam (AC-201, Geyser-305)"
+       ],
+       [
+        "Location",
+        "Where is it installed"
+       ],
+       [
+        "Brand/Model/Serial",
+        "Make details"
+       ],
+       [
+        "Purchase/Warranty",
+        "When purchased, how long is the warranty?"
+       ],
+       [
+        "AMC",
+        "Annual maintenance contract details"
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "3. Workflow Module",
+   "subsections": [
+    {
+     "title": "3.1 Maintenance Master (HK Integration)",
+     "navPath": "Maintenance ▶ Maintenance Master (via HK)",
+     "screenshot": "HMS_Manuals/Maintenance/screenshots/02_Workflow/01_Maintenance_Master.png",
+     "paragraph": "Room-wise maintenance complaints ka register — Housekeeping ya FO complaint raise karte hain (room pe AC kharab hai etc.), technician status update karta hai (Pending → In Progress → Done). Room block/OOO bhi yahin manage hota hai.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Room/Location",
+        "where is the problem"
+       ],
+       [
+        "Complaint",
+        "what is the issue"
+       ],
+       [
+        "Reported By",
+        "HK/FO/Guest request"
+       ],
+       [
+        "Assigned To",
+        "Kaunsa technician"
+       ],
+       [
+        "Status",
+        "Pending / In-Progress / Resolved"
+       ],
+       [
+        "Room Status Impact",
+        "Resolve hone tak room OOO/Block"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.2 Service Master",
+     "navPath": "Maintenance ▶ Service Master",
+     "screenshot": "HMS_Manuals/Maintenance/screenshots/02_Workflow/02_Service_Master.png",
+     "paragraph": "Service types define karo — Electrical, Plumbing, AC, Carpentry, IT. Complaint category isi se aati hai, department wise assignment ke liye.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Service Name",
+        "AC Service / Plumbing / Electrical"
+       ],
+       [
+        "Department",
+        "Engineering team mapping"
+       ],
+       [
+        "Active",
+        "Not in use"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.3 Complaint-to-Resolution Flow (Training Flow)",
+     "steps": [
+      "Complaint aayi — HK/FO/Guest portal se (ya khud banao)",
+      "Maintenance Master me complaint register karo — location + service type",
+      "Technician assign karo — status In-Progress",
+      "Material left with to requisition (Inventory module se)",
+      "Repair complete — status Resolved + remarks",
+      "Room tha to HK ko inform karo — room status update (cleaning ke liye)"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "4. Appendix",
+   "subsections": [
+    {
+     "title": "Engineering Team Daily Workflow",
+     "table": {
+      "headers": [
+       "Time",
+       "Activity",
+       "Screen"
+      ],
+      "rows": [
+       [
+        "Morning",
+        "View the list of pending complaints",
+        "Maintenance Master"
+       ],
+       [
+        "All day",
+        "Complaints assign aur resolve karo",
+        "Maintenance Master"
+       ],
+       [
+        "All day",
+        "Room OOO/block manage karo FO ke saath",
+        "Maintenance Master + FO Room Status"
+       ],
+       [
+        "Weekly",
+        "Preventive maintenance (AC filter, pumps)",
+        "Assets Master"
+       ],
+       [
+        "Monthly",
+        "AMC vendor visits track karo",
+        "Assets Master (AMC field)"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Common Scenarios (Training Q&A)",
+     "table": {
+      "headers": [
+       "Scenario",
+       "what to do"
+      ],
+      "rows": [
+       [
+        "Guest room me AC kharab",
+        "Complaint banao, room ko OOO/block mark karo agar repair lamba hai, FO ko batao alternate room dene ko"
+       ],
+       [
+        "Asset repair bahar bheja",
+        "Gate Pass Exit (Inventory) + asset pe remark"
+       ],
+       [
+        "Same complaint baar baar",
+        "Asset history dekho — replacement suggest karo"
+       ],
+       [
+        "Guest portal se request aayi",
+        "Service Desk / Service Request Register me accept karo"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Troubleshooting",
+     "table": {
+      "headers": [
+       "Issue",
+       "Cause",
+       "Solution"
+      ],
+      "rows": [
+       [
+        "Complaint save nahi ho raha",
+        "Location/Service not selected",
+        "Dono mandatory fields bharo"
+       ],
+       [
+        "Asset is not visible in the list",
+        "Wrong location filter",
+        "View by using Location filter 'All'."
+       ],
+       [
+        "Room OOO status FO me nahi gaya",
+        "Room block nahi kiya",
+        "Maintenance se room block karo ya FO se manually"
+       ],
+       [
+        "Excel export khali",
+        "No data in filters",
+        "Date range/location filters check karo"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Contact & Support",
+     "table": {
+      "headers": [
+       "Contact",
+       "Details"
+      ],
+      "rows": [
+       [
+        "Website",
+        "https://analysishms.com"
+       ],
+       [
+        "Support Email",
+        "support@analysishms.com"
+       ],
+       [
+        "Phone",
+        "+91 9161380170"
+       ],
+       [
+        "Training Login",
+        "User: sa | Pass: balaji | Property: 103"
+       ],
+       [
+        "Software Version",
+        "Analysis HMS 2026-27"
+       ]
+      ]
+     }
+    }
+   ]
+  }
+ ]
+}

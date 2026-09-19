@@ -1,0 +1,419 @@
+{
+ "module": "HR / PAYROLL MODULE",
+ "subtitle": "Master → Operations → Transactions → Reports → Appendix",
+ "property": "Property: Analysis Demonstration Package (103)",
+ "version": "Version 2026-27  |  Training Manual for HR Staff",
+ "header": "Analysis HMS — HR/Payroll Module Training Manual",
+ "footerText": "Analysis HMS HR/Payroll Training Manual | Property 103 | 2026-27",
+ "output": "HMS_Manuals/HRPayroll/HRPayroll_Module_Training_Manual_English.docx",
+ "imageRoot": ".",
+ "theme": {
+  "color": "455A64",
+  "dark": "263238",
+  "light": "ECEFF1"
+ },
+ "sections": [
+  {
+   "title": "1. Introduction & Module Overview",
+   "intro": "HR/Payroll module employees ka pura record rakhta hai — joining se salary tak. Hotel staff (front desk, housekeeping, kitchen, security) ki details, leave, overtime, loan/advance aur monthly salary generation yahin se hoti hai.\n\nHR FLOW: Employee join karo (Employee Master) → Attendance/Leave/Overtime entries chalti rehti → Month end pe Salary Creation (earnings - deductions = net pay) → Loan/advance adjustments salary me.",
+   "subsections": [
+    {
+     "title": "Module Sections Overview",
+     "table": {
+      "headers": [
+       "Section",
+       "Purpose",
+       "Key Screens"
+      ],
+      "rows": [
+       [
+        "SETUP (Main Setup)",
+        "HR parameters & employee masters",
+        "HR Parameter, Designation, Employee Category, Employee Master, Holiday Master"
+       ],
+       [
+        "HR/ATTENDANCE ENTRIES",
+        "Daily HR records",
+        "Leave Entry, Overtime Entry"
+       ],
+       [
+        "PAYROLL ENTRIES",
+        "Salary processing",
+        "Loan & Advance Entry, Salary Creation"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Key Benefits",
+     "bullets": [
+      "Central employee database — department/designation wise",
+      "Leave balance tracking with holidays calendar",
+      "Overtime auto-calculation in salary",
+      "Loan/advance EMI recovery from salary",
+      "Monthly salary generation — print/payslip ready"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "2. Setup Module — Employee Masters",
+   "subsections": [
+    {
+     "title": "2.1 HR Parameter",
+     "navPath": "Main Setup ▶ HR/Payroll ▶ HR Parameter",
+     "screenshot": "HMS_Manuals/HRPayroll/screenshots/01_Setup/01_HR_Parameter.png",
+     "paragraph": "Global rules of Payroll — salary heads (Basic, HRA, PF, ESI), pay period, rounding, PF/ESI percentages. This is the basis of salary calculation.",
+     "table": {
+      "headers": [
+       "Setting",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Pay Heads",
+        "Earning heads (Basic/HRA/OT) & deduction heads (PF/ESI/Advance)"
+       ],
+       [
+        "PF/ESI %",
+        "Statutory deduction percentages"
+       ],
+       [
+        "Pay Period",
+        "Monthly — 1st to last / other cycle"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "2.2 Designation & Employee Category",
+     "navPath": "Main Setup ▶ HR/Payroll ▶ Designation / Emp. Category",
+     "screenshot": "HMS_Manuals/HRPayroll/screenshots/01_Setup/02_Designation_Master.png",
+     "paragraph": "Designation (Manager, Supervisor, Housekeeper, Chef) aur Category (Permanent, Contract, Part-time, Probation) masters — employee entry me yahi select hota hai.",
+     "table": {
+      "headers": [
+       "Master",
+       "Examples"
+      ],
+      "rows": [
+       [
+        "Designation",
+        "GM, Front Office Manager, Housekeeper, Cook, Security Guard"
+       ],
+       [
+        "Employee Category",
+        "Permanent / Contract / Probation / Part-time"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "2.3 Employee Master",
+     "navPath": "Main Setup ▶ HR/Payroll ▶ Employee Master",
+     "screenshot": "HMS_Manuals/HRPayroll/screenshots/01_Setup/04_Employee_Master.png",
+     "paragraph": "Har employee ka complete record — personal details, joining date, department, designation, salary structure, bank details, documents. Excel import/export bhi hota hai.",
+     "table": {
+      "headers": [
+       "Field Group",
+       "Fields"
+      ],
+      "rows": [
+       [
+        "Personal",
+        "Name, DOB, gender, mobile, address, ID proof"
+       ],
+       [
+        "Job",
+        "Department, designation, category, joining date, shift"
+       ],
+       [
+        "Salary",
+        "Basic, HRA, other heads, PF/ESI applicable"
+       ],
+       [
+        "Bank",
+        "Account no., IFSC (for transfer)"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "2.4 Holiday Master",
+     "navPath": "Main Setup ▶ HR/Payroll ▶ Holiday Master",
+     "screenshot": "HMS_Manuals/HRPayroll/screenshots/01_Setup/05_Holiday_Master.png",
+     "paragraph": "Saal ke holidays declare karo — leave calculation aur overtime (holiday pe kaam) me use hota hai.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Holiday Date",
+        "Kis din holiday"
+       ],
+       [
+        "Description",
+        "Diwali / Holi / Company Day"
+       ],
+       [
+        "Type",
+        "Paid / Restricted"
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "3. Entries Module — Leave & Overtime",
+   "subsections": [
+    {
+     "title": "3.1 Leave Entry",
+     "navPath": "HR/Payroll ▶ Attendance Entries ▶ Leave",
+     "screenshot": "HMS_Manuals/HRPayroll/screenshots/02_Entries/01_Leave_Entry.png",
+     "paragraph": "Employee ki leave record karo — date range, leave type (CL/EL/SL/LWP). Salary creation me approved leave ka impact automatic hota hai (LWP = deduction).",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Employee",
+        "Who is on leave?"
+       ],
+       [
+        "From–To Date",
+        "Leave period"
+       ],
+       [
+        "Leave Type",
+        "CL / EL / SL / Unpaid (LWP)"
+       ],
+       [
+        "Status",
+        "Applied / Approved / Rejected"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.2 Overtime Entry",
+     "navPath": "HR/Payroll ▶ Attendance Entries ▶ Overtime Entry",
+     "screenshot": "HMS_Manuals/HRPayroll/screenshots/02_Entries/02_Overtime_Entry.png",
+     "paragraph": "Extra hours record — employee, date, OT hours. Earning is added to the salary from OT rate (parameter based).",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Employee + Date",
+        "Kaun, kis din OT kiya"
+       ],
+       [
+        "OT Hours",
+        "Kitne ghante"
+       ],
+       [
+        "OT Rate",
+        "Per hour rate (auto/manual)"
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "4. Payroll Module",
+   "subsections": [
+    {
+     "title": "4.1 Loan & Advance Entry",
+     "navPath": "HR/Payroll ▶ Payroll Entries ▶ Loan Advance Entry",
+     "screenshot": "HMS_Manuals/HRPayroll/screenshots/03_Payroll/01_Loan_Advance.png",
+     "paragraph": "Loan or advance given to employee — amount, EMIs, recovery start month. EMI is auto-deducted in salary creation till it is completed.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Employee",
+        "Kaunsa staff"
+       ],
+       [
+        "Loan/Advance Amount",
+        "How much did you give?"
+       ],
+       [
+        "EMI Amount / Nos",
+        "How much will be recovered every month?"
+       ],
+       [
+        "Start Month",
+        "From what salary does recovery start?"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "4.2 Salary Creation — Month End Process",
+     "navPath": "HR/Payroll ▶ Payroll Entries ▶ Salary Creation",
+     "screenshot": "HMS_Manuals/HRPayroll/screenshots/03_Payroll/02_Salary_Creation.png",
+     "paragraph": "Generate monthly salary by: selecting month → system auto-calculates earnings (basic/HRA + OT) and deductions (leave LWP, PF/ESI, loan EMI) → verify → Save/Post. Payslips are ready to be printed. Salary expense posting is also done in Finance.",
+     "steps": [
+      "Salary month select karo",
+      "Employees load karo (department/category filter)",
+      "Leave + OT + Loan entries verify karo (auto-filled)",
+      "Manual adjustments karo (bonus/incentive ho to)",
+      "Save & Post — payslip print / bank transfer list"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "5. Appendix",
+   "subsections": [
+    {
+     "title": "HR Monthly Calendar",
+     "table": {
+      "headers": [
+       "When",
+       "Task",
+       "Screen"
+      ],
+      "rows": [
+       [
+        "Daily",
+        "Leave/OT entries update karo",
+        "Leave / Overtime Entry"
+       ],
+       [
+        "Month end",
+        "Loan EMIs verify",
+        "Loan & Advance Entry"
+       ],
+       [
+        "1st-3rd",
+        "Salary creation + payslips",
+        "Salary Creation"
+       ],
+       [
+        "As needed",
+        "Let's add employees",
+        "Employee Master"
+       ],
+       [
+        "Yearly",
+        "Holiday calendar declare karo",
+        "Holiday Master"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Common Scenarios (Training Q&A)",
+     "table": {
+      "headers": [
+       "Scenario",
+       "what to do"
+      ],
+      "rows": [
+       [
+        "Employee ne adhi mahine kaam kiya",
+        "Leave type LWP daalo utne din — salary auto-adjust"
+       ],
+       [
+        "He gave advance to the employee.",
+        "Loan/Advance entry – by setting EMI"
+       ],
+       [
+        "Salary me OT include nahi hua",
+        "Overtime entry date check karo — salary month ke andar honi chahiye"
+       ],
+       [
+        "Naya earning head chahiye (bonus)",
+        "Add head in HR Parameter, then manual entry in salary."
+       ],
+       [
+        "Employee exited",
+        "Employee master me inactive + leaving date — payroll se auto-remove"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Troubleshooting",
+     "table": {
+      "headers": [
+       "Issue",
+       "Cause",
+       "Solution"
+      ],
+      "rows": [
+       [
+        "Salary me employee nahi dikh raha",
+        "Inactive/wrong category",
+        "Employee Master me status verify"
+       ],
+       [
+        "PF/ESI deduct nahi hua",
+        "Employee pe flag off",
+        "Employee entry me PF/ESI applicable check"
+       ],
+       [
+        "Loan EMI has been reduced till now.",
+        "Duplicate loan entry",
+        "Loan entry edit — EMI schedule verify"
+       ],
+       [
+        "Payslip print blank",
+        "Salary not saved",
+        "Save/post ke baad hi print hoga"
+       ],
+       [
+        "Leave balance wrong",
+        "Purani leaves not entered",
+        "Backdate leave entries karo (permission)"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Contact & Support",
+     "table": {
+      "headers": [
+       "Contact",
+       "Details"
+      ],
+      "rows": [
+       [
+        "Website",
+        "https://analysishms.com"
+       ],
+       [
+        "Support Email",
+        "support@analysishms.com"
+       ],
+       [
+        "Phone",
+        "+91 9161380170"
+       ],
+       [
+        "Training Login",
+        "User: sa | Pass: balaji | Property: 103"
+       ],
+       [
+        "Software Version",
+        "Analysis HMS 2026-27"
+       ]
+      ]
+     }
+    }
+   ]
+  }
+ ]
+}

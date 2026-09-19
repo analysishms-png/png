@@ -1,0 +1,50 @@
+FOUNDATION MODULE LOGIC
+======================
+
+VB6 source evidence:
+- frmPassword.frm
+- frmCompany.frm
+- MDIForm1.frm
+- UserMast.frm
+- Module1.bas / MainLib.bas / Functions.bas
+
+Business flow:
+1. User opens application.
+2. Login dialog asks for User Name + Password.
+3. Python validates username against UserMast.
+4. If user inactive, reject.
+5. If password matches decrypted stored password, allow login.
+6. After login, company selection is shown.
+7. Main shell loads menu registry and module list from Analysis.ini / DB.
+
+Database behavior:
+- Table: UserMast
+- Keys used: USER_NAME, PASSWD, ActiveYN, LABEL, ShortName
+- Logic: decrypt stored password then compare with typed password using uppercase/trim comparison.
+- Business rule: inactive users cannot log in.
+
+Python implementation status:
+- HMS_py\core\auth.py
+- HMS_py\core\company.py
+- HMS_py\core\db.py
+- HMS_py\ui\shell.py
+
+Evidence discovered:
+- Stored password is encrypted in VB6 style with seed + 27 byte shift.
+- Decryption logic matches live DB values.
+- Example found: SA password decrypts to empty string in live DB, which is valid for the installed system.
+- Login logic returns (bool, message) and matches DB semantics.
+
+Missing or risky logic:
+- Do not blindly trust same login logic for all DB variants; always check ActiveYN first.
+- Site/company data must not be assumed from a single INI file when DB has company rows available.
+- The app should prefer project-local Analysis.ini and then DB fallback.
+
+Debug / validation notes:
+- Verified live DB connectivity with pyodbc.
+- Verified UserMast rows and decrypted password values.
+- Verified login check returns correct result for active/inactive records.
+
+Implementation lesson:
+Foundation logic is correct only if it matches VB6 semantics and live DB state.
+This is why the project must preserve config-order and decryption parity.

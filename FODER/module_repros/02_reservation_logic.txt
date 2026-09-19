@@ -1,0 +1,61 @@
+RESERVATION MODULE LOGIC
+========================
+
+VB6 source evidence:
+- RsBookingEntry.frm
+- RsBookingEntryAdvance.frm
+- RrRoomReservation.frm
+- FrmBookingInquiry.frm
+- FrmReservationStatus.frm
+- rRepReserv.frm
+
+Database tables involved:
+- Booking
+- BookingLog
+- BookingCancelDetails
+- Voucher_Type
+
+Business flow:
+1. User opens reservation screen.
+2. Guest details are entered.
+3. Reservation record is created with Document ID and booking number.
+4. Date range validity is enforced: ArrDate <= DepDate.
+5. Booking status is kept as Confirm or similar in live data.
+6. Booking insert writes audit record in BookingLog.
+7. Update modifies Booking but keeps same DocId/BookNo.
+8. Cancellation marks Cancel='Y' and stores cancellation detail row.
+9. Safety: only PYT* test drafts can be deleted.
+
+Key logic points:
+- Booking number is generated as MAX(BookNo)+1 for site+vprefix.
+- DocId format is built like: D + Site + VType + Vprefix + BookNo.
+- VB6-compatible DocId is not arbitrary; it follows fixed-width padding.
+- Audit fields use U_Name, U_EntDt, U_AE, LogSite_Code.
+
+Missing logic discovered and repaired:
+Root cause:
+- Reservation DocId creation was hard-coded to RES.
+- list_reservations() ignored site and vprefix arguments.
+- This breaks multi-site and voucher-type-correct behavior.
+
+Reproduction:
+- make_docid("KK", "2026", 12, "CHK") previously failed or produced a RES-based ID.
+- list_reservations(site="KK", top=3) raised unexpected keyword error.
+
+Repair:
+- Updated HMS_py\core\reservation.py to accept site/vtype/vprefix-aware values.
+- DocId generation now honors caller-supplied vtype while preserving VB6 width/layout.
+- Listing query is filtered by Site_Code and Vprefix.
+
+Debug evidence:
+- Live Booking rows confirmed insertion/update pattern works with current DB schema.
+- Insert draft with PYT_SMOKE in a rollback transaction succeeded.
+- Booking row was retrieved successfully and rolled back safely.
+
+Temp/report notes:
+- Reservation data is primarily DB-backed, not file-based.
+- Temp usage is limited to working/report staging when reports are generated.
+- Do not create or overwrite report temp files without checking report service design.
+
+Expected final behavior:
+- Reservation insert/edit/cancel flows operate on real booking data with proper audit trail and site logic.

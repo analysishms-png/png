@@ -1,0 +1,166 @@
+{
+  "module": "MALL MANAGEMENT MODULE",
+  "subtitle": "Masters · Operations · Appendix",
+  "property": "Property: Analysis Demonstration Package (103)",
+  "version": "Version 2026-27  |  Training Manual for Mall/Facility Staff",
+  "header": "Analysis HMS — Mall Management Module Training Manual",
+  "footerText": "Analysis HMS Mall Management Training Manual | Property 103 | 2026-27",
+  "output": "HMS_Manuals/MallManagement/MallManagement_Module_Training_Manual.docx",
+  "imageRoot": ".",
+  "theme": { "color": "F9A825", "dark": "F57F17", "light": "FFF8E1" },
+  "sections": [
+    {
+      "title": "1. Introduction & Module Overview",
+      "intro": "Mall Management module hotel ke attached mall/commercial complex ke shops aur tenants manage karta hai — lease agreements, monthly utility billing (electricity/water meter reading), service charges.\n\nMALL FLOW: Shops register (Shop Master) → Lease agreement (tenant, rent, deposit, terms) → Daily meter reading (electricity/water) → Monthly bill generation (rent + utilities + service charges) → Collection tracking.",
+      "subsections": [
+        {
+          "title": "Module Sections Overview",
+          "table": {
+            "headers": ["Section", "Purpose", "Key Screens"],
+            "rows": [
+              ["MASTER (Main Setup)", "Shops & leases", "Shop Master, Charge Master, Unit Type, Lease Agreement, Facility Sundry, Tenant Location"],
+              ["OPERATION", "Monthly billing cycle", "Service Bill Entry, Daily Meter Reading"]
+            ]
+          }
+        },
+        {
+          "title": "Key Benefits",
+          "bullets": [
+            "Shop-wise tenant ledger — rent, deposit, dues",
+            "Meter reading based utility billing — no disputes",
+            "Lease renewal reminders via agreement expiry",
+            "Facility charges (CAM) automatic billing"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "2. Master Module — Shops & Leases",
+      "subsections": [
+        {
+          "title": "2.1 Shop Master",
+          "navPath": "Main Setup ▶ Mall Management ▶ Shop Master",
+          "screenshot": "HMS_Manuals/MallManagement/screenshots/02_Master/01_Shop_Master.png",
+          "paragraph": "Mall ki saari shops/shops units register karo — shop no., floor, area (sqft), type. Lease agreement isi shop pe attach hota hai. Charge Master me facility charges (CAM) define hote hain, Unit Type me shop units, Tenant Location me tenant mapping.",
+          "table": {
+            "headers": ["Field", "Description"],
+            "rows": [
+              ["Shop No./Name", "Unit identifier"],
+              ["Floor/Zone", "Kahan hai"],
+              ["Area (sqft)", "Charge calculation base"],
+              ["Meter Nos.", "Electricity/water meter mapping"],
+              ["Charge Master", "CAM/service charge heads"],
+              ["Unit Type", "Shop/food court/kiosk types"],
+              ["Tenant Location", "Tenant ka shop mapping"]
+            ]
+          }
+        },
+        {
+          "title": "2.2 Lease Agreement Entry",
+          "navPath": "Main Setup ▶ Mall Management ▶ Lease Agreement",
+          "screenshot": "HMS_Manuals/MallManagement/screenshots/02_Master/02_Lease_Agreement.png",
+          "paragraph": "Tenant ka lease record — agreement no., tenant details, monthly rent, escalation %, security deposit, lease start/end dates, CAM charges. Expiry pe renewal follow-up.",
+          "table": {
+            "headers": ["Field", "Description"],
+            "rows": [
+              ["Shop + Tenant", "Kaunsi shop, kaunsa tenant"],
+              ["Monthly Rent", "Base rent + escalation terms"],
+              ["Deposit", "Security amount"],
+              ["Lease Period", "Start to end date"],
+              ["Charges", "CAM/maintenance + utility billing rules"]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "title": "3. Operations Module",
+      "subsections": [
+        {
+          "title": "3.1 Daily Meter Reading",
+          "navPath": "Mall Management ▶ Operation ▶ Daily Meter Reading",
+          "screenshot": "HMS_Manuals/MallManagement/screenshots/01_Operations/02_Daily_Meter_Reading.png",
+          "paragraph": "Har shop ke electricity/water meters ka reading daily/monthly enter karo — consumption units calculate hote hain pichhle reading se. Billing inhi readings se banta hai.",
+          "table": {
+            "headers": ["Field", "Description"],
+            "rows": [
+              ["Shop/Meter", "Kaunsa meter"],
+              ["Previous/Current Reading", "Consumption auto-calculate"],
+              ["Units + Rate", "Kitne unit, kis rate se"],
+              ["Date", "Reading date"]
+            ]
+          }
+        },
+        {
+          "title": "3.2 Service Bill Entry",
+          "navPath": "Mall Management ▶ Operation ▶ Service Bill Entry",
+          "screenshot": "HMS_Manuals/MallManagement/screenshots/01_Operations/01_Service_Bill_Entry.png",
+          "paragraph": "Tenant ka monthly bill — rent + meter consumption + CAM/service charges + GST. Bill print hota hai, tenant ledger me post hota hai. Payment receive hone pe settle hota hai.",
+          "steps": [
+            "Shop/tenant select karo — lease details load",
+            "Meter consumption add karo (readings se)",
+            "Rent + CAM + sundry charges verify",
+            "GST apply — Save & Print bill",
+            "Payment aaye to settlement entry"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "4. Appendix",
+      "subsections": [
+        {
+          "title": "Mall Staff Monthly Cycle",
+          "table": {
+            "headers": ["When", "Task", "Screen"],
+            "rows": [
+            ["Daily/Weekly", "Meter readings enter karo", "Daily Meter Reading"],
+            ["Month start", "Sb tenants ka bill generate karo", "Service Bill Entry"],
+            ["Month start", "Rent/lease renewals due check", "Lease Agreement"],
+            ["As received", "Payments record karo", "Service Bill Entry (settle)"],
+            ["Monthly", "Defaulters list nikalo — follow-up", "Tenant ledgers"]
+          ]
+          }
+        },
+        {
+          "title": "Common Scenarios (Training Q&A)",
+          "table": {
+            "headers": ["Scenario", "Kya karo"],
+            "rows": [
+            ["Naya tenant aaya", "Shop Master me shop already hoga — Lease Agreement entry banao"],
+            ["Meter galat reading daal diya", "Reading edit/correct entry (permission ke saath)"],
+            ["Rent badhana hai (escalation)", "Lease Agreement me escalation % — auto apply hota hai ya manual revise"],
+            ["Tenant shop khali kar raha", "Lease terminate + deposit refund entry + final bill"],
+            ["Bill me GST alag chahiye (shop type wise)", "Charge Master me tax code mapping sahi karo"]
+            ]
+          }
+        },
+        {
+          "title": "Troubleshooting",
+          "table": {
+            "headers": ["Issue", "Cause", "Solution"],
+            "rows": [
+            ["Bill me meter units 0 aa rahe", "Reading missing", "Daily Meter Reading pehle complete karo"],
+            ["Shop bill me nahi dikh raha", "Lease inactive/expired", "Lease Agreement dates verify karo"],
+            ["Consumption negative", "Meter rollover/galat entry", "Reading correction karo"],
+            ["Deposit adjust nahi hua", "Manual adjustment needed", "Final bill me deposit adjustment line daalo"]
+            ]
+          }
+        },
+        {
+          "title": "Contact & Support",
+          "table": {
+            "headers": ["Contact", "Details"],
+            "rows": [
+            ["Website", "https://analysishms.com"],
+            ["Support Email", "support@analysishms.com"],
+            ["Phone", "+91 9161380170"],
+            ["Training Login", "User: sa | Pass: balaji | Property: 103"],
+            ["Software Version", "Analysis HMS 2026-27"]
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

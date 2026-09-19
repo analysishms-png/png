@@ -1,0 +1,166 @@
+{
+  "module": "MEMBERS MANAGEMENT MODULE",
+  "subtitle": "Members · Smart Card · Appendix",
+  "property": "Property: Analysis Demonstration Package (103)",
+  "version": "Version 2026-27  |  Training Manual for Membership/Club Staff",
+  "header": "Analysis HMS — Members Management Training Manual",
+  "footerText": "Analysis HMS Members Management Training Manual | Property 103 | 2026-27",
+  "output": "HMS_Manuals/MembersMgmt/MembersMgmt_Module_Training_Manual.docx",
+  "imageRoot": ".",
+  "theme": { "color": "00695C", "dark": "004D40", "light": "E0F2F1" },
+  "sections": [
+    {
+      "title": "1. Introduction & Module Overview",
+      "intro": "Members Management module hotel ke loyalty/club membership program ka system hai — members register karna, unhe smart card dena, card me recharge/load karna, aur membership facilities (restaurant discount, room discount) dena.\n\nMEMBER FLOW: Category banao (Silver/Gold/Platinum) → Member register karo → Smart Card initialize + issue → Card recharge → Member property me aaye to card se bill/pay karo → Reward points accumulate.",
+      "subsections": [
+        {
+          "title": "Module Sections Overview",
+          "table": {
+            "headers": ["Section", "Purpose", "Key Screens"],
+            "rows": [
+              ["MEMBERS", "Membership setup", "Member Category, Member Master"],
+              ["SMART CARD", "Card lifecycle", "Card Initialization, Card Registration, Card Recharge, Card Refund"],
+              ["POS LINK", "Card usage", "POS Reward Points + member billing"]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "title": "2. Members Setup",
+      "subsections": [
+        {
+          "title": "2.1 Member Category",
+          "navPath": "Members ▶ Member Category",
+          "screenshot": "HMS_Manuals/MembersMgmt/screenshots/01_Members/01_Member_Category.png",
+          "paragraph": "Membership tiers define karo — fees, validity, discounts (room/F&B), reward point earning rate. Har category ke benefits alag ho sakte hain.",
+          "table": {
+            "headers": ["Field", "Description"],
+            "rows": [
+              ["Category Name", "Silver / Gold / Platinum"],
+              ["Membership Fee", "Annual/joining fee"],
+              ["Validity", "Kitne saal/months"],
+              ["Discounts", "Room % / F&B % member discount"],
+              ["Points Rate", "Rs 100 pe kitne reward points"]
+            ]
+          }
+        },
+        {
+          "title": "2.2 Member Master",
+          "navPath": "Members ▶ Member Master",
+          "screenshot": "HMS_Manuals/MembersMgmt/screenshots/01_Members/02_Member_Master.png",
+          "paragraph": "Member ka record — personal details, membership no., category, validity, family members, photo. Facility master me member ke available facilities define hote hain.",
+          "table": {
+            "headers": ["Field", "Description"],
+            "rows": [
+              ["Member No.", "Unique membership ID"],
+              ["Name + Contact", "Personal details"],
+              ["Category", "Silver/Gold etc."],
+              ["Validity", "Expiry date — renewal reminder"],
+              ["Status", "Active / Expired / Cancelled"]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "title": "3. Smart Card Module",
+      "subsections": [
+        {
+          "title": "3.1 Card Initialization",
+          "navPath": "Smart Card ▶ Card Initialization",
+          "screenshot": "HMS_Manuals/MembersMgmt/screenshots/02_SmartCard/01_Card_Initialization.png",
+          "paragraph": "Naye blank cards system me register karo — card number/serial. Ye inventory of cards hai jo issue honge.",
+          "table": {
+            "headers": ["Field", "Description"],
+            "rows": [
+              ["Card Serial No.", "Physical card ka number"],
+              ["Card Type", "Member / Prepaid / Staff"],
+              ["Status", "Available / Issued / Blocked / Lost"]
+            ]
+          }
+        },
+        {
+          "title": "3.2 Card Registration (Issue to Member)",
+          "navPath": "Smart Card ▶ Card Registration",
+          "screenshot": "HMS_Manuals/MembersMgmt/screenshots/02_SmartCard/02_Card_Registration.png",
+          "paragraph": "Card ko member se link karo — member select karo, card serial assign karo. Ab member is card se identify hoga aur POS/Front Office me discount/points milega.",
+          "steps": [
+            "Member select karo (master me registered)",
+            "Available card serial assign karo",
+            "Activate — card member ke naam pe live"
+          ]
+        },
+        {
+          "title": "3.3 Card Recharge & Refund",
+          "navPath": "Smart Card ▶ Card Recharge / Card Refund",
+          "screenshot": "HMS_Manuals/MembersMgmt/screenshots/02_SmartCard/03_Card_Recharge.png",
+          "paragraph": "Prepaid cards pe amount load karo (recharge — cash/UPI received). Member card se kharch karta hai — balance deduct hota hai. Membership cancel ho to remaining balance refund (Card Refund screen se). Card Refund screen: membership surrender pe balance refund + card deactivate — audit ke liye refund reason likhna hota hai.",
+          "table": {
+            "headers": ["Screen", "Use"],
+            "rows": [
+              ["Card Recharge", "Amount load + payment mode + receipt"],
+              ["Card Refund", "Membership surrender — balance refund + card deactivate"]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "title": "4. Appendix",
+      "subsections": [
+        {
+          "title": "Membership Staff Workflow",
+          "table": {
+            "headers": ["When", "Task", "Screen"],
+            "rows": [
+            ["New member aaye", "Category select karke member register karo", "Member Master"],
+            ["Card issue", "Initialization se card le, member ko register karo", "Card Registration"],
+            ["Recharge aaye", "Card me amount load karo", "Card Recharge"],
+            ["Monthly", "Expiring memberships ki list — renewal calls", "Member Master (validity filter)"],
+            ["Member visit", "POS/FO me member no. — auto discount + points", "POS Sale Bill Entry"]
+          ]
+          }
+        },
+        {
+          "title": "Common Scenarios (Training Q&A)",
+          "table": {
+            "headers": ["Scenario", "Kya karo"],
+            "rows": [
+            ["Member card kho gaya", "Card status Lost/Block — naya card issue (re-registration)"],
+            ["Member category upgrade", "Member Master me category change — fee difference collect"],
+            ["Reward points redeem", "POS billing me points redemption (Reward Parameter rules)"],
+            ["Membership renew hui", "Validity extend + renewal fee receipt"],
+            ["Card balance wrong dikha", "Recharge history verify — discrepancy entry karo"]
+            ]
+          }
+        },
+        {
+          "title": "Troubleshooting",
+          "table": {
+            "headers": ["Issue", "Cause", "Solution"],
+            "rows": [
+            ["Card me discount nahi mil raha", "Category/POS parameter mapping", "Member Category discount + POS Reward Parameter check"],
+            ["Recharge balance update nahi hua", "Save nahi hua", "Recharge history me entry verify"],
+            ["Member duplicate ban gaya", "Search se check nahi kiya", "Duplicate deactivate karo, points merge (admin)"],
+            ["Points redeem nahi ho rahe", "Minimum balance/rule", "Reward Parameter me redemption rules dekho"]
+            ]
+          }
+        },
+        {
+          "title": "Contact & Support",
+          "table": {
+            "headers": ["Contact", "Details"],
+            "rows": [
+            ["Website", "https://analysishms.com"],
+            ["Support Email", "support@analysishms.com"],
+            ["Phone", "+91 9161380170"],
+            ["Training Login", "User: sa | Pass: balaji | Property: 103"],
+            ["Software Version", "Analysis HMS 2026-27"]
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

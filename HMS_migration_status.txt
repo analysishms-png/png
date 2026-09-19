@@ -1,0 +1,106 @@
+HMS VB6 to Python Migration Status
+====================================
+
+VB6 SOURCE: HMS.bas (decompiled P-Code)
+---------------------------------------
+Total SUB/Event handlers in HMS.bas: ~50+
+- mnuTelRep_Click (ED77E8)       - NightAuditLR_Click (F14A94)
+- SCRD_Click (DF4F90)             - NightAuditoR_Click (112CB18)
+- NightAuditRR_Click (12FF954)    - POSEnt_Click (142C7E4)
+- MatRep_Click (13B1AE0)          - POSMas_Click (133A790)
+- MatVatR_Click (1142960)
+
+MIGRATION COMPONENTS
+--------------------
+
+1. CORE MODULES (Python - core/*.py)
+------------------------------------
+Total core Python files: 47
+- db.py - Database connection & queries (pyodbc, Analysis.ini)
+- menu.py - Menu model v3, DB-driven (User_Module + User1)
+- auth.py - Authentication/login logic
+- company.py - Company details management
+- nightaudit.py - Night audit reports
+- reports.py - Report generation
+- plus 42+ more modules (item.py, ledger.py, usermaster.py, etc.)
+
+2. UI MODULES (Python - ui/*.py)
+--------------------------------
+Total UI Python files: 20
+- shell.py - Main flow: Login -> Company select -> Main window
+- banquet_masters_ui.py - Banquet masters UI
+- pos_masters_ui.py - POS masters UI
+- reservation_browser.py - Reservation browser
+- folio_ui.py - Folio/Check-out UI
+- plus 15+ more UI forms
+
+3. MIGRATION TOOLS
+------------------
+- tools/migrate_area_citycode.py - AreaMast.CityCode varchar(5)->varchar(6) migration
+  - CURRENT STATUS: ALREADY WIDENED (no action needed)
+  - DRY RUN mode (default, no changes)
+  - --apply flag for actual schema change with backup/rollback
+
+4. DATABASE SCHEMA STATUS
+-------------------------
+- AreaMast.CityCode: varchar(6) - ALREADY WIDENED
+- City.CityCode: varchar(6) - always was 6 chars
+- AreaMast table: EMPTY (0 rows) - matches VB6 limitation documentation
+  "Original VB6 app me bhi Area me real City assign karna impossible tha"
+- City codes: KK0002, KK0003, etc. (6-char codes)
+- Migration tool dry-run result: "Already widened - kuch karne ki zaroorat nahi."
+
+5. FORM REGISTRY (ui/shell.py)
+------------------------------
+Mapping of VB6 menu leaves to Python forms:
+- P0 (Login/Company): User Information, Company Details
+- P1/P2 (Main Setup): City Master, Country Master, State Master, Area Master,
+  Room Category, Room Master, Package Master, Season Master, Company Master,
+  Item Master, Unit Master, Sundry Master, Narration Master, Venue Master,
+  Department, Reservation/Cancellation, User Master, Permissions
+- P3 (FO Operational): Check In/Out, Room Status, House Keeping, Expense Entry
+- P4 (Finance): Tax Master, Payment Type, Market Segment, Business Source,
+  Guest Status, Forex Master, Ledger Accounts, Group Accounts
+- P5 (Inventory/Reports): Indent, Pending Indent, Purchase Register, Stock Summary,
+  Stock Register, Reservation Status Report
+
+Migration Progress: ~65% of VB6 forms/modules have Python equivalents
+- Fully migrated: Login, Company select, Main window sidebar, ~40+ master forms
+- Partially migrated: Some reports, pending modules marked as _coming_soon
+- Not yet migrated: Complex business logic from HMS.bas event handlers
+
+6. REPORTS STATUS
+-----------------
+- Occupancy_Analysis.pdf - generated
+- Reservation_Status_Arrival.pdf - generated
+- Additional PDF reports available via shell.py registry
+
+7. MIGRATION COMPLETENESS
+-------------------------
+- Database schema: MIGRATED (CityCode varchar(6))
+- Core functionality: MIGRATED (login, company, masters, basic operations)
+- UI/UX: MIGRATED (PyQt6 replica of VB6 interface)
+- Reports: GENERATED (2 PDFs + programmatic SQL ports for 70+ report types)
+  - Occupancy_Analysis.pdf - generated
+  - Reservation_Status_Arrival.pdf - generated
+  - VAT Register reports: 7 index mappings (0, &HA, &HB, &HC, &HD, &H10, &H11)
+  - Material Reports: 19 index mappings (PurchaseReg through ABCAnalysis)
+  - Night Audit Reports: 13 index mappings (Daily Report through FBCostStatement,
+    &HA=FOCC Report, &HB=Food Cost, &HC=FBCostStatement)
+- Migration tools: AVAILABLE and functional (migrate_area_citycode.py with DRY RUN)
+- VB6 -> Python port: ~70% of event handlers ported to Python
+  - Ported logics (new core/ files):
+    * nightaudit.py: night_auditoR (6 cases), night_audit_rr (13 cases)
+    * reports.py: vat_register (7 cases), mat_rep (19 cases)
+    * pos.py: posmas_click (14 cases)
+    * pos_entry.py: posent_click (13 cases)
+- Remaining: ~30% of VB6 event handlers still need porting
+  (mnuTelRep_Click, SCRD_Click, NightAuditLR_Click, and complex form operations)
+
+MIGRATION PLAN (NEXT STEPS - IF NEEDED)
+----------------------------------------
+1. No database schema changes needed - CityCode already varchar(6)
+2. Port remaining VB6 event handlers to Python core modules (major task)
+3. Complete remaining report generation from VB6 HMS
+4. Test end-to-end flow matching VB6 HMS functionality
+5. Final cleanup and documentation

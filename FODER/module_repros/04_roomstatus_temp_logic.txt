@@ -1,0 +1,50 @@
+ROOM STATUS / TEMP / REPORT LOGIC
+=================================
+
+VB6 source evidence:
+- FdRoomDisplay.frm
+- FrmHouseStatus.frm
+- FrmItemIssuedOnCleaning.frm
+- HHouseKeeping.frm
+- HKRoomOpStk.frm
+- FrmDataRecieving.frm
+- rRepHouse.frm / rRepHousePreview.frm
+
+Database tables:
+- RoomMast
+- RoomOcc
+- GuestFolio
+- RoomBLockOut (if present)
+
+Business flow:
+1. Room rack displays room state.
+2. If RoomOcc row is open (ChkOutDate is null), room is Occupied.
+3. If RoomMast.RoomStat='D', room is Dirty.
+4. Otherwise room is Vacant unless blocked.
+5. Housekeeping updates room status safely without changing occupied room state.
+
+Python implementation:
+- HMS_py\core\roomstatus.py
+
+Critical logic from real DB:
+- RoomMast.RoomStat uses a single-character status column.
+- Dirty flag is represented by 'D'.
+- Clean/vacant is empty string or equivalent.
+- Occupied logic depends on open RoomOcc rows plus site+vprefix filters.
+
+Temp logic and report staging:
+- Project includes Temp and Reports directories.
+- Reports are generated from DB data; they are not necessarily a replacement for the DB.
+- Temporary reporting data must be created under project-local Temp and cleaned up safely.
+- The Python app must not assume global writable paths when project-local paths exist.
+
+Important protection:
+- Temp folders should not be overwritten blindly.
+- Existing Crystal .rpt files should be treated as report definitions, not rewritten into Python unless explicitly required.
+- Preserve database-backed report data flow.
+
+Practical debug result:
+- Room status logic is already aligned to real schema and was validated against live database structure.
+- The app must check the state of RoomOcc before altering RoomMast.RoomStat.
+
+This is a real safety rule that prevents false housekeeping changes in occupied rooms.

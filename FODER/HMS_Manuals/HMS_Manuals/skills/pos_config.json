@@ -1,0 +1,418 @@
+{
+  "module": "POINT OF SALE (POS) MODULE",
+  "subtitle": "Outlets · Operations · Transactions · Reports · MIS · Tax · Appendix",
+  "property": "Property: Analysis Demonstration Package (103)",
+  "version": "Version 2026-27  |  Training Manual for Restaurant/Bar/Room Service Staff",
+  "header": "Analysis HMS — POS Module Training Manual",
+  "footerText": "Analysis HMS POS Training Manual | Property 103 | 2026-27",
+  "output": "HMS_Manuals/POS/POS_Module_Training_Manual.docx",
+  "imageRoot": ".",
+  "theme": { "color": "E65100", "dark": "BF360C", "light": "FFF3E0" },
+  "sections": [
+    {
+      "title": "1. Introduction & Module Overview",
+      "intro": "POS (Point of Sale) module hotel ke saare F&B outlets ka complete billing system hai — Restaurant, Bar, Room Service aur speciality outlets (jaise TADKA).\n\nAnalysis HMS me POS ka workflow hai: Guest order deta hai → Captain/Waiter KOT banata hai (Kitchen Order Ticket) → Kitchen item banata hai → Bill generate hota hai → Settlement (Cash/UPI/Card/Room) hota hai. Room settlement me bill direct guest ke folio me post ho jata hai.\n\nPOS OUTLETS (Property 103 demo me):\nRES103 = Restaurant | RS103 = Room Service | BA103 = Bar | TAD103 = TADKA (speciality). Har outlet ka apna menu, tables, rates aur settings hote hain — par system same hai.",
+      "subsections": [
+        {
+          "title": "Module Sections Overview",
+          "table": {
+            "headers": ["Section", "Purpose", "Key Screens"],
+            "rows": [
+              ["OUTLETS", "Outlet-wise billing screens", "KOT Entry, Sale Bill Entry (har outlet ka)"],
+              ["OPERATIONS", "Daily F&B workflow", "Settlement, Table Change/Booking, KOT Transfer, Display Table, Bill Lockup, Payment Received, Service Desk"],
+              ["REPORTS", "Daily sales audit", "Sales Register, Item-wise Sale, KOT reports, Discount Report"],
+              ["MIS", "Management analytics", "Sale Summary, Void Bills, Table-wise Sale, Reward Points"],
+              ["TAX", "GST compliance", "Tax Report, Tax Summary"],
+              ["SETUP (Main Setup)", "Outlet & menu configuration", "Outlet Setup, Table Master, Menu Items, Happy Hours, Reward Parameter"]
+            ]
+          }
+        },
+        {
+          "title": "POS Data Flow (Technical Understanding)",
+          "paragraph": "POS ki har entry database me in tables me jaati hai — training me ye samajhna zaroori hai:",
+          "table": {
+            "headers": ["Aap kya karte ho", "Database Table", "Kya store hota hai"],
+            "rows": [
+              ["KOT banate ho", "kot", "Item, qty, rate, waiter, outlet, pending status"],
+              ["Bill banate ho", "sale1", "Outlet, table, party/room, total, discount, tax, net amount"],
+              ["Tax calculate hota hai", "sale2", "Item-wise tax breakup (CGST/SGST slab wise)"],
+              ["Menu setup (admin)", "itemmast, itemgrp", "Items, groups, rates, dishtype"],
+              ["Sundry/charges", "sundrymast", "Service charge, extra charges rules"]
+            ]
+          }
+        },
+        {
+          "title": "Key Benefits",
+          "bullets": [
+            "Touch-friendly fast KOT entry — table wise order",
+            "Multi-outlet support — ek system se sab outlets",
+            "Room settlement — restaurant bill direct guest folio me",
+            "Live table status — kaunsi table busy/free",
+            "KOT transfer — galat table/outlet ka order transfer karo",
+            "Happy hours & reward points auto-calculation",
+            "Complete audit trail — deleted/void bills ke log",
+            "GST ready — tax reports direct filing ke liye"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "2. Login & Navigation",
+      "screenshot": "HMS_Manuals/POS/screenshots/00_Login/01_Login_Page.png",
+      "caption": "Analysis HMS Login Screen",
+      "subsections": [
+        {
+          "title": "Login Steps (Training Exercise 1)",
+          "table": {
+            "headers": ["Step", "Action", "Details"],
+            "rows": [
+              ["1", "Browser kholo", "https://analysishms.com → Login"],
+              ["2", "Username / Password", "POS user credentials (demo: sa/balaji)"],
+              ["3", "Property ID", "103"],
+              ["4", "Sidebar me 'Point Of Sale' expand karo", "Room Service / Restaurant / Bar / TADKA / Operations / Reports / MIS / Tax"]
+            ]
+          }
+        },
+        {
+          "title": "POS Menu Structure",
+          "bullets": [
+            "Point Of Sale → Room Service (RS103): Kot Entry, Sale Bill Entry, POS Bill Reprint, Display Table, Kot Transfer",
+            "Point Of Sale → Restaurant (RES103): Sale Bill Entry, POS Bill Reprint, Settlement Entry, Kot Entry, Table Change Entry, Table Booking, Bill Lockup, Display Table, KOT Transfer, Payment Received",
+            "Point Of Sale → Bar (BA103): Restaurant jaise hi saare screens",
+            "Point Of Sale → TADKA (TAD103): Restaurant jaise hi saare screens",
+            "Point Of Sale → Operations: Service Desk",
+            "Point Of Sale → POS Reports / MIS / Tax Reports",
+            "Main Setup → Point of Sale: Outlet Setup, Table Master, Menu Items, Session Master, NC Type, POS Parameter, Happy Hours, Reward Parameter"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "3. Outlet Screens — KOT & Sale Bill",
+      "intro": "Har outlet (Restaurant/Bar/Room Service/TADKA) ke liye same screens hain — bas outlet code alag. Restaurant (RES103) example se samjho.",
+      "subsections": [
+        {
+          "title": "3.1 KOT Entry (Kitchen Order Ticket) — Sabse Zyada Use Hone Wali Screen",
+          "navPath": "Point Of Sale ▶ Restaurant ▶ Kot Entry",
+          "screenshot": "HMS_Manuals/POS/screenshots/01_Outlets/01_KOT_Entry_Restaurant.png",
+          "paragraph": "Guest ka order yahin se kitchen jata hai. Table select karo → items pick karo → qty set → Save KOT. KOT print hota hai aur kitchen order shuru kar deta hai. Bill baad me banta hai.",
+          "table": {
+            "headers": ["Field/Section", "Description"],
+            "rows": [
+              ["Outlet & Date/Time", "Kaunsa outlet, current time, KOT number"],
+              ["Table No. / Token", "Kaunsi table ka order (Room Service me Room No.)"],
+              ["Waiter/Captain", "Kaunsa staff order le raha hai"],
+              ["Item Selection", "Group (Starters/Main/Dessert) → item pe click → qty"],
+              ["Save KOT", "KOT save + print — kitchen ko jata hai"],
+              ["Delete/Cancel", "Galat KOT cancel karo (log me record hota hai)"]
+            ]
+          }
+        },
+        {
+          "title": "3.2 Sale Bill Entry — Bill banana",
+          "navPath": "Point Of Sale ▶ Restaurant ▶ Sale Bill Entry",
+          "screenshot": "HMS_Manuals/POS/screenshots/01_Outlets/02_Sale_Bill_Restaurant.png",
+          "caption": "Sale Bill Entry — Restaurant outlet (RES103)",
+          "paragraph": "KOT ke items bill me convert karo: Table/Bill No. load karo → items verify karo → discount agar ho → Bill Print ya Room Charge (guest folio me post).",
+          "table": {
+            "headers": ["Section", "Function"],
+            "rows": [
+              ["Search", "Room No. / Guest Name / Bar Code se bill dhundo"],
+              ["Items Table", "KOT se aaye items — qty, rate, amount edit (authorized)"],
+              ["Charges Summary", "Discount, Service Charge, CGST, SGST, Round Off, Net"],
+              ["Bill Print", "Thermal/regular printer pe bill"],
+              ["Settlement", "Cash/UPI/Card se turant payment"],
+              ["Room Charge", "In-house guest ka bill folio me post karo"],
+              ["Delete", "Bill cancel (permission + reason ke saath)"]
+            ]
+          }
+        },
+        {
+          "title": "3.2b Room Service Sale Bill (RS103)",
+          "navPath": "Point Of Sale ▶ Room Service ▶ Sale Bill Entry",
+          "screenshot": "HMS_Manuals/POS/screenshots/02_Operations/10_SaleBill_RoomService.png",
+          "paragraph": "Room Service ka bill direct guest ke room folio me jata hai — table ki jagah Room No. search hota hai.",
+          "table": {
+            "headers": ["Field", "Description"],
+            "rows": [
+              ["Room No. Search", "In-house guest ka room"],
+              ["Items", "KOT se loaded items"],
+              ["Post to Folio", "Bill seedha guest folio me"]
+            ]
+          }
+        },
+        {
+          "title": "3.2c POS Bill Reprint (Restaurant)",
+          "navPath": "Point Of Sale ▶ Restaurant ▶ POS Bill Reprint",
+          "screenshot": "HMS_Manuals/POS/screenshots/02_Operations/09_Bill_Reprint_Restaurant.png",
+          "paragraph": "Purane POS bills dobara print karo — Year + Bill No. se search karke reprint.",
+          "steps": [
+            "For Year select karo",
+            "Bill No. enter karo",
+            "Search — bill load",
+            "Print click karo"
+          ]
+        },
+        {
+          "title": "3.3 Outlet Variations (Bar / Room Service / TADKA)",
+          "paragraph": "Same screens, different outlet code. Room Service me table ki jagah Room No. hota hai aur bill direct room folio me jata hai. Bar me happy hours rates auto-apply hote hain.",
+          "table": {
+            "headers": ["Outlet", "Code", "Khaas Baat"],
+            "rows": [
+              ["Restaurant", "RES103", "Tables, dine-in, full menu"],
+              ["Room Service", "RS103", "Room-wise orders, folio posting default"],
+              ["Bar", "BA103", "Happy hours, liquor menu"],
+              ["TADKA", "TAD103", "Speciality kitchen outlet"]
+            ]
+          }
+        },
+        {
+          "title": "3.4 Outlet Setup & Table Master (Admin)",
+          "navPath": "Main Setup ▶ Point of Sale ▶ Setup Outlet / Table Master",
+          "screenshot": "HMS_Manuals/POS/screenshots/01_Outlets/06_Outlet_Setup.png",
+          "paragraph": "Outlet Setup me outlet bante hain (name, code, type, printers). Table Master me har outlet ki tables define hoti hain (table no., capacity, zone). Menu Item screen se items aur rates manage hote hain, POS Parameter se module behaviour.",
+          "table": {
+            "headers": ["Setup", "Fields"],
+            "rows": [
+              ["Setup Outlet", "Outlet name, code, type (Rest/Bar/RS), bill printer, KOT printer"],
+              ["Table Master", "Outlet, table no., seats, zone/section"],
+              ["Menu Item", "Item name, group, category, rate, tax code, bar code"],
+              ["Happy Hours", "Time slot + discount/offer rules"],
+              ["Session Master", "Breakfast/Lunch/Dinner time slots (rate alag ho sakte hain)"],
+              ["NC Type", "Non-chargeable KOT ke reasons (complimentary, staff, wastage)"]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "title": "4. Operations — Daily F&B Workflow",
+      "subsections": [
+        {
+          "title": "4.1 Settlement Entry",
+          "navPath": "Point Of Sale ▶ Restaurant ▶ Settlement Entry",
+          "screenshot": "HMS_Manuals/POS/screenshots/02_Operations/01_Settlement_Restaurant.png",
+          "paragraph": "Pending bills ka payment record karo: Year + Bill No. → payment mode select → amount → narration → Submit. Pending Bill Details me Total/Paid/Balance dikhta hai.",
+          "table": {
+            "headers": ["Field", "Description"],
+            "rows": [
+              ["For Year + Bill No.", "Kaunsa bill settle karna hai"],
+              ["Charge/Payment Mode", "Cash in Hand / Cheque / UPI / Credit Card"],
+              ["Table No.", "Bill ki table (auto-load)"],
+              ["Amount", "Payment received"],
+              ["Narration", "Optional note"]
+            ]
+          }
+        },
+        {
+          "title": "4.2 Table Change Entry",
+          "navPath": "Point Of Sale ▶ Restaurant ▶ Table Change Entry",
+          "screenshot": "HMS_Manuals/POS/screenshots/02_Operations/02_Table_Change.png",
+          "paragraph": "Guest table badalne maange: purani table se saare KOTs naye table pe transfer karo. Bill aur items naye table ke naam ho jate hain.",
+          "steps": [
+            "Purani table select karo — uske KOTs load honge",
+            "Nayi table select karo (khali honi chahiye)",
+            "Confirm — items transfer ho jayenge"
+          ]
+        },
+        {
+          "title": "4.3 Table Booking",
+          "navPath": "Point Of Sale ▶ Restaurant ▶ Table Booking",
+          "screenshot": "HMS_Manuals/POS/screenshots/02_Operations/03_Table_Booking.png",
+          "paragraph": "Advance table booking: date/time, guest name, mobile, table, persons. Arrival pe booking se KOT shuru karo. Cancel bhi possible hai.",
+          "table": {
+            "headers": ["Field", "Description"],
+            "rows": [
+              ["Booking Voucher No.", "Auto-generate"],
+              ["Date/Time", "Booking kis liye"],
+              ["Table", "Kaunsi table reserve"],
+              ["Guest + Mobile", "Contact details"],
+              ["Status", "Booked / Arrived / Cancelled / No-Show"]
+            ]
+          }
+        },
+        {
+          "title": "4.4 KOT Transfer",
+          "navPath": "Point Of Sale ▶ Restaurant ▶ KOT Transfer",
+          "screenshot": "HMS_Manuals/POS/screenshots/02_Operations/04_KOT_Transfer.png",
+          "paragraph": "Galat table/outlet pe KOT ban gaya? Table-to-table ya outlet-to-outlet transfer karo. Room Service ke orders bhi restaurant me transfer ho sakte hain (vice versa).",
+          "steps": [
+            "Source table/outlet se KOT select karo",
+            "Destination table/outlet select karo",
+            "Transfer confirm karo"
+          ]
+        },
+        {
+          "title": "4.5 Display Table",
+          "navPath": "Point Of Sale ▶ Restaurant ▶ Display Table",
+          "screenshot": "HMS_Manuals/POS/screenshots/02_Operations/05_Display_Table.png",
+          "paragraph": "Outlet ka live floor map — kaunsi table free, kaunsi pe KOT pending, kaunsi pe bill pending. Captain/waiter isi se tables track karte hain.",
+          "table": {
+            "headers": ["Status", "Matlab"],
+            "rows": [
+              ["Free/Green", "Table khali hai"],
+              ["Occupied", "Guest baithe hain, KOT chal raha hai"],
+              ["Bill Pending", "KOT ho gaya, bill nahi bana"],
+              ["Settled", "Bill ho gaya, table free kar do"]
+            ]
+          }
+        },
+        {
+          "title": "4.6 Bill Lockup & Payment Received",
+          "navPath": "Point Of Sale ▶ Restaurant ▶ Bill Lockup / Payment Received",
+          "screenshot": "HMS_Manuals/POS/screenshots/02_Operations/06_Bill_Lockup.png",
+          "paragraph": "Bill Lockup: purane bills ki detail lookup (edit nahi hota). Payment Received: advance/partial payments record karna — guest ne pehle paisa de diya ho.",
+          "table": {
+            "headers": ["Screen", "Use"],
+            "rows": [
+              ["Bill Lockup", "Year + Bill No. se purana bill dekho — items, tax, settlement"],
+              ["Payment Received", "Outlet advance cash record karo — baad me bill me adjust"]
+            ]
+          }
+        },
+        {
+          "title": "4.7 Service Desk",
+          "navPath": "Point Of Sale ▶ Operations ▶ Service Desk",
+          "screenshot": "HMS_Manuals/POS/screenshots/02_Operations/08_Service_Desk.png",
+          "paragraph": "Guest service requests (housekeeping/maintenance type) ka single window — requests accept/reject aur status track. QR-based guest portal se aayi requests bhi yahin dikhti hain.",
+          "table": {
+            "headers": ["Action", "Description"],
+            "rows": [
+              ["New Request", "Guest ki request register karo"],
+              ["Accept/Reject", "Request process karo"],
+              ["Status Track", "Pending / In-Progress / Done"]
+            ]
+          }
+        },
+        {
+          "title": "4.8 Complete Order-to-Bill Flow (Training Flow)",
+          "steps": [
+            "Guest aaya — Table Booking ya walk-in",
+            "KOT Entry me table select karke order do (kitchen ko jayega)",
+            "Extra items aaye to naya KOT same table pe",
+            "Guest ne table change ki — Table Change Entry",
+            "Bill banana ho — Sale Bill Entry me table load karo",
+            "Payment — Settlement Entry (Cash/UPI/Card) ya Room Charge (folio me)",
+            "Bill print — guest copy",
+            "Display Table me table free ho gayi"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "5. Reports Module — Daily Sales Audit",
+      "subsections": [
+        {
+          "title": "5.1 Available Reports",
+          "navPath": "Point Of Sale ▶ POS Reports",
+          "screenshot": "HMS_Manuals/POS/screenshots/03_Reports/01_Sales_Register.png",
+          "caption": "POS Sales Register",
+          "table": {
+            "headers": ["Report", "Kya dikhata hai"],
+            "rows": [
+              ["Sales Register", "Date-wise saare bills — amount, mode, cashier"],
+              ["Settlement Summary", "Payment mode wise collection (Cash/UPI/Card/Room)"],
+              ["Item Wise Sale", "Kaunsa item kitna bika — qty + amount"],
+              ["Deleted and Unsettled Bill", "Audit report — deleted/void/pending bills"],
+              ["NC KOT Report", "Non-chargeable KOTs — reason wise (complimentary etc.)"],
+              ["KOT Wise Details", "Har KOT ka detail — kab, kaunsi table, kya order"],
+              ["Pending KOT", "Jin KOTs ka bill abhi nahi bana"],
+              ["Sale Bill Change Report", "Bill me kya-kya edit hua (audit trail)"],
+              ["Discount Report", "Kaunse bill pe kitna discount — kisne diya"],
+              ["Item Wise Change Report", "Item-level modifications ka audit"]
+            ]
+          }
+        },
+        {
+          "title": "5.2 MIS Reports",
+          "navPath": "Point Of Sale ▶ POS M.I.S.",
+          "screenshot": "HMS_Manuals/POS/screenshots/04_MIS/01_Sale_Summary.png",
+          "paragraph": "Management analytics — owner/GM ke liye revenue intelligence.",
+          "table": {
+            "headers": ["Report", "Kya dikhata hai"],
+            "rows": [
+              ["Sale Summary", "Outlet-wise revenue summary — total, tax, net"],
+              ["Void Bills", "Cancel hue bills — kaun, kab, kyun"],
+              ["Table Wise Sale", "Kaunsi table kitna revenue deti hai"],
+              ["Reward Point Report", "Member reward points earn/redeem"]
+            ]
+          }
+        },
+        {
+          "title": "5.3 Tax Reports (GST)",
+          "navPath": "Point Of Sale ▶ Tax Reports",
+          "screenshot": "HMS_Manuals/POS/screenshots/05_Tax/01_Tax_Report.png",
+          "paragraph": "F&B GST compliance — Tax Report (bill-wise tax detail) aur Tax Summary (slab-wise consolidation: 5%/12%/18%). Accountant GSTR-1 filing me use karta hai.",
+          "table": {
+            "headers": ["Report", "Use"],
+            "rows": [
+              ["Tax Reports (taxreporpos)", "Bill-wise CGST/SGST detail"],
+              ["Tax Summary", "Slab-wise monthly summary — filing ke liye"]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "title": "6. Appendix — Training Reference",
+      "subsections": [
+        {
+          "title": "Restaurant Staff Daily Workflow",
+          "table": {
+            "headers": ["Time", "Activity", "Screen"],
+            "rows": [
+              ["Shift start", "Pending KOT aur unsettled bills check karo", "Pending KOT / Settlement Entry"],
+              ["All day", "Order aaye to KOT banao", "KOT Entry"],
+              ["All day", "Table status dekho", "Display Table"],
+              ["Guest jaate waqt", "Bill banao aur settle karo", "Sale Bill Entry → Settlement"],
+              ["In-house guest", "Room charge pe bill bhejo", "Sale Bill Entry → Room Charge"],
+              ["Shift end", "Cash match karo", "Settlement Summary"],
+              ["Day end", "Sales register print karo", "Sales Register"]
+            ]
+          }
+        },
+        {
+          "title": "Common Scenarios (Training Q&A)",
+          "table": {
+            "headers": ["Scenario", "Kya karo"],
+            "rows": [
+            ["Guest ne galat item order kiya, KOT ban gaya", "Kitchen ko batao, naya KOT me correction; void/cancel permission se"],
+            ["Bill me rate galat hai", "Sale Bill Entry me edit (authorized user hi), Sale Bill Change Report me log aayega"],
+            ["Guest bill ke baad table badalna chahta hai", "Pehle settlement, phir naye table pe naya order"],
+            ["Complimentary order (koi charge nahi)", "KOT me NC Type select karo — NC KOT Report me aayega"],
+            ["Restaurant bill guest ke room me", "Sale Bill Entry → Room Charge → foliono verify karo"],
+            ["KOT pending dikh raha hai par bill ban gaya", "Refresh karo; phir bhi issue ho to Pending KOT report me bill no. check karo"]
+            ]
+          }
+        },
+        {
+          "title": "Troubleshooting",
+          "table": {
+            "headers": ["Issue", "Cause", "Solution"],
+            "rows": [
+            ["KOT save nahi ho raha", "Table already bill pending", "Display Table me status dekho / bill pehle banao"],
+            ["Item list khali", "Menu items is outlet me map nahi", "Main Setup → Menu Item me outlet assign karo"],
+            ["Bill print nahi ho raha", "Printer config", "Outlet Setup me printer path verify karo"],
+            ["Room charge nahi mil raha", "Guest in-house nahi", "Front Office me room occupied hona chahiye"],
+            ["Tax galat lag raha hai", "Item ka tax code wrong", "Menu Item me tax code sahi karo"],
+            ["Settlement me bill nahi dikh raha", "Wrong year", "For Year sahi select karo"]
+            ]
+          }
+        },
+        {
+          "title": "Contact & Support",
+          "table": {
+            "headers": ["Contact", "Details"],
+            "rows": [
+            ["Website", "https://analysishms.com"],
+            ["Support Email", "support@analysishms.com"],
+            ["Phone", "+91 9161380170"],
+            ["Training Login", "User: sa | Pass: balaji | Property: 103"],
+            ["Software Version", "Analysis HMS 2026-27"]
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

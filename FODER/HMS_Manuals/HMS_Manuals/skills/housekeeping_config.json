@@ -1,0 +1,520 @@
+{
+  "module": "HOUSEKEEPING MODULE",
+  "subtitle": "Master · Operations · Transactions · Reports · Appendix",
+  "property": "Property: Analysis Demonstration Package (103)",
+  "version": "Version 2026-27  |  Login: HOUSEKEEPING / HOUSEKEEPING / Property 103",
+  "header": "Analysis HMS — Housekeeping Module Manual",
+  "footerText": "Analysis HMS Housekeeping Manual | Property 103 | 2026-27",
+  "output": "HMS_Manuals/Housekeeping/Housekeeping_Module_Manual.docx",
+  "imageRoot": ".",
+  "theme": { "color": "00897B", "dark": "00695C", "light": "E0F2F1" },
+  "sections": [
+    {
+      "title": "1. Introduction & System Overview",
+      "intro": "Analysis HMS (Hotel Management System) ek comprehensive cloud-based software hai jo Indian hospitality industry ke liye design kiya gaya hai. Ye Front Office, Housekeeping, Laundry, POS, Inventory aur Reporting ko ek unified platform pe manage karta hai — kisi bhi device se, web browser ke through.\n\nHousekeeping Module hotel ke room cleaning, staff assignment, room status tracking aur laundry services ka complete management deta hai. Module char main sections me organized hai: MASTER (setup), OPERATIONS (daily workflow), TRANSACTIONS/LAUNDRY (billing & settlement), REPORTS (analytics).",
+      "subsections": [
+        {
+          "title": "Module Sections Overview",
+          "table": {
+            "headers": ["Module Section", "Purpose", "Key Functions"],
+            "rows": [
+              ["MASTER", "Setup & Configuration", "Floor, Housekeeper, Cleaning Type, Supervisor, Checklist, Amenities"],
+              ["OPERATIONS", "Daily Workflow Management", "HK Screen, Room Status Board, Assignments, Cleaning, Inspection, Lost & Found"],
+              ["TRANSACTIONS (Laundry)", "Laundry Billing & Settlement", "Laundry Memo, Bill Reprint, Settlement Entry, Split Bill"],
+              ["REPORTS", "Analytics & Reporting", "HK Report, Cleaning Register, Assignment & Amenities Reports"],
+              ["LINEN (Extras)", "Linen Movement Tracking", "Laundry Send, Laundry Receive"]
+            ]
+          }
+        },
+        {
+          "title": "Key Benefits",
+          "bullets": [
+            "Real-time room status tracking across all floors",
+            "Automated room assignment to housekeeping staff",
+            "Digital cleaning checklists for consistent quality",
+            "Laundry billing and settlement management",
+            "Housekeeper workload monitoring & efficiency tracking",
+            "Photo documentation before/after cleaning",
+            "Lost & Found and Damage management",
+            "Integrated inspection workflow with approval/rejection"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "2. Login & Navigation",
+      "screenshot": "HMS_Manuals/Housekeeping/screenshots/00_Login/01_Login_Page.png",
+      "caption": "Analysis HMS Login Screen — analysishms.com/login",
+      "intro": "Software ko access karne ke liye pehle login karna hota hai. Housekeeping staff ke liye dedicated login credentials hote hain.",
+      "subsections": [
+        {
+          "title": "Login Steps",
+          "table": {
+            "headers": ["Step", "Action", "Details"],
+            "rows": [
+              ["1", "Open Browser", "Go to: https://analysishms.com"],
+              ["2", "Click Login", "Top menu me 'Login' link pe click karo"],
+              ["3", "Enter Username", "e.g. HOUSEKEEPING (ya admin: sa)"],
+              ["4", "Enter Password", "Assigned password"],
+              ["5", "Enter Property ID", "103"],
+              ["6", "Click Login", "Dashboard open ho jayega"]
+            ]
+          }
+        },
+        {
+          "title": "Housekeeping Menu Structure (Sidebar)",
+          "bullets": [
+            "House Keeping → Operations: House Keeping Screen, Room Status Board, Assignments, Start Cleaning, Room Cleaning Entry, Inspection, Lost & Found, Damage Entry",
+            "House Keeping → Reports: HK Report, Cleaning Register, Assignment Report, Amenities Report, Room-wise Amenities, Damage Report, Lost & Found Register",
+            "House Keeping → Linen Management: Laundry Send, Laundry Receive",
+            "House Keeping → LAUNDRY: Laundry Memo, Memo Bill Reprint, Settlement Entry, Split Bill",
+            "Main Setup → House Keeping: Floor Master, Housekeeper Master, Cleaning Type, HK Supervisor, Checklist, Amenities Master"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "3. Master Module — Setup & Configuration",
+      "intro": "Master module me wo saari setup entries hoti hain jo operations se pehle ek baar karni hoti hain — floors, staff, cleaning types, supervisors, checklists aur amenities.",
+      "subsections": [
+        {
+          "title": "3.1 Floor Master",
+          "navPath": "Main Setup ▶ House Keeping ▶ Floor Master",
+          "screenshot": "HMS_Manuals/Housekeeping/screenshots/01_Master/01_Floor_Master.png",
+          "paragraph": "Property ke floors define karo. Har floor ke hisaab se rooms aur housekeepers assign hote hain.",
+          "table": {
+            "headers": ["Element", "Description", "Action"],
+            "rows": [
+              ["Floor Name", "Floor ka naam (1ST FLOOR, GROUND FLOOR...)", "Enter karo"],
+              ["Submit", "Record save karta hai", "Click karo"],
+              ["Search Box", "Existing floors filter karta hai", "Type karo"],
+              ["Edit / Delete", "Record modify/remove", "Row pe click karo"]
+            ]
+          }
+        },
+        {
+          "title": "3.2 Housekeeper Master",
+          "navPath": "Main Setup ▶ House Keeping ▶ Housekeeper Master",
+          "screenshot": "HMS_Manuals/Housekeeping/screenshots/01_Master/02_Housekeeper_Master.png",
+          "paragraph": "Housekeeping staff register karo — unka floor, supervisor, contact details ke saath.",
+          "table": {
+            "headers": ["Field", "Description", "Example"],
+            "rows": [
+              ["Housekeeper Name *", "Staff ka full name (required)", "Rajesh Kumar"],
+              ["Floor *", "Assigned floor dropdown", "1ST FLOOR"],
+              ["Supervisor *", "Assigned supervisor dropdown", "Sandeep Pal"],
+              ["Mobile Number", "Contact number", "9876543210"],
+              ["Gender", "Male / Female", "Male"],
+              ["Status", "Active / Inactive", "Active"]
+            ]
+          }
+        },
+        {
+          "title": "3.3 Cleaning Type Master",
+          "navPath": "Main Setup ▶ House Keeping ▶ Cleaning Type",
+          "screenshot": "HMS_Manuals/Housekeeping/screenshots/01_Master/03_Cleaning_Type.png",
+          "paragraph": "Cleaning ke categories define karte hain jo room assignment ke time use hote hain.",
+          "table": {
+            "headers": ["Sno.", "Cleaning Type", "Usage"],
+            "rows": [
+              ["1", "NORMAL CLEANING", "Routine cleaning (occupied rooms)"],
+              ["2", "CHECKOUT CLEANING", "Guest checkout ke baad deep clean"],
+              ["3", "DEEP CLEANING", "Thorough cleaning — sab surfaces/fixtures"],
+              ["4", "EXPRESS CLEANING", "Urgent turnover ke liye quick clean"]
+            ]
+          }
+        },
+        {
+          "title": "3.4 HK Supervisor Master",
+          "navPath": "Main Setup ▶ House Keeping ▶ HK Supervisor",
+          "screenshot": "HMS_Manuals/Housekeeping/screenshots/01_Master/04_HK_Supervisor.png",
+          "paragraph": "Supervisors register karo jo housekeepers ko manage karte hain aur inspection karte hain.",
+          "table": {
+            "headers": ["Field", "Description"],
+            "rows": [
+              ["Name *", "Supervisor ka full name"],
+              ["Active", "Yes/No status"],
+              ["Code", "Auto/manual supervisor code"]
+            ]
+          }
+        },
+        {
+          "title": "3.5 Checklist Master",
+          "navPath": "Main Setup ▶ House Keeping ▶ Checklist",
+          "screenshot": "HMS_Manuals/Housekeeping/screenshots/01_Master/05_Checklist_Master.png",
+          "paragraph": "Cleaning checklist items define karo jo har room cleaning me digitally tick hote hain.",
+          "table": {
+            "headers": ["Sno.", "Checklist Item", "Category"],
+            "rows": [
+              ["1", "BED MAKE", "Bedroom"],
+              ["2", "LINEN CLEAN", "Bedroom"],
+              ["3", "VACUUM AREA", "General"],
+              ["4", "TV & REMOTE", "Electronics"],
+              ["5", "TOILET CHECK", "Bathroom"],
+              ["6", "ROOM FRAGRANCE", "Ambiance"],
+              ["7", "BATHROOM CLEAN", "Bathroom"],
+              ["8", "FLOOR MOPPING", "General"]
+            ]
+          }
+        },
+        {
+          "title": "3.6 Amenities Master",
+          "navPath": "Main Setup ▶ House Keeping ▶ Amenities Master",
+          "screenshot": "HMS_Manuals/Housekeeping/screenshots/01_Master/06_Amenities_Master.png",
+          "paragraph": "Room me diye jane wale linen, amenities aur chemicals ki master list.",
+          "table": {
+            "headers": ["Category", "Examples", "Tab Color"],
+            "rows": [
+              ["Linen", "Pillow Cover, Bath Towel, Hand Towel", "Blue"],
+              ["Amenities", "Soap, Tea Kit, Coffee, Shampoo", "Green"],
+              ["Chemical", "Glass/Floor/Toilet Cleaner", "Gray"]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "title": "4. Operations Module — Daily Workflow",
+      "intro": "Operations module housekeeping ki daily kaafi ka core hai — room status dekhna, kaam assign karna, cleaning track karna, inspection aur lost & found.",
+      "subsections": [
+        {
+          "title": "4.1 Housekeeping Screen (Main Dashboard) — Shift+H",
+          "navPath": "House Keeping ▶ Operations ▶ House Keeping Screen",
+          "screenshot": "HMS_Manuals/Housekeeping/screenshots/02_Operations/01_Housekeeping_Screen.png",
+          "paragraph": "Poore property ka room status grid — ek nazar me sab rooms ki cleaning status.",
+          "table": {
+            "headers": ["Color", "Status", "Meaning"],
+            "rows": [
+              ["Green", "C (Clean)", "Room clean, check-in ready"],
+              ["Yellow/Orange", "D (Dirty)", "Room ko cleaning chahiye"],
+              ["Red", "Occupied", "Guest occupied"],
+              ["White/Gray", "N (Maintenance)", "Maintenance me hai"],
+              ["Blue", "Remove Block", "Block removed, available"]
+            ]
+          }
+        },
+        {
+          "title": "4.2 Room Status Board",
+          "navPath": "House Keeping ▶ Operations ▶ Room Status Board",
+          "screenshot": "HMS_Manuals/Housekeeping/screenshots/02_Operations/02_Room_Status_Board.png",
+          "paragraph": "Real-time status dashboard with summary cards — Total Rooms, Occupied Clean/Dirty, Vacant Clean/Dirty, Out of Order, Maintenance, Inspection Pending, Occupancy %. Filters: Floor, Status, Room Type, Priority.",
+          "table": {
+            "headers": ["Status", "Meaning"],
+            "rows": [
+              ["Occupied / Occupied Dirty", "Guest hai / guest hai + cleaning chahiye"],
+              ["Vacant Clean / Vacant Dirty", "Khali + clean (check-in ready) / khali + dirty"],
+              ["Out of Order", "Room available nahi"],
+              ["VIP Room", "VIP guest — special attention"],
+              ["DND", "Do Not Disturb — cleaning skip karo"],
+              ["Inspection Pending", "Clean hua, supervisor check pending"]
+            ]
+          }
+        },
+        {
+          "title": "4.3 Assignments (Room Assignment)",
+          "navPath": "House Keeping ▶ Operations ▶ Assignments",
+          "screenshot": "HMS_Manuals/Housekeeping/screenshots/02_Operations/03_Assignments.png",
+          "paragraph": "Rooms ko housekeepers ko assign karne ka interface. Left panel me unassigned rooms, right me har housekeeper ka bucket.",
+          "table": {
+            "headers": ["Button/Field", "Function"],
+            "rows": [
+              ["Assignment Date", "Date select karo"],
+              ["Supervisor", "Supervisor select karo"],
+              ["Auto Assignment", "Rooms automatically distribute karo"],
+              ["Balance Assignment", "Workload equally distribute karo"],
+              ["Floor Wise / Zone Wise", "Floor/zone ke hisaab se assign karo"],
+              ["→ / ← Arrows", "Room move karo housekeeper me/out"],
+              ["Print Assignment", "Assignment sheet print karo"],
+              ["Save Assignment", "Assignment save karo"]
+            ]
+          }
+        },
+        {
+          "title": "4.4 Start Cleaning",
+          "navPath": "House Keeping ▶ Operations ▶ Start Cleaning",
+          "screenshot": "HMS_Manuals/Housekeeping/screenshots/02_Operations/04_Start_Cleaning.png",
+          "paragraph": "Housekeeper jab cleaning start karta hai: assigned room select karo → assignment info verify karo → Before photo upload (Camera/Gallery) → START CLEANING click. Timer T1 start hota hai, status 'Cleaning In Progress' ho jata hai. Damage Report aur Lost & Found buttons yahin se bhi accessible hain.",
+          "steps": [
+            "Select Assigned Room dropdown me apna room choose karo",
+            "Assignment No. aur Room Details verify karo",
+            "Photo (Before) capture karo — Camera ya Gallery se",
+            "START CLEANING button click karo (start time record hota hai)"
+          ]
+        },
+        {
+          "title": "4.5 Room Cleaning Entry",
+          "navPath": "House Keeping ▶ Operations ▶ Room Cleaning Entry",
+          "screenshot": "HMS_Manuals/Housekeeping/screenshots/02_Operations/05_Room_Cleaning_Entry.png",
+          "paragraph": "Cleaning complete hone ke baad: room select karo → checklist items tick karo → actual end time daalo → Photo After upload karo → room status 'Vacant Clean' / 'Occupied Clean' update karo → Submit.",
+          "steps": [
+            "Cleaned room select karo",
+            "Checklist items complete mark karo",
+            "End time enter karo",
+            "'Photo After' upload karo",
+            "Room status update karke Submit karo"
+          ]
+        },
+        {
+          "title": "4.6 Inspection",
+          "navPath": "House Keeping ▶ Operations ▶ Inspection",
+          "screenshot": "HMS_Manuals/Housekeeping/screenshots/02_Operations/06_Inspection.png",
+          "paragraph": "Supervisor cleaned rooms ko inspect karta hai: checklist review → before/after photos verify → remarks add → Approve (room Clean mark) ya Reject (re-cleaning me bhejo).",
+          "table": {
+            "headers": ["Step", "Action", "Result"],
+            "rows": [
+              ["1", "Room select karo inspection list se", "Details load"],
+              ["2", "Checklist review karo", "Items verified"],
+              ["3", "Photos check karo", "Quality verify"],
+              ["4", "Remarks add karo", "Quality notes"],
+              ["5", "Approve / Reject", "Clean mark / Re-clean"]
+            ]
+          }
+        },
+        {
+          "title": "4.7 Lost & Found",
+          "navPath": "House Keeping ▶ Operations ▶ Lost & Found",
+          "screenshot": "HMS_Manuals/Housekeeping/screenshots/02_Operations/07_Lost_and_Found.png",
+          "paragraph": "Rooms me mile items ka record: Date Found, Room Number, Item Description, Found By, Custody, Status (Pending/Claimed/Returned), Remarks.",
+          "table": {
+            "headers": ["Field", "Description"],
+            "rows": [
+              ["Date Found", "Item kab mila"],
+              ["Room Number", "Kis room me mila"],
+              ["Item Description", "Item ki detail"],
+              ["Found By", "Kaunsa housekeeper mila"],
+              ["Custody", "Kahan store hai"],
+              ["Status", "Pending / Claimed / Returned"]
+            ]
+          }
+        },
+        {
+          "title": "4.8 Damage Entry",
+          "navPath": "House Keeping ▶ Operations ▶ Damage Entry",
+          "screenshot": "HMS_Manuals/Housekeeping/screenshots/02_Operations/08_Damage_Entry.png",
+          "paragraph": "Room me koi damage milne par report karo — item description ke saath. Ye Damage Report me aggregate hota hai.",
+          "table": {
+            "headers": ["Field", "Description"],
+            "rows": [
+              ["Room No.", "Kis room me damage hua"],
+              ["Item", "Kya damage hua"],
+              ["Description", "Damage ki detail"],
+              ["Reported By", "Housekeeper/Supervisor"],
+              ["Date", "Kab report hua"]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "title": "5. Transactions Module — Laundry",
+      "intro": "Laundry module guest laundry services ka billing aur settlement handle karta hai. Laundry outlet (LAUN103) ke through operate hota hai.",
+      "subsections": [
+        {
+          "title": "5.1 Laundry Memo",
+          "navPath": "House Keeping ▶ LAUNDRY ▶ Laundry Memo",
+          "screenshot": "HMS_Manuals/Housekeeping/screenshots/04_Laundry/01_Laundry_Memo.png",
+          "paragraph": "Guest laundry ka bill/memo banana: Room No/Guest/Barcode search karo → item group (Iron/Washing/Favourite) se items add karo → qty/rate set → charges summary (Discount, CGST, SGST, Round Off, Net) → Bill Print ya Settlement.",
+          "table": {
+            "headers": ["Section", "Function"],
+            "rows": [
+              ["Search Fields", "Room No., Guest Name, Bar Code"],
+              ["Item Selection", "Iron/Washing/Favourite groups se items"],
+              ["Charges Summary", "Discount, CGST, SGST, Round Off, Net"],
+              ["Bill Print", "Memo bill print karo"],
+              ["Settlement", "Memo ko paid mark karo"],
+              ["Delete", "Memo delete karo"]
+            ]
+          }
+        },
+        {
+          "title": "5.2 Memo Bill Reprint",
+          "navPath": "House Keeping ▶ LAUNDRY ▶ Memo Bill Reprint",
+          "screenshot": "HMS_Manuals/Housekeeping/screenshots/04_Laundry/02_Memo_Bill_Reprint.png",
+          "paragraph": "Purane laundry bills dobara print karne ke liye: For Year select karo → Bill No. enter karo → Search → details load → Bill Print.",
+          "steps": [
+            "House Keeping → LAUNDRY → Memo Bill Reprint kholo",
+            "For Year select karo",
+            "Bill No. enter karo",
+            "Search click karo — item-wise details load hongi",
+            "Bill Print click karo"
+          ]
+        },
+        {
+          "title": "5.3 Settlement Entry",
+          "navPath": "House Keeping ▶ LAUNDRY ▶ Settlement Entry",
+          "screenshot": "HMS_Manuals/Housekeeping/screenshots/04_Laundry/03_Settlement_Entry.png",
+          "paragraph": "Pending laundry bills ka payment record karo: For Year + Bill No. daalo → payment mode select karo (Cash/Cheque/UPI/Card) → Amount + Narration → Submit. Pending Bill Details me Total/Paid/Balance dikhta hai.",
+          "table": {
+            "headers": ["Field", "Description"],
+            "rows": [
+              ["For Year", "Financial year select"],
+              ["Bill No.", "Settle karne wala bill"],
+              ["Charge/Payment", "Cash in Hand / Cheque / UPI / Card"],
+              ["Amount", "Payment amount"],
+              ["Narration", "Optional remark"]
+            ]
+          }
+        },
+        {
+          "title": "5.4 Split Bill",
+          "navPath": "House Keeping ▶ LAUNDRY ▶ Split Bill",
+          "screenshot": "HMS_Manuals/Housekeeping/screenshots/03_Reports/04_SplitBill_Retry.png",
+          "caption": "Split Bill — demo property pe permission restricted (live screen)",
+          "paragraph": "Ek laundry bill ko multiple accounts me split karna: original bill select karo → split amounts define karo → individual bills generate karo → har split ka settlement karo. Splits original memo se linked rehte hain.\n\nNote: Demo property (103) pe ye screen restricted hai — live property pe ye fully functional hota hai.",
+          "bullets": [
+            "Original bill select karo",
+            "Split amounts define karo per account",
+            "Individual bills generate hote hain",
+            "Har split ki alag settlement hoti hai"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "6. Linen Management",
+      "intro": "Linen module me hotel linen ka external laundry movement track hota hai — bhejna aur wapas receive karna, with counts.",
+      "subsections": [
+        {
+          "title": "6.1 Laundry Send",
+          "navPath": "House Keeping ▶ Linen Management ▶ Laundry Send",
+          "screenshot": "HMS_Manuals/Housekeeping/screenshots/05_Linen/01_Laundry_Send.png",
+          "paragraph": "External laundry ko linen bhejne ka record: item, quantity, date, sent-by details. Vendor laundry challan ke saath.",
+          "table": {
+            "headers": ["Field", "Description"],
+            "rows": [
+              ["Date", "Send date"],
+              ["Item", "Linen item (Pillow Cover, Towel...)"],
+              ["Qty Sent", "Kitna bheja"],
+              ["Challan/Reference", "Vendor challan no."],
+              ["Remarks", "Optional notes"]
+            ]
+          }
+        },
+        {
+          "title": "6.2 Laundry Receive",
+          "navPath": "House Keeping ▶ Linen Management ▶ Laundry Receive",
+          "screenshot": "HMS_Manuals/Housekeeping/screenshots/05_Linen/02_Laundry_Receive.png",
+          "paragraph": "Laundry se linen wapas aane ka record — sent quantity ke against received qty aur pending balance track hota hai.",
+          "table": {
+            "headers": ["Field", "Description"],
+            "rows": [
+              ["Date", "Receive date"],
+              ["Item", "Linen item"],
+              ["Qty Received", "Kitna wapas aaya"],
+              ["Pending", "Sent - Received balance"],
+              ["Remarks", "Damage/loss notes"]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "title": "7. Reports Module",
+      "intro": "Reports section housekeeping ke complete analytics deta hai. Sab reports me common filters hain: Date Range, Floor, Room Type, Housekeeper, Status. Export: Print / Excel / PDF.",
+      "subsections": [
+        {
+          "title": "7.1 Available Reports",
+          "navPath": "House Keeping ▶ Reports",
+          "screenshot": "HMS_Manuals/Housekeeping/screenshots/03_Reports/01_Housekeeping_Report.png",
+          "caption": "House Keeping Report — Reports module ka main screen",
+          "table": {
+            "headers": ["Report", "Description", "Usage"],
+            "headers": ["Report", "Description", "Usage"],
+            "rows": [
+              ["House Keeping Report", "Room cleaning activities ka complete summary", "Daily monitoring"],
+              ["Cleaning Register", "Saare cleaning entries — date, room, staff", "History & audit"],
+              ["Assignment Report", "Daily room assignments staff-wise", "Workload management"],
+              ["Amenities Report", "Amenities issued/consumed summary", "Amenities tracking"],
+              ["Room-wise Amenities", "Room level amenities issued/consumed/pending", "Verification"],
+              ["Damage Report", "Room damages ki register", "Maintenance follow-up"],
+              ["Lost & Found Register", "Found items ki full history", "Audit & claim tracking"]
+            ]
+          }
+        },
+        {
+          "title": "7.2 Common Report Filters",
+          "table": {
+            "headers": ["Filter", "Options"],
+            "rows": [
+              ["Date Range", "From–To (daily/weekly/monthly/custom)"],
+              ["Floor", "All / specific floor"],
+              ["Room Type", "All / Deluxe / Suite"],
+              ["Housekeeper", "All / specific staff"],
+              ["Status", "All / Clean / Dirty / Occupied / OOO / Maintenance"],
+              ["Export", "Print / Excel / PDF"]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "title": "8. Appendix — Reference & Best Practices",
+      "intro": "Quick reference tables jo daily operations me kaam aati hain.",
+      "subsections": [
+        {
+          "title": "Room Status Codes",
+          "table": {
+            "headers": ["Code", "Status", "Meaning", "Next Action"],
+            "rows": [
+              ["VC", "Vacant Clean", "Empty + cleaned, ready", "FO: guest allocate karo"],
+              ["VD", "Vacant Dirty", "Empty + cleaning chahiye", "HK: immediate cleaning"],
+              ["OC", "Occupied Clean", "Guest + clean", "Monitor / next service"],
+              ["OD", "Occupied Dirty", "Guest + cleaning chahiye", "HK: schedule (guest coordinate)"],
+              ["OOO", "Out of Order", "Available nahi", "Engineering fix"],
+              ["M", "Maintenance", "Temporary maintenance", "Engineering + notify HK"],
+              ["IP", "Inspection Pending", "Cleaned, QA pending", "Supervisor inspect"],
+              ["DND", "Do Not Disturb", "Guest ne DND on kiya", "Skip, baad me try"],
+              ["EC", "Early Check-in", "Guest jaldi aayega", "Priority cleaning"]
+            ]
+          }
+        },
+        {
+          "title": "Daily Housekeeping Workflow",
+          "table": {
+            "headers": ["Time", "Activity", "Screen", "Responsible"],
+            "rows": [
+              ["7:00 AM", "Briefing + room status check", "HK Screen / Room Status Board", "HK Manager"],
+              ["7:30 AM", "Assignments banao", "Operations > Assignments", "HK Supervisor"],
+              ["8:00 AM", "Cleaning start", "Operations > Start Cleaning", "Housekeeper"],
+              ["8AM–2PM", "Room cleaning + entries", "Room Cleaning Entry", "Housekeeper"],
+              ["Continuous", "Inspection", "Operations > Inspection", "HK Supervisor"],
+              ["Throughout", "Laundry requests", "Laundry > Laundry Memo", "Laundry Staff"],
+              ["Throughout", "Lost items log karo", "Lost & Found", "Housekeeper"],
+              ["6:00 PM", "Evening status review", "Room Status Board", "HK Manager"],
+              ["End of day", "Daily reports", "Reports section", "HK Manager"]
+            ]
+          }
+        },
+        {
+          "title": "Troubleshooting",
+          "table": {
+            "headers": ["Issue", "Cause", "Solution"],
+            "rows": [
+              ["Cannot login", "Wrong credentials/property", "User/Pass/Property verify karo (103)"],
+              ["Room assignment me nahi dikh raha", "Already assigned ya filtered", "View Assignment check / filters clear"],
+              ["Housekeeper dropdown me nahi", "Inactive ya not added", "Housekeeper Master me Active karo"],
+              ["Cannot start cleaning", "Room aapko assigned nahi", "Assignments me apna naam check"],
+              ["Memo print nahi ho raha", "Printer/bill not saved", "Pehle save karo, phir Bill Print"],
+              ["Status update nahi ho raha", "Cache issue", "F5 / cache clear"],
+              ["Inspection option nahi", "Cleaning entry submit nahi hui", "Pehle Room Cleaning Entry submit karo"],
+              ["Split Bill error", "Demo permission restricted", "Live property pe try karo"]
+            ]
+          }
+        },
+        {
+          "title": "Contact & Support",
+          "table": {
+            "headers": ["Contact", "Details"],
+            "rows": [
+              ["Website", "https://analysishms.com"],
+              ["Support Email", "support@analysishms.com"],
+              ["Phone", "+91 9161380170"],
+              ["System Login", "User: HOUSEKEEPING | Pass: HOUSEKEEPING | Property: 103"],
+              ["Software Version", "Analysis HMS 2026-27"]
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
