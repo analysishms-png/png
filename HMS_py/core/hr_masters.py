@@ -300,3 +300,80 @@ class _EmployeeAPI:
     def delete(code, cn=None, commit=True): return emp_delete(code, cn, commit)
 
 EmployeeAPI = _EmployeeAPI()
+
+
+# ============================================================
+# Designation Master
+# Table: Desig - Code varchar PK, Name varchar, audit cols
+# ============================================================
+DESIG_LIMITS = {"code": 6, "name": 30}
+DESIG_COLS = "Code, Name, U_Name, U_EntDt, U_AE"
+
+
+def _map_desig(r) -> dict:
+    try:
+        return {"code": r.Code, "name": (r.Name or "").strip(),
+                "u_name": r.U_Name or "", "u_ae": r.U_AE or ""}
+    except AttributeError:
+        c, n, un, _, uae = r
+        return {"code": c, "name": (n or "").strip(),
+                "u_name": un or "", "u_ae": uae or ""}
+
+
+def desig_list(cn=None) -> list[dict]:
+    return [_map_desig(r) for r in db.query(
+        f"SELECT {DESIG_COLS} FROM Desig ORDER BY Code", cn=cn)]
+
+
+def desig_get(code: str, cn=None) -> dict | None:
+    rows = db.query(
+        f"SELECT {DESIG_COLS} FROM Desig WHERE Code = ?", (code,), cn=cn)
+    return _map_desig(rows[0]) if rows else None
+
+
+def desig_exists(code: str, cn=None) -> bool:
+    return bool(db.query("SELECT 1 FROM Desig WHERE Code = ?", (code,), cn=cn))
+
+
+def desig_insert(rec: dict, cn=None, commit=True) -> int:
+    if not rec.get("code", "").strip():
+        raise ValueError("Code zaroori hai")
+    if not rec.get("name", "").strip():
+        raise ValueError("Name zaroori hai")
+    return db.execute(
+        "INSERT INTO Desig (Code, Name, Site_Code, U_Name, U_EntDt, "
+        "U_AE, LogSite_Code) VALUES (?, ?, ?, ?, getdate(), 'A', ?)",
+        (rec["code"], rec["name"], SITE_CODE, USER, SITE_CODE),
+        cn=cn, commit=commit)
+
+
+def desig_update(code: str, rec: dict, cn=None, commit=True) -> int:
+    if not rec.get("name", "").strip():
+        raise ValueError("Name zaroori hai")
+    return db.execute(
+        "UPDATE Desig SET Name = ?, U_Name = ?, U_EntDt = getdate(), "
+        "U_AE = 'E' WHERE Code = ?",
+        (rec["name"], USER, code), cn=cn, commit=commit)
+
+
+def desig_delete(code: str, cn=None, commit=True) -> int:
+    return db.execute(
+        "DELETE FROM Desig WHERE Code = ?", (code,), cn=cn, commit=commit)
+
+
+class _DesigAPI:
+    LIMITS = DESIG_LIMITS
+    @staticmethod
+    def list_all(cn=None): return desig_list(cn)
+    @staticmethod
+    def get(code, cn=None): return desig_get(code, cn)
+    @staticmethod
+    def exists(code, cn=None): return desig_exists(code, cn)
+    @staticmethod
+    def insert(rec, cn=None, commit=True): return desig_insert(rec, cn, commit)
+    @staticmethod
+    def update(code, rec, cn=None, commit=True): return desig_update(code, rec, cn, commit)
+    @staticmethod
+    def delete(code, cn=None, commit=True): return desig_delete(code, cn, commit)
+
+DesigAPI = _DesigAPI()

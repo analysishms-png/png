@@ -397,3 +397,80 @@ def enviro_get(field: str, cn=None) -> str | None:
         return rows[0][0] if rows else None
     except Exception:
         return None
+
+
+# ============================================================
+# Voucher Category Master
+# Table: VoucherCat - Category varchar PK, NCat varchar, audit cols
+# ============================================================
+VOUCHCAT_LIMITS = {"category": 10, "ncat": 10}
+VOUCHCAT_COLS = "Category, NCat, U_Name, U_EntDt, U_AE"
+
+
+def _map_vouchcat(r) -> dict:
+    try:
+        return {"category": r.Category, "ncat": (r.NCat or "").strip(),
+                "u_name": r.U_Name or "", "u_ae": r.U_AE or ""}
+    except AttributeError:
+        c, nc, un, _, uae = r
+        return {"category": c, "ncat": (nc or "").strip(),
+                "u_name": un or "", "u_ae": uae or ""}
+
+
+def vouchcat_list(cn=None) -> list[dict]:
+    return [_map_vouchcat(r) for r in db.query(
+        f"SELECT {VOUCHCAT_COLS} FROM VoucherCat ORDER BY Category", cn=cn)]
+
+
+def vouchcat_get(code: str, cn=None) -> dict | None:
+    rows = db.query(
+        f"SELECT {VOUCHCAT_COLS} FROM VoucherCat WHERE Category = ?",
+        (code,), cn=cn)
+    return _map_vouchcat(rows[0]) if rows else None
+
+
+def vouchcat_exists(code: str, cn=None) -> bool:
+    return bool(db.query(
+        "SELECT 1 FROM VoucherCat WHERE Category = ?", (code,), cn=cn))
+
+
+def vouchcat_insert(rec: dict, cn=None, commit=True) -> int:
+    if not rec.get("category", "").strip():
+        raise ValueError("Category zaroori hai")
+    return db.execute(
+        "INSERT INTO VoucherCat (Category, NCat, "
+        "Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code) "
+        "VALUES (?, ?, ?, ?, getdate(), 'A', ?)",
+        (rec["category"], rec.get("ncat", ""),
+         SITE_CODE, USER, SITE_CODE), cn=cn, commit=commit)
+
+
+def vouchcat_update(code: str, rec: dict, cn=None, commit=True) -> int:
+    return db.execute(
+        "UPDATE VoucherCat SET NCat = ?, "
+        "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' WHERE Category = ?",
+        (rec.get("ncat", ""), USER, code), cn=cn, commit=commit)
+
+
+def vouchcat_delete(code: str, cn=None, commit=True) -> int:
+    return db.execute(
+        "DELETE FROM VoucherCat WHERE Category = ?", (code,),
+        cn=cn, commit=commit)
+
+
+class _VouchCatAPI:
+    LIMITS = VOUCHCAT_LIMITS
+    @staticmethod
+    def list_all(cn=None): return vouchcat_list(cn)
+    @staticmethod
+    def get(code, cn=None): return vouchcat_get(code, cn)
+    @staticmethod
+    def exists(code, cn=None): return vouchcat_exists(code, cn)
+    @staticmethod
+    def insert(rec, cn=None, commit=True): return vouchcat_insert(rec, cn, commit)
+    @staticmethod
+    def update(code, rec, cn=None, commit=True): return vouchcat_update(code, rec, cn, commit)
+    @staticmethod
+    def delete(code, cn=None, commit=True): return vouchcat_delete(code, cn, commit)
+
+VouchCatAPI = _VouchCatAPI()

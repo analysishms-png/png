@@ -411,3 +411,391 @@ class _ItemCatAPI:
     def delete(code, cn=None, commit=True, user="SA"): return itemcat_delete(code, cn, commit)
 
 ItemCatAPI = _ItemCatAPI()
+
+
+# ============================================================
+# NC Type Master (Non-Chargeable type)
+# Table: NCTypeMast - NCTYPE varchar PK, NCPer float, audit cols
+# ============================================================
+NCTYPE_LIMITS = {"code": 6, "ncper": 5}
+NCTYPE_COLS = "NCTYPE, NCPer, U_Name, U_EntDt, U_AE"
+
+
+def _map_nctype(r) -> dict:
+    try:
+        return {"code": r.NCTYPE, "ncper": float(r.NCPer or 0),
+                "u_name": r.U_Name or "", "u_ae": r.U_AE or ""}
+    except AttributeError:
+        c, np, un, _, uae = r
+        return {"code": c, "ncper": float(np or 0),
+                "u_name": un or "", "u_ae": uae or ""}
+
+
+def nctype_list(cn=None) -> list[dict]:
+    return [_map_nctype(r) for r in db.query(
+        f"SELECT {NCTYPE_COLS} FROM NCTypeMast ORDER BY NCTYPE", cn=cn)]
+
+
+def nctype_get(code: str, cn=None) -> dict | None:
+    rows = db.query(
+        f"SELECT {NCTYPE_COLS} FROM NCTypeMast WHERE NCTYPE = ?",
+        (code,), cn=cn)
+    return _map_nctype(rows[0]) if rows else None
+
+
+def nctype_exists(code: str, cn=None) -> bool:
+    return bool(db.query(
+        "SELECT 1 FROM NCTypeMast WHERE NCTYPE = ?", (code,), cn=cn))
+
+
+def nctype_insert(rec: dict, cn=None, commit=True, user: str = "SA") -> int:
+    _require_permission("NC Type", user)
+    if not rec.get("code", "").strip():
+        raise ValueError("Code zaroori hai")
+    return db.execute(
+        "INSERT INTO NCTypeMast (NCTYPE, NCPer, "
+        "Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code) "
+        "VALUES (?, ?, ?, ?, getdate(), 'A', ?)",
+        (rec["code"], float(rec.get("ncper") or 0),
+         SITE_CODE, USER, SITE_CODE), cn=cn, commit=commit)
+
+
+def nctype_update(code: str, rec: dict, cn=None, commit=True) -> int:
+    return db.execute(
+        "UPDATE NCTypeMast SET NCPer = ?, "
+        "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' WHERE NCTYPE = ?",
+        (float(rec.get("ncper") or 0), USER, code), cn=cn, commit=commit)
+
+
+def nctype_delete(code: str, cn=None, commit=True) -> int:
+    return db.execute(
+        "DELETE FROM NCTypeMast WHERE NCTYPE = ?", (code,), cn=cn, commit=commit)
+
+
+class _NCTypeAPI:
+    LIMITS = NCTYPE_LIMITS
+    @staticmethod
+    def list_all(cn=None): return nctype_list(cn)
+    @staticmethod
+    def get(code, cn=None): return nctype_get(code, cn)
+    @staticmethod
+    def exists(code, cn=None): return nctype_exists(code, cn)
+    @staticmethod
+    def insert(rec, cn=None, commit=True, user="SA"): return nctype_insert(rec, cn, commit, user=user)
+    @staticmethod
+    def update(code, rec, cn=None, commit=True, user="SA"): return nctype_update(code, rec, cn, commit)
+    @staticmethod
+    def delete(code, cn=None, commit=True, user="SA"): return nctype_delete(code, cn, commit)
+
+NCTypeAPI = _NCTypeAPI()
+
+
+# ============================================================
+# Waiter / Server Master
+# Table: Waiter - Code varchar PK, Name varchar, ActiveYN, RestCode, audit cols
+# ============================================================
+WAITER_LIMITS = {"code": 6, "name": 30, "rest": 6}
+WAITER_COLS = "Code, Name, ActiveYN, RestCode, U_Name, U_EntDt, U_AE"
+
+
+def _map_waiter(r) -> dict:
+    try:
+        return {"code": r.Code, "name": (r.Name or "").strip(),
+                "active": r.ActiveYN or "Y", "rest": r.RestCode or "",
+                "u_name": r.U_Name or "", "u_ae": r.U_AE or ""}
+    except AttributeError:
+        c, n, act, rc, un, _, uae = r
+        return {"code": c, "name": (n or "").strip(),
+                "active": act or "Y", "rest": rc or "",
+                "u_name": un or "", "u_ae": uae or ""}
+
+
+def waiter_list(cn=None) -> list[dict]:
+    return [_map_waiter(r) for r in db.query(
+        f"SELECT {WAITER_COLS} FROM Waiter ORDER BY Code", cn=cn)]
+
+
+def waiter_get(code: str, cn=None) -> dict | None:
+    rows = db.query(
+        f"SELECT {WAITER_COLS} FROM Waiter WHERE Code = ?", (code,), cn=cn)
+    return _map_waiter(rows[0]) if rows else None
+
+
+def waiter_exists(code: str, cn=None) -> bool:
+    return bool(db.query("SELECT 1 FROM Waiter WHERE Code = ?", (code,), cn=cn))
+
+
+def waiter_insert(rec: dict, cn=None, commit=True, user: str = "SA") -> int:
+    _require_permission("Waiter", user)
+    if not rec.get("code", "").strip():
+        raise ValueError("Code zaroori hai")
+    if not rec.get("name", "").strip():
+        raise ValueError("Name zaroori hai")
+    return db.execute(
+        "INSERT INTO Waiter (Code, Name, ActiveYN, RestCode, "
+        "Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code) "
+        "VALUES (?, ?, ?, ?, ?, ?, getdate(), 'A', ?)",
+        (rec["code"], rec["name"], rec.get("active", "Y"),
+         rec.get("rest", ""), SITE_CODE, USER, SITE_CODE),
+        cn=cn, commit=commit)
+
+
+def waiter_update(code: str, rec: dict, cn=None, commit=True) -> int:
+    if not rec.get("name", "").strip():
+        raise ValueError("Name zaroori hai")
+    return db.execute(
+        "UPDATE Waiter SET Name = ?, ActiveYN = ?, RestCode = ?, "
+        "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' WHERE Code = ?",
+        (rec["name"], rec.get("active", "Y"), rec.get("rest", ""),
+         USER, code), cn=cn, commit=commit)
+
+
+def waiter_delete(code: str, cn=None, commit=True) -> int:
+    return db.execute(
+        "DELETE FROM Waiter WHERE Code = ?", (code,), cn=cn, commit=commit)
+
+
+class _WaiterAPI:
+    LIMITS = WAITER_LIMITS
+    @staticmethod
+    def list_all(cn=None): return waiter_list(cn)
+    @staticmethod
+    def get(code, cn=None): return waiter_get(code, cn)
+    @staticmethod
+    def exists(code, cn=None): return waiter_exists(code, cn)
+    @staticmethod
+    def insert(rec, cn=None, commit=True, user="SA"): return waiter_insert(rec, cn, commit, user=user)
+    @staticmethod
+    def update(code, rec, cn=None, commit=True, user="SA"): return waiter_update(code, rec, cn, commit)
+    @staticmethod
+    def delete(code, cn=None, commit=True, user="SA"): return waiter_delete(code, cn, commit)
+
+WaiterAPI = _WaiterAPI()
+
+
+# ============================================================
+# Shift Master
+# Table: ShiftMast - Code varchar PK, Name varchar, FromTime varchar, ToTime varchar, audit cols
+# ============================================================
+SHIFT_LIMITS = {"code": 6, "name": 30, "fromtime": 10, "totime": 10}
+SHIFT_COLS = "Code, Name, FromTime, ToTime, U_Name, U_EntDt, U_AE"
+
+
+def _map_shift(r) -> dict:
+    try:
+        return {"code": r.Code, "name": (r.Name or "").strip(),
+                "fromtime": r.FromTime or "", "totime": r.ToTime or "",
+                "u_name": r.U_Name or "", "u_ae": r.U_AE or ""}
+    except AttributeError:
+        c, n, ft, tt, un, _, uae = r
+        return {"code": c, "name": (n or "").strip(),
+                "fromtime": ft or "", "totime": tt or "",
+                "u_name": un or "", "u_ae": uae or ""}
+
+
+def shift_list(cn=None) -> list[dict]:
+    return [_map_shift(r) for r in db.query(
+        f"SELECT {SHIFT_COLS} FROM ShiftMast ORDER BY Code", cn=cn)]
+
+
+def shift_get(code: str, cn=None) -> dict | None:
+    rows = db.query(
+        f"SELECT {SHIFT_COLS} FROM ShiftMast WHERE Code = ?", (code,), cn=cn)
+    return _map_shift(rows[0]) if rows else None
+
+
+def shift_exists(code: str, cn=None) -> bool:
+    return bool(db.query("SELECT 1 FROM ShiftMast WHERE Code = ?", (code,), cn=cn))
+
+
+def shift_insert(rec: dict, cn=None, commit=True, user: str = "SA") -> int:
+    _require_permission("Shift Master", user)
+    if not rec.get("code", "").strip():
+        raise ValueError("Code zaroori hai")
+    if not rec.get("name", "").strip():
+        raise ValueError("Name zaroori hai")
+    return db.execute(
+        "INSERT INTO ShiftMast (Code, Name, FromTime, ToTime, "
+        "Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code) "
+        "VALUES (?, ?, ?, ?, ?, ?, getdate(), 'A', ?)",
+        (rec["code"], rec["name"], rec.get("fromtime", ""),
+         rec.get("totime", ""), SITE_CODE, USER, SITE_CODE),
+        cn=cn, commit=commit)
+
+
+def shift_update(code: str, rec: dict, cn=None, commit=True) -> int:
+    if not rec.get("name", "").strip():
+        raise ValueError("Name zaroori hai")
+    return db.execute(
+        "UPDATE ShiftMast SET Name = ?, FromTime = ?, ToTime = ?, "
+        "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' WHERE Code = ?",
+        (rec["name"], rec.get("fromtime", ""), rec.get("totime", ""),
+         USER, code), cn=cn, commit=commit)
+
+
+def shift_delete(code: str, cn=None, commit=True) -> int:
+    return db.execute(
+        "DELETE FROM ShiftMast WHERE Code = ?", (code,), cn=cn, commit=commit)
+
+
+class _ShiftAPI:
+    LIMITS = SHIFT_LIMITS
+    @staticmethod
+    def list_all(cn=None): return shift_list(cn)
+    @staticmethod
+    def get(code, cn=None): return shift_get(code, cn)
+    @staticmethod
+    def exists(code, cn=None): return shift_exists(code, cn)
+    @staticmethod
+    def insert(rec, cn=None, commit=True, user="SA"): return shift_insert(rec, cn, commit, user=user)
+    @staticmethod
+    def update(code, rec, cn=None, commit=True, user="SA"): return shift_update(code, rec, cn, commit)
+    @staticmethod
+    def delete(code, cn=None, commit=True, user="SA"): return shift_delete(code, cn, commit)
+
+ShiftAPI = _ShiftAPI()
+
+
+# ============================================================
+# Combo Pack Master
+# Table: ComboPackHead - ComboCode varchar PK, Name varchar, ComboName varchar,
+#        Rate float, Active varchar, ServiceCharge float, RestCode, audit cols
+# Table: ComboPackDetail - ComboCode + ItemCode + Qty child rows
+# ============================================================
+COMBO_LIMITS = {"code": 6, "name": 30, "comboname": 30, "rest": 6}
+COMBOHEAD_COLS = ("ComboCode, Name, ComboName, Rate, Active, "
+                  "ServiceCharge, RestCode, U_Name, U_EntDt, U_AE")
+
+
+def _map_combo(r) -> dict:
+    try:
+        return {"code": r.ComboCode, "name": (r.Name or "").strip(),
+                "comboname": (r.ComboName or "").strip(),
+                "rate": float(r.Rate or 0), "active": r.Active or "Y",
+                "servicecharge": float(r.ServiceCharge or 0),
+                "rest": r.RestCode or "",
+                "u_name": r.U_Name or "", "u_ae": r.U_AE or ""}
+    except AttributeError:
+        c, n, cn2, rt, act, sc, rc, un, _, uae = r
+        return {"code": c, "name": (n or "").strip(),
+                "comboname": (cn2 or "").strip(),
+                "rate": float(rt or 0), "active": act or "Y",
+                "servicecharge": float(sc or 0),
+                "rest": rc or "", "u_name": un or "", "u_ae": uae or ""}
+
+
+def combo_list(cn=None) -> list[dict]:
+    return [_map_combo(r) for r in db.query(
+        f"SELECT {COMBOHEAD_COLS} FROM ComboPackHead ORDER BY ComboCode", cn=cn)]
+
+
+def combo_get(code: str, cn=None) -> dict | None:
+    rows = db.query(
+        f"SELECT {COMBOHEAD_COLS} FROM ComboPackHead WHERE ComboCode = ?",
+        (code,), cn=cn)
+    if not rows:
+        return None
+    d = _map_combo(rows[0])
+    d["items"] = combo_detail(code, cn=cn)
+    return d
+
+
+def combo_exists(code: str, cn=None) -> bool:
+    return bool(db.query(
+        "SELECT 1 FROM ComboPackHead WHERE ComboCode = ?", (code,), cn=cn))
+
+
+def combo_detail(code: str, cn=None) -> list[dict]:
+    rows = db.query(
+        "SELECT ComboCode, ItemCode, Qty FROM ComboPackDetail "
+        "WHERE ComboCode = ? ORDER BY ItemCode", (code,), cn=cn)
+    out = []
+    for r in rows:
+        try:
+            out.append({"code": r.ComboCode, "itemcode": r.ItemCode or "",
+                        "qty": float(r.Qty or 0)})
+        except AttributeError:
+            cc, ic, q = r
+            out.append({"code": cc, "itemcode": ic or "", "qty": float(q or 0)})
+    return out
+
+
+def combo_insert(rec: dict, cn=None, commit=True, user: str = "SA") -> int:
+    _require_permission("Combo Pack", user)
+    if not rec.get("code", "").strip():
+        raise ValueError("ComboCode zaroori hai")
+    if not rec.get("name", "").strip():
+        raise ValueError("Name zaroori hai")
+    items = rec.get("items", [])
+    db.execute(
+        "INSERT INTO ComboPackHead (ComboCode, Name, ComboName, Rate, "
+        "Active, ServiceCharge, RestCode, Site_Code, U_Name, U_EntDt, "
+        "U_AE, LogSite_Code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, getdate(), 'A', ?)",
+        (rec["code"], rec["name"], rec.get("comboname", ""),
+         float(rec.get("rate") or 0), rec.get("active", "Y"),
+         float(rec.get("servicecharge") or 0), rec.get("rest", ""),
+         SITE_CODE, USER, SITE_CODE), cn=cn, commit=False)
+    for item in items:
+        db.execute(
+            "INSERT INTO ComboPackDetail (ComboCode, ItemCode, Qty, "
+            "Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code) "
+            "VALUES (?, ?, ?, ?, ?, getdate(), 'A', ?)",
+            (rec["code"], item.get("itemcode", ""),
+             float(item.get("qty") or 0), SITE_CODE, USER, SITE_CODE),
+            cn=cn, commit=False)
+    if commit:
+        cn.commit()
+    return 0
+
+
+def combo_update(code: str, rec: dict, cn=None, commit=True) -> int:
+    if not rec.get("name", "").strip():
+        raise ValueError("Name zaroori hai")
+    db.execute(
+        "UPDATE ComboPackHead SET Name = ?, ComboName = ?, Rate = ?, "
+        "Active = ?, ServiceCharge = ?, RestCode = ?, "
+        "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' WHERE ComboCode = ?",
+        (rec["name"], rec.get("comboname", ""),
+         float(rec.get("rate") or 0), rec.get("active", "Y"),
+         float(rec.get("servicecharge") or 0), rec.get("rest", ""),
+         USER, code), cn=cn, commit=False)
+    if "items" in rec:
+        db.execute("DELETE FROM ComboPackDetail WHERE ComboCode = ?",
+                   (code,), cn=cn, commit=False)
+        for item in rec["items"]:
+            db.execute(
+                "INSERT INTO ComboPackDetail (ComboCode, ItemCode, Qty, "
+                "Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code) "
+                "VALUES (?, ?, ?, ?, ?, getdate(), 'A', ?)",
+                (code, item.get("itemcode", ""),
+                 float(item.get("qty") or 0), SITE_CODE, USER, SITE_CODE),
+                cn=cn, commit=False)
+    if commit:
+        cn.commit()
+    return 0
+
+
+def combo_delete(code: str, cn=None, commit=True) -> int:
+    db.execute("DELETE FROM ComboPackDetail WHERE ComboCode = ?",
+               (code,), cn=cn, commit=False)
+    r = db.execute("DELETE FROM ComboPackHead WHERE ComboCode = ?",
+                   (code,), cn=cn, commit=commit)
+    return r
+
+
+class _ComboAPI:
+    LIMITS = COMBO_LIMITS
+    @staticmethod
+    def list_all(cn=None): return combo_list(cn)
+    @staticmethod
+    def get(code, cn=None): return combo_get(code, cn)
+    @staticmethod
+    def exists(code, cn=None): return combo_exists(code, cn)
+    @staticmethod
+    def insert(rec, cn=None, commit=True, user="SA"): return combo_insert(rec, cn, commit, user=user)
+    @staticmethod
+    def update(code, rec, cn=None, commit=True, user="SA"): return combo_update(code, rec, cn, commit)
+    @staticmethod
+    def delete(code, cn=None, commit=True, user="SA"): return combo_delete(code, cn, commit)
+
+ComboAPI = _ComboAPI()

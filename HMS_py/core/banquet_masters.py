@@ -348,3 +348,86 @@ class _GroupProfAPI:
     def delete(code, cn=None, commit=True): return groupprof_delete(code, cn, commit)
 
 GroupProfAPI = _GroupProfAPI()
+
+
+# ============================================================
+# Function Type Master (Events / function types)
+# Table: FunctionType - Code varchar PK, Name varchar, Status varchar, audit cols
+# ============================================================
+FUNCTYPE_LIMITS = {"code": 6, "name": 30, "status": 10}
+FUNCTYPE_COLS = "Code, Name, Status, U_Name, U_EntDt, U_AE"
+
+
+def _map_functype(r) -> dict:
+    try:
+        return {"code": r.Code, "name": (r.Name or "").strip(),
+                "status": r.Status or "",
+                "u_name": r.U_Name or "", "u_ae": r.U_AE or ""}
+    except AttributeError:
+        c, n, st, un, _, uae = r
+        return {"code": c, "name": (n or "").strip(),
+                "status": st or "",
+                "u_name": un or "", "u_ae": uae or ""}
+
+
+def functype_list(cn=None) -> list[dict]:
+    return [_map_functype(r) for r in db.query(
+        f"SELECT {FUNCTYPE_COLS} FROM FunctionType ORDER BY Code", cn=cn)]
+
+
+def functype_get(code: str, cn=None) -> dict | None:
+    rows = db.query(
+        f"SELECT {FUNCTYPE_COLS} FROM FunctionType WHERE Code = ?",
+        (code,), cn=cn)
+    return _map_functype(rows[0]) if rows else None
+
+
+def functype_exists(code: str, cn=None) -> bool:
+    return bool(db.query(
+        "SELECT 1 FROM FunctionType WHERE Code = ?", (code,), cn=cn))
+
+
+def functype_insert(rec: dict, cn=None, commit=True) -> int:
+    if not rec.get("code", "").strip():
+        raise ValueError("Code zaroori hai")
+    if not rec.get("name", "").strip():
+        raise ValueError("Name zaroori hai")
+    return db.execute(
+        "INSERT INTO FunctionType (Code, Name, Status, "
+        "Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code) "
+        "VALUES (?, ?, ?, ?, ?, getdate(), 'A', ?)",
+        (rec["code"], rec["name"], rec.get("status", ""),
+         SITE_CODE, USER, SITE_CODE), cn=cn, commit=commit)
+
+
+def functype_update(code: str, rec: dict, cn=None, commit=True) -> int:
+    if not rec.get("name", "").strip():
+        raise ValueError("Name zaroori hai")
+    return db.execute(
+        "UPDATE FunctionType SET Name = ?, Status = ?, "
+        "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' WHERE Code = ?",
+        (rec["name"], rec.get("status", ""), USER, code),
+        cn=cn, commit=commit)
+
+
+def functype_delete(code: str, cn=None, commit=True) -> int:
+    return db.execute(
+        "DELETE FROM FunctionType WHERE Code = ?", (code,), cn=cn, commit=commit)
+
+
+class _FuncTypeAPI:
+    LIMITS = FUNCTYPE_LIMITS
+    @staticmethod
+    def list_all(cn=None): return functype_list(cn)
+    @staticmethod
+    def get(code, cn=None): return functype_get(code, cn)
+    @staticmethod
+    def exists(code, cn=None): return functype_exists(code, cn)
+    @staticmethod
+    def insert(rec, cn=None, commit=True): return functype_insert(rec, cn, commit)
+    @staticmethod
+    def update(code, rec, cn=None, commit=True): return functype_update(code, rec, cn, commit)
+    @staticmethod
+    def delete(code, cn=None, commit=True): return functype_delete(code, cn, commit)
+
+FuncTypeAPI = _FuncTypeAPI()

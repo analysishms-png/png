@@ -236,3 +236,111 @@ class _FacilityAPI:
     def delete(code, cn=None, commit=True): return facility_delete(code, cn, commit)
 
 FacilityAPI = _FacilityAPI()
+
+
+# ============================================================
+# Membership Revenue Master
+# Table: MembershipRevMast - Code varchar PK, Description varchar,
+#   AcountYN, ACPosting, TaxStru, SubsDetails, RefundableYN,
+#   SubsChargeYN, AcCode, Status, audit cols
+# ============================================================
+MEMREV_LIMITS = {"code": 6, "desc": 50, "taxstru": 6, "accode": 10, "status": 10}
+MEMREV_COLS = ("Code, Description, AcountYN, ACPosting, TaxStru, "
+               "SubsDetails, RefundableYN, SubsChargeYN, AcCode, Status, "
+               "U_Name, U_EntDt, U_AE")
+
+
+def _map_memrev(r) -> dict:
+    try:
+        return {"code": r.Code, "desc": (r.Description or "").strip(),
+                "acountyn": r.AcountYN or "N",
+                "acposting": r.ACPosting or "",
+                "taxstru": r.TaxStru or "",
+                "subsdetails": (r.SubsDetails or "").strip(),
+                "refundableyn": r.RefundableYN or "N",
+                "subschargeyn": r.SubsChargeYN or "N",
+                "accode": r.AcCode or "",
+                "status": r.Status or "",
+                "u_name": r.U_Name or "", "u_ae": r.U_AE or ""}
+    except AttributeError:
+        c, d, ay, ap, ts, sd, ry, sy, ac, st, un, _, uae = r
+        return {"code": c, "desc": (d or "").strip(),
+                "acountyn": ay or "N", "acposting": ap or "",
+                "taxstru": ts or "", "subsdetails": (sd or "").strip(),
+                "refundableyn": ry or "N", "subschargeyn": sy or "N",
+                "accode": ac or "", "status": st or "",
+                "u_name": un or "", "u_ae": uae or ""}
+
+
+def memrev_list(cn=None) -> list[dict]:
+    return [_map_memrev(r) for r in db.query(
+        f"SELECT {MEMREV_COLS} FROM MembershipRevMast ORDER BY Code", cn=cn)]
+
+
+def memrev_get(code: str, cn=None) -> dict | None:
+    rows = db.query(
+        f"SELECT {MEMREV_COLS} FROM MembershipRevMast WHERE Code = ?",
+        (code,), cn=cn)
+    return _map_memrev(rows[0]) if rows else None
+
+
+def memrev_exists(code: str, cn=None) -> bool:
+    return bool(db.query(
+        "SELECT 1 FROM MembershipRevMast WHERE Code = ?", (code,), cn=cn))
+
+
+def memrev_insert(rec: dict, cn=None, commit=True) -> int:
+    if not rec.get("code", "").strip():
+        raise ValueError("Code zaroori hai")
+    if not rec.get("desc", "").strip():
+        raise ValueError("Description zaroori hai")
+    return db.execute(
+        "INSERT INTO MembershipRevMast (Code, Description, AcountYN, "
+        "ACPosting, TaxStru, SubsDetails, RefundableYN, SubsChargeYN, "
+        "AcCode, Status, Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code) "
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, getdate(), 'A', ?)",
+        (rec["code"], rec["desc"], rec.get("acountyn", "N"),
+         rec.get("acposting", ""), rec.get("taxstru", ""),
+         rec.get("subsdetails", ""), rec.get("refundableyn", "N"),
+         rec.get("subschargeyn", "N"), rec.get("accode", ""),
+         rec.get("status", ""), SITE_CODE, USER, SITE_CODE),
+        cn=cn, commit=commit)
+
+
+def memrev_update(code: str, rec: dict, cn=None, commit=True) -> int:
+    if not rec.get("desc", "").strip():
+        raise ValueError("Description zaroori hai")
+    return db.execute(
+        "UPDATE MembershipRevMast SET Description = ?, AcountYN = ?, "
+        "ACPosting = ?, TaxStru = ?, SubsDetails = ?, RefundableYN = ?, "
+        "SubsChargeYN = ?, AcCode = ?, Status = ?, "
+        "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' WHERE Code = ?",
+        (rec["desc"], rec.get("acountyn", "N"), rec.get("acposting", ""),
+         rec.get("taxstru", ""), rec.get("subsdetails", ""),
+         rec.get("refundableyn", "N"), rec.get("subschargeyn", "N"),
+         rec.get("accode", ""), rec.get("status", ""),
+         USER, code), cn=cn, commit=commit)
+
+
+def memrev_delete(code: str, cn=None, commit=True) -> int:
+    return db.execute(
+        "DELETE FROM MembershipRevMast WHERE Code = ?", (code,),
+        cn=cn, commit=commit)
+
+
+class _MemRevAPI:
+    LIMITS = MEMREV_LIMITS
+    @staticmethod
+    def list_all(cn=None): return memrev_list(cn)
+    @staticmethod
+    def get(code, cn=None): return memrev_get(code, cn)
+    @staticmethod
+    def exists(code, cn=None): return memrev_exists(code, cn)
+    @staticmethod
+    def insert(rec, cn=None, commit=True): return memrev_insert(rec, cn, commit)
+    @staticmethod
+    def update(code, rec, cn=None, commit=True): return memrev_update(code, rec, cn, commit)
+    @staticmethod
+    def delete(code, cn=None, commit=True): return memrev_delete(code, cn, commit)
+
+MemRevAPI = _MemRevAPI()
