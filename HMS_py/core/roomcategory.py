@@ -14,7 +14,7 @@ from HMS_py.core import db
 SITE_CODE = "KK"
 USER = "PYADMIN"
 LIMITS = {
-    "code": 6, "name": 30, "short": 6,
+    "code": 5, "name": 25, "short": 6,
 }
 SELECT_COLS = "Code, Name, ShortName, MaxPerson, RevCode, U_Name, U_EntDt, U_AE"
 
@@ -62,6 +62,7 @@ def exists(code: str, cn=None) -> bool:
 
 def insert(rec: dict, cn=None, commit: bool = True) -> int:
     _validate(rec)
+    db.require_absent("RoomCat", "Code", rec["code"], "Room Category Code")
     return db.execute(
         "INSERT INTO RoomCat (Code, Name, ShortName, MaxPerson, RevCode, "
         "Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code) "

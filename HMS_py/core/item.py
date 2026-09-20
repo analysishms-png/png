@@ -66,6 +66,7 @@ def exists(code: str, cn=None) -> bool:
 
 def insert(rec: dict, cn=None, commit: bool = True) -> int:
     _validate(rec)
+    db.require_absent("ItemMast", "Code", rec["code"], "Item Code")
     return db.execute(
         "INSERT INTO ItemMast (Code, Name, Unit, Type, ItemGroup, SaleRate, "
         "RestCode, Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code) "
@@ -163,6 +164,7 @@ def itemgrp_insert(rec: dict, cn=None, commit: bool = True) -> int:
         raise ValueError("Code zaroori hai")
     if not rec.get("name", "").strip():
         raise ValueError("Name zaroori hai")
+    db.require_absent("ItemGrp", "Code", rec["code"], "Item Group Code")
     return db.execute(
         "INSERT INTO ItemGrp (Code, Name, Type, Status, RestCode, "
         "Choose_Limit, CatType, CommodityCode, "

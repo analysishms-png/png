@@ -5,7 +5,7 @@
 C:\Users\LENOVO\Desktop\serialkey\PROJECT_REPAIR - Copy\HMS_py
 ```
 
-**Date Last Updated:** 2026-09-19
+**Date Last Updated:** 2026-09-20
 
 ---
 
@@ -33,6 +33,8 @@ C:\Users\LENOVO\Desktop\serialkey\PROJECT_REPAIR - Copy\HMS_py
 | B011 | tests/database/test_receive_payment.py | Prior crashed runs left orphan PYT* folios/charges that poisoned next run's balance assertions | Closed — preflight cleanup + full-restore check (T10) |
 | B012 | tools/hms_py_e2e_p4b.py | Reorg (package now HMS_py/HMS_py/) broke harness db_check import — P4-09 false-fail; also stale duplicate EXE processes steal focus (2 login windows) | Closed — sys.path insert + pre-run taskkill |
 | B013 | build/HMS_py.spec | Spec pointed to old main.py path after reorg — build failed | Closed — '..\\HMS_py\\HMS_py\\main.py' + pathex; tally_export/tally_ui hiddenimports added |
+| B014 | core/inventory.py | `stock_register()` hardcoded `vprefix="2026"` returned 0 rows — live Stock is all Vprefix='2025' (13253 rows). VB6 register is date-window based (Crystal StkRegStore.rpt TTX evidence), not FY-pinned | Closed 20/Sep — default vprefix=None + vdate_from/vdate_to params; regression test_inventory_registers.py 8/8 PASS (Stock delta 13253→13253) |
+| B015 | HMS_py/main.py + core/db.py | Analysis.ini reports/temp paths (keys 2/3) were never created if missing — VB6 report export + Temp.Mdb depend on them | Closed 20/Sep — `db.ensure_paths()` (create-if-missing, best-effort) wired in main(); live paths already exist, fake-path probe verified creation |
 
 ---
 

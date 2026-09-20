@@ -718,33 +718,32 @@ def open_einvoice_config(parent=None):
 class KitchenStockReportForm(QDialog):
     """Kitchen Stock Report - filters KSISS/KSREC stock movements."""
 
+class KitchenStockReportForm(QDialog):
+    """Kitchen Stock Report (KitchenStkRep.txt)
+    VB6 Evidence: MatRep_Click, Material > Reports
+    Source Tables: Stock + ItemMast
+    Output: Kitchen, GrpName, Item, KitchenStock, Unit
+    """
+
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Kitchen Stock Report (P7-1) - HMS_py")
-        self.resize(1000, 600)
+        self.setWindowTitle("Kitchen Stock Report (KitchenStkRep) - HMS_py")
+        self.resize(800, 500)
 
         root = QVBoxLayout(self)
 
         # Filters
         filter_row = QHBoxLayout()
-        self.cb_vtype = QComboBox()
-        self.cb_vtype.addItems(["All", "KSISS (Kitchen Stock Issue)", "KSREC (Kitchen Stock Receive)"])
         self.ed_item = QLineEdit()
         self.ed_item.setPlaceholderText("Item Code (optional)")
-        self.ed_godown = QLineEdit()
-        self.ed_godown.setPlaceholderText("Godown Code (optional)")
         self.de_from = QDateEdit(datetime.date.today() - datetime.timedelta(days=30))
         self.de_from.setCalendarPopup(True)
         self.de_to = QDateEdit(datetime.date.today())
         self.de_to.setCalendarPopup(True)
         self.btn_refresh = QPushButton("Refresh (F5)")
 
-        filter_row.addWidget(QLabel("Type:"))
-        filter_row.addWidget(self.cb_vtype)
         filter_row.addWidget(QLabel("Item:"))
         filter_row.addWidget(self.ed_item)
-        filter_row.addWidget(QLabel("Godown:"))
-        filter_row.addWidget(self.ed_godown)
         filter_row.addWidget(QLabel("From:"))
         filter_row.addWidget(self.de_from)
         filter_row.addWidget(QLabel("To:"))
@@ -754,10 +753,9 @@ class KitchenStockReportForm(QDialog):
         root.addLayout(filter_row)
 
         # Results table
-        self.tbl = QTableWidget(0, 10)
+        self.tbl = QTableWidget(0, 5)
         self.tbl.setHorizontalHeaderLabels([
-            "DocId", "VType", "VNo", "Date", "Item", "Godown",
-            "QtyIss", "QtyRec", "Rate", "Amount", "User"
+            "Kitchen", "GrpName", "Item", "KitchenStock", "Unit"
         ])
         self.tbl.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self.tbl.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
@@ -765,73 +763,161 @@ class KitchenStockReportForm(QDialog):
         root.addWidget(self.tbl)
 
         # Summary
-        self.lbl_summary = QLabel("Rows: 0 | Total Issued: 0 | Total Received: 0 | Net: 0")
+        self.lbl_summary = QLabel("Rows: 0")
         self.lbl_summary.setStyleSheet("color:#111; padding:4px; background:#f0f0f0; font-weight:bold;")
         root.addWidget(self.lbl_summary)
 
+        # Buttons
         btns = QHBoxLayout()
         self.btn_close = QPushButton("Close")
         btns.addStretch()
         btns.addWidget(self.btn_close)
         root.addLayout(btns)
 
+        # Connections
         self.btn_refresh.clicked.connect(self.refresh)
         self.btn_close.clicked.connect(self.reject)
 
+        # F5 shortcut
         from PyQt6.QtGui import QShortcut, QKeySequence
         QShortcut(QKeySequence("F5"), self, activated=self.refresh)
 
+        # Initial load
         self.refresh()
 
     def refresh(self):
-        vtype_idx = self.cb_vtype.currentIndex()
-        vtype = None
-        if vtype_idx == 1:
-            vtype = "KSISS"
-        elif vtype_idx == 2:
-            vtype = "KSREC"
-
         item = self.ed_item.text().strip() or None
-        godown = self.ed_godown.text().strip() or None
-        # Note: stock_movements doesn't support date range, we'll filter after
-        rows = inv.stock_movements(vtype=vtype, godown=godown, item=item, top=500)
-
-        # Filter by date range
         from_dt = self.de_from.date().toPyDate()
         to_dt = self.de_to.date().toPyDate()
-        filtered = []
-        for r in rows:
-            vdate = r["vdate"]
-            if isinstance(vdate, str):
-                try:
-                    from datetime import date as dt_date
-                    vdate = dt_date.fromisoformat(vdate)
-                except:
-                    continue
-            if vdate and from_dt <= vdate <= to_dt:
-                filtered.append(r)
-        rows = filtered
+
+        # Use the core function that matches VB6 KitchenStkRep
+        rows = inv.kitchen_stock_report(
+            cn=None,
+            vdate_from=from_dt,
+            vdate_to=to_dt,
+            top=500
+        )
+
+        # Filter by item if specified
+        if item:
+            rows = [r for r in rows if r["item"].upper().startswith(item.upper())]
 
         self.tbl.setRowCount(len(rows))
-        total_iss = 0.0
-        total_rec = 0.0
         for r, s in enumerate(rows):
-            vals = [s["docid"], s["vtype"], s["vno"], s["vdate"],
-                    s["item"], s["godown"], s["qty_iss"], s["qty_rec"],
-                    s["rate"], s["amount"]]
+            vals = [
+                s["kitchen"] or "",  # Empty string for kitchen items, 'KITCHEN' for store items
+                s["grp_name"] or "",
+                s["item"] or "",
+                s["kitchen_stock"],
+                s["unit"] or ""
+            ]
             for c, v in enumerate(vals):
                 self.tbl.setItem(r, c, _dark_item(v))
-            total_iss += float(s["qty_iss"] or 0)
-            total_rec += float(s["qty_rec"] or 0)
 
-        self.lbl_summary.setText(
-            f"Rows: {len(rows)} | Total Issued: {total_iss:,.2f} | "
-            f"Total Received: {total_rec:,.2f} | Net: {total_rec - total_iss:,.2f}"
+        self.lbl_summary.setText(f"Rows: {len(rows)}")
+
+
+class KitchenStockSummaryForm(QDialog):
+    """Kitchen Stock Summary (KitchenStkSumm.txt)
+    VB6 Evidence: Kitchen Stock Summary report
+    Source Tables: Stock
+    Output: Item, IssuedToKitchen, KitchenStockValue
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Kitchen Stock Summary (KitchenStkSumm) - HMS_py")
+        self.resize(800, 500)
+
+        root = QVBoxLayout(self)
+
+        # Filters
+        filter_row = QHBoxLayout()
+        self.ed_item = QLineEdit()
+        self.ed_item.setPlaceholderText("Item Code (optional)")
+        self.de_from = QDateEdit(datetime.date.today() - datetime.timedelta(days=30))
+        self.de_from.setCalendarPopup(True)
+        self.de_to = QDateEdit(datetime.date.today())
+        self.de_to.setCalendarPopup(True)
+        self.btn_refresh = QPushButton("Refresh (F5)")
+
+        filter_row.addWidget(QLabel("Item:"))
+        filter_row.addWidget(self.ed_item)
+        filter_row.addWidget(QLabel("From:"))
+        filter_row.addWidget(self.de_from)
+        filter_row.addWidget(QLabel("To:"))
+        filter_row.addWidget(self.de_to)
+        filter_row.addWidget(self.btn_refresh)
+        filter_row.addStretch()
+        root.addLayout(filter_row)
+
+        # Results table
+        self.tbl = QTableWidget(0, 3)
+        self.tbl.setHorizontalHeaderLabels([
+            "Item", "IssuedToKitchen", "KitchenStockValue"
+        ])
+        self.tbl.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        self.tbl.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        self.tbl.horizontalHeader().setStretchLastSection(True)
+        root.addWidget(self.tbl)
+
+        # Summary
+        self.lbl_summary = QLabel("Rows: 0")
+        self.lbl_summary.setStyleSheet("color:#111; padding:4px; background:#f0f0f0; font-weight:bold;")
+        root.addWidget(self.lbl_summary)
+
+        # Buttons
+        btns = QHBoxLayout()
+        self.btn_close = QPushButton("Close")
+        btns.addStretch()
+        btns.addWidget(self.btn_close)
+        root.addLayout(btns)
+
+        # Connections
+        self.btn_refresh.clicked.connect(self.refresh)
+        self.btn_close.clicked.connect(self.reject)
+
+        # F5 shortcut
+        from PyQt6.QtGui import QShortcut, QKeySequence
+        QShortcut(QKeySequence("F5"), self, activated=self.refresh)
+
+        # Initial load
+        self.refresh()
+
+    def refresh(self):
+        item = self.ed_item.text().strip() or None
+        from_dt = self.de_from.date().toPyDate()
+        to_dt = self.de_to.date().toPyDate()
+
+        # Use the core function that matches VB6 KitchenStkSumm
+        rows = inv.kitchen_stock_summary(
+            cn=None,
+            top=500
         )
+
+        # Filter by item if specified
+        if item:
+            rows = [r for r in rows if r["item"].upper().startswith(item.upper())]
+
+        self.tbl.setRowCount(len(rows))
+        for r, s in enumerate(rows):
+            vals = [
+                s["item"] or "",
+                s["issued_to_kitchen"],
+                s["kitchen_stock_value"]
+            ]
+            for c, v in enumerate(vals):
+                self.tbl.setItem(r, c, _dark_item(v))
+
+        self.lbl_summary.setText(f"Rows: {len(rows)}")
 
 
 def open_kitchen_stock_report(parent=None):
     KitchenStockReportForm(parent).exec()
+
+
+def open_kitchen_stock_summary(parent=None):
+    KitchenStockSummaryForm(parent).exec()
 
 
 def main() -> int:

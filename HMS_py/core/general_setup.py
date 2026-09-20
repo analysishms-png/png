@@ -166,6 +166,7 @@ def roomfeat_insert(rec: dict, cn=None, commit=True) -> int:
         raise ValueError("Code zaroori hai")
     if not rec.get("name", "").strip():
         raise ValueError("Name zaroori hai")
+    db.require_absent("RoomFeature", "Code", rec["code"], "Room Feature Code")
     return db.execute(
         "INSERT INTO RoomFeature (Code, Name, "
         "Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code) "
@@ -253,6 +254,7 @@ def godown_insert(rec: dict, cn=None, commit=True) -> int:
         raise ValueError("Code zaroori hai")
     if not rec.get("name", "").strip():
         raise ValueError("Name zaroori hai")
+    db.require_absent("GodownMast", "Code", rec["code"], "Godown Code")
     return db.execute(
         "INSERT INTO GodownMast (Code, Name, ShortName, DepartCode, SysYn, "
         "Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code) "

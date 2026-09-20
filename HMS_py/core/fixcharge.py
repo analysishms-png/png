@@ -67,6 +67,7 @@ def exists(code: str, cn=None) -> bool:
 
 def insert(rec: dict, cn=None, commit: bool = True) -> int:
     _validate(rec)
+    db.require_absent("FixedCharge", "Code", rec["code"], "Fixed Charge Code")
     return db.execute(
         "INSERT INTO FixedCharge (Code, Name, SName, Revcode, TaxInc, "
         "TaxStru, PrintOption, PostingMethod, ChargeType, FlatRate, "

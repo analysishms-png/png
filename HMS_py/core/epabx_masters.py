@@ -67,6 +67,7 @@ def calltype_insert(rec: dict, cn=None, commit=True) -> int:
         raise ValueError("Code zaroori hai")
     if not rec.get("calltype", "").strip():
         raise ValueError("CallType zaroori hai")
+    db.require_absent("TelCallType", "Code", rec["code"], "Call Type Code")
     return db.execute(
         "INSERT INTO TelCallType (Code, CallType, ShortName, ACCode, "
         "TaxStru, Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code) "
@@ -156,6 +157,7 @@ def callcode_insert(rec: dict, cn=None, commit=True) -> int:
         raise ValueError("STDCode zaroori hai")
     if not rec.get("desc", "").strip():
         raise ValueError("Description zaroori hai")
+    db.require_absent("TelCallCode", "STDCode", rec["stdcode"], "STD Code")
     return db.execute(
         "INSERT INTO TelCallCode (STDCode, CallTypeCode, Description, "
         "PulseInSec, Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code) "
@@ -253,6 +255,7 @@ def telext_insert(rec: dict, cn=None, commit=True) -> int:
         raise ValueError("Code zaroori hai")
     if not rec.get("desc", "").strip():
         raise ValueError("Description zaroori hai")
+    db.require_absent("TelExt", "Code", rec["code"], "Extension Code")
     return db.execute(
         "INSERT INTO TelExt (Code, Description, Extension, Type, "
         "RoomNo, ShopNo, DepCode, PulseRate, "

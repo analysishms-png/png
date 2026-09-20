@@ -61,6 +61,7 @@ def exists(code: str, cn=None) -> bool:
 
 def insert(rec: dict, cn=None, commit: bool = True) -> int:
     _validate(rec)
+    db.require_absent("SeasonMast", "RateCode", rec["ratecode"], "Season RateCode")
     fd = rec.get("fromdate") or datetime.date.today()
     td = rec.get("todate") or datetime.date.today()
     return db.execute(

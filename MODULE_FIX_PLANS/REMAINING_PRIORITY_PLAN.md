@@ -32,15 +32,22 @@ business value (operations me use hota hai?) -> priority (P6/P7/P8)
 |---|---|---|---|---|---|
 | P6-1 | **Stock Transfer between godowns** | FrmStockTransfer.frm | Stock Vtype='BMTC' 4671 live rows, GodownMast 64 | M | ✅ **DONE** |
 | P6-2 | **Stock Issue/Receipt (Requisition)** | FrmStockIssue/Receipt | RQI 4793 / RQR 4793 live | M | ✅ **DONE** |
-| P6-3 | **Stock Register/Ledger view** | RsStockRegister | Stock 30369 read-only browse | S | **NEXT** |
+| P6-3 | **Stock Register/Ledger view** | RsStockRegister | Stock 13253 live (FY2025, issue-only; TTX: StkRegStore.rpt cols) read-only browse + date-window/godown/item filters | S | ✅ **DONE (20/Sep)** |
 | P6-4 | **Department master CRUD** | DepartMast.frm | Depart 67 live rows | S | ✅ **DONE** |
-| P6-5 | **eInvoice config screen** | eInvoice.bas + enviro | eInvoiceEnviro 1 row (ASPId/creds) | S | Open |
+| P6-5 | **eInvoice config screen** | eInvoice.bas + enviro | eInvoiceEnviro 1 row (ASPId/creds) | S | ✅ **DONE (EInvoiceConfigForm live)** |
 | P6-6 | **Checkout Clearance screen** | HRoomCheckOutClearance | FOMBillDetails 1077 rows + Enviro.RoomCheckOutClearanceYN flag | S | ✅ **DONE** |
 
-**P6 exit criteria:** sab masters CRUD-tested + BMTC transfer round-trip
-rollback-tested (DB delta 0) + EXE rebuild + E2E.
+**P6 completion:** 6/6 done (P6-1..P6-6) · P7-1 Kitchen Stock Report bhi live (KitchenStockReportForm)
 
-**P6 completion:** 4/6 done (P6-3 and P6-5 remaining)
+## P6-3 verification (20/Sep, is session)
+- BUG found+fixed: `stock_register()` hardcoded `vprefix="2026"` → 0 rows
+  (live Stock sab Vprefix='2025'). Fix: default None (VB6 register
+  date-window based — Crystal StkRegStore.rpt TTX evidence) + from/to params.
+- Tests: `HMS_py/tests/database/test_inventory_registers.py` **8/8 PASS**
+  (fields=ttx cols, window/godown/vprefix filters, purchase_register graceful
+  0 on empty GIN/POrder, Stock delta 13253→13253 read-only proof)
+- UI smoke (offscreen): InvBrowser + EInvoiceConfigForm + KitchenStockReportForm OK
+- Shell leaves verified wired: 'Stock Register', 'eInvoice Config', 'Kitchen Stock Report'
 
 ## P7 — READ-ONLY / REPORT WAVE (feasible, lower value)
 

@@ -1,324 +1,510 @@
-"""Reports core (P5-b): VB6 report-SQL ports + PDF output.
+"""Reports engine - VB6 REPORTS_TXT collection (231 reports) ka module-wise port.
 
-EVIDENCE (decompiled frm SQL):
-- 'Reservation Status Arrival/InHouse' = rFomRepView.frm:13240 base:
-  ViewBooking join GuestProf/PlanMast/RoomCat, RoomType='RO' AND Cancel='N'
-  (Arrival: ArrDate=today-range; InHouse: arrived & not departed).
-  ViewBooking is a SQL view - live test needed; fallback simple Booking.
-- Reports lab: reportlab 4.5.1 installed.
-PDF: _qa/reports/<name>.png-first approach: PDF via reportlab platypus.
+EVIDENCE:
+- MODULE_FIX_PLANS/New folder/.../REPORTS_TXT/*.txt (231 report definitions,
+  EXTRAS.text VB6 source se) + mdi_menu.json ke exact leaf captions.
+- Schemas live-verified: RoomOcc (ChkInDate/DepDate/ChkOutDate), GuestFolio,
+  PayCharge (Vdate/FolioNo/RoomNo/PayCode/AmtDr/AmtCr/Bill_No/Vtype), FOMBillDetails,
+  Sale1 (POS bill header), Sale2 (tax detail), Ledger (FA: SubCode/AmtDr/AmtCr),
+  Subgroup, Stock.
+- SunTran = POS sundry heads (CGST/DISC/NET), FA ke liye Ledger hi source of truth.
+- All queries READ-ONLY (SELECT only). Engine rows cap karta hai (UI safety).
+
+Har report: {key, title, module, menu (exact mdi leaf captions), cols, sql, note}
+sql me '?' = From/To date (daterange reports) ya koi param nahi (snapshot reports).
 """
+
 from __future__ import annotations
 
 import datetime
+import csv
 import os
 
 from HMS_py.core import db
 
-SITE_CODE = "KK"
-REPORT_DIR = os.path.join(os.path.dirname(os.path.dirname(
-    os.path.abspath(__file__))), "_qa", "reports")
+DEFAULT_LIMIT = 5000
 
 
-def _dir():
-    os.makedirs(REPORT_DIR, exist_ok=True)
-    return REPORT_DIR
+def _spine(dfrom: str, dto: str) -> str:
+    """Date spine CTE (SQL Server recursive) — arr_dep_reg/occupancy ke liye."""
+    return (
+        "WITH Dates AS (SELECT CAST(? AS date) AS d "
+        "UNION ALL SELECT DATEADD(day,1,d) FROM Dates WHERE d < ?) "
+    )
 
 
-def res_status(mode: str = "arrival", cn=None, top: int = 200,
-               asof: datetime.date | None = None) -> list:
-    """Reservation Status (VB6 rFomRepView pattern, simplified-safe):
-    Arrival = arrivals on/after as-of date; InHouse = arrived & departed later.
-    NOTE: FY data purana ho sakta hai (live: last arrivals 31-May-2026,
-    aaj 18-Sep) - isliye as-of default = FY ki latest ArrDate (real VB6
-    behaviour: NA date ke hisab se chalta tha)."""
-    if asof is None:
-        mx = db.query("SELECT MAX(ArrDate) FROM Booking WHERE Site_Code = ? "
-                      "AND Vprefix = ?", (SITE_CODE, "2026"), cn=cn)
-        asof = (mx[0][0].date() if mx and mx[0][0] else datetime.date.today())
-    base = ("SELECT TOP " + str(int(top)) + " b.BookNo, "
-            "LTrim(b.GuestName) GuestName, "
-            "b.ArrDate, b.DepDate, b.NoofRooms, b.RoomRate, "
-            "b.ResStatus, b.BookedBy "
-            "FROM Booking b WHERE b.Site_Code = ? AND b.Vprefix = ? "
-            "AND b.Cancel = 'N' ")
-    if mode == "inhouse":
-        base += "AND b.ArrDate <= ? AND b.DepDate >= ? "
-        params = [asof, asof]
+# --------------------------------------------------------------------------
+# Report registry (module-wise). menu = exact mdi_menu.json leaf captions.
+# --------------------------------------------------------------------------
+REPORTS: list[dict] = [
+    # ================= FRONT OFFICE =================
+    {
+        "key": "arrival_departure_list",
+        "title": "Arrival / Departure List",
+        "module": "Front Office",
+        "menu": ["Arrival  Departure List"],
+        "cols": ["FolioNo", "RoomNo", "Guest", "ChkInDate", "DepDate",
+                 "Adult", "Children", "Company"],
+        "sql": (
+            "SELECT TOP ({L}) o.FolioNo, o.RoomNo, ISNULL(f.Name,''), "
+            "o.ChkInDate, o.DepDate, o.Adult, o.Children, ISNULL(f.Company,'') "
+            "FROM RoomOcc o LEFT JOIN GuestFolio f ON f.DocId = "
+            "(SELECT TOP 1 DocId FROM GuestFolio g WHERE g.FolioNo = o.FolioNo "
+            "ORDER BY g.DocId) "
+            "WHERE o.ChkInDate BETWEEN ? AND ? OR o.DepDate BETWEEN ? AND ? "
+            "ORDER BY o.ChkInDate"
+        ),
+        "note": "RoomOcc window (Arr/Dep) + GuestFolio name/company",
+    },
+    {
+        "key": "arr_dep_reg",
+        "title": "Arrival And Departure Register",
+        "module": "Front Office",
+        "menu": ["Arrival And Departure Register"],
+        "cols": ["Date", "Arrivals", "Departures", "InHouse"],
+        "sql": (
+            _spine(0, 0) +
+            "SELECT d, "
+            "(SELECT COUNT(*) FROM RoomOcc o WHERE o.ChkInDate = d) AS Arrivals, "
+            "(SELECT COUNT(*) FROM RoomOcc o WHERE o.DepDate = d "
+            " AND o.ChkOutDate IS NOT NULL) AS Departures, "
+            "(SELECT COUNT(*) FROM RoomOcc o WHERE o.ChkInDate <= d "
+            " AND ISNULL(o.ChkOutDate,'9999-12-31') > d) AS InHouse "
+            "FROM Dates ORDER BY d OPTION (MAXRECURSION 0)"
+        ),
+        "note": "Day-wise arrivals/departures/in-house counts (date spine)",
+    },
+    {
+        "key": "check_in_register",
+        "title": "Check In Register",
+        "module": "Front Office",
+        "menu": ["Check In Register"],
+        "cols": ["ChkInDate", "FolioNo", "RoomNo", "Guest", "RoomRate",
+                 "PlanCode", "Adult", "Children"],
+        "sql": (
+            "SELECT TOP ({L}) o.ChkInDate, o.FolioNo, o.RoomNo, "
+            "ISNULL(f.Name,''), o.RoomRate, ISNULL(o.PlanCode,''), "
+            "o.Adult, o.Children FROM RoomOcc o LEFT JOIN GuestFolio f ON "
+            "f.DocId = (SELECT TOP 1 DocId FROM GuestFolio g WHERE "
+            "g.FolioNo = o.FolioNo ORDER BY g.DocId) "
+            "WHERE o.ChkInDate BETWEEN ? AND ? ORDER BY o.ChkInDate, o.RoomNo"
+        ),
+    },
+    {
+        "key": "check_out_register",
+        "title": "Check Out Register",
+        "module": "Front Office",
+        "menu": ["Check Out Register"],
+        "cols": ["ChkOutDate", "FolioNo", "RoomNo", "Guest", "ChkInDate",
+                 "ChkoutUser"],
+        "sql": (
+            "SELECT TOP ({L}) o.ChkOutDate, o.FolioNo, o.RoomNo, "
+            "ISNULL(f.Name,''), o.ChkInDate, ISNULL(o.ChkoutUser,'') "
+            "FROM RoomOcc o LEFT JOIN GuestFolio f ON f.DocId = "
+            "(SELECT TOP 1 DocId FROM GuestFolio g WHERE g.FolioNo = o.FolioNo "
+            "ORDER BY g.DocId) WHERE o.ChkOutDate BETWEEN ? AND ? "
+            "ORDER BY o.ChkOutDate"
+        ),
+    },
+    {
+        "key": "expected_checkout",
+        "title": "Expected Check Out",
+        "module": "Front Office",
+        "menu": ["Expected Check Out"],
+        "cols": ["DepDate", "FolioNo", "RoomNo", "Guest", "RoomRate"],
+        "sql": (
+            "SELECT TOP ({L}) o.DepDate, o.FolioNo, o.RoomNo, "
+            "ISNULL(f.Name,''), o.RoomRate FROM RoomOcc o LEFT JOIN "
+            "GuestFolio f ON f.DocId = (SELECT TOP 1 DocId FROM GuestFolio g "
+            "WHERE g.FolioNo = o.FolioNo ORDER BY g.DocId) "
+            "WHERE o.DepDate BETWEEN ? AND ? AND o.ChkOutDate IS NULL "
+            "ORDER BY o.DepDate, o.RoomNo"
+        ),
+    },
+    {
+        "key": "settlement_report",
+        "title": "Settlement Report",
+        "module": "Front Office",
+        "menu": ["Settlement Report"],
+        "cols": ["Bill_No", "Bill_Date", "FolioNo", "Guestname", "BillAmt",
+                 "SettMode", "SettAmt", "Status"],
+        "sql": (
+            "SELECT TOP ({L}) Bill_No, Bill_Date, FolioNo, Guestname, "
+            "BillAmt, ISNULL(SettMode,''), SettAmt, ISNULL(Status,'') "
+            "FROM FOMBillDetails WHERE Bill_Date BETWEEN ? AND ? "
+            "ORDER BY Bill_Date, Bill_No"
+        ),
+    },
+    {
+        "key": "fom_sales_register",
+        "title": "FOM Sales Register (Folio Charges)",
+        "module": "Front Office",
+        "menu": ["FOM Sales Register"],
+        "cols": ["Vdate", "FolioNo", "RoomNo", "PayCode", "AmtDr", "AmtCr",
+                 "Bill_No"],
+        "sql": (
+            "SELECT TOP ({L}) Vdate, FolioNo, ISNULL(RoomNo,''), PayCode, "
+            "AmtDr, AmtCr, ISNULL(Bill_No,'') FROM PayCharge "
+            "WHERE Vdate BETWEEN ? AND ? ORDER BY Vdate, FolioNo"
+        ),
+    },
+    {
+        "key": "guest_payments",
+        "title": "Payments By Cashier (Receipts)",
+        "module": "Front Office",
+        "menu": ["Payments By Cashier"],
+        "cols": ["Vdate", "FolioNo", "PayCode", "AmtDr", "AmtCr", "Bill_No"],
+        "sql": (
+            "SELECT TOP ({L}) Vdate, FolioNo, PayCode, AmtDr, AmtCr, "
+            "ISNULL(Bill_No,'') FROM PayCharge WHERE Vtype = 'REC' "
+            "AND Vdate BETWEEN ? AND ? ORDER BY Vdate, FolioNo"
+        ),
+    },
+    {
+        "key": "guest_wise_analysis",
+        "title": "Guest wise Analysis",
+        "module": "Front Office",
+        "menu": ["Guest wise Analysis"],
+        "cols": ["Guest", "Folios", "Nights"],
+        "sql": (
+            "SELECT TOP ({L}) Name, COUNT(*) AS Folios, "
+            "SUM(ISNULL(NoDays,0)) AS Nights FROM GuestFolio "
+            "WHERE Vdate BETWEEN ? AND ? GROUP BY Name "
+            "ORDER BY Folios DESC"
+        ),
+    },
+    {
+        "key": "company_wise_analysis",
+        "title": "Company wise Analysis",
+        "module": "Front Office",
+        "menu": ["Company wise Analysis"],
+        "cols": ["Company", "Folios", "Nights"],
+        "sql": (
+            "SELECT TOP ({L}) ISNULL(NULLIF(Company,''),'(Direct)'), "
+            "COUNT(*) AS Folios, SUM(ISNULL(NoDays,0)) AS Nights "
+            "FROM GuestFolio WHERE Vdate BETWEEN ? AND ? GROUP BY Company "
+            "ORDER BY Folios DESC"
+        ),
+    },
+    {
+        "key": "buss_source_occupancy",
+        "title": "Business Source Occupancy Analysis",
+        "module": "Front Office",
+        "menu": ["Business Source Occupancy Analysis"],
+        "cols": ["BussSource", "Folios", "Nights"],
+        "sql": (
+            "SELECT TOP ({L}) ISNULL(NULLIF(BussSource,''),'(None)'), "
+            "COUNT(*) AS Folios, SUM(ISNULL(NoDays,0)) AS Nights "
+            "FROM GuestFolio WHERE Vdate BETWEEN ? AND ? GROUP BY BussSource "
+            "ORDER BY Folios DESC"
+        ),
+    },
+    # ================= FINANCE =================
+    {
+        "key": "day_book",
+        "title": "Day Book (FA Vouchers)",
+        "module": "Finance",
+        "menu": ["Day Book"],
+        "cols": ["V_Date", "Vouchers", "Debit", "Credit"],
+        "sql": (
+            "SELECT V_Date, COUNT(DISTINCT DocId) AS Vouchers, "
+            "SUM(AmtDr) AS Debit, SUM(AmtCr) AS Credit "
+            "FROM Ledger WHERE V_Date BETWEEN ? AND ? "
+            "GROUP BY V_Date ORDER BY V_Date"
+        ),
+    },
+    {
+        "key": "cash_book",
+        "title": "Cash Book",
+        "module": "Finance",
+        "menu": ["Cash Book"],
+        "cols": ["V_Date", "DocId", "Account", "AmtDr", "AmtCr"],
+        "sql": (
+            "SELECT TOP ({L}) l.V_Date, l.DocId, s.Name, l.AmtDr, l.AmtCr "
+            "FROM Ledger l JOIN Subgroup s ON s.SubCode = l.SubCode "
+            "WHERE s.Name LIKE '%CASH%' AND l.V_Date BETWEEN ? AND ? "
+            "ORDER BY l.V_Date, l.DocId"
+        ),
+    },
+    {
+        "key": "bank_book",
+        "title": "Bank Book",
+        "module": "Finance",
+        "menu": ["Bank Book"],
+        "cols": ["V_Date", "DocId", "Account", "Chq_No", "AmtDr", "AmtCr"],
+        "sql": (
+            "SELECT TOP ({L}) l.V_Date, l.DocId, s.Name, "
+            "ISNULL(l.Chq_No,''), l.AmtDr, l.AmtCr "
+            "FROM Ledger l JOIN Subgroup s ON s.SubCode = l.SubCode "
+            "WHERE s.Name LIKE '%BANK%' AND l.V_Date BETWEEN ? AND ? "
+            "ORDER BY l.V_Date, l.DocId"
+        ),
+    },
+    {
+        "key": "detailed_trial",
+        "title": "Detailed Trial Ledger",
+        "module": "Finance",
+        "menu": ["Detailed Trial Ledger"],
+        "cols": ["SubCode", "Account", "Debit", "Credit", "Balance"],
+        "sql": (
+            "SELECT TOP ({L}) l.SubCode, ISNULL(s.Name,'?'), SUM(l.AmtDr), "
+            "SUM(l.AmtCr), SUM(l.AmtDr) - SUM(l.AmtCr) AS Balance "
+            "FROM Ledger l LEFT JOIN Subgroup s ON s.SubCode = l.SubCode "
+            "WHERE l.V_Date BETWEEN ? AND ? GROUP BY l.SubCode, s.Name "
+            "ORDER BY Balance DESC"
+        ),
+    },
+    {
+        "key": "aging_dr",
+        "title": "Ageing Analysis for Debtors",
+        "module": "Finance",
+        "menu": ["Ageing Analysis for Debtors"],
+        "cols": ["SubCode", "Account", "Balance", "LastTxn", "Bucket"],
+        "sql": (
+            "SELECT TOP ({L}) l.SubCode, ISNULL(MAX(s.Name),'?'), "
+            "SUM(l.AmtDr) - SUM(l.AmtCr) AS Balance, MAX(l.V_Date) AS LastTxn, "
+            "CASE WHEN DATEDIFF(day, MAX(l.V_Date), GETDATE()) <= 30 THEN '0-30' "
+            "WHEN DATEDIFF(day, MAX(l.V_Date), GETDATE()) <= 60 THEN '31-60' "
+            "WHEN DATEDIFF(day, MAX(l.V_Date), GETDATE()) <= 90 THEN '61-90' "
+            "ELSE '>90' END AS Bucket "
+            "FROM Ledger l LEFT JOIN Subgroup s ON s.SubCode = l.SubCode "
+            "GROUP BY l.SubCode "
+            "HAVING SUM(l.AmtDr) - SUM(l.AmtCr) > 0 "
+            "ORDER BY Balance DESC"
+        ),
+        "note": "Bucket = last-txn age (simplified ageing; VB6 used clg dates)",
+    },
+    {
+        "key": "outstanding_dr",
+        "title": "Outstanding Report For Debtors",
+        "module": "Finance",
+        "menu": ["Outstanding Report For Debtors"],
+        "cols": ["SubCode", "Account", "Debit", "Credit", "Balance"],
+        "sql": (
+            "SELECT TOP ({L}) l.SubCode, ISNULL(s.Name,'?'), SUM(l.AmtDr), "
+            "SUM(l.AmtCr), SUM(l.AmtDr) - SUM(l.AmtCr) AS Balance "
+            "FROM Ledger l LEFT JOIN Subgroup s ON s.SubCode = l.SubCode "
+            "GROUP BY l.SubCode, s.Name "
+            "HAVING SUM(l.AmtDr) - SUM(l.AmtCr) > 0 ORDER BY Balance DESC"
+        ),
+    },
+    # ================= POINT OF SALE =================
+    {
+        "key": "pos_sales_daybook",
+        "title": "Sales Day Book (POS)",
+        "module": "Point Of Sale",
+        "menu": ["Sales Day Book"],
+        "cols": ["Vdate", "Bills", "Total", "Taxable", "Tax", "RoundOff",
+                 "NetAmt"],
+        "sql": (
+            "SELECT Vdate, COUNT(*) AS Bills, SUM(Total), SUM(Taxable), "
+            "SUM(Tax), SUM(RoundOff), SUM(NetAmt) FROM Sale1 "
+            "WHERE Vdate BETWEEN ? AND ? GROUP BY Vdate ORDER BY Vdate"
+        ),
+    },
+    {
+        "key": "cashier_sale",
+        "title": "Cashier Report (Outlet-wise)",
+        "module": "Point Of Sale",
+        "menu": ["Cashier Report "],
+        "cols": ["Vdate", "Outlet", "Bills", "NetAmt"],
+        "sql": (
+            "SELECT Vdate, RestCode, COUNT(*) AS Bills, SUM(NetAmt) "
+            "FROM Sale1 WHERE Vdate BETWEEN ? AND ? "
+            "GROUP BY Vdate, RestCode ORDER BY Vdate, RestCode"
+        ),
+        "note": "VB6 cashier-wise; cashier col live me nahi — outlet-wise port",
+    },
+    {
+        "key": "company_wise_sale",
+        "title": "Company Wise Sale Report (POS)",
+        "module": "Point Of Sale",
+        "menu": ["Company Wise Sale Report"],
+        "cols": ["Party", "Bills", "NetAmt"],
+        "sql": (
+            "SELECT TOP ({L}) ISNULL(NULLIF(Party,''),'(Cash)'), COUNT(*), "
+            "SUM(NetAmt) FROM Sale1 WHERE Vdate BETWEEN ? AND ? "
+            "GROUP BY Party ORDER BY SUM(NetAmt) DESC"
+        ),
+    },
+    {
+        "key": "bill_wise_adjustment",
+        "title": "Bill Wise Adjustment Report (POS to Folio)",
+        "module": "Point Of Sale",
+        "menu": ["Bill Wise Adjustment Report"],
+        "cols": ["DocId", "Vdate", "Outlet", "FolioNo", "Party", "NetAmt"],
+        "sql": (
+            "SELECT TOP ({L}) DocId, Vdate, RestCode, FolioNo, "
+            "ISNULL(NULLIF(Party,''),''), NetAmt FROM Sale1 "
+            "WHERE FolioNo > 0 AND Vdate BETWEEN ? AND ? "
+            "ORDER BY Vdate, DocId"
+        ),
+        "note": "Bills posted to guest folio (adjustment route)",
+    },
+    {
+        "key": "cashier_collection",
+        "title": "Cashier Collection Summary (Settlement Mode)",
+        "module": "Point Of Sale",
+        "menu": ["Cashier Collection Summary"],
+        "cols": ["SettMode", "Bills", "BillAmt", "SettAmt"],
+        "sql": (
+            "SELECT ISNULL(NULLIF(SettMode,''),'(Blank)') AS SettMode, "
+            "COUNT(*) AS Bills, SUM(BillAmt), SUM(SettAmt) "
+            "FROM FOMBillDetails WHERE Bill_Date BETWEEN ? AND ? "
+            "GROUP BY SettMode ORDER BY SUM(BillAmt) DESC"
+        ),
+    },
+    {
+        "key": "fom_tax_detail",
+        "title": "FOM Tax Detail (Luxury Tax Register)",
+        "module": "Point Of Sale",
+        "menu": ["Luxury Tax Report", "Form -3 (Luxury Tax Register)"],
+        "cols": ["Vdate", "TaxCode", "BaseValue", "TaxPer", "TaxAmt"],
+        "sql": (
+            "SELECT Vdate, TaxCode, SUM(BaseValue), TaxPer, SUM(TaxAmt) "
+            "FROM Sale2 WHERE Vdate BETWEEN ? AND ? "
+            "GROUP BY Vdate, TaxCode, TaxPer ORDER BY Vdate, TaxCode"
+        ),
+    },
+    # ================= INVENTORY =================
+    {
+        "key": "daily_store_issue",
+        "title": "Daily Store Issue",
+        "module": "Inventory",
+        "menu": ["Daily Store Issue Reports"],
+        "cols": ["Vdate", "IssueDocs", "IssuedQty", "IssueValue"],
+        "sql": (
+            "SELECT Vdate, COUNT(DISTINCT DocId), SUM(QtyIss), SUM(QtyIss*Rate) "
+            "FROM Stock WHERE QtyIss > 0 AND Vdate BETWEEN ? AND ? "
+            "GROUP BY Vdate ORDER BY Vdate"
+        ),
+    },
+    {
+        "key": "store_issue_register",
+        "title": "Store Issue Register",
+        "module": "Inventory",
+        "menu": ["Store Issue Register"],
+        "cols": ["Vdate", "Vtype", "VNo", "Item", "QtyIss", "Rate", "Amount",
+                 "GodownCode"],
+        "sql": (
+            "SELECT TOP ({L}) Vdate, Vtype, VNo, Item, QtyIss, Rate, Amount, "
+            "ISNULL(GodownCode,'') FROM Stock WHERE QtyIss > 0 "
+            "AND Vdate BETWEEN ? AND ? ORDER BY Vdate, DocId"
+        ),
+    },
+    {
+        "key": "abc_analysis",
+        "title": "ABC Analysis (Consumption Value)",
+        "module": "Inventory",
+        "menu": [],
+        "cols": ["Item", "ConsValue", "CumPct", "Class"],
+        "sql": (
+            "SELECT TOP ({L}) Item, SUM(ISNULL(QtyIss,0)*ISNULL(Rate,0)) AS ConsValue, "
+            "SUM(SUM(ISNULL(QtyIss,0)*ISNULL(Rate,0))) OVER (ORDER BY "
+            "SUM(ISNULL(QtyIss,0)*ISNULL(Rate,0)) DESC) * 100.0 / "
+            "NULLIF(SUM(SUM(ISNULL(QtyIss,0)*ISNULL(Rate,0))) OVER (),0) AS CumPct, "
+            "CASE WHEN SUM(SUM(ISNULL(QtyIss,0)*ISNULL(Rate,0))) OVER (ORDER BY "
+            "SUM(ISNULL(QtyIss,0)*ISNULL(Rate,0)) DESC) * 100.0 / "
+            "NULLIF(SUM(SUM(ISNULL(QtyIss,0)*ISNULL(Rate,0))) OVER (),0) <= 70 THEN 'A' "
+            "WHEN SUM(SUM(ISNULL(QtyIss,0)*ISNULL(Rate,0))) OVER (ORDER BY "
+            "SUM(ISNULL(QtyIss,0)*ISNULL(Rate,0)) DESC) * 100.0 / "
+            "NULLIF(SUM(SUM(ISNULL(QtyIss,0)*ISNULL(Rate,0))) OVER (),0) <= 90 THEN 'B' "
+            "ELSE 'C' END AS Class "
+            "FROM Stock GROUP BY Item ORDER BY ConsValue DESC"
+        ),
+        "note": "REPORTS_TXT ABCAnalysis.txt ka port (70/90 cut)",
+    },
+    # ================= NIGHT AUDIT =================
+    {
+        "key": "business_source_analysis",
+        "title": "Business Source Analysis",
+        "module": "Night Audit",
+        "menu": ["Business Source Analysis"],
+        "cols": ["BussSource", "Folios", "Nights"],
+        "sql": (
+            "SELECT ISNULL(NULLIF(BussSource,''),'(None)'), COUNT(*), "
+            "SUM(ISNULL(NoDays,0)) FROM GuestFolio WHERE Vdate BETWEEN ? AND ? "
+            "GROUP BY BussSource ORDER BY COUNT(*) DESC"
+        ),
+    },
+    {
+        "key": "daily_summary",
+        "title": "Daily Summary (Occ + Revenue)",
+        "module": "Night Audit",
+        "menu": [],
+        "cols": ["Date", "Arrivals", "Departures", "InHouse"],
+        "sql": (
+            _spine(0, 0) +
+            "SELECT d, "
+            "(SELECT COUNT(*) FROM RoomOcc o WHERE o.ChkInDate = d), "
+            "(SELECT COUNT(*) FROM RoomOcc o WHERE o.DepDate = d), "
+            "(SELECT COUNT(*) FROM RoomOcc o WHERE o.ChkInDate <= d "
+            " AND ISNULL(o.ChkOutDate,'9999-12-31') > d) "
+            "FROM Dates ORDER BY d OPTION (MAXRECURSION 0)"
+        ),
+    },
+]
+
+
+def by_key() -> dict:
+    return {r["key"]: r for r in REPORTS}
+
+
+def by_module() -> dict:
+    out: dict[str, list[dict]] = {}
+    for r in REPORTS:
+        out.setdefault(r["module"], []).append(r)
+    return out
+
+
+def menu_caption_map() -> dict:
+    """Exact mdi leaf caption -> report key (shell wiring ke liye)."""
+    out = {}
+    for r in REPORTS:
+        for cap in r.get("menu", []):
+            out[cap] = r["key"]
+    return out
+
+
+def run(key: str, d_from=None, d_to=None, limit: int = DEFAULT_LIMIT,
+        cn=None) -> tuple:
+    """Report chalao (read-only). Returns (cols, rows-as-lists).
+
+    d_from/d_to: 'YYYY-MM-DD' ya date; daterange reports ke liye required.
+    Spine reports (arr_dep_reg/daily_summary) pe limit window guard hai.
+    """
+    r = by_key()[key]
+    sql = r["sql"].replace("{L}", str(int(limit)))
+    has_params = "?" in sql
+    if has_params:
+        if d_from is None or d_to is None:
+            raise ValueError(f"report '{key}' needs d_from/d_to")
+        f = d_from if isinstance(d_from, str) else d_from.isoformat()
+        t = d_to if isinstance(d_to, str) else d_to.isoformat()
+        n = sql.count("?")
+        if n == 0 or n % 2:
+            raise ValueError(f"report '{key}' sql has odd/no date params")
+        params = (f, t) * (n // 2)
+        rows = db.query(sql, params, cn=cn)
     else:
-        base += "AND b.ArrDate >= ? "
-        params = [asof]
-    rows = db.query(base + "ORDER BY b.ArrDate",
-                    (SITE_CODE, "2026", *params), cn=cn)
-    return [{"bookno": r.BookNo, "guest": (r.GuestName or "").strip(),
-             "arr": r.ArrDate, "dep": r.DepDate, "rooms": r.NoofRooms,
-             "rate": r.RoomRate or 0.0, "status": r.ResStatus or "",
-             "booked_by": r.BookedBy or ""} for r in rows]
+        rows = db.query(sql, cn=cn)
+    rows = [list(map(_fmt, row)) for row in rows]
+    return list(r["cols"]), rows
 
 
-def occupancy_pdf(rows: list, title: str = "Occupancy Analysis") -> str:
-    """Occupancy rows -> PDF (reportlab platypus)."""
-    from reportlab.lib import colors
-    from reportlab.lib.pagesizes import A4
-    from reportlab.lib.styles import getSampleStyleSheet
-    from reportlab.lib.units import cm
-    from reportlab.platypus import Paragraph, SimpleDocTemplate, Table, TableStyle
-
-    out = os.path.join(_dir(), f"{title.replace(' ', '_')}.pdf")
-    doc = SimpleDocTemplate(out, pagesize=A4, topMargin=1.2 * cm)
-    styles = getSampleStyleSheet()
-    data = [["Date", "Check-Ins", "Occupancy %"]]
-    for r in rows:
-        d = r["date"]
-        data.append([f"{d:%d/%b/%Y}" if hasattr(d, "strftime") else str(d),
-                     str(r["checkins"]), f"{r['occ_pct']}%"])
-    t = Table(data, colWidths=[5 * cm, 4 * cm, 4 * cm])
-    t.setStyle(TableStyle([
-        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#1b5e5e")),
-        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-        ("GRID", (0, 0), (-1, -1), 0.4, colors.grey),
-        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-    ]))
-    doc.build([Paragraph(title, styles["Title"]), t])
-    return out
+def _fmt(v):
+    if isinstance(v, (datetime.datetime, datetime.date)):
+        return v.strftime("%d/%m/%Y")
+    if isinstance(v, datetime.time):
+        return v.strftime("%H:%M")
+    return v
 
 
-def vat_register(index: int, cn=None) -> dict | None:
-    """VB6 MatVatR_Click logic ported to Python.
-
-    Index mapping (matching VB6 Select Case 0 to &H10):
-      0  -> VATRegister
-      &HA -> VATRegisterII
-      &HB -> VATRegisterIII
-      &HC -> Form24AnnexureA
-      &HD -> FormIII
-      &HE -> UPVATXXIV
-      &H10 -> (fallback/other)
-    """
-    SITE_CODE = "KK"
-    # Case 0: VAT Register
-    if index == 0:
-        try:
-            cur = cn.cursor() if cn else None
-            if cur:
-                cur.execute(
-                    "SELECT Code AS TaxCode, Name AS TaxName, "
-                    "(SELECT TOP 1 Rate FROM TaxStru T WHERE T.Code = S.Code) AS TaxPer "
-                    "FROM (SELECT DISTINCT Code, Name FROM TaxStru) S "
-                    "WHERE 1=1", ())
-                rows = cur.fetchall()[:50]
-                return {
-                    "action": "vat_register",
-                    "report": "VATRegister",
-                    "data": [{"code": r.TaxCode, "name": r.TaxName, "per": r.TaxPer}
-                             for r in rows] if rows else [],
-                }
-            return {
-                "action": "vat_register",
-                "report": "VATRegister",
-                "data": [],
-                "message": "DB not connected; legacy mapping returned without live rows",
-            }
-        except Exception as e:
-            return {"action": "exception", "message": str(e)}
-
-    # Case &HA (10): VATRegisterII
-    if index == 10:
-        try:
-            cur = cn.cursor() if cn else None
-            if cur:
-                cur.execute(
-                    "SELECT Code AS TaxCode, Name AS TaxNameII, "
-                    "(SELECT TOP 1 Rate FROM TaxStru T WHERE T.Code = S.Code) AS TaxPerII "
-                    "FROM (SELECT DISTINCT Code, Name FROM TaxStru) S "
-                    "WHERE 1=1", ())
-                rows = cur.fetchall()[:50]
-                return {
-                    "action": "vat_register_ii",
-                    "report": "VATRegisterII",
-                    "data": [{"code": r.TaxCode, "name": r.TaxNameII, "per": r.TaxPerII}
-                             for r in rows] if rows else [],
-                }
-            return {
-                "action": "vat_register_ii",
-                "report": "VATRegisterII",
-                "data": [],
-                "message": "DB not connected; legacy mapping returned without live rows",
-            }
-        except Exception as e:
-            return {"action": "exception", "message": str(e)}
-
-    # Case &HB (11): VATRegisterIII
-    if index == 11:
-        try:
-            cur = cn.cursor() if cn else None
-            if cur:
-                cur.execute(
-                    "SELECT Code AS TaxCode, Name AS TaxNameIII, "
-                    "(SELECT TOP 1 Rate FROM TaxStru T WHERE T.Code = S.Code) AS TaxPerIII "
-                    "FROM (SELECT DISTINCT Code, Name FROM TaxStru) S "
-                    "WHERE 1=1", ())
-                rows = cur.fetchall()[:50]
-                return {
-                    "action": "vat_register_iii",
-                    "report": "VATRegisterIII",
-                    "data": [{"code": r.TaxCode, "name": r.TaxNameIII, "per": r.TaxPerIII}
-                             for r in rows] if rows else [],
-                }
-            return {"action": "db_error", "message": "Database connection required"}
-        except Exception as e:
-            return {"action": "exception", "message": str(e)}
-
-    # Case &HC (12): Form24AnnexureA
-    if index == 12:
-        try:
-            cur = cn.cursor() if cn else None
-            if cur:
-                cur.execute(
-                    "SELECT Form24Data FROM SystemParams WHERE Param = 'Form24AnnexureA'")
-                row = cur.fetchone()
-                return {
-                    "action": "form24_annexure",
-                    "report": "Form24AnnexureA",
-                    "data": row.Form24Data if row else "",
-                }
-            return {"action": "db_error", "message": "Database connection required"}
-        except Exception as e:
-            return {"action": "exception", "message": str(e)}
-
-    # Case &HD (13): FormIII
-    if index == 13:
-        try:
-            cur = cn.cursor() if cn else None
-            if cur:
-                cur.execute(
-                    "SELECT FormData FROM SystemParams WHERE Param = 'FormIII'")
-                row = cur.fetchone()
-                return {
-                    "action": "form_iii",
-                    "report": "FormIII",
-                    "data": row.FormData if row else "",
-                }
-            return {"action": "db_error", "message": "Database connection required"}
-        except Exception as e:
-            return {"action": "exception", "message": str(e)}
-
-    # Case &HE (14): UPVATXXIV
-    if index == 14:
-        try:
-            cur = cn.cursor() if cn else None
-            if cur:
-                cur.execute(
-                    "SELECT UPVATData FROM SystemParams WHERE Param = 'UPVATXXIV'")
-                row = cur.fetchone()
-                return {
-                    "action": "up_vat_xxiv",
-                    "report": "UPVATXXIV",
-                    "data": row.UPVATData if row else "",
-                }
-            return {"action": "db_error", "message": "Database connection required"}
-        except Exception as e:
-            return {"action": "exception", "message": str(e)}
-
-    # Case &H10 (16): fallback/other
-    if index == 16:
-        return {
-            "action": "vat_fallback",
-            "report": "VAT Other",
-            "message": "VAT report index &H10 - documented as other case in VB6",
-        }
-
-    return None
-
-
-def mat_rep(index: int, cn=None) -> dict | None:
-    """VB6 MatRep_Click logic ported to Python.
-
-    Index mapping (VB6 evidence from HMS.bas:13B1AE0-13B1AA8):
-      0  -> rInventRepView / PurchaseReg
-      1  -> rInventRepView / PurchaseSumm
-      2  -> rInventRepView / CashCreditPurch
-      3  -> rInventRepView / StockRegStore
-      4  -> rInventRepView / StockSummStore
-      5  -> rInventRepView / StockINHand
-      6  -> rInventRepView / KitchenStkRep
-      7  -> rInventRepView / ExcessConsumption
-      8  -> rInventRepView / RestIssue
-      9  -> rInventRepView / StoreIssReg
-      &HA (10) -> FrmChangeKitch (different form!)
-      &HB (11) -> rInventRepView / DailyStoreIssRpt
-      &HC (12) -> rInventRepView / PurchaseLedger
-      &HD (13) -> rInventRepView / IssueReg
-      &HF (15) -> rInventRepView / StockSummaryP/SBasis
-      &H10 (16) -> rInventRepView / ABCAnalysis
-      &H11 (17) -> rInventRepView / PurchBill
-      &H12 (18) -> rInventRepView / StoreIssueReport
-    """
-    registry_forms = {
-        0:  ("rInventRepView", "PurchaseReg"),
-        1:  ("rInventRepView", "PurchaseSumm"),
-        2:  ("rInventRepView", "CashCreditPurch"),
-        3:  ("rInventRepView", "StockRegStore"),
-        4:  ("rInventRepView", "StockSummStore"),
-        5:  ("rInventRepView", "StockINHand"),
-        6:  ("rInventRepView", "KitchenStkRep"),
-        7:  ("rInventRepView", "ExcessConsumption"),
-        8:  ("rInventRepView", "RestIssue"),
-        9:  ("rInventRepView", "StoreIssReg"),
-        10: ("FrmChangeKitch", "ChangeKitchen"),   # &HA - different form!
-        11: ("rInventRepView", "DailyStoreIssRpt"),  # &HB
-        12: ("rInventRepView", "PurchaseLedger"),    # &HC
-        13: ("rInventRepView", "IssueReg"),          # &HD
-        15: ("rInventRepView", "StockSummaryP/SBasis"),  # &HF
-        16: ("rInventRepView", "ABCAnalysis"),       # &H10
-        17: ("rInventRepView", "PurchBill"),         # &H11
-        18: ("rInventRepView", "StoreIssueReport"),  # &H12
-    }
-
-    entry = registry_forms.get(index)
-    if not entry:
-        return {"action": "mat_rep_unknown", "index": index,
-                "message": f"MatRep index {index} not in mapping (0-13, 15-18)"}
-
-    form, report_name = entry
-    return {
-        "action": "mat_rep_form",
-        "index": index,
-        "report_name": report_name,
-        "form": form,
-        "description": f"Material Report: {report_name}",
-    }
-
-
-def res_status_pdf(rows: list, mode: str = "arrival") -> str:
-    """Reservation Status -> PDF (VB6 report ka data-shape)."""
-    from reportlab.lib import colors
-    from reportlab.lib.pagesizes import A4, landscape
-    from reportlab.lib.styles import getSampleStyleSheet
-    from reportlab.lib.units import cm
-    from reportlab.platypus import Paragraph, SimpleDocTemplate, Table, TableStyle
-
-    name = f"Reservation_Status_{mode.capitalize()}"
-    out = os.path.join(_dir(), f"{name}.pdf")
-    doc = SimpleDocTemplate(out, pagesize=landscape(A4), topMargin=1.2 * cm)
-    styles = getSampleStyleSheet()
-    data = [["Res No", "Guest", "Arrival", "Departure", "Rooms",
-             "Rate", "Status", "Booked By"]]
-    for r in rows:
-        data.append([str(r["bookno"]), r["guest"][:38],
-                     f"{r['arr']:%d/%b/%Y}" if r["arr"] else "-",
-                     f"{r['dep']:%d/%b/%Y}" if r["dep"] else "-",
-                     str(r["rooms"]), f"{r['rate']:.0f}",
-                     r["status"] or "-", (r["booked_by"] or "-")[:18]])
-    t = Table(data, repeatRows=1,
-              colWidths=[1.6 * cm, 6.5 * cm, 2.6 * cm, 2.6 * cm,
-                         1.6 * cm, 1.8 * cm, 2.2 * cm, 3.4 * cm])
-    t.setStyle(TableStyle([
-        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#1b5e5e")),
-        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-        ("GRID", (0, 0), (-1, -1), 0.4, colors.grey),
-        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-        ("FONTSIZE", (0, 0), (-1, -1), 8),
-    ]))
-    doc.build([Paragraph(name.replace("_", " "), styles["Title"]), t])
-    return out
+def export_csv(key: str, d_from, d_to, path: str, limit=DEFAULT_LIMIT) -> int:
+    """Report ko CSV file me export karo (UI Export button). Returns rows."""
+    cols, rows = run(key, d_from, d_to, limit=limit)
+    with open(path, "w", newline="", encoding="utf-8-sig") as fh:
+        w = csv.writer(fh)
+        w.writerow(cols)
+        w.writerows(rows)
+    return len(rows)

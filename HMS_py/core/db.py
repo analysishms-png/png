@@ -110,7 +110,18 @@ def connect(cfg: dict | None = None) -> pyodbc.Connection:
             CONN_STR = (f"DRIVER={{{drv}}};SERVER={cfg['server']};"
                         f"DATABASE={cfg['database']};"
                         f"Trusted_Connection=yes;")
-            return pyodbc.connect(CONN_STR, timeout=5)
+            cn = pyodbc.connect(CONN_STR, timeout=5)
+            # B017 fix: dead-process orphan transactions DB ko block kar
+            # rahe the (GodownMast LCK). Query timeout + lock-timeout se
+            # kabhi bhi hamesha-ke-liye block nahi honge.
+            cn.timeout = 30
+            try:
+                cur = cn.cursor()
+                cur.execute("SET LOCK_TIMEOUT 5000")
+                cur.close()
+            except pyodbc.Error:
+                pass
+            return cn
         except pyodbc.Error:
             continue
     raise RuntimeError("Koi SQL Server ODBC driver nahi mila")
@@ -144,7 +155,10 @@ def query(sql: str, params=(), cn: pyodbc.Connection | None = None):
 def execute(sql: str, params=(), cn: pyodbc.Connection | None = None,
             commit: bool = True) -> int:
     """INSERT/UPDATE/DELETE -> rows affected.
-    commit=False: transaction khula rehta hai (test/rollback ke liye)."""
+    commit=False: transaction khula rehta hai (test/rollback ke liye) —
+    PAR apna (cn=None) connection pass karo to rollback ho jayega close
+    se pehle (B017: orphan transaction se DB-wide lock bleed nahi hogi).
+    Rollback-pattern ke liye apna cn bana ke pass karo."""
     own = cn is None
     cn = cn or connect()
     try:
@@ -156,4 +170,8 @@ def execute(sql: str, params=(), cn: pyodbc.Connection | None = None,
         return n
     finally:
         if own:
+            try:
+                cn.rollback()
+            except pyodbc.Error:
+                pass
             cn.close()

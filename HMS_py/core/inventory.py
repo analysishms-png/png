@@ -29,6 +29,42 @@ SELECT_COLS = ("Code, Name, ShortName, DepartCode, SysYn, "
 
 
 # ============================================================
+# Item Category Grouping (VB6 pattern: RICE, OIL, WHISKY, SUGAR, ATTA, TEA, WINE, VODKA, FRUIT, OTHER)
+# Used by KitchenStkRep, StockRegister, RStockRegister, etc.
+# ============================================================
+ITEM_CATEGORIES = (
+    ("RICE%", "RICE"),
+    ("OIL%", "OIL"),
+    ("WHKY%", "WHISKY"),
+    ("SUGR%", "SUGAR"),
+    ("ATTA%", "ATTA"),
+    ("TEA%", "TEA"),
+    ("WINE%", "WINE"),
+    ("VODKA%", "VODKA"),
+    ("FRT%", "FRUIT"),
+)
+
+
+def get_item_category(item_code: str) -> str:
+    """Map item code to VB6 category group.
+    Returns: RICE, OIL, WHISKY, SUGAR, ATTA, TEA, WINE, VODKA, FRUIT, or OTHER
+    """
+    item_upper = (item_code or "").upper()
+    for pattern, cat in ITEM_CATEGORIES:
+        if item_upper.startswith(pattern.rstrip("%")):
+            return cat
+    return "OTHER"
+
+
+def item_category_case_sql(col: str = "S.Item") -> str:
+    """Return SQL CASE expression for item categorization (VB6 compatible).
+    Usage: SELECT ..., item_category_case_sql() AS GrpName FROM Stock S ...
+    """
+    cases = " ".join(f"WHEN {col} LIKE '{p}' THEN '{c}'" for p, c in ITEM_CATEGORIES)
+    return f"CASE {cases} ELSE 'OTHER' END"
+
+
+# ============================================================
 # Godown master (CRUD)
 # ============================================================
 def _map_godown(r) -> dict:
@@ -648,12 +684,29 @@ def stock_balance(cn=None, vprefix: str = "2026", top: int = 50) -> list:
 
 
 def stock_register(godown: str = None, item: str = None,
-                   vprefix: str = "2026", cn=None, top: int = 200) -> list:
-    """Stock Register: detailed movements per item/godown."""
+                   vprefix: str | None = None, cn=None, top: int = 200,
+                   vdate_from=None, vdate_to=None) -> list:
+    """Stock Register: detailed movements per item/godown (read-only).
+
+    VB6 evidence: Crystal StkRegStore.rpt/StockRegister.rpt (TTX cols:
+    Item/VDate/VType/VNo/Particular/RecQty/RecAmt/IssQty/IssAmt/BalQty)
+    are DATE-WINDOW based - not FY-pinned. Live Stock rows are all
+    Vprefix='2025' (13253), so default vprefix=None = no prefix filter
+    (earlier hardcoded '2026' returned 0 rows = BUG, fixed).
+    """
     sql = f"SELECT TOP {int(top)} DocId, Vtype, VNo, VDate, Item, GodownCode, " \
           "QtyIss, QtyRec, Rate, Amount, U_Name, VTime " \
-          "FROM Stock WHERE Site_Code = ? AND Vprefix = ? "
-    params = [SITE_CODE, vprefix]
+          "FROM Stock WHERE Site_Code = ? "
+    params = [SITE_CODE]
+    if vprefix:
+        sql += "AND Vprefix = ? "
+        params.append(vprefix)
+    if vdate_from is not None:
+        sql += "AND Vdate >= ? "
+        params.append(vdate_from)
+    if vdate_to is not None:
+        sql += "AND Vdate <= ? "
+        params.append(vdate_to)
     if godown:
         sql += "AND GodownCode = ? "
         params.append(godown)
@@ -765,3 +818,218 @@ def einvoice_upsert(rec: dict, cn=None, commit: bool = True) -> int:
             (rec.get("asp_id", ""), rec.get("asp_pwd", ""),
              rec.get("einv_user", ""), rec.get("einv_pwd", "")),
             cn=cn, commit=commit)
+
+
+# ============================================================
+# VB6-style Inventory Reports (read-only)
+# ============================================================
+
+def kitchen_stock_report(cn=None, vdate_from=None, vdate_to=None, top: int = 200) -> list:
+    """
+    Kitchen Stock Report (KitchenStkRep.txt)
+    VB6 Evidence: MatRep_Click, Material > Reports
+    Source Tables: Stock + ItemMast
+    Output: Kitchen, GrpName, Item, KitchenStock, Unit
+    """
+    sql = f"""
+        SELECT TOP {int(top)} 
+            ISNULL(NULLIF(S.ItemRestCode, S.RestCode), 'KITCHEN') AS Kitchen,
+            {item_category_case_sql('S.Item')} AS GrpName,
+            S.Item, 
+            SUM(ISNULL(S.QtyRec,0)-ISNULL(S.QtyIss,0)) AS KitchenStock,
+            MAX(ISNULL(S.Unit,'')) AS Unit
+        FROM Stock S
+        LEFT JOIN ItemMast I ON I.Code = S.Item
+        WHERE S.Site_Code = ?
+    """
+    params = [SITE_CODE]
+    
+    if vdate_from is not None:
+        sql += " AND S.Vdate >= ?"
+        params.append(vdate_from)
+    if vdate_to is not None:
+        sql += " AND S.Vdate <= ?"
+        params.append(vdate_to)
+        
+    sql += " GROUP BY ISNULL(NULLIF(S.ItemRestCode,S.RestCode),'KITCHEN'), " + \
+           f"{item_category_case_sql('S.Item')}, S.Item" + \
+           " ORDER BY Kitchen, GrpName, S.Item"
+    
+    rows = db.query(sql, tuple(params), cn=cn)
+    return [{
+        "kitchen": r.Kitchen or "",
+        "grp_name": r.GrpName or "",
+        "item": r.Item or "",
+        "kitchen_stock": float(r.KitchenStock or 0),
+        "unit": r.Unit or ""
+    } for r in rows]
+
+
+def stock_register_detailed(godown: str = None, item: str = None, 
+                           vdate_from=None, vdate_to=None, 
+                           cn=None, top: int = 200) -> list:
+    """
+    Store-wise Stock Register (StockRegister.txt)
+    VB6 Evidence: Housekeeping > Reports [Sub: HouseREP_Click]
+    Source Tables: Stock + ItemMast + GodownMast
+    Output: GrpName, Item, OpeningQty, PurchaseQty, IssueQty, ClosingQty, ClosingValue
+    """
+    # VB6 uses date window @F to @T, not FY-pinned
+    sql = f"""
+        SELECT TOP {int(top)} 
+            CASE
+                WHEN S.Item LIKE 'RICE%' THEN 'RICE'
+                WHEN S.Item LIKE 'OIL%'  THEN 'OIL'
+                WHEN S.Item LIKE 'WHKY%' THEN 'WHISKY'
+                WHEN S.Item LIKE 'SUGR%' THEN 'SUGAR'
+                WHEN S.Item LIKE 'ATTA%' THEN 'ATTA'
+                WHEN S.Item LIKE 'TEA%'  THEN 'TEA'
+                WHEN S.Item LIKE 'WINE%' THEN 'WINE'
+                WHEN S.Item LIKE 'VODKA%' THEN 'VODKA'
+                WHEN S.Item LIKE 'FRT%'  THEN 'FRUIT'
+                ELSE 'OTHER'
+            END AS GrpName,
+            S.Item,
+            SUM(CASE WHEN S.Vdate < ? THEN ISNULL(S.QtyRec,0)-ISNULL(S.QtyIss,0) ELSE 0 END) AS OpeningQty,
+            SUM(CASE WHEN S.Vdate BETWEEN ? AND ? THEN ISNULL(S.QtyRec,0) ELSE 0 END) AS PurchaseQty,
+            SUM(CASE WHEN S.Vdate BETWEEN ? AND ? THEN ISNULL(S.QtyIss,0) ELSE 0 END) AS IssueQty,
+            SUM(CASE WHEN S.Vdate <= ? THEN ISNULL(S.QtyRec,0)-ISNULL(S.QtyIss,0) ELSE 0 END) AS ClosingQty,
+            SUM(CASE WHEN S.Vdate <= ? THEN (ISNULL(S.QtyRec,0)-ISNULL(S.QtyIss,0)) * ISNULL(S.Rate,0) ELSE 0 END) AS ClosingValue
+        FROM Stock S
+        LEFT JOIN ItemMast I ON I.Code = S.Item
+        LEFT JOIN GodownMast G ON G.Code = S.GodownCode
+        WHERE S.Site_Code = ?
+    """
+    params = []
+    
+    # Date parameters appear 5 times in query (OpeningQty, PurchaseQty x2, IssueQty x2, ClosingQty x2, ClosingValue x2)
+    # Actually: OpeningQty uses vdate_from, PurchaseQty/IssueQty use both, Closing uses vdate_to
+    from_date = vdate_from or date(1900, 1, 1)  # Far past if not specified
+    to_date = vdate_to or date(9999, 12, 31)    # Far future if not specified
+    
+    params.extend([from_date, from_date, to_date, from_date, to_date, from_date, to_date, SITE_CODE])
+    
+    if godown:
+        sql += " AND S.GodownCode = ?"
+        params.append(godown)
+    if item:
+        sql += " AND S.Item = ?"
+        params.append(item)
+        
+    sql += " GROUP BY "
+    sql += "CASE WHEN S.Item LIKE 'RICE%' THEN 'RICE' WHEN S.Item LIKE 'OIL%' THEN 'OIL' WHEN S.Item LIKE 'WHKY%' THEN 'WHISKY' WHEN S.Item LIKE 'SUGR%' THEN 'SUGAR' WHEN S.Item LIKE 'ATTA%' THEN 'ATTA' WHEN S.Item LIKE 'TEA%' THEN 'TEA' WHEN S.Item LIKE 'WINE%' THEN 'WINE' WHEN S.Item LIKE 'VODKA%' THEN 'VODKA' WHEN S.Item LIKE 'FRT%' THEN 'FRUIT' ELSE 'OTHER' END, S.Item"
+    sql += " ORDER BY GrpName, S.Item"
+    
+    rows = db.query(sql, tuple(params), cn=cn)
+    return [{
+        "grp_name": r.GrpName or "",
+        "item": r.Item or "",
+        "opening_qty": float(r.OpeningQty or 0),
+        "purchase_qty": float(r.PurchaseQty or 0),
+        "issue_qty": float(r.IssueQty or 0),
+        "closing_qty": float(r.ClosingQty or 0),
+        "closing_value": float(r.ClosingValue or 0)
+    } for r in rows]
+
+
+def r_stock_register(vdate_from=None, vdate_to=None, cn=None, top: int = 200) -> list:
+    """
+    R-STOCK REGISTER (RStockRegister.txt)
+    VB6 Evidence: Proc_165_2_1E3A588, Rest_Click [code-generated]
+    Source Tables: Stock + ItemMast (WHERE RestCode <> '')
+    Output: RestCode, Item, OpeningQty, ReceiptQty, IssueQty, ClosingQty, ClosingValue
+    """
+    from_date = vdate_from or date(1900, 1, 1)
+    to_date = vdate_to or date(9999, 12, 31)
+    
+    sql = f"""
+        SELECT TOP {int(top)} 
+            S.RestCode,
+            S.Item,
+            SUM(CASE WHEN S.Vdate < ? THEN ISNULL(S.QtyRec,0)-ISNULL(S.QtyIss,0) ELSE 0 END) AS OpeningQty,
+            SUM(CASE WHEN S.Vdate BETWEEN ? AND ? THEN ISNULL(S.QtyRec,0) ELSE 0 END) AS ReceiptQty,
+            SUM(CASE WHEN S.Vdate BETWEEN ? AND ? THEN ISNULL(S.QtyIss,0) ELSE 0 END) AS IssueQty,
+            SUM(CASE WHEN S.Vdate <= ? THEN ISNULL(S.QtyRec,0)-ISNULL(S.QtyIss,0) ELSE 0 END) AS ClosingQty,
+            SUM(CASE WHEN S.Vdate <= ? THEN (ISNULL(S.QtyRec,0)-ISNULL(S.QtyIss,0)) * ISNULL(S.Rate,0) ELSE 0 END) AS ClosingValue
+        FROM Stock S
+        LEFT JOIN ItemMast I ON I.Code = S.Item
+        WHERE S.Site_Code = ? AND ISNULL(S.RestCode,'') <> ''
+    """
+    params = [from_date, from_date, to_date, from_date, to_date, from_date, to_date, SITE_CODE]
+    
+    sql += " GROUP BY S.RestCode, S.Item ORDER BY S.RestCode, S.Item"
+    
+    rows = db.query(sql, tuple(params), cn=cn)
+    return [{
+        "rest_code": r.RestCode or "",
+        "item": r.Item or "",
+        "opening_qty": float(r.OpeningQty or 0),
+        "receipt_qty": float(r.ReceiptQty or 0),
+        "issue_qty": float(r.IssueQty or 0),
+        "closing_qty": float(r.ClosingQty or 0),
+        "closing_value": float(r.ClosingValue or 0)
+    } for r in rows]
+
+
+def stock_in_hand(cn=None, top: int = 200) -> list:
+    """
+    Stock In Hand - current balance of every item (StockINHand.txt)
+    VB6 Evidence: StockInHand report
+    Source Tables: Stock + ItemMast
+    Output: Item, Description, Unit, BalanceQty, BalanceValue, Godown, Location
+    """
+    sql = f"""
+        SELECT TOP {int(top)} 
+            S.Item,
+            ISNULL(I.Name, '') AS Description,
+            ISNULL(S.Unit, '') AS Unit,
+            SUM(ISNULL(S.QtyRec,0)-ISNULL(S.QtyIss,0)) AS BalanceQty,
+            SUM((ISNULL(S.QtyRec,0)-ISNULL(S.QtyIss,0)) * ISNULL(S.Rate,0)) AS BalanceValue,
+            ISNULL(S.GodownCode, '') AS Godown,
+            ISNULL(S.Remarks, '') AS Location
+        FROM Stock S
+        LEFT JOIN ItemMast I ON I.Code = S.Item
+        WHERE S.Site_Code = ?
+        GROUP BY S.Item, I.Name, S.Unit, S.GodownCode, S.Remarks
+        HAVING SUM(ISNULL(S.QtyRec,0)-ISNULL(S.QtyIss,0)) <> 0
+        ORDER BY BalanceQty DESC
+    """
+    rows = db.query(sql, (SITE_CODE,), cn=cn)
+    return [{
+        "item": r.Item or "",
+        "description": r.Description or "",
+        "unit": r.Unit or "",
+        "balance_qty": float(r.BalanceQty or 0),
+        "balance_value": float(r.BalanceValue or 0),
+        "godown": r.Godown or "",
+        "location": r.Location or ""
+    } for r in rows]
+
+
+# ============================================================
+# VB6-style Inventory Reports (read-only) - Continued
+# ============================================================
+
+def kitchen_stock_summary(cn=None, top: int = 200) -> list:
+    """
+    Kitchen Stock Summary (KitchenStkSumm.txt)
+    VB6 Evidence: Kitchen Stock Summary report
+    Source Tables: Stock
+    Output: Item, IssuedToKitchen, KitchenStockValue
+    """
+    sql = f"""
+        SELECT TOP {int(top)} 
+            S.Item,
+            SUM(ISNULL(S.QtyIss,0)) AS IssuedToKitchen,
+            SUM(ISNULL(S.QtyIss,0)) * MAX(ISNULL(S.Rate,0)) AS KitchenStockValue
+        FROM Stock S
+        WHERE S.Site_Code = ? AND ISNULL(S.QtyIss,0) > 0
+        GROUP BY S.Item
+        ORDER BY KitchenStockValue DESC
+    """
+    rows = db.query(sql, (SITE_CODE,), cn=cn)
+    return [{
+        "item": r.Item or "",
+        "issued_to_kitchen": float(r.IssuedToKitchen or 0),
+        "kitchen_stock_value": float(r.KitchenStockValue or 0)
+    } for r in rows]
