@@ -510,6 +510,10 @@ def _form_registry() -> dict[str, callable]:
         from HMS_py.ui import account_merge_ui as acmerge_ui
     except ImportError:
         acmerge_ui = None
+    try:
+        from HMS_py.ui import revenue_budget_ui as revbud_ui
+    except ImportError:
+        revbud_ui = None
 
     def _open_report(cap: str):
         """mdi leaf caption -> reports engine key (exact-match map)."""
@@ -720,10 +724,10 @@ def _form_registry() -> dict[str, callable]:
         # Pending (minimal - only truly missing tables):
         "Tax Structure": (lambda w: tsu.open_taxstru(w)) if tsu else None,
         "Parameter": _open_enviro,
-        "Revenue Group Setting": _coming_soon("Revenue Group Setting"),
+        "Revenue Group Setting": (lambda w: revbud_ui.open_revenue_budget(w)) if revbud_ui else _coming_soon("Revenue Group Setting"),
         "Printing Parameters": (lambda w: gs.open_printing(w)) if gs else None,
         "Printing Setup": (lambda w: gs.open_printing(w)) if gs else None,
-        "Revenue Wise Budget Entry": _coming_soon("Revenue Wise Budget Entry"),
+        "Revenue Wise Budget Entry": (lambda w: revbud_ui.open_revenue_budget(w)) if revbud_ui else _coming_soon("Revenue Wise Budget Entry"),
         "Guest History": (lambda w: ghu.open_guest_history(w, user=w.user)) if ghu else None,
         "Room Display": (lambda w: rs_ui.open_roomstatus(w, user=w.user)) if rs_ui else None,
         "Update Database Nulls": (lambda w: dbmaint_ui.open_db_maintenance(w)) if dbmaint_ui else _coming_soon("Update Database Nulls"),
