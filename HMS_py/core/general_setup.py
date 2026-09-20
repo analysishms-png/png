@@ -132,7 +132,7 @@ ENVIRO_FINANCE_FIELDS = frozenset({
 # ============================================================
 # Room Feature Master (Main Setup -> FO -> Room Features)
 # ============================================================
-ROOMFEAT_LIMITS = {"code": 6, "name": 30}
+ROOMFEAT_LIMITS = {"code": 5, "name": 25}
 ROOMFEAT_COLS = "Code, Name, U_Name, U_EntDt, U_AE"
 
 
