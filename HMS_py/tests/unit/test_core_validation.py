@@ -822,15 +822,15 @@ class TestNightAuditAndReportIndexMaps:
 
         result = reports.mat_rep(0x0A)
         assert result is not None
-        assert result["report_name"] == "ChangeKitchen"
-        assert result["form"] == "FrmChangeKitch"
+        assert result["report_name"] == "DailyStoreIssRpt"
+        assert result["form"] == "rInventRepView"
 
     def test_vat_register_accepts_hex_index(self):
         from HMS_py.core import reports
 
         result = reports.vat_register(0x0A)
         assert result is not None
-        assert result["report"] == "VATRegisterII"
+        assert result["report_name"] == "VATRegisterII"
 
 
 class TestTaxMasterValidation:

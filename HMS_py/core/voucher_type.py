@@ -9,8 +9,10 @@ from __future__ import annotations
 
 from HMS_py.core import db
 
-SITE_CODE = "KK"
-USER = "PYADMIN"
+SITE_CODE = "KK"  # Analysis.ini key 7
+USER = "PYADMIN"  # jab tak login wired na ho
+# Column limits (schema evidence): Code varchar(5), Name varchar(25),
+# Plan_Package varchar(7), U_Name varchar(10), ActiveYN varchar(3)
 LIMITS = {
     "vtype": 5, "category": 10, "ncat": 5, "contratype": 5,
     "desc": 30, "desc_help": 30, "desc_bilang": 30,
@@ -71,17 +73,17 @@ def _map(r) -> dict:
             "alias": r.Alias or "",
         }
     except AttributeError:
-        vt, cat, ncat, ctype, desc, dhlp, dbil, sh, sbi, rid, mth, sno, \
-            led, frm, snar, cnar, narr, pvno, hdr, trm, ftr, excl, stbl, \
-            un, _, uae, chqno, chqdt, clgdt, sno2, rest, site, dcr, ddr, \
-            fdcr, lgs, alias = r
+        (vt, cat, ncat, ctype, desc, dhlp, dbil, sh, sbi, rid, mth, sno,
+         led, frm, snar, cnar, narr, pvno, hdr, trm, ftr, excl, stbl,
+         un, _, uae, chqno, chqdt, clgdt, sno2, rest, site, dcr, ddr,
+         fdcr, lgs, alias) = r
         return {
             "vtype": vt or "", "category": cat or "", "ncat": ncat or "",
             "contratype": ctype or "", "desc": (desc or "").strip(),
             "desc_help": (dhlp or "").strip(), "desc_bilang": (dbil or "").strip(),
             "short": (sh or "").strip(), "short_bilang": (sbi or "").strip(),
-            "rptidx": rid or "", "method": mth or "",
-            "startno": sno or 1, "last_ent": led,
+            "rptidx": rid or "", "method": mth or "", "startno": sno or 1,
+            "last_ent": led,
             "form": frm or "", "sep_narr": snar or "N", "com_narr": cnar or "N",
             "narr": (narr or "").strip(), "print_vno": pvno or "N",
             "header": (hdr or "").strip(), "terms": (trm or "").strip(),
@@ -90,8 +92,8 @@ def _map(r) -> dict:
             "uname": un or "", "u_ae": uae or "",
             "chqno": chqno or "N", "chqdt": chqdt or "N", "clgdt": clgdt or "N",
             "sortno": sno2 or 0, "rest": rest or "", "site": site or "",
-            "defaultcr": dcr or "", "defaultdr": ddr or "",
-            "firstdrcr": fdcr or "", "logsite": lgs or "", "alias": alias or "",
+            "defaultcr": dcr or "", "defaultdr": ddr or "", "firstdrcr": fdcr or "",
+            "logsite": lgs or "", "alias": alias or "",
         }
 
 
@@ -102,7 +104,7 @@ def _validate(rec: dict):
         raise ValueError(f"V_Type max {LIMITS['vtype']} chars")
     if not rec.get("category", "").strip():
         raise ValueError("Category zaroori hai")
-    if len(rec["category"]) > LIMITS["category"]:
+    if len(rec[ "category"]) > LIMITS["category"]:
         raise ValueError(f"Category max {LIMITS['category']} chars")
     for k, lim in LIMITS.items():
         if k in rec and len(str(rec.get(k, ""))) > lim:
@@ -125,10 +127,11 @@ def exists(vtype: str, cn=None) -> bool:
 
 def insert(rec: dict, cn=None, commit: bool = True) -> int:
     _validate(rec)
+    db.require_absent("Voucher_Type", "V_Type", rec["vtype"], "Voucher Type")
     return db.execute(
         "INSERT INTO Voucher_Type (V_Type, Category, NCat, Contratype, Description, "
         "Description_Help, Description_BiLang, Short_Name, Short_Name_BiLang, "
-        "Report_Index, Number_Method, Start_No, Form_Name, Separate_Narr, "
+        "Report_Index, Number_Method, Start_No, Last_Ent_Date, Form_Name, Separate_Narr, "
         "Common_Narr, Narration, Print_VNo, Header_Desc, Terms_Desc, "
         "Footer_Desc, Exclude_Ac_Grp, SerialNo_From_Table, U_NAME, U_EntDt, "
         "U_AE, ChqNo, ChqDt, ClgDt, SortNo, RestCode, Site_Code, "
@@ -138,15 +141,15 @@ def insert(rec: dict, cn=None, commit: bool = True) -> int:
         (rec["vtype"], rec.get("category", ""), rec.get("ncat", ""),
          rec.get("contratype", ""), rec.get("desc", ""), rec.get("desc_help", ""),
          rec.get("desc_bilang", ""), rec.get("short", ""), rec.get("short_bilang", ""),
-         rec.get("rptidx", ""), rec.get("method", ""), rec.get("startno", 1),
+         rec.get("rptidx", ""), rec.get("method", ""), rec.get("startno", 1), None,
          rec.get("form", ""), rec.get("sep_narr", "N"), rec.get("com_narr", "N"),
          rec.get("narr", ""), rec.get("print_vno", "N"), rec.get("header", ""),
          rec.get("terms", ""), rec.get("footer", ""), rec.get("exclude", ""),
-         rec.get("serial_tbl", ""), USER, rec.get("chqno", "N"),
-         rec.get("chqdt", "N"), rec.get("clgdt", "N"), rec.get("sortno", 0),
-         rec.get("rest", ""), SITE_CODE, rec.get("defaultcr", ""),
-         rec.get("defaultdr", ""), rec.get("firstdrcr", ""), SITE_CODE,
-         rec.get("alias", "")),
+         rec.get("serial_tbl", ""), USER,
+         rec.get("chqno", "N"), rec.get("chqdt", "N"), rec.get("clgdt", "N"),
+         rec.get("sortno", 0), rec.get("rest", ""), SITE_CODE,
+         rec.get("defaultcr", ""), rec.get("defaultdr", ""),
+         rec.get("firstdrcr", ""), SITE_CODE, rec.get("alias", "")),
         cn=cn, commit=commit)
 
 

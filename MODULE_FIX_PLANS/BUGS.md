@@ -132,4 +132,9 @@ A new fix must not break already completed modules.
 
 ## LAST REVIEW
 
-2026-09-19 — Initial bug tracking setup
+2026-09-19 — Initial bug tracking setup| B017 | core/db.py | Dead-process orphan transactions (execute commit=False + killed probe) DB-wide LCK_M_S blocking kar rahe the — GodownMast queries hang | Closed — LOCK_TIMEOUT 5000 + own-connection rollback-on-close; KILL 60 recovery |
+| B018 | core/reports.py | ABC analysis OVER(ORDER BY) running total SQL2008R2 par syntax error | Closed — correlated subquery rewrite (SQL2008R2-compatible) |
+| B019 | core/reports.py | String literals ke andar '?' bhi param count ho rahe the (ISNULL(s.Name,'?')) | Closed — _count_params() literal-strip regex |
+| B020 | core/roomcategory.py | RoomCat composite PK (Type, Code) tha — module single-Code assume karta tha; update/delete/get scopeless, dup-guard galat | Closed — Type-scoped rewrite (default RO), single-code API compat; live round-trip 9/9 |
+| B021 | core/roommaster.py | RoomMast PK = (Type, Code, RestCode, LogSite_Code) — single-Code guard/WRONG-scope update; RoomCat FK validation missing | Closed — composite-PK scoped CRUD + FK guard (invalid cat reject) |
+| B022 | ui/p2_masters.py | roomcategory/roommaster configs stale LIMITS keys (maxadult/description/catcode/floor) use karte the — click par KeyError crash | Closed — configs live schema + module LIMITS se aligned; offscreen probes PASS |

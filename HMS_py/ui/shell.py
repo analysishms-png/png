@@ -390,6 +390,22 @@ def _form_registry() -> dict[str, callable]:
         from HMS_py.ui import kot_entry as kot
     except ImportError:
         kot = None
+    # Reports Center (REPORTS_TXT collection ka port — read-only engine)
+    try:
+        from HMS_py.ui import reports_ui as _rpt
+        from HMS_py.core import reports as _rpmod
+    except ImportError:
+        _rpt = _rpmod = None
+
+    def _open_report(cap: str):
+        """mdi leaf caption -> reports engine key (exact-match map)."""
+        key = _rpmod.menu_caption_map().get(cap) if _rpmod else None
+        if not key:
+            return _coming_soon(cap)
+
+        def go(w=None):
+            _rpt.open_reports(w, report_key=key)
+        return go
 
     def _coming_soon(leaf: str):
         def go(w=None):
@@ -582,6 +598,9 @@ def _form_registry() -> dict[str, callable]:
         "Account Merging": None,
         # Tally export (frmTallyExport port — read-only XML files)
         "Tally Export": _open_tally(),
+        # Reports Center (REPORTS_TXT / mdi leaves — read-only engine)
+        **({cap: _open_report(cap)
+            for cap in (_rpmod.menu_caption_map() if _rpmod else {})}),
     }
 
 

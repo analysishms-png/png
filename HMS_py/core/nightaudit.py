@@ -548,8 +548,25 @@ def night_audit_rr(index: int, cn=None) -> dict | None:
         10: ("rFomRepView", "FOCC Report", "FOCC Report (Front Office CC Analysis)"),
         11: ("rFomRepView", "FoodCost", "Food Cost Analysis"),
         12: ("rFomRepView", "FBCostStatement", "FBCost Statement"),
+        13: ("rFomRepView", "GratuityReport", "Gratuity Report"),
         14: ("FaReports", "AgingRepDr", "Aging Report (Debtors)"),
         15: ("FaReports", "AgingRepCr", "Aging Report (Creditors)"),
+        16: ("FaReports", "DetailedTrial", "Detailed Trial Balance"),
+        17: ("FaReports", "DayBook", "Day Book"),
+        18: ("FaReports", "BankBook", "Bank Book"),
+        19: ("FaReports", "CashBook", "Cash Book"),
+        20: ("FaReports", "JournalBook", "Journal Book"),
+        21: ("FaReports", "LedCred", "Ledger (Creditors)"),
+        22: ("FaReports", "LedDeb", "Ledger (Debtors)"),
+        23: ("FaReports", "LedInt", "Ledger (Internal)"),
+        24: ("FaReports", "GratuityReport", "Gratuity Report"),
+        25: ("FaReports", "PFStatement", "PF Statement"),
+        26: ("FaReports", "LoanAdvSumm", "Loan Advance Summary"),
+        27: ("FaReports", "LoanReg", "Loan Register"),
+        28: ("FaReports", "LoanLedg", "Loan Ledger"),
+        29: ("FaReports", "PayrollReg", "Payroll Register"),
+        30: ("FaReports", "PaySlip", "Pay Slip"),
+        31: ("FaReports", "AcCheckList", "Account Check List"),
     }
 
     entry = reports_data.get(index)
@@ -557,7 +574,7 @@ def night_audit_rr(index: int, cn=None) -> dict | None:
         return {
             "action": "night_audit_rr_unknown",
             "index": index,
-            "message": f"NightAuditRR index {index} not in mapping (0-12, 14, 15)",
+            "message": f"NightAuditRR index {index} not in mapping (0-31)",
         }
 
     form, report_name, description = entry
@@ -568,3 +585,53 @@ def night_audit_rr(index: int, cn=None) -> dict | None:
         "description": description,
         "index": index,
     }
+
+
+# --------------------------------------------------------------------------
+# POS Revenue Aggregation (idempotent posting)
+# --------------------------------------------------------------------------
+
+def aggregate_pos_revenue(date_from, date_to, cn=None) -> list[dict]:
+    """Aggregate POS revenue by RestCode + RevCode for a date window."""
+    rows = db.query(
+        "SELECT RestCode, RevCode, SUM(NetAmt) AS TotalNet, "
+        "SUM(Tax) AS TotalTax, COUNT(*) AS FolioCount "
+        "FROM PayCharge WHERE Vdate BETWEEN ? AND ? "
+        "AND Vtype = 'PPOS' GROUP BY RestCode, RevCode "
+        "ORDER BY RestCode, RevCode",
+        (date_from, date_to), cn=cn)
+    return [{"restcode": r.RestCode or "", "revcode": r.RevCode or "",
+             "total_net": float(r.TotalNet or 0), "total_tax": float(r.TotalTax or 0),
+             "folio_count": int(r.FolioCount or 0)} for r in rows]
+
+
+def is_already_posted(date_from, date_to, restcode, revcode, cn=None) -> bool:
+    """Check if POS revenue already posted for this date/outlet/revenue combo."""
+    rows = db.query(
+        "SELECT 1 FROM PayCharge WHERE Vdate BETWEEN ? AND ? "
+        "AND RestCode = ? AND RevCode = ? AND Vtype = 'PPOS' "
+        "AND ContraDocId LIKE 'NA_%'",
+        (date_from, date_to, restcode, revcode), cn=cn)
+    return bool(rows)
+
+
+def post_pos_revenue(date_from, date_to, user=USER, cn=None) -> int:
+    """Idempotent POS revenue posting. Skips already-posted combos.
+    Returns count of new records posted."""
+    posted = 0
+    aggregates = aggregate_pos_revenue(date_from, date_to, cn)
+    for agg in aggregates:
+        if is_already_posted(date_from, date_to, agg["restcode"], agg["revcode"], cn):
+            continue
+        contra_docid = f"NA_{agg['restcode']}_{agg['revcode']}_{date_from}"
+        db.execute(
+            "INSERT INTO PayCharge (DocId, Vtype, Vdate, RestCode, RevCode, "
+            "AmtDr, AmtCr, Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code) "
+            "VALUES (?, 'PPOS', ?, ?, ?, ?, 0, ?, ?, getdate(), 'A', ?)",
+            (contra_docid, date_to, agg["restcode"], agg["revcode"],
+             agg["total_net"], SITE_CODE, user, SITE_CODE),
+            cn=cn, commit=False)
+        posted += 1
+    if posted:
+        cn.commit() if cn else None
+    return posted
