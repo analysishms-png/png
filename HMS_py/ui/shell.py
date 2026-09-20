@@ -412,6 +412,11 @@ def _form_registry() -> dict[str, callable]:
         from HMS_py.ui import scheme_tds_ui as stu
     except ImportError:
         stu = None
+    # FA Voucher/Recon/Display (VB6 FaVrEnt + FaChqClear + FaRepView port)
+    try:
+        from HMS_py.ui import fa_voucher_ui as fvu
+    except ImportError:
+        fvu = None
     # Wave 4 imports (new UI forms for 26+ core modules)
     try:
         from HMS_py.ui import booking_ops_ui as book_ui
@@ -469,6 +474,14 @@ def _form_registry() -> dict[str, callable]:
         from HMS_py.ui import sys_config_ui as syscfg_ui
     except ImportError:
         syscfg_ui = None
+    try:
+        from HMS_py.ui import fa_voucher_ui as favchr_ui
+    except ImportError:
+        favchr_ui = None
+    try:
+        from HMS_py.ui import db_backup_ui as dbbak_ui
+    except ImportError:
+        dbbak_ui = None
 
     def _open_report(cap: str):
         """mdi leaf caption -> reports engine key (exact-match map)."""
@@ -479,6 +492,25 @@ def _form_registry() -> dict[str, callable]:
         def go(w=None):
             _rpt.open_reports(w, report_key=key)
         return go
+
+    # FA cheque-register + interest wrappers (fa_voucher_ui ReportViewer)
+    def fv_cheque_cleared(f=None, t=None):
+        from HMS_py.core import fa_voucher as _fv
+        return _fv.cheque_cleared()
+
+    def fv_cheque_pending(f=None, t=None):
+        from HMS_py.core import fa_voucher as _fv
+        return _fv.cheque_pending()
+
+    def fv_ledger_by_sub(f=None, t=None):
+        from HMS_py.core import fa_voucher as _fv
+        rows = _fv.trial_balance()
+        return [{"groupcode": g["groupcode"], "groupname": g["groupname"],
+                 "amount": g["bal"]} for g in rows]
+
+    def _open_fv_list(parent, title, fn):
+        return fvu.ReportViewer(parent, title=title, fn=fn,
+                                needs_dates=False)
 
     def _coming_soon(leaf: str):
         def go(w=None):
@@ -666,7 +698,6 @@ def _form_registry() -> dict[str, callable]:
         "Revenue Wise Budget Entry": _coming_soon("Revenue Wise Budget Entry"),
         "Guest History": (lambda w: ghu.open_guest_history(w, user=w.user)) if ghu else None,
         "Room Display": (lambda w: rs_ui.open_roomstatus(w, user=w.user)) if rs_ui else None,
-        "Backup Data": _coming_soon("Backup Data"),
         "Update Database Nulls": _coming_soon("Update Database Nulls"),
         "Account Merging": None,
         # Tally export (frmTallyExport port — read-only XML files)
@@ -701,7 +732,9 @@ def _form_registry() -> dict[str, callable]:
         "POS Table": (lambda w: ptable_ui.open_pos_table(w)) if ptable_ui else None,
         "POS Packing": (lambda w: ppack_ui.open_pos_packing(w)) if ppack_ui else None,
         "Finance Ledger": (lambda w: faledg_ui.open_fa_ledger(w)) if faledg_ui else None,
+        "Voucher Entry": (lambda w: favchr_ui.open_fa_voucher(w)) if favchr_ui else None,
         "System Config": (lambda w: syscfg_ui.open_sys_config(w)) if syscfg_ui else None,
+        "Backup Data": (lambda w: dbbak_ui.open_db_backup(w)) if dbbak_ui else _coming_soon("Backup Data"),
         # Reports Center (REPORTS_TXT / mdi leaves — read-only engine)
         **({cap: _open_report(cap)
             for cap in (_rpmod.menu_caption_map() if _rpmod else {})}),

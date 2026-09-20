@@ -1040,3 +1040,316 @@ class _LedgerMLogAPI:
     def delete(docid, cn=None, commit=True): return ledgermlog_delete(docid, cn, commit)
 
 LedgerMLogAPI = _LedgerMLogAPI()
+
+
+# ============================================================
+# LEDGER - Main Transaction Ledger (detail lines per voucher)
+# PK: DocId + V_SNo
+# ============================================================
+def _map_ledger(r) -> dict:
+    try:
+        return {
+            "docid": r.DocId or "", "v_sno": r.V_SNo or 0,
+            "vtype": r.V_Type or "", "vno": r.V_No or 0,
+            "v_prefix": r.v_Prefix or "", "site_code": r.Site_Code or "",
+            "v_date": r.V_Date,
+            "subcode": r.SubCode or "",
+            "amt_cr": float(r.AmtCr or 0), "amt_dr": float(r.AmtDr or 0),
+            "contra_sub": r.ContraSub or "",
+            "narration": (r.Narration or "").strip(),
+            "chq_no": r.Chq_No or "", "chq_date": r.Chq_Date,
+            "clg_date": r.Clg_Date,
+            "agrefno": r.AgRefNo or "",
+            "groupcode": r.GroupCode or "",
+            "groupnature": r.GroupNature or "",
+            "u_name": r.U_Name or "", "u_ae": r.U_AE or "",
+            "logsite_code": r.LogSite_Code or "",
+        }
+    except AttributeError:
+        d, s, vt, vn, vp, site, vd, sc, adr, acr, cs, narr, cno, cd, cld, ar, gc, gn, un, _, uae, lgs = r[:22]
+        return {
+            "docid": d or "", "v_sno": s or 0,
+            "vtype": vt or "", "vno": vn or 0,
+            "v_prefix": vp or "", "site_code": site or "",
+            "v_date": vd,
+            "subcode": sc or "",
+            "amt_cr": float(acr or 0), "amt_dr": float(adr or 0),
+            "contra_sub": cs or "",
+            "narration": (narr or "").strip(),
+            "chq_no": cno or "", "chq_date": cd,
+            "clg_date": cld,
+            "agrefno": ar or "",
+            "groupcode": gc or "",
+            "groupnature": gn or "",
+            "u_name": un or "", "u_ae": uae or "",
+            "logsite_code": lgs or "",
+        }
+
+
+def _validate_ledger(rec: dict):
+    if not rec.get("docid", "").strip():
+        raise ValueError("DocId zaroori hai")
+    if rec.get("v_sno") is None:
+        raise ValueError("V_SNo zaroori hai")
+    if not rec.get("subcode", "").strip():
+        raise ValueError("SubCode zaroori hai")
+
+
+def ledger_list(cn=None, limit: int = 500) -> list[dict]:
+    rows = db.query(
+        f"SELECT TOP {limit} DocId, V_SNo, V_Type, V_No, v_Prefix, "
+        "Site_Code, V_Date, SubCode, AmtDr, AmtCr, ContraSub, "
+        "Narration, Chq_No, Chq_Date, Clg_Date, AgRefNo, "
+        "GroupCode, GroupNature, U_Name, U_EntDt, U_AE, LogSite_Code "
+        "FROM LEDGER ORDER BY V_Date DESC, DocId", cn=cn)
+    return [_map_ledger(r) for r in rows]
+
+
+def ledger_get(docid: str, sno: int, cn=None) -> dict | None:
+    rows = db.query(
+        "SELECT DocId, V_SNo, V_Type, V_No, v_Prefix, Site_Code, "
+        "V_Date, SubCode, AmtDr, AmtCr, ContraSub, Narration, "
+        "Chq_No, Chq_Date, Clg_Date, AgRefNo, GroupCode, GroupNature, "
+        "U_Name, U_EntDt, U_AE, LogSite_Code "
+        "FROM LEDGER WHERE DocId = ? AND V_SNo = ?",
+        (docid, sno), cn=cn)
+    return _map_ledger(rows[0]) if rows else None
+
+
+def ledger_insert(rec: dict, cn=None, commit: bool = True) -> int:
+    _validate_ledger(rec)
+    return db.execute(
+        "INSERT INTO LEDGER (DocId, V_SNo, V_Type, V_No, v_Prefix, "
+        "Site_Code, V_Date, SubCode, AmtDr, AmtCr, ContraSub, "
+        "Narration, Chq_No, Chq_Date, Clg_Date, AgRefNo, "
+        "GroupCode, GroupNature, U_Name, U_EntDt, U_AE, LogSite_Code) "
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
+        "?, getdate(), 'A', ?)",
+        (rec["docid"], rec["v_sno"], rec.get("vtype", ""),
+         rec.get("vno", 0), rec.get("v_prefix", ""), SITE_CODE,
+         rec.get("v_date"), rec["subcode"],
+         float(rec.get("amt_dr") or 0), float(rec.get("amt_cr") or 0),
+         rec.get("contra_sub", ""), rec.get("narration", ""),
+         rec.get("chq_no", ""), rec.get("chq_date"),
+         rec.get("clg_date"), rec.get("agrefno", ""),
+         rec.get("groupcode", ""), rec.get("groupnature", ""),
+         USER, SITE_CODE),
+        cn=cn, commit=commit)
+
+
+def ledger_delete(docid: str, sno: int, cn=None, commit: bool = True) -> int:
+    return db.execute(
+        "DELETE FROM LEDGER WHERE DocId = ? AND V_SNo = ?",
+        (docid, sno), cn=cn, commit=commit)
+
+
+def ledger_by_subcode(subcode: str, cn=None, limit: int = 500) -> list[dict]:
+    rows = db.query(
+        f"SELECT TOP {limit} DocId, V_SNo, V_Type, V_No, v_Prefix, "
+        "Site_Code, V_Date, SubCode, AmtDr, AmtCr, ContraSub, "
+        "Narration, Chq_No, Chq_Date, Clg_Date, AgRefNo, "
+        "GroupCode, GroupNature, U_Name, U_EntDt, U_AE, LogSite_Code "
+        "FROM LEDGER WHERE SubCode = ? ORDER BY V_Date",
+        (subcode,), cn=cn)
+    return [_map_ledger(r) for r in rows]
+
+
+def ledger_balance(subcode: str, cn=None, date_to=None) -> dict:
+    if date_to:
+        rows = db.query(
+            "SELECT SUM(AmtDr) AS dr, SUM(AmtCr) AS cr "
+            "FROM LEDGER WHERE SubCode = ? AND V_Date <= ?",
+            (subcode, date_to), cn=cn)
+    else:
+        rows = db.query(
+            "SELECT SUM(AmtDr) AS dr, SUM(AmtCr) AS cr "
+            "FROM LEDGER WHERE SubCode = ?",
+            (subcode,), cn=cn)
+    if rows:
+        dr = float(rows[0].dr or 0)
+        cr = float(rows[0].cr or 0)
+    else:
+        dr, cr = 0.0, 0.0
+    return {"dr": dr, "cr": cr, "net": dr - cr}
+
+
+# ============================================================
+# LEDGERM - Voucher Header (one row per voucher document)
+# PK: DocId
+# ============================================================
+def _map_ledgerm(r) -> dict:
+    try:
+        return {
+            "docid": r.DocId or "",
+            "vtype": r.V_Type or "", "v_prefix": r.v_Prefix or "",
+            "vno": r.V_No or 0, "site_code": r.Site_Code or "",
+            "v_date": r.V_Date,
+            "narration": (r.Narration or "").strip(),
+            "u_name": r.U_Name or "", "u_ae": r.U_AE or "",
+            "logsite_code": r.LogSite_Code or "",
+        }
+    except AttributeError:
+        d, vt, vp, vn, site, vd, narr, un, _, uae, lgs = r[:11]
+        return {
+            "docid": d or "",
+            "vtype": vt or "", "v_prefix": vp or "",
+            "vno": vn or 0, "site_code": site or "",
+            "v_date": vd,
+            "narration": (narr or "").strip(),
+            "u_name": un or "", "u_ae": uae or "",
+            "logsite_code": lgs or "",
+        }
+
+
+def ledgerm_list(cn=None, limit: int = 500) -> list[dict]:
+    rows = db.query(
+        f"SELECT TOP {limit} DocId, V_Type, v_Prefix, V_No, Site_Code, "
+        "V_Date, Narration, U_Name, U_EntDt, U_AE, LogSite_Code "
+        "FROM LEDGERM ORDER BY V_Date DESC, DocId", cn=cn)
+    return [_map_ledgerm(r) for r in rows]
+
+
+def ledgerm_get(docid: str, cn=None) -> dict | None:
+    rows = db.query(
+        "SELECT DocId, V_Type, v_Prefix, V_No, Site_Code, V_Date, "
+        "Narration, U_Name, U_EntDt, U_AE, LogSite_Code "
+        "FROM LEDGERM WHERE DocId = ?",
+        (docid,), cn=cn)
+    return _map_ledgerm(rows[0]) if rows else None
+
+
+def ledgerm_insert(rec: dict, cn=None, commit: bool = True) -> int:
+    if not rec.get("docid", "").strip():
+        raise ValueError("DocId zaroori hai")
+    return db.execute(
+        "INSERT INTO LEDGERM (DocId, V_Type, v_Prefix, V_No, Site_Code, "
+        "V_Date, Narration, U_Name, U_EntDt, U_AE, LogSite_Code) "
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, getdate(), 'A', ?)",
+        (rec["docid"], rec.get("vtype", ""), rec.get("v_prefix", ""),
+         rec.get("vno", 0), SITE_CODE,
+         rec.get("v_date"), rec.get("narration", ""),
+         USER, SITE_CODE),
+        cn=cn, commit=commit)
+
+
+def ledgerm_delete(docid: str, cn=None, commit: bool = True) -> int:
+    return db.execute(
+        "DELETE FROM LEDGERM WHERE DocId = ?", (docid,),
+        cn=cn, commit=commit)
+
+
+# ============================================================
+# Current Balance Refresh (VB6 Proc_183_0_126DD94)
+# After posting, refresh SUBGROUPCURRBAL and ACGROUPCURRBAL
+# ============================================================
+def refresh_currbal(subcode: str, cn=None) -> dict:
+    rows = db.query(
+        "SELECT SUM(AmtDr) AS dr, SUM(AmtCr) AS cr "
+        "FROM LEDGER WHERE SubCode = ?",
+        (subcode,), cn=cn)
+    if rows:
+        dr = float(rows[0].dr or 0)
+        cr = float(rows[0].cr or 0)
+    else:
+        dr, cr = 0.0, 0.0
+    net = dr - cr
+
+    existing = subgroupcurrbal_get(subcode, cn=cn)
+    if existing:
+        db.execute(
+            "UPDATE SUBGROUPCURRBAL SET Curr_Bal = ?, V_Date = getdate() "
+            "WHERE SubCode = ? AND LogSite_Code = ?",
+            (net, subcode, SITE_CODE), cn=cn, commit=False)
+    else:
+        db.execute(
+            "INSERT INTO SUBGROUPCURRBAL (LogSite_Code, SubCode, V_Date, "
+            "GroupCode, Curr_Bal, Site_Code) VALUES (?, ?, getdate(), '', ?, ?)",
+            (SITE_CODE, subcode, net, SITE_CODE), cn=cn, commit=False)
+
+    sg_rows = db.query(
+        "SELECT GroupCode FROM SubGroup WHERE SubCode = ?", (subcode,), cn=cn)
+    groupcode = sg_rows[0].GroupCode if sg_rows else ""
+
+    if groupcode:
+        grp_rows = db.query(
+            "SELECT SUM(AmtDr) AS dr, SUM(AmtCr) AS cr "
+            "FROM LEDGER L INNER JOIN SubGroup S ON L.SubCode = S.SubCode "
+            "WHERE S.GroupCode = ?",
+            (groupcode,), cn=cn)
+        if grp_rows:
+            g_dr = float(grp_rows[0].dr or 0)
+            g_cr = float(grp_rows[0].cr or 0)
+        else:
+            g_dr, g_cr = 0.0, 0.0
+        g_net = g_dr - g_cr
+
+        grp_exist = acgroupcurrbal_get(groupcode, cn=cn)
+        if grp_exist:
+            db.execute(
+                "UPDATE ACGROUPCURRBAL SET Curr_Bal = ?, V_Date = getdate() "
+                "WHERE GroupCode = ? AND LogSite_Code = ?",
+                (g_net, groupcode, SITE_CODE), cn=cn, commit=False)
+        else:
+            db.execute(
+                "INSERT INTO ACGROUPCURRBAL (LogSite_Code, GroupCode, V_Date, "
+                "Curr_Bal, Site_Code) VALUES (?, ?, getdate(), ?, ?)",
+                (SITE_CODE, groupcode, g_net, SITE_CODE), cn=cn, commit=False)
+
+    if cn is None:
+        db.commit()
+
+    return {"subcode": subcode, "dr": dr, "cr": cr, "net": net,
+            "groupcode": groupcode}
+
+
+def refresh_all_currbal(cn=None) -> int:
+    rows = db.query("SELECT DISTINCT SubCode FROM LEDGER", cn=cn)
+    count = 0
+    for r in rows:
+        subcode = r.SubCode or ""
+        if subcode:
+            refresh_currbal(subcode, cn=cn)
+            count += 1
+    return count
+
+
+# ============================================================
+# API Classes - LEDGER
+# ============================================================
+class _LEDGERAPI:
+    @staticmethod
+    def list_all(cn=None, limit=500): return ledger_list(cn, limit)
+    @staticmethod
+    def get(docid, sno, cn=None): return ledger_get(docid, sno, cn)
+    @staticmethod
+    def insert(rec, cn=None, commit=True): return ledger_insert(rec, cn, commit)
+    @staticmethod
+    def delete(docid, sno, cn=None, commit=True): return ledger_delete(docid, sno, cn, commit)
+    @staticmethod
+    def by_subcode(subcode, cn=None, limit=500): return ledger_by_subcode(subcode, cn, limit)
+    @staticmethod
+    def balance(subcode, cn=None, date_to=None): return ledger_balance(subcode, cn, date_to)
+
+LEDGERAPI = _LEDGERAPI()
+
+
+class _LEDGERMAPI:
+    @staticmethod
+    def list_all(cn=None, limit=500): return ledgerm_list(cn, limit)
+    @staticmethod
+    def get(docid, cn=None): return ledgerm_get(docid, cn)
+    @staticmethod
+    def insert(rec, cn=None, commit=True): return ledgerm_insert(rec, cn, commit)
+    @staticmethod
+    def delete(docid, cn=None, commit=True): return ledgerm_delete(docid, cn, commit)
+
+LEDGERMAPI = _LEDGERMAPI()
+
+
+class _CurrBalAPI:
+    @staticmethod
+    def refresh(subcode, cn=None): return refresh_currbal(subcode, cn)
+    @staticmethod
+    def refresh_all(cn=None): return refresh_all_currbal(cn)
+
+CurrBalAPI = _CurrBalAPI()
