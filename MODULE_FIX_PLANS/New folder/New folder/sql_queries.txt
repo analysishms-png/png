@@ -1,0 +1,91 @@
+# ==========================================================
+# Report : ChkInRegister (Check-In Register)
+# Module : rFomRepView  ->  Sub ChkInRegister(formName, FRow, Fcol)
+# Source : C:\FODER\HMS.bas  (line ~672611-673091, byte offset 1781900)
+#
+# Ye Check-In Register report ka data bananewale SQL queries hain.
+# <Param> = runtime VB6 variable / report input (date range, dropdown filter).
+#
+# NOTE: ye report Tables (GuestFolio, RoomOcc, GuestProf, Country,
+#       BussSource, PlanMast, SubGroup) visahl.sql dump me NAHI hain,
+#       isliye inki schema visahl.sql se available nahi hai.
+# ==========================================================
+
+
+-- ==========================================================
+-- QUERY 1 : MAIN CHECK-IN REGISTER DATASET
+-- Guest folio + room occupancy + guest profile + references.
+-- Har ek "in house / checked-in" guest ka detail row deta hai
+-- (GRC/Folio no, name, address, nationality, room, pax, rent,
+--  check-in date/time, out date/time, arrived-from, destination,
+--  advance, user, mobile, purpose-of-visit, remark,
+--  company/T.A., GSTIN, business source, plan/tariff).
+--
+-- Rang range (vdate between <FromDate> and <ToDate>) + optional
+-- filters for Company / Travel Agent / Business Source (var_94) jo
+-- VB6 me dynamically build hote hain.
+-- ==========================================================
+SELECT
+    GuestFolio.Docid AS FolionoDocid,
+    Foliono = CASE
+                WHEN GuestFolio.mFoliono = 0 THEN GuestFolio.FolioNo
+                ELSE GuestFolio.mFoliono
+              END,
+    GuestProf.Name,
+    GuestProf.Add1,
+    GuestProf.Add2,
+    GuestProf.MobileNo,
+    RoomOcc.RoomNo,
+    RoomOcc.Adult + RoomOcc.Children AS Pax,
+    RoomOcc.ChkinDate,
+    RoomOcc.ChkinTime,
+    GuestFolio.U_Name,
+    GuestFolio.ArrFrom,
+    GuestFolio.Destination,
+    GuestFolio.PurVisit,
+    GuestFolio.Remark,
+    RoomOcc.RoomRate,
+    RoomOcc.RRTaxInc,
+    Country.Name AS Nationality,
+    IsNull(BussSource.Name, '') AS BussSource,
+    PM.Tariff
+FROM GuestFolio
+    INNER JOIN RoomOcc   ON RoomOcc.Docid = GuestFolio.Docid
+    INNER JOIN GuestProf ON GuestProf.Code = GuestFolio.GuestProf
+    LEFT JOIN Country    ON GuestProf.Nationality = Country.Code
+    LEFT JOIN BussSource ON GuestFolio.BussSource = BussSource.Code
+    LEFT JOIN PlanMast PM ON RoomOcc.PlanCode = PM.Code
+WHERE vdate BETWEEN <FromDate> AND <ToDate>
+  AND RoomOcc.Sno = 1
+  [ AND GuestFolio.Company IN (<CompanyList>) ]          -- jab dropdown "Company" ho (unchecked)
+  [ AND IsNull(GuestFolio.Company,'')<>'' ]              -- jab dropdown "Company" + Check1=checked
+  [ AND GuestFolio.TravelAgent IN (<TravelAgentList>) ]  -- jab dropdown "Travel Agent" (unchecked)
+  [ And IsNull(GuestFolio.TravelAgent,'')<>'' ]          -- jab dropdown "Travel Agent" + Check1=checked
+  [ And GuestFolio.BussSource IN (<BussSourceList>) ]    -- jab BusinessSource filter ON
+ORDER BY GuestFolio.vprefix, GuestFolio.FolioNo
+-- Run via: unk_5D3C7A.Execute <Query> & " and RoomOcc.Sno=1 Order By ..."
+
+
+-- ==========================================================
+-- QUERY 2 : ROOM OCCUPANCY OUT-DATE/TIME LOOKUP (per row)
+-- Har folio ke liye RoomOcc se checkout (out) date/time nikalta hai,
+-- jab room occupied ('O') aur checkout ho chuka ho.
+-- ==========================================================
+SELECT *
+FROM RoomOcc
+WHERE Chkoutdate IS NOT NULL
+  AND Type = 'O'
+  AND Docid = '<FolioNoDocid>'   -- var_90.Fields("FolioNoDocid").Value
+
+
+-- ==========================================================
+-- QUERY 3 : COMPANY / T.A. / GSTIN LOOKUP (per row)
+-- Har folio ke liye Company + Travel Agent names aur GSTIN.
+-- ==========================================================
+SELECT
+    IsNull(Max(SubGroup.Name),'') + '/' + IsNull(Max(sg.Name),'') AS mCompany,
+    IsNull(Max(SubGroup.GSTIN),'') AS GSTIN
+FROM guestfolio G
+    LEFT JOIN SubGroup    ON G.Company = SubGroup.Subcode
+    LEFT JOIN SubGroup sg ON G.TravelAgent = sg.Subcode
+WHERE G.Docid = '<FolioNoDocid>'   -- var_90.Fields("FolioNoDocid").Value

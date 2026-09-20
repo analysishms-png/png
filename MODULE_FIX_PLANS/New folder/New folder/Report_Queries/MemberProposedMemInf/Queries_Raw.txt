@@ -1,0 +1,37 @@
+Module: MemberProposedMemInf
+Total SQL statements: 11
+================================================================================
+
+-- SQL Statement 1 --
+  loc_1411C1A:   Call 0.Method_Txt_Validate0 (Cancel, var_A0, var_A4, "Select P.PicPath,P.SigPath From MemberFamily P Where P.SubCode='")
+
+-- SQL Statement 2 --
+  loc_101D73A: var_90 = "Select SubCode as Code,Name,ConPrefix,CardNo From SubGroup where ActiveYN=1 and (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO') AND CompanyType in (Select Code from MemCatMast where LogSite_Code='"
+
+-- SQL Statement 3 --
+  loc_13EA531:       unk_43287F.Execute "Delete From MemProposedMemInf Where  Subcode='" & subcode & "' And SNo=" & CStr(var_AC) & " And Mark=''", var_EC, -1
+
+-- SQL Statement 4 --
+  loc_13EA57F:       unk_43287F.Execute "Select Max(SNo) As SNo From MemProposedMemInf Where  Subcode='" & var_98 & "'", var_EC, -1
+
+-- SQL Statement 5 --
+  loc_13EA65A:         var_104 = "Update MemProposedMemInf Set SNo=" & var_98 & " Where Subcode='" & subcode & "' And SNo=" & CStr(var_88)
+
+-- SQL Statement 6 --
+  loc_13EA746:           var_CC = "Select Count(*) From MemProposedMemInf where Subcode='" & subcode & "' And SNo=" & CStr(Val(var_BC)) & vbNullString
+
+-- SQL Statement 7 --
+  loc_13EA7EE:             var_C0 = "Delete From MemProposedMemInf where Subcode='" & subcode & "' And SNo="
+
+-- SQL Statement 8 --
+  loc_13EA949:           var_B8 = "Insert into MemProposedMemInf (Subcode,SNo,PMemCode,Mark,Site_Code,LogSite_Code,U_Name,U_EntDt,U_AE) " & "Values ('"
+
+-- SQL Statement 9 --
+  loc_13766FC: var_94 = "Select MCG.SNo,MCG.PMemCode,S.Name,S.ConPrefix,S.CardNo,P.PicPath,P.SigPath From ((MemProposedMemInf MCG Left join SubGroup S On MCG.PMemCode=S.SubCode) Left Join MemberFamily P On MCG.PMemCode= P.Subcode And P.SNo=1) Where MCG.SubCode='" & subcode
+
+-- SQL Statement 10 --
+  loc_F749F2:   unk_43287F.Execute "Select Max(SNo) As SNo From MemProposedMemInf MCG Where MCG.SubCode='" & subcode & "' And Mark=''", var_BC, -1
+
+-- SQL Statement 11 --
+  loc_F74A7A:   unk_43287F.Execute "Select Max(SNo) As SNo From MemProposedMemInf MCG Where MCG.SubCode='" & subcode & "' And Mark=''", var_BC, -1
+

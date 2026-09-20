@@ -1,0 +1,88 @@
+Module: FrmPayTypeMast
+Total SQL statements: 28
+================================================================================
+
+-- SQL Statement 1 --
+  loc_12871E0: var_E4 = "select SysYN From REVMAST Where Code='" & Me.Fields.Item("Code").Value 
+
+-- SQL Statement 2 --
+  loc_12873D7:   unk_512882.Execute CStr("Delete From REVMAST Where Code='" & Me.Fields.Item("Code").Value & "'"), var_128, -1
+
+-- SQL Statement 3 --
+  loc_128752A:   var_104 = "Delete From DepartPay Where PayCode='" & Me.Fields.Item("Code").Value & "'" 
+
+-- SQL Statement 4 --
+  loc_F1D131: MemVar_1F810E4 = "Select REVMAST.Code As SearchCode,REVMAST.Name FROM REVMAST WHERE (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO') and PayType<>'' AND PayType IS NOT NULL Order by REVMAST.Name"
+
+-- SQL Statement 5 --
+  loc_10824F3: var_A0 = "SELECT P.*,P.Code as SearchCode,S.SubCode as LedgerCode,S.Name as LedgerName FROM REVMAST P Left join Subgroup S on S.SubCode=P.ACCode WHERE (P.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 6 --
+  loc_153BEF7:   var_A0 = "Select IsNull(Max(CAST(SUBSTRING(Code,3,4) AS INT)),1)+1 AS MyCode From REVMAST WHERE SITE_CODE='" & MemVar_1F81070
+
+-- SQL Statement 7 --
+  loc_153C1D1:   var_A0 = "Insert Into REVMAST (Code,Name,ShortName,ACCode,PayType,Site_Code,SysYN,FieldType,U_Name,U_EntDt,U_AE,TYPE,BankCommPer,BankCommAc,ACPosting,LogSite_Code) Values ('" & global_100
+
+-- SQL Statement 8 --
+  loc_153C4E1:   var_108 = "UPDATE REVMAST SET Name=" & var_F8 
+
+-- SQL Statement 9 --
+  loc_153C65F: unk_512882.Execute "Delete from CreditCardhistory where RevCode='" & global_100 & "'", var_C8, -1
+
+-- SQL Statement 10 --
+  loc_153C976:     var_238 = "Insert into CreditCardhistory (AppDate,RevCode,TaxStru,CommAc,CommPer,Limit,CompOperator,Limit1,U_EntDt,U_AE,U_Name,Site_Code,LogSite_Code) values("
+
+-- SQL Statement 11 --
+  loc_1143E1E: var_B8 = "SELECT Code,Name FROM REVMAST WHERE PayType<>'' AND PayType IS NOT NULL AND (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO')  ORDER BY Name"
+
+-- SQL Statement 12 --
+  loc_1143E90: var_B8 = "SELECT SubCode as Code,Name FROM SubGroup WHERE ActiveYN=1 and (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO') ORDER BY Name"
+
+-- SQL Statement 13 --
+  loc_1143F02: var_B8 = "SELECT SubCode as Code,Name FROM SubGroup WHERE ActiveYN=1 and (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO') ORDER BY Name"
+
+-- SQL Statement 14 --
+  loc_1143F7D: unk_512882.Execute "SELECT Distinct Code,Name FROM taxstru WHERE (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO') ORDER BY Name", var_C8, -1
+
+-- SQL Statement 15 --
+  loc_1143FDF: var_B4 = "SELECT P.*,P.Code as SearchCode,S.SubCode as LedgerCode,S.Name as LedgerName,PayType AS CCARD FROM REVMAST P Left join Subgroup S on S.SubCode=P.ACCode WHERE PayType<>'' AND PayType IS NOT NULL AND (P.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 16 --
+  loc_1144059: unk_512882.Execute "Select [Option] Name,Flag,module_name from MenuHelp Where [Option] ='Banquet' and Flag='N'", var_C8, -1
+
+-- SQL Statement 17 --
+  loc_120AFAF: Call 0.Method_Proc_17_49_120B3AC0 (var_C8, "Select D.Name,D.Code,Case When IsNull(DP.PayCode,'')<>'' Then 1 Else 0 End Value from Depart D Left Join (Select RestCode,PayCode,LogSite_Code From DepartPay Where PayCode='", var_E8)
+
+-- SQL Statement 18 --
+  loc_120B2ED: Call 0.Method_Proc_17_49_120B3AC0 (var_C8, "select Restcode,Paycode,Case When IsNull(PayCode,'')<>'' Then 1 Else 0 End Value from DepartPay where restcode='banq'and PayCode='", var_E8)
+
+-- SQL Statement 19 --
+  loc_10565F6: unk_512882.Execute "Delete From DepartPay Where PayCode='" & arg_C & "' And LogSite_Code='" & MemVar_1F81078 & "'", var_B8, -1
+
+-- SQL Statement 20 --
+  loc_105667F:     Call 0.Method_Proc_17_50_10568040 (var_86, var_C8, "Insert Into DepartPay(RestCode,PayCode,Site_Code,U_Name,U_EntDt,U_AE,LogSite_Code) Values('")
+
+-- SQL Statement 21 --
+  loc_10566BD:     var_D8 = var_190 & "Delete From DepartPay Where PayCode='" & arg_C & "','" & arg_C & "','" & MemVar_1F81070 & "','" & MemVar_1F810C8
+
+-- SQL Statement 22 --
+  loc_1056784:   var_94 = "Insert Into DepartPay(RestCode,PayCode,Site_Code,U_Name,U_EntDt,U_AE,LogSite_Code) Values('BANQ','" & arg_C & "','" & MemVar_1F81070
+
+-- SQL Statement 23 --
+  loc_149C68A:   unk_512882.Execute CStr("Select U_Name,U_AE,U_EntDt From revmast where Code='" & Me.Fields.Item("Code").Value & "'  "), var_11C, -1
+
+-- SQL Statement 24 --
+  loc_149CD65:   var_C8 = "Select SubGroup.Name,TaxStru.Name as Tstru,TaxStru,CommAc,CommPer,AppDate,CreditCardHistory.Limit,CreditCardHistory.CompOperator,CreditCardHistory.Limit1 from (CreditCardHistory inner join SubGroup on SubGroup.SubCode=CreditCardHistory.CommAc) inner join TaxStru on Taxstru.Code=CreditCardHistory.TaxStru  where Sno=1 and Revcode='"
+
+-- SQL Statement 25 --
+  loc_1065F81:   Call 0.Method_Proc_17_54_106618C0 (var_A0, "Select Count(*) From RevMast Where ShortName='", var_9C, -1, var_C0)
+
+-- SQL Statement 26 --
+  loc_1066081:   Call 0.Method_Proc_17_54_106618C0 (var_A0, "Select Count(*) From RevMast Where ShortName='", var_9C, -1, var_D8)
+
+-- SQL Statement 27 --
+  loc_10B1CC7:   Call 0.Method_Proc_17_55_10B1EE40 (var_AC, "Select Count(*) From REVMAST Where (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO') and Name='", var_A0, -1, var_CC)
+
+-- SQL Statement 28 --
+  loc_10B1DC2:   var_114 = CVar("Select Count(*) From REVMAST Where (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO') and Name=") 'String
+

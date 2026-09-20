@@ -1,0 +1,7 @@
+Module: RsBookingEntryAdvance
+Total SQL statements: 1
+================================================================================
+
+-- SQL Statement 1 --
+  loc_10475D3: var_B8 = "SELECT P.DocId AS Code, P.BNo AS Name,P.CustName,LogSite_Code,Site_Code FROM PackingOrder P WHERE LogSite_Code='" & MemVar_1F81078
+

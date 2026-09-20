@@ -1,0 +1,148 @@
+Module: FrmPOSBillDeletion
+Total SQL statements: 48
+================================================================================
+
+-- SQL Statement 1 --
+  loc_115EC6B: Call 0.Method_CmdDelete_UnknownEvent_90 (CInt(2), var_B0, var_B4, "SELECT SHORTNAME FROM DEPART WHERE CODE='", var_D4, -1)
+
+-- SQL Statement 2 --
+  loc_115ED1B: unk_4993DF.Execute "Delete from TempPosDel", var_D4, -1
+
+-- SQL Statement 3 --
+  loc_115ED7D: Call 0.Method_CmdDelete_UnknownEvent_90 (CInt(0), var_B0, "Insert into TempPosDel(OldDocId,OldVno) Select DocId,Vno from Sale1 Where VDate>= ", var_210)
+
+-- SQL Statement 4 --
+  loc_115EE83: Call 0.Method_CmdDelete_UnknownEvent_90 (CInt(1), var_B0, CVar("UPDATE VOUCHER_PREFIX SET START_SRL_NO=" & CStr(global_84) & " WHERE "))
+
+-- SQL Statement 5 --
+  loc_F8B345: var_B4 = "SELECT Code,Name,RestType,DiscApp FROM Depart Where  (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO') AND ((OutletYN='Y' and RestType<>'Banquet') OR RestType='Kitchen') ORDER BY Name"
+
+-- SQL Statement 6 --
+  loc_F8B3B7: var_B4 = "SELECT Code,Name,PayType FROM RevMast Where PayType In('Cash','Member','Complementary') And (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO') AND FieldType='P' ORDER BY Name"
+
+-- SQL Statement 7 --
+  loc_12B6C61: Call 0.Method_CmdSerialize_Click0 (CInt(2), var_94, var_9C, "SELECT SHORTNAME FROM DEPART WHERE CODE='", var_BC, -1, var_98)
+
+-- SQL Statement 8 --
+  loc_12B6D14: Proc_6_6_F208E4(var_BC, MemVar_1F810F4, "Select max(Vno) From Sale1 Where VDate Between ", var_24C, -1)
+
+-- SQL Statement 9 --
+  loc_12B6E3F: unk_4993DF.Execute "Drop Table TempPosDel", var_BC, -1
+
+-- SQL Statement 10 --
+  loc_12B6E60: unk_4993DF.Execute "CREATE TABLE [dbo].[TempPosDel]([AutoId] [int] IDENTITY(1,1) NOT NULL,[OldDocId] [varchar](21) NOT NULL CONSTRAINT [DF_TempPosDel_OldDocId_1__75]  DEFAULT (''),[OldVno] [int] NULL CONSTRAINT [DF_TempPosDel_OldVno_1__75]  DEFAULT (''),[OldVdate] [datetime] NULL,[NewDocId] [varchar](21) NULL CONSTRAINT [DF_TempPosDel_NewDocId_1__75]  DEFAULT (''),[NewVno] [int] NULL CONSTRAINT [DF_TempPosDel_NewVno_1__75]  DEFAULT (''), CONSTRAINT [PK_TempPosDel] PRIMARY KEY CLUSTERED ([OldDocId] ASC) ON [PRIMARY]) ON [PRIMARY]", var_BC, -1
+
+-- SQL Statement 11 --
+  loc_12B6E88: Proc_6_6_F208E4(var_BC, MemVar_1F810F4, "Insert into TempPosDel(OldDocId,OldVno,OldVdate) Select DocId,Vno,Vdate from Sale1 Where VDate Between ", var_24C, -1, var_98)
+
+-- SQL Statement 12 --
+  loc_12B6F7E: unk_4993DF.Execute "Drop Table TempPosDel", var_BC, -1
+
+-- SQL Statement 13 --
+  loc_12B6F9F: unk_4993DF.Execute "CREATE TABLE [dbo].[TempPosDel]([AutoId] [int] IDENTITY(1,1) NOT NULL,[OldDocId] [varchar](21) NOT NULL CONSTRAINT [DF_TempPosDel_OldDocId_1__75]  DEFAULT (''),[OldVno] [int] NULL CONSTRAINT [DF_TempPosDel_OldVno_1__75]  DEFAULT (''),[OldVdate] [datetime] NULL,[NewDocId] [varchar](21) NULL CONSTRAINT [DF_TempPosDel_NewDocId_1__75]  DEFAULT (''),[NewVno] [int] NULL CONSTRAINT [DF_TempPosDel_NewVno_1__75]  DEFAULT (''), CONSTRAINT [PK_TempPosDel] PRIMARY KEY CLUSTERED ([OldDocId] ASC) ON [PRIMARY]) ON [PRIMARY]", var_BC, -1
+
+-- SQL Statement 14 --
+  loc_12B6FC7: Proc_6_6_F208E4(var_BC, MemVar_1F810F4, "Insert into TempPosDel(OldDocId,OldVno,OldVdate) Select DocId,Vno,Vdate from Sale1 Where VDate Between ", var_24C, -1)
+
+-- SQL Statement 15 --
+  loc_130EEDC: Proc_6_6_F208E4(var_A8, MemVar_1F810F4, "Select max(Vno) From Sale1 Where VDate>=", var_1F0, -1)
+
+-- SQL Statement 16 --
+  loc_130EFEA: var_98 = "Select Distinct S.DocId,S.Vno From (Sale1 S Left Join PayCharge P on P.DocId=S.DocId) Where IsNull(P.PayType,'') Not In('PPOS','IPOS') And S.VDate Between "
+
+-- SQL Statement 17 --
+  loc_130F1C2:   unk_4993DF.Execute CStr("Select Vno,Vdate,NetAmt as BillAmount,DocId From Sale1 Where DocId='" & Me.Fields.Item(0).Value & "'"), var_100, -1
+
+-- SQL Statement 18 --
+  loc_130F50E:     unk_4993DF.Execute CStr("Select Case When IsNull(Sum(AmtCr),0)=" & var_C8 & var_D8 & Me.Fields.Item(0).Value & "'"), var_15C, -1
+
+-- SQL Statement 19 --
+  loc_FBD2DC: unk_4993DF.Execute "Update Kot Set ContraDocID='Deleted' Where ContraDocID='" & arg_C & "'", var_B0, -1
+
+-- SQL Statement 20 --
+  loc_FBD312: unk_4993DF.Execute "Delete From Sale1 Where DocID='" & arg_C & "'", var_B0, -1
+
+-- SQL Statement 21 --
+  loc_FBD348: unk_4993DF.Execute "Delete From Sale2 Where DocID='" & arg_C & "'", var_B0, -1
+
+-- SQL Statement 22 --
+  loc_FBD37E: unk_4993DF.Execute "Delete From SunTran Where DocID='" & arg_C & "'", var_B0, -1
+
+-- SQL Statement 23 --
+  loc_FBD3B4: unk_4993DF.Execute "Delete From Stock Where DocID='" & arg_C & "'", var_B0, -1
+
+-- SQL Statement 24 --
+  loc_FBD3EA: unk_4993DF.Execute "Delete From Paycharge Where DocID='" & arg_C & "'", var_B0, -1
+
+-- SQL Statement 25 --
+  loc_FBD420: unk_4993DF.Execute "Delete From GuestReward Where DocID='" & arg_C & "'", var_B0, -1
+
+-- SQL Statement 26 --
+  loc_FBD456: unk_4993DF.Execute "Delete From AssignDelivery Where DocID='" & arg_C & "'", var_B0, -1
+
+-- SQL Statement 27 --
+  loc_13BF42E: unk_4993DF.Execute "Select * from TempPosDel Order By OldVno", var_A8, -1
+
+-- SQL Statement 28 --
+  loc_13BF4FA:     Proc_6_38_E75F08(var_130, CVar(var_88.Fields.Item("NEWVNO")), "Update Sale1 Set DocId='" & var_AC.Item("NewDocId").Value & "',Vno=", var_214)
+
+-- SQL Statement 29 --
+  loc_13BF625:     Proc_6_38_E75F08(var_130, CVar(var_88.Fields.Item("NEWVNO")), "Update Sale2 Set DocId='" & var_88.Fields.Item("NewDocId").Value & "',Vno=")
+
+-- SQL Statement 30 --
+  loc_13BF750:     Proc_6_38_E75F08(var_130, CVar(var_88.Fields.Item("NEWVNO")), "Update SunTran Set DocId='" & var_88.Fields.Item("NewDocId").Value & "',Vno=")
+
+-- SQL Statement 31 --
+  loc_13BF87B:     Proc_6_38_E75F08(var_130, CVar(var_88.Fields.Item("NEWVNO")), "Update Stock Set DocId='" & var_88.Fields.Item("NewDocId").Value & "',Vno=")
+
+-- SQL Statement 32 --
+  loc_13BF9A6:     Proc_6_38_E75F08(var_130, CVar(var_88.Fields.Item("NEWVNO")), "Update PayCharge Set DocId='" & var_88.Fields.Item("NewDocId").Value & "',Vno=")
+
+-- SQL Statement 33 --
+  loc_13BFAD1:     Proc_6_38_E75F08(var_130, CVar(var_88.Fields.Item("NEWVNO")), "Update GuestReward Set DocId='" & var_88.Fields.Item("NewDocId").Value & "',BillNo=")
+
+-- SQL Statement 34 --
+  loc_13BFBFC:     Proc_6_38_E75F08(var_130, CVar(var_88.Fields.Item("NEWVNO")), "Update AssignDelivery Set DocId='" & var_88.Fields.Item("NewDocId").Value & "',Vno=")
+
+-- SQL Statement 35 --
+  loc_13BFD2B:     var_130 = "Update Kot Set ContraDocId='" & var_88.Fields.Item("NewDocId").Value & "' Where ContraDocId='" & var_88.Fields.Item("OldDocid").Value 
+
+-- SQL Statement 36 --
+  loc_10730CA: unk_4993DF.Execute "Select * from TempPosDel Order By OldVno", var_AC, -1
+
+-- SQL Statement 37 --
+  loc_107325B:     var_234 = "Update TempPosDel Set NewDocId='" & var_16C & "',NewVno=" & Trim(var_1BC) & " Where OldDocId='" & var_88.Fields.Item("OldDocid").Value 
+
+-- SQL Statement 38 --
+  loc_119FFB0:   MsgBox(CVar("Select " & CStr(var_B0)), &H40, var_16C, var_17C, var_18C)
+
+-- SQL Statement 39 --
+  loc_1124738: var_8C = "Update TempPosDel Set NewDocId=SubString(OldDocid,1,13)+Space(8 - Len(Cast(" & CStr(global_80)
+
+-- SQL Statement 40 --
+  loc_11247C3: unk_4993DF.Execute "Select IsNull(Max(AutoId),0) from TempPosDel", var_C8, -1
+
+-- SQL Statement 41 --
+  loc_1124826: var_F4 = "Update Sale1 Set DocId=T.NewDocId,Vno=T.NEWVNO From TempPosDel T Where DocId=T.OldDocId and Vprefix=Year('" & Year(MemVar_1F810F4) 
+
+-- SQL Statement 42 --
+  loc_1124881: var_114 = "Update Sale2 Set DocId=T.NewDocId,Vno=T.NEWVNO From TempPosDel T Where DocId=T.OldDocId  and Vprefix=Year('" & var_C8 & "')" 
+
+-- SQL Statement 43 --
+  loc_11248BB: unk_4993DF.Execute "Update SunTran Set DocId=T.NewDocId,Vno=T.NEWVNO From TempPosDel T Where DocId=T.OldDocId ", var_C8, -1
+
+-- SQL Statement 44 --
+  loc_11248EB: var_F4 = "Update Stock Set DocId=T.NewDocId,Vno=T.NEWVNO From TempPosDel T Where DocId=T.OldDocId  and Vprefix=Year('" & Year(MemVar_1F810F4) 
+
+-- SQL Statement 45 --
+  loc_112493D: var_F4 = "Update PayCharge Set DocId=T.NewDocId,Vno=T.NEWVNO From TempPosDel T Where DocId=T.OldDocId  and Vprefix=Year('" & Year(MemVar_1F810F4) 
+
+-- SQL Statement 46 --
+  loc_112499C: var_88 = CStr("Update Kot Set ContraDocId=T.NewDocId From TempPosDel T Where ContraDocId=T.OldDocId and Vprefix=Year('" & var_C8 & "')")
+
+-- SQL Statement 47 --
+  loc_11249D4: var_88 = CStr(CLng("Update Kot Set ContraDocId=T.NewDocId From TempPosDel T Where ContraDocId=T.OldDocId and Vprefix=Year('" & var_C8 & "')"))
+
+-- SQL Statement 48 --
+  loc_11249ED: Proc_6_6_F208E4(var_C8, MemVar_1F810EC, CVar("UPDATE VOUCHER_PREFIX SET START_SRL_NO=" & var_88 & " WHERE "), var_1B4, -1, var_CC, var_CC, var_CC)
+

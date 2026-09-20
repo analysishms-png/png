@@ -1,0 +1,112 @@
+Module: UserPermission
+Total SQL statements: 36
+================================================================================
+
+-- SQL Statement 1 --
+  loc_E93B28: var_A0 = "Select Distinct UserName as Name ,UserName as Code From MenuHelp Left Join UserMast On MenuHelp.UserName=UserMast.User_Name Where UserMast.ActiveYN='Y' And UserMast.User_Name<>'SA' And CompCODE='" & CStr(Me.DCFirm.BoundText)
+
+-- SQL Statement 2 --
+  loc_E93EF3: Proc_6_138_EF12D8("Select CYear as Name ,Comp_Code as Code From Company Where Comp_CODE='" & CStr(Me.DCFirm.BoundText) & "'", Me.DCYear, "Name")
+
+-- SQL Statement 3 --
+  loc_E938E8: var_A0 = "Select User_Name as Name ,User_Name as Code From UserMast Where ActiveYN='Y' And User_Name<>'SA' And User_Name<>'" & CStr(Me.DSUserName.BoundText)
+
+-- SQL Statement 4 --
+  loc_18EA033:             var_170 = "SELECT Comp_Code FROM Company WHERE Cast(Comp_Code As Integer)=" & CStr(Val(CStr(Me.dYear.BoundText))) & vbNullString
+
+-- SQL Statement 5 --
+  loc_18EA0EA:             var_188 = "Delete From MenuHelp Where Opt1=" & CStr(Me.dSection.BoundText) & " And (UserName='" & CStr(var_134) & "' And Cast(CompCode As Integer)="
+
+-- SQL Statement 6 --
+  loc_18EA1B0:               var_168 = "SELECT [Option],Menu_Index,OutletCode,Module_Name FROM MenuHelp WHERE UserName='SA' And Cast(CompCode As Integer)=" & CStr(var_180)
+
+-- SQL Statement 7 --
+  loc_18EA661:                 var_164 = "insert into MenuHelp (CompCode,UserName,OPT1,OPT2,OPT3,OPT4,Code,Menu_Index,[Option],PARAM_STR,Flag,OutletCode,Module_Name) Values ('" & var_8C
+
+-- SQL Statement 8 --
+  loc_18EA88B:                   var_16C = "Select Count(*) From MenuHelp Where Opt1=" & CStr(Me.FGrid.TextMatrix)) & " And Opt2=0 And Opt3=0 And Opt4=0  And UserName='"
+
+-- SQL Statement 9 --
+  loc_18EA95E:                     var_168 = "Select OPT1,OPT2,OPT3,OPT4,Code,[Option],Flag,OutletCode,Module_Name From MenuHelp Where Opt1=" & CStr(Me.FGrid.TextMatrix))
+
+-- SQL Statement 10 --
+  loc_18EA9DB:                       var_164 = "Insert Into MenuHelp (CompCode,UserName,OPT1,OPT2,OPT3,OPT4,Code,Menu_Index,[Option],PARAM_STR,Flag,OutletCode,Module_Name) Values ('" & var_8C
+
+-- SQL Statement 11 --
+  loc_18EAD6C:                   var_184 = "Select Count(*) From MenuHelp Where Opt1=" & CStr(Me.FGrid.TextMatrix)) & " And Opt2=" & CStr(Me.FGrid.TextMatrix))
+
+-- SQL Statement 12 --
+  loc_18EAE78:                     var_168 = "Select OPT1,OPT2,OPT3,OPT4,Code,Menu_Index,[Option],Flag,OutletCode,Module_Name From MenuHelp Where Opt1=" & CStr(Me.FGrid.TextMatrix))
+
+-- SQL Statement 13 --
+  loc_18EAF11:                       var_164 = "Insert Into MenuHelp (CompCode,UserName,OPT1,OPT2,OPT3,OPT4,Code,Menu_Index,[Option],PARAM_STR,flag,OutletCode,Module_Name) Values ('" & var_8C
+
+-- SQL Statement 14 --
+  loc_18EB30B:                   var_184 = "Select Count(*) From MenuHelp Where Opt1=" & CStr(Me.FGrid.TextMatrix)) & " And Opt2=" & CStr(Me.FGrid.TextMatrix))
+
+-- SQL Statement 15 --
+  loc_18EB45B:                     var_168 = "Select OPT1,OPT2,OPT3,OPT4,Code,[Option],Flag,OutletCode,Module_Name From MenuHelp Where Opt1=" & CStr(Me.FGrid.TextMatrix))
+
+-- SQL Statement 16 --
+  loc_18EB510:                       var_164 = "Insert Into MenuHelp (CompCode,UserName,OPT1,OPT2,OPT3,OPT4,Code,Menu_Index,[Option],PARAM_STR,flag,OutletCode,Module_Name) Values ('" & var_8C
+
+-- SQL Statement 17 --
+  loc_18EB876:               Proc_6_16_EA44E0(var_B8, MemVar_1F81078, "Select Count(*) From UserPermission  WHERE LogSITE_CODE=", var_36C, -1, var_120)
+
+-- SQL Statement 18 --
+  loc_18EBB09:                 var_DC = "Insert Into UserPermission(CompCode,UserName,Site_Code,LogSite_Code,POSDiscountAllowUpto,CancelGuestBill,ChangeRoomDtl,DeleteGuestCharges,ChangeGuestCharges,POSSettlementYN,EditItemInKOT,FreeItemAllow,RefundCashCardAmt,FacilityBilling) Values ("
+
+-- SQL Statement 19 --
+  loc_18EBE88:                 var_1CC = CVar("Update UserPermission Set POSDiscountAllowUpto=" & CStr(var_180) & ",CancelGuestBill=") & var_134 & ",ChangeRoomDtl=" 
+
+-- SQL Statement 20 --
+  loc_10515DB: var_A4 = "Select UserName,[OPTION],[ADD]=Case When SubString(IsNull(Param_Str,''),1,1)='A' Then 'A' ELSE '' END,[EDIT]=Case When SubString(IsNull(Param_Str,''),2,1)='E' Then 'E' ELSE '' END,[DELETE]=Case When SubString(IsNull(Param_Str,''),3,1)='D' Then 'D' ELSE '' END,[PRINT]=Case When SubString(IsNull(Param_Str,''),4,1)='P' Then 'P' ELSE '' END,UserMast.ActiveYN,OPT1,OPT2,OPT3,OPT4,Menu_Index From MenuHelp Inner Join UserMast On MenuHelp.UserName=UserMast.User_Name Where Cast(CompCode As Int)=" & CStr(Val(MemVar_1F81128))
+
+-- SQL Statement 21 --
+  loc_ECD1BF: Proc_6_138_EF12D8("Select CYear as Name ,Comp_Code as Code From Company Where Comp_cODE='" & CStr(Me.dFirm.BoundText) & "'", Me.dYear, "Name")
+
+-- SQL Statement 22 --
+  loc_F0EC1F:   var_90 = "Select Distinct Comp_Name+CYear as Name ,cOMP_cODE as Code From Company"
+
+-- SQL Statement 23 --
+  loc_13CB3EE: var_CC = "Select Count(*) From MenuHelp Where UserName='" & CStr(Me.DDUserName.BoundText) & "' And Cast(CompCode As Integer)=" & CStr(Val(CStr(Me.DCYear.BoundText)))
+
+-- SQL Statement 24 --
+  loc_13CB5A6: var_CC = "Delete From MenuHelp Where UserName='" & CStr(Me.DDUserName.BoundText) & "' And Cast(CompCode As Integer)=" & CStr(Val(CStr(Me.DCYear.BoundText)))
+
+-- SQL Statement 25 --
+  loc_13CB630: var_CC = "Select * From MenuHelp Where UserName='" & CStr(Me.DSUserName.BoundText) & "' And Cast(CompCode As Integer)=" & CStr(var_140)
+
+-- SQL Statement 26 --
+  loc_13CB687:   var_104 = "Insert Into MenuHelp (CompCode,UserName,OPT1,OPT2,OPT3,OPT4,Code,Menu_Index,[Option],PARAM_STR,flag,OutletCode,Module_Name) Values ('"
+
+-- SQL Statement 27 --
+  loc_F5764A: Me.Recordset15.Open CVar("Select * From UserPermission WHERE (LOGSITE_CODE='" & MemVar_1F81078 & "' And Compcode=") & var_BC & ")", CVar(MemVar_1F81044), 2
+
+-- SQL Statement 28 --
+  loc_105131B: var_A4 = "Select UserName,[OPTION],[ADD]=Case When SubString(IsNull(Param_Str,''),1,1)='A' Then 'A' ELSE '' END,[EDIT]=Case When SubString(IsNull(Param_Str,''),2,1)='E' Then 'E' ELSE '' END,[DELETE]=Case When SubString(IsNull(Param_Str,''),3,1)='D' Then 'D' ELSE '' END,[PRINT]=Case When SubString(IsNull(Param_Str,''),4,1)='P' Then 'P' ELSE '' END,UserMast.ActiveYN,OPT1,OPT2,OPT3,OPT4,Menu_Index From MenuHelp Inner Join UserMast On MenuHelp.UserName=UserMast.User_Name Where Cast(CompCode As Int)=" & CStr(Val(MemVar_1F81128))
+
+-- SQL Statement 29 --
+  loc_13CD236:   var_C4 = "Select distinct U.Opt1,U.Opt2,U.Opt3,U.Opt4,U.[option] as [Module Name],U.Code,Case right(M.param_str,1) When 'P' Then 'þ' Else 'o' End as Allow,Case U.Flag When 'E' then Case left(M.param_str,1) When 'A' Then 'þ' Else 'o' End Else '' End as Ins,Case U.Flag When 'E' Then Case SubString(M.param_str,2,1) When 'E' Then 'þ' else 'o' End Else '' End as Edit,Case U.Flag When 'E' Then Case SubString(M.param_str,3,1) When 'D' Then 'þ' Else 'o' End Else '' End as Del,U.Flag,U.OutletCode From UserModule U Left Join MenuHelp M on M.Code=U.Code Where U.Opt1=" & CStr(Me.dSection.BoundText)
+
+-- SQL Statement 30 --
+  loc_13CD270:   var_114 = var_100 & CStr(Val(CStr(var_D8))) & " or CompCode is Null)) " & " Union " & " Select distinct U.Opt1,U.Opt2,U.Opt3,U.Opt4,U.[option] as [Module Name],U.Code,'o' as Allow,Case U.Flag When 'E' Then 'o' Else '' End as Ins,Case U.Flag When 'E' Then 'o' Else '' End as Edit,Case U.Flag When 'E' Then 'o' Else '' End as Del,U.Flag,U.OutletCode From UserModule U Inner Join MenuHelp M on M.Code=U.Code Where M.UserName='"
+
+-- SQL Statement 31 --
+  loc_13CD635:   var_278 = "SELECT Menu_Index,Flag FROM MenuHelp WHERE [Option]=" & var_D8 & " AND Code=" & CVar(CStr(Me.FGrid.TextMatrix))) & " AND UserName='SA'" 
+
+-- SQL Statement 32 --
+  loc_110AB23: Proc_6_138_EF12D8("Select User_Name as Name ,User_Name as Code From UserMast WHERE ActiveYN='Y' And User_Name <>'SA' Order By User_Name", Me.dUserName)
+
+-- SQL Statement 33 --
+  loc_110AB5D: var_88 = "Select Distinct Comp_Name+' ' +cyEAR as Name ,Comp_CODE as Code From Company"
+
+-- SQL Statement 34 --
+  loc_110AB63: Proc_6_138_EF12D8("Select User_Name as Name ,User_Name as Code From UserMast WHERE ActiveYN='Y' And User_Name <>'SA' Order By User_Name", Me.dFirm, "Name")
+
+-- SQL Statement 35 --
+  loc_110ABC3: Proc_6_138_EF12D8("Select CYear as Name ,Comp_Code as Code From Company Where Comp_CODE='" & CStr(Me.dFirm.BoundText) & "'", Me.dYear, "Name", "Code")
+
+-- SQL Statement 36 --
+  loc_110AC06: var_88 = "Select DISTINCT replace([option],'&','') as Name ,Opt1 as Code From UserModule Where FLAG<>'V' AND Opt2=0 and Opt3=0 and Opt4=0 and [Option]<>'-' AND [Option] NOT IN ('-','Exit') ORDER BY OPT1"
+

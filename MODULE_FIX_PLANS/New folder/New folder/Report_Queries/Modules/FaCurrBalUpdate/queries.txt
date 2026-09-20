@@ -1,0 +1,181 @@
+Module: FaCurrBalUpdate
+Total SQL statements: 59
+================================================================================
+
+-- SQL Statement 1 --
+  loc_10B8F38: var_94 = "Insert Into VenueOcc Select * FROM " & var_88
+
+-- SQL Statement 2 --
+  loc_10B8FD7: var_CC = CVar("Insert Into HallBook Select * FROM " & var_88 & ".dbo.HallBook Where DocId In (Select Distinct FPDocID from " & var_88 & ".dbo.VenueOcc where FromDate >=") 'String
+
+-- SQL Statement 3 --
+  loc_10B904D: var_CC = CVar("Insert Into HallBook1 Select * FROM " & var_88 & ".dbo.HallBook1 Where DocId In (Select Distinct FPDocID from " & var_88 & ".dbo.VenueOcc where FromDate >=") 'String
+
+-- SQL Statement 4 --
+  loc_10B90AE: var_94 = "Insert Into PaychargeH Select * FROM " & var_88
+
+-- SQL Statement 5 --
+  loc_10B90BE: unk_4A9A37.Execute "Insert Into HallBook1 Select * FROM " & var_88 & ".dbo.HallBook1 Where DocId In (Select Distinct FPDocID from ", var_BC, -1
+
+-- SQL Statement 6 --
+  loc_176C55D: var_A0 = "Select DocId,GuestProf FROM " & var_8C
+
+-- SQL Statement 7 --
+  loc_176C64B:   Proc_6_16_EA44E0(var_D4, CVar(Me.Recordset15.Fields.Item("DocID")), CVar("INSERT INTO Booking Select * FROM " & var_8C & ".dbo.Booking Where DocId="), var_124)
+
+-- SQL Statement 8 --
+  loc_176C657:   var_158 = CStr(CVar("INSERT INTO Booking Select * FROM " & var_8C & ".dbo.Booking Where DocId=") & " AND DocId NOT IN (SELECT DocId FROM Booking WHERE ArrDate >=")
+
+-- SQL Statement 9 --
+  loc_176C6C8:   Proc_6_16_EA44E0(var_D4, CVar(Me.Recordset15.Fields.Item("DocID")), CVar("INSERT INTO BookingMore Select * FROM " & var_8C & ".dbo.BookingMore WHERE DocId="))
+
+-- SQL Statement 10 --
+  loc_176C745:   Proc_6_16_EA44E0(var_D4, CVar(Me.Recordset15.Fields.Item("DocID")), CVar("INSERT INTO GrpBookingDetails Select * FROM " & var_8C & ".dbo.GrpBookingDetails WHERE BookingDocId="))
+
+-- SQL Statement 11 --
+  loc_176C7C2:   Proc_6_16_EA44E0(var_D4, CVar(Me.Recordset15.Fields.Item("DocID")), CVar("INSERT INTO BookingPlanDetails Select * FROM " & var_8C & ".dbo.BookingPlanDetails WHERE BookingDocId="))
+
+-- SQL Statement 12 --
+  loc_176C83F:   Proc_6_16_EA44E0(var_D4, CVar(Me.Recordset15.Fields.Item("DocID")), CVar("INSERT INTO BookingCancelDetails Select * FROM " & var_8C & ".dbo.BookingCancelDetails WHERE BookingDocId="))
+
+-- SQL Statement 13 --
+  loc_176C897:   var_188 = "INSERT INTO PayCharge Select * FROM " & var_8C & ".dbo.PayCharge WHERE Docid IN (Select Docid From " & var_8C
+
+-- SQL Statement 14 --
+  loc_176C932:   var_A0 = "Select IsNull(Max(CAST(SUBSTRING(Code,3,6) AS INT)),1)+1 AS MyCode From GUESTPROF WHERE SITE_CODE='" & MemVar_1F81070
+
+-- SQL Statement 15 --
+  loc_176C942:   unk_4A9A7E.Execute "INSERT INTO PayCharge Select * FROM " & var_8C & "'", var_C4, -1
+
+-- SQL Statement 16 --
+  loc_176C9E3:   var_E4 = CVar("Select * FROM " & var_8C & ".dbo.GuestProf Where Code=") 'String
+
+-- SQL Statement 17 --
+  loc_176CAAC:     Proc_6_16_EA44E0(var_D4, CVar(var_98.Fields.Item("Code")), "Select Count(*) FROM GuestProf Where Code=", var_178, -1, var_194)
+
+-- SQL Statement 18 --
+  loc_176CB61:       var_A0 = "INSERT INTO GuestProf (Code,Name,Add1,Add2,City,Type,PhoneNo,FaxNo,MobileNo,EmailId,Nationality,Age,BirthDate,Anniversary,GuestStatus,SplInstr,Comments1,Comments2,Comments3,ConName,T1Field1,T1Field2,T1Field3,T1Field4,T1Field5,T1Field6,T1Field7,T1Field8,T2Field1,T2Field2,T2Field3,T2Field4,T2Field5,T2Field6,T2Field7,T2Field8,CityName,StateName,CountryName,MaritalStatus,Gender,ZipCode,Site_Code,U_Name,U_EntDt,U_AE,PanNO,DiplomatYN," & "IdNo,ConPrefix,LogSite_Code,PicPath,IdProof,IdProofNo,mProf,FatherName) Values ('"
+
+-- SQL Statement 19 --
+  loc_176DC43:       var_A0 = "UPDATE Booking SET GuestProf='" & var_94
+
+-- SQL Statement 20 --
+  loc_125A588:   var_B0 = "SELECT LEDGER.LOGSITE_CODE,LEDGER.V_DATE,SUBGROUP.GROUPCODE,SubGroup.SubCode,SubGroup.Name,Sum(Ledger.AmtCr) AS AMTCR,Sum(Ledger.AmtDr) AS AMTDR FROM SubGroup INNER JOIN Ledger ON SubGroup.SubCode=Ledger.SubCode where SubGroup.SubCode='" & CStr(var_A8)
+
+-- SQL Statement 21 --
+  loc_125A5D6:   unk_4A9A37.Execute "SELECT LEDGER.LOGSITE_CODE,LEDGER.V_DATE,SUBGROUP.GROUPCODE,SubGroup.SubCode,SubGroup.Name,Sum(Ledger.AmtCr) AS AMTCR,Sum(Ledger.AmtDr) AS AMTDR FROM SubGroup INNER JOIN Ledger ON SubGroup.SubCode=Ledger.SubCode GROUP BY LEDGER.LOGSITE_CODE,LEDGER.V_DATE,SUBGROUP.GROUPCODE,SubGroup.SubCode,SubGroup.Name", var_A8, -1
+
+-- SQL Statement 22 --
+  loc_125A68F:   unk_4A9A37.Execute "UPDATE ACGROUPCURRBAL SET CURR_BAL=0", var_A8, -1
+
+-- SQL Statement 23 --
+  loc_125A6B0:   unk_4A9A37.Execute "UPDATE SUBGROUPCURRBAL SET CURR_BAL=0", var_A8, -1
+
+-- SQL Statement 24 --
+  loc_1AC8465: var_94.Open "SELECT * FROM Stock Where DocId Is Null", CVar(MemVar_1F811DC), 2
+
+-- SQL Statement 25 --
+  loc_1AC8511:   var_124 = "SELECT S.GodownCode GCode,I.CONSUMPTIONITEM,Sum(S.RecdQty) AS QTY FROM ((" & var_98 & ".dbo.Stock S Left Join " & var_98 & ".dbo.ItemMast I On S.Item=I.Code And I.ItemType='Store') Left Join "
+
+-- SQL Statement 26 --
+  loc_1AC85BB:   var_DC = "SELECT S.GodownCode GCode,I.CONSUMPTIONITEM,Sum(S.IssQty) AS QTY FROM ((" & var_98
+
+-- SQL Statement 27 --
+  loc_1AC8681:   var_11C = "SELECT S.DepartCode GCode,I.CONSUMPTIONITEM,Sum(S.ThCons)/MAX(ConvRatio) AS QTY FROM ((" & var_98 & ".dbo.RawConsumption S Left Join "
+
+-- SQL Statement 28 --
+  loc_1AC874E:   var_124 = "Select Code,Name From " & var_98 & ".dbo.Depart Where (Logsite_Code='HO' Or Logsite_Code='" & MemVar_1F81078 & "') And RestType in ('Kitchen','Staff Kitchen')"
+
+-- SQL Statement 29 --
+  loc_1AC87EC:     var_DC = "Select Distinct Item,I.Name As ItemName,I.Type,I.CODE as CODE,I.LPurRate AS LPRATE,I.IssueUnit AS WUnit,I.Unit As PUnit, I.ConvRatio From ((" & var_98
+
+-- SQL Statement 30 --
+  loc_1AC8B96:       var_DC = Proc_6_37_E618F4(CVar(var_B8.Fields.Item("Code")), "Select * From Stock Where Item='", var_234, -1)
+
+-- SQL Statement 31 --
+  loc_1AC9620:             var_148 = "Update Stock Set ChalQty=" & Format(var_C4, "0.000") 
+
+-- SQL Statement 32 --
+  loc_1AC97AC:             var_DC = Proc_6_37_E618F4(CVar(var_BC.Fields.Item("DocID")), "Delete From Stock Where DocId='", var_198, -1, var_238)
+
+-- SQL Statement 33 --
+  loc_1AC9903:         var_DC = "Update Voucher_Prefix Set Start_Srl_No=Start_Srl_No+1 Where SITE_CODE='" & MemVar_1F81070
+
+-- SQL Statement 34 --
+  loc_1AC9A61:     var_11C = "SELECT S.GodownCode GCode,S.Item,Sum(S.RecdQty) AS Qty,Sum(S.Amount) AS Amt FROM ((" & var_98 & ".dbo.mCurStk S Inner Join "
+
+-- SQL Statement 35 --
+  loc_1AC9B49:     var_11C = "SELECT S.GodownCode GCode,S.Item,Sum(S.IssQty) AS Qty,Sum(S.Amount) AS Amt FROM ((" & var_98 & ".dbo.mCurStk S Inner Join "
+
+-- SQL Statement 36 --
+  loc_1AC9C46:     var_128 = "SELECT G.Code,G.Name FROM " & var_98 & ".dbo.GodownMast G INNER JOIN " & var_98 & ".dbo.Depart D ON G.Code=D.Code " & var_D4
+
+-- SQL Statement 37 --
+  loc_1AC9CEF:       var_DC = "Select Distinct Item,I.Name As ItemName,I.Type,I.CODE as CODE,I.IssueUnit AS WUnit,I.Unit As PUnit, I.ConvRatio From ((" & var_98
+
+-- SQL Statement 38 --
+  loc_1ACA05E:         var_DC = Proc_6_37_E618F4(CVar(var_B8.Fields.Item("Code")), "Select * From Stock Where Item='", var_234, -1, var_238)
+
+-- SQL Statement 39 --
+  loc_1ACAA72:               var_148 = "Update Stock Set ChalQty=" & Format(var_C4, "0.000") 
+
+-- SQL Statement 40 --
+  loc_1ACABF6:               var_DC = Proc_6_37_E618F4(CVar(var_BC.Fields.Item("DocID")), "Delete From Stock Where DocId='", var_198, -1, var_238)
+
+-- SQL Statement 41 --
+  loc_1ACAD4D:           var_DC = "Update Voucher_Prefix Set Start_Srl_No=Start_Srl_No+1 Where SITE_CODE='" & MemVar_1F81070
+
+-- SQL Statement 42 --
+  loc_1ACAFE6:       var_11C = "SELECT S.GodownCode GCode,S.Item,Sum(S.RecdQty) AS Qty,Sum(S.RecdQty*I.LPurRate) AS Amt FROM ((" & var_98 & ".dbo.Stock S Inner Join "
+
+-- SQL Statement 43 --
+  loc_1ACB0CE:       var_11C = "SELECT S.GodownCode GCode,S.Item,Sum(S.IssQty) AS Qty,Sum(S.IssQty*I.LPurRate) AS Amt FROM ((" & var_98 & ".dbo.Stock S Inner Join "
+
+-- SQL Statement 44 --
+  loc_1ACB1CB:       var_128 = "SELECT G.Code,G.Name FROM " & var_98 & ".dbo.GodownMast G INNER JOIN " & var_98 & ".dbo.Depart D ON G.Code=D.Code " & var_D4
+
+-- SQL Statement 45 --
+  loc_1ACB274:         var_DC = "Select Distinct Item,I.Name As ItemName,I.Type,I.CODE as CODE,I.IssueUnit AS WUnit,I.Unit As PUnit, I.ConvRatio From ((" & var_98
+
+-- SQL Statement 46 --
+  loc_1ACB5E3:           var_DC = Proc_6_37_E618F4(CVar(var_B8.Fields.Item("Code")), "Select * From Stock Where Item='", var_234, -1, var_238)
+
+-- SQL Statement 47 --
+  loc_1ACBFF7:                 var_148 = "Update Stock Set ChalQty=" & Format(var_C4, "0.000") 
+
+-- SQL Statement 48 --
+  loc_1ACC17B:                 var_DC = Proc_6_37_E618F4(CVar(var_BC.Fields.Item("DocID")), "Delete From Stock Where DocId='", var_198, -1, var_238)
+
+-- SQL Statement 49 --
+  loc_1ACC2D2:             var_DC = "Update Voucher_Prefix Set Start_Srl_No=Start_Srl_No+1 Where SITE_CODE='" & MemVar_1F81070
+
+-- SQL Statement 50 --
+  loc_154B669: var_98.Open "SELECT * FROM Ledger", CVar(MemVar_1F811DC), 2
+
+-- SQL Statement 51 --
+  loc_154B6AE: var_B0 = "Select S.SubCode,S.Name,S.GroupCode,S.GroupNature,Q.Curr_Bal,S.Site_Code,S.LogSite_Code From SubGroup S Inner Join (Select SG.SubCode,Max(SG.Name) Name,SG.GroupCode,IsNull(Sum(SCB.Curr_Bal),0) As Curr_Bal from " & var_9C
+
+-- SQL Statement 52 --
+  loc_154B74E:   var_B0 = Proc_6_37_E618F4(CVar(var_AC.Item("subcode")), "Select * From Ledger Where Subcode='", var_1A8, -1, var_1AC, var_A2)
+
+-- SQL Statement 53 --
+  loc_154BB72:       var_B0 = "Update Voucher_Prefix Set Start_Srl_No=Start_Srl_No+1 Where SITE_CODE='" & MemVar_1F81070
+
+-- SQL Statement 54 --
+  loc_154BC56:         var_D4 = "Update Ledger Set AmtCr=Case When "
+
+-- SQL Statement 55 --
+  loc_154BE56:         var_E8 = -1 & Proc_6_37_E618F4(CVar(var_A8.Fields.Item("DocID")), "Delete From Ledger Where DocId='", var_148)
+
+-- SQL Statement 56 --
+  loc_154BFDA:   var_B0 = "select S.SubCode,S.Name,S.GroupCode,Q.Name Name1,Q.GroupCode GroupCode1,Q.Curr_Bal From SubGroup S Right Join (Select SG.SubCode,Max(SG.Name) Name,SG.GroupCode,IsNull(Sum(SCB.Curr_Bal),0) As Curr_Bal from " & var_9C
+
+-- SQL Statement 57 --
+  loc_F5FDB1: var_90 = "SELECT NAME,SUBCODE FROM SUBGROUP ORDER BY NAME"
+
+-- SQL Statement 58 --
+  loc_10B32AD: var_98 = "Select VT.Number_Method,VP.V_Type,VP.Date_From,VP.Prefix,VP.Start_Srl_No From Voucher_Type VT Left Join Voucher_Prefix VP on VT.V_Type=VP.V_Type Where VT.SITE_CODE='" & MemVar_1F81070
+
+-- SQL Statement 59 --
+  loc_10B2C55: var_98 = "Select VT.Number_Method,VP.V_Type,VP.Date_From,VP.Prefix,VP.Start_Srl_No From Voucher_Type VT Left Join Voucher_Prefix VP on VT.V_Type=VP.V_Type Where VT.SITE_CODE='" & MemVar_1F81070
+

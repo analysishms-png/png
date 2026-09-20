@@ -1,0 +1,58 @@
+Module: FrmComplaintMast
+Total SQL statements: 18
+================================================================================
+
+-- SQL Statement 1 --
+  loc_115B1A1: unk_46CD3D.Execute "SELECT Code,Name FROM Depart Where (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO') ORDER BY Name", var_DC, -1
+
+-- SQL Statement 2 --
+  loc_115B20A: var_CC = "SELECT Code AS Scode,Category FROM ComplaintCategory Where (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO')  Order BY Category"
+
+-- SQL Statement 3 --
+  loc_115B275: var_C8 = "SELECT CD.Code AS Scode,CD.Category AS CatCode,CD.CDate AS CDate,CD.CTime AS CTime,CC.Category AS Category,CD.Description AS Description,CD.Depart AS Depart,CD.UName AS UName,CD.Status AS Status,CD.Site_Code,CD.LogSite_Code FROM ComplaintDetail CD Left JOIN ComplaintCategory CC ON CD.Category =CC.Code Where (CD.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 4 --
+  loc_10D7998:   var_F8 = "Delete From ComplaintDetail Where Code='" & Me.Fields.Item("SCode").Value & "'" 
+
+-- SQL Statement 5 --
+  loc_F1DCB2: var_10C = "Select C.Code AS SearchCode, C.Description As Description, C.UName AS ComplaintBy, Depart.Name AS Department FROM ComplaintDetail C Inner JOIN Depart ON C.Depart = Depart.Code Where C.LogSite_Code='" & MemVar_1F81078
+
+-- SQL Statement 6 --
+  loc_107B1C7: var_A0 = "SELECT CD.Code AS Scode,CD.CDate AS CDate,CD.CTime AS CTime,CC.Category AS Category,CD.Description AS Description,D.Name AS Depart,CD.UName AS UName,CD.Status AS Status FROM (ComplaintDetail CD INNER JOIN ComplaintCategory CC ON CD.Category =CC.Code) INNER JOIN Depart D ON CD.Depart=D.Code Where CD.LogSite_Code='" & MemVar_1F81078
+
+-- SQL Statement 7 --
+  loc_1406BB3:   var_A0 = "Select IsNull(Max(CAST(SUBSTRING(Code,3,4) AS INT)),1)+1 AS MyCode From ComplaintDetail Where Site_Code='" & MemVar_1F81070
+
+-- SQL Statement 8 --
+  loc_1406CD9: Call 0.Method_TopCtrl1_UnknownEvent_160 (CInt(3), var_98, "SELECT Count(*) FROM ComplaintCategory WHERE Category='", var_12C, -1, var_9C, var_130)
+
+-- SQL Statement 9 --
+  loc_1406D72:   var_A0 = "Select IsNull(Max(CAST(SUBSTRING(Code,3,4) AS INT)),1)+1 AS MyCode From ComplaintCategory Where Site_Code='" & MemVar_1F81070
+
+-- SQL Statement 10 --
+  loc_1406EA7:   Call 0.Method_TopCtrl1_UnknownEvent_160 (CInt(3), var_98, "SELECT Count(*) FROM ComplaintCategory WHERE Category='", var_12C, -1)
+
+-- SQL Statement 11 --
+  loc_1406F3F:     var_FC = CVar("Insert Into ComplaintCategory(Code,Category,Site_Code,U_EntDt,U_AE,LogSite_Code) " & "Values('" & var_90 & "','") 'String
+
+-- SQL Statement 12 --
+  loc_1407012:   var_A0 = "Insert Into ComplaintDetail(Code,Category,CDate,CTime,Description,Depart,UName,Status,Site_Code,U_EntDt,U_AE,LogSite_Code) " & "Values('"
+
+-- SQL Statement 13 --
+  loc_1407220:   Call 0.Method_TopCtrl1_UnknownEvent_160 (CInt(5), var_9C, var_EC, "UPDATE ComplaintDetail SET Description='" & Me.TxtDesc.Text & "',Status = '")
+
+-- SQL Statement 14 --
+  loc_11CA580:   var_FC = "SELECT Name FROM Depart WHERE Code='" & Me.Fields.Item("Depart").Value & "'" 
+
+-- SQL Statement 15 --
+  loc_1060843:   unk_46CD3D.Execute "Select Count(*) From ComplaintDetail Where Description='" & var_A4 & "'", var_A0, -1
+
+-- SQL Statement 16 --
+  loc_1060920:   Call 0.Method_Proc_166_35_1060A180 (CInt(3), var_C0, var_A4, "Select Count(*) From ComplaintDetail Where Category='", var_A0, -1)
+
+-- SQL Statement 17 --
+  loc_103F55D:   Call 0.Method_Proc_166_36_103F7440 (CInt(2), var_A4, var_A0, "Select Count(*) From State Where ShortName='", var_9C, -1)
+
+-- SQL Statement 18 --
+  loc_103F65D:   Call 0.Method_Proc_166_36_103F7440 (CInt(2), var_A4, var_A0, "Select Count(*) From State Where ShortName='", var_9C, -1)
+
