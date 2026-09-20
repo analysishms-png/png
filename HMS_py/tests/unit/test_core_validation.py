@@ -139,6 +139,11 @@ class TestPosKOTHelpers:
 
         monkeypatch.setattr(pos.db, "query", fake_query)
         monkeypatch.setattr(pos.db, "execute", fake_execute)
+        # _table_exists ko bhi stub karo — warna Waiter/RoomMast guards
+        # fake_query se [] lekar helpers ko empty leutaate hain (guard
+        # mapping-test ka intent nahi hai)
+        monkeypatch.setattr(pos, "_table_exists",
+                            lambda table, cn=None: True)
 
         outlets = pos.get_outlets()
         waiters = pos.get_waiters()

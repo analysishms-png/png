@@ -137,10 +137,10 @@ def do_checkout(folio: int, user: str = USER, cn=None,
 
     # Validate checkout type from Enviro (VB6 FdCheckOut.frm:3202)
     checkout_type = _get_checkout_type(cn=cn)
-    if checkout_type == "Strict" and abs(folio_balance(folio, cn=cn, vprefix=vprefix)["balance"]) > 0.005:
-        raise ValueError(f"Checkout type '{checkout_type}' requires zero balance")
-
     bal = folio_balance(folio, cn=cn, vprefix=vprefix)
+
+    if checkout_type == "Strict" and abs(bal["balance"]) > 0.005:
+        raise ValueError(f"Checkout type '{checkout_type}' requires zero balance")
 
     # VB6 FdCheckOut.frm:3202 — checkout blocks while guest balance != 0.
     # (Settlement is the separate fdReSetlement flow.)
@@ -294,7 +294,7 @@ def clearance_list(cn=None, top: int = 100) -> list:
     """List recent settled bills for clearance review (FOMBillDetails browse)."""
     rows = db.query(
         f"SELECT TOP {int(top)} Bill_No, Bill_Date, FolioNo, Guestname, "
-        "BillAmt, SettMode, SettAmt, Status, SendTF "
+        "BillAmt, SettMode, SettAmt, Status "
         "FROM FOMBillDetails WHERE SiteCode = ? "
         "ORDER BY Bill_Date DESC, Bill_No DESC",
         (SITE_CODE,), cn=cn)
@@ -303,5 +303,4 @@ def clearance_list(cn=None, top: int = 100) -> list:
              "bill_amt": float(r.BillAmt or 0),
              "sett_mode": (r.SettMode or "").strip(),
              "sett_amt": float(r.SettAmt or 0),
-             "status": (r.Status or "").strip(),
-             "send_tf": (r.SendTF or "").strip()} for r in rows]
+             "status": (r.Status or "").strip()} for r in rows]

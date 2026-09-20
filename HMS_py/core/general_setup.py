@@ -440,6 +440,7 @@ def vouchcat_exists(code: str, cn=None) -> bool:
 def vouchcat_insert(rec: dict, cn=None, commit=True) -> int:
     if not rec.get("category", "").strip():
         raise ValueError("Category zaroori hai")
+    db.require_absent("VoucherCat", "Category", rec["category"], "Voucher Category")
     return db.execute(
         "INSERT INTO VoucherCat (Category, NCat, Site_Code, LogSite_Code) "
         "VALUES (?, ?, ?, ?)",

@@ -64,6 +64,7 @@ def exists(code: str, cn=None) -> bool:
 
 def insert(rec: dict, cn=None, commit: bool = True) -> int:
     _validate(rec)
+    db.require_absent("TDSCat", "Code", rec["code"], "TDS Category Code")
     return db.execute(
         "INSERT INTO TDSCat (Code, Name, TDSLimit, TDSPercentage, "
         "Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code) "

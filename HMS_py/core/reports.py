@@ -2721,15 +2721,17 @@ def run(key: str, d_from=None, d_to=None, limit: int = DEFAULT_LIMIT,
     """
     r = by_key()[key]
     sql = r["sql"].replace("{L}", str(int(limit)))
-    has_params = "?" in sql
-    if has_params:
+    # B019: sirf real ? placeholders gino — string literals ke andar wale
+    # nahi (jaise ISNULL(s.Name,'?')). Literal-strip regex se.
+    import re as _re
+    n = len(_re.findall(r"\?", _re.sub(r"'(?:[^']|'')*'", "''", sql)))
+    if n:
+        if n % 2:
+            raise ValueError(f"report '{key}' sql has odd date params")
         if d_from is None or d_to is None:
             raise ValueError(f"report '{key}' needs d_from/d_to")
         f = d_from if isinstance(d_from, str) else d_from.isoformat()
         t = d_to if isinstance(d_to, str) else d_to.isoformat()
-        n = sql.count("?")
-        if n == 0 or n % 2:
-            raise ValueError(f"report '{key}' sql has odd/no date params")
         params = (f, t) * (n // 2)
         rows = db.query(sql, params, cn=cn)
     else:

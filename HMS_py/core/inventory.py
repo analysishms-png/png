@@ -142,9 +142,11 @@ def _next_vno(vtype: str, vprefix: str, cn=None) -> int:
 
 def _next_vno_table(table: str, vtype: str, vprefix: str, cn=None) -> int:
     """For tables with their own VNo sequence (GIN, POrder, etc.)."""
+    from HMS_py.core.db import _validate_identifier
+    _validate_identifier(table, "table")
     vtype_col = "Vtype" if table == "Stock" else "VType"
     rows = db.query(
-        f"SELECT MAX(VNo) FROM {table} WHERE {vtype_col} = ? AND Vprefix = ? AND Site_Code = ?",
+        f"SELECT MAX(VNo) FROM [{table}] WHERE [{vtype_col}] = ? AND Vprefix = ? AND Site_Code = ?",
         (vtype, vprefix, SITE_CODE), cn=cn)
     return (rows[0][0] or 0) + 1 if rows and rows[0][0] else 1
 

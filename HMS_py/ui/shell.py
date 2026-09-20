@@ -254,9 +254,9 @@ class CompanyDialog(QDialog):
                                     "Pehle company select karo")
             return
         self.selected = {
-            "name": self.tbl.item(r, 0).text(),
-            "short": self.tbl.item(r, 1).text(),
-            "year": self.tbl.item(r, 2).text(),
+            "name": self.tbl.item(r, 0).text() if self.tbl.item(r, 0) else "",
+            "short": self.tbl.item(r, 1).text() if self.tbl.item(r, 1) else "",
+            "year": self.tbl.item(r, 2).text() if self.tbl.item(r, 2) else "",
         }
         self.accept()
 
@@ -290,6 +290,7 @@ class MainSetupWorkbench(QDialog):
                 "Sundry Master", "Narration Master", "Department/Outlet",
                 "Room Features", "Godown Master", "Voucher Environment",
                 "FA Environment", "Parameter", "Printing Setup",
+                "Voucher Category", "Voucher Type", "eInvoice Config",
             ]),
             ("Finance & Reports", [
                 "Tax Master", "Tax Structure", "Payment Type", "Market Segment",
@@ -300,10 +301,20 @@ class MainSetupWorkbench(QDialog):
                 "Session Master", "Scheme Master", "Delivery Boy",
                 "Menu Category", "Venue Master", "Venue Features",
                 "Catalog Master", "Group Profile",
+                "NC Type", "Server / Waiter", "Shift Master",
+                "Combo Pack", "Smart Card", "Function Type",
+                "Call Type", "Call Code", "Extension",
             ]),
             ("HR & Members", [
                 "Category  Master", "Holiday Master", "Employee Master",
                 "Category Master", "Facility Master",
+                "Revenue Master",
+            ]),
+            ("Inventory & Reports", [
+                "Indent", "Stock Summary", "Stock Register",
+                "Stock Register Detailed", "GIN / Purchase Receipt",
+                "Kitchen Stock Report", "Kitchen Stock Summary",
+                "eInvoice Config",
             ]),
         ]
 
@@ -396,6 +407,11 @@ def _form_registry() -> dict[str, callable]:
         from HMS_py.core import reports as _rpmod
     except ImportError:
         _rpt = _rpmod = None
+    # Scheme/HappyHours/TDS (VB6 POSMAST idx-9/10/11 + FaTDSCat port)
+    try:
+        from HMS_py.ui import scheme_tds_ui as stu
+    except ImportError:
+        stu = None
 
     def _open_report(cap: str):
         """mdi leaf caption -> reports engine key (exact-match map)."""
@@ -598,6 +614,22 @@ def _form_registry() -> dict[str, callable]:
         "Account Merging": None,
         # Tally export (frmTallyExport port — read-only XML files)
         "Tally Export": _open_tally(),
+        # VB6 caption aliases — screens pehle se the, VB6 naam se wire kiye
+        "Server Master": (lambda w: pm.open_waiter(w)) if pm else None,
+        "Menu Group": (lambda w: pm.open_itemcat(w)) if pm else None,
+        "Menu Item": (lambda w: pm.open_item(w)) if pm else None,
+        "Item Category": (lambda w: pm.open_itemcat(w)) if pm else None,
+        "Item  List": (lambda w: pm.open_itemcat(w)) if pm else None,
+        "Location Master": (lambda w: gs.open_godown(w)) if gs else None,
+        "Extension Master": (lambda w: epabx.open_extension(w)) if epabx else None,
+        "Call Type Master": (lambda w: epabx.open_calltype(w)) if epabx else None,
+        "Call Codes Master": (lambda w: epabx.open_callcode(w)) if epabx else None,
+        "Designation Master": (lambda w: hr.open_desig(w)) if hr else None,
+        # Naye modules (Scheme/HappyHours/TDS)
+        "Scheme Master": (lambda w: stu.open_scheme(w)) if stu else None,
+        "Happy Hours": (lambda w: stu.open_happyhours(w)) if stu else None,
+        "Happy Hours [ Free Items ]": (lambda w: stu.open_happyhours(w)) if stu else None,
+        "T.D.S. Category": (lambda w: stu.open_tdscat(w)) if stu else None,
         # Reports Center (REPORTS_TXT / mdi leaves — read-only engine)
         **({cap: _open_report(cap)
             for cap in (_rpmod.menu_caption_map() if _rpmod else {})}),

@@ -127,12 +127,28 @@ def connect(cfg: dict | None = None) -> pyodbc.Connection:
     raise RuntimeError("Koi SQL Server ODBC driver nahi mila")
 
 
+_SAFE_IDENTIFIER_RE = None
+
+
+def _validate_identifier(name: str, kind: str = "identifier") -> str:
+    """Reject SQL injection in table/column names. Only allow [a-zA-Z0-9_]."""
+    import re
+    global _SAFE_IDENTIFIER_RE
+    if _SAFE_IDENTIFIER_RE is None:
+        _SAFE_IDENTIFIER_RE = re.compile(r'^[A-Za-z_][A-Za-z0-9_]*$')
+    if not _SAFE_IDENTIFIER_RE.match(name):
+        raise ValueError(f"Invalid {kind}: '{name}' — only alphanumeric/underscore allowed")
+    return name
+
+
 def require_absent(table: str, pk_col: str, pk_val, label: str = "Code",
                    cn: pyodbc.Connection | None = None) -> None:
     """Duplicate-code guard (VB6 CompMast.frm:3830 'A/c Code Already
     Exists'). Raises before INSERT when the PK already exists."""
+    _validate_identifier(table, "table")
+    _validate_identifier(pk_col, "column")
     rows = query(
-        f"SELECT 1 FROM {table} WHERE RTRIM({pk_col}) = ?",
+        f"SELECT 1 FROM [{table}] WHERE RTRIM([{pk_col}]) = ?",
         (str(pk_val).strip(),), cn=cn)
     if rows:
         raise ValueError(f"{label} '{pk_val}' Already Exists")

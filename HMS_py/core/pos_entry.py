@@ -31,11 +31,12 @@ def _safe_table_rows(cn, sql: str, params=(), limit: int | None = None):
         return []
 
 
-def posent_click(index: int, cn=None, user: str = "SA") -> dict | None:
-    """VB6 POSEnt_Click logic ported to Python using permissions and safe DB checks."""
-    from HMS_py.ui.shell import _form_registry
-    registry = _form_registry()
+def posent_click(index: int, cn=None, user: str = "SA",
+                 form_registry: dict | None = None) -> dict | None:
+    """VB6 POSEnt_Click logic ported to Python using permissions and safe DB checks.
 
+    form_registry: pass the UI form registry dict. If None, skips UI form lookup.
+    """
     cases = {
         0: "Change Rest",
         1: "Table Change",
@@ -61,9 +62,10 @@ def posent_click(index: int, cn=None, user: str = "SA") -> dict | None:
                 "message": f"'{form_name}' ko user rights mein nahi hai",
                 "index": index,
             }
-        opener = registry.get(form_name)
-        if opener is not None:
-            return {"action": "open_form", "form": form_name, "opener": opener, "index": index}
+        if form_registry is not None:
+            opener = form_registry.get(form_name)
+            if opener is not None:
+                return {"action": "open_form", "form": form_name, "opener": opener, "index": index}
         if index in (3, 10, 12, 13):
             # some POS handlers are not UI-backed yet but still valid operational actions
             if index == 3:

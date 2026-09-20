@@ -163,7 +163,7 @@ def get_inhouse_rooms(vdate, cn=None) -> list[dict]:
         "FROM RoomOcc RO LEFT JOIN GuestFolio GF ON GF.DocId = RO.DocId "
         "WHERE RO.ChkOutDate IS NULL AND RO.Site_Code = ? AND RO.Vprefix = ? "
         "AND RO.ChkInDate <= ? AND RO.ChkInDate IS NOT NULL",
-        (SITE_CODE, "2026", vdate), cn=cn)
+        (SITE_CODE, vprefix, vdate), cn=cn)
     out = []
     for r in rows:
         out.append({
@@ -532,7 +532,6 @@ def night_audit_rr(index: int, cn=None) -> dict | None:
       &HE (14) -> FaReports / AgingRepDr
       &HF (15) -> FaReports / AgingRepCr
     """
-    SITE_CODE = "KK"
 
     reports_data = {
         0: ("rFomRepView", "DailyReport", "Daily Night Audit Report"),

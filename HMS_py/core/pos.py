@@ -7,6 +7,10 @@ FrmWaiterMast, RsTableMast, FrmItemMast, etc.
 """
 from __future__ import annotations
 
+import datetime
+import time
+import uuid
+
 from HMS_py.core import db
 
 SITE_CODE = "KK"
@@ -156,9 +160,14 @@ def _safe_query(sql: str, params=(), cn=None):
 
 
 def _table_exists(table: str, cn=None) -> bool:
+    """Check table existence via INFORMATION_SCHEMA (SQL-injection safe)."""
+    from HMS_py.core.db import _validate_identifier
+    _validate_identifier(table, "table")
     try:
-        rows = _safe_query(f"SELECT TOP 1 * FROM {table}", cn=cn)
-        return True if rows is not None else False
+        rows = db.query(
+            "SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = ?",
+            (table,), cn=cn)
+        return bool(rows)
     except Exception:
         return False
 
@@ -179,7 +188,6 @@ def _as_mapping(row):
                 "name": row[1],
                 "unit": row[2] if len(row) > 2 else "",
                 "rate": row[3] if len(row) > 3 else 0,
-                "status": row[2] if len(row) > 2 and row[1] not in ("Tea", "Amit") else "",
             }
     return {"value": row}
 
@@ -279,20 +287,20 @@ def get_nc_types(cn=None) -> list[dict]:
 def _normalize_vdate(vdate):
     """Accept either date/datetime or ISO string and return Python date."""
     if vdate is None:
-        return __import__("datetime").date.today()
+        return datetime.date.today()
     if isinstance(vdate, str):
         try:
-            return __import__("datetime").datetime.fromisoformat(vdate).date()
+            return datetime.datetime.fromisoformat(vdate).date()
         except ValueError:
             for fmt in ("%Y-%m-%d", "%d-%m-%Y", "%d/%m/%Y", "%Y/%m/%d"):
                 try:
-                    return __import__("datetime").datetime.strptime(vdate, fmt).date()
+                    return datetime.datetime.strptime(vdate, fmt).date()
                 except ValueError:
                     continue
-        return __import__("datetime").date.today()
+        raise ValueError(f"Unparseable date string: '{vdate}'")
     if hasattr(vdate, "date"):
         return vdate.date()
-    return __import__("datetime").date(vdate.year, vdate.month, vdate.day)
+    return datetime.date(vdate.year, vdate.month, vdate.day)
 
 
 def _next_kot_vno(outlet_code: str, vdate, cn=None) -> int:
@@ -319,38 +327,46 @@ def create_kot(lines: list[dict], outlet: str, vdate, waiter: str = "", user: st
     if not outlet:
         raise ValueError("Outlet required")
     if not _table_exists("KOT", cn=cn):
-        docid = f"KOT{int(__import__('time').time())}"
+        docid = f"KOT{uuid.uuid4().hex[:8].upper()}"
         return {"docid": docid, "vno": 1, "skipped": True, "message": "KOT table missing: safe no-op response"}
 
     vdate = _normalize_vdate(vdate)
     vno = _next_kot_vno(outlet, vdate, cn=cn)
     docid = f"KOT{outlet}{vdate.strftime('%Y%m%d')}{vno:04d}"
     seq = 0
-    for line in lines:
-        seq += 1
-        item_code = (line.get("item") or "").strip()
-        qty = float(line.get("qty") or 0)
-        rate = float(line.get("rate") or 0)
-        amount = float(line.get("amount") or (qty * rate))
-        table = (line.get("table") or "").strip()
-        this_waiter = (line.get("waiter") or waiter or "").strip()
-        nc_type = (line.get("nc_type") or "").strip()
-        remarks = (line.get("remarks") or "").strip()
-        try:
+    inserted = 0
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        for line in lines:
+            seq += 1
+            item_code = (line.get("item") or "").strip()
+            qty = float(line.get("qty") or 0)
+            rate = float(line.get("rate") or 0)
+            amount = float(line.get("amount") or (qty * rate))
+            table = (line.get("table") or "").strip()
+            this_waiter = (line.get("waiter") or waiter or "").strip()
+            nc_type = (line.get("nc_type") or "").strip()
+            remarks = (line.get("remarks") or "").strip()
             db.execute(
                 "INSERT INTO KOT (DocId, VNo, VDate, VType, VPrefix, Site_Code, RestCode, RoomCat, RoomType, RoomNo, Pending, Sno, VTime, Item, Qty, VoidYN, Waiter, U_Name, U_EntDt, U_AE, NCKOT, Rate, Amount, Reasons, Remarks, LogSite_Code, NCType, Printed, FreeSno, SchemeCode, Description, Party, ItemRestCode, TokenNo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?, ?, ?, 'N', ?, ?, getdate(), 'A', 'N', ?, ?, ?, ?, ?, ?, ?, '', '', '', '', '', '', '')",
                 (
-                    docid, vno, vdate, "K", "K", SITE_CODE if hasattr(db, 'SITE_CODE') else "KK", outlet,
+                    docid, vno, vdate, "K", "K", SITE_CODE, outlet,
                     "", "", table, seq, "00:00:00", item_code, qty,
                     this_waiter, user, rate, amount, remarks, remarks, "KK", nc_type,
                 ),
                 cn=cn,
-                commit=True,
+                commit=False,
             )
-        except Exception:
-            # DB schema mismatch: do not crash the POS flow; keep a safe runtime record.
-            continue
-    return {"docid": docid, "vno": vno, "lines_inserted": len(lines), "user": user}
+            inserted += 1
+        cn.commit()
+    except Exception:
+        cn.rollback()
+        raise
+    finally:
+        if own:
+            cn.close()
+    return {"docid": docid, "vno": vno, "lines_inserted": inserted, "user": user}
 
 
 def update_kot(docid: str, lines: list[dict], user: str = "SA", cn=None) -> dict:
@@ -394,9 +410,3 @@ def void_kot(docid: str, user: str = "SA", cn=None) -> dict:
     except Exception:
         return {"docid": docid, "voided": False, "error": "KOT update failed"}
     return {"docid": docid, "voided": True}
-
-
-# Keep legacy alias names for compatibility with UI and tests.
-create_kot = create_kot
-update_kot = update_kot
-void_kot = void_kot

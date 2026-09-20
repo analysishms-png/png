@@ -117,7 +117,10 @@ class FolioBrowser(QWidget):
     def _drill(self, row, _col):
         if self._view != "folios":
             return
-        folio_no = int(self.table.item(row, 0).text())
+        item = self.table.item(row, 0)
+        if not item:
+            return
+        folio_no = int(item.text())
         dlg = ChargeDialog(folio_no, self)
         dlg.exec()
 
@@ -128,7 +131,10 @@ class FolioBrowser(QWidget):
             QMessageBox.information(self, "Check-Out",
                                     "Pehle in-house folio select karo")
             return
-        folio_no = int(self.table.item(rows[0].row(), 0).text())
+        item = self.table.item(rows[0].row(), 0)
+        if not item:
+            return
+        folio_no = int(item.text())
         try:
             billno = folio.settle_folio(folio_no)
         except ValueError as e:
@@ -146,7 +152,10 @@ class FolioBrowser(QWidget):
             QMessageBox.information(self, "Payment",
                                     "Pehle folio select karo")
             return
-        folio_no = int(self.table.item(rows[0].row(), 0).text())
+        item = self.table.item(rows[0].row(), 0)
+        if not item:
+            return
+        folio_no = int(item.text())
         dlg = PaymentDialog(folio_no, self)
         if dlg.exec():
             self.reload()
@@ -158,7 +167,10 @@ class FolioBrowser(QWidget):
             QMessageBox.information(self, "Amend",
                                     "Pehle folio select karo")
             return
-        folio_no = int(self.table.item(rows[0].row(), 0).text())
+        item = self.table.item(rows[0].row(), 0)
+        if not item:
+            return
+        folio_no = int(item.text())
         r = [x for x in self._folios()
              if x.FolioNo == folio_no]
         if not r:

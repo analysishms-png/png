@@ -1,0 +1,172 @@
+================================================================================
+  HMS_py COMPLETE DEBUG, VB6 MIGRATION & IMPLEMENTATION PLAN
+  Generated: 20 Sep 2026 | 104/104 tests PASSING | Git: bd1b5f9
+================================================================================
+
+=== SECTION 1: BUGS FIXED THIS SESSION (13) ===
+
+[CRITICAL] BUG-001: SQL Injection in db.py require_absent()
+  Fix: _validate_identifier() regex + bracket-quoting
+
+[CRITICAL] BUG-002: SQL Injection in pos.py _table_exists()
+  Fix: INFORMATION_SCHEMA query instead of f-string table name
+
+[CRITICAL] BUG-003: SQL Injection in inventory.py _next_vno_table()
+  Fix: _validate_identifier() + bracket-quoting
+
+[CRITICAL] BUG-004: KOT Insert Atomicity Violation
+  Fix: commit=False in loop, cn.commit() after loop, rollback on error
+
+[HIGH] BUG-005: pos.py __import__ anti-pattern -> top-level imports
+[HIGH] BUG-006: nightaudit.py hardcoded VPREFIX "2026" -> use param
+[HIGH] BUG-007: night_audit_rr shadows SITE_CODE -> removed
+[HIGH] BUG-008: pos.py dead self-assignments -> removed
+[HIGH] BUG-009: pos.py _as_mapping status field logic error -> removed
+[HIGH] BUG-010: KOT DocId collision (time-based) -> UUID-based
+[HIGH] BUG-011: pos_entry.py core->UI import cycle -> parameter injection
+[MEDIUM] BUG-012: checkout.py double folio_balance call -> single call
+[MEDIUM] BUG-013: checkout.py SendTF column missing -> removed
+
+=== SECTION 2: REMAINING BUGS (9) ===
+
+[HIGH] BUG-014: Hardcoded SITE_CODE/USER/VPREFIX in 30+ modules (low priority, single-site)
+[HIGH] BUG-015: MAX+1 serial race condition (54 occurrences, VB6 same pattern)
+[MEDIUM] BUG-016: _get_checkout_type f-string column probing
+[MEDIUM] BUG-018: taxstru_ui.py silent row skipping
+[MEDIUM] BUG-019: kot_entry.py .item() without None guards
+[LOW] BUG-021: nightaudit _log_night_audit no try/except
+[LOW] BUG-022: reservation_browser.py int() cast without guard
+[LOW] BUG-024: checkout_ui.py insufficient r>=0 check
+[LOW] BUG-025: db.py latin-1 encoding
+
+=== SECTION 3: CORE MODULE STATUS (83 files) ===
+
+FRONT OFFICE (Complete):
+  checkin.py      234L | checkout.py    306L | reservation.py 262L
+  folio.py        447L | guestprof.py   175L | room_occ.py    203L
+  roommaster.py   151L | roomcategory.py 99L | roomstatus.py  211L
+
+BOOKING/GUEST (Complete):
+  booking.py      305L | guest_folio.py 241L
+
+POS (Complete):
+  pos.py          412L | pos_entry.py   124L | pos_sales.py   521L
+  pos_kot.py      416L | pos_stock.py   191L | pos_delivery.py 257L
+  pos_hall.py     644L | pos_table.py   157L | pos_happy.py   431L
+  pos_packing.py  293L | pos_masters.py 801L | kot_entry.py   500L
+
+BANQUET (Complete):
+  banquet_ops.py     939L | banquet_masters.py 433L | hall_booking.py 341L
+
+HR/PAYROLL (Complete):
+  hr_masters.py   379L | hr_payroll.py 224L
+
+MEMBERS (Complete):
+  members_masters.py 346L | member_billing.py 186L
+
+SMART CARD (Complete):
+  smartcard.py    146L | smartcard_ops.py 166L
+
+EPABX (Complete):
+  epabx_masters.py 304L | epabx_ops.py 138L
+
+GUEST SERVICES (Complete):
+  guest_services.py 359L
+
+SMS/EMAIL (Complete):
+  sms_comm.py     253L | sms_enviro.py 600L
+
+FACILITY BILLING (Complete):
+  facility_billing.py 280L
+
+FINANCE (Complete):
+  ledger.py       159L | fa_ledger_ops.py 1042L | fa_tds_ops.py 243L
+  fa_enviro.py    111L | expenseentry.py 178L | taxstru.py 273L
+
+INVENTORY (Complete):
+  inventory.py    1037L | purchase.py 805L
+
+GENERAL SETUP (Complete):
+  general_setup.py 478L | sys_config.py 761L | enviro.py 237L
+
+MASTERS (Complete):
+  taxmaster.py 114L | paymenttype.py 105L | acgroup.py 85L
+  area.py 86L | city.py 80L | state.py 80L | country.py 85L
+  businesssource.py 91L | marketsegment.py 92L | narr.py 70L
+  sundry.py 83L | forexmaster.py 80L | tdscat.py 90L
+  tdscerti.py 116L | venue.py 92L | unit.py 73L
+  plans.py 74L | seasonmaster.py 89L | packagemaster.py 166L
+  voucher_type.py 193L | scheme.py 227L | usermaster.py 110L
+  depart.py 83L | item.py 213L | fixcharge.py 99L
+
+REPORTING/SYSTEM (Complete):
+  reports.py     2756L | nightaudit.py  637L | tally_export.py 367L
+  year_end.py    233L  | menu.py        177L | auth.py 102L | db.py 193L
+
+=== SECTION 4: UI COVERAGE ===
+
+HAS UI (26 files):
+  shell.py (888L) | base_master.py (250L) | frontoffice.py (190L)
+  checkout_ui.py (332L) | folio_ui.py (319L) | guest_history_ui.py (112L)
+  reservation_browser.py (271L) | roomstatus_ui.py (265L)
+  kot_entry.py (500L) | pos_na.py (250L) | p2_masters.py (518L)
+  plan_master.py (217L) | general_setup_ui.py (298L)
+  enviro_ui.py (135L) | taxstru_ui.py (464L) | finance_masters_ui.py (258L)
+  scheme_tds_ui.py (163L) | hr_members_ui.py (349L)
+  pos_masters_ui.py (262L) | banquet_masters_ui.py (130L)
+  epabx_ui.py (89L) | expense_ui.py (304L) | inventory.py (932L)
+  usermaster_ui.py (310L) | reports_ui.py (149L) | tally_ui.py (120L)
+
+NO UI (26 core modules without UI forms):
+  booking.py | guest_folio.py | room_occ.py | hall_booking.py
+  hr_payroll.py | smartcard_ops.py | guest_services.py
+  member_billing.py | sms_comm.py | facility_billing.py
+  pos_sales.py | pos_kot.py | pos_stock.py | pos_delivery.py
+  pos_hall.py | pos_table.py | pos_happy.py | pos_packing.py
+  fa_ledger_ops.py | fa_tds_ops.py | fa_enviro.py
+  epabx_ops.py | sms_enviro.py | sys_config.py | purchase.py | year_end.py
+
+=== SECTION 5: SHELL.PY REGISTRY STATUS ===
+
+REGISTERED (~100 menu entries mapped to UI forms)
+COMING SOON (10 items):
+  Purchase Order, Purchase Bill, Stock Issue, Stock Receive,
+  Stock Adjustment, Revenue Group Setting, Revenue Wise Budget Entry,
+  Backup Data, Update Database Nulls, Account Merging
+
+=== SECTION 6: VB6 LOGIC GAPS (CRITICAL) ===
+
+  1. Purchase Order workflow (PO -> GIN -> Bill)
+  2. Stock Issue/Receive UI (core exists, UI missing)
+  3. POS Sales Bill UI (core exists, UI missing)
+  4. Hall Booking full workflow UI
+  5. HR Payroll operations UI (Salary/Attendance/Loan)
+  6. Member Billing operations UI
+  7. Guest Services (Complaints/WakeUp) UI
+  8. Facility Billing UI
+  9. SMS/Email operations UI
+  10. SmartCard operations UI
+
+=== SECTION 7: NEXT PHASE PRIORITY ===
+
+PHASE A (This session): Fix bugs -> commit -> push
+PHASE B: Create UI for booking/hall_booking/hr_payroll
+PHASE C: Create UI for member_billing/guest_services/facility_billing
+PHASE D: Implement Stock Issue/Receive and Purchase Order UI
+
+=== SECTION 8: TESTING STATUS ===
+
+104 unit tests ALL PASSING (5.17s)
+Coverage: Auth, POS, Reservation, Validation, Checkout, Stock,
+          NightAudit, TaxMaster, Config, Qt, Menu, GuestProf
+
+=== SECTION 9: COMMIT CHECKLIST ===
+
+Before commit:
+  1. python -m pytest tests/ -v (must be 104/104 PASS)
+  2. Check no secrets/keys in code
+  3. All SQL parameterized (no f-strings in queries)
+  4. All new tables verified against live DB schema
+  5. Git add specific files (not .)
+  6. Git commit with descriptive message
+  7. Git push origin main
