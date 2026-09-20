@@ -412,6 +412,63 @@ def _form_registry() -> dict[str, callable]:
         from HMS_py.ui import scheme_tds_ui as stu
     except ImportError:
         stu = None
+    # Wave 4 imports (new UI forms for 26+ core modules)
+    try:
+        from HMS_py.ui import booking_ops_ui as book_ui
+    except ImportError:
+        book_ui = None
+    try:
+        from HMS_py.ui import hall_booking_ui as hall_ui
+    except ImportError:
+        hall_ui = None
+    try:
+        from HMS_py.ui import hr_payroll_ui as payroll_ui
+    except ImportError:
+        payroll_ui = None
+    try:
+        from HMS_py.ui import member_billing_ui as memb_ui
+    except ImportError:
+        memb_ui = None
+    try:
+        from HMS_py.ui import guest_services_ui as gsvc_ui
+    except ImportError:
+        gsvc_ui = None
+    try:
+        from HMS_py.ui import facility_billing_ui as facb_ui
+    except ImportError:
+        facb_ui = None
+    try:
+        from HMS_py.ui import pos_sales_ui as psale_ui
+    except ImportError:
+        psale_ui = None
+    try:
+        from HMS_py.ui import pos_stock_ui as pstock_ui
+    except ImportError:
+        pstock_ui = None
+    try:
+        from HMS_py.ui import pos_delivery_ui as pdel_ui
+    except ImportError:
+        pdel_ui = None
+    try:
+        from HMS_py.ui import pos_happy_ui as phappy_ui
+    except ImportError:
+        phappy_ui = None
+    try:
+        from HMS_py.ui import pos_table_ui as ptable_ui
+    except ImportError:
+        ptable_ui = None
+    try:
+        from HMS_py.ui import pos_packing_ui as ppack_ui
+    except ImportError:
+        ppack_ui = None
+    try:
+        from HMS_py.ui import fa_ledger_ui as faledg_ui
+    except ImportError:
+        faledg_ui = None
+    try:
+        from HMS_py.ui import sys_config_ui as syscfg_ui
+    except ImportError:
+        syscfg_ui = None
 
     def _open_report(cap: str):
         """mdi leaf caption -> reports engine key (exact-match map)."""
@@ -630,6 +687,21 @@ def _form_registry() -> dict[str, callable]:
         "Happy Hours": (lambda w: stu.open_happyhours(w)) if stu else None,
         "Happy Hours [ Free Items ]": (lambda w: stu.open_happyhours(w)) if stu else None,
         "T.D.S. Category": (lambda w: stu.open_tdscat(w)) if stu else None,
+        # Wave 4: Operations UIs (booking, hall, HR, members, services, POS, finance)
+        "Booking Operations": (lambda w: book_ui.open_booking_ops(w)) if book_ui else None,
+        "Hall Booking": (lambda w: hall_ui.open_hall_booking(w)) if hall_ui else None,
+        "HR Payroll": (lambda w: payroll_ui.open_hr_payroll(w)) if payroll_ui else None,
+        "Member Billing": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
+        "Guest Services": (lambda w: gsvc_ui.open_guest_services(w)) if gsvc_ui else None,
+        "Facility Billing": (lambda w: facb_ui.open_facility_billing(w)) if facb_ui else None,
+        "POS Sales": (lambda w: psale_ui.open_pos_sales(w)) if psale_ui else None,
+        "POS Stock": (lambda w: pstock_ui.open_pos_stock(w)) if pstock_ui else None,
+        "POS Delivery": (lambda w: pdel_ui.open_pos_delivery(w)) if pdel_ui else None,
+        "POS Happy Hours": (lambda w: phappy_ui.open_pos_happy(w)) if phappy_ui else None,
+        "POS Table": (lambda w: ptable_ui.open_pos_table(w)) if ptable_ui else None,
+        "POS Packing": (lambda w: ppack_ui.open_pos_packing(w)) if ppack_ui else None,
+        "Finance Ledger": (lambda w: faledg_ui.open_fa_ledger(w)) if faledg_ui else None,
+        "System Config": (lambda w: syscfg_ui.open_sys_config(w)) if syscfg_ui else None,
         # Reports Center (REPORTS_TXT / mdi leaves — read-only engine)
         **({cap: _open_report(cap)
             for cap in (_rpmod.menu_caption_map() if _rpmod else {})}),
