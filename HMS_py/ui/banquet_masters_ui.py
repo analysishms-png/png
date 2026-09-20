@@ -13,7 +13,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspa
 
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QPushButton,
                              QVBoxLayout, QWidget)
-from HMS_py.core.banquet_masters import VenFeatureAPI, CatalogAPI, GroupProfAPI
+from HMS_py.core.banquet_masters import VenFeatureAPI, CatalogAPI, GroupProfAPI, FuncTypeAPI
 from HMS_py.ui.base_master import BaseMasterForm, Field, MasterConfig, make_delete_guard
 
 
@@ -84,6 +84,24 @@ def _open(cfg_fn, parent=None):
 def open_venfeature(parent=None):  _open(venfeature_config, parent)
 def open_catalog(parent=None):     _open(catalog_config, parent)
 def open_groupprof(parent=None):   _open(groupprof_config, parent)
+def open_func_type(parent=None):   _open(functype_config, parent)
+
+
+# ── Function Type / Events Master ──────────────────────────────
+def functype_config() -> MasterConfig:
+    return MasterConfig(
+        title="Function Type / Events Master - HMS_py",
+        columns=[("Code","code"),("Name","name"),("Status","status")],
+        fields=[
+            Field("code","Function Code", max_len=6, required=True),
+            Field("name","Function Name", max_len=50, required=True),
+            Field("status","Status", max_len=10),
+            Field("accode","A/C Code", max_len=10),
+            Field("rate","Rate", default="0"),
+        ],
+        api=FuncTypeAPI,
+        delete_guard=make_delete_guard("PYT"),
+    )
 
 
 # ── Standalone launcher ───────────────────────────────────────
@@ -97,6 +115,7 @@ class BanquetMastersLauncher(QMainWindow):
             ("Venue Features",           open_venfeature),
             ("Catalog Master",           open_catalog),
             ("Group Profile",            open_groupprof),
+            ("Function Type / Events",   open_func_type),
         ):
             b = QPushButton(lbl); b.clicked.connect(fn); lay.addWidget(b)
         self.setCentralWidget(c)

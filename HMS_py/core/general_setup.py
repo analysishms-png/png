@@ -401,20 +401,21 @@ def enviro_get(field: str, cn=None) -> str | None:
 
 # ============================================================
 # Voucher Category Master
-# Table: VoucherCat - Category varchar PK, NCat varchar, audit cols
+# Table: VoucherCat - Category varchar PK, NCat varchar,
+#        Site_Code, LogSite_Code (NO audit cols: no U_Name/U_EntDt/U_AE)
 # ============================================================
 VOUCHCAT_LIMITS = {"category": 10, "ncat": 10}
-VOUCHCAT_COLS = "Category, NCat, U_Name, U_EntDt, U_AE"
+VOUCHCAT_COLS = "Category, NCat, Site_Code"
 
 
 def _map_vouchcat(r) -> dict:
     try:
         return {"category": r.Category, "ncat": (r.NCat or "").strip(),
-                "u_name": r.U_Name or "", "u_ae": r.U_AE or ""}
+                "site": r.Site_Code or ""}
     except AttributeError:
-        c, nc, un, _, uae = r
+        c, nc, sc = r
         return {"category": c, "ncat": (nc or "").strip(),
-                "u_name": un or "", "u_ae": uae or ""}
+                "site": sc or ""}
 
 
 def vouchcat_list(cn=None) -> list[dict]:
@@ -438,18 +439,16 @@ def vouchcat_insert(rec: dict, cn=None, commit=True) -> int:
     if not rec.get("category", "").strip():
         raise ValueError("Category zaroori hai")
     return db.execute(
-        "INSERT INTO VoucherCat (Category, NCat, "
-        "Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code) "
-        "VALUES (?, ?, ?, ?, getdate(), 'A', ?)",
+        "INSERT INTO VoucherCat (Category, NCat, Site_Code, LogSite_Code) "
+        "VALUES (?, ?, ?, ?)",
         (rec["category"], rec.get("ncat", ""),
-         SITE_CODE, USER, SITE_CODE), cn=cn, commit=commit)
+         SITE_CODE, SITE_CODE), cn=cn, commit=commit)
 
 
 def vouchcat_update(code: str, rec: dict, cn=None, commit=True) -> int:
     return db.execute(
-        "UPDATE VoucherCat SET NCat = ?, "
-        "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' WHERE Category = ?",
-        (rec.get("ncat", ""), USER, code), cn=cn, commit=commit)
+        "UPDATE VoucherCat SET NCat = ? WHERE Category = ?",
+        (rec.get("ncat", ""), code), cn=cn, commit=commit)
 
 
 def vouchcat_delete(code: str, cn=None, commit=True) -> int:

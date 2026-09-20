@@ -369,8 +369,9 @@ def _form_registry() -> dict[str, callable]:
         from HMS_py.ui import general_setup_ui as gs
         from HMS_py.ui import taxstru_ui as tsu
         from HMS_py.ui import guest_history_ui as ghu
+        from HMS_py.ui import epabx_ui as epabx
     except ImportError:
-        pm = bm = hr = gs = tsu = ghu = None
+        pm = bm = hr = gs = tsu = ghu = epabx = None
     try:
         from HMS_py.ui import pos_na as pna
         _pos = lambda w: pna.open_pos(w)
@@ -507,15 +508,33 @@ def _form_registry() -> dict[str, callable]:
         "Category  Master":  (lambda w: hr.open_empcat(w)) if hr else None,
         "Holiday Master":    (lambda w: hr.open_holiday(w)) if hr else None,
         "Employee Master":   (lambda w: hr.open_employee(w)) if hr else None,
+        "Designation":       (lambda w: hr.open_desig(w)) if hr else None,
         # Wave 3: Members Mgmt masters
         "Category Master":   (lambda w: hr.open_memcat(w)) if hr else None,
         "Facility Master":   (lambda w: hr.open_facility(w)) if hr else None,
+        "Revenue Master":    (lambda w: hr.open_memrev(w)) if hr else None,
         # Wave 3: General Setup masters
         "Room Features":     (lambda w: gs.open_roomfeature(w)) if gs else None,
         "Godown Master":     (lambda w: gs.open_godown(w)) if gs else None,
         "Voucher Environment": (lambda w: gs.open_vouchertype(w)) if gs else None,
         "FA Environment":    (lambda w: gs.open_enviro(w)) if gs else None,
         "Guest Parameters Setting": (lambda w: gs.open_guestparam(w)) if gs else None,
+        "Voucher Category":  (lambda w: gs.open_vouchcat(w)) if gs else None,
+        # Wave 3: POS new masters (NCType, Waiter, Shift, Combo, SmartCard)
+        "NC Type":           (lambda w: pm.open_nctype(w)) if pm else None,
+        "Server / Waiter":   (lambda w: pm.open_waiter(w)) if pm else None,
+        "Waiter Master":     (lambda w: pm.open_waiter(w)) if pm else None,
+        "Shift Master":      (lambda w: pm.open_shift(w)) if pm else None,
+        "Combo Pack":        (lambda w: pm.open_combo(w)) if pm else None,
+        "Smart Card":        (lambda w: pm.open_smartcard(w)) if pm else None,
+        # Wave 3: Banquet new master (Function Type)
+        "Function Type":     (lambda w: bm.open_func_type(w)) if bm else None,
+        # Wave 3: EPABX masters
+        "Call Type":         (lambda w: epabx.open_calltype(w)) if epabx else None,
+        "Call Code":         (lambda w: epabx.open_callcode(w)) if epabx else None,
+        "Extension":         (lambda w: epabx.open_extension(w)) if epabx else None,
+        # Wave 3: Item masters
+        "Item Group":        (lambda w: pm.open_itemcat(w)) if pm else None,
         # P5 Inventory:
         "Indent": (lambda w: _inv.open_indent_ui(w)) if _inv else None,
         "Indent Entry": (lambda w: _inv.open_indent_ui(w)) if _inv else None,
@@ -529,6 +548,8 @@ def _form_registry() -> dict[str, callable]:
         "Purchase Order": _coming_soon("Purchase Order"),
         "Purchase Bill": _coming_soon("Purchase Bill"),
         "Stock Transfer": (lambda w: _inv.open_stock_transfer(w)) if _inv else None,
+        "eInvoice Config": (lambda w: _inv.open_einvoice_config(w)) if _inv else None,
+        "Kitchen Stock Report": (lambda w: _inv.open_kitchen_stock_report(w)) if _inv else None,
         "Stock Issue": _coming_soon("Stock Issue"),
         "Stock Receive": _coming_soon("Stock Receive"),
         "Stock Adjustment": _coming_soon("Stock Adjustment"),

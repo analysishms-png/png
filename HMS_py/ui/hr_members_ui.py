@@ -21,8 +21,8 @@ from PyQt6.QtWidgets import (QApplication, QDialog, QFormLayout, QHBoxLayout,
                              QLabel, QLineEdit, QMainWindow, QMessageBox,
                              QPushButton, QTableWidget, QTableWidgetItem,
                              QVBoxLayout, QWidget)
-from HMS_py.core.hr_masters import EmpCatAPI, HolidayAPI, EmployeeAPI
-from HMS_py.core.members_masters import MemCatAPI, FacilityAPI
+from HMS_py.core.hr_masters import EmpCatAPI, HolidayAPI, EmployeeAPI, DesigAPI
+from HMS_py.core.members_masters import MemCatAPI, FacilityAPI, MemRevAPI
 from HMS_py.ui.base_master import BaseMasterForm, Field, MasterConfig, make_delete_guard
 
 
@@ -98,6 +98,43 @@ def facility_config() -> MasterConfig:
             Field("saccode","SAC Code", max_len=20),
         ],
         api=FacilityAPI,
+        delete_guard=make_delete_guard("PYT"),
+    )
+
+
+# ── Designation Master ────────────────────────────────────────
+def desig_config() -> MasterConfig:
+    return MasterConfig(
+        title="Designation Master (HR) - HMS_py",
+        columns=[("Code","code"),("Name","name")],
+        fields=[
+            Field("code","Designation Code", max_len=6, required=True),
+            Field("name","Designation Name", max_len=30, required=True),
+        ],
+        api=DesigAPI,
+        delete_guard=make_delete_guard("PYT"),
+    )
+
+
+# ── Membership Revenue Master ─────────────────────────────────
+def memrev_config() -> MasterConfig:
+    return MasterConfig(
+        title="Revenue Master (Members) - HMS_py",
+        columns=[("Code","code"),("Description","description"),
+                 ("AcCode","accode"),("Status","status")],
+        fields=[
+            Field("code","Revenue Code", max_len=6, required=True),
+            Field("description","Description", max_len=50, required=True),
+            Field("accode","Account Code", max_len=10),
+            Field("taxstru","Tax Structure", max_len=6),
+            Field("acposting","A/C Posting Y/N", max_len=1, default="N"),
+            Field("accountyn","Account Y/N", max_len=1, default="N"),
+            Field("refundable","Refundable Y/N", max_len=1, default="N"),
+            Field("subscharge","Subscription Charge Y/N", max_len=1, default="N"),
+            Field("subsdetails","Subscription Details", max_len=50),
+            Field("status","Status", max_len=10),
+        ],
+        api=MemRevAPI,
         delete_guard=make_delete_guard("PYT"),
     )
 
@@ -274,6 +311,8 @@ def open_holiday(parent=None):  _open(holiday_config, parent)
 def open_employee(parent=None): EmployeeForm(parent).exec()
 def open_memcat(parent=None):   _open(memcat_config, parent)
 def open_facility(parent=None): _open(facility_config, parent)
+def open_desig(parent=None):    _open(desig_config, parent)
+def open_memrev(parent=None):   _open(memrev_config, parent)
 
 
 # ══════════════════════════════════════════════════════════════

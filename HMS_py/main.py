@@ -35,6 +35,13 @@ def configure_qt_headless() -> None:
 
 def main() -> int:
     configure_qt_headless()
+    # Analysis.ini keys 2/3: reports/temp folders must exist (VB6 ke jaise
+    # report export + Temp.Mdb wahan rehte hain). Best-effort, non-fatal.
+    try:
+        from HMS_py.core import db as _db
+        _db.ensure_paths()
+    except Exception:
+        pass
     return shell.run_flow()
 
 

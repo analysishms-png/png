@@ -14,7 +14,9 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspa
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QPushButton,
                              QVBoxLayout, QWidget, QMessageBox)
 from HMS_py.core import menu as menu_core
-from HMS_py.core.pos_masters import SessionAPI, SchemeAPI, DelBoyAPI, ItemCatAPI
+from HMS_py.core.pos_masters import (SessionAPI, SchemeAPI, DelBoyAPI, ItemCatAPI,
+                                       NCTypeAPI, WaiterAPI, ShiftAPI, ComboAPI)
+from HMS_py.core.smartcard import SmartCardAPI
 from HMS_py.ui.base_master import BaseMasterForm, Field, MasterConfig, make_delete_guard
 
 
@@ -96,6 +98,68 @@ def itemcat_config() -> MasterConfig:
     )
 
 
+# ── NC Type Master ──────────────────────────────────────────────
+def nctype_config() -> MasterConfig:
+    return MasterConfig(
+        title="NC Type Master (POS) - HMS_py",
+        columns=[("NCType","code"),("NC%","ncper")],
+        fields=[
+            Field("code","NC Type Code", max_len=10, required=True),
+            Field("ncper","NC Percentage", default="0"),
+        ],
+        api=NCTypeAPI,
+        delete_guard=make_delete_guard("PYT"),
+    )
+
+
+# ── Waiter / Server Master ─────────────────────────────────────
+def waiter_config() -> MasterConfig:
+    return MasterConfig(
+        title="Server / Waiter Master (POS) - HMS_py",
+        columns=[("Code","code"),("Name","name"),("Active","active")],
+        fields=[
+            Field("code","Code", max_len=6, required=True),
+            Field("name","Name", max_len=30, required=True),
+            Field("active","Active Y/N", max_len=1, default="Y"),
+        ],
+        api=WaiterAPI,
+        delete_guard=make_delete_guard("PYT"),
+    )
+
+
+# ── Shift Master ───────────────────────────────────────────────
+def shift_config() -> MasterConfig:
+    return MasterConfig(
+        title="Shift Master (POS) - HMS_py",
+        columns=[("Code","code"),("Name","name"),
+                 ("From","fromtime"),("To","totime")],
+        fields=[
+            Field("code","Shift Code", max_len=6, required=True),
+            Field("name","Shift Name", max_len=30, required=True),
+            Field("fromtime","From Time (HH:MM)", max_len=10),
+            Field("totime","To Time (HH:MM)", max_len=10),
+        ],
+        api=ShiftAPI,
+        delete_guard=make_delete_guard("PYT"),
+    )
+
+
+# ── Combo Pack Master ──────────────────────────────────────────
+def combo_config() -> MasterConfig:
+    return MasterConfig(
+        title="Combo Pack Master (POS) - HMS_py",
+        columns=[("Code","code"),("Name","name"),("Rate","rate"),("Active","active")],
+        fields=[
+            Field("code","Combo Code", max_len=10, required=True),
+            Field("name","Combo Name", max_len=50, required=True),
+            Field("rate","Rate", default="0"),
+            Field("active","Active Y/N", max_len=1, default="Y"),
+        ],
+        api=ComboAPI,
+        delete_guard=make_delete_guard("PYT"),
+    )
+
+
 # ── open helpers ──────────────────────────────────────────────
 def _open(cfg_fn, parent=None, user: str = "SA"):
     cfg = cfg_fn()
@@ -118,6 +182,54 @@ def open_delboy(parent=None, user: str = "SA"):
 def open_itemcat(parent=None, user: str = "SA"):
     _open(itemcat_config, parent, user)
 
+def open_nctype(parent=None, user: str = "SA"):
+    _open(nctype_config, parent, user)
+
+def open_waiter(parent=None, user: str = "SA"):
+    _open(waiter_config, parent, user)
+
+def open_shift(parent=None, user: str = "SA"):
+    _open(shift_config, parent, user)
+
+def open_combo(parent=None, user: str = "SA"):
+    _open(combo_config, parent, user)
+
+
+# ── Smart Card Master ──────────────────────────────────────────
+def smartcard_config() -> MasterConfig:
+    return MasterConfig(
+        title="Smart Card Master (POS) - HMS_py",
+        columns=[("Code","code"),("Name","name"),("Active","active"),
+                 ("Refundable","refundable")],
+        fields=[
+            Field("code","Card Code", max_len=6, required=True),
+            Field("name","Card Name", max_len=30, required=True),
+            Field("cardtype","Card Type", max_len=6),
+            Field("shortname","Short Name", max_len=6),
+            Field("fromdate","Valid From", max_len=10),
+            Field("todate","Valid To", max_len=10),
+            Field("accode","A/C Code", max_len=10),
+            Field("taxstru","Tax Structure", max_len=6),
+            Field("taxable","Taxable Y/N", max_len=1, default="N"),
+            Field("active","Active Y/N", max_len=1, default="Y"),
+            Field("refundable","Refundable Y/N", max_len=1, default="N"),
+            Field("deposit","Deposit Required Y/N", max_len=1, default="N"),
+            Field("depositamount","Deposit Amount", default="0"),
+            Field("servicecharge","Service Charge Y/N", max_len=1, default="N"),
+            Field("discount","Discount %", default="0"),
+            Field("surcharge","Surcharge %", default="0"),
+            Field("accountposting","A/C Posting Y/N", max_len=1, default="N"),
+            Field("accountcode","Account Code", max_len=10),
+            Field("acflag","A/C Flag Y/N", max_len=1, default="N"),
+            Field("creditflag","Credit Flag Y/N", max_len=1, default="N"),
+        ],
+        api=SmartCardAPI,
+        delete_guard=make_delete_guard("PYT"),
+    )
+
+def open_smartcard(parent=None, user: str = "SA"):
+    _open(smartcard_config, parent, user)
+
 
 # ── Standalone launcher ───────────────────────────────────────
 class POSMastersLauncher(QMainWindow):
@@ -131,6 +243,11 @@ class POSMastersLauncher(QMainWindow):
             ("Scheme Master (Promotions)", open_scheme),
             ("Delivery Boy Master",        open_delboy),
             ("Item Category Master",       open_itemcat),
+            ("NC Type Master",             open_nctype),
+            ("Server / Waiter Master",     open_waiter),
+            ("Shift Master",               open_shift),
+            ("Combo Pack Master",          open_combo),
+            ("Smart Card Master",          open_smartcard),
         ):
             b = QPushButton(lbl); b.clicked.connect(fn); lay.addWidget(b)
         self.setCentralWidget(c)

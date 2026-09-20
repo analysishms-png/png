@@ -24,7 +24,7 @@ from PyQt6.QtWidgets import (QApplication, QDialog, QHBoxLayout, QLabel,
                              QMainWindow, QMessageBox, QPushButton,
                              QTableWidget, QTableWidgetItem, QVBoxLayout,
                              QWidget)
-from HMS_py.core.general_setup import RoomFeatAPI, GodownAPI, voucher_type_list
+from HMS_py.core.general_setup import RoomFeatAPI, GodownAPI, VouchCatAPI, voucher_type_list
 from HMS_py.ui.base_master import BaseMasterForm, Field, MasterConfig, make_delete_guard
 
 
@@ -240,6 +240,33 @@ def open_vouchertype(parent=None):     VoucherTypeBrowser(parent).exec()
 def open_enviro(parent=None):          EnviroViewer(parent).exec()
 def open_guestparam(parent=None):      GuestParamViewer(parent).exec()
 def open_printing(parent=None):        PrintingSettingsViewer(parent).exec()
+def open_vouchcat(parent=None):        _open(vouchcat_config, parent)
+
+
+# ── Voucher Category Master ────────────────────────────────────
+def vouchcat_config() -> MasterConfig:
+    return MasterConfig(
+        title="Voucher Category Master - HMS_py",
+        columns=[("Code","code"),("Name","name"),("Nature","natur"),
+                 ("CashBank","cashbank"),("Type","type")],
+        fields=[
+            Field("code","Voucher Code", max_len=6, required=True),
+            Field("name","Voucher Name", max_len=30, required=True),
+            Field("natur","Nature", max_len=10),
+            Field("cashbank","Cash/Bank Y/N", max_len=1, default="N"),
+            Field("type","Type", max_len=10),
+            Field("cform","C-Form Y/N", max_len=1, default="N"),
+            Field("tender","Tender Y/N", max_len=1, default="N"),
+            Field("posdaybook","POS Day Book Y/N", max_len=1, default="N"),
+            Field("guestac","Guest A/C Y/N", max_len=1, default="N"),
+            Field("acpost","A/C Post Y/N", max_len=1, default="N"),
+            Field("roundoff","Round Off", default="0"),
+            Field("inwords","In Words Y/N", max_len=1, default="N"),
+            Field("inwords2","In Words2 Y/N", max_len=1, default="N"),
+        ],
+        api=VouchCatAPI,
+        delete_guard=make_delete_guard("PYT"),
+    )
 
 
 # ── Standalone launcher ───────────────────────────────────────
@@ -253,6 +280,7 @@ class GeneralSetupLauncher(QMainWindow):
             ("Room Features Master",          open_roomfeature),
             ("Godown / Location Master",       open_godown),
             ("Voucher Type Browser",           open_vouchertype),
+            ("Voucher Category Master",        open_vouchcat),
             ("System Environment (Enviro)",    open_enviro),
             ("Guest Parameters",               open_guestparam),
             ("Printing Setup / Parameters",    open_printing),

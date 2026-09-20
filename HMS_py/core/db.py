@@ -78,6 +78,27 @@ def load_config(ini_path: str | None = None) -> dict:
 CONN_STR = None
 
 
+def ensure_paths(cfg: dict | None = None) -> dict:
+    """Analysis.ini keys 2/3 (reports/temp) folders create-if-missing.
+
+    VB6 evidence: report export/PDF + Temp.Mdb in these paths (live:
+    C:\\Drive\\HMS2526\\Reports + \\Temp, and package-local Reports/Temp).
+    Best-effort: permission errors swallowed (production path may be
+    read-only) - startup must not fail because of a folder.
+    """
+    cfg = cfg or load_config()
+    made = {"reports": False, "temp": False}
+    for key in ("reports", "temp"):
+        p = cfg.get(key)
+        if p and not os.path.isdir(p):
+            try:
+                os.makedirs(p, exist_ok=True)
+                made[key] = True
+            except OSError:
+                pass
+    return made
+
+
 def connect(cfg: dict | None = None) -> pyodbc.Connection:
     """Same DB jisme VB6 HMS.exe judta hai (trusted connection).
     Driver: SQL Server Native Client 10.0 (VB6 wahi use karta hai -

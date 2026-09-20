@@ -606,6 +606,234 @@ def open_stock_transfer(parent=None):
     StockTransferForm(parent).exec()
 
 
+# ============================================================
+# eInvoice Config Screen (P6-5)
+# ============================================================
+class EInvoiceConfigForm(QDialog):
+    """eInvoice Configuration Screen - reads/writes eInvoiceEnviro table."""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("eInvoice Configuration (P6-5) - HMS_py")
+        self.resize(500, 300)
+
+        root = QVBoxLayout(self)
+
+        form = QFormLayout()
+        self.ed_asp_id = QLineEdit()
+        self.ed_asp_id.setMaxLength(50)
+        self.ed_asp_pwd = QLineEdit()
+        self.ed_asp_pwd.setMaxLength(50)
+        self.ed_asp_pwd.setEchoMode(QLineEdit.EchoMode.Password)
+        self.ed_einv_user = QLineEdit()
+        self.ed_einv_user.setMaxLength(50)
+        self.ed_einv_pwd = QLineEdit()
+        self.ed_einv_pwd.setMaxLength(50)
+        self.ed_einv_pwd.setEchoMode(QLineEdit.EchoMode.Password)
+
+        form.addRow("ASP ID *", self.ed_asp_id)
+        form.addRow("ASP Password *", self.ed_asp_pwd)
+        form.addRow("eInvoice User *", self.ed_einv_user)
+        form.addRow("eInvoice Password *", self.ed_einv_pwd)
+        root.addLayout(form)
+
+        self.lbl_state = QLabel("State: Loading...")
+        self.lbl_state.setStyleSheet("color:#111; padding:4px; background:#f0f0f0;")
+        root.addWidget(self.lbl_state)
+
+        btns = QHBoxLayout()
+        self.btn_save = QPushButton("Save (Ctrl+S)")
+        self.btn_cancel = QPushButton("Cancel (Esc)")
+        btns.addStretch()
+        btns.addWidget(self.btn_save)
+        btns.addWidget(self.btn_cancel)
+        root.addLayout(btns)
+
+        self.btn_save.clicked.connect(self._save)
+        self.btn_cancel.clicked.connect(self.reject)
+
+        from PyQt6.QtGui import QShortcut, QKeySequence
+        QShortcut(QKeySequence("Ctrl+S"), self, activated=self._save)
+        QShortcut(QKeySequence("Escape"), self, activated=self.reject)
+
+        self._load()
+
+    def _load(self):
+        try:
+            rec = inv.einvoice_get()
+            if rec:
+                self.ed_asp_id.setText(rec.get("asp_id", ""))
+                self.ed_asp_pwd.setText(rec.get("asp_pwd", ""))
+                self.ed_einv_user.setText(rec.get("einv_user", ""))
+                self.ed_einv_pwd.setText(rec.get("einv_pwd", ""))
+                self.lbl_state.setText("State: Loaded existing config")
+            else:
+                self.lbl_state.setText("State: No config found (new entry)")
+        except ValueError as e:
+            if "not present" in str(e):
+                self.lbl_state.setText("State: eInvoiceEnviro table missing - config disabled")
+                self.ed_asp_id.setEnabled(False)
+                self.ed_asp_pwd.setEnabled(False)
+                self.ed_einv_user.setEnabled(False)
+                self.ed_einv_pwd.setEnabled(False)
+                self.btn_save.setEnabled(False)
+            else:
+                self.lbl_state.setText(f"State: Error - {e}")
+
+    def _save(self):
+        asp_id = self.ed_asp_id.text().strip()
+        asp_pwd = self.ed_asp_pwd.text().strip()
+        einv_user = self.ed_einv_user.text().strip()
+        einv_pwd = self.ed_einv_pwd.text().strip()
+
+        if not all([asp_id, asp_pwd, einv_user, einv_pwd]):
+            QMessageBox.warning(self, "eInvoice Config", "Sab fields zaroori hain")
+            return
+
+        try:
+            inv.einvoice_upsert({
+                "asp_id": asp_id,
+                "asp_pwd": asp_pwd,
+                "einv_user": einv_user,
+                "einv_pwd": einv_pwd,
+            })
+            QMessageBox.information(self, "eInvoice Config", "Configuration saved successfully")
+            self.accept()
+        except ValueError as e:
+            if "not present" in str(e):
+                QMessageBox.warning(self, "eInvoice Config", "eInvoiceEnviro table not found in DB")
+            else:
+                QMessageBox.critical(self, "eInvoice Config", f"Error: {e}")
+        except Exception as e:
+            QMessageBox.critical(self, "eInvoice Config", f"Error: {e}")
+
+
+def open_einvoice_config(parent=None):
+    EInvoiceConfigForm(parent).exec()
+
+
+# ============================================================
+# Kitchen Stock Report (P7-1) - KSISS/KSREC
+# ============================================================
+class KitchenStockReportForm(QDialog):
+    """Kitchen Stock Report - filters KSISS/KSREC stock movements."""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Kitchen Stock Report (P7-1) - HMS_py")
+        self.resize(1000, 600)
+
+        root = QVBoxLayout(self)
+
+        # Filters
+        filter_row = QHBoxLayout()
+        self.cb_vtype = QComboBox()
+        self.cb_vtype.addItems(["All", "KSISS (Kitchen Stock Issue)", "KSREC (Kitchen Stock Receive)"])
+        self.ed_item = QLineEdit()
+        self.ed_item.setPlaceholderText("Item Code (optional)")
+        self.ed_godown = QLineEdit()
+        self.ed_godown.setPlaceholderText("Godown Code (optional)")
+        self.de_from = QDateEdit(datetime.date.today() - datetime.timedelta(days=30))
+        self.de_from.setCalendarPopup(True)
+        self.de_to = QDateEdit(datetime.date.today())
+        self.de_to.setCalendarPopup(True)
+        self.btn_refresh = QPushButton("Refresh (F5)")
+
+        filter_row.addWidget(QLabel("Type:"))
+        filter_row.addWidget(self.cb_vtype)
+        filter_row.addWidget(QLabel("Item:"))
+        filter_row.addWidget(self.ed_item)
+        filter_row.addWidget(QLabel("Godown:"))
+        filter_row.addWidget(self.ed_godown)
+        filter_row.addWidget(QLabel("From:"))
+        filter_row.addWidget(self.de_from)
+        filter_row.addWidget(QLabel("To:"))
+        filter_row.addWidget(self.de_to)
+        filter_row.addWidget(self.btn_refresh)
+        filter_row.addStretch()
+        root.addLayout(filter_row)
+
+        # Results table
+        self.tbl = QTableWidget(0, 10)
+        self.tbl.setHorizontalHeaderLabels([
+            "DocId", "VType", "VNo", "Date", "Item", "Godown",
+            "QtyIss", "QtyRec", "Rate", "Amount", "User"
+        ])
+        self.tbl.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        self.tbl.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        self.tbl.horizontalHeader().setStretchLastSection(True)
+        root.addWidget(self.tbl)
+
+        # Summary
+        self.lbl_summary = QLabel("Rows: 0 | Total Issued: 0 | Total Received: 0 | Net: 0")
+        self.lbl_summary.setStyleSheet("color:#111; padding:4px; background:#f0f0f0; font-weight:bold;")
+        root.addWidget(self.lbl_summary)
+
+        btns = QHBoxLayout()
+        self.btn_close = QPushButton("Close")
+        btns.addStretch()
+        btns.addWidget(self.btn_close)
+        root.addLayout(btns)
+
+        self.btn_refresh.clicked.connect(self.refresh)
+        self.btn_close.clicked.connect(self.reject)
+
+        from PyQt6.QtGui import QShortcut, QKeySequence
+        QShortcut(QKeySequence("F5"), self, activated=self.refresh)
+
+        self.refresh()
+
+    def refresh(self):
+        vtype_idx = self.cb_vtype.currentIndex()
+        vtype = None
+        if vtype_idx == 1:
+            vtype = "KSISS"
+        elif vtype_idx == 2:
+            vtype = "KSREC"
+
+        item = self.ed_item.text().strip() or None
+        godown = self.ed_godown.text().strip() or None
+        # Note: stock_movements doesn't support date range, we'll filter after
+        rows = inv.stock_movements(vtype=vtype, godown=godown, item=item, top=500)
+
+        # Filter by date range
+        from_dt = self.de_from.date().toPyDate()
+        to_dt = self.de_to.date().toPyDate()
+        filtered = []
+        for r in rows:
+            vdate = r["vdate"]
+            if isinstance(vdate, str):
+                try:
+                    from datetime import date as dt_date
+                    vdate = dt_date.fromisoformat(vdate)
+                except:
+                    continue
+            if vdate and from_dt <= vdate <= to_dt:
+                filtered.append(r)
+        rows = filtered
+
+        self.tbl.setRowCount(len(rows))
+        total_iss = 0.0
+        total_rec = 0.0
+        for r, s in enumerate(rows):
+            vals = [s["docid"], s["vtype"], s["vno"], s["vdate"],
+                    s["item"], s["godown"], s["qty_iss"], s["qty_rec"],
+                    s["rate"], s["amount"]]
+            for c, v in enumerate(vals):
+                self.tbl.setItem(r, c, _dark_item(v))
+            total_iss += float(s["qty_iss"] or 0)
+            total_rec += float(s["qty_rec"] or 0)
+
+        self.lbl_summary.setText(
+            f"Rows: {len(rows)} | Total Issued: {total_iss:,.2f} | "
+            f"Total Received: {total_rec:,.2f} | Net: {total_rec - total_iss:,.2f}"
+        )
+
+
+def open_kitchen_stock_report(parent=None):
+    KitchenStockReportForm(parent).exec()
+
+
 def main() -> int:
     from PyQt6.QtWidgets import QApplication
     app = QApplication(sys.argv)
