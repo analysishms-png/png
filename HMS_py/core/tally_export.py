@@ -75,12 +75,15 @@ def fetch_groups(cn=None) -> list:
     UnderGroupName ... Order By Cast(Grp.MainGrCode As Numeric)."""
     return db.query(
         "SELECT DISTINCT Grp.GroupName, Grp1.GroupName AS UnderGroupName, "
-        "CAST(Grp.MainGrCode AS NUMERIC) AS nMainGrCode "
+        "CAST(CASE WHEN ISNUMERIC(Grp.MainGrCode) = 1 AND LEN(Grp.MainGrCode) > 0 "
+        "THEN Grp.MainGrCode ELSE '999999' END AS NUMERIC) AS nMainGrCode "
         "FROM Acgroup Grp LEFT JOIN AcGroup Grp1 ON "
-        "Grp1.MainGrCode = SUBSTRING(Grp.MainGrCode, 1, "
-        "LEN(Grp.MainGrCode) - 3) "
+        "Grp1.MainGrCode = CASE WHEN LEN(Grp.MainGrCode) > 3 "
+        "THEN SUBSTRING(Grp.MainGrCode, 1, LEN(Grp.MainGrCode) - 3) "
+        "ELSE '' END "
         "WHERE (Grp.LOGSITE_CODE = ? OR Grp.LOGSITE_CODE = 'HO') "
-        "ORDER BY CAST(Grp.MainGrCode AS NUMERIC)",
+        "ORDER BY CAST(CASE WHEN ISNUMERIC(Grp.MainGrCode) = 1 AND LEN(Grp.MainGrCode) > 0 "
+        "THEN Grp.MainGrCode ELSE '999999' END AS NUMERIC)",
         (SITE_CODE,), cn=cn)
 
 

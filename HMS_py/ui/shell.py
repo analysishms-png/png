@@ -482,6 +482,34 @@ def _form_registry() -> dict[str, callable]:
         from HMS_py.ui import db_backup_ui as dbbak_ui
     except ImportError:
         dbbak_ui = None
+    try:
+        from HMS_py.ui import purchase_order_ui as purord_ui
+    except ImportError:
+        purord_ui = None
+    try:
+        from HMS_py.ui import purchase_bill_ui as purbill_ui
+    except ImportError:
+        purbill_ui = None
+    try:
+        from HMS_py.ui import stock_issue_ui as stiss_ui
+    except ImportError:
+        stiss_ui = None
+    try:
+        from HMS_py.ui import stock_receive_ui as strec_ui
+    except ImportError:
+        strec_ui = None
+    try:
+        from HMS_py.ui import stock_adjust_ui as stadj_ui
+    except ImportError:
+        stadj_ui = None
+    try:
+        from HMS_py.ui import db_maintenance_ui as dbmaint_ui
+    except ImportError:
+        dbmaint_ui = None
+    try:
+        from HMS_py.ui import account_merge_ui as acmerge_ui
+    except ImportError:
+        acmerge_ui = None
 
     def _open_report(cap: str):
         """mdi leaf caption -> reports engine key (exact-match map)."""
@@ -666,14 +694,14 @@ def _form_registry() -> dict[str, callable]:
         "Stock Register Detailed": (lambda w: _inv.open_inv(w)) if _inv else None,
         "Purchase Register Detailed": (lambda w: _inv.open_inv(w)) if _inv else None,
         "GIN / Purchase Receipt": (lambda w: _inv.open_gin(w)) if _inv else None,
-        "Purchase Order": _coming_soon("Purchase Order"),
-        "Purchase Bill": _coming_soon("Purchase Bill"),
+        "Purchase Order": (lambda w: purord_ui.open_purchase_order(w)) if purord_ui else _coming_soon("Purchase Order"),
+        "Purchase Bill": (lambda w: purbill_ui.open_purchase_bill(w)) if purbill_ui else _coming_soon("Purchase Bill"),
         "Stock Transfer": (lambda w: _inv.open_stock_transfer(w)) if _inv else None,
         "eInvoice Config": (lambda w: _inv.open_einvoice_config(w)) if _inv else None,
         "Kitchen Stock Report": (lambda w: _inv.open_kitchen_stock_report(w)) if _inv else None,
-        "Stock Issue": _coming_soon("Stock Issue"),
-        "Stock Receive": _coming_soon("Stock Receive"),
-        "Stock Adjustment": _coming_soon("Stock Adjustment"),
+        "Stock Issue": (lambda w: stiss_ui.open_stock_issue(w)) if stiss_ui else _coming_soon("Stock Issue"),
+        "Stock Receive": (lambda w: strec_ui.open_stock_receive(w)) if strec_ui else _coming_soon("Stock Receive"),
+        "Stock Adjustment": (lambda w: stadj_ui.open_stock_adjust(w)) if stadj_ui else _coming_soon("Stock Adjustment"),
         "Purchase Register": (lambda w: _inv.open_inv(w)) if _inv else None,
         "Stock Summary": (lambda w: _inv.open_inv(w)) if _inv else None,
         "Stock Register": (lambda w: _inv.open_inv(w)) if _inv else None,
@@ -698,8 +726,8 @@ def _form_registry() -> dict[str, callable]:
         "Revenue Wise Budget Entry": _coming_soon("Revenue Wise Budget Entry"),
         "Guest History": (lambda w: ghu.open_guest_history(w, user=w.user)) if ghu else None,
         "Room Display": (lambda w: rs_ui.open_roomstatus(w, user=w.user)) if rs_ui else None,
-        "Update Database Nulls": _coming_soon("Update Database Nulls"),
-        "Account Merging": None,
+        "Update Database Nulls": (lambda w: dbmaint_ui.open_db_maintenance(w)) if dbmaint_ui else _coming_soon("Update Database Nulls"),
+        "Account Merging": (lambda w: acmerge_ui.open_account_merge(w)) if acmerge_ui else None,
         # Tally export (frmTallyExport port — read-only XML files)
         "Tally Export": _open_tally(),
         # VB6 caption aliases — screens pehle se the, VB6 naam se wire kiye

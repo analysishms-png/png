@@ -340,6 +340,32 @@ def gin_create(party_code: str, party_name: str, godown: str, vdate,
                  remarks, docid, sno,
                  user, godown, SITE_CODE), cn=cn, commit=False)
         
+        # Write Stock rows (VB6 pMREntry lines 216622-216638)
+        for i, line in enumerate(lines, 1):
+            qty_rec = float(line.get("qty_rec") or 0)
+            rate = float(line.get("rate") or 0)
+            amount = float(line.get("amount") or 0)
+            item = line.get("item", "")
+            godown_code = line.get("godown", godown)
+            indent_docid = line.get("indent_docid", "")
+            indent_sno = int(line.get("indent_sno") or 0)
+            db.execute(
+                "INSERT INTO Stock (DocId, Sno, Vtype, VNo, Site_Code, VPrefix, "
+                "VDate, VTime, PartyCode, RestCode, RoomCat, RoomType, RoomNo, "
+                "Item, QtyIss, QtyRec, Unit, Rate, Amount, U_Name, U_EntDt, "
+                "U_AE, LogSite_Code, GodownCode, DelFlag) "
+                "VALUES (?, ?, 'MRE', ?, ?, '2026', ?, '00:00', '', '', '', '', "
+                "?, ?, 0, ?, ?, ?, ?, ?, getdate(), 'A', ?, ?, 'N')",
+                (docid, i, vno, SITE_CODE, vdate, "", item, qty_rec,
+                 line.get("unit", ""), rate, amount, user, SITE_CODE,
+                 godown_code), cn=cn, commit=False)
+            # ClearYN: mark linked indent lines as fulfilled
+            if indent_docid and indent_sno:
+                db.execute(
+                    "UPDATE Indent1 SET ClearYN = 'Y' "
+                    "WHERE DocId = ? AND Sno = ?",
+                    (indent_docid, indent_sno), cn=cn, commit=False)
+        
         if commit:
             cn.commit()
         return {"docid": docid, "vno": vno}
@@ -397,11 +423,44 @@ def porder_create(party_code: str, vdate, lines: list[dict],
                  line.get("indent_docid", ""), line.get("indent_sno", 0),
                  line.get("specification", ""), 1, 0, "",
                  SITE_CODE, line.get("tax_stru", ""), 0, line.get("amount", 0)),
-                cn=cn, commit=False)
+                 cn=cn, commit=False)
+        
+        # ClearYN: mark linked indent lines as fulfilled
+        for line in lines:
+            indent_docid = line.get("indent_docid", "")
+            indent_sno = int(line.get("indent_sno") or 0)
+            if indent_docid and indent_sno:
+                db.execute(
+                    "UPDATE Indent1 SET ClearYN = 'Y' "
+                    "WHERE DocId = ? AND Sno = ?",
+                    (indent_docid, indent_sno), cn=cn, commit=False)
         
         if commit:
             cn.commit()
         return {"docid": docid, "vno": vno}
+    finally:
+        if own:
+            cn.close()
+
+
+def porder_delete(docid: str, cn=None, commit: bool = True) -> dict:
+    """Delete Purchase Order and reverse ClearYN on linked indent lines."""
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        # Reverse ClearYN on linked indent lines
+        db.execute(
+            "UPDATE Indent1 SET ClearYN = '' "
+            "WHERE DocId IN (SELECT IndentDocId FROM POrder1 WHERE DocId = ?) "
+            "AND Sno IN (SELECT IndentSno FROM POrder1 WHERE DocId = ?)",
+            (docid, docid), cn=cn, commit=False)
+        # Delete POrder1 lines
+        db.execute("DELETE FROM POrder1 WHERE DocId = ?", (docid,), cn=cn, commit=False)
+        # Delete POrder header
+        db.execute("DELETE FROM POrder WHERE DocId = ?", (docid,), cn=cn, commit=False)
+        if commit:
+            cn.commit()
+        return {"deleted": docid}
     finally:
         if own:
             cn.close()
@@ -556,8 +615,27 @@ def stock_create(vtype: str, lines: list[dict], vdate=None, vprefix: str = "2026
 
 def stock_issue(lines: list[dict], vdate=None, vprefix: str = "2026",
                 user: str = USER, cn=None, commit: bool = True) -> dict:
-    """Requisition Issue (Vtype='RQI'). lines: [{"item", "godown", "qty", "unit", "rate"}]"""
-    return stock_create("RQI", lines, vdate, vprefix, user, cn, commit)
+    """Requisition Issue (Vtype='RQI'). lines: [{"item", "godown", "qty", "unit", "rate",
+    "indent_docid", "indent_sno"}]"""
+    result = stock_create("RQI", lines, vdate, vprefix, user, cn, commit=False)
+    # ClearYN: mark linked indent lines as fulfilled
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        for line in lines:
+            indent_docid = line.get("indent_docid", "")
+            indent_sno = int(line.get("indent_sno") or 0)
+            if indent_docid and indent_sno:
+                db.execute(
+                    "UPDATE Indent1 SET ClearYN = 'Y' "
+                    "WHERE DocId = ? AND Sno = ?",
+                    (indent_docid, indent_sno), cn=cn, commit=False)
+        if commit:
+            cn.commit()
+        return result
+    finally:
+        if own:
+            cn.close()
 
 
 def stock_receive(lines: list[dict], vdate=None, vprefix: str = "2026",

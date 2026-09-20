@@ -153,7 +153,7 @@ def _log_night_audit(date_from, date_to, start_dt, end_dt, user, cn=None, commit
 # Room Charge Posting (VB6 Proc_96_14 daily bill-wise)
 # ============================================================
 
-def get_inhouse_rooms(vdate, cn=None) -> list[dict]:
+def get_inhouse_rooms(vdate, vprefix: str = "2026", cn=None) -> list[dict]:
     """Get occupied rooms for a date (RoomOcc ChkOutDate IS NULL, ChkInDate <= date).
     Returns list of {folio, docid, roomno, roomrate, guest_name, comp_flag, mfolio}
     """
@@ -184,7 +184,7 @@ def post_room_charges_for_date(vdate, vprefix: str = "2026",
     (PayCharge Vtype='RC' for that folio/date), insert RC charge + tax.
     Returns: {'posted': count, 'skipped': count, 'errors': list}
     """
-    rooms = get_inhouse_rooms(vdate, cn=cn)
+    rooms = get_inhouse_rooms(vdate, "2026", cn=cn)
     posted = 0
     skipped = 0
     errors = []

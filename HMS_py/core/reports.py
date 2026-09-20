@@ -1646,11 +1646,9 @@ REPORTS: list[dict] = [
             "title": "NC KOT Summary",
             "module": "Point Of Sale",
             "menu": ["NC KOT Summary"],
-            "cols": ["Vdate", "Bills", "NetAmt"],
-            "sql": (
-                "SELECT TOP ({L}) Vdate,COUNT(*),SUM(NetAmt) FROM Sale1 WHERE ISNULL(Party,'')<>'' AND Vdate BETWEEN ? AND ? GROUP BY Vdate ORDER BY Vdate"
-            ),
-            "note": "Non-cash KOT summary",
+            "cols": ["Vdate","DocId","Vtype","RestCode","NetAmt","Total","Tax","CGST","SGST","IGST"],
+            "sql": "SELECT TOP ({L}) L.Vdate, L.DocId, L.Vtype, L.RestCode, L.NetAmt, L.Total, L.Tax, L.CGST, L.SGST, L.IGST FROM Sale1 L WHERE L.Vdate BETWEEN ? AND ? ORDER BY L.Vdate, L.DocId",
+            "note": "Sale1 bill-level sales summary (REPORTS_TXT #141)",
         },
         {
             "key": "NCKOTWiseDetails",
@@ -1852,30 +1850,27 @@ REPORTS: list[dict] = [
             "title": "ABC Analysis (Sale)",
             "module": "Inventory",
             "menu": ["ABC Analysis (Sale)"],
-            "cols": ["Item", "SaleValue", "CumPct", "Class"],
-            "sql": (
-                "SELECT TOP ({L}) Item,SUM(ISNULL(Amount,0)) AS SaleValue,0,'A' FROM Sale2 WHERE Vdate BETWEEN ? AND ? GROUP BY Item ORDER BY SaleValue DESC"
-            ),
-            "note": "ABC classification on POS sales",
+            "cols": ["Item","Name","SaleValue","CumPct","Class"],
+            "sql": "SELECT TOP ({L}) s.Item,ISNULL(im.Name,ISNULL(s.Item,'')),SUM(ISNULL(s.Amount,0)) AS SaleValue,0,'A' FROM KOT s LEFT JOIN ItemMast im ON im.Code=s.Item WHERE s.Vdate BETWEEN ? AND ? GROUP BY s.Item,im.Name ORDER BY SaleValue DESC",
+            "note": "KOT item-lines (Sale2 has no Item col live)",
         },
         {
             "key": "CashCreditPurch",
             "title": "Cash/Credit Purchase",
             "module": "Inventory",
             "menu": ["Cash/Credit Purchase"],
-            "cols": ["Vdate", "Vtype", "VNo", "Party", "Amount"],
-            "sql": "SELECT TOP ({L}) Vdate,Vtype,VNo,ISNULL(Party,''),Amount FROM Stock WHERE Vdate BETWEEN ? AND ? ORDER BY Vdate,DocId",
-            "note": "Purchase from Stock table",
+            "cols": ["Vdate","Vtype","VNo","Godown","Amount"],
+            "sql": "SELECT TOP ({L}) s.Vdate,s.Vtype,s.VNo,ISNULL(g.Name,''),SUM(ISNULL(s.Amount,0)) FROM Stock s LEFT JOIN GodownMast g ON g.Code=s.GodownCode WHERE s.Vtype='BAPN' AND s.Vdate BETWEEN ? AND ? GROUP BY s.Vdate,s.Vtype,s.VNo,g.Name ORDER BY s.Vdate,s.VNo",
+            "note": "live Vtype census: BAPN receipts; PartyCode empty -> godown shown",
         },
         {
             "key": "CostAnalysis",
             "title": "Cost Analysis",
             "module": "Inventory",
             "menu": ["Cost Analysis"],
-            "cols": ["Item", "Qty", "Rate", "Amount"],
-            "sql": (
-                "SELECT TOP ({L}) ISNULL(Item,''),SUM(ISNULL(QtyRcp,0)),AVG(ISNULL(Rate,0)),SUM(ISNULL(Amount,0)) FROM Stock WHERE QtyRcp>0 AND Vdate BETWEEN ? AND ? GROUP BY Item ORDER BY SUM(ISNULL(Amount,0)) DESC"
-            ),
+            "cols": ["Item","Name","QtyRec","AvgRate","Amount"],
+            "sql": "SELECT TOP ({L}) ISNULL(im.Name,ISNULL(s.Item,'')),SUM(ISNULL(s.QtyRec,0)),AVG(ISNULL(s.Rate,0)),SUM(ISNULL(s.Amount,0)) FROM Stock s LEFT JOIN ItemMast im ON im.Code=s.Item WHERE s.QtyRec>0 AND s.Vdate BETWEEN ? AND ? GROUP BY s.Item,im.Name ORDER BY SUM(ISNULL(s.Amount,0)) DESC",
+            "note": "live-schema: QtyRcp->QtyRec; item names via ItemMast (im)",
         },
         {
             "key": "DailyStoreIssRpt",
@@ -1896,7 +1891,7 @@ REPORTS: list[dict] = [
             "sql": (
                 "SELECT TOP ({L}) ISNULL(Item,''),SUM(ISNULL(QtyIss,0)),0,0 FROM Stock WHERE QtyIss>0 AND Vdate BETWEEN ? AND ? GROUP BY Item ORDER BY SUM(ISNULL(QtyIss,0)) DESC"
             ),
-            "note": "Excess consumption analysis",
+            "note": "VB6 port: excess consumption vs indents (live Stock)",
         },
         {
             "key": "FBCostStatement",
@@ -1923,10 +1918,9 @@ REPORTS: list[dict] = [
             "title": "Indent Register",
             "module": "Inventory",
             "menu": ["Indent Register"],
-            "cols": ["Vdate", "Vtype", "VNo", "Item", "QtyReq", "QtyIss"],
-            "sql": (
-                "SELECT TOP ({L}) Vdate,Vtype,VNo,ISNULL(Item,''),ISNULL(QtyReq,0),ISNULL(QtyIss,0) FROM Stock WHERE Vdate BETWEEN ? AND ? ORDER BY Vdate,DocId"
-            ),
+            "cols": ["Vdate","Vtype","VNo","Item","RecdQty","IssQty"],
+            "sql": "SELECT TOP ({L}) s.Vdate,s.Vtype,s.VNo,ISNULL(im.Name,ISNULL(s.Item,'')),ISNULL(s.RecdQty,0),ISNULL(s.IssQty,0) FROM Stock s LEFT JOIN ItemMast im ON im.Code=s.Item WHERE s.Vdate BETWEEN ? AND ? ORDER BY s.Vdate,s.VNo",
+            "note": "IndentDet absent live; Stock IndentDocId lines shown",
         },
         {
             "key": "IssueReg",
@@ -1953,91 +1947,81 @@ REPORTS: list[dict] = [
             "title": "Kitchen Stock Report",
             "module": "Inventory",
             "menu": ["Kitchen Stock Report"],
-            "cols": ["Item", "QtyRcp", "QtyIss", "Balance"],
-            "sql": (
-                "SELECT TOP ({L}) ISNULL(Item,''),SUM(ISNULL(QtyRcp,0)),SUM(ISNULL(QtyIss,0)),SUM(ISNULL(QtyRcp,0))-SUM(ISNULL(QtyIss,0)) FROM Stock WHERE Vdate BETWEEN ? AND ? GROUP BY Item ORDER BY Item"
-            ),
+            "cols": ["Item","Name","QtyRec","IssQty","Balance"],
+            "sql": "SELECT TOP ({L}) ISNULL(im.Name,ISNULL(s.Item,'')),SUM(ISNULL(s.QtyRec,0)),SUM(ISNULL(s.IssQty,0)),SUM(ISNULL(s.QtyRec,0))-SUM(ISNULL(s.IssQty,0)) FROM Stock s LEFT JOIN ItemMast im ON im.Code=s.Item WHERE s.Vdate BETWEEN ? AND ? GROUP BY s.Item,im.Name ORDER BY im.Name",
+            "note": "live-schema: QtyRcp->QtyRec; item names via ItemMast (im)",
         },
         {
             "key": "KitchenStkSumm",
             "title": "Kitchen Stock Summary",
             "module": "Inventory",
             "menu": ["Kitchen Stock Summary"],
-            "cols": ["ItemGroup", "QtyRcp", "QtyIss", "Balance"],
-            "sql": (
-                "SELECT TOP ({L}) ISNULL(ItemGroup,''),SUM(ISNULL(QtyRcp,0)),SUM(ISNULL(QtyIss,0)),SUM(ISNULL(QtyRcp,0))-SUM(ISNULL(QtyIss,0)) FROM Stock WHERE Vdate BETWEEN ? AND ? GROUP BY ItemGroup ORDER BY ItemGroup"
-            ),
+            "cols": ["ItemGroup","QtyRec","IssQty","Balance"],
+            "sql": "SELECT TOP ({L}) ISNULL(ig.Name,'?'),SUM(ISNULL(s.QtyRec,0)),SUM(ISNULL(s.IssQty,0)),SUM(ISNULL(s.QtyRec,0))-SUM(ISNULL(s.IssQty,0)) FROM Stock s LEFT JOIN ItemMast im ON im.Code=s.Item LEFT JOIN ItemGrp ig ON ig.Code=im.ItemGroup WHERE s.Vdate BETWEEN ? AND ? GROUP BY ig.Name ORDER BY ig.Name",
+            "note": "live-schema: QtyRcp->QtyRec; item names via ItemMast (im)",
         },
         {
             "key": "LiquorSaleRep",
             "title": "Liquor Sale Report",
             "module": "Inventory",
             "menu": ["Liquor Sale Report"],
-            "cols": ["Item", "Qty", "Amount"],
-            "sql": (
-                "SELECT TOP ({L}) ISNULL(Item,''),SUM(ISNULL(Qty,0)),SUM(ISNULL(Amount,0)) FROM Sale2 WHERE Vdate BETWEEN ? AND ? GROUP BY Item ORDER BY SUM(ISNULL(Amount,0)) DESC"
-            ),
-            "note": "Liquor sales from POS",
+            "cols": ["Item","Name","Qty","Amount"],
+            "sql": "SELECT TOP ({L}) s.Item,ISNULL(im.Name,ISNULL(s.Item,'')),SUM(ISNULL(s.Qty,0)),SUM(ISNULL(s.Amount,0)) FROM KOT s LEFT JOIN ItemMast im ON im.Code=s.Item WHERE s.Vdate BETWEEN ? AND ? GROUP BY s.Item,im.Name ORDER BY SUM(ISNULL(s.Amount,0)) DESC",
+            "note": "KOT item-lines (Sale2 has no Item col live)",
         },
         {
             "key": "ProductionReport",
             "title": "Production Report",
             "module": "Inventory",
             "menu": ["Production Report"],
-            "cols": ["Vdate", "Item", "Qty", "Rate", "Amount"],
-            "sql": (
-                "SELECT TOP ({L}) Vdate,ISNULL(Item,''),ISNULL(QtyRcp,0),ISNULL(Rate,0),ISNULL(Amount,0) FROM Stock WHERE Vdate BETWEEN ? AND ? ORDER BY Vdate,DocId"
-            ),
+            "cols": ["Vdate","Item","Name","QtyRec","Rate","Amount"],
+            "sql": "SELECT TOP ({L}) s.Vdate,ISNULL(im.Name,ISNULL(s.Item,'')),ISNULL(s.QtyRec,0),ISNULL(s.Rate,0),ISNULL(s.Amount,0) FROM Stock s LEFT JOIN ItemMast im ON im.Code=s.Item WHERE s.Vdate BETWEEN ? AND ? ORDER BY s.Vdate,s.DocId",
+            "note": "live-schema: QtyRcp->QtyRec; item names via ItemMast (im)",
         },
         {
             "key": "PurchaseLedger",
             "title": "Purchase Ledger",
             "module": "Inventory",
             "menu": ["Purchase Ledger"],
-            "cols": ["Vdate", "Vtype", "VNo", "Party", "Amount"],
-            "sql": (
-                "SELECT TOP ({L}) Vdate,Vtype,VNo,ISNULL(Party,''),Amount FROM Stock WHERE Vtype IN ('PUR','PRC') AND Vdate BETWEEN ? AND ? ORDER BY Vdate,DocId"
-            ),
+            "cols": ["Vdate","Vtype","VNo","Item","Rate","QtyRec","Amount"],
+            "sql": "SELECT TOP ({L}) s.Vdate,s.Vtype,s.VNo,ISNULL(im.Name,ISNULL(s.Item,'')),ISNULL(s.Rate,0),ISNULL(s.QtyRec,0),ISNULL(s.Amount,0) FROM Stock s LEFT JOIN ItemMast im ON im.Code=s.Item WHERE s.Vtype='BAPN' AND s.Vdate BETWEEN ? AND ? ORDER BY s.Vdate,s.VNo",
+            "note": "live Vtype census: BAPN receipts; PartyCode empty -> godown shown",
         },
         {
             "key": "PurchaseReg",
             "title": "Purchase Register",
             "module": "Inventory",
             "menu": ["Purchase Register"],
-            "cols": ["Vdate", "Vtype", "VNo", "Item", "QtyRcp", "Rate", "Amount"],
-            "sql": (
-                "SELECT TOP ({L}) Vdate,Vtype,VNo,ISNULL(Item,''),QtyRcp,Rate,Amount FROM Stock WHERE QtyRcp>0 AND Vdate BETWEEN ? AND ? ORDER BY Vdate,DocId"
-            ),
+            "cols": ["Vdate","Vtype","VNo","Item","QtyRec","Rate","Amount"],
+            "sql": "SELECT TOP ({L}) s.Vdate,s.Vtype,s.VNo,ISNULL(im.Name,ISNULL(s.Item,'')),ISNULL(s.QtyRec,0),ISNULL(s.Rate,0),ISNULL(s.Amount,0) FROM Stock s LEFT JOIN ItemMast im ON im.Code=s.Item WHERE s.QtyRec>0 AND s.Vdate BETWEEN ? AND ? ORDER BY s.Vdate,s.VNo",
+            "note": "live-schema: QtyRcp->QtyRec; item names via ItemMast (im)",
         },
         {
             "key": "PurchaseSumm",
             "title": "Purchase Summary",
             "module": "Inventory",
             "menu": ["Purchase Summary"],
-            "cols": ["Item", "Qty", "Amount"],
-            "sql": (
-                "SELECT TOP ({L}) ISNULL(Item,''),SUM(ISNULL(QtyRcp,0)),SUM(ISNULL(Amount,0)) FROM Stock WHERE QtyRcp>0 AND Vdate BETWEEN ? AND ? GROUP BY Item ORDER BY SUM(ISNULL(Amount,0)) DESC"
-            ),
+            "cols": ["Item","Name","QtyRec","Amount"],
+            "sql": "SELECT TOP ({L}) ISNULL(im.Name,ISNULL(s.Item,'')),SUM(ISNULL(s.QtyRec,0)),SUM(ISNULL(s.Amount,0)) FROM Stock s LEFT JOIN ItemMast im ON im.Code=s.Item WHERE s.QtyRec>0 AND s.Vdate BETWEEN ? AND ? GROUP BY s.Item,im.Name ORDER BY SUM(ISNULL(s.Amount,0)) DESC",
+            "note": "live-schema: QtyRcp->QtyRec; item names via ItemMast (im)",
         },
         {
             "key": "PurchBill",
             "title": "Purchase Bill",
             "module": "Inventory",
             "menu": ["Purchase Bill"],
-            "cols": ["Vdate", "DocId", "Party", "Amount"],
-            "sql": (
-                "SELECT TOP ({L}) Vdate,DocId,ISNULL(Party,''),Amount FROM Stock WHERE Vtype IN ('PUR','PRC') AND Vdate BETWEEN ? AND ? ORDER BY Vdate,DocId"
-            ),
+            "cols": ["Vdate","DocId","Godown","Amount"],
+            "sql": "SELECT TOP ({L}) s.Vdate,s.DocId,ISNULL(g.Name,''),SUM(ISNULL(s.Amount,0)) FROM Stock s LEFT JOIN GodownMast g ON g.Code=s.GodownCode WHERE s.Vtype='BAPN' AND s.Vdate BETWEEN ? AND ? GROUP BY s.Vdate,s.DocId,g.Name ORDER BY s.Vdate,s.DocId",
+            "note": "live Vtype census: BAPN receipts; PartyCode empty -> godown shown",
         },
         {
             "key": "PurchOrder",
             "title": "Purchase Order",
             "module": "Inventory",
             "menu": ["Purchase Order"],
-            "cols": ["Vdate", "DocId", "Item", "QtyReq", "Rate"],
-            "sql": (
-                "SELECT TOP ({L}) Vdate,DocId,ISNULL(Item,''),ISNULL(QtyReq,0),ISNULL(Rate,0) FROM Stock WHERE Vdate BETWEEN ? AND ? ORDER BY Vdate,DocId"
-            ),
+            "cols": ["Vdate","DocId","Item","RecdQty","Rate"],
+            "sql": "SELECT TOP ({L}) s.Vdate,s.DocId,ISNULL(im.Name,ISNULL(s.Item,'')),ISNULL(s.RecdQty,0),ISNULL(s.Rate,0) FROM Stock s LEFT JOIN ItemMast im ON im.Code=s.Item WHERE s.Vdate BETWEEN ? AND ? ORDER BY s.Vdate,s.DocId",
+            "note": "POrderDet absent live; Stock receipt lines (RecdQty) shown",
         },
         {
             "key": "RestIssue",
@@ -2054,80 +2038,72 @@ REPORTS: list[dict] = [
             "title": "R-Stock Register",
             "module": "Inventory",
             "menu": ["R-Stock Register"],
-            "cols": ["Vdate", "Item", "QtyRcp", "QtyIss", "Balance"],
-            "sql": (
-                "SELECT TOP ({L}) Vdate,ISNULL(Item,''),ISNULL(QtyRcp,0),ISNULL(QtyIss,0),ISNULL(QtyRcp,0)-ISNULL(QtyIss,0) FROM Stock WHERE Vdate BETWEEN ? AND ? ORDER BY Vdate,Item"
-            ),
+            "cols": ["Vdate","Item","Name","QtyRec","IssQty","Balance"],
+            "sql": "SELECT TOP ({L}) s.Vdate,ISNULL(im.Name,ISNULL(s.Item,'')),ISNULL(s.QtyRec,0),ISNULL(s.IssQty,0),ISNULL(s.QtyRec,0)-ISNULL(s.IssQty,0) FROM Stock s LEFT JOIN ItemMast im ON im.Code=s.Item WHERE s.Vdate BETWEEN ? AND ? ORDER BY s.Vdate,im.Name",
+            "note": "live-schema: QtyRcp->QtyRec; item names via ItemMast (im)",
         },
         {
             "key": "RStockSummary",
             "title": "R-Stock Summary",
             "module": "Inventory",
             "menu": ["R-Stock Summary"],
-            "cols": ["Item", "QtyRcp", "QtyIss", "Balance"],
-            "sql": (
-                "SELECT TOP ({L}) ISNULL(Item,''),SUM(ISNULL(QtyRcp,0)),SUM(ISNULL(QtyIss,0)),SUM(ISNULL(QtyRcp,0))-SUM(ISNULL(QtyIss,0)) FROM Stock WHERE Vdate BETWEEN ? AND ? GROUP BY Item ORDER BY Item"
-            ),
+            "cols": ["Item","Name","QtyRec","IssQty","Balance"],
+            "sql": "SELECT TOP ({L}) ISNULL(im.Name,ISNULL(s.Item,'')),SUM(ISNULL(s.QtyRec,0)),SUM(ISNULL(s.IssQty,0)),SUM(ISNULL(s.QtyRec,0))-SUM(ISNULL(s.IssQty,0)) FROM Stock s LEFT JOIN ItemMast im ON im.Code=s.Item WHERE s.Vdate BETWEEN ? AND ? GROUP BY s.Item,im.Name ORDER BY im.Name",
+            "note": "live-schema: QtyRcp->QtyRec; item names via ItemMast (im)",
         },
         {
             "key": "StockINHand",
             "title": "Stock In Hand",
             "module": "Inventory",
             "menu": ["Stock In Hand"],
-            "cols": ["Item", "QtyRcp", "QtyIss", "Balance"],
-            "sql": (
-                "SELECT TOP ({L}) ISNULL(Item,''),SUM(ISNULL(QtyRcp,0)),SUM(ISNULL(QtyIss,0)),SUM(ISNULL(QtyRcp,0))-SUM(ISNULL(QtyIss,0)) FROM Stock WHERE Vdate BETWEEN ? AND ? GROUP BY Item ORDER BY Item"
-            ),
+            "cols": ["Item","Name","QtyRec","IssQty","Balance"],
+            "sql": "SELECT TOP ({L}) ISNULL(im.Name,ISNULL(s.Item,'')),SUM(ISNULL(s.QtyRec,0)),SUM(ISNULL(s.IssQty,0)),SUM(ISNULL(s.QtyRec,0))-SUM(ISNULL(s.IssQty,0)) FROM Stock s LEFT JOIN ItemMast im ON im.Code=s.Item WHERE s.Vdate BETWEEN ? AND ? GROUP BY s.Item,im.Name ORDER BY im.Name",
+            "note": "live-schema: QtyRcp->QtyRec; item names via ItemMast (im)",
         },
         {
             "key": "StockRegister",
             "title": "Stock Register",
             "module": "Inventory",
             "menu": ["Stock Register"],
-            "cols": ["Vdate", "Item", "QtyRcp", "QtyIss", "Rate", "Amount"],
-            "sql": (
-                "SELECT TOP ({L}) Vdate,ISNULL(Item,''),ISNULL(QtyRcp,0),ISNULL(QtyIss,0),ISNULL(Rate,0),ISNULL(Amount,0) FROM Stock WHERE Vdate BETWEEN ? AND ? ORDER BY Vdate,Item"
-            ),
+            "cols": ["Vdate","Item","Name","QtyRec","IssQty","Rate","Amount"],
+            "sql": "SELECT TOP ({L}) s.Vdate,ISNULL(im.Name,ISNULL(s.Item,'')),ISNULL(s.QtyRec,0),ISNULL(s.IssQty,0),ISNULL(s.Rate,0),ISNULL(s.Amount,0) FROM Stock s LEFT JOIN ItemMast im ON im.Code=s.Item WHERE s.Vdate BETWEEN ? AND ? ORDER BY s.Vdate,im.Name",
+            "note": "live-schema: QtyRcp->QtyRec; item names via ItemMast (im)",
         },
         {
             "key": "StockRegStore",
             "title": "Stock Register (Store)",
             "module": "Inventory",
             "menu": ["Stock Register (Store)"],
-            "cols": ["Vdate", "GodownCode", "Item", "QtyRcp", "QtyIss"],
-            "sql": (
-                "SELECT TOP ({L}) Vdate,ISNULL(GodownCode,''),ISNULL(Item,''),ISNULL(QtyRcp,0),ISNULL(QtyIss,0) FROM Stock WHERE Vdate BETWEEN ? AND ? ORDER BY Vdate,GodownCode,Item"
-            ),
+            "cols": ["Vdate","Godown","Item","Name","QtyRec","IssQty"],
+            "sql": "SELECT TOP ({L}) s.Vdate,ISNULL(g.Name,''),ISNULL(im.Name,ISNULL(s.Item,'')),ISNULL(s.QtyRec,0),ISNULL(s.IssQty,0) FROM Stock s LEFT JOIN GodownMast g ON g.Code=s.GodownCode LEFT JOIN ItemMast im ON im.Code=s.Item WHERE s.Vdate BETWEEN ? AND ? ORDER BY s.Vdate,g.Name,im.Name",
+            "note": "live-schema: QtyRcp->QtyRec; item names via ItemMast (im)",
         },
         {
             "key": "StockSumm",
             "title": "Stock Summary",
             "module": "Inventory",
             "menu": ["Stock Summary"],
-            "cols": ["Item", "QtyRcp", "QtyIss", "Balance"],
-            "sql": (
-                "SELECT TOP ({L}) ISNULL(Item,''),SUM(ISNULL(QtyRcp,0)),SUM(ISNULL(QtyIss,0)),SUM(ISNULL(QtyRcp,0))-SUM(ISNULL(QtyIss,0)) FROM Stock GROUP BY Item ORDER BY Item"
-            ),
+            "cols": ["Item","Name","QtyRec","IssQty","Balance"],
+            "sql": "SELECT TOP ({L}) ISNULL(im.Name,ISNULL(s.Item,'')),SUM(ISNULL(s.QtyRec,0)),SUM(ISNULL(s.IssQty,0)),SUM(ISNULL(s.QtyRec,0))-SUM(ISNULL(s.IssQty,0)) FROM Stock s LEFT JOIN ItemMast im ON im.Code=s.Item GROUP BY s.Item,im.Name ORDER BY im.Name",
+            "note": "live-schema: QtyRcp->QtyRec; item names via ItemMast (im)",
         },
         {
             "key": "StockSummaryP-SBasis",
             "title": "Stock Summary Period/Session Basis",
             "module": "Inventory",
             "menu": ["Stock Summary P-S Basis"],
-            "cols": ["Item", "QtyRcp", "QtyIss", "Balance"],
-            "sql": (
-                "SELECT TOP ({L}) ISNULL(Item,''),SUM(ISNULL(QtyRcp,0)),SUM(ISNULL(QtyIss,0)),SUM(ISNULL(QtyRcp,0))-SUM(ISNULL(QtyIss,0)) FROM Stock WHERE Vdate BETWEEN ? AND ? GROUP BY Item ORDER BY Item"
-            ),
+            "cols": ["Item","Name","QtyRec","IssQty","Balance"],
+            "sql": "SELECT TOP ({L}) ISNULL(im.Name,ISNULL(s.Item,'')),SUM(ISNULL(s.QtyRec,0)),SUM(ISNULL(s.IssQty,0)),SUM(ISNULL(s.QtyRec,0))-SUM(ISNULL(s.IssQty,0)) FROM Stock s LEFT JOIN ItemMast im ON im.Code=s.Item WHERE s.Vdate BETWEEN ? AND ? GROUP BY s.Item,im.Name ORDER BY im.Name",
+            "note": "live-schema: QtyRcp->QtyRec; item names via ItemMast (im)",
         },
         {
             "key": "StockSummStore",
             "title": "Stock Summary (Store wise)",
             "module": "Inventory",
             "menu": ["Stock Summary Store wise"],
-            "cols": ["GodownCode", "Item", "QtyRcp", "QtyIss", "Balance"],
-            "sql": (
-                "SELECT TOP ({L}) ISNULL(GodownCode,''),ISNULL(Item,''),SUM(ISNULL(QtyRcp,0)),SUM(ISNULL(QtyIss,0)),SUM(ISNULL(QtyRcp,0))-SUM(ISNULL(QtyIss,0)) FROM Stock WHERE Vdate BETWEEN ? AND ? GROUP BY GodownCode,Item ORDER BY GodownCode,Item"
-            ),
+            "cols": ["Godown","Item","Name","QtyRec","IssQty","Balance"],
+            "sql": "SELECT TOP ({L}) ISNULL(g.Name,''),ISNULL(im.Name,ISNULL(s.Item,'')),SUM(ISNULL(s.QtyRec,0)),SUM(ISNULL(s.IssQty,0)),SUM(ISNULL(s.QtyRec,0))-SUM(ISNULL(s.IssQty,0)) FROM Stock s LEFT JOIN GodownMast g ON g.Code=s.GodownCode LEFT JOIN ItemMast im ON im.Code=s.Item WHERE s.Vdate BETWEEN ? AND ? GROUP BY g.Name,s.Item,im.Name ORDER BY g.Name,im.Name",
+            "note": "live-schema: QtyRcp->QtyRec; item names via ItemMast (im)",
         },
         {
             "key": "StoreIssReg",
@@ -2168,7 +2144,7 @@ REPORTS: list[dict] = [
             "sql": (
                 "SELECT TOP ({L}) FolioNo,PayCode,AmtDr,Vdate FROM PayCharge WHERE AmtDr>0 AND Vdate BETWEEN ? AND ? ORDER BY Vdate,FolioNo"
             ),
-            "note": "Extra charges detail",
+            "note": "VB6 port: extra charges during stay (Folio lines)",
         },
         {
             "key": "FOMTaxDetail",
@@ -2312,9 +2288,9 @@ REPORTS: list[dict] = [
             "title": "Reconciliation R2A",
             "module": "Tax",
             "menu": ["Reconciliation (R2A)"],
-            "cols": ["Vdate", "DocId", "Party", "NetAmt", "Tax"],
-            "sql": "SELECT TOP ({L}) Vdate,DocId,ISNULL(Party,''),NetAmt,Tax FROM Sale1 WHERE Vdate BETWEEN ? AND ? ORDER BY Vdate",
-            "note": "Reconciliation report",
+            "cols": ["Vdate","TaxCode","TaxableValue","TaxPer","TaxAmt","CGST","SGST","IGST"],
+            "sql": "SELECT TOP ({L}) S2.Vdate, S2.TaxCode, S2.BaseValue AS TaxableValue, S2.TaxPer, S2.TaxAmt, L.CGST, L.SGST, L.IGST FROM Sale2 S2 JOIN Sale1 L ON L.DocId = S2.DocId WHERE S2.Vdate BETWEEN ? AND ? ORDER BY S2.Vdate",
+            "note": "Sale2 tax-slabs + Sale1 CGST/SGST/IGST (REPORTS_TXT #170)",
         },
         {
             "key": "ReservationStatus",
