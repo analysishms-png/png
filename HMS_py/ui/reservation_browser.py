@@ -43,8 +43,13 @@ class ReservationBrowser(QDialog):
         self.tbl.setSelectionBehavior(
             QTableWidget.SelectionBehavior.SelectRows)
         self.tbl.horizontalHeader().setStretchLastSection(True)
-        self.tbl.cellDoubleClicked.connect(lambda *_: self._edit())
+        self.tbl.setAlternatingRowColors(True)
+        self._empty_label = QLabel("No reservations found. Click 'New' to create one.")
+        self._empty_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self._empty_label.setStyleSheet(f"color:{_theme.palette()['text_dim']}; font-size:13px; padding:24px;")
         root.addWidget(self.tbl)
+        root.addWidget(self._empty_label)
+        self.tbl.cellDoubleClicked.connect(lambda *_: self._edit())
 
         self.lblState = QLabel(
             "State: Idle | New=PYT* draft, Edit=fields, "
@@ -53,10 +58,15 @@ class ReservationBrowser(QDialog):
 
         btns = QHBoxLayout()
         self.btnNew = QPushButton("New")
+        self.btnNew.setToolTip("Create new reservation draft (Ctrl+N)")
         self.btnEdit = QPushButton("Edit")
+        self.btnEdit.setToolTip("Edit selected reservation (Ctrl+E)")
         self.btnCancel = QPushButton("Cancel Booking")
+        self.btnCancel.setToolTip("Cancel selected booking (Ctrl+Del)")
         self.btnRefresh = QPushButton("Refresh")
+        self.btnRefresh.setToolTip("Reload reservation list (F5)")
         self.btnClose = QPushButton("Close")
+        self.btnClose.setToolTip("Close this window (Esc)")
         for b in (self.btnNew, self.btnEdit, self.btnCancel,
                   self.btnRefresh, self.btnClose):
             btns.addWidget(b)
@@ -85,6 +95,8 @@ class ReservationBrowser(QDialog):
         target ho sakti thi - PYT-guard ne pakda tha)."""
         rows = reservation.list_reservations()
         self.tbl.setRowCount(len(rows))
+        self._empty_label.setVisible(len(rows) == 0)
+        self.tbl.setVisible(len(rows) > 0)
         for r, row in enumerate(rows):
             # list query returns (FIXED - Cancel now fetched explicitly):
             # BookNo(0),VDate(1),GuestName(2),ArrDate(3),DepDate(4),
@@ -155,11 +167,13 @@ class ReservationBrowser(QDialog):
         form = QFormLayout()
         ed_guest = QLineEdit("PYT Guest")
         ed_guest.setMaxLength(100)
+        ed_guest.setPlaceholderText("Guest full name (must start with PYT*)")
         de_arr = QDateEdit(QDate.currentDate()); de_arr.setCalendarPopup(True)
         de_dep = QDateEdit(QDate.currentDate().addDays(1))
         de_dep.setCalendarPopup(True)
-        ed_adult = QLineEdit("1"); ed_rooms = QLineEdit("1")
-        ed_rate = QLineEdit("0")
+        ed_adult = QLineEdit("1"); ed_adult.setPlaceholderText("Number of adults")
+        ed_rooms = QLineEdit("1"); ed_rooms.setPlaceholderText("Number of rooms")
+        ed_rate = QLineEdit("0"); ed_rate.setPlaceholderText("Room rate per night")
         form.addRow("Guest Name (PYT*)", ed_guest)
         form.addRow("Arrival", de_arr)
         form.addRow("Departure", de_dep)
@@ -169,7 +183,8 @@ class ReservationBrowser(QDialog):
         lay = QVBoxLayout(dlg)
         lay.addLayout(form)
         brow = QHBoxLayout()
-        ok = QPushButton("Save"); cancel = QPushButton("Cancel")
+        ok = QPushButton("Save"); ok.setToolTip("Save new reservation")
+        cancel = QPushButton("Cancel"); cancel.setToolTip("Discard and close")
         brow.addStretch(); brow.addWidget(ok); brow.addWidget(cancel)
         lay.addLayout(brow)
         ok.clicked.connect(dlg.accept); cancel.clicked.connect(dlg.reject)
@@ -203,6 +218,7 @@ class ReservationBrowser(QDialog):
         dlg.setModal(True)
         form = QFormLayout()
         ed_guest = QLineEdit(row["GuestName"]); ed_guest.setMaxLength(100)
+        ed_guest.setPlaceholderText("Guest full name")
         arr = row["ArrDate"]; dep = row["DepDate"]
         # BUG FIX: QDate() does NOT accept datetime.date directly.
         # Must pass year, month, day individually.
@@ -217,8 +233,11 @@ class ReservationBrowser(QDialog):
         de_arr = QDateEdit(qarr); de_arr.setCalendarPopup(True)
         de_dep = QDateEdit(qdep); de_dep.setCalendarPopup(True)
         ed_adult = QLineEdit(str(row["Adult"]))
+        ed_adult.setPlaceholderText("Number of adults")
         ed_rooms = QLineEdit(str(row["NoofRooms"]))
+        ed_rooms.setPlaceholderText("Number of rooms")
         ed_rate = QLineEdit(str(row["RoomRate"]))
+        ed_rate.setPlaceholderText("Room rate per night")
         form.addRow("Guest Name", ed_guest)
         form.addRow("Arrival", de_arr)
         form.addRow("Departure", de_dep)
@@ -227,7 +246,8 @@ class ReservationBrowser(QDialog):
         form.addRow("Rate", ed_rate)
         lay = QVBoxLayout(dlg); lay.addLayout(form)
         brow = QHBoxLayout()
-        ok = QPushButton("Save"); cancel = QPushButton("Cancel")
+        ok = QPushButton("Save"); ok.setToolTip("Save changes to reservation")
+        cancel = QPushButton("Cancel"); cancel.setToolTip("Discard changes and close")
         brow.addStretch(); brow.addWidget(ok); brow.addWidget(cancel)
         lay.addLayout(brow)
         ok.clicked.connect(dlg.accept); cancel.clicked.connect(dlg.reject)

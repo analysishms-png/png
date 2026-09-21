@@ -73,18 +73,22 @@ class DbBackupWindow(QMainWindow):
         btn_style = "QPushButton { padding: 10px; font-size: 11pt; }"
 
         self.btn_full = QPushButton("Full Backup + Log Truncate + Shrink (Recommended)")
+        self.btn_full.setToolTip("Run full backup, truncate log, and shrink database")
         self.btn_full.setStyleSheet(btn_style)
         self.btn_full.clicked.connect(lambda: self._run("full"))
 
         self.btn_backup = QPushButton("Backup Only")
+        self.btn_backup.setToolTip("Backup database without log truncate or shrink")
         self.btn_backup.setStyleSheet(btn_style)
         self.btn_backup.clicked.connect(lambda: self._run("backup_only"))
 
         self.btn_log = QPushButton("Truncate Transaction Log Only")
+        self.btn_log.setToolTip("Truncate the transaction log to free space")
         self.btn_log.setStyleSheet(btn_style)
         self.btn_log.clicked.connect(lambda: self._run("log_only"))
 
         self.btn_shrink = QPushButton("Shrink Database Only")
+        self.btn_shrink.setToolTip("Shrink database to reclaim unused space")
         self.btn_shrink.setStyleSheet(btn_style)
         self.btn_shrink.clicked.connect(lambda: self._run("shrink_only"))
 
@@ -110,6 +114,7 @@ class DbBackupWindow(QMainWindow):
         btn_layout = QHBoxLayout()
         btn_layout.addStretch()
         self.btn_exit = QPushButton("Exit")
+        self.btn_exit.setToolTip("Close this window")
         self.btn_exit.clicked.connect(self.close)
         btn_layout.addWidget(self.btn_exit)
         layout.addLayout(btn_layout)

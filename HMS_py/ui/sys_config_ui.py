@@ -26,9 +26,13 @@ class SysConfigWindow(QMainWindow):
         form_layout = QFormLayout(form_group)
 
         self.txt_roundoff = QLineEdit()
+        self.txt_roundoff.setPlaceholderText("e.g. 1")
         self.txt_date_lock = QLineEdit()
+        self.txt_date_lock.setPlaceholderText("YYYY-MM-DD")
         self.txt_site_code = QLineEdit()
+        self.txt_site_code.setPlaceholderText("e.g. KK")
         self.txt_nckot = QLineEdit()
+        self.txt_nckot.setPlaceholderText("e.g. 10")
 
         form_layout.addRow("RoundOffSetting:", self.txt_roundoff)
         form_layout.addRow("DateLock:", self.txt_date_lock)
@@ -38,8 +42,11 @@ class SysConfigWindow(QMainWindow):
 
         btn_layout = QHBoxLayout()
         self.btn_load = QPushButton("Load")
+        self.btn_load.setToolTip("Load configuration from database")
         self.btn_save = QPushButton("Save")
+        self.btn_save.setToolTip("Save configuration to database")
         self.btn_exit = QPushButton("Exit")
+        self.btn_exit.setToolTip("Close this window")
 
         for b in [self.btn_load, self.btn_save, self.btn_exit]:
             btn_layout.addWidget(b)

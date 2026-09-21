@@ -30,9 +30,13 @@ class PosPackingWindow(QMainWindow):
         form_layout = QFormLayout(form_group)
 
         self.txt_party_name = QLineEdit()
+        self.txt_party_name.setPlaceholderText("Party or customer name")
         self.txt_item_name = QLineEdit()
+        self.txt_item_name.setPlaceholderText("Item name")
         self.txt_qty = QLineEdit()
+        self.txt_qty.setPlaceholderText("Quantity")
         self.txt_remarks = QLineEdit()
+        self.txt_remarks.setPlaceholderText("Remarks")
         self.txt_status = QComboBox()
         self.txt_status.addItems(["Pending", "Packed", "Cancelled"])
 
@@ -45,9 +49,13 @@ class PosPackingWindow(QMainWindow):
 
         btn_layout = QHBoxLayout()
         self.btn_new = QPushButton("New Order")
+        self.btn_new.setToolTip("Create a new packing order")
         self.btn_packed = QPushButton("Mark Packed")
+        self.btn_packed.setToolTip("Mark the selected order as packed")
         self.btn_refresh = QPushButton("Refresh")
+        self.btn_refresh.setToolTip("Refresh the packing orders list")
         self.btn_exit = QPushButton("Exit")
+        self.btn_exit.setToolTip("Close the POS Packing Orders")
 
         for b in [self.btn_new, self.btn_packed, self.btn_refresh, self.btn_exit]:
             btn_layout.addWidget(b)
@@ -56,6 +64,7 @@ class PosPackingWindow(QMainWindow):
         self.table = QTableWidget()
         self.table.setColumnCount(6)
         self.table.setHorizontalHeaderLabels(["DocId", "VDate", "PartyName", "ItemName", "Qty", "Status"])
+        self.table.setAlternatingRowColors(True)
         self.table.itemSelectionChanged.connect(self._on_select)
         layout.addWidget(self.table)
 

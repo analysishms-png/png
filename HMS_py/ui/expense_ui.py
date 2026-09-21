@@ -63,6 +63,7 @@ class ExpenseEntryForm(QDialog):
             QTableWidget.EditTrigger.NoEditTriggers)
         self.tbl_folio.setSelectionBehavior(
             QTableWidget.SelectionBehavior.SelectRows)
+        self.tbl_folio.setAlternatingRowColors(True)
         self.tbl_folio.setMaximumHeight(180)
         self.tbl_folio.horizontalHeader().setStretchLastSection(True)
         self.tbl_folio.cellClicked.connect(lambda *_: self._load_charges())
@@ -85,6 +86,7 @@ class ExpenseEntryForm(QDialog):
             QTableWidget.EditTrigger.NoEditTriggers)
         self.tbl_charges.setSelectionBehavior(
             QTableWidget.SelectionBehavior.SelectRows)
+        self.tbl_charges.setAlternatingRowColors(True)
         self.tbl_charges.horizontalHeader().setStretchLastSection(True)
         root.addWidget(self.tbl_charges)
 
@@ -97,6 +99,7 @@ class ExpenseEntryForm(QDialog):
         self.edPayCode.setMaxLength(6)
         self.edPayCode.setPlaceholderText("e.g. KKRMCH")
         self.edAmount = QLineEdit("0")
+        self.edAmount.setPlaceholderText("0.00")
         self.edRemarks = QLineEdit()
         self.edRemarks.setMaxLength(100)
         self.edRemarks.setPlaceholderText("Optional remarks")
@@ -106,6 +109,7 @@ class ExpenseEntryForm(QDialog):
 
         st = _theme.status_colors()
         self.btnExpense = QPushButton("Post EXPENSE (Dr)")
+        self.btnExpense.setToolTip("Post expense (debit) to the selected folio (Ctrl+E)")
         self.btnExpense.setStyleSheet(
             f"background:{st['danger']}; color:{st['on_danger']};"
             "font-weight:bold; padding:6px; border:none; border-radius:6px;")
@@ -118,6 +122,7 @@ class ExpenseEntryForm(QDialog):
         self.edRecPayCode.setMaxLength(6)
         self.edRecPayCode.setPlaceholderText("e.g. CASH")
         self.edRecAmount = QLineEdit("0")
+        self.edRecAmount.setPlaceholderText("0.00")
         self.edRecRemarks = QLineEdit()
         self.edRecRemarks.setMaxLength(100)
         self.edRecRemarks.setPlaceholderText("Payment mode note")
@@ -126,6 +131,7 @@ class ExpenseEntryForm(QDialog):
         rec_form.addRow("Remarks", self.edRecRemarks)
 
         self.btnReceipt = QPushButton("Post RECEIPT (Cr)")
+        self.btnReceipt.setToolTip("Post receipt/payment (credit) to the selected folio (Ctrl+R)")
         self.btnReceipt.setStyleSheet(
             f"background:{st['success']}; color:{st['on_success']};"
             "font-weight:bold; padding:6px; border:none; border-radius:6px;")
@@ -137,7 +143,9 @@ class ExpenseEntryForm(QDialog):
         # ---- Bottom buttons ----
         bot = QHBoxLayout()
         self.btnRefresh = QPushButton("Refresh (F5)")
+        self.btnRefresh.setToolTip("Reload active folios and charges (F5)")
         self.btnClose = QPushButton("Close")
+        self.btnClose.setToolTip("Close the expense entry form")
         bot.addStretch()
         bot.addWidget(self.btnRefresh)
         bot.addWidget(self.btnClose)

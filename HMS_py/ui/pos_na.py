@@ -48,6 +48,7 @@ class PosBrowser(QDialog):
             ["KOT No", "Date", "Outlet", "Lines", "Amount", "DocId"])
         self.tbl.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self.tbl.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        self.tbl.setAlternatingRowColors(True)
         self.tbl.horizontalHeader().setStretchLastSection(True)
         self.tbl.cellDoubleClicked.connect(lambda *_: self._lines())
         root.addWidget(self.tbl)
@@ -59,9 +60,13 @@ class PosBrowser(QDialog):
 
         btns = QHBoxLayout()
         self.btnLines = QPushButton("Lines")
+        self.btnLines.setToolTip("View KOT line items for the selected KOT")
         self.btnOutlet = QPushButton("Outlet Report")
+        self.btnOutlet.setToolTip("View sales summary by outlet (Ctrl+O)")
         self.btnItem = QPushButton("Item-wise Report")
+        self.btnItem.setToolTip("View item-wise sales report (Ctrl+W)")
         self.btnClose = QPushButton("Close")
+        self.btnClose.setToolTip("Close the POS KOT Browser")
         for b in (self.btnLines, self.btnOutlet, self.btnItem, self.btnClose):
             btns.addWidget(b)
         root.addLayout(btns)
@@ -153,6 +158,7 @@ class NABrowser(QDialog):
         self.tbl = QTableWidget(0, 6)
         self.tbl.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self.tbl.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        self.tbl.setAlternatingRowColors(True)
         self.tbl.horizontalHeader().setStretchLastSection(True)
         root.addWidget(self.tbl)
 
@@ -163,10 +169,15 @@ class NABrowser(QDialog):
 
         btns = QHBoxLayout()
         self.btnLog = QPushButton("NA Log")
+        self.btnLog.setToolTip("View the Night Audit log history")
         self.btnOcc = QPushButton("Occupancy")
+        self.btnOcc.setToolTip("View occupancy analysis (Ctrl+O)")
         self.btnRev = QPushButton("Revenue")
+        self.btnRev.setToolTip("View daily revenue summary (Ctrl+V)")
         self.btnRoom = QPushButton("Room Revenue")
+        self.btnRoom.setToolTip("View room-wise revenue report (Ctrl+M)")
         self.btnClose = QPushButton("Close")
+        self.btnClose.setToolTip("Close the Night Audit browser")
         for b in (self.btnLog, self.btnOcc, self.btnRev, self.btnRoom,
                   self.btnClose):
             btns.addWidget(b)

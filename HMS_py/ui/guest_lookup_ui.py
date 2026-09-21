@@ -39,10 +39,12 @@ class GuestLookupWindow(QMainWindow):
         self.table.setColumnCount(6)
         self.table.setHorizontalHeaderLabels(
             ["Code", "Name", "Company", "Phone", "Address", "City"])
+        self.table.setAlternatingRowColors(True)
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         layout.addWidget(self.table)
 
         btn_exit = QPushButton("Exit"); btn_exit.clicked.connect(self.close)
+        btn_exit.setToolTip("Close this window")
         layout.addWidget(btn_exit)
 
     def _load_data(self):

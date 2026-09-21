@@ -30,9 +30,13 @@ class PosTableWindow(QMainWindow):
         form_layout = QFormLayout(form_group)
 
         self.txt_code = QLineEdit()
+        self.txt_code.setPlaceholderText("Table code")
         self.txt_room_name = QLineEdit()
+        self.txt_room_name.setPlaceholderText("Room name")
         self.txt_type = QLineEdit()
+        self.txt_type.setPlaceholderText("Table type (e.g. Round, Square)")
         self.txt_seating_capacity = QLineEdit()
+        self.txt_seating_capacity.setPlaceholderText("Seating capacity")
         self.txt_status = QComboBox()
         self.txt_status.addItems(["Active", "Inactive", "Blocked"])
 
@@ -45,10 +49,15 @@ class PosTableWindow(QMainWindow):
 
         btn_layout = QHBoxLayout()
         self.btn_new = QPushButton("New")
+        self.btn_new.setToolTip("Add a new table record")
         self.btn_edit = QPushButton("Edit")
+        self.btn_edit.setToolTip("Edit the selected table record")
         self.btn_delete = QPushButton("Delete")
+        self.btn_delete.setToolTip("Delete the selected table record")
         self.btn_refresh = QPushButton("Refresh")
+        self.btn_refresh.setToolTip("Refresh the table list")
         self.btn_exit = QPushButton("Exit")
+        self.btn_exit.setToolTip("Close the POS Table Management")
 
         for b in [self.btn_new, self.btn_edit, self.btn_delete, self.btn_refresh, self.btn_exit]:
             btn_layout.addWidget(b)
@@ -57,6 +66,7 @@ class PosTableWindow(QMainWindow):
         self.table = QTableWidget()
         self.table.setColumnCount(6)
         self.table.setHorizontalHeaderLabels(["Code", "RoomName", "RoomNo", "Type", "SeatingCapacity", "Status"])
+        self.table.setAlternatingRowColors(True)
         self.table.itemSelectionChanged.connect(self._on_select)
         layout.addWidget(self.table)
 

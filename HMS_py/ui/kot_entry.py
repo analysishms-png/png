@@ -68,6 +68,7 @@ class KOTEntryForm(QDialog):
         self.grid = QTableWidget(0, len(self.LINE_COLS))
         self.grid.setHorizontalHeaderLabels([c[0] for c in self.LINE_COLS])
         self.grid.horizontalHeader().setStretchLastSection(True)
+        self.grid.setAlternatingRowColors(True)
         self.grid.cellChanged.connect(self._on_cell_changed)
         root.addWidget(self.grid)
 
@@ -82,11 +83,17 @@ class KOTEntryForm(QDialog):
         # ---- Buttons ----
         btns = QHBoxLayout()
         self.btn_new = QPushButton("New (Ctrl+N)")
+        self.btn_new.setToolTip("Start a new KOT entry (Ctrl+N)")
         self.btn_save = QPushButton("Save (Ctrl+S)")
+        self.btn_save.setToolTip("Save the current KOT (Ctrl+S)")
         self.btn_void = QPushButton("Void (Ctrl+D)")
+        self.btn_void.setToolTip("Void the current KOT (Ctrl+D)")
         self.btn_print = QPushButton("Print KOT")
+        self.btn_print.setToolTip("Print the current KOT")
         self.btn_cancel = QPushButton("Cancel (Esc)")
+        self.btn_cancel.setToolTip("Cancel editing and reset form (Esc)")
         self.btn_close = QPushButton("Close")
+        self.btn_close.setToolTip("Close the KOT Entry form")
         for b in (self.btn_new, self.btn_save, self.btn_void,
                   self.btn_print, self.btn_cancel, self.btn_close):
             btns.addWidget(b)

@@ -1,7 +1,8 @@
-"""HMS_py Design System — Reusable UI constants, tokens, and helper functions.
+"""HMS_py Design System - Reusable UI constants, tokens, and helper functions.
 
 Usage:
-    from HMS_py.ui.design import DS, make_card, make_section, status_badge
+    from ui.design import DS, make_card, make_section, styled_button
+    from ui.theme import palette, status_colors
 
 All colors reference theme tokens at runtime via theme.palette() / status_colors().
 These constants provide consistent spacing, typography, and sizing across all forms.
@@ -25,11 +26,10 @@ class Spacing:
 
 
 # ---------------------------------------------------------------------------
-# Typography scale (px) — all use Segoe UI
+# Typography scale (px) - all use Segoe UI
 # ---------------------------------------------------------------------------
 class Font:
     FAMILY = "Segoe UI"
-    # Sizes
     XS = 10
     SM = 11
     MD = 13
@@ -37,7 +37,6 @@ class Font:
     XL = 16
     XXL = 18
     TITLE = 22
-    # Weights
     REGULAR = 500
     BOLD = 700
 
@@ -46,39 +45,31 @@ class Font:
 # Widget sizing
 # ---------------------------------------------------------------------------
 class Size:
-    # Minimum Heights
     INPUT_H = 36
     INPUT_H_LG = 40
     BUTTON_H = 34
     BUTTON_H_LG = 40
     BUTTON_H_SM = 28
-    SIDEBAR_BTN_H = 40
+    SIDEBAR_BTN_H = 38
     HEADER_H = 52
     ROW_H = 32
-
-    # Widths
     SIDEBAR_W = 220
     BUTTON_MIN_W = 80
     DIALOG_MIN_W = 400
-
-    # Corner radius (overridden by theme at runtime)
     RADIUS = 8
     RADIUS_SM = 6
     RADIUS_LG = 10
 
 
 # ---------------------------------------------------------------------------
-# Layout presets
+# Layout presets (left, top, right, bottom)
 # ---------------------------------------------------------------------------
 class Layout:
-    # Margins: (left, top, right, bottom)
     CONTENT = (Spacing.XL, Spacing.LG, Spacing.XL, Spacing.LG)
     BUTTON_BAR = (Spacing.XL, Spacing.SM, Spacing.XL, Spacing.MD)
     CARD = (Spacing.XXL, Spacing.XL, Spacing.XXL, Spacing.XL)
     DIALOG = (Spacing.XL, Spacing.XL, Spacing.XL, Spacing.XL)
     SECTION = (Spacing.MD, Spacing.SM, Spacing.MD, Spacing.SM)
-
-    # Spacings
     FORM_SPACING = Spacing.MD
     BUTTON_SPACING = Spacing.SM
     GRID_H_SPACING = Spacing.MD
@@ -101,86 +92,10 @@ class WindowSize:
 
 
 # ---------------------------------------------------------------------------
-# Reusable QSS fragments — these are injected into the global QSS by theme.py
-# ---------------------------------------------------------------------------
-QSS_BUTTON_PRIMARY = (
-    "QPushButton[accent='true'] {{"
-    "  background: {accent}; color: #ffffff; font-weight: 700;"
-    "  border: none; padding: 8px 20px; border-radius: {R}px;"
-    "  min-height: {btn_h}px;"
-    "}}"
-    "QPushButton[accent='true']:hover {{ background: {accent_hover}; }}"
-    "QPushButton[accent='true']:pressed {{ background: {accent_pressed}; }}"
-)
-
-QSS_BUTTON_DANGER = (
-    "QPushButton[role='danger'] {{"
-    "  background: {danger}; color: #ffffff; font-weight: 600;"
-    "  border: none; padding: 6px 16px; border-radius: {R}px;"
-    "  min-height: {btn_h}px;"
-    "}}"
-    "QPushButton[role='danger']:hover {{ background: {danger_hover}; }}"
-)
-
-QSS_BUTTON_WARNING = (
-    "QPushButton[role='warning'] {{"
-    "  background: {warning}; color: #ffffff; font-weight: 600;"
-    "  border: none; padding: 6px 16px; border-radius: {R}px;"
-    "  min-height: {btn_h}px;"
-    "}}"
-    "QPushButton[role='warning']:hover {{ background: {warning_hover}; }}"
-)
-
-QSS_BUTTON_SUCCESS = (
-    "QPushButton[role='success'] {{"
-    "  background: {success}; color: #ffffff; font-weight: 600;"
-    "  border: none; padding: 6px 16px; border-radius: {R}px;"
-    "  min-height: {btn_h}px;"
-    "}}"
-    "QPushButton[role='success']:hover {{ background: {success_hover}; }}"
-)
-
-QSS_TABLE = (
-    "QTableWidget {{"
-    "  border: 1px solid {border}; border-radius: {R}px;"
-    "  gridline-color: {border};"
-    "  selection-background-color: {accent_soft};"
-    "  selection-color: {text};"
-    "  font-size: {tbl_font}px;"
-    "}}"
-    "QTableWidget::item {{ padding: 4px 6px; }}"
-    "QTableWidget::item:selected {{ background: {accent_soft}; }}"
-    "QTableWidget::item:hover {{ background: {surface_hover}; }}"
-)
-
-QSS_INPUT = (
-    "QLineEdit, QTextEdit, QSpinBox, QDoubleSpinBox {{"
-    "  border: 1px solid {border}; border-radius: {R}px;"
-    "  padding: 6px 10px; font-size: {input_font}px;"
-    "  min-height: {input_h}px;"
-    "}}"
-    "QLineEdit:focus, QTextEdit:focus {{ border: 2px solid {accent}; }}"
-)
-
-QSS_COMBO = (
-    "QComboBox {{"
-    "  border: 1px solid {border}; border-radius: {R}px;"
-    "  padding: 6px 10px; font-size: {input_font}px;"
-    "  min-height: {input_h}px; min-width: 120px;"
-    "}}"
-    "QComboBox:focus {{ border: 2px solid {accent}; }}"
-    "QComboBox::drop-down {{ border: none; width: 24px; }}"
-)
-
-
-# ---------------------------------------------------------------------------
 # Helper functions for building common UI patterns
 # ---------------------------------------------------------------------------
 def make_card(parent=None, title: str = "", content_layout=None):
-    """Create a glass-card frame with optional title and content layout.
-
-    Returns (frame, content_widget, content_layout).
-    """
+    """Create a glass-card frame with optional title and content layout."""
     from PyQt6.QtWidgets import QFrame, QVBoxLayout, QLabel
     from PyQt6.QtCore import Qt
 
@@ -199,50 +114,68 @@ def make_card(parent=None, title: str = "", content_layout=None):
         outer.addWidget(lbl)
 
     if content_layout:
-        outer.addLayout(content_layout)
+        if hasattr(content_layout, "addLayout"):
+            outer.addLayout(content_layout)
+        else:
+            outer.addWidget(content_layout)
 
     return frame
 
 
-def make_section(title: str, layout, parent=None):
+def make_section(title: str, content, parent=None):
     """Create a labeled section group inside a form."""
     from PyQt6.QtWidgets import QGroupBox, QVBoxLayout
+    from ui.theme import palette
+
+    p = palette()
     grp = QGroupBox(title, parent)
     grp.setStyleSheet(
-        "QGroupBox { font-weight: 700; font-size: 13px; margin-top: 12px; "
-        "padding: 12px 8px 8px 8px; }"
-        "QGroupBox::title { subcontrol-origin: margin; left: 12px; padding: 0 6px; }"
+        f"QGroupBox {{ font-weight: 700; font-size: {Font.MD}px; margin-top: 12px; "
+        f"padding: 12px 8px 8px 8px; color: {p['text']}; }}"
+        f"QGroupBox::title {{ subcontrol-origin: margin; left: 12px; padding: 0 6px; }}"
     )
     inner = QVBoxLayout(grp)
     inner.setContentsMargins(*Layout.SECTION)
     inner.setSpacing(Spacing.SM)
-    if layout is not None:
-        if hasattr(layout, "addLayout"):
-            # It's a layout — add it
-            inner.addLayout(layout)
+    if content is not None:
+        if hasattr(content, "addLayout"):
+            inner.addLayout(content)
         else:
-            # It's a widget
-            inner.addWidget(layout)
+            inner.addWidget(content)
     return grp
 
 
 def status_badge(text: str, status: str = "info") -> str:
-    """Return HTML for a colored status badge inside a QLabel."""
-    colors = {
-        "success": ("#059669", "#ecfdf5"),
-        "warning": ("#d97706", "#fffbeb"),
-        "danger": ("#dc2626", "#fef2f2"),
-        "info": ("#0284c7", "#f0f9ff"),
-        "neutral": ("#64748b", "#f8fafc"),
-    }
-    fg, bg = colors.get(status, colors["info"])
+    """Return HTML for a colored status badge inside a QLabel.
+    Uses theme tokens for consistent appearance.
+    """
+    try:
+        from ui.theme import status_colors, palette
+        sc = status_colors()
+        p = palette()
+        color_map = {
+            "success": (sc.get("success_text", "#059669"), sc.get("success_bg", "#ecfdf5")),
+            "warning": (sc.get("warning_text", "#d97706"), sc.get("warning_bg", "#fffbeb")),
+            "danger": (sc.get("danger_text", "#dc2626"), sc.get("danger_bg", "#fef2f2")),
+            "info": (sc.get("info_text", "#0284c7"), sc.get("info_bg", "#f0f9ff")),
+            "neutral": (p.get("text_dim", "#64748b"), p.get("surface", "#f8fafc")),
+        }
+    except ImportError:
+        color_map = {
+            "success": ("#059669", "#ecfdf5"),
+            "warning": ("#d97706", "#fffbeb"),
+            "danger": ("#dc2626", "#fef2f2"),
+            "info": ("#0284c7", "#f0f9ff"),
+            "neutral": ("#64748b", "#f8fafc"),
+        }
+    fg, bg = color_map.get(status, color_map["info"])
     return (
         f'<span style="color:{fg}; background:{bg}; padding:2px 8px; '
-        f'border-radius:4px; font-size:11px; font-weight:600;">{text}</span>'
+        f'border-radius:4px; font-size:{Font.SM}px; font-weight:600;">{text}</span>'
     )
 
 
-def styled_button(text: str, role: str = "default", icon=None):
+def styled_button(text: str, role: str = "default", tooltip: str = ""):
     """Create a consistently styled QPushButton.
 
     role: 'primary', 'danger', 'warning', 'success', 'default'
@@ -255,14 +188,15 @@ def styled_button(text: str, role: str = "default", icon=None):
     elif role in ("danger", "warning", "success"):
         btn.setProperty("role", role)
     btn.setMinimumHeight(Size.BUTTON_H)
-    btn.setCursor(btn.cursor())
+    if tooltip:
+        btn.setToolTip(tooltip)
     return btn
 
 
-def make_toolbar(buttons: list):
+def make_button_bar(buttons: list, add_stretch: bool = True):
     """Create a standardized button toolbar.
 
-    buttons: [(text, role, callback), ...]
+    buttons: [(text, role, callback, tooltip), ...]
     Returns QWidget with QHBoxLayout.
     """
     from PyQt6.QtWidgets import QWidget, QHBoxLayout
@@ -270,12 +204,16 @@ def make_toolbar(buttons: list):
     bar = QWidget()
     lay = QHBoxLayout(bar)
     lay.setContentsMargins(*Layout.BUTTON_BAR)
-    lay.setSpacing(Size.BUTTON_SPACING if hasattr(Size, 'BUTTON_SPACING') else Spacing.SM)
-    lay.addStretch()
+    lay.setSpacing(Spacing.SM)
+    if add_stretch:
+        lay.addStretch()
 
     for item in buttons:
-        text, role, cb = item[0], item[1] if len(item) > 1 else "default", item[2] if len(item) > 2 else None
-        btn = styled_button(text, role)
+        text = item[0]
+        role = item[1] if len(item) > 1 else "default"
+        cb = item[2] if len(item) > 2 else None
+        tip = item[3] if len(item) > 3 else ""
+        btn = styled_button(text, role, tip)
         if cb:
             btn.clicked.connect(cb)
         lay.addWidget(btn)
@@ -289,13 +227,15 @@ def make_form_row(label_text: str, widget, required: bool = False):
     Returns (QLabel, widget) for use in QFormLayout.
     """
     from PyQt6.QtWidgets import QLabel
+    from ui.theme import palette
 
+    p = palette()
     text = label_text
     if required:
         text += ' <span style="color:#dc2626;">*</span>'
 
     lbl = QLabel(text)
-    lbl.setStyleSheet("font-size: 12px; font-weight: 500;")
+    lbl.setStyleSheet(f"font-size: {Font.SM}px; font-weight: 500; color: {p['text']};")
     return lbl, widget
 
 
@@ -303,31 +243,79 @@ def add_empty_state(table, message: str = "No records found"):
     """Show an empty-state message in a QTableWidget."""
     from PyQt6.QtWidgets import QTableWidgetItem
     from PyQt6.QtCore import Qt
+    from ui.theme import palette
 
+    p = palette()
     table.setRowCount(1)
     table.setColumnCount(1)
     item = QTableWidgetItem(message)
     item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
     item.setFlags(Qt.ItemFlag.ItemIsEnabled)
+    item.setForeground(QColor(p["text_dim"]))
     table.setItem(0, 0, item)
 
 
 def make_search_bar(placeholder: str = "Search...", on_search=None):
     """Create a search input bar with consistent styling."""
     from PyQt6.QtWidgets import QLineEdit
-    from PyQt6.QtCore import Qt
+    from ui.theme import palette
 
+    p = palette()
     search = QLineEdit()
     search.setPlaceholderText(placeholder)
     search.setMinimumHeight(Size.INPUT_H)
     search.setStyleSheet(
-        "QLineEdit {{ padding-left: 28px; border: 1px solid {border}; "
-        "border-radius: {R}px; font-size: {font}px; }}"
+        f"QLineEdit {{ padding-left: 28px; border: 1px solid {p['border']}; "
+        f"border-radius: {Size.RADIUS}px; font-size: {Font.MD}px; "
+        f"color: {p['text']}; background: {p['glass_tint']}; }}"
+        f"QLineEdit:focus {{ border: 2px solid {p['accent']}; }}"
     )
-    # TODO: add search icon via QAction when icon resources available
     if on_search:
         search.textChanged.connect(on_search)
     return search
+
+
+def setup_table(table, columns: list, sortable: bool = True,
+                alternating: bool = True, select_rows: bool = True,
+                read_only: bool = True):
+    """Configure a QTableWidget with consistent styling.
+
+    Sets headers, selection behavior, edit triggers, alternating rows,
+    and sorting. Call this instead of manual per-table configuration.
+    """
+    from PyQt6.QtWidgets import QHeaderView, QAbstractItemView
+    from PyQt6.QtCore import Qt
+
+    table.setColumnCount(len(columns))
+    table.setHorizontalHeaderLabels(columns)
+
+    if read_only:
+        table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+
+    if select_rows:
+        table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+
+    table.setAlternatingRowColors(alternating)
+    table.verticalHeader().setVisible(False)
+    table.setShowGrid(True)
+    table.setSortingEnabled(sortable)
+
+    header = table.horizontalHeader()
+    header.setStretchLastSection(True)
+    for i in range(len(columns) - 1):
+        header.setSectionResizeMode(i, QHeaderView.ResizeMode.ResizeToContents)
+
+
+def set_cell_text(table, row: int, col: int, text: str, fg: str = ""):
+    """Set a table cell with theme-consistent text color."""
+    from PyQt6.QtWidgets import QTableWidgetItem
+    from PyQt6.QtGui import QColor
+    from ui.theme import palette
+
+    p = palette()
+    it = QTableWidgetItem(str(text))
+    it.setForeground(QColor(fg or p["text"]))
+    table.setItem(row, col, it)
 
 
 # ---------------------------------------------------------------------------

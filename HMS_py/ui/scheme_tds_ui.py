@@ -115,11 +115,13 @@ class HappyHoursViewer(QDialog):
             "VB6 pHappyHours/NewHappyHours port (read-only viewer).\n"
             "HappyHoursHead = scheme-level setup; HappyHours = item discounts."))
         self.tbl = QTableWidget(0, 0)
+        self.tbl.setAlternatingRowColors(True)
         self.tbl.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self.tbl.horizontalHeader().setStretchLastSection(True)
         root.addWidget(self.tbl)
         btns = QHBoxLayout()
         b = QPushButton("Reload")
+        b.setToolTip("Reload happy hours data")
         b.clicked.connect(self._load)
         btns.addWidget(b)
         btns.addStretch(1)

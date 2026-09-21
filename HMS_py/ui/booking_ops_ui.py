@@ -87,6 +87,7 @@ class BookingOpsDialog(QDialog):
         self.tbl.setSelectionBehavior(
             QTableWidget.SelectionBehavior.SelectRows)
         self.tbl.horizontalHeader().setStretchLastSection(True)
+        self.tbl.setAlternatingRowColors(True)
         self.tbl.cellDoubleClicked.connect(lambda *_: self._on_modify())
         root.addWidget(self.tbl)
 
@@ -96,9 +97,23 @@ class BookingOpsDialog(QDialog):
         fwrap = QWidget()
         self.form = QFormLayout(fwrap)
         self.edits = {}
+        _field_hints = {
+            "guestname": "Guest full name",
+            "arrdate": "DD/MM/YYYY",
+            "depdate": "DD/MM/YYYY",
+            "nodays": "Auto-calculated",
+            "adult": "Number of adults",
+            "child": "Number of children",
+            "noofrooms": "Number of rooms",
+            "roomrate": "Rate per room per night",
+            "mobno": "Mobile number",
+            "email": "guest@email.com",
+            "remarks": "Optional remarks",
+        }
         for key, label in self.FORM_FIELDS:
             e = QLineEdit()
             e.setFont(QFont("Segoe UI", 10))
+            e.setPlaceholderText(_field_hints.get(key, ""))
             self.form.addRow(label, e)
             self.edits[key] = e
         root.addWidget(fwrap)
@@ -107,14 +122,19 @@ class BookingOpsDialog(QDialog):
         btns = QHBoxLayout()
         btn_font = QFont("Segoe UI", 10)
         self.btnNew = QPushButton("New Booking")
+        self.btnNew.setToolTip("Start a new booking entry (Ctrl+N)")
         self.btnNew.setFont(btn_font)
         self.btnModify = QPushButton("Modify")
+        self.btnModify.setToolTip("Save changes to selected booking (Ctrl+M)")
         self.btnModify.setFont(btn_font)
         self.btnCancelBooking = QPushButton("Cancel Booking")
+        self.btnCancelBooking.setToolTip("Cancel the selected booking")
         self.btnCancelBooking.setFont(btn_font)
         self.btnRefresh = QPushButton("Refresh")
+        self.btnRefresh.setToolTip("Reload booking list (F5)")
         self.btnRefresh.setFont(btn_font)
         self.btnExit = QPushButton("Exit")
+        self.btnExit.setToolTip("Close this window (Esc)")
         self.btnExit.setFont(btn_font)
         for b in (self.btnNew, self.btnModify, self.btnCancelBooking,
                   self.btnRefresh, self.btnExit):

@@ -83,6 +83,7 @@ class CheckOutBrowser(QDialog):
         self.tbl_active.setSelectionBehavior(
             QTableWidget.SelectionBehavior.SelectRows)
         self.tbl_active.horizontalHeader().setStretchLastSection(True)
+        self.tbl_active.setAlternatingRowColors(True)
         self.tbl_active.cellClicked.connect(lambda *_: self._load_charges())
         self.tbl_active.cellDoubleClicked.connect(
             lambda *_: self._do_checkout())
@@ -101,16 +102,20 @@ class CheckOutBrowser(QDialog):
             QTableWidget.SelectionBehavior.SelectRows)
         self.tbl_charges.horizontalHeader().setStretchLastSection(True)
         self.tbl_charges.setMaximumHeight(200)
+        self.tbl_charges.setAlternatingRowColors(True)
         lay_active.addWidget(self.tbl_charges)
 
         btns_active = QHBoxLayout()
         btns_active.setSpacing(8)
         self.btnCheckOut = QPushButton("Check-Out (PYT*)")
+        self.btnCheckOut.setToolTip("Check-out selected folio (PYT* test only, Ctrl+O)")
         self.btnCheckOut.setProperty("role", "danger")
         self.btnCheckOut.setMinimumHeight(34)
         self.btnRefreshA = QPushButton("Refresh (F5)")
+        self.btnRefreshA.setToolTip("Reload active folio list (F5)")
         self.btnRefreshA.setMinimumHeight(34)
         self.btnCloseA = QPushButton("Close")
+        self.btnCloseA.setToolTip("Close this window (Esc)")
         self.btnCloseA.setMinimumHeight(34)
         for b in (self.btnCheckOut, self.btnRefreshA, self.btnCloseA):
             btns_active.addWidget(b)
@@ -129,16 +134,20 @@ class CheckOutBrowser(QDialog):
         self.tbl_co.setSelectionBehavior(
             QTableWidget.SelectionBehavior.SelectRows)
         self.tbl_co.horizontalHeader().setStretchLastSection(True)
+        self.tbl_co.setAlternatingRowColors(True)
         lay_co.addWidget(self.tbl_co)
 
         btns_co = QHBoxLayout()
         btns_co.setSpacing(8)
         self.btnReverse = QPushButton("Reverse Check-Out (PYT*)")
+        self.btnReverse.setToolTip("Reverse check-out for selected folio (PYT* only, Ctrl+R)")
         self.btnReverse.setProperty("role", "warning")
         self.btnReverse.setMinimumHeight(34)
         self.btnRefreshCO = QPushButton("Refresh (F5)")
+        self.btnRefreshCO.setToolTip("Reload checked-out folio list (F5)")
         self.btnRefreshCO.setMinimumHeight(34)
         self.btnCloseCO = QPushButton("Close")
+        self.btnCloseCO.setToolTip("Close this window (Esc)")
         self.btnCloseCO.setMinimumHeight(34)
         for b in (self.btnReverse, self.btnRefreshCO, self.btnCloseCO):
             btns_co.addWidget(b)
@@ -201,11 +210,12 @@ class CheckOutBrowser(QDialog):
         try:
             bal = checkout.folio_balance(folio)
             b = bal["balance"]
+            status = "OUTSTANDING" if b > 0 else "SETTLED" if b == 0 else "OVERPAID"
             self.lblBal.setText(
-                f"Folio #{folio} | Guest: {bal['name']} | "
-                f"Charges (Dr): ₹{bal['charges_dr']:.2f}  |  "
-                f"Payments (Cr): ₹{bal['payments_cr']:.2f}  |  "
-                f"Balance: ₹{b:.2f} {'  ← OUTSTANDING' if b > 0 else '  ✓ SETTLED'}")
+                f"Folio #{folio}  |  Guest: {bal['name']}  |  "
+                f"Charges: {bal['charges_dr']:>12,.2f}  |  "
+                f"Payments: {bal['payments_cr']:>12,.2f}  |  "
+                f"Balance: {b:>12,.2f}  [{status}]")
             st = _theme.status_colors()
             self.lblBal.setStyleSheet(
                 f"color:{st['danger_text']}; font-weight:bold;" if b > 0

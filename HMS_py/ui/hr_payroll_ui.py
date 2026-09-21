@@ -44,8 +44,15 @@ class HrPayrollDialog(QDialog):
             if isinstance(w, QLineEdit):
                 w.clear()
 
+    _BTN_TOOLTIPS = {
+        "New": "Add new record", "Edit": "Edit selected record",
+        "Delete": "Delete selected record", "Save": "Save changes",
+        "Cancel": "Cancel current operation", "Refresh": "Reload data from database",
+    }
+
     def _make_btn(self, text, slot=None):
         btn = QPushButton(text)
+        btn.setToolTip(self._BTN_TOOLTIPS.get(text, ""))
         if slot:
             btn.clicked.connect(slot)
         return btn
@@ -69,6 +76,7 @@ class HrPayrollDialog(QDialog):
         self.sal_table.setHorizontalHeaderLabels(
             ["Emp_Code", "Mth_Year", "Basic", "DA", "HRA", "Gross", "Deductions", "Net"]
         )
+        self.sal_table.setAlternatingRowColors(True)
         self.sal_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         self.sal_table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self.sal_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
@@ -78,16 +86,22 @@ class HrPayrollDialog(QDialog):
         form = QFormLayout()
         self.sal_mth = QLineEdit()
         self.sal_mth.setMaxLength(10)
+        self.sal_mth.setPlaceholderText("e.g. 01/2026")
         self.sal_emp = QLineEdit()
         self.sal_emp.setMaxLength(10)
+        self.sal_emp.setPlaceholderText("e.g. EMP001")
         self.sal_basic = QLineEdit()
         self.sal_basic.setMaxLength(12)
+        self.sal_basic.setPlaceholderText("e.g. 25000")
         self.sal_da = QLineEdit()
         self.sal_da.setMaxLength(12)
+        self.sal_da.setPlaceholderText("e.g. 5000")
         self.sal_hra = QLineEdit()
         self.sal_hra.setMaxLength(12)
+        self.sal_hra.setPlaceholderText("e.g. 8000")
         self.sal_ded = QLineEdit()
         self.sal_ded.setMaxLength(12)
+        self.sal_ded.setPlaceholderText("e.g. 2000")
         form.addRow("Mth_Year:", self.sal_mth)
         form.addRow("Emp_Code:", self.sal_emp)
         form.addRow("Basic:", self.sal_basic)
@@ -209,6 +223,7 @@ class HrPayrollDialog(QDialog):
         self.att_table.setHorizontalHeaderLabels(
             ["Emp_Code", "Date", "InTime", "OutTime", "Status"]
         )
+        self.att_table.setAlternatingRowColors(True)
         self.att_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         self.att_table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self.att_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
@@ -218,14 +233,19 @@ class HrPayrollDialog(QDialog):
         form = QFormLayout()
         self.att_emp = QLineEdit()
         self.att_emp.setMaxLength(10)
+        self.att_emp.setPlaceholderText("e.g. EMP001")
         self.att_date = QLineEdit()
         self.att_date.setMaxLength(12)
+        self.att_date.setPlaceholderText("YYYY-MM-DD")
         self.att_in = QLineEdit()
         self.att_in.setMaxLength(8)
+        self.att_in.setPlaceholderText("HH:MM")
         self.att_out = QLineEdit()
         self.att_out.setMaxLength(8)
+        self.att_out.setPlaceholderText("HH:MM")
         self.att_status = QLineEdit()
         self.att_status.setMaxLength(10)
+        self.att_status.setPlaceholderText("e.g. Present")
         form.addRow("Emp_Code:", self.att_emp)
         form.addRow("Date:", self.att_date)
         form.addRow("InTime:", self.att_in)
@@ -344,6 +364,7 @@ class HrPayrollDialog(QDialog):
         self.loan_table.setHorizontalHeaderLabels(
             ["Emp_Code", "Sr_No", "LoanAmt", "Installment", "Balance"]
         )
+        self.loan_table.setAlternatingRowColors(True)
         self.loan_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         self.loan_table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self.loan_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
@@ -353,14 +374,19 @@ class HrPayrollDialog(QDialog):
         form = QFormLayout()
         self.loan_emp = QLineEdit()
         self.loan_emp.setMaxLength(10)
+        self.loan_emp.setPlaceholderText("e.g. EMP001")
         self.loan_sr = QLineEdit()
         self.loan_sr.setMaxLength(5)
+        self.loan_sr.setPlaceholderText("1")
         self.loan_amt = QLineEdit()
         self.loan_amt.setMaxLength(12)
+        self.loan_amt.setPlaceholderText("e.g. 50000")
         self.loan_inst = QLineEdit()
         self.loan_inst.setMaxLength(12)
+        self.loan_inst.setPlaceholderText("e.g. 2000")
         self.loan_bal = QLineEdit()
         self.loan_bal.setMaxLength(12)
+        self.loan_bal.setPlaceholderText("e.g. 30000")
         form.addRow("Emp_Code:", self.loan_emp)
         form.addRow("Sr_No:", self.loan_sr)
         form.addRow("LoanAmt:", self.loan_amt)
@@ -479,6 +505,7 @@ class HrPayrollDialog(QDialog):
         self.ot_table.setHorizontalHeaderLabels(
             ["Emp_Code", "Date", "Hours", "Rate", "Amount"]
         )
+        self.ot_table.setAlternatingRowColors(True)
         self.ot_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         self.ot_table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self.ot_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
@@ -488,14 +515,19 @@ class HrPayrollDialog(QDialog):
         form = QFormLayout()
         self.ot_emp = QLineEdit()
         self.ot_emp.setMaxLength(10)
+        self.ot_emp.setPlaceholderText("e.g. EMP001")
         self.ot_date = QLineEdit()
         self.ot_date.setMaxLength(12)
+        self.ot_date.setPlaceholderText("YYYY-MM-DD")
         self.ot_hours = QLineEdit()
         self.ot_hours.setMaxLength(6)
+        self.ot_hours.setPlaceholderText("e.g. 4")
         self.ot_rate = QLineEdit()
         self.ot_rate.setMaxLength(10)
+        self.ot_rate.setPlaceholderText("e.g. 150")
         self.ot_amt = QLineEdit()
         self.ot_amt.setMaxLength(12)
+        self.ot_amt.setPlaceholderText("e.g. 600")
         form.addRow("Emp_Code:", self.ot_emp)
         form.addRow("Date:", self.ot_date)
         form.addRow("Hours:", self.ot_hours)

@@ -33,18 +33,26 @@ def guestprof_config() -> MasterConfig:
                  ("City", "city"), ("Phone", "phone"), ("Mobile", "mobile")],
         fields=[
             Field("code", "Code (KK######, blank = auto)",
-                  max_len=guestprof.LIMITS["code"]),
+                  max_len=guestprof.LIMITS["code"],
+                  placeholder="Leave blank for auto (KK######)"),
             Field("name", "Name", max_len=guestprof.LIMITS["name"],
-                  required=True),
-            Field("add1", "Address", max_len=guestprof.LIMITS["add1"]),
-            Field("city", "City Code", max_len=guestprof.LIMITS["city"]),
+                  required=True, placeholder="Guest full name"),
+            Field("add1", "Address", max_len=guestprof.LIMITS["add1"],
+                  placeholder="Guest address"),
+            Field("city", "City Code", max_len=guestprof.LIMITS["city"],
+                  placeholder="e.g. KK0002"),
             Field("type", "Type (India/Foreign)",
-                  max_len=guestprof.LIMITS["type"]),
-            Field("phone", "Phone", max_len=guestprof.LIMITS["phone"]),
-            Field("mobile", "Mobile", max_len=guestprof.LIMITS["mobile"]),
-            Field("email", "Email", max_len=guestprof.LIMITS["email"]),
+                  max_len=guestprof.LIMITS["type"],
+                  placeholder="India or Foreign"),
+            Field("phone", "Phone", max_len=guestprof.LIMITS["phone"],
+                  placeholder="Landline number"),
+            Field("mobile", "Mobile", max_len=guestprof.LIMITS["mobile"],
+                  placeholder="Mobile number"),
+            Field("email", "Email", max_len=guestprof.LIMITS["email"],
+                  placeholder="guest@email.com"),
             Field("nationality", "Nationality",
-                  max_len=guestprof.LIMITS["nationality"]),
+                  max_len=guestprof.LIMITS["nationality"],
+                  placeholder="e.g. Indian"),
         ],
         api=guestprof,
         delete_guard=make_delete_guard("PYT"),
@@ -74,7 +82,13 @@ class CheckInBrowser(QDialog):
         self.tbl.setSelectionBehavior(
             QTableWidget.SelectionBehavior.SelectRows)
         self.tbl.horizontalHeader().setStretchLastSection(True)
+        self.tbl.setAlternatingRowColors(True)
+        self._empty_label = QLabel("No check-ins found. Click 'New Check-In' to add one.")
+        self._empty_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self._empty_label.setStyleSheet(f"color:{_theme.palette()['text_dim']}; font-size:13px; padding:24px;")
+        self.tbl.setEmptyStateMessage("")
         root.addWidget(self.tbl)
+        root.addWidget(self._empty_label)
 
         self.lblState = QLabel(
             "State: Idle | New = PYT* test check-in (VB6 CHK doc-engine: "
@@ -83,8 +97,11 @@ class CheckInBrowser(QDialog):
 
         btns = QHBoxLayout()
         self.btnNew = QPushButton("New Check-In")
+        self.btnNew.setToolTip("Create a new check-in record (Ctrl+N)")
         self.btnRefresh = QPushButton("Refresh")
+        self.btnRefresh.setToolTip("Reload check-in list from database (F5)")
         self.btnClose = QPushButton("Close")
+        self.btnClose.setToolTip("Close this window (Esc)")
         for b in (self.btnNew, self.btnRefresh, self.btnClose):
             btns.addWidget(b)
         root.addLayout(btns)
@@ -106,12 +123,14 @@ class CheckInBrowser(QDialog):
         form = QFormLayout()
         ed_name = QLineEdit("PYT CheckIn Guest")
         ed_name.setMaxLength(50)
+        ed_name.setPlaceholderText("Guest full name (required)")
         ed_code = QLineEdit("")
         ed_code.setPlaceholderText("blank = naya GuestProf auto (KK######)")
         de_arr = QDateEdit(QDate.currentDate()); de_arr.setCalendarPopup(True)
         de_dep = QDateEdit(QDate.currentDate().addDays(1))
         de_dep.setCalendarPopup(True)
         ed_city = QLineEdit("KK0002")
+        ed_city.setPlaceholderText("City code (e.g. KK0002)")
         ed_book = QLineEdit("")
         ed_book.setPlaceholderText("BookingDocId (optional, Reservation se)")
         form.addRow("Guest Name (PYT*)", ed_name)
@@ -123,7 +142,8 @@ class CheckInBrowser(QDialog):
         lay = QVBoxLayout(dlg)
         lay.addLayout(form)
         brow = QHBoxLayout()
-        ok = QPushButton("Save"); cancel = QPushButton("Cancel")
+        ok = QPushButton("Save"); ok.setToolTip("Save check-in record")
+        cancel = QPushButton("Cancel"); cancel.setToolTip("Discard and close dialog")
         brow.addStretch(); brow.addWidget(ok); brow.addWidget(cancel)
         lay.addLayout(brow)
         ok.clicked.connect(dlg.accept); cancel.clicked.connect(dlg.reject)
@@ -155,6 +175,8 @@ class CheckInBrowser(QDialog):
     def reload(self, keep_folio: int | None = None):
         rows = checkin.list_checkins()
         self.tbl.setRowCount(len(rows))
+        self._empty_label.setVisible(len(rows) == 0)
+        self.tbl.setVisible(len(rows) > 0)
         for r, row in enumerate(rows):
             vals = [row["folio"], row["vdate"], row["name"],
                     row["guestprof"], row["city"], row["nodays"],

@@ -36,8 +36,11 @@ class RevenueBudgetWindow(QMainWindow):
         rg_form = QGroupBox("Revenue Group")
         rg_flay = QFormLayout(rg_form)
         self.txt_revcode = QLineEdit()
+        self.txt_revcode.setPlaceholderText("Revenue code")
         self.txt_revname = QLineEdit()
+        self.txt_revname.setPlaceholderText("Revenue name")
         self.txt_grpcode = QLineEdit()
+        self.txt_grpcode.setPlaceholderText("Group code")
         rg_flay.addRow("Rev Code:", self.txt_revcode)
         rg_flay.addRow("Rev Name:", self.txt_revname)
         rg_flay.addRow("Group Code:", self.txt_grpcode)
@@ -45,7 +48,9 @@ class RevenueBudgetWindow(QMainWindow):
 
         rg_btns = QHBoxLayout()
         self.btn_rg_add = QPushButton("Add")
+        self.btn_rg_add.setToolTip("Add new revenue group")
         self.btn_rg_del = QPushButton("Delete")
+        self.btn_rg_del.setToolTip("Delete selected revenue group")
         self.btn_rg_add.clicked.connect(self._add_rev_group)
         self.btn_rg_del.clicked.connect(self._del_rev_group)
         rg_btns.addWidget(self.btn_rg_add)
@@ -54,6 +59,7 @@ class RevenueBudgetWindow(QMainWindow):
 
         self.rg_table = QTableWidget()
         self.rg_table.setColumnCount(4)
+        self.rg_table.setAlternatingRowColors(True)
         self.rg_table.setHorizontalHeaderLabels(
             ["Rev Code", "Rev Name", "Group Code", "Nature"])
         rg_layout.addWidget(self.rg_table)
@@ -69,7 +75,9 @@ class RevenueBudgetWindow(QMainWindow):
         self.dt_to = QDateEdit(); self.dt_to.setCalendarPopup(True)
         self.dt_to.setDate(QDate.currentDate().addYears(1))
         self.txt_bgrp = QLineEdit()
+        self.txt_bgrp.setPlaceholderText("Group code")
         self.txt_bamt = QLineEdit()
+        self.txt_bamt.setPlaceholderText("e.g. 500000")
         bg_flay.addRow("From Date:", self.dt_from)
         bg_flay.addRow("To Date:", self.dt_to)
         bg_flay.addRow("Group Code:", self.txt_bgrp)
@@ -78,7 +86,9 @@ class RevenueBudgetWindow(QMainWindow):
 
         bg_btns = QHBoxLayout()
         self.btn_bg_add = QPushButton("Add")
+        self.btn_bg_add.setToolTip("Add new budget entry")
         self.btn_bg_del = QPushButton("Delete")
+        self.btn_bg_del.setToolTip("Delete selected budget entry")
         self.btn_bg_add.clicked.connect(self._add_budget)
         self.btn_bg_del.clicked.connect(self._del_budget)
         bg_btns.addWidget(self.btn_bg_add)
@@ -87,6 +97,7 @@ class RevenueBudgetWindow(QMainWindow):
 
         self.bg_table = QTableWidget()
         self.bg_table.setColumnCount(5)
+        self.bg_table.setAlternatingRowColors(True)
         self.bg_table.setHorizontalHeaderLabels(
             ["From", "To", "SrNo", "Group", "Amount"])
         bg_layout.addWidget(self.bg_table)
@@ -95,6 +106,7 @@ class RevenueBudgetWindow(QMainWindow):
         layout.addWidget(tabs)
 
         btn_exit = QPushButton("Exit")
+        btn_exit.setToolTip("Close this window")
         btn_exit.clicked.connect(self.close)
         layout.addWidget(btn_exit)
 

@@ -65,6 +65,7 @@ class TaxStruForm(QDialog):
         # ---- Lines grid ----
         self.grid = QTableWidget(0, len(self.LINE_COLS))
         self.grid.setHorizontalHeaderLabels([c[0] for c in self.LINE_COLS])
+        self.grid.setAlternatingRowColors(True)
         self.grid.horizontalHeader().setStretchLastSection(True)
         # Make grid editable
         self.grid.cellChanged.connect(self._on_cell_changed)
@@ -78,11 +79,17 @@ class TaxStruForm(QDialog):
         # ---- Buttons ----
         btns = QHBoxLayout()
         self.btn_new = QPushButton("New (Ctrl+N)")
+        self.btn_new.setToolTip("Add new tax structure")
         self.btn_edit = QPushButton("Edit (Ctrl+E)")
+        self.btn_edit.setToolTip("Edit existing tax structure")
         self.btn_delete = QPushButton("Delete (Ctrl+D)")
+        self.btn_delete.setToolTip("Delete tax structure")
         self.btn_save = QPushButton("Save (Ctrl+S)")
+        self.btn_save.setToolTip("Save changes")
         self.btn_cancel = QPushButton("Cancel (Esc)")
+        self.btn_cancel.setToolTip("Cancel current operation")
         self.btn_close = QPushButton("Close")
+        self.btn_close.setToolTip("Close this window")
         for b in (self.btn_new, self.btn_edit, self.btn_delete,
                   self.btn_save, self.btn_cancel, self.btn_close):
             btns.addWidget(b)

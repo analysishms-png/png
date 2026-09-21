@@ -49,14 +49,19 @@ class KitchenClosingStockWindow(QMainWindow):
         self.table = QTableWidget(); self.table.setColumnCount(5)
         self.table.setHorizontalHeaderLabels(
             ["SNo", "Item Code", "Qty", "Unit", "Remarks"])
+        self.table.setAlternatingRowColors(True)
         lines_lay.addWidget(self.table)
         btn_lay = QHBoxLayout()
         self.btn_add = QPushButton("Add Line (+)")
+        self.btn_add.setToolTip("Add a new closing stock line")
         self.btn_del = QPushButton("Remove (-)")
+        self.btn_del.setToolTip("Remove the selected line")
         self.btn_save = QPushButton("Save")
         self.btn_save.setStyleSheet(
             "QPushButton{background:#28a745;color:white;font-weight:bold;}")
+        self.btn_save.setToolTip("Save the kitchen closing stock entry")
         self.btn_exit = QPushButton("Exit")
+        self.btn_exit.setToolTip("Close the kitchen closing stock form")
         for b in [self.btn_add, self.btn_del, self.btn_save, self.btn_exit]:
             btn_lay.addWidget(b)
         lines_lay.addLayout(btn_lay)

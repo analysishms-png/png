@@ -44,11 +44,13 @@ class EnviroScreen(QWidget):
         top.addWidget(self.lblTitle)
         top.addStretch(1)
         self.btnReload = QPushButton("Reload")
+        self.btnReload.setToolTip("Reload settings from database (F5)")
         self.btnReload.clicked.connect(self.reload)
         top.addWidget(self.btnReload)
         v.addLayout(top)
 
         self.table = QTableWidget()
+        self.table.setAlternatingRowColors(True)
         self.table.setSelectionBehavior(
             QTableWidget.SelectionBehavior.SelectRows)
         self.table.horizontalHeader().setSectionResizeMode(
@@ -58,6 +60,7 @@ class EnviroScreen(QWidget):
         bar = QHBoxLayout()
         self.btnSave = QPushButton("Save Changes")
         self.btnSave.setDefault(True)
+        self.btnSave.setToolTip("Save modified settings (Ctrl+S)")
         self.btnSave.clicked.connect(self._save)
         bar.addWidget(self.btnSave)
         bar.addStretch(1)

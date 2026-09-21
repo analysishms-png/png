@@ -173,6 +173,7 @@ class EmployeeForm(QDialog):
         self.tbl.setHorizontalHeaderLabels(self.COLS)
         self.tbl.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self.tbl.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        self.tbl.setAlternatingRowColors(True)
         self.tbl.horizontalHeader().setStretchLastSection(True)
         self.tbl.cellDoubleClicked.connect(lambda *_: self._edit())
         root.addWidget(self.tbl)
@@ -180,30 +181,30 @@ class EmployeeForm(QDialog):
         # form fields
         form = QFormLayout()
         self.eds = {}
-        for lbl, key, mx in [
-            ("Emp Code *",      "code",        6),
-            ("Name *",          "name",        50),
-            ("Sex (M/F)",       "sex",         1),
-            ("Designation",     "designation", 30),
-            ("Category Code",   "category",    6),
-            ("Department Code", "dept",        6),
-            ("Joining (YYYY-MM-DD)", "joining", 10),
-            ("Phone",           "phone",       20),
-            ("PAN",             "pan",         15),
-            ("Active Y/N",      "active",      1),
+        for lbl, key, mx, placeholder in [
+            ("Emp Code *",      "code",        6,   "e.g. EMP001"),
+            ("Name *",          "name",        50,  "Full name"),
+            ("Sex (M/F)",       "sex",         1,   "M or F"),
+            ("Designation",     "designation", 30,  "e.g. Manager"),
+            ("Category Code",   "category",    6,   "e.g. CAT01"),
+            ("Department Code", "dept",        6,   "e.g. DEPT01"),
+            ("Joining (YYYY-MM-DD)", "joining", 10, "YYYY-MM-DD"),
+            ("Phone",           "phone",       20,  "Phone number"),
+            ("PAN",             "pan",         15,  "PAN number"),
+            ("Active Y/N",      "active",      1,   "Y or N"),
         ]:
-            e = QLineEdit(); e.setMaxLength(mx)
+            e = QLineEdit(); e.setMaxLength(mx); e.setPlaceholderText(placeholder)
             form.addRow(lbl, e); self.eds[key] = e
         self.eds["active"].setText("Y")
         root.addLayout(form)
 
         # buttons
         btns = QHBoxLayout()
-        self.btnNew    = QPushButton("New")
-        self.btnEdit   = QPushButton("Edit")
-        self.btnSave   = QPushButton("Save")
-        self.btnCancel = QPushButton("Cancel")
-        self.btnExit   = QPushButton("Exit")
+        self.btnNew    = QPushButton("New");    self.btnNew.setToolTip("Add new employee (Ctrl+N)")
+        self.btnEdit   = QPushButton("Edit");   self.btnEdit.setToolTip("Edit selected employee")
+        self.btnSave   = QPushButton("Save");   self.btnSave.setToolTip("Save changes (Ctrl+S)")
+        self.btnCancel = QPushButton("Cancel"); self.btnCancel.setToolTip("Cancel current operation")
+        self.btnExit   = QPushButton("Exit");   self.btnExit.setToolTip("Close this window")
         self.lblState  = QLabel("State: Idle")
         for b in (self.btnNew, self.btnEdit, self.btnSave,
                   self.btnCancel, self.btnExit):
@@ -337,7 +338,7 @@ class HRMembersLauncher(QMainWindow):
             if fn is None:
                 lay.addWidget(QLabel(lbl))
             else:
-                b = QPushButton(lbl); b.clicked.connect(fn); lay.addWidget(b)
+                b = QPushButton(lbl); b.clicked.connect(fn); b.setToolTip(f"Open {lbl}"); lay.addWidget(b)
         self.setCentralWidget(c)
 
 

@@ -39,6 +39,7 @@ class UserMasterForm(QDialog):
         self.tbl = QTableWidget(0, 5)
         self.tbl.setHorizontalHeaderLabels(
             ["Username", "Full Name", "Short Name", "Active", "Last Edit"])
+        self.tbl.setAlternatingRowColors(True)
         self.tbl.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self.tbl.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.tbl.horizontalHeader().setStretchLastSection(True)
@@ -72,12 +73,19 @@ class UserMasterForm(QDialog):
         # Buttons
         btns = QHBoxLayout()
         self.btnNew = QPushButton("&New")
+        self.btnNew.setToolTip("Add new user (Ctrl+N)")
         self.btnEdit = QPushButton("&Edit")
+        self.btnEdit.setToolTip("Edit selected user (Ctrl+E)")
         self.btnDelete = QPushButton("&Delete")
+        self.btnDelete.setToolTip("Delete selected user (PYT* only)")
         self.btnSave = QPushButton("&Save")
+        self.btnSave.setToolTip("Save changes (Ctrl+S)")
         self.btnCancel = QPushButton("&Cancel")
+        self.btnCancel.setToolTip("Cancel current operation (Esc)")
         self.btnChgPwd = QPushButton("Change &Password")
+        self.btnChgPwd.setToolTip("Change password for selected user")
         self.btnExit = QPushButton("E&xit")
+        self.btnExit.setToolTip("Close this window")
         for b in (self.btnNew, self.btnEdit, self.btnDelete, self.btnSave,
                   self.btnCancel, self.btnChgPwd, self.btnExit):
             btns.addWidget(b)

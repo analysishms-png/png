@@ -28,13 +28,13 @@ def _fill(table: QTableWidget, headers: list, rows: list):
     table.setColumnCount(len(headers))
     table.setHorizontalHeaderLabels(headers)
     table.setRowCount(len(rows))
-    text_col = QColor(_theme.palette()["text"])  # BUG FIX: pehle #111111
-    for i, row in enumerate(rows):               # (dark me invisible)
+    table.setAlternatingRowColors(True)
+    text_col = QColor(_theme.palette()["text"])
+    for i, row in enumerate(rows):
         for j, val in enumerate(row):
             it = QTableWidgetItem(str(val))
             it.setForeground(text_col)
             table.setItem(i, j, it)
-    table.setAlternatingRowColors(False)
 
 
 class FolioBrowser(QWidget):
@@ -48,6 +48,7 @@ class FolioBrowser(QWidget):
         top.addWidget(self.lblTitle)
         top.addStretch(1)
         self.btnRefresh = QPushButton("Refresh")
+        self.btnRefresh.setToolTip("Reload folio list (Ctrl+F5)")
         self.btnRefresh.clicked.connect(self.reload)
         top.addWidget(self.btnRefresh)
         v.addLayout(top)
@@ -59,16 +60,24 @@ class FolioBrowser(QWidget):
         self.table.horizontalHeader().setSectionResizeMode(
             QHeaderView.ResizeMode.ResizeToContents)
         self.table.cellDoubleClicked.connect(self._drill)
+        self._empty_label = QLabel("No folios found.")
+        self._empty_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self._empty_label.setStyleSheet(f"color:{_theme.palette()['text_dim']}; font-size:13px; padding:24px;")
         v.addWidget(self.table)
+        v.addWidget(self._empty_label)
 
         bar = QHBoxLayout()
         self.btnSettle = QPushButton("Check-Out (Settle)")
+        self.btnSettle.setToolTip("Check-out selected folio (Ctrl+O)")
         self.btnSettle.clicked.connect(self._settle)
         self.btnAmend = QPushButton("Amend Departure")
+        self.btnAmend.setToolTip("Amend departure date of selected folio (Ctrl+A)")
         self.btnAmend.clicked.connect(self._amend)
         self.btnLog = QPushButton("Folio Log")
+        self.btnLog.setToolTip("View folio activity log (Ctrl+L)")
         self.btnLog.clicked.connect(self._log)
         self.btnPay = QPushButton("Receive Payment")
+        self.btnPay.setToolTip("Receive payment against selected folio (Ctrl+R)")
         self.btnPay.clicked.connect(self._pay)
         for b in (self.btnSettle, self.btnAmend, self.btnPay, self.btnLog):
             bar.addWidget(b)
@@ -104,6 +113,8 @@ class FolioBrowser(QWidget):
                  (r.DocId or "").strip()] for r in rows]
         _fill(self.table,
               ["Folio", "Guest", "Arrival", "Departure", "DocId"], data)
+        self._empty_label.setVisible(len(data) == 0)
+        self.table.setVisible(len(data) > 0)
 
     def _log(self):
         self._view = "log"
@@ -112,6 +123,8 @@ class FolioBrowser(QWidget):
                 for x in folio.log_list()]
         _fill(self.table, ["Id", "Folio DocId", "Flag", "User", "DT", "A/E"],
               data)
+        self._empty_label.setVisible(len(data) == 0)
+        self.table.setVisible(len(data) > 0)
 
     def _drill(self, row, _col):
         if self._view != "folios":
@@ -199,6 +212,7 @@ class ChargeDialog(QDialog):
         v.addWidget(t)
         v.addWidget(QLabel(f"Balance: {bal:.2f}"))
         btn = QPushButton("Close")
+        btn.setToolTip("Close this dialog")
         btn.clicked.connect(self.accept)
         v.addWidget(btn)
 
@@ -221,14 +235,18 @@ class PaymentDialog(QDialog):
             self.cmbMode.addItem(f"{code} - {ptype}", code)
         form.addRow("Pay Mode:", self.cmbMode)
         self.txtAmt = QLineEdit("0.00")
+        self.txtAmt.setPlaceholderText("Payment amount")
         form.addRow("Amount:", self.txtAmt)
         self.txtComments = QLineEdit("CASH RECD.")
+        self.txtComments.setPlaceholderText("Remarks for this payment")
         form.addRow("Remarks:", self.txtComments)
         hb = QHBoxLayout()
         ok = QPushButton("Receive")
+        ok.setToolTip("Receive this payment")
         ok.setDefault(True)
         ok.clicked.connect(self.accept)
         cancel = QPushButton("Cancel")
+        cancel.setToolTip("Discard and close")
         cancel.clicked.connect(self.reject)
         hb.addStretch(1)
         hb.addWidget(ok)
@@ -276,9 +294,11 @@ class AmendDialog(QDialog):
         form.addRow("New Departure:", self.dt)
         hb = QHBoxLayout()
         ok = QPushButton("Save")
+        ok.setToolTip("Save amended departure date")
         ok.setDefault(True)
         ok.clicked.connect(self.accept)
         cancel = QPushButton("Cancel")
+        cancel.setToolTip("Discard changes and close")
         cancel.clicked.connect(self.reject)
         hb.addStretch(1)
         hb.addWidget(ok)

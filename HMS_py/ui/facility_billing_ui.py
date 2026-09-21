@@ -29,6 +29,7 @@ class FacilityBillingDialog(QDialog):
         self.table.setHorizontalHeaderLabels(
             ["VNo", "FacilityCode", "MemberCode", "BillDate", "Amount", "Status"]
         )
+        self.table.setAlternatingRowColors(True)
         self.table.horizontalHeader().setSectionResizeMode(
             QHeaderView.ResizeMode.Stretch
         )
@@ -57,18 +58,22 @@ class FacilityBillingDialog(QDialog):
         btn_layout = QHBoxLayout()
 
         btn_new = QPushButton("New Bill")
+        btn_new.setToolTip("Create a new facility bill")
         btn_new.clicked.connect(self._new_bill)
         btn_layout.addWidget(btn_new)
 
         btn_view = QPushButton("View Details")
+        btn_view.setToolTip("View full bill details")
         btn_view.clicked.connect(self._view_details)
         btn_layout.addWidget(btn_view)
 
         btn_refresh = QPushButton("Refresh")
+        btn_refresh.setToolTip("Reload data from database")
         btn_refresh.clicked.connect(self._refresh)
         btn_layout.addWidget(btn_refresh)
 
         btn_exit = QPushButton("Exit")
+        btn_exit.setToolTip("Close this window")
         btn_exit.clicked.connect(self.close)
         btn_layout.addWidget(btn_exit)
 

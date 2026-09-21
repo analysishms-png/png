@@ -7,8 +7,8 @@ from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QTableWidget, QTableWidgetItem)
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor, QFont
-from HMS_py.core import account_merge
-from HMS_py.core import ledger as led
+from core import account_merge
+from core import ledger as led
 
 
 class AccountMergeWindow(QMainWindow):
@@ -38,12 +38,15 @@ class AccountMergeWindow(QMainWindow):
 
         btn_lay = QHBoxLayout()
         self.btn_preview = QPushButton("Preview")
+        self.btn_preview.setToolTip("Preview which records will be merged")
         self.btn_preview.clicked.connect(self._preview)
         self.btn_merge = QPushButton("MERGE")
+        self.btn_merge.setToolTip("Merge old account into new account (irreversible!)")
         self.btn_merge.setStyleSheet(
             "QPushButton{background:#dc3545;color:white;font-weight:bold;padding:8px;}")
         self.btn_merge.clicked.connect(self._merge)
         self.btn_exit = QPushButton("Exit")
+        self.btn_exit.setToolTip("Close this window")
         self.btn_exit.clicked.connect(self.close)
         btn_lay.addWidget(self.btn_preview)
         btn_lay.addWidget(self.btn_merge)
@@ -54,6 +57,7 @@ class AccountMergeWindow(QMainWindow):
         prev_lay = QVBoxLayout(prev_grp)
         self.preview_table = QTableWidget()
         self.preview_table.setColumnCount(2)
+        self.preview_table.setAlternatingRowColors(True)
         self.preview_table.setHorizontalHeaderLabels(["Table", "Records to Merge"])
         prev_lay.addWidget(self.preview_table)
         layout.addWidget(prev_grp)

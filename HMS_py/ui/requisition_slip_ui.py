@@ -55,16 +55,20 @@ class RequisitionSlipWindow(QMainWindow):
             ["Indent DocId", "Sno", "Date", "Dept", "Item", "Req Qty",
              "Unit", "Issue Qty"])
         self.table.horizontalHeader().setStretchLastSection(True)
+        self.table.setAlternatingRowColors(True)
         self.table.setSelectionBehavior(
             QAbstractItemView.SelectionBehavior.SelectRows)
         glay.addWidget(self.table)
 
         btns = QHBoxLayout()
         self.btn_reload = QPushButton("Reload")
+        self.btn_reload.setToolTip("Reload pending indent lines from database")
         self.btn_issue = QPushButton("Save Issue (RQI)")
         self.btn_issue.setStyleSheet(
             "QPushButton{background:#28a745;color:white;font-weight:bold;}")
+        self.btn_issue.setToolTip("Generate stock issue (RQI) for lines with Issue Qty")
         self.btn_exit = QPushButton("Exit")
+        self.btn_exit.setToolTip("Close the requisition slip form")
         for b in (self.btn_reload, self.btn_issue, self.btn_exit):
             btns.addWidget(b)
         btns.addStretch()

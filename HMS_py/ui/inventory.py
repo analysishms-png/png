@@ -111,6 +111,7 @@ class IndentForm(QDialog):
         self.de_vdate.setCalendarPopup(True)
         self.cb_godown = QComboBox()
         self.ed_remarks = QLineEdit()
+        self.ed_remarks.setPlaceholderText("Enter remarks")
         self.cb_clear = QComboBox()
         self.cb_clear.addItems(["N", "Y"])
 
@@ -126,6 +127,7 @@ class IndentForm(QDialog):
         self.tbl.setHorizontalHeaderLabels(["DocId", "VNo", "Date", "Department", "Cleared"])
         self.tbl.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self.tbl.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        self.tbl.setAlternatingRowColors(True)
         self.tbl.cellDoubleClicked.connect(self._on_edit)
         root.addWidget(self.tbl)
 
@@ -137,10 +139,15 @@ class IndentForm(QDialog):
         # Buttons
         btns = QHBoxLayout()
         self.btn_new = QPushButton("New (Ctrl+N)")
+        self.btn_new.setToolTip("Create a new indent (Ctrl+N)")
         self.btn_edit = QPushButton("Edit (Ctrl+E)")
+        self.btn_edit.setToolTip("Edit the selected indent (Ctrl+E)")
         self.btn_save = QPushButton("Save (Ctrl+S)")
+        self.btn_save.setToolTip("Save the current indent (Ctrl+S)")
         self.btn_cancel = QPushButton("Cancel (Esc)")
+        self.btn_cancel.setToolTip("Cancel editing and return to idle state (Esc)")
         self.btn_close = QPushButton("Close")
+        self.btn_close.setToolTip("Close the indent form")
         for b in (self.btn_new, self.btn_edit, self.btn_save, self.btn_cancel, self.btn_close):
             btns.addWidget(b)
         root.addLayout(btns)
@@ -280,13 +287,18 @@ class GINForm(QDialog):
         header = QWidget()
         hform = QFormLayout(header)
         self.ed_party = QLineEdit()
+        self.ed_party.setPlaceholderText("Party code")
         self.ed_party_name = QLineEdit()
+        self.ed_party_name.setPlaceholderText("Party name")
         self.de_vdate = QDateEdit(date.today())
         self.de_vdate.setCalendarPopup(True)
         self.cb_godown = QComboBox()
         self.ed_remarks = QLineEdit()
+        self.ed_remarks.setPlaceholderText("Enter remarks")
         self.ed_oc = QLineEdit()  # OC DocId
+        self.ed_oc.setPlaceholderText("OC DocId (optional)")
         self.ed_pord = QLineEdit()  # PO DocId
+        self.ed_pord.setPlaceholderText("PO DocId (optional)")
 
         hform.addRow("Party Code *", self.ed_party)
         hform.addRow("Party Name", self.ed_party_name)
@@ -304,13 +316,16 @@ class GINForm(QDialog):
             "Tax%", "Disc%", "Godown", "Remarks"
         ])
         self.grid.horizontalHeader().setStretchLastSection(True)
+        self.grid.setAlternatingRowColors(True)
         self.grid.cellChanged.connect(self._on_cell_changed)
         root.addWidget(self.grid)
 
         # Buttons for lines
         line_btns = QHBoxLayout()
         self.btn_add_line = QPushButton("Add Line (Ins)")
+        self.btn_add_line.setToolTip("Add a new line to the GIN grid (Ins)")
         self.btn_del_line = QPushButton("Del Line (Del)")
+        self.btn_del_line.setToolTip("Remove the selected line from the grid (Del)")
         line_btns.addWidget(self.btn_add_line)
         line_btns.addWidget(self.btn_del_line)
         root.addLayout(line_btns)
@@ -326,9 +341,13 @@ class GINForm(QDialog):
         # Main buttons
         btns = QHBoxLayout()
         self.btn_new = QPushButton("New (Ctrl+N)")
+        self.btn_new.setToolTip("Start a new GIN entry (Ctrl+N)")
         self.btn_save = QPushButton("Save (Ctrl+S)")
+        self.btn_save.setToolTip("Save the GIN header and lines (Ctrl+S)")
         self.btn_cancel = QPushButton("Cancel (Esc)")
+        self.btn_cancel.setToolTip("Cancel current entry and return to idle (Esc)")
         self.btn_close = QPushButton("Close")
+        self.btn_close.setToolTip("Close the GIN form")
         for b in (self.btn_new, self.btn_save, self.btn_cancel, self.btn_close):
             btns.addWidget(b)
         root.addLayout(btns)
@@ -575,6 +594,7 @@ class InvBrowser(QDialog):
 
         self.tbl = QTableWidget(0, 5)
         self.tbl.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        self.tbl.setAlternatingRowColors(True)
         self.tbl.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.tbl.horizontalHeader().setStretchLastSection(True)
         root.addWidget(self.tbl)
@@ -586,11 +606,17 @@ class InvBrowser(QDialog):
 
         btns = QHBoxLayout()
         self.btnIndent = QPushButton("Indents (Ctrl+I)")
+        self.btnIndent.setToolTip("View indent list (Ctrl+I)")
         self.btnPur = QPushButton("Purchase Register (Ctrl+U)")
+        self.btnPur.setToolTip("View purchase register (Ctrl+U)")
         self.btnStock = QPushButton("Stock Summary (Ctrl+B)")
+        self.btnStock.setToolTip("View stock summary (Ctrl+B)")
         self.btnReg = QPushButton("Stock Register (Ctrl+R)")
+        self.btnReg.setToolTip("View stock register (Ctrl+R)")
         self.btnPurReg = QPushButton("Purchase Register (Ctrl+P)")
+        self.btnPurReg.setToolTip("View purchase register (Ctrl+P)")
         self.btnClose = QPushButton("Close")
+        self.btnClose.setToolTip("Close the inventory browser")
         for b in (self.btnIndent, self.btnPur, self.btnStock, self.btnReg, self.btnPurReg, self.btnClose):
             btns.addWidget(b)
         root.addLayout(btns)
@@ -709,6 +735,7 @@ class StockTransferForm(QDialog):
         self.ed_date = QDateEdit(datetime.date.today())
         self.ed_date.setCalendarPopup(True)
         self.ed_remark = QLineEdit()
+        self.ed_remark.setPlaceholderText("Enter transfer remark")
 
         form.addRow("Item *", self.cb_item)
         form.addRow("From Godown *", self.cb_from)
@@ -721,7 +748,9 @@ class StockTransferForm(QDialog):
 
         btns = QHBoxLayout()
         self.btn_save = QPushButton("Save")
+        self.btn_save.setToolTip("Save the stock transfer")
         self.btn_cancel = QPushButton("Cancel")
+        self.btn_cancel.setToolTip("Cancel and close the form")
         btns.addStretch()
         btns.addWidget(self.btn_save)
         btns.addWidget(self.btn_cancel)
@@ -800,14 +829,18 @@ class EInvoiceConfigForm(QDialog):
         form = QFormLayout()
         self.ed_asp_id = QLineEdit()
         self.ed_asp_id.setMaxLength(50)
+        self.ed_asp_id.setPlaceholderText("ASP provider ID")
         self.ed_asp_pwd = QLineEdit()
         self.ed_asp_pwd.setMaxLength(50)
         self.ed_asp_pwd.setEchoMode(QLineEdit.EchoMode.Password)
+        self.ed_asp_pwd.setPlaceholderText("ASP provider password")
         self.ed_einv_user = QLineEdit()
         self.ed_einv_user.setMaxLength(50)
+        self.ed_einv_user.setPlaceholderText("eInvoice portal username")
         self.ed_einv_pwd = QLineEdit()
         self.ed_einv_pwd.setMaxLength(50)
         self.ed_einv_pwd.setEchoMode(QLineEdit.EchoMode.Password)
+        self.ed_einv_pwd.setPlaceholderText("eInvoice portal password")
 
         form.addRow("ASP ID *", self.ed_asp_id)
         form.addRow("ASP Password *", self.ed_asp_pwd)
@@ -821,7 +854,9 @@ class EInvoiceConfigForm(QDialog):
 
         btns = QHBoxLayout()
         self.btn_save = QPushButton("Save (Ctrl+S)")
+        self.btn_save.setToolTip("Save eInvoice configuration (Ctrl+S)")
         self.btn_cancel = QPushButton("Cancel (Esc)")
+        self.btn_cancel.setToolTip("Cancel and close (Esc)")
         btns.addStretch()
         btns.addWidget(self.btn_save)
         btns.addWidget(self.btn_cancel)
@@ -919,6 +954,7 @@ class KitchenStockReportForm(QDialog):
         self.de_to = QDateEdit(datetime.date.today())
         self.de_to.setCalendarPopup(True)
         self.btn_refresh = QPushButton("Refresh (F5)")
+        self.btn_refresh.setToolTip("Refresh the kitchen stock report (F5)")
 
         filter_row.addWidget(QLabel("Item:"))
         filter_row.addWidget(self.ed_item)
@@ -936,6 +972,7 @@ class KitchenStockReportForm(QDialog):
             "Kitchen", "GrpName", "Item", "KitchenStock", "Unit"
         ])
         self.tbl.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        self.tbl.setAlternatingRowColors(True)
         self.tbl.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.tbl.horizontalHeader().setStretchLastSection(True)
         root.addWidget(self.tbl)
@@ -948,6 +985,7 @@ class KitchenStockReportForm(QDialog):
         # Buttons
         btns = QHBoxLayout()
         self.btn_close = QPushButton("Close")
+        self.btn_close.setToolTip("Close the kitchen stock report")
         btns.addStretch()
         btns.addWidget(self.btn_close)
         root.addLayout(btns)
@@ -1018,6 +1056,7 @@ class KitchenStockSummaryForm(QDialog):
         self.de_to = QDateEdit(datetime.date.today())
         self.de_to.setCalendarPopup(True)
         self.btn_refresh = QPushButton("Refresh (F5)")
+        self.btn_refresh.setToolTip("Refresh the kitchen stock summary (F5)")
 
         filter_row.addWidget(QLabel("Item:"))
         filter_row.addWidget(self.ed_item)
@@ -1035,6 +1074,7 @@ class KitchenStockSummaryForm(QDialog):
             "Item", "IssuedToKitchen", "KitchenStockValue"
         ])
         self.tbl.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        self.tbl.setAlternatingRowColors(True)
         self.tbl.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.tbl.horizontalHeader().setStretchLastSection(True)
         root.addWidget(self.tbl)
@@ -1047,6 +1087,7 @@ class KitchenStockSummaryForm(QDialog):
         # Buttons
         btns = QHBoxLayout()
         self.btn_close = QPushButton("Close")
+        self.btn_close.setToolTip("Close the kitchen stock summary")
         btns.addStretch()
         btns.addWidget(self.btn_close)
         root.addLayout(btns)

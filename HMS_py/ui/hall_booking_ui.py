@@ -73,6 +73,7 @@ class HallBookingDialog(QDialog):
         self.edSearch.setPlaceholderText("Party name / DocId...")
         sbar.addWidget(self.edSearch)
         btnSearch = QPushButton("Search")
+        btnSearch.setToolTip("Search by party name or doc ID")
         btnSearch.clicked.connect(self._on_search)
         sbar.addWidget(btnSearch)
         root.addLayout(sbar)
@@ -80,6 +81,7 @@ class HallBookingDialog(QDialog):
         # ── Table ──
         self.tbl = QTableWidget(0, len(self.TABLE_COLS))
         self.tbl.setHorizontalHeaderLabels(self.TABLE_COLS)
+        self.tbl.setAlternatingRowColors(True)
         self.tbl.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self.tbl.setSelectionBehavior(
             QTableWidget.SelectionBehavior.SelectRows)
@@ -95,6 +97,7 @@ class HallBookingDialog(QDialog):
         for key, label in self.FORM_FIELDS:
             e = QLineEdit()
             e.setFont(QFont("Segoe UI", 10))
+            e.setPlaceholderText(label)
             self.form.addRow(label, e)
             self.edits[key] = e
         root.addWidget(fwrap)
@@ -104,14 +107,19 @@ class HallBookingDialog(QDialog):
         btn_font = QFont("Segoe UI", 10)
         self.btnNew = QPushButton("New Hall Booking")
         self.btnNew.setFont(btn_font)
+        self.btnNew.setToolTip("Create a new hall booking (Ctrl+N)")
         self.btnModify = QPushButton("Modify")
         self.btnModify.setFont(btn_font)
+        self.btnModify.setToolTip("Edit or save selected booking (Ctrl+M)")
         self.btnCancel = QPushButton("Cancel")
         self.btnCancel.setFont(btn_font)
+        self.btnCancel.setToolTip("Cancel selected hall booking")
         self.btnRefresh = QPushButton("Refresh")
         self.btnRefresh.setFont(btn_font)
+        self.btnRefresh.setToolTip("Reload data from database (F5)")
         self.btnExit = QPushButton("Exit")
         self.btnExit.setFont(btn_font)
+        self.btnExit.setToolTip("Close this window")
         for b in (self.btnNew, self.btnModify, self.btnCancel,
                   self.btnRefresh, self.btnExit):
             btns.addWidget(b)

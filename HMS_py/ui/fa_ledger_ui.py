@@ -38,12 +38,17 @@ class FaLedgerWindow(QMainWindow):
         form_layout = QFormLayout(form_group)
 
         self.txt_ac_code = QLineEdit()
+        self.txt_ac_code.setPlaceholderText("Enter account code")
         self.txt_ac_name = QLineEdit()
+        self.txt_ac_name.setPlaceholderText("Enter account name")
         self.txt_group_code = QLineEdit()
+        self.txt_group_code.setPlaceholderText("Enter group code")
         self.txt_op_balance = QLineEdit()
+        self.txt_op_balance.setPlaceholderText("Opening balance")
         self.txt_dr_cr = QComboBox()
         self.txt_dr_cr.addItems(["Dr", "Cr"])
         self.txt_address = QLineEdit()
+        self.txt_address.setPlaceholderText("Enter address")
 
         form_layout.addRow("AcCode:", self.txt_ac_code)
         form_layout.addRow("AcName:", self.txt_ac_name)
@@ -55,9 +60,13 @@ class FaLedgerWindow(QMainWindow):
 
         btn_layout = QHBoxLayout()
         self.btn_new = QPushButton("New Account")
+        self.btn_new.setToolTip("Create a new ledger account")
         self.btn_edit = QPushButton("Edit")
+        self.btn_edit.setToolTip("Update the selected account details")
         self.btn_refresh = QPushButton("Refresh")
+        self.btn_refresh.setToolTip("Reload all ledger accounts from database")
         self.btn_exit = QPushButton("Exit")
+        self.btn_exit.setToolTip("Close this window")
 
         for b in [self.btn_new, self.btn_edit, self.btn_refresh, self.btn_exit]:
             btn_layout.addWidget(b)
@@ -66,6 +75,7 @@ class FaLedgerWindow(QMainWindow):
         self.table = QTableWidget()
         self.table.setColumnCount(5)
         self.table.setHorizontalHeaderLabels(["AcCode", "AcName", "GroupCode", "OpBalance", "DrCr"])
+        self.table.setAlternatingRowColors(True)
         self.table.itemSelectionChanged.connect(self._on_select)
         layout.addWidget(self.table)
 

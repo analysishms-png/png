@@ -51,7 +51,9 @@ class FaAdjustWindow(QMainWindow):
         btn_lay = QHBoxLayout()
         self.btn_save = QPushButton("Save Adjustment")
         self.btn_save.setProperty("success", True)
+        self.btn_save.setToolTip("Save the ledger adjustment entry")
         self.btn_exit = QPushButton("Exit")
+        self.btn_exit.setToolTip("Close this window")
         self.btn_save.clicked.connect(self._save)
         self.btn_exit.clicked.connect(self.close)
         btn_lay.addWidget(self.btn_save); btn_lay.addWidget(self.btn_exit)
@@ -61,6 +63,7 @@ class FaAdjustWindow(QMainWindow):
         self.table.setColumnCount(6)
         self.table.setHorizontalHeaderLabels(
             ["DocId1", "SNo1", "DocId2", "SNo2", "Amount", "SubCode"])
+        self.table.setAlternatingRowColors(True)
         layout.addWidget(self.table)
 
     def _load_data(self):
@@ -124,7 +127,9 @@ class FaChqClearWindow(QMainWindow):
         btn_lay = QHBoxLayout()
         self.btn_save = QPushButton("Mark Cleared")
         self.btn_save.setProperty("success", True)
+        self.btn_save.setToolTip("Mark the cheque as cleared with the selected date")
         self.btn_exit = QPushButton("Exit")
+        self.btn_exit.setToolTip("Close this window")
         self.btn_save.clicked.connect(self._save)
         self.btn_exit.clicked.connect(self.close)
         btn_lay.addWidget(self.btn_save); btn_lay.addWidget(self.btn_exit)
@@ -179,7 +184,9 @@ class FaTDSCertificateWindow(QMainWindow):
         btn_lay = QHBoxLayout()
         self.btn_gen = QPushButton("Generate Certificate")
         self.btn_gen.setProperty("success", True)
+        self.btn_gen.setToolTip("Generate TDS certificate for the selected party and period")
         self.btn_exit = QPushButton("Exit")
+        self.btn_exit.setToolTip("Close this window")
         self.btn_gen.clicked.connect(self._generate)
         self.btn_exit.clicked.connect(self.close)
         btn_lay.addWidget(self.btn_gen); btn_lay.addWidget(self.btn_exit)

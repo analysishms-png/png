@@ -62,6 +62,7 @@ class TallyExportDialog(QDialog):
 
         self.btnStart = QPushButton("Start Export")
         self.btnStart.setDefault(True)
+        self.btnStart.setToolTip("Export ledger data to Tally XML format")
         self.btnStart.clicked.connect(self._start)
         root.addWidget(self.btnStart)
 
