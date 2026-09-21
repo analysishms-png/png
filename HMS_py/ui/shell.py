@@ -542,6 +542,10 @@ def _form_registry() -> dict[str, callable]:
         from HMS_py.ui import tally_export_ui as tally_ui
     except ImportError:
         tally_ui = None
+    try:
+        from HMS_py.ui import misc_sub_forms_ui as misc_ui
+    except ImportError:
+        misc_ui = None
 
     def _open_report(cap: str):
         """mdi leaf caption -> reports engine key (exact-match map)."""
@@ -952,10 +956,14 @@ def _form_registry() -> dict[str, callable]:
         "Guest Registration": (lambda w: reg_ui.open_registration_entry(w)) if reg_ui else _coming_soon("Guest Registration"),
         # Tally Export
         "Tally Export(XML)": (lambda w: tally_ui.open_tally_export(w)) if tally_ui else _coming_soon("Tally Export(XML)"),
+        # Misc sub-forms (Opening Stock, Sundry Master, Restaurant Master)
+        "Opening Stock": (lambda w: misc_ui.open_opening_stock(w)) if misc_ui else _coming_soon("Opening Stock"),
+        "Sundry Master": (lambda w: misc_ui.open_sundry_master(w)) if misc_ui else _coming_soon("Sundry Master"),
+        "Restaurant Master": (lambda w: misc_ui.open_restaurant_master(w)) if misc_ui else _coming_soon("Restaurant Master"),
         # --- S1 tail: blocked tables (click par documented VB6-style message) ---
         **({cap: _coming_soon(cap) for cap in (
             "Party Master", "Item Entry ", "Consumption Master",
-            "Purchase Sundry Setting", "Opening Stock", "Enviro Inventry",
+            "Purchase Sundry Setting", "Enviro Inventry",
             "Gravy Item Entry", "M.R. Entry", "Requisition Slip",
             "Stock Issue on Requisition", "Kitchen Closing Stock",
             "Finish Material Receive Entry", "Excise Invoice Cum Gate Pass",
