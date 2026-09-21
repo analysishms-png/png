@@ -28,8 +28,9 @@ from HMS_py.core import fa_voucher, fa_ledger_ops, fa_reports, fa_tds_ops, fa_en
 test('fa_voucher.post_voucher', lambda: fa_voucher.post_voucher.__doc__)
 test('fa_voucher.trial_balance', lambda: fa_voucher.trial_balance())
 test('fa_voucher.balance_sheet', lambda: fa_voucher.balance_sheet())
-test('fa_voucher.profit_and_loss', lambda: fa_voucher.profit_and_loss())
-test('fa_voucher.next_vno', lambda: fa_voucher.next_vno('JV'))
+test('fa_voucher.profit_and_loss', lambda: fa_voucher.profit_and_loss('2026-04-01', '2026-09-21'))
+import datetime as _dt
+test('fa_voucher.next_vno', lambda: fa_voucher.next_vno('JV', _dt.date(2026, 9, 21)))
 test('fa_ledger_ops.ledger_list', lambda: fa_ledger_ops.ledger_list())
 test('fa_ledger_ops.ledgeradj_list', lambda: fa_ledger_ops.ledgeradj_list())
 test('fa_ledger_ops.ledgerm_list', lambda: fa_ledger_ops.ledgerm_list())
@@ -96,7 +97,7 @@ test('inventory.purchase_list', lambda: inventory.purchase_list())
 test('inventory.stock_balance', lambda: inventory.stock_balance())
 test('inventory.stock_register', lambda: inventory.stock_register())
 test('inventory.gin_get', lambda: inventory.gin_get('X'))
-test('inventory.stock_next_vno', lambda: inventory.stock_next_vno())
+test('inventory.stock_next_vno', lambda: inventory.stock_next_vno('PR'))
 test('purchase.purch1_list', lambda: purchase.purch1_list())
 test('purchase.porder1_list', lambda: purchase.porder1_list())
 test('purchase.indent1_list', lambda: purchase.indent1_list())
@@ -174,7 +175,7 @@ print('\n=== NIGHT AUDIT ===')
 from HMS_py.core import nightaudit
 
 test('nightaudit.occupancy', lambda: nightaudit.occupancy())
-test('nightaudit.get_inhouse_rooms', lambda: nightaudit.get_inhouse_rooms())
+test('nightaudit.get_inhouse_rooms', lambda: nightaudit.get_inhouse_rooms('2026-09-21'))
 test('nightaudit.get_night_audit_flags', lambda: nightaudit.get_night_audit_flags())
 test('nightaudit.na_log', lambda: nightaudit.na_log())
 
@@ -192,7 +193,7 @@ print('\n=== MEMBER BILLING ===')
 from HMS_py.core import member_billing
 
 test('member_billing.list_membill', lambda: member_billing.list_membill())
-test('member_billing.list_family', lambda: member_billing.list_family())
+test('member_billing.list_family', lambda: member_billing.list_family(''))
 test('member_billing.list_memenviro', lambda: member_billing.list_memenviro())
 
 # === HALL BOOKING ===
@@ -262,7 +263,7 @@ test('reservation.voucher_config', lambda: reservation.voucher_config())
 print('\n=== ROOM STATUS ===')
 from HMS_py.core import roomstatus
 
-test('roomstatus.room_availability', lambda: roomstatus.room_availability())
+test('roomstatus.room_availability', lambda: roomstatus.room_availability('2026-09-21', '2026-09-22'))
 test('roomstatus.housekeeping_summary', lambda: roomstatus.housekeeping_summary())
 
 # === TALLY ===
