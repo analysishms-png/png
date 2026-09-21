@@ -79,18 +79,24 @@ class BaseMasterForm(QDialog):
         root.addWidget(fwrap)
 
         btns = QHBoxLayout()
+        btns.setSpacing(6)
         self.btnNew = QPushButton("New")
         self.btnEdit = QPushButton("Edit")
         self.btnDelete = QPushButton("Delete")
+        self.btnDelete.setProperty("role", "danger")
         self.btnSave = QPushButton("Save")
+        self.btnSave.setProperty("accent", True)
         self.btnCancel = QPushButton("Cancel")
         self.btnExit = QPushButton("Exit")
         for b in (self.btnNew, self.btnEdit, self.btnDelete, self.btnSave,
                   self.btnCancel, self.btnExit):
+            b.setMinimumHeight(32)
             btns.addWidget(b)
+        btns.addStretch()
         root.addLayout(btns)
 
         self.lblState = QLabel("State: Idle")
+        self.lblState.setStyleSheet("font-size: 11px; color: #64748b; padding: 2px 0;")
         root.addWidget(self.lblState)
 
         self.btnNew.clicked.connect(self._on_new)

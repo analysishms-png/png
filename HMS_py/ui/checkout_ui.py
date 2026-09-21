@@ -104,13 +104,14 @@ class CheckOutBrowser(QDialog):
         lay_active.addWidget(self.tbl_charges)
 
         btns_active = QHBoxLayout()
-        st = _theme.status_colors()
+        btns_active.setSpacing(8)
         self.btnCheckOut = QPushButton("Check-Out (PYT*)")
-        self.btnCheckOut.setStyleSheet(
-            f"background:{st['danger']}; color:{st['on_danger']};"
-            "font-weight:bold; padding:6px 16px; border:none; border-radius:6px;")
+        self.btnCheckOut.setProperty("role", "danger")
+        self.btnCheckOut.setMinimumHeight(34)
         self.btnRefreshA = QPushButton("Refresh (F5)")
+        self.btnRefreshA.setMinimumHeight(34)
         self.btnCloseA = QPushButton("Close")
+        self.btnCloseA.setMinimumHeight(34)
         for b in (self.btnCheckOut, self.btnRefreshA, self.btnCloseA):
             btns_active.addWidget(b)
         lay_active.addLayout(btns_active)
@@ -131,12 +132,14 @@ class CheckOutBrowser(QDialog):
         lay_co.addWidget(self.tbl_co)
 
         btns_co = QHBoxLayout()
+        btns_co.setSpacing(8)
         self.btnReverse = QPushButton("Reverse Check-Out (PYT*)")
-        self.btnReverse.setStyleSheet(
-            f"background:{st['warning']}; color:{st['on_warning']};"
-            "font-weight:bold; padding:6px 16px; border:none; border-radius:6px;")
+        self.btnReverse.setProperty("role", "warning")
+        self.btnReverse.setMinimumHeight(34)
         self.btnRefreshCO = QPushButton("Refresh (F5)")
+        self.btnRefreshCO.setMinimumHeight(34)
         self.btnCloseCO = QPushButton("Close")
+        self.btnCloseCO.setMinimumHeight(34)
         for b in (self.btnReverse, self.btnRefreshCO, self.btnCloseCO):
             btns_co.addWidget(b)
         lay_co.addLayout(btns_co)

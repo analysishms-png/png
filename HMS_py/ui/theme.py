@@ -277,15 +277,35 @@ QPushButton:disabled {{
 }}
 QPushButton[accent="true"] {{
     background: {t['accent']}; color: {t['on_accent']}; border: none;
-    font-weight: 600;
+    font-weight: 700; padding: 8px 20px; min-height: 20px;
 }}
 QPushButton[accent="true"]:hover {{ background: {t['accent_hover']}; }}
+QPushButton[accent="true"]:pressed {{ background: {t.get('accent_pressed', t['accent_hover'])}; }}
 QPushButton[success="true"] {{
-    background: {t['success']}; color: {t['on_accent']}; border: none;
+    background: {t['success']}; color: #ffffff; border: none;
+    font-weight: 600; padding: 6px 16px; min-height: 20px;
 }}
+QPushButton[success="true"]:hover {{ opacity: 0.9; }}
 QPushButton[danger="true"] {{
     background: {t['danger']}; color: #ffffff; border: none;
+    font-weight: 600; padding: 6px 16px; min-height: 20px;
 }}
+QPushButton[danger="true"]:hover {{ opacity: 0.9; }}
+QPushButton[role="danger"] {{
+    background: {t['danger']}; color: #ffffff; border: none;
+    font-weight: 600; padding: 6px 16px; border-radius: {R}px; min-height: 20px;
+}}
+QPushButton[role="danger"]:hover {{ opacity: 0.9; }}
+QPushButton[role="warning"] {{
+    background: {t['warning']}; color: #ffffff; border: none;
+    font-weight: 600; padding: 6px 16px; border-radius: {R}px; min-height: 20px;
+}}
+QPushButton[role="warning"]:hover {{ opacity: 0.9; }}
+QPushButton[role="success"] {{
+    background: {t['success']}; color: #ffffff; border: none;
+    font-weight: 600; padding: 6px 16px; border-radius: {R}px; min-height: 20px;
+}}
+QPushButton[role="success"]:hover {{ opacity: 0.9; }}
 
 /* ── Inputs ── */
 QLineEdit, QTextEdit, QPlainTextEdit, QSpinBox, QDoubleSpinBox, QDateEdit {{

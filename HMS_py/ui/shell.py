@@ -1313,7 +1313,7 @@ class MainWindow(QMainWindow):
         for m in menu.sidebar_modules():
             b = QPushButton(f"  {m['name']}")
             b.setProperty("sidebar-btn", True)
-            b.setMinimumHeight(40)
+            b.setMinimumHeight(38)
             b.setCheckable(True)
             b.setAccessibleName(m["name"])
             b.setAccessibleDescription(f"Module {m['name']}")
