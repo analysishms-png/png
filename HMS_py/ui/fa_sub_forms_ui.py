@@ -10,6 +10,7 @@ from PyQt6.QtGui import QColor, QFont
 from core import fa_ledger_ops as falo
 from core import fa_tds_ops as tds
 from core import db
+from ui.theme import palette
 
 
 class FaAdjustWindow(QMainWindow):
@@ -49,7 +50,7 @@ class FaAdjustWindow(QMainWindow):
 
         btn_lay = QHBoxLayout()
         self.btn_save = QPushButton("Save Adjustment")
-        self.btn_save.setStyleSheet("QPushButton{background:#28a745;color:white;font-weight:bold;}")
+        self.btn_save.setProperty("success", True)
         self.btn_exit = QPushButton("Exit")
         self.btn_save.clicked.connect(self._save)
         self.btn_exit.clicked.connect(self.close)
@@ -69,7 +70,8 @@ class FaAdjustWindow(QMainWindow):
             for i, r in enumerate(rows):
                 for j, v in enumerate([r["docid1"], str(r["v_sno1"]), r["docid2"],
                                        str(r["v_sno2"]), str(r["cr"]), r["subcode"]]):
-                    it = QTableWidgetItem(str(v)); it.setForeground(QColor("#111"))
+                    it = QTableWidgetItem(str(v))
+                    it.setForeground(QColor(palette()["text"]))
                     self.table.setItem(i, j, it)
         except Exception: pass
 
@@ -121,7 +123,7 @@ class FaChqClearWindow(QMainWindow):
 
         btn_lay = QHBoxLayout()
         self.btn_save = QPushButton("Mark Cleared")
-        self.btn_save.setStyleSheet("QPushButton{background:#28a745;color:white;font-weight:bold;}")
+        self.btn_save.setProperty("success", True)
         self.btn_exit = QPushButton("Exit")
         self.btn_save.clicked.connect(self._save)
         self.btn_exit.clicked.connect(self.close)

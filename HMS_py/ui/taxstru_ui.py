@@ -72,7 +72,7 @@ class TaxStruForm(QDialog):
 
         # ---- Status label ----
         self.lbl_state = QLabel("State: Idle | New: Ctrl+N | Edit: Ctrl+E | Save: Ctrl+S | Delete: Ctrl+D")
-        self.lbl_state.setStyleSheet("color:#111; padding:4px; background:#f0f0f0;")
+        self.lbl_state.setStyleSheet(f"color:{palette()['text']}; padding:4px; background:{palette()['glass_tint']};")
         root.addWidget(self.lbl_state)
 
         # ---- Buttons ----

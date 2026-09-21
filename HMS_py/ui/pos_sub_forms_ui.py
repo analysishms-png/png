@@ -8,6 +8,7 @@ from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
 from PyQt6.QtCore import Qt, QDate
 from PyQt6.QtGui import QColor, QFont
 from core import db
+from ui.theme import palette
 
 
 class BillReprintWindow(QMainWindow):
@@ -47,7 +48,7 @@ class BillReprintWindow(QMainWindow):
 
         btn_lay = QHBoxLayout()
         self.btn_reprint = QPushButton("Reprint Selected Bill")
-        self.btn_reprint.setStyleSheet("QPushButton{background:#28a745;color:white;font-weight:bold;}")
+        self.btn_reprint.setProperty("success", True)
         self.btn_exit = QPushButton("Exit")
         self.btn_reprint.clicked.connect(self._reprint)
         self.btn_exit.clicked.connect(self.close)
@@ -65,7 +66,8 @@ class BillReprintWindow(QMainWindow):
             for i, r in enumerate(rows):
                 for j, v in enumerate([r[0] or "", str(r[1] or ""), r[2] or "",
                                        str(r[3] or 0), r[4] or ""]):
-                    it = QTableWidgetItem(str(v)); it.setForeground(QColor("#111"))
+                    it = QTableWidgetItem(str(v))
+                    it.setForeground(QColor(palette()["text"]))
                     self.table.setItem(i, j, it)
         except Exception:
             pass
@@ -112,7 +114,7 @@ class SplitBillWindow(QMainWindow):
 
         btn_lay = QHBoxLayout()
         self.btn_split = QPushButton("Split Bill")
-        self.btn_split.setStyleSheet("QPushButton{background:#ffc107;color:#333;font-weight:bold;}")
+        self.btn_split.setProperty("role", "warning")
         self.btn_exit = QPushButton("Exit")
         self.btn_split.clicked.connect(self._split)
         self.btn_exit.clicked.connect(self.close)

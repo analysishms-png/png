@@ -43,7 +43,7 @@ class TallyExportWindow(QMainWindow):
 
         btn_lay = QHBoxLayout()
         self.btn_export = QPushButton("Export to XML")
-        self.btn_export.setStyleSheet("QPushButton{background:#28a745;color:white;font-weight:bold;}")
+        self.btn_export.setProperty("success", True)
         self.btn_exit = QPushButton("Exit")
         self.btn_export.clicked.connect(self._export)
         self.btn_exit.clicked.connect(self.close)

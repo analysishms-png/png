@@ -16,6 +16,7 @@ from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
 from PyQt6.QtCore import Qt, QDate
 from PyQt6.QtGui import QColor
 from HMS_py.core import db, purchase
+from ui.theme import palette
 
 VTYPE = "KCLS"
 
@@ -88,7 +89,7 @@ class KitchenClosingStockWindow(QMainWindow):
         r = self.table.rowCount(); self.table.insertRow(r)
         for c, v in enumerate([str(r + 1), "", "0", "", ""]):
             it = QTableWidgetItem(v)
-            it.setForeground(QColor("#111"))
+            it.setForeground(QColor(palette()["text"]))
             self.table.setItem(r, c, it)
 
     def _del_line(self):

@@ -8,6 +8,7 @@ from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor, QFont
 from core import db
+from ui.theme import palette
 
 
 class RoomLookupWindow(QMainWindow):
@@ -62,7 +63,8 @@ class RoomLookupWindow(QMainWindow):
         self.table.setRowCount(len(rows))
         for i, r in enumerate(rows):
             for j, v in enumerate([r[0] or "", r[1] or "", r[2] or "", r[3] or ""]):
-                it = QTableWidgetItem(str(v)); it.setForeground(QColor("#111"))
+                it = QTableWidgetItem(str(v))
+                it.setForeground(QColor(palette()["text"]))
                 self.table.setItem(i, j, it)
 
     def _filter(self, text):
@@ -103,7 +105,7 @@ class MergeChargeWindow(QMainWindow):
 
         btn_lay = QHBoxLayout()
         self.btn_merge = QPushButton("Merge Charges")
-        self.btn_merge.setStyleSheet("QPushButton{background:#dc3545;color:white;font-weight:bold;}")
+        self.btn_merge.setProperty("role", "danger")
         self.btn_exit = QPushButton("Exit")
         self.btn_merge.clicked.connect(self._merge)
         self.btn_exit.clicked.connect(self.close)
@@ -156,7 +158,7 @@ class ReSettlementWindow(QMainWindow):
 
         btn_lay = QHBoxLayout()
         self.btn_settle = QPushButton("Re-Settle")
-        self.btn_settle.setStyleSheet("QPushButton{background:#ffc107;color:#333;font-weight:bold;}")
+        self.btn_settle.setProperty("role", "warning")
         self.btn_exit = QPushButton("Exit")
         self.btn_settle.clicked.connect(self._settle)
         self.btn_exit.clicked.connect(self.close)

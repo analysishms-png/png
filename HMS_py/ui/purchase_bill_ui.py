@@ -9,6 +9,7 @@ from PyQt6.QtCore import Qt, QDate
 from PyQt6.QtGui import QColor
 from HMS_py.core import purchase as purch
 from HMS_py.core import ledger as led
+from ui.theme import palette
 
 class PurchaseBillWindow(QMainWindow):
     def __init__(self, parent=None):
@@ -42,7 +43,7 @@ class PurchaseBillWindow(QMainWindow):
         self.btn_add = QPushButton("Add Line (+)")
         self.btn_del = QPushButton("Remove (-)")
         self.btn_save = QPushButton("Save Bill")
-        self.btn_save.setStyleSheet("QPushButton{background:#28a745;color:white;font-weight:bold;}")
+        self.btn_save.setProperty("success", True)
         self.btn_exit = QPushButton("Exit")
         for b in [self.btn_add, self.btn_del, self.btn_save, self.btn_exit]:
             btn_lay.addWidget(b)
@@ -64,7 +65,9 @@ class PurchaseBillWindow(QMainWindow):
     def _add_line(self):
         r = self.table.rowCount(); self.table.insertRow(r)
         for c, v in enumerate([str(r+1), "", "", "0", "0", "0", "0"]):
-            it = QTableWidgetItem(v); it.setForeground(QColor("#111")); self.table.setItem(r, c, it)
+            it = QTableWidgetItem(v)
+            it.setForeground(QColor(palette()["text"]))
+            self.table.setItem(r, c, it)
 
     def _del_line(self):
         r = self.table.currentRow()

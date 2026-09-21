@@ -8,6 +8,7 @@ from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
 from PyQt6.QtCore import Qt, QThread, pyqtSignal
 from PyQt6.QtGui import QFont, QColor
 from HMS_py.core import db_maintenance
+from ui.theme import palette
 
 
 class NullUpdateWorker(QThread):
@@ -72,7 +73,8 @@ class DbMaintenanceWindow(QMainWindow):
             self.summary_table.setRowCount(len(rows))
             for i, r in enumerate(rows):
                 for j, v in enumerate([r["table"], r["column"], str(r["null_count"])]):
-                    it = QTableWidgetItem(v); it.setForeground(QColor("#111"))
+                    it = QTableWidgetItem(v)
+                    it.setForeground(QColor(palette()["text"]))
                     self.summary_table.setItem(i, j, it)
         except Exception as e:
             QMessageBox.critical(self, "Error", str(e))

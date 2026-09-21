@@ -131,7 +131,7 @@ class IndentForm(QDialog):
 
         # Status
         self.lbl_state = QLabel("State: Idle | New: Ctrl+N | Edit: Ctrl+E | Save: Ctrl+S")
-        self.lbl_state.setStyleSheet("color:#111; padding:4px; background:#f0f0f0;")
+        self.lbl_state.setStyleSheet(f"color:{palette()['text']}; padding:4px; background:{palette()['glass_tint']};")
         root.addWidget(self.lbl_state)
 
         # Buttons
@@ -320,7 +320,7 @@ class GINForm(QDialog):
 
         # Status
         self.lbl_state = QLabel("State: Idle | New: Ctrl+N | Save: Ctrl+S")
-        self.lbl_state.setStyleSheet("color:#111; padding:4px; background:#f0f0f0;")
+        self.lbl_state.setStyleSheet(f"color:{palette()['text']}; padding:4px; background:{palette()['glass_tint']};")
         root.addWidget(self.lbl_state)
 
         # Main buttons
@@ -816,7 +816,7 @@ class EInvoiceConfigForm(QDialog):
         root.addLayout(form)
 
         self.lbl_state = QLabel("State: Loading...")
-        self.lbl_state.setStyleSheet("color:#111; padding:4px; background:#f0f0f0;")
+        self.lbl_state.setStyleSheet(f"color:{palette()['text']}; padding:4px; background:{palette()['glass_tint']};")
         root.addWidget(self.lbl_state)
 
         btns = QHBoxLayout()
@@ -942,7 +942,7 @@ class KitchenStockReportForm(QDialog):
 
         # Summary
         self.lbl_summary = QLabel("Rows: 0")
-        self.lbl_summary.setStyleSheet("color:#111; padding:4px; background:#f0f0f0; font-weight:bold;")
+        self.lbl_summary.setStyleSheet(f"color:{palette()['text']}; padding:4px; background:{palette()['glass_tint']}; font-weight:bold;")
         root.addWidget(self.lbl_summary)
 
         # Buttons
@@ -1041,7 +1041,7 @@ class KitchenStockSummaryForm(QDialog):
 
         # Summary
         self.lbl_summary = QLabel("Rows: 0")
-        self.lbl_summary.setStyleSheet("color:#111; padding:4px; background:#f0f0f0; font-weight:bold;")
+        self.lbl_summary.setStyleSheet(f"color:{palette()['text']}; padding:4px; background:{palette()['glass_tint']}; font-weight:bold;")
         root.addWidget(self.lbl_summary)
 
         # Buttons

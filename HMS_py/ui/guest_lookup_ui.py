@@ -8,6 +8,7 @@ from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor, QFont
 from core import db
+from ui.theme import palette
 
 
 class GuestLookupWindow(QMainWindow):
@@ -57,7 +58,8 @@ class GuestLookupWindow(QMainWindow):
         self.table.setRowCount(len(rows))
         for i, r in enumerate(rows):
             for j in range(6):
-                it = QTableWidgetItem(str(r[j] or "")); it.setForeground(QColor("#111"))
+                it = QTableWidgetItem(str(r[j] or ""))
+                it.setForeground(QColor(palette()["text"]))
                 self.table.setItem(i, j, it)
 
     def _filter(self, text):

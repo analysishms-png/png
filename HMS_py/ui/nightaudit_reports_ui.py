@@ -16,6 +16,7 @@ from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
 from PyQt6.QtCore import Qt, QDate
 from PyQt6.QtGui import QColor, QFont
 from core import reports as rpmod
+from ui.theme import palette
 
 
 REPORT_LIST = [
@@ -77,8 +78,10 @@ class NightAuditReportsWindow(QMainWindow):
         self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
         self.table.setRowCount(len(REPORT_LIST))
         for i, (key, desc) in enumerate(REPORT_LIST):
-            it1 = QTableWidgetItem(key); it1.setForeground(QColor("#111"))
-            it2 = QTableWidgetItem(desc); it2.setForeground(QColor("#111"))
+            it1 = QTableWidgetItem(key)
+            it1.setForeground(QColor(palette()["text"]))
+            it2 = QTableWidgetItem(desc)
+            it2.setForeground(QColor(palette()["text"]))
             self.table.setItem(i, 0, it1)
             self.table.setItem(i, 1, it2)
         self.table.doubleClicked.connect(self._run_report)
@@ -88,7 +91,8 @@ class NightAuditReportsWindow(QMainWindow):
         # Buttons
         btn_lay = QHBoxLayout()
         self.btn_run = QPushButton("Run Report")
-        self.btn_run.setStyleSheet("QPushButton{background:#28a745;color:white;font-weight:bold;padding:8px;}")
+        self.btn_run.setProperty("success", True)
+        self.btn_run.setMinimumHeight(36)
         self.btn_run.clicked.connect(self._run_report)
         self.btn_exit = QPushButton("Exit")
         self.btn_exit.clicked.connect(self.close)
