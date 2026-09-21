@@ -17,7 +17,7 @@ from datetime import date
 
 from HMS_py.core import db
 
-SITE_CODE = "KK"          # Analysis.ini key 7
+SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")          # Analysis.ini key 7
 VTYPE = "RES"
 VPREFIX = str(date.today().year)   # Vprefix='2026' sample se
 

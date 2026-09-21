@@ -56,7 +56,7 @@ from typing import Optional
 
 from HMS_py.core import db
 
-SITE_CODE = "KK"
+SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
 USER = "PYADMIN"
 VPREFIX = "2026"
 
@@ -83,9 +83,15 @@ def _make_hall_docid(vtype: str, vprefix: str, vno: int) -> str:
 
 
 def _next_vno(vtype: str, vprefix: str, cn=None) -> int:
-    """Next VNo for a VType/VPrefix from Voucher_Type."""
+    """Next VNo for a VType/VPrefix from Voucher_Type.
+
+    BUG-015: race-safe (UPDLOCK/HOLDLOCK) - concurrent bookings ko same
+    number nahi milega. NOTE: Voucher_Type me Site_Code filter nahi hai
+    (VB6 pattern), isliye raw lock query yahin rakhi hai.
+    """
     rows = db.query(
-        "SELECT MAX(VNo) FROM Voucher_Type WHERE V_Type = ? AND VPrefix = ?",
+        "SELECT MAX(VNo) FROM Voucher_Type WITH (UPDLOCK, HOLDLOCK) "
+        "WHERE V_Type = ? AND VPrefix = ?",
         (vtype, vprefix), cn=cn)
     return (rows[0][0] or 0) + 1 if rows and rows[0][0] else 1
 

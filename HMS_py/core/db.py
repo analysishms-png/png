@@ -78,6 +78,33 @@ def load_config(ini_path: str | None = None) -> dict:
 CONN_STR = None
 
 
+def _project_ini_path() -> str:
+    """Package-local Analysis.ini (repo-local config priority)."""
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    return os.path.join(project_root, "Analysis.ini")
+
+
+def save_config(server: str | None = None, database: str | None = None,
+                ini_path: str | None = None) -> str:
+    """[HMS] keys update + Analysis.ini save (1=server, 6=database).
+
+    Pehle existing ini write hota hai (find_analysis_ini priority);
+    koi ini nahi to package-local file create hoti hai.
+    Returns: written ini path."""
+    ini_path = ini_path or find_analysis_ini() or _project_ini_path()
+    cp = configparser.ConfigParser()
+    cp.read(ini_path, encoding="latin-1")
+    if not cp.has_section("HMS"):
+        cp.add_section("HMS")
+    if server is not None:
+        cp.set("HMS", "1", str(server).strip())
+    if database is not None:
+        cp.set("HMS", "6", str(database).strip())
+    with open(ini_path, "w", encoding="latin-1") as f:
+        cp.write(f)
+    return ini_path
+
+
 def ensure_paths(cfg: dict | None = None) -> dict:
     """Analysis.ini keys 2/3 (reports/temp) folders create-if-missing.
 
@@ -184,6 +211,115 @@ def execute(sql: str, params=(), cn: pyodbc.Connection | None = None,
         if commit:
             cn.commit()
         return n
+    finally:
+        if own:
+            try:
+                cn.rollback()
+            except pyodbc.Error:
+                pass
+            cn.close()
+
+
+# ============================================================
+# BUG-014 fix: central site/user/year context (enviro/ini-driven)
+# ============================================================
+
+def get_site_code(cfg: dict | None = None) -> str:
+    """Site code (2 char) - Analysis.ini key 7 (company), env override HMS_SITE_CODE.
+
+    83 core modules me hardcoded SITE_CODE="KK" tha; ab yahan se aata hai.
+    VB6 HMS.bas bhi Analysis.ini key 7 padhta hai (live-verified).
+    """
+    env = os.environ.get("HMS_SITE_CODE", "").strip()
+    if env:
+        return env[:2].upper()
+    cfg = cfg or load_config()
+    return (cfg.get("company") or "KK")[:2].upper()
+
+
+def get_user() -> str:
+    """Current user for audit columns - env override HMS_USER, default PYADMIN.
+
+    VB6 UserMast login ke baad global User$ set karta tha; CLI/headless runs
+    me PYADMIN (test/audit identity) fallback hai.
+    """
+    env = os.environ.get("HMS_USER", "").strip()
+    return env[:10].upper() if env else "PYADMIN"
+
+
+def get_vprefix(cfg: dict | None = None) -> str:
+    """Current financial year prefix (e.g. '2026') - env HMS_VPREFIX override.
+
+    VB6 Enviro table me Year field hota hai; ini se FY nikaal sakte to wo,
+    warna hardcode-free fallback: current calendar year (jab tak live Enviro
+    schema-verified read add na ho).
+    """
+    env = os.environ.get("HMS_VPREFIX", "").strip()
+    if env:
+        return env[:4]
+    import datetime
+    return str(datetime.date.today().year)
+
+
+def get_context(cn=None) -> dict:
+    """{site, user, vprefix} ek hi call me - naye code isse use kare.
+
+    Modules apne module-level SITE_CODE/USER constants ko is function se
+    replace karte hain (BUG-014): site/company Analysis.ini-driven ho gaya.
+    """
+    return {
+        "site": get_site_code(),
+        "user": get_user(),
+        "vprefix": get_vprefix(),
+    }
+
+
+# ============================================================
+# BUG-015 fix: race-safe next document number (UPDLOCK/HOLDLOCK)
+# ============================================================
+
+def next_vno(table: str, vtype: str, vprefix: str, site: str | None = None,
+            vtype_col: str = "Vtype", cn: pyodbc.Connection | None = None,
+            commit: bool = False) -> int:
+    """Race-safe MAX(VNo)+1 for serial voucher numbering.
+
+    BUG-015: plain 'SELECT MAX(VNo)' + INSERT me do concurrent users ko
+    same VNo mil sakta tha (VB6 me bhi same pattern - live data me
+    duplicate DocId risk). Fix: UPDLOCK+HOLDLOCK range lock until
+    transaction end; caller INSERT usi connection/cn pe karta hai
+    (commit=True tab jab caller khud commit nahi karega).
+
+    Args:
+        table/vtype_col: validated identifiers (SQL injection guard)
+        vtype: voucher type filter ('RC', 'EXP', 'MRE', ...)
+        vprefix: year prefix ('2026')
+        site: site code (default get_site_code())
+        cn: apna connection - transaction atomicity ke liye ZAROORI
+            (default connection par lock commit ke sahi release na ho)
+        commit: True => commit immediately (caller INSERT se pehle
+            number reserve karna chahta hai).
+    Returns: next VNo (int)
+    """
+    from HMS_py.core.db import _validate_identifier
+    _validate_identifier(table, "table")
+    _validate_identifier(vtype_col, "column")
+    site = site or get_site_code()
+    own = cn is None
+    cn = cn or connect()
+    try:
+        cur = cn.cursor()
+        # UPDLOCK: update-intent lock; HOLDLOCK: transaction end tak hold.
+        # Range lock MAX(...) pe serial block karta hai - do users ko
+        # same number nahi milega.
+        cur.execute(
+            f"SELECT MAX(VNo) FROM [{table}] WITH (UPDLOCK, HOLDLOCK) "
+            f"WHERE [{vtype_col}] = ? AND Vprefix = ? AND Site_Code = ?",
+            (vtype, vprefix, site))
+        row = cur.fetchone()
+        vno = int(row[0] or 0) + 1 if row else 1
+        if commit:
+            cn.commit()
+        return vno
     finally:
         if own:
             try:

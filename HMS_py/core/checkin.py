@@ -23,7 +23,7 @@ import datetime
 
 from HMS_py.core import db
 
-SITE_CODE = "KK"
+SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
 USER = "PYADMIN"
 VTYPE = "CHK"
 SELECT_COLS = ("DocId, FolioNo, Vtype, Vprefix, Vdate, GuestProf, Name, "
@@ -86,9 +86,11 @@ def get(folio: int, cn=None, vprefix: str = "2026") -> dict | None:
 
 
 def next_folio(cn=None, vprefix: str = "2026") -> int:
+    # BUG-015: race-safe FolioNo (UPDLOCK/HOLDLOCK) - do concurrent
+    # check-ins ko same folio number nahi milega.
     rows = db.query(
-        "SELECT MAX(FolioNo) FROM GuestFolio WHERE Site_Code = ? AND "
-        "Vprefix = ?", (SITE_CODE, vprefix), cn=cn)
+        "SELECT MAX(FolioNo) FROM GuestFolio WITH (UPDLOCK, HOLDLOCK) "
+        "WHERE Site_Code = ? AND Vprefix = ?", (SITE_CODE, vprefix), cn=cn)
     return (rows[0][0] or 0) + 1 if rows and rows[0][0] else 1
 
 

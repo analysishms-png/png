@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from HMS_py.core import db
 
-SITE_CODE = "KK"
+SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
 USER = "PYADMIN"
 LIMITS = {"code": 6, "name": 50, "paytype": 15}
 SELECT_COLS = "Code, Name, ShortName, PAYTYPE, FieldType, Type, Active"

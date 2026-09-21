@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from HMS_py.core import db
 
-SITE_CODE = "KK"
+SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
 USER = "PYADMIN"
 LIMITS = {"code": 5, "name": 30, "sname": 5, "revcode": 6, "taxinc": 3,
           "taxstru": 6, "printoption": 20, "postingmethod": 20,

@@ -2,7 +2,7 @@
 from __future__ import annotations
 from HMS_py.core import db
 
-SITE_CODE = "KK"
+SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
 USER = "PYADMIN"
 
 
@@ -46,7 +46,10 @@ def insert_hallbook(rec, cn=None, commit=True, site=SITE_CODE, user=USER):
     _validate_hallbook(rec)
     from datetime import date
     vprefix = rec.get("vprefix", str(date.today().year))
-    vno_rows = db.query("SELECT MAX(VNo) FROM HallBook WHERE Site_Code = ? AND Vprefix = ?", (site, vprefix), cn=cn)
+    # BUG-015: race-safe VNo (UPDLOCK/HOLDLOCK)
+    vno_rows = db.query(
+        "SELECT MAX(VNo) FROM HallBook WITH (UPDLOCK, HOLDLOCK) "
+        "WHERE Site_Code = ? AND Vprefix = ?", (site, vprefix), cn=cn)
     vno = (vno_rows[0][0] or 0) + 1 if vno_rows and vno_rows[0][0] else 1
     docid = ("D" + site.ljust(2) + "HB".ljust(6) + str(vprefix).ljust(4) + str(vno).rjust(8))[:21]
     db.execute(
@@ -150,7 +153,10 @@ def get_hallsale1(vno, site=SITE_CODE, cn=None):
 
 
 def insert_hallsale1(rec, cn=None, commit=True, site=SITE_CODE, user=USER):
-    vno_rows = db.query("SELECT MAX(VNo) FROM HallSale1 WHERE Site_Code = ?", (site,), cn=cn)
+    # BUG-015: race-safe VNo (UPDLOCK/HOLDLOCK)
+    vno_rows = db.query(
+        "SELECT MAX(VNo) FROM HallSale1 WITH (UPDLOCK, HOLDLOCK) "
+        "WHERE Site_Code = ?", (site,), cn=cn)
     vno = (vno_rows[0][0] or 0) + 1 if vno_rows and vno_rows[0][0] else 1
     vprefix = rec.get("vprefix", "2026")
     docid = ("D" + site.ljust(2) + "HS".ljust(6) + str(vprefix).ljust(4) + str(vno).rjust(8))[:21]

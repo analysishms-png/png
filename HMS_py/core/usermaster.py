@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from HMS_py.core import db, auth
 
-SITE_CODE = "KK"
+SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
 LIMITS = {
     "username": 10, "label": 30, "short": 10,
 }

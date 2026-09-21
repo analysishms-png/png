@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from HMS_py.core import db
 
-SITE_CODE = "KK"  # Analysis.ini key 7
+SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")  # Analysis.ini key 7
 USER = "PYADMIN"  # jab tak login wired na ho
 # Column limits (schema evidence): Code varchar(5), Name varchar(25),
 # Plan_Package varchar(7), U_Name varchar(10), ActiveYN varchar(3)

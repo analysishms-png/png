@@ -89,6 +89,139 @@ QTableCornerButton::section { background: #dcdcdc; }
 """
 
 
+# ---------------------------------------------------------------- db settings
+class DbSettingsDialog(QDialog):
+    """Manual DB config: Server + Database -> Analysis.ini key 1/6.
+
+    Save ke baad config [HMS] section me likhi jaati hai (VB6 wahi
+    Analysis.ini use karta hai) aur connection test hota hai."""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Database Settings")
+        self.setFixedSize(480, 340)
+
+        from HMS_py.core.db import load_config
+        cfg = load_config()
+
+        root = QVBoxLayout(self)
+        root.setContentsMargins(20, 20, 20, 20)
+        root.setSpacing(14)
+
+        title = QLabel("Database Connection")
+        title.setFont(QFont("Segoe UI", 14, QFont.Weight.Bold))
+        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        root.addWidget(title)
+
+        note = QLabel(
+            "SQL Server ke liye server name aur database naam yahan daalo.\n"
+            "Save karne par Analysis.ini update hogi aur login fir isi DB se hoga.")
+        note.setWordWrap(True)
+        note.setStyleSheet("color: #8888aa; font-size: 11px;")
+        note.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        root.addWidget(note)
+
+        form = QFormLayout()
+        form.setSpacing(12)
+
+        lbl_s = QLabel("Server Name")
+        lbl_s.setStyleSheet("color: #b0b0cc; font-size: 12px; font-weight: bold;")
+        self.txtServer = QLineEdit(cfg.get("server", ""))
+        self.txtServer.setMinimumHeight(36)
+        self.txtServer.setPlaceholderText("e.g. Localhost or DESKTOP-XYZ\\SQLEXPRESS")
+        form.addRow(lbl_s, self.txtServer)
+
+        lbl_d = QLabel("Database Name")
+        lbl_d.setStyleSheet("color: #b0b0cc; font-size: 12px; font-weight: bold;")
+        self.txtDatabase = QLineEdit(cfg.get("database", ""))
+        self.txtDatabase.setMinimumHeight(36)
+        self.txtDatabase.setPlaceholderText("e.g. KailashData2526")
+        form.addRow(lbl_d, self.txtDatabase)
+        root.addLayout(form)
+
+        self.lblStatus = QLabel("")
+        self.lblStatus.setWordWrap(True)
+        self.lblStatus.setStyleSheet("color: #8888aa; font-size: 11px;")
+        self.lblStatus.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        root.addWidget(self.lblStatus)
+
+        btns = QHBoxLayout()
+        btns.setSpacing(8)
+        self.btnTest = QPushButton("Test")
+        self.btnTest.setFixedHeight(38)
+        self.btnTest.setStyleSheet("""
+            QPushButton { background: transparent; color: #f59e0b;
+                border: 1px solid #f59e0b; border-radius: 6px; font-size: 12px; }
+            QPushButton:hover { background: rgba(245,158,11,0.1); }
+        """)
+        self.btnSave = QPushButton("Save")
+        self.btnSave.setFixedHeight(38)
+        self.btnSave.setStyleSheet("""
+            QPushButton { background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
+                stop:0 #7c3aed, stop:1 #a855f7); color: white;
+                font-weight: bold; font-size: 13px; border: none; border-radius: 6px; }
+            QPushButton:hover { background: #6d28d9; }
+        """)
+        self.btnCancel = QPushButton("Cancel")
+        self.btnCancel.setFixedHeight(38)
+        self.btnCancel.setStyleSheet("""
+            QPushButton { background: transparent; color: #8888aa;
+                border: 1px solid #3a3a52; border-radius: 6px; font-size: 12px; }
+            QPushButton:hover { border-color: #7c3aed; color: #b0b0cc; }
+        """)
+        btns.addWidget(self.btnTest)
+        btns.addStretch()
+        btns.addWidget(self.btnSave)
+        btns.addWidget(self.btnCancel)
+        root.addLayout(btns)
+
+        self.btnTest.clicked.connect(self._test)
+        self.btnSave.clicked.connect(self._save)
+        self.btnCancel.clicked.connect(self.reject)
+
+    def _connect_info(self) -> dict:
+        from HMS_py.core import db
+        return {"server": self.txtServer.text().strip(),
+                "database": self.txtDatabase.text().strip()}
+
+    def _test(self):
+        from HMS_py.core import db
+        info = self._connect_info()
+        if not info["server"] or not info["database"]:
+            self.lblStatus.setText("Server aur Database dono bharo")
+            self.lblStatus.setStyleSheet("color: #ef4444; font-size: 11px;")
+            return
+        try:
+            tmp = dict(db.load_config())
+            tmp.update(info)
+            cn = db.connect(tmp)
+            cur = cn.cursor()
+            cur.execute("SELECT @@SERVERNAME, DB_NAME()")
+            srv, dbn = cur.fetchone()
+            cn.close()
+            self.lblStatus.setStyleSheet("color: #22c55e; font-size: 11px;")
+            self.lblStatus.setText(f"Connected: {srv} / {dbn}")
+        except Exception as e:
+            self.lblStatus.setStyleSheet("color: #ef4444; font-size: 11px;")
+            self.lblStatus.setText(f"Fail: {e}")
+
+    def _save(self):
+        from HMS_py.core import db
+        info = self._connect_info()
+        if not info["server"] or not info["database"]:
+            self.lblStatus.setText("Server aur Database dono bharo")
+            self.lblStatus.setStyleSheet("color: #ef4444; font-size: 11px;")
+            return
+        try:
+            path = db.save_config(server=info["server"], database=info["database"])
+            self.lblStatus.setStyleSheet("color: #22c55e; font-size: 11px;")
+            self.lblStatus.setText(f"Saved: {path}")
+            self.accept()
+        except Exception as e:
+            self.lblStatus.setStyleSheet("color: #ef4444; font-size: 11px;")
+            self.lblStatus.setText(f"Save fail: {e}")
+
+
 # ---------------------------------------------------------------- login
 class LoginDialog(QDialog):
     """Modern login dialog - dark card style."""
@@ -96,7 +229,7 @@ class LoginDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("HMS Login")
-        self.setFixedSize(420, 380)
+        self.setFixedSize(420, 448)
         self.user = ""
 
         root = QVBoxLayout(self)
@@ -182,7 +315,32 @@ class LoginDialog(QDialog):
 
         root.addWidget(body)
 
-        # DB status
+        # DB status + settings button
+        self.lblDb = QLabel("")
+        self.lblDb.setStyleSheet("color: #666680; font-size: 10px; padding: 4px;")
+        self.lblDb.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        root.addWidget(self.lblDb)
+
+        self.btnDb = QPushButton("Database Settings")
+        self.btnDb.setFixedHeight(30)
+        self.btnDb.setStyleSheet("""
+            QPushButton {
+                background: transparent; color: #7c3aed; border: 1px solid #7c3aed;
+                border-radius: 8px; font-size: 11px; font-weight: bold;
+            }
+            QPushButton:hover { background: rgba(124,58,237,0.15); }
+        """)
+        root.addWidget(self.btnDb)
+        self._note_shown = False
+
+        self.btnLogin.clicked.connect(self._do_login)
+        self.btnUnLoad.clicked.connect(self.reject)
+        self.btnDb.clicked.connect(self._open_db_settings)
+        self.txtPass.returnPressed.connect(self._do_login)
+
+        self._refresh_db_status()
+
+    def _refresh_db_status(self):
         from HMS_py.core.db import load_config, connect
         cfg = load_config()
         try:
@@ -196,14 +354,13 @@ class LoginDialog(QDialog):
         except Exception:
             db_txt = f"Offline: {cfg.get('server')}/{cfg.get('database')}"
             self.db_ok = False
-        self.lblDb = QLabel(db_txt)
-        self.lblDb.setStyleSheet("color: #666680; font-size: 10px; padding: 4px;")
-        self.lblDb.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        root.addWidget(self.lblDb)
+        self.lblDb.setText(db_txt)
+        return self.db_ok
 
-        self.btnLogin.clicked.connect(self._do_login)
-        self.btnUnLoad.clicked.connect(self.reject)
-        self.txtPass.returnPressed.connect(self._do_login)
+    def _open_db_settings(self):
+        dlg = DbSettingsDialog(self)
+        if dlg.exec() == QDialog.DialogCode.Accepted:
+            self._refresh_db_status()
 
     def _do_login(self):
         ok, msg = auth.check_login(self.txtUser.text(),
@@ -624,6 +781,14 @@ def _form_registry() -> dict[str, callable]:
         from HMS_py.ui import misc_sub_forms_ui as misc_ui
     except ImportError:
         misc_ui = None
+    try:
+        from HMS_py.ui import kitchen_clstk_ui as kclstk_ui
+    except ImportError:
+        kclstk_ui = None
+    try:
+        from HMS_py.ui import requisition_slip_ui as reqslip_ui
+    except ImportError:
+        reqslip_ui = None
 
     def _open_report(cap: str):
         """mdi leaf caption -> reports engine key (exact-match map)."""
@@ -1005,8 +1170,7 @@ def _form_registry() -> dict[str, callable]:
             lambda: __import__("HMS_py.core.db", fromlist=["x"]).query(
                 "SELECT TOP 300 ir.ItemCode, im.Name, ir.RestCode, ir.Rate, ir.MRP "
                 "FROM ItemRate ir LEFT JOIN ItemMast im ON im.Code = ir.ItemCode "
-                "ORDER BY ir.ItemCode")),
-        "Telephone Call Entry": lambda w: _open_fv_list(
+                "ORDER BY ir.ItemCode")),        "Telephone Call Entry": lambda w: _open_fv_list(
             w, "Telephone Call Entry",
             lambda: __import__("HMS_py.core.db", fromlist=["x"]).query(
                 "SELECT TOP 200 ID, V_TYPE, PNT_NO, Extension, RoomNo, "
@@ -1032,20 +1196,27 @@ def _form_registry() -> dict[str, callable]:
         "Guest LookUp": (lambda w: gl_ui.open_guest_lookup(w)) if gl_ui else _coming_soon("Guest LookUp"),
         "Registration Entry": (lambda w: reg_ui.open_registration_entry(w)) if reg_ui else _coming_soon("Registration Entry"),
         "Guest Registration": (lambda w: reg_ui.open_registration_entry(w)) if reg_ui else _coming_soon("Guest Registration"),
+        # M.R. Entry (VB6 pMREntry port — stock_create MRE via stock_receive_ui pattern)
+        "M.R. Entry": (lambda w: strec_ui.open_stock_receive(w)) if strec_ui else _coming_soon("M.R. Entry"),
         # Tally Export
         "Tally Export(XML)": (lambda w: tally_ui.open_tally_export(w)) if tally_ui else _coming_soon("Tally Export(XML)"),
         # Misc sub-forms (Opening Stock, Sundry Master, Restaurant Master)
         "Opening Stock": (lambda w: misc_ui.open_opening_stock(w)) if misc_ui else _coming_soon("Opening Stock"),
         "Sundry Master": (lambda w: misc_ui.open_sundry_master(w)) if misc_ui else _coming_soon("Sundry Master"),
         "Restaurant Master": (lambda w: misc_ui.open_restaurant_master(w)) if misc_ui else _coming_soon("Restaurant Master"),
+        # Kitchen Closing Stock (VB6 kClStk port — KClStk table live hai)
+        "Kitchen Closing Stock": (lambda w: kclstk_ui.open_kitchen_closing_stock(w)) if kclstk_ui else _coming_soon("Kitchen Closing Stock"),
+        # Requisition Slip (VB6 pReqSlip port — pending indent lines -> RQI issue)
+        "Requisition Slip": (lambda w: reqslip_ui.open_requisition_slip(w)) if reqslip_ui else _coming_soon("Requisition Slip"),
+        "Stock Issue on Requisition": (lambda w: reqslip_ui.open_requisition_slip(w)) if reqslip_ui else _coming_soon("Stock Issue on Requisition"),
+        "Pending M.R.": (lambda w: reqslip_ui.open_requisition_slip(w)) if reqslip_ui else _coming_soon("Pending M.R."),
         # --- S1 tail: blocked tables (click par documented VB6-style message) ---
         **({cap: _coming_soon(cap) for cap in (
             "Party Master", "Item Entry ", "Consumption Master",
             "Purchase Sundry Setting", "Enviro Inventry",
-            "Gravy Item Entry", "M.R. Entry", "Requisition Slip",
-            "Stock Issue on Requisition", "Kitchen Closing Stock",
+            "Gravy Item Entry",
             "Finish Material Receive Entry", "Excise Invoice Cum Gate Pass",
-            "Pending M.R.", "Pending Purchase Order",
+            "Pending Purchase Order",
             "Voucher Wise Sundry Entry", "Sale MIS Customized",
             "Inconsistency Check", "Menu Item Copy", "POS Bill Deletion",
             "Data Transfer", "Data Recieving",
@@ -1249,6 +1420,25 @@ class MainWindow(QMainWindow):
                   activated=lambda: _safe("Ledger Accounts")(self))
         QShortcut(QKeySequence("Ctrl+Alt+T"), self,
                   activated=lambda: _safe("Tally Export")(self))
+        # UI_UPDATE_PLAN Phase-1 shortcuts (Ctrl+Alt: koi conflict nahi):
+        QShortcut(QKeySequence("Ctrl+Alt+H"), self,
+                  activated=lambda: _safe("HR Payroll")(self))
+        QShortcut(QKeySequence("Ctrl+Alt+M"), self,
+                  activated=lambda: _safe("Member Billing")(self))
+        QShortcut(QKeySequence("Ctrl+Alt+B"), self,
+                  activated=lambda: _safe("Booking Operations")(self))
+        QShortcut(QKeySequence("Ctrl+Alt+F"), self,
+                  activated=lambda: _safe("Facility Billing")(self))
+        QShortcut(QKeySequence("Ctrl+Alt+G"), self,
+                  activated=lambda: _safe("Guest Services")(self))
+        QShortcut(QKeySequence("Ctrl+Alt+D"), self,
+                  activated=lambda: _safe("Hall Booking")(self))
+        QShortcut(QKeySequence("Ctrl+Alt+S"), self,
+                  activated=lambda: _safe("POS Sales")(self))
+        QShortcut(QKeySequence("Ctrl+Alt+K"), self,
+                  activated=lambda: _safe("POS Stock")(self))
+        QShortcut(QKeySequence("Ctrl+Alt+E"), self,
+                  activated=lambda: _safe("Call Type")(self))
 
     def _toggle_theme(self):
         app = QApplication.instance()

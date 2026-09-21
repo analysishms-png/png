@@ -21,7 +21,7 @@ from datetime import date, datetime
 
 from HMS_py.core import db
 
-SITE_CODE = "KK"
+SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
 USER = "PYADMIN"
 LIMITS = {"code": 6, "name": 25, "short": 6, "depart": 6}
 SELECT_COLS = ("Code, Name, ShortName, DepartCode, SysYn, "
@@ -134,21 +134,16 @@ def _make_docid(vtype: str, vprefix: str, vno: int) -> str:
 
 
 def _next_vno(vtype: str, vprefix: str, cn=None) -> int:
-    rows = db.query(
-        "SELECT MAX(VNo) FROM Stock WHERE Vtype = ? AND Vprefix = ? AND Site_Code = ?",
-        (vtype, vprefix, SITE_CODE), cn=cn)
-    return (rows[0][0] or 0) + 1 if rows and rows[0][0] else 1
+    # BUG-015: race-safe VNo (UPDLOCK/HOLDLOCK) - db.py central helper.
+    return db.next_vno("Stock", vtype, vprefix, site=SITE_CODE, cn=cn)
 
 
 def _next_vno_table(table: str, vtype: str, vprefix: str, cn=None) -> int:
     """For tables with their own VNo sequence (GIN, POrder, etc.)."""
-    from HMS_py.core.db import _validate_identifier
-    _validate_identifier(table, "table")
+    # BUG-015: race-safe VNo (UPDLOCK/HOLDLOCK) - db.py central helper.
     vtype_col = "Vtype" if table == "Stock" else "VType"
-    rows = db.query(
-        f"SELECT MAX(VNo) FROM [{table}] WHERE [{vtype_col}] = ? AND Vprefix = ? AND Site_Code = ?",
-        (vtype, vprefix, SITE_CODE), cn=cn)
-    return (rows[0][0] or 0) + 1 if rows and rows[0][0] else 1
+    return db.next_vno(table, vtype, vprefix, site=SITE_CODE,
+                       vtype_col=vtype_col, cn=cn)
 
 
 # ============================================================

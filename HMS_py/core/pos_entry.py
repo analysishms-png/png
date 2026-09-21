@@ -13,7 +13,7 @@ from __future__ import annotations
 from HMS_py.core import db
 from HMS_py.core.menu import menu_name_allowed
 
-SITE_CODE = "KK"
+SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
 
 
 def _safe_table_rows(cn, sql: str, params=(), limit: int | None = None):

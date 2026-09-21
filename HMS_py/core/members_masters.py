@@ -21,8 +21,26 @@ from __future__ import annotations
 
 from HMS_py.core import db
 
-SITE_CODE = "KK"
+SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
 USER = "PYADMIN"
+
+
+def _f(v, default: float = 0.0) -> float:
+    try:
+        if v in (None, ""):
+            return default
+        return float(v)
+    except (TypeError, ValueError):
+        return default
+
+
+def _i(v, default: int = 0) -> int:
+    try:
+        if v in (None, ""):
+            return default
+        return int(float(v))
+    except (TypeError, ValueError):
+        return default
 
 
 # ============================================================
@@ -38,23 +56,23 @@ def _map_memcat(r) -> dict:
     try:
         return {"code": r.Code, "name": (r.Name or "").strip(),
                 "short": (r.ShortName or "").strip(),
-                "subscription": float(r.Subscription or 0),
-                "corporate": float(r.Corporate or 0),
-                "childage": int(r.ChildAgeLmt or 0),
+                "subscription": _f(r.Subscription),
+                "corporate": _f(r.Corporate),
+                "childage": _i(r.ChildAgeLmt),
                 "fbilling": r.FBilling or "N",
                 "status": r.Status or "",
                 "messac": r.MessAcYN or "N",
-                "surcharge": float(r.Surcharge or 0),
+                "surcharge": _f(r.Surcharge),
                 "u_name": r.U_Name or "", "u_ae": r.U_AE or ""}
     except AttributeError:
         c, n, sn, sub, corp, ca, fb, st, ma, sur, un, _, uae = r
         return {"code": c, "name": (n or "").strip(),
                 "short": (sn or "").strip(),
-                "subscription": float(sub or 0),
-                "corporate": float(corp or 0),
-                "childage": int(ca or 0), "fbilling": fb or "N",
+                "subscription": _f(sub),
+                "corporate": _f(corp),
+                "childage": _i(ca), "fbilling": fb or "N",
                 "status": st or "", "messac": ma or "N",
-                "surcharge": float(sur or 0),
+                "surcharge": _f(sur),
                 "u_name": un or "", "u_ae": uae or ""}
 
 

@@ -3,7 +3,7 @@ LocationFacility, SunTranFacility, DenominationDetail, DenominationFormat CRUD."
 from __future__ import annotations
 from HMS_py.core import db
 
-SITE_CODE = "KK"
+SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
 USER = "PYADMIN"
 
 # === FacilityBill ===
@@ -29,7 +29,10 @@ def get_fbill(docid, cn=None):
 
 
 def insert_fbill(rec, cn=None, commit=True, site=SITE_CODE, user=USER):
-    vno_rows = db.query("SELECT MAX(Vno) FROM FacilityBill WHERE Site_Code = ?", (site,), cn=cn)
+    # BUG-015: race-safe VNo (UPDLOCK/HOLDLOCK)
+    vno_rows = db.query(
+        "SELECT MAX(Vno) FROM FacilityBill WITH (UPDLOCK, HOLDLOCK) "
+        "WHERE Site_Code = ?", (site,), cn=cn)
     vno = (vno_rows[0][0] or 0) + 1 if vno_rows and vno_rows[0][0] else 1
     vprefix = rec.get("vprefix", "2026")
     docid = ("D" + site.ljust(2) + "FB".ljust(6) + str(vprefix).ljust(4) + str(vno).rjust(8))[:21]

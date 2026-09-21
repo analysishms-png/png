@@ -3,7 +3,7 @@ AssignDelivery, DeliveryBoy, JobSchedule, JobScheduledDetail CRUD."""
 from __future__ import annotations
 from HMS_py.core import db
 
-SITE_CODE = "KK"
+SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
 USER = "PYADMIN"
 
 # === EmailSMSForward ===
@@ -116,7 +116,10 @@ def list_delivery(cn=None, limit=500):
 
 
 def insert_delivery(rec, cn=None, commit=True, site=SITE_CODE, user=USER):
-    vno_rows = db.query("SELECT MAX(VNo) FROM AssignDelivery WHERE Site_Code = ?", (site,), cn=cn)
+    # BUG-015: race-safe VNo (UPDLOCK/HOLDLOCK)
+    vno_rows = db.query(
+        "SELECT MAX(VNo) FROM AssignDelivery WITH (UPDLOCK, HOLDLOCK) "
+        "WHERE Site_Code = ?", (site,), cn=cn)
     vno = (vno_rows[0][0] or 0) + 1 if vno_rows and vno_rows[0][0] else 1
     vprefix = rec.get("vprefix", "2026")
     docid = ("D" + site.ljust(2) + "AD".ljust(6) + str(vprefix).ljust(4) + str(vno).rjust(8))[:21]

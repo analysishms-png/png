@@ -19,7 +19,7 @@ import datetime
 from HMS_py.core import db
 from HMS_py.core import checkin as checkin_mod
 
-SITE_CODE = "KK"
+SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
 USER = "PYADMIN"
 VPREFIX = "2026"
 
@@ -154,10 +154,9 @@ def post_room_charge(folio: int, amount: float, roomno: str = "",
     own = cn is None
     cn = cn or db.connect()
     try:
-        vrows = db.query(
-            "SELECT MAX(VNo) FROM PayCharge WHERE Vtype = 'RC' AND "
-            "Site_Code = ? AND VPrefix = ?", (site, vprefix), cn=cn)
-        vno = (vrows[0][0] or 0) + 1 if vrows and vrows[0][0] else 1
+        # BUG-015: race-safe VNo (UPDLOCK/HOLDLOCK) - concurrent posts ko
+        # same number nahi milega. Same cn: lock INSERT commit tak hold.
+        vno = db.next_vno("PayCharge", "RC", vprefix, site=site, cn=cn)
         srows = db.query(
             "SELECT MAX(SNo) FROM PayCharge WHERE FolioNo = ? AND "
             "Site_Code = ?", (folio, site), cn=cn)
@@ -334,10 +333,8 @@ def receive_payment(folio: int, amount: float, paycode: str = "KKCASH",
     own = cn is None
     cn = cn or db.connect()
     try:
-        vrows = db.query(
-            "SELECT MAX(VNo) FROM PayCharge WHERE Vtype = 'REC' AND "
-            "Site_Code = ? AND VPrefix = ?", (site, vprefix), cn=cn)
-        vno = (vrows[0][0] or 0) + 1 if vrows and vrows[0][0] else 1
+        # BUG-015: race-safe VNo (UPDLOCK/HOLDLOCK)
+        vno = db.next_vno("PayCharge", "REC", vprefix, site=site, cn=cn)
         # DocId 'D'+site+'REC'.ljust(6)+year(4).ljust(4)+VNo.rjust(8) = 21
         # char — live sample 'DKKREC   2025    1664' byte-exact:
         docid = ("D" + site + "REC".ljust(6) + vprefix.ljust(4) +

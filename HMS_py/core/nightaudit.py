@@ -24,7 +24,7 @@ from typing import Optional
 from HMS_py.core import db
 from HMS_py.core import folio as folio_mod
 
-SITE_CODE = "KK"
+SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
 USER = "PYADMIN"
 VTYPE_RC = "RC"
 VTYPE_PPOS = "PPOS"
@@ -117,10 +117,8 @@ def check_unsettled_bills(vdate, cn=None) -> tuple[bool, list[str]]:
 # ============================================================
 
 def _next_vno(vtype: str, vprefix: str, cn=None) -> int:
-    rows = db.query(
-        "SELECT MAX(VNo) FROM PayCharge WHERE Vtype = ? AND VPrefix = ? AND Site_Code = ?",
-        (vtype, vprefix, SITE_CODE), cn=cn)
-    return (rows[0][0] or 0) + 1 if rows and rows[0][0] else 1
+    # BUG-015: race-safe VNo (UPDLOCK/HOLDLOCK) - db.py central helper.
+    return db.next_vno("PayCharge", vtype, vprefix, site=SITE_CODE, cn=cn)
 
 
 def _next_sno(foliono: int, cn=None) -> int:

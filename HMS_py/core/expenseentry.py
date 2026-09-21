@@ -22,7 +22,7 @@ from __future__ import annotations
 
 from HMS_py.core import db, checkin
 
-SITE_CODE = "KK"
+SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
 USER = "PYADMIN"
 VTYPE_EXP = "EXP"
 VTYPE_REC = "REC"
@@ -30,11 +30,8 @@ VTYPE_REC = "REC"
 
 def _next_vno(vtype: str, vprefix: str, cn=None,
               site: str = SITE_CODE) -> int:
-    rows = db.query(
-        "SELECT MAX(VNo) FROM PayCharge WHERE Site_Code = ? AND "
-        "VPrefix = ? AND Vtype = ?",
-        (site, vprefix, vtype), cn=cn)
-    return (rows[0][0] or 0) + 1 if rows and rows[0][0] else 1
+    # BUG-015: race-safe VNo (UPDLOCK/HOLDLOCK) - db.py central helper.
+    return db.next_vno("PayCharge", vtype, vprefix, site=site, cn=cn)
 
 
 def _make_docid(vtype: str, vprefix: str, vno: int,
@@ -46,7 +43,10 @@ def _make_docid(vtype: str, vprefix: str, vno: int,
 def list_folio_charges(folio, cn=None,
                        vprefix: str = "2026") -> list[dict]:
     """Ek folio ke sab charges/payments (RsFolioEntry grid jaisa)."""
-    folio = int(folio)
+    try:
+        folio = int(folio)
+    except (TypeError, ValueError):
+        return []
     rec = checkin.get(folio, cn=cn, vprefix=vprefix)
     if not rec:
         return []

@@ -8,8 +8,26 @@ from __future__ import annotations
 
 from HMS_py.core import db
 
-SITE_CODE = "KK"
+SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
 USER = "PYADMIN"
+
+
+def _f(v, default: float = 0.0) -> float:
+    try:
+        if v in (None, ""):
+            return default
+        return float(v)
+    except (TypeError, ValueError):
+        return default
+
+
+def _i(v, default: int = 0) -> int:
+    try:
+        if v in (None, ""):
+            return default
+        return int(float(v))
+    except (TypeError, ValueError):
+        return default
 
 
 # ============================================================
@@ -29,24 +47,24 @@ _STOCK_COLS = (
 def _map_stock(r) -> dict:
     try:
         return {
-            "docid": r.DocId or "", "sno": int(r.Sno or 0),
-            "vtype": r.Vtype or "", "vno": int(r.VNo or 0),
+            "docid": r.DocId or "", "sno": _i(r.Sno),
+            "vtype": r.Vtype or "", "vno": _i(r.VNo),
             "site_code": r.Site_Code or "", "vprefix": r.Vprefix or "",
             "vdate": r.Vdate, "partycode": r.PartyCode or "",
             "restcode": r.RestCode or "",
             "roomcat": r.RoomCat or "", "roomtype": r.RoomType or "",
             "roomno": r.RoomNo or "",
             "contradocid": r.ContraDocId or "",
-            "contrasno": int(r.ContraSno or 0),
-            "item": r.Item or "", "qtyiss": float(r.QtyIss or 0),
-            "qtyrec": float(r.QtyRec or 0), "unit": r.Unit or "",
-            "rate": float(r.Rate or 0), "amount": float(r.Amount or 0),
-            "taxper": float(r.TaxPer or 0), "taxamt": float(r.TaxAmt or 0),
-            "discper": float(r.DiscPer or 0), "discamt": float(r.DiscAmt or 0),
+            "contrasno": _i(r.ContraSno),
+            "item": r.Item or "", "qtyiss": _f(r.QtyIss),
+            "qtyrec": _f(r.QtyRec), "unit": r.Unit or "",
+            "rate": _f(r.Rate), "amount": _f(r.Amount),
+            "taxper": _f(r.TaxPer), "taxamt": _f(r.TaxAmt),
+            "discper": _f(r.DiscPer), "discamt": _f(r.DiscAmt),
             "voidyn": r.VoidYN or "", "remarks": r.Remarks or "",
             "vtime": r.VTime or "",
             "u_name": r.U_Name or "", "u_ae": r.U_AE or "",
-            "total": float(r.Total or 0), "roundoff": float(r.RoundOff or 0),
+            "total": _f(r.Total), "roundoff": _f(r.RoundOff),
             "departcode": r.DepartCode or "", "godowncode": r.GodownCode or "",
             "delflag": r.DelFlag or "",
             "shiftcode": r.ShiftCode or "", "refdocid": r.RefDocId or "",
@@ -54,28 +72,32 @@ def _map_stock(r) -> dict:
     except AttributeError:
         vals = list(r)
         return {
-            "docid": vals[0] or "", "sno": int(vals[1] or 0),
-            "vtype": vals[2] or "", "vno": int(vals[3] or 0),
+            "docid": vals[0] or "", "sno": _i(vals[1]),
+            "vtype": vals[2] or "", "vno": _i(vals[3]),
             "site_code": vals[4] or "", "vprefix": vals[5] or "",
             "vdate": vals[6], "partycode": vals[7] or "",
             "restcode": vals[8] or "",
             "roomcat": vals[9] or "", "roomtype": vals[10] or "",
             "roomno": vals[11] or "",
             "contradocid": vals[12] or "",
-            "contrasno": int(vals[13] or 0),
-            "item": vals[14] or "", "qtyiss": float(vals[15] or 0),
-            "qtyrec": float(vals[16] or 0), "unit": vals[17] or "",
-            "rate": float(vals[18] or 0), "amount": float(vals[19] or 0),
-            "taxper": float(vals[20] or 0), "taxamt": float(vals[21] or 0),
-            "discper": float(vals[22] or 0), "discamt": float(vals[23] or 0),
+            "contrasno": _i(vals[13]),
+            "item": vals[14] or "", "qtyiss": _f(vals[15]),
+            "qtyrec": _f(vals[16]), "unit": vals[17] or "",
+            "rate": _f(vals[18]), "amount": _f(vals[19]),
+            "taxper": _f(vals[20]), "taxamt": _f(vals[21]),
+            "discper": _f(vals[22]), "discamt": _f(vals[23]),
             "voidyn": vals[24] or "", "remarks": vals[25] or "",
             "vtime": vals[28] or "",
             "u_name": vals[29] or "", "u_ae": vals[31] or "",
-            "total": float(vals[32] or 0), "roundoff": float(vals[34] or 0),
+            "total": _f(vals[32]), "roundoff": _f(vals[34]),
             "departcode": vals[35] or "", "godowncode": vals[36] or "",
-            "delflag": vals[38] if len(vals) > 38 else "",
-            "shiftcode": vals[41] if len(vals) > 41 else "",
+            "delflag": vals[37] if len(vals) > 37 else "",
+            "shiftcode": vals[42] if len(vals) > 42 else "",
             "refdocid": vals[43] if len(vals) > 43 else "",
+            "freesno": _i(vals[39], 0) if len(vals) > 39 else 0,
+            "schemecode": vals[40] if len(vals) > 40 else "",
+            "seqno": _i(vals[41], 0) if len(vals) > 41 else 0,
+            "logsitcode": vals[38] if len(vals) > 38 else "",
         }
 
 
