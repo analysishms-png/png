@@ -455,11 +455,14 @@ QPushButton[sidebar-btn="true"] {{
     padding: 10px 16px;
     text-align: left;
     font-size: 13px;
+    font-weight: 500;
 }}
 
 QPushButton[sidebar-btn="true"]:hover {{
     background-color: {DARK_SURFACE_HOVER};
     color: {DARK_TEXT};
+    border-left: 3px solid {DARK_ACCENT};
+    padding-left: 13px;
 }}
 
 QPushButton[sidebar-btn="true"]:pressed {{
@@ -468,9 +471,11 @@ QPushButton[sidebar-btn="true"]:pressed {{
 }}
 
 QPushButton[sidebar-btn="true"][active="true"] {{
-    background-color: {DARK_ACCENT};
+    background-color: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 {DARK_ACCENT}, stop:1 #a855f7);
     color: white;
     font-weight: bold;
+    border-left: 3px solid white;
+    padding-left: 13px;
 }}
 
 /* ─── QStackedWidget ───────────────────────────── */
@@ -487,8 +492,28 @@ QLabel[header="true"] {{
 }}
 
 QLabel[subtitle="true"] {{
-    font-size: 12px;
+    font-size: 14px;
     color: {DARK_TEXT_DIM};
+}}
+
+QPushButton#themeToggle {{
+    background: {DARK_SURFACE};
+    color: {DARK_TEXT_DIM};
+    border: 1px solid {DARK_BORDER};
+    border-radius: 16px;
+    font-size: 11px;
+    font-weight: bold;
+}}
+
+QPushButton#themeToggle:hover {{
+    background: {DARK_SURFACE_HOVER};
+    color: {DARK_TEXT};
+}}
+
+QPushButton#themeToggle:checked {{
+    background: {DARK_ACCENT};
+    color: white;
+    border-color: {DARK_ACCENT};
 }}
 """
 
@@ -742,17 +767,22 @@ QPushButton[sidebar-btn="true"] {{
     padding: 10px 16px;
     text-align: left;
     font-size: 13px;
+    font-weight: 500;
 }}
 
 QPushButton[sidebar-btn="true"]:hover {{
     background-color: {LIGHT_SURFACE_HOVER};
     color: {LIGHT_TEXT};
+    border-left: 3px solid {LIGHT_ACCENT};
+    padding-left: 13px;
 }}
 
 QPushButton[sidebar-btn="true"][active="true"] {{
     background-color: {LIGHT_ACCENT};
     color: white;
     font-weight: bold;
+    border-left: 3px solid {LIGHT_ACCENT};
+    padding-left: 13px;
 }}
 
 QProgressBar {{
@@ -776,8 +806,28 @@ QLabel[header="true"] {{
 }}
 
 QLabel[subtitle="true"] {{
-    font-size: 12px;
+    font-size: 14px;
     color: {LIGHT_TEXT_DIM};
+}}
+
+QPushButton#themeToggle {{
+    background: {LIGHT_SURFACE};
+    color: {LIGHT_TEXT_DIM};
+    border: 1px solid {LIGHT_BORDER};
+    border-radius: 16px;
+    font-size: 11px;
+    font-weight: bold;
+}}
+
+QPushButton#themeToggle:hover {{
+    background: {LIGHT_SURFACE_HOVER};
+    color: {LIGHT_TEXT};
+}}
+
+QPushButton#themeToggle:checked {{
+    background: {LIGHT_ACCENT};
+    color: white;
+    border-color: {LIGHT_ACCENT};
 }}
 """
 

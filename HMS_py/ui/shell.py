@@ -33,12 +33,13 @@ def _qt_message_handler(msg_type, context, message):
     _original_showWarning(msg_type, context, message)
 warnings.showwarning = _qt_message_handler
 
-from PyQt6.QtWidgets import (QApplication, QDialog, QFormLayout, QHBoxLayout,
-                             QLabel, QLineEdit, QMainWindow, QMessageBox,
-                             QPushButton, QTableWidget, QTableWidgetItem,
-                             QVBoxLayout, QWidget, QFrame, QSizePolicy)
+from PyQt6.QtWidgets import (QApplication, QDialog, QFormLayout, QGridLayout,
+                             QHBoxLayout, QLabel, QLineEdit, QMainWindow,
+                             QMessageBox, QPushButton, QTableWidget,
+                             QTableWidgetItem, QVBoxLayout, QWidget, QFrame,
+                             QSizePolicy, QScrollArea)
 from PyQt6.QtCore import Qt, qInstallMessageHandler, QtMsgType
-from PyQt6.QtGui import QFont, QShortcut, QKeySequence
+from PyQt6.QtGui import QFont, QShortcut, QKeySequence, QColor
 
 from HMS_py.ui.theme import apply_theme, toggle_theme, current_theme
 
@@ -90,57 +91,98 @@ QTableCornerButton::section { background: #dcdcdc; }
 
 # ---------------------------------------------------------------- login
 class LoginDialog(QDialog):
-    """VB6 frmPassword - 'User Information' screen."""
+    """Modern login dialog - dark card style."""
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("User Information")
-        self.resize(560, 320)
-        self.user = None
+        self.setWindowTitle("HMS Login")
+        self.setFixedSize(420, 380)
+        self.user = ""
 
         root = QVBoxLayout(self)
         root.setContentsMargins(0, 0, 0, 0)
+
+        # Header
+        header = QWidget()
+        header.setFixedHeight(80)
+        header.setStyleSheet("background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #7c3aed, stop:1 #a855f7); border-top-left-radius: 12px; border-top-right-radius: 12px;")
+        hl = QVBoxLayout(header)
+        hl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        app_name = QLabel("HMS")
+        app_name.setFont(QFont("Segoe UI", 22, QFont.Weight.Bold))
+        app_name.setStyleSheet("color: white; background: transparent;")
+        app_name.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        hl.addWidget(app_name)
+        root.addWidget(header)
+
+        # Card body
         body = QWidget()
-        body.setObjectName("vbScreen")
+        body.setStyleSheet("background: #2a2a3c; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;")
         lay = QVBoxLayout(body)
-        lay.setContentsMargins(40, 30, 40, 24)
+        lay.setContentsMargins(40, 24, 40, 20)
+        lay.setSpacing(12)
 
-        title = QLabel("User Information")
-        title.setObjectName("vbTitle")
-        title.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        lay.addWidget(title)
+        lbl_title = QLabel("Sign in to your account")
+        lbl_title.setFont(QFont("Segoe UI", 11))
+        lbl_title.setStyleSheet("color: #8888aa; background: transparent;")
+        lbl_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        lay.addWidget(lbl_title)
 
-        form = QFormLayout()
-        f = QFont("Segoe UI", 10, QFont.Weight.Bold)
+        # User
+        lbl_u = QLabel("User Name")
+        lbl_u.setStyleSheet("color: #b0b0cc; font-size: 11px; font-weight: bold; background: transparent;")
+        lay.addWidget(lbl_u)
         self.txtUser = QLineEdit()
-        self.txtUser.setMinimumHeight(26)
-        self.txtPass = QLineEdit()
-        self.txtPass.setMinimumHeight(26)
-        self.txtPass.setEchoMode(QLineEdit.EchoMode.Password)
-        lblU, lblP = QLabel("User Name"), QLabel("Password")
-        for l in (lblU, lblP):
-            l.setFont(f)
-            l.setStyleSheet("color:#123; ")
-        form.addRow(lblU, self.txtUser)
-        form.addRow(lblP, self.txtPass)
-        lay.addLayout(form)
-        lay.addStretch()
+        self.txtUser.setPlaceholderText("Enter username...")
+        self.txtUser.setMinimumHeight(38)
+        lay.addWidget(self.txtUser)
 
-        btns = QHBoxLayout()
-        self.btnLogin = QPushButton("&Login")
-        self.btnUnLoad = QPushButton("&Un Load")
-        for b in (self.btnLogin, self.btnUnLoad):
-            b.setObjectName("vbBtn")
-            btns.addWidget(b)
-        lay.addLayout(btns)
+        # Password
+        lbl_p = QLabel("Password")
+        lbl_p.setStyleSheet("color: #b0b0cc; font-size: 11px; font-weight: bold; background: transparent;")
+        lay.addWidget(lbl_p)
+        self.txtPass = QLineEdit()
+        self.txtPass.setPlaceholderText("Enter password...")
+        self.txtPass.setEchoMode(QLineEdit.EchoMode.Password)
+        self.txtPass.setMinimumHeight(38)
+        lay.addWidget(self.txtPass)
+
+        lay.addSpacing(8)
+
+        # Buttons
+        self.btnLogin = QPushButton("Sign In")
+        self.btnLogin.setFixedHeight(42)
+        self.btnLogin.setStyleSheet("""
+            QPushButton {
+                background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #7c3aed, stop:1 #a855f7);
+                color: white; font-weight: bold; font-size: 14px;
+                border: none; border-radius: 8px;
+            }
+            QPushButton:hover { background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #6d28d9, stop:1 #9333ea); }
+            QPushButton:pressed { background: #5b21b6; }
+        """)
+        lay.addWidget(self.btnLogin)
+
+        self.btnUnLoad = QPushButton("Exit")
+        self.btnUnLoad.setFixedHeight(36)
+        self.btnUnLoad.setStyleSheet("""
+            QPushButton {
+                background: transparent; color: #8888aa; border: 1px solid #3a3a52;
+                border-radius: 8px; font-size: 12px;
+            }
+            QPushButton:hover { border-color: #7c3aed; color: #b0b0cc; }
+        """)
+        lay.addWidget(self.btnUnLoad)
 
         self.lblMsg = QLabel("")
         self.lblMsg.setWordWrap(True)
-        self.lblMsg.setStyleSheet("color:#ffe0e0; font-weight:bold;")
+        self.lblMsg.setStyleSheet("color: #ef4444; font-weight: bold; background: transparent; font-size: 11px;")
+        self.lblMsg.setAlignment(Qt.AlignmentFlag.AlignCenter)
         lay.addWidget(self.lblMsg)
 
-        # DB-status label (VB6 me nahi tha - diagnostic; INI target +
-        # live connect-check dono dikhata hai)
+        root.addWidget(body)
+
+        # DB status
         from HMS_py.core.db import load_config, connect
         cfg = load_config()
         try:
@@ -149,18 +191,15 @@ class LoginDialog(QDialog):
             _cur.execute("SELECT @@SERVERNAME, DB_NAME()")
             _srv, _dbn = _cur.fetchone()
             _cn.close()
-            db_txt = f"DB: {_srv} / {_dbn}"
+            db_txt = f"Connected: {_srv} / {_dbn}"
             self.db_ok = True
-        except Exception as e:
-            db_txt = f"DB: OFFLINE ({cfg.get('server')}/{cfg.get('database')})"
+        except Exception:
+            db_txt = f"Offline: {cfg.get('server')}/{cfg.get('database')}"
             self.db_ok = False
         self.lblDb = QLabel(db_txt)
-        # OCR-contrast fix (P0-tail): white-on-dark - automation-readable
-        self.lblDb.setStyleSheet(
-            "color:#ffffff; font-weight:bold; background:rgba(0,0,0,150);"
-            "padding:3px 8px; border-radius:4px;")
-        lay.addWidget(self.lblDb)
-        root.addWidget(body)
+        self.lblDb.setStyleSheet("color: #666680; font-size: 10px; padding: 4px;")
+        self.lblDb.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        root.addWidget(self.lblDb)
 
         self.btnLogin.clicked.connect(self._do_login)
         self.btnUnLoad.clicked.connect(self.reject)
@@ -178,52 +217,89 @@ class LoginDialog(QDialog):
 
 # ------------------------------------------------------------- company
 class CompanyDialog(QDialog):
-    """VB6 frmCompany - 'Company Details' screen (dynamic DB data)."""
+    """Modern company selection dialog."""
 
     def __init__(self, user: str, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Company Details")
-        self.resize(680, 360)
+        self.setWindowTitle("Select Company")
+        self.setFixedSize(580, 420)
         self.user = user
         self.selected = None
 
         root = QVBoxLayout(self)
         root.setContentsMargins(0, 0, 0, 0)
+
+        # Header
+        header = QWidget()
+        header.setFixedHeight(70)
+        header.setStyleSheet("background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #7c3aed, stop:1 #a855f7); border-top-left-radius: 12px; border-top-right-radius: 12px;")
+        hl = QVBoxLayout(header)
+        hl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        lbl = QLabel("Select Company")
+        lbl.setFont(QFont("Segoe UI", 16, QFont.Weight.Bold))
+        lbl.setStyleSheet("color: white; background: transparent;")
+        lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        hl.addWidget(lbl)
+        root.addWidget(header)
+
+        # Card body
         body = QWidget()
-        body.setObjectName("vbScreen")
+        body.setStyleSheet("background: #2a2a3c; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;")
         lay = QVBoxLayout(body)
-        lay.setContentsMargins(30, 8, 30, 20)
+        lay.setContentsMargins(24, 16, 24, 20)
+        lay.setSpacing(12)
 
-        title = QLabel("Company Details")
-        title.setObjectName("vbTitle")
-        lay.addWidget(title)
-        lay.addStretch()
-
+        # Table
         self.tbl = QTableWidget(0, 3)
         self.tbl.setHorizontalHeaderLabels(
             ["Company Name", "Short Name", "Current Year"])
         self.tbl.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self.tbl.setSelectionBehavior(
             QTableWidget.SelectionBehavior.SelectRows)
-        self.tbl.setMinimumHeight(90)
+        self.tbl.setMinimumHeight(120)
+        self.tbl.verticalHeader().setVisible(False)
+        self.tbl.setShowGrid(False)
+        self.tbl.setAlternatingRowColors(True)
         self.tbl.cellDoubleClicked.connect(lambda *_: self._do_login())
+        self.tbl.horizontalHeader().setStretchLastSection(True)
         lay.addWidget(self.tbl)
 
-        hint = QLabel("For more information about Company, "
-                      "Press Right Mouse Button")
-        hint.setStyleSheet("color: #c00000;")
-        hint.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        lay.addWidget(hint)
+        # Buttons
+        btn_lay = QHBoxLayout()
+        btn_lay.setSpacing(8)
+        self.btnLogin = QPushButton("Login")
+        self.btnLogin.setFixedHeight(40)
+        self.btnLogin.setStyleSheet("""
+            QPushButton {
+                background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #7c3aed, stop:1 #a855f7);
+                color: white; font-weight: bold; font-size: 13px;
+                border: none; border-radius: 8px; padding: 0 24px;
+            }
+            QPushButton:hover { background: #6d28d9; }
+        """)
+        self.btnUnLoad = QPushButton("Exit")
+        self.btnUnLoad.setFixedHeight(40)
+        self.btnUnLoad.setStyleSheet("""
+            QPushButton {
+                background: transparent; color: #8888aa; border: 1px solid #3a3a52;
+                border-radius: 8px; font-size: 12px; padding: 0 20px;
+            }
+            QPushButton:hover { border-color: #7c3aed; color: #b0b0cc; }
+        """)
+        self.btnDbUpd = QPushButton("DB Update")
+        self.btnDbUpd.setFixedHeight(40)
+        self.btnDbUpd.setStyleSheet("""
+            QPushButton {
+                background: transparent; color: #f59e0b; border: 1px solid #f59e0b;
+                border-radius: 8px; font-size: 12px; padding: 0 20px;
+            }
+            QPushButton:hover { background: rgba(245,158,11,0.1); }
+        """)
+        btn_lay.addWidget(self.btnLogin)
+        btn_lay.addWidget(self.btnUnLoad)
+        btn_lay.addWidget(self.btnDbUpd)
+        lay.addLayout(btn_lay)
 
-        btns = QHBoxLayout()
-        btns.addStretch()
-        self.btnLogin = QPushButton("&Login")
-        self.btnUnLoad = QPushButton("&Un Load")
-        self.btnDbUpd = QPushButton("&Database Update")
-        for b in (self.btnLogin, self.btnUnLoad, self.btnDbUpd):
-            b.setObjectName("vbBtn")
-            btns.addWidget(b)
-        lay.addLayout(btns)
         root.addWidget(body)
 
         self.btnLogin.clicked.connect(self._do_login)
@@ -239,15 +315,15 @@ class CompanyDialog(QDialog):
                                      rec["year"])):
                 it = QTableWidgetItem(str(val))
                 it.setFlags(it.flags() & ~Qt.ItemFlag.ItemIsEditable)
+                it.setForeground(QColor("#e0e0e0"))
                 self.tbl.setItem(r, c, it)
         if rows:
             self.tbl.selectRow(0)
 
     def _db_update(self):
-        # VB6 me Database Update = year-start maintenance; abhi info-only
         QMessageBox.information(
             self, "Database Update",
-            "Database Update: year-start maintenance (phase P4 me aayega).")
+            "Database Update: year-start maintenance.")
 
     def _do_login(self):
         r = self.tbl.currentRow()
@@ -1042,9 +1118,10 @@ class MainWindow(QMainWindow):
         topbar = QHBoxLayout()
         topbar.setContentsMargins(16, 8, 16, 8)
         self.lblTitle = QLabel(
-            f"{comp['name']}  {{ {comp['year']} }}")
+            f"  {comp['name']}  {{ {comp['year']} }}")
         f = QFont("Segoe UI", 14, QFont.Weight.Bold)
         self.lblTitle.setFont(f)
+        self.lblTitle.setProperty("header", True)
         topbar.addWidget(self.lblTitle)
         topbar.addStretch()
 
@@ -1052,7 +1129,9 @@ class MainWindow(QMainWindow):
         self.theme_btn = QPushButton("Dark Mode")
         self.theme_btn.setCheckable(True)
         self.theme_btn.setChecked(True)
-        self.theme_btn.setFixedWidth(100)
+        self.theme_btn.setFixedWidth(110)
+        self.theme_btn.setFixedHeight(32)
+        self.theme_btn.setObjectName("themeToggle")
         self.theme_btn.clicked.connect(self._toggle_theme)
         topbar.addWidget(self.theme_btn)
         root.addLayout(topbar)
@@ -1064,16 +1143,16 @@ class MainWindow(QMainWindow):
         # Modern sidebar
         sidebar = QFrame()
         sidebar.setProperty("sidebar", True)
-        sidebar.setFixedWidth(200)
+        sidebar.setFixedWidth(220)
         side_lay = QVBoxLayout(sidebar)
-        side_lay.setContentsMargins(8, 8, 8, 8)
+        side_lay.setContentsMargins(10, 8, 10, 8)
         side_lay.setSpacing(2)
 
         self._side_buttons = []
         for m in menu.sidebar_modules():
-            b = QPushButton(m["name"])
+            b = QPushButton(f"  {m['name']}")
             b.setProperty("sidebar-btn", True)
-            b.setMinimumHeight(38)
+            b.setMinimumHeight(40)
             b.setCheckable(True)
             b.setAccessibleName(m["name"])
             b.setAccessibleDescription(f"Module {m['name']}")
@@ -1085,7 +1164,7 @@ class MainWindow(QMainWindow):
 
         self.canvas = QLabel("Module select karo (left sidebar)")
         self.canvas.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.canvas.setStyleSheet("font-size: 14px; color: #8888aa;")
+        self.canvas.setProperty("subtitle", True)
         body.addWidget(self.canvas, stretch=1)
         root.addLayout(body)
         self.setCentralWidget(central)
@@ -1179,8 +1258,8 @@ class MainWindow(QMainWindow):
 
     def _on_module(self, m: dict, btn: QPushButton):
         # sidebar exclusive-check (VB6 jaisa highlight)
-        for other in self.findChildren(QPushButton):
-            if other is not btn and other.isCheckable():
+        for other in self._side_buttons:
+            if other is not btn:
                 other.setChecked(False)
         btn.setChecked(True)
 

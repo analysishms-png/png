@@ -69,3 +69,15 @@ business value (operations me use hota hai?) -> priority (P6/P7/P8)
 
 ## Agla actionable: **P6-3 Stock Register view** (read-only, 30369 rows) → P6-5
 (eInvoice config, 1 row) → P7-1 (Kitchen Stock Report) — sabse chhote tasks.
+
+
+---
+
+## UPDATE 2026-09-20 — S6 Batch-1 DONE (Inventory reports live-fix)
+
+- 21 failing inventory SQLs rewritten to live schema (QtyRcp->QtyRec, ItemMast name-join,
+  GodownMast join, BAPN purchase census, KOT item-lines for sale reports — Sale2 has no Item col live)
+- v1 fixer cross-write incident -> B026; v2 bounded regenerator + victim restore + post-scan
+- Inventory category: 13/33 -> **33/33 PASS**; full engine 304/403 -> **333/421**
+- Remaining 88 fails = Batch-2 (Finance 'Balance' family ~22), Batch-3 (FO 'Vdate' family ~20),
+  Batch-4 (POS 'KOTNo' + misc), Batch-5 (Members/SMStype blocked-tables reports -> DISABLED list)
