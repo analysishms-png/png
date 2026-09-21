@@ -13,6 +13,7 @@ from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor
 from HMS_py.core import inventory as inv
+from HMS_py.ui import theme as _theme
 
 
 def _cell(val, fg: str = "#111111", editable: bool = False) -> QTableWidgetItem:

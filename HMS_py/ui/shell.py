@@ -38,10 +38,46 @@ from PyQt6.QtWidgets import (QApplication, QDialog, QFormLayout, QGridLayout,
                              QMessageBox, QPushButton, QTableWidget,
                              QTableWidgetItem, QVBoxLayout, QWidget, QFrame,
                              QSizePolicy, QScrollArea)
-from PyQt6.QtCore import Qt, qInstallMessageHandler, QtMsgType
+from PyQt6.QtCore import Qt, qInstallMessageHandler, QtMsgType, QTimer
 from PyQt6.QtGui import QFont, QShortcut, QKeySequence, QColor
 
-from HMS_py.ui.theme import apply_theme, toggle_theme, current_theme
+from HMS_py.ui import theme as _theme
+from HMS_py.ui.theme import (apply_theme, current_theme, palette,
+                             toggle_theme)
+from HMS_py.ui.glass import AppearanceDialog, AuroraCanvas
+
+# Theme-aware legacy stylesheet (folio_ui.py import compatibility).
+# Runtime pe current palette se banta hai; _refresh_style() se update karo.
+def _build_style() -> str:
+    t = palette()
+    return f"""
+    QWidget#vbScreen {{ background: {t['bg']}; }}
+    QLabel#vbTitle {{ background: {t['surface_solid']}; color: {t['text']};
+        font-size: 12pt; font-weight: bold; padding: 4px;
+        border-radius: {_theme._active['radius']}px; }}
+    QPushButton#vbBtn {{ background: {t['surface_hover']};
+        border: 1px solid {t['border']}; border-radius: {_theme._active['radius']}px;
+        font-weight: bold; padding: 6px 22px; color: {t['text']}; }}
+    QPushButton#vbBtn:hover {{ border-color: {t['accent']};
+        background: {t['glass_tint']}; }}
+    QTableWidget {{ background: {t['glass_tint']}; color: {t['text']};
+        gridline-color: {t['border']}; border-radius: {_theme._active['radius']}px; }}
+    QTableWidget::item {{ color: {t['text']}; }}
+    QTableWidget::item:selected {{ background: {t['accent']}; color: #fff; }}
+    QHeaderView::section {{ background: {t['header_grad_top']}; color: {t['text']};
+        border: none; border-bottom: 2px solid {t['accent']}; font-weight: bold; }}
+    QTableCornerButton::section {{ background: {t['header_grad_top']}; }}
+    """
+
+
+STYLE = _build_style()
+
+
+def _refresh_style(app=None):
+    """Theme change ke baad legacy STYLE ko naye palette se sync karo."""
+    global STYLE
+    STYLE = _build_style()
+    (app or QApplication.instance()).setStyleSheet(app.styleSheet())
 
 
 _APP = None
@@ -72,21 +108,8 @@ qInstallMessageHandler(_qt_msg_handler)
 
 from HMS_py.core import auth, company, menu
 
-# VB6-look shared styles (production screenshots: blue gradient, cream title)
-VB_BLUE = "#2f7fc1"
-STYLE = """
-QWidget#vbScreen { background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-    stop:0 #7db9e8, stop:1 #2f7fc1); }
-QLabel#vbTitle { color: #fffbe6; font-size: 12pt; font-weight: bold;
-    background: #fdfdd0; color: #444; padding: 4px; }
-QPushButton#vbBtn { background: #e8f4ff; border: 2px outset #b0d0e8;
-    font-weight: bold; padding: 6px 22px; color: #14406b; }
-QPushButton#vbBtn:hover { background: #d0e8ff; }
-QTableWidget { background: white; color: #111; gridline-color: #c8c8c8; }
-QTableWidget::item { color: #111; }
-QHeaderView::section { background: #dcdcdc; color: #111; font-weight: bold; }
-QTableCornerButton::section { background: #dcdcdc; }
-"""
+# VB6-look shared styles ab theme engine (HMS_py.ui.theme) se aate hain.
+# User Appearance dialog se colors define kar sakta hai (glassmorphism).
 
 
 # ---------------------------------------------------------------- db settings
@@ -117,7 +140,7 @@ class DbSettingsDialog(QDialog):
             "SQL Server ke liye server name aur database naam yahan daalo.\n"
             "Save karne par Analysis.ini update hogi aur login fir isi DB se hoga.")
         note.setWordWrap(True)
-        note.setStyleSheet("color: #8888aa; font-size: 11px;")
+        note.setProperty("glassSub", True)
         note.setAlignment(Qt.AlignmentFlag.AlignCenter)
         root.addWidget(note)
 
@@ -125,14 +148,14 @@ class DbSettingsDialog(QDialog):
         form.setSpacing(12)
 
         lbl_s = QLabel("Server Name")
-        lbl_s.setStyleSheet("color: #b0b0cc; font-size: 12px; font-weight: bold;")
+        lbl_s.setProperty("glassSub", True)
         self.txtServer = QLineEdit(cfg.get("server", ""))
         self.txtServer.setMinimumHeight(36)
         self.txtServer.setPlaceholderText("e.g. Localhost or DESKTOP-XYZ\\SQLEXPRESS")
         form.addRow(lbl_s, self.txtServer)
 
         lbl_d = QLabel("Database Name")
-        lbl_d.setStyleSheet("color: #b0b0cc; font-size: 12px; font-weight: bold;")
+        lbl_d.setProperty("glassSub", True)
         self.txtDatabase = QLineEdit(cfg.get("database", ""))
         self.txtDatabase.setMinimumHeight(36)
         self.txtDatabase.setPlaceholderText("e.g. KailashData2526")
@@ -141,7 +164,7 @@ class DbSettingsDialog(QDialog):
 
         self.lblStatus = QLabel("")
         self.lblStatus.setWordWrap(True)
-        self.lblStatus.setStyleSheet("color: #8888aa; font-size: 11px;")
+        self.lblStatus.setProperty("glassSub", True)
         self.lblStatus.setAlignment(Qt.AlignmentFlag.AlignCenter)
         root.addWidget(self.lblStatus)
 
@@ -149,26 +172,11 @@ class DbSettingsDialog(QDialog):
         btns.setSpacing(8)
         self.btnTest = QPushButton("Test")
         self.btnTest.setFixedHeight(38)
-        self.btnTest.setStyleSheet("""
-            QPushButton { background: transparent; color: #f59e0b;
-                border: 1px solid #f59e0b; border-radius: 6px; font-size: 12px; }
-            QPushButton:hover { background: rgba(245,158,11,0.1); }
-        """)
         self.btnSave = QPushButton("Save")
         self.btnSave.setFixedHeight(38)
-        self.btnSave.setStyleSheet("""
-            QPushButton { background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
-                stop:0 #7c3aed, stop:1 #a855f7); color: white;
-                font-weight: bold; font-size: 13px; border: none; border-radius: 6px; }
-            QPushButton:hover { background: #6d28d9; }
-        """)
+        self.btnSave.setProperty("accent", True)
         self.btnCancel = QPushButton("Cancel")
         self.btnCancel.setFixedHeight(38)
-        self.btnCancel.setStyleSheet("""
-            QPushButton { background: transparent; color: #8888aa;
-                border: 1px solid #3a3a52; border-radius: 6px; font-size: 12px; }
-            QPushButton:hover { border-color: #7c3aed; color: #b0b0cc; }
-        """)
         btns.addWidget(self.btnTest)
         btns.addStretch()
         btns.addWidget(self.btnSave)
@@ -189,7 +197,8 @@ class DbSettingsDialog(QDialog):
         info = self._connect_info()
         if not info["server"] or not info["database"]:
             self.lblStatus.setText("Server aur Database dono bharo")
-            self.lblStatus.setStyleSheet("color: #ef4444; font-size: 11px;")
+            self.lblStatus.setStyleSheet(
+                f"color: {palette()['danger']}; font-size: 11px;")
             return
         try:
             tmp = dict(db.load_config())
@@ -199,10 +208,12 @@ class DbSettingsDialog(QDialog):
             cur.execute("SELECT @@SERVERNAME, DB_NAME()")
             srv, dbn = cur.fetchone()
             cn.close()
-            self.lblStatus.setStyleSheet("color: #22c55e; font-size: 11px;")
+            self.lblStatus.setStyleSheet(
+                f"color: {palette()['success']}; font-size: 11px;")
             self.lblStatus.setText(f"Connected: {srv} / {dbn}")
         except Exception as e:
-            self.lblStatus.setStyleSheet("color: #ef4444; font-size: 11px;")
+            self.lblStatus.setStyleSheet(
+                f"color: {palette()['danger']}; font-size: 11px;")
             self.lblStatus.setText(f"Fail: {e}")
 
     def _save(self):
@@ -210,15 +221,18 @@ class DbSettingsDialog(QDialog):
         info = self._connect_info()
         if not info["server"] or not info["database"]:
             self.lblStatus.setText("Server aur Database dono bharo")
-            self.lblStatus.setStyleSheet("color: #ef4444; font-size: 11px;")
+            self.lblStatus.setStyleSheet(
+                f"color: {palette()['danger']}; font-size: 11px;")
             return
         try:
             path = db.save_config(server=info["server"], database=info["database"])
-            self.lblStatus.setStyleSheet("color: #22c55e; font-size: 11px;")
+            self.lblStatus.setStyleSheet(
+                f"color: {palette()['success']}; font-size: 11px;")
             self.lblStatus.setText(f"Saved: {path}")
             self.accept()
         except Exception as e:
-            self.lblStatus.setStyleSheet("color: #ef4444; font-size: 11px;")
+            self.lblStatus.setStyleSheet(
+                f"color: {palette()['danger']}; font-size: 11px;")
             self.lblStatus.setText(f"Save fail: {e}")
 
 
@@ -238,32 +252,32 @@ class LoginDialog(QDialog):
         # Header
         header = QWidget()
         header.setFixedHeight(80)
-        header.setStyleSheet("background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #7c3aed, stop:1 #a855f7); border-top-left-radius: 12px; border-top-right-radius: 12px;")
+        header.setProperty("glassCard", True)
         hl = QVBoxLayout(header)
         hl.setAlignment(Qt.AlignmentFlag.AlignCenter)
         app_name = QLabel("HMS")
         app_name.setFont(QFont("Segoe UI", 22, QFont.Weight.Bold))
-        app_name.setStyleSheet("color: white; background: transparent;")
+        app_name.setProperty("glassTitle", True)
         app_name.setAlignment(Qt.AlignmentFlag.AlignCenter)
         hl.addWidget(app_name)
         root.addWidget(header)
 
         # Card body
         body = QWidget()
-        body.setStyleSheet("background: #2a2a3c; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;")
+        body.setProperty("glassCard", True)
         lay = QVBoxLayout(body)
         lay.setContentsMargins(40, 24, 40, 20)
         lay.setSpacing(12)
 
         lbl_title = QLabel("Sign in to your account")
         lbl_title.setFont(QFont("Segoe UI", 11))
-        lbl_title.setStyleSheet("color: #8888aa; background: transparent;")
+        lbl_title.setProperty("glassSub", True)
         lbl_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         lay.addWidget(lbl_title)
 
         # User
         lbl_u = QLabel("User Name")
-        lbl_u.setStyleSheet("color: #b0b0cc; font-size: 11px; font-weight: bold; background: transparent;")
+        lbl_u.setProperty("glassSub", True)
         lay.addWidget(lbl_u)
         self.txtUser = QLineEdit()
         self.txtUser.setPlaceholderText("Enter username...")
@@ -272,7 +286,7 @@ class LoginDialog(QDialog):
 
         # Password
         lbl_p = QLabel("Password")
-        lbl_p.setStyleSheet("color: #b0b0cc; font-size: 11px; font-weight: bold; background: transparent;")
+        lbl_p.setProperty("glassSub", True)
         lay.addWidget(lbl_p)
         self.txtPass = QLineEdit()
         self.txtPass.setPlaceholderText("Enter password...")
@@ -285,31 +299,18 @@ class LoginDialog(QDialog):
         # Buttons
         self.btnLogin = QPushButton("Sign In")
         self.btnLogin.setFixedHeight(42)
-        self.btnLogin.setStyleSheet("""
-            QPushButton {
-                background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #7c3aed, stop:1 #a855f7);
-                color: white; font-weight: bold; font-size: 14px;
-                border: none; border-radius: 8px;
-            }
-            QPushButton:hover { background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #6d28d9, stop:1 #9333ea); }
-            QPushButton:pressed { background: #5b21b6; }
-        """)
+        self.btnLogin.setProperty("accent", True)
         lay.addWidget(self.btnLogin)
 
         self.btnUnLoad = QPushButton("Exit")
         self.btnUnLoad.setFixedHeight(36)
-        self.btnUnLoad.setStyleSheet("""
-            QPushButton {
-                background: transparent; color: #8888aa; border: 1px solid #3a3a52;
-                border-radius: 8px; font-size: 12px;
-            }
-            QPushButton:hover { border-color: #7c3aed; color: #b0b0cc; }
-        """)
         lay.addWidget(self.btnUnLoad)
 
         self.lblMsg = QLabel("")
         self.lblMsg.setWordWrap(True)
-        self.lblMsg.setStyleSheet("color: #ef4444; font-weight: bold; background: transparent; font-size: 11px;")
+        self.lblMsg.setStyleSheet(
+            f"color: {palette()['danger']}; font-weight: bold;"
+            " background: transparent; font-size: 11px;")
         self.lblMsg.setAlignment(Qt.AlignmentFlag.AlignCenter)
         lay.addWidget(self.lblMsg)
 
@@ -317,19 +318,13 @@ class LoginDialog(QDialog):
 
         # DB status + settings button
         self.lblDb = QLabel("")
-        self.lblDb.setStyleSheet("color: #666680; font-size: 10px; padding: 4px;")
+        self.lblDb.setProperty("glassSub", True)
         self.lblDb.setAlignment(Qt.AlignmentFlag.AlignCenter)
         root.addWidget(self.lblDb)
 
         self.btnDb = QPushButton("Database Settings")
         self.btnDb.setFixedHeight(30)
-        self.btnDb.setStyleSheet("""
-            QPushButton {
-                background: transparent; color: #7c3aed; border: 1px solid #7c3aed;
-                border-radius: 8px; font-size: 11px; font-weight: bold;
-            }
-            QPushButton:hover { background: rgba(124,58,237,0.15); }
-        """)
+        self.btnDb.setCursor(Qt.CursorShape.PointingHandCursor)
         root.addWidget(self.btnDb)
         self._note_shown = False
 
@@ -389,19 +384,19 @@ class CompanyDialog(QDialog):
         # Header
         header = QWidget()
         header.setFixedHeight(70)
-        header.setStyleSheet("background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #7c3aed, stop:1 #a855f7); border-top-left-radius: 12px; border-top-right-radius: 12px;")
+        header.setProperty("glassCard", True)
         hl = QVBoxLayout(header)
         hl.setAlignment(Qt.AlignmentFlag.AlignCenter)
         lbl = QLabel("Select Company")
         lbl.setFont(QFont("Segoe UI", 16, QFont.Weight.Bold))
-        lbl.setStyleSheet("color: white; background: transparent;")
+        lbl.setProperty("glassTitle", True)
         lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
         hl.addWidget(lbl)
         root.addWidget(header)
 
         # Card body
         body = QWidget()
-        body.setStyleSheet("background: #2a2a3c; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;")
+        body.setProperty("glassCard", True)
         lay = QVBoxLayout(body)
         lay.setContentsMargins(24, 16, 24, 20)
         lay.setSpacing(12)
@@ -426,32 +421,11 @@ class CompanyDialog(QDialog):
         btn_lay.setSpacing(8)
         self.btnLogin = QPushButton("Login")
         self.btnLogin.setFixedHeight(40)
-        self.btnLogin.setStyleSheet("""
-            QPushButton {
-                background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #7c3aed, stop:1 #a855f7);
-                color: white; font-weight: bold; font-size: 13px;
-                border: none; border-radius: 8px; padding: 0 24px;
-            }
-            QPushButton:hover { background: #6d28d9; }
-        """)
+        self.btnLogin.setProperty("accent", True)
         self.btnUnLoad = QPushButton("Exit")
         self.btnUnLoad.setFixedHeight(40)
-        self.btnUnLoad.setStyleSheet("""
-            QPushButton {
-                background: transparent; color: #8888aa; border: 1px solid #3a3a52;
-                border-radius: 8px; font-size: 12px; padding: 0 20px;
-            }
-            QPushButton:hover { border-color: #7c3aed; color: #b0b0cc; }
-        """)
         self.btnDbUpd = QPushButton("DB Update")
         self.btnDbUpd.setFixedHeight(40)
-        self.btnDbUpd.setStyleSheet("""
-            QPushButton {
-                background: transparent; color: #f59e0b; border: 1px solid #f59e0b;
-                border-radius: 8px; font-size: 12px; padding: 0 20px;
-            }
-            QPushButton:hover { background: rgba(245,158,11,0.1); }
-        """)
         btn_lay.addWidget(self.btnLogin)
         btn_lay.addWidget(self.btnUnLoad)
         btn_lay.addWidget(self.btnDbUpd)
@@ -472,7 +446,7 @@ class CompanyDialog(QDialog):
                                      rec["year"])):
                 it = QTableWidgetItem(str(val))
                 it.setFlags(it.flags() & ~Qt.ItemFlag.ItemIsEditable)
-                it.setForeground(QColor("#e0e0e0"))
+                it.setForeground(QColor(palette()["text"]))
                 self.tbl.setItem(r, c, it)
         if rows:
             self.tbl.selectRow(0)
@@ -509,7 +483,7 @@ class MainSetupWorkbench(QDialog):
 
         root = QVBoxLayout(self)
         title = QLabel("Main Setup")
-        title.setStyleSheet("font-size: 18px; font-weight: bold; color: #1d3d5d;")
+        title.setProperty("glassTitle", True)
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         root.addWidget(title)
 
@@ -558,7 +532,7 @@ class MainSetupWorkbench(QDialog):
             group = QWidget(self)
             box = QVBoxLayout(group)
             label = QLabel(name)
-            label.setStyleSheet("font-size: 12px; font-weight: bold; color: #2d4a64;")
+            label.setProperty("glassSub", True)
             box.addWidget(label)
 
             grid = QGridLayout()
@@ -1285,7 +1259,11 @@ class MainWindow(QMainWindow):
         root.setSpacing(0)
         root.setContentsMargins(0, 0, 0, 0)
 
-        # Top bar with title + theme toggle
+        # Aurora glass backdrop (sab layers ke peeche)
+        self.aurora = AuroraCanvas(central)
+        self.aurora.lower()
+
+        # Top bar with title + theme toggle + appearance
         topbar = QHBoxLayout()
         topbar.setContentsMargins(16, 8, 16, 8)
         self.lblTitle = QLabel(
@@ -1297,21 +1275,33 @@ class MainWindow(QMainWindow):
         topbar.addStretch()
 
         # Theme toggle button
-        self.theme_btn = QPushButton("Dark Mode")
+        self.theme_btn = QPushButton("Light" if current_theme() == "dark"
+                                     else "Dark")
         self.theme_btn.setCheckable(True)
-        self.theme_btn.setChecked(True)
-        self.theme_btn.setFixedWidth(110)
+        self.theme_btn.setChecked(current_theme() == "dark")
+        self.theme_btn.setFixedWidth(80)
         self.theme_btn.setFixedHeight(32)
         self.theme_btn.setObjectName("themeToggle")
+        self.theme_btn.setToolTip("Dark / light glass mode switch")
         self.theme_btn.clicked.connect(self._toggle_theme)
         topbar.addWidget(self.theme_btn)
+
+        # Appearance dialog button (user-defined colors)
+        self.btnAppearance = QPushButton("🎨 Appearance")
+        self.btnAppearance.setObjectName("themeToggle")
+        self.btnAppearance.setFixedHeight(32)
+        self.btnAppearance.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.btnAppearance.setToolTip(
+            "Apne colors, preset aur glass intensity set karo")
+        self.btnAppearance.clicked.connect(self._open_appearance)
+        topbar.addWidget(self.btnAppearance)
         root.addLayout(topbar)
 
         body = QHBoxLayout()
         body.setSpacing(0)
         body.setContentsMargins(0, 0, 0, 0)
 
-        # Modern sidebar
+        # Modern glass sidebar
         sidebar = QFrame()
         sidebar.setProperty("sidebar", True)
         sidebar.setFixedWidth(220)
@@ -1335,7 +1325,7 @@ class MainWindow(QMainWindow):
 
         self.canvas = QLabel("Module select karo (left sidebar)")
         self.canvas.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.canvas.setProperty("subtitle", True)
+        self.canvas.setProperty("glassSub", True)
         body.addWidget(self.canvas, stretch=1)
         root.addLayout(body)
         self.setCentralWidget(central)
@@ -1344,9 +1334,13 @@ class MainWindow(QMainWindow):
         sb.addWidget(QLabel(f"  {user}  "))
         sb.addWidget(QLabel(
             f"Property Site : {comp['short'] or comp['name']}  "))
-        import datetime
-        sb.addWidget(QLabel(
-            f"S/w Dt.: {datetime.datetime.now():%d/%b/%Y %H:%M:%S}  "))
+        # LIVE clock bug fix: pehle static datetime tha, ab QTimer tick
+        import datetime as _dt
+        self._clock = QLabel(f"S/w Dt.: {_dt.datetime.now():%d/%b/%Y %H:%M:%S}  ")
+        sb.addWidget(self._clock)
+        self._clock_timer = QTimer(self)
+        self._clock_timer.timeout.connect(self._tick_clock)
+        self._clock_timer.start(1000)
         from HMS_py.core.db import load_config, connect
         try:
             cfg = load_config()
@@ -1440,11 +1434,33 @@ class MainWindow(QMainWindow):
         QShortcut(QKeySequence("Ctrl+Alt+E"), self,
                   activated=lambda: _safe("Call Type")(self))
 
+    def _tick_clock(self):
+        import datetime as _dt
+        self._clock.setText(
+            f"S/w Dt.: {_dt.datetime.now():%d/%b/%Y %H:%M:%S}  ")
+
+    def resizeEvent(self, ev):  # aurora backdrop ko central pe fill karo
+        super().resizeEvent(ev)
+        if hasattr(self, "aurora"):
+            self.aurora.setGeometry(0, 0, self.centralWidget().width(),
+                                    self.centralWidget().height())
+
     def _toggle_theme(self):
         app = QApplication.instance()
         new_theme = toggle_theme(app)
-        self.theme_btn.setText("Dark Mode" if new_theme == "dark" else "Light Mode")
+        self.theme_btn.setText("Light" if new_theme == "dark" else "Dark")
         self.theme_btn.setChecked(new_theme == "dark")
+        self.aurora.refresh()
+
+    def _open_appearance(self):
+        """User-defined colors dialog (live preview + persist)."""
+        dlg = AppearanceDialog(self)
+        dlg.appearanceChanged.connect(self.aurora.refresh)
+        dlg.exec()
+        self.theme_btn.setText("Light" if current_theme() == "dark"
+                               else "Dark")
+        self.theme_btn.setChecked(current_theme() == "dark")
+        self.aurora.refresh()
 
     def _on_module(self, m: dict, btn: QPushButton):
         # sidebar exclusive-check (VB6 jaisa highlight)
@@ -1465,6 +1481,7 @@ class MainWindow(QMainWindow):
             f"(ported: Plan/City/Sundry/Narration/Venue/Department)")
         self.setWindowTitle(
             f"{self.comp['name']} {{ {self.comp['year']} }} - {m['name']}")
+        self.aurora.refresh()
 
     def _add_item(self, parent_menu, it: dict):
         opener = self.registry.get(it["name"])
@@ -1494,7 +1511,7 @@ class MainWindow(QMainWindow):
 # ---------------------------------------------------------------- flow
 def run_flow() -> int:
     app = QApplication.instance() or QApplication(sys.argv)
-    apply_theme(app, "dark")
+    apply_theme(app)   # saved user tokens load hote hain (force dark nahi)
     app.setApplicationName("HMS_py")
 
     login = LoginDialog()
@@ -1516,7 +1533,7 @@ def main() -> int:
     if shot:
         from PyQt6.QtTest import QTest
         app = QApplication.instance() or QApplication(sys.argv)
-        apply_theme(app, "dark")
+        apply_theme(app)   # saved theme reflect karo
         login = LoginDialog()
         login.show()
         QTest.qWait(500)
@@ -1532,8 +1549,10 @@ def main() -> int:
         QTest.qWait(500)
         win.grab().save(os.path.splitext(shot)[0] + "_main.png")
         QTest.qWait(200)
+        # BUG FIX: pehle findChildren(QPushButton)[1] tha — naye buttons
+        # (Appearance) add hone pe index shift ho jaata. Ab direct sidebar btn.
         win._on_module({"name": "Main Setup", "srno": 41},
-                       win.findChildren(QPushButton)[1])
+                       win._side_buttons[0])
         QTest.qWait(300)
         win.grab().save(os.path.splitext(shot)[0] + "_module.png")
         print("screenshots saved:", shot)

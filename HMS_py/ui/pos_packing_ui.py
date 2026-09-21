@@ -9,6 +9,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor
 from HMS_py.core import pos_packing
+from HMS_py.ui import theme as _theme
 
 
 class PosPackingWindow(QMainWindow):
@@ -77,7 +78,7 @@ class PosPackingWindow(QMainWindow):
                     rec.get("ItemName", ""), rec.get("Qty", ""), rec.get("Status", "")]
             for j, v in enumerate(vals):
                 item = QTableWidgetItem(str(v))
-                item.setForeground(QColor("#111111"))
+                item.setForeground(QColor(_theme.palette()["text"]))
                 self.table.setItem(i, j, item)
 
     def _on_select(self):

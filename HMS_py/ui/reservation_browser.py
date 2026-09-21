@@ -22,6 +22,7 @@ from PyQt6.QtCore import QDate, Qt
 from PyQt6.QtGui import QColor
 
 from HMS_py.core import reservation
+from HMS_py.ui import theme as _theme
 
 
 class ReservationBrowser(QDialog):
@@ -101,7 +102,7 @@ class ReservationBrowser(QDialog):
                 # Dark-mode fix (live-caught): palette text white hota hai,
                 # white background par invisible - VB6 DataGrid jaisa
                 # hamesha-dark text force karo
-                it.setForeground(QColor("#111111"))
+                it.setForeground(QColor(_theme.palette()["text"]))
                 self.tbl.setItem(r, c, it)
         if keep_bookno is not None:
             for r, row in enumerate(rows):

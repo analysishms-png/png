@@ -20,13 +20,14 @@ from PyQt6.QtWidgets import (QHBoxLayout, QHeaderView, QLabel, QMessageBox,
                              QVBoxLayout, QWidget)
 
 from HMS_py.core import enviro
+from HMS_py.ui import theme as _theme
 
 
 def _dark_item(val, readonly=False) -> QTableWidgetItem:
     it = QTableWidgetItem("" if val is None else str(val))
     it.setFlags(it.flags() & ~Qt.ItemFlag.ItemIsEditable) if readonly else \
         it.setFlags(it.flags() | Qt.ItemFlag.ItemIsEditable)
-    it.setForeground(QColor("#111111"))
+    it.setForeground(QColor(_theme.palette()["text"]))
     if readonly:
         it.setBackground(QColor("#eeeeee"))
     return it

@@ -9,6 +9,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor
 from HMS_py.core import fa_ledger_ops
+from HMS_py.ui import theme as _theme
 
 
 class FaLedgerWindow(QMainWindow):
@@ -90,7 +91,7 @@ class FaLedgerWindow(QMainWindow):
                     rec.get("OpBalance", ""), rec.get("DrCr", "")]
             for j, v in enumerate(vals):
                 item = QTableWidgetItem(str(v))
-                item.setForeground(QColor("#111111"))
+                item.setForeground(QColor(_theme.palette()["text"]))
                 self.table.setItem(i, j, item)
 
     def _filter(self, text):

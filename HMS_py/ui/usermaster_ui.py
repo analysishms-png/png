@@ -19,6 +19,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor
 
 from HMS_py.core import usermaster
+from HMS_py.ui import theme as _theme
 
 
 class UserMasterForm(QDialog):
@@ -131,7 +132,7 @@ class UserMasterForm(QDialog):
             for c, v in enumerate(vals):
                 it = QTableWidgetItem(str(v or ""))
                 it.setFlags(it.flags() & ~Qt.ItemFlag.ItemIsEditable)
-                it.setForeground(QColor("#111111"))
+                it.setForeground(QColor(_theme.palette()["text"]))
                 self.tbl.setItem(r, c, it)
         if rows:
             self.tbl.selectRow(0)

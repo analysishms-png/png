@@ -26,23 +26,30 @@ from PyQt6.QtWidgets import (QApplication, QDialog, QGroupBox, QHBoxLayout,
                              QTableWidget, QTableWidgetItem, QVBoxLayout)
 
 from HMS_py.core import roomstatus
+from HMS_py.ui import theme as _theme
 
-# Status -> background color (VB6 room-rack color scheme)
-STATUS_COLORS = {
-    "Vacant":      "#c8f0c8",   # light green
-    "Occupied":    "#f0c8c8",   # light red
-    "Dirty":       "#fff0a0",   # yellow
-    "Maintenance": "#d0d0d0",   # gray
-    "Out of Order": "#b0b0b0",  # dark gray
-}
-STATUS_TEXT = {
-    "Vacant": "#005500", "Occupied": "#880000",
-    "Dirty": "#886600", "Maintenance": "#444444",
-    "Out of Order": "#222222",
-}
+# Status -> background/text (theme engine se mode-adaptive; VB6 room-rack
+# semantic preserve: Vacant=green, Occupied=red, Dirty=amber, Maint=neutral)
+def _status_palette() -> tuple[dict, dict]:
+    s = _theme.status_colors()
+    colors = {
+        "Vacant":       s["success_bg"],
+        "Occupied":     s["danger_bg"],
+        "Dirty":        s["warning_bg"],
+        "Maintenance":  s["neutral_bg"],
+        "Out of Order": s["neutral_bg"],
+    }
+    texts = {
+        "Vacant":       s["success_text"],
+        "Occupied":     s["danger_text"],
+        "Dirty":        s["warning_text"],
+        "Maintenance":  s["neutral_text"],
+        "Out of Order": s["neutral_text"],
+    }
+    return colors, texts
 
 
-def _cell(val, bg: str = "#ffffff", fg: str = "#111111") -> QTableWidgetItem:
+def _cell(val, bg: str = "", fg: str = "") -> QTableWidgetItem:
     if isinstance(val, (datetime.date, datetime.datetime)):
         val = f"{val:%d/%b/%Y}"
     it = QTableWidgetItem("" if val is None else str(val))
@@ -98,21 +105,27 @@ class RoomStatusForm(QDialog):
         self.lblDetail = QLabel(
             "Room select karo (click) - HK buttons se status update karo")
         self.lblDetail.setWordWrap(True)
-        self.lblDetail.setStyleSheet("padding:6px; background:#f0f0f0;")
+        self.lblDetail.setStyleSheet(
+            f"padding:6px; background:{_theme.palette()['glass_tint']};"
+            f"border-radius:8px;")
         root.addWidget(self.lblDetail)
 
         # ---- HK action buttons ----
         hk_grp = QGroupBox("Housekeeping Actions (Room Status Update)")
         hk_lay = QHBoxLayout(hk_grp)
+        s = _theme.status_colors()
         self.btnVacant = QPushButton("Mark VACANT")
         self.btnVacant.setStyleSheet(
-            "background:#27ae60; color:white; font-weight:bold; padding:6px;")
+            f"background:{s['success']}; color:{s['on_success']};"
+            "font-weight:bold; padding:6px; border:none; border-radius:6px;")
         self.btnDirty = QPushButton("Mark DIRTY")
         self.btnDirty.setStyleSheet(
-            "background:#e67e22; color:white; font-weight:bold; padding:6px;")
+            f"background:{s['warning']}; color:{s['on_warning']};"
+            "font-weight:bold; padding:6px; border:none; border-radius:6px;")
         self.btnMaint = QPushButton("Mark MAINTENANCE")
         self.btnMaint.setStyleSheet(
-            "background:#7f8c8d; color:white; font-weight:bold; padding:6px;")
+            f"background:{s['neutral']}; color:{s['on_neutral']};"
+            "font-weight:bold; padding:6px; border:none; border-radius:6px;")
         # P4-c: Maintenance/Out-of-Order VB6 me RoomBLockOut table se tha
         # (frm:883) - live table 0 rows, block-out UI P4-d me. Evidence:
         # core update_hk_status sirf Clean/Dirty (RoomStat varchar(1)).
@@ -121,7 +134,8 @@ class RoomStatusForm(QDialog):
             "RoomBLockOut block-out P4-d me (live table empty)")
         self.btnOOO = QPushButton("Mark OUT OF ORDER")
         self.btnOOO.setStyleSheet(
-            "background:#c0392b; color:white; font-weight:bold; padding:6px;")
+            f"background:{s['danger']}; color:{s['on_danger']};"
+            "font-weight:bold; padding:6px; border:none; border-radius:6px;")
         self.btnOOO.setEnabled(False)
         self.btnOOO.setToolTip("RoomBLockOut block-out P4-d me")
         self.btnRefresh = QPushButton("Refresh (F5)")
@@ -152,11 +166,13 @@ class RoomStatusForm(QDialog):
     # ---- data ----
     def reload(self):
         rows = roomstatus.room_rack()
+        colors, texts = _status_palette()
+        t = _theme.palette()
         self.tbl.setRowCount(len(rows))
         for r, rec in enumerate(rows):
             stat = rec["status"] or "Vacant"
-            bg = STATUS_COLORS.get(stat, "#ffffff")
-            fg = STATUS_TEXT.get(stat, "#111111")
+            bg = colors.get(stat, t["surface_solid"])
+            fg = texts.get(stat, t["text"])
             dep = rec["dep"]
             vals = [
                 rec["roomno"], rec["name"], rec["cat"],
@@ -170,14 +186,18 @@ class RoomStatusForm(QDialog):
         # summary
         s = roomstatus.housekeeping_summary()
         self.lblTotal.setText(f"Total: {s['total']}")
+        st = _theme.status_colors()
         self.lblOcc.setText(f"Occupied: {s['occupied']}")
         self.lblOcc.setStyleSheet(
-            "color:#880000; font-weight:bold;" if s["occupied"] else "")
+            f"color:{st['danger_text']}; font-weight:bold;"
+            if s["occupied"] else "")
         self.lblVac.setText(f"Vacant: {s['vacant']}")
-        self.lblVac.setStyleSheet("color:#005500; font-weight:bold;")
+        self.lblVac.setStyleSheet(
+            f"color:{st['success_text']}; font-weight:bold;")
         self.lblDirty.setText(f"Dirty: {s['dirty']}")
         self.lblDirty.setStyleSheet(
-            "color:#886600; font-weight:bold;" if s["dirty"] else "")
+            f"color:{st['warning_text']}; font-weight:bold;"
+            if s["dirty"] else "")
         self.lblMaint.setText(f"Maint/OOO: {s['maintenance']}")
         self.lblPct.setText(f"Occ%: {s['occ_pct']}%")
         if rows:

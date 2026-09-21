@@ -16,6 +16,8 @@ from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
 from PyQt6.QtCore import Qt, QSize
 from PyQt6.QtGui import QFont, QIcon
 
+from HMS_py.ui import theme as _theme
+
 
 class ModernWindow(QMainWindow):
     """Modern base window with consistent layout and styling."""
@@ -125,10 +127,11 @@ class ModernWindow(QMainWindow):
 
         if data:
             table.setRowCount(len(data))
+            text_col = QColor(_theme.palette()["text"])  # BUG FIX: #e0e0e0 light me invisible
             for i, row in enumerate(data):
                 for j, val in enumerate(row):
                     item = QTableWidgetItem(str(val or ""))
-                    item.setForeground(QColor("#e0e0e0"))
+                    item.setForeground(text_col)
                     table.setItem(i, j, item)
 
         self.content_area.addWidget(table)
@@ -136,23 +139,25 @@ class ModernWindow(QMainWindow):
 
 
 class GroupBox(QGroupBox):
-    """Enhanced GroupBox with modern styling."""
+    """Glass GroupBox — colors theme tokens se (user-defined)."""
     def __init__(self, title, parent=None):
         super().__init__(title, parent)
-        self.setStyleSheet("""
-            QGroupBox {
+        t = _theme.palette()
+        self.setStyleSheet(f"""
+            QGroupBox {{
                 font-weight: bold;
                 font-size: 13px;
-                border: 1px solid #3a3a52;
-                border-radius: 10px;
+                background: {t['glass_tint']};
+                border: 1px solid {t['border']};
+                border-radius: 12px;
                 margin-top: 12px;
                 padding: 16px 12px 12px 12px;
-            }
-            QGroupBox::title {
+            }}
+            QGroupBox::title {{
                 subcontrol-origin: margin;
                 subcontrol-position: top left;
                 padding: 4px 12px;
-                color: #7c3aed;
+                color: {t['accent']};
                 font-weight: bold;
-            }
+            }}
         """)

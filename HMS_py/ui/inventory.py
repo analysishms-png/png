@@ -22,6 +22,7 @@ from PyQt6.QtWidgets import (QApplication, QComboBox, QDateEdit, QDialog,
                              QTableWidgetItem, QVBoxLayout, QWidget)
 
 from HMS_py.core import inventory as inv
+from HMS_py.ui import theme as _theme
 from HMS_py.ui.base_master import (BaseMasterForm, Field, MasterConfig,
                                    make_delete_guard)
 
@@ -31,7 +32,7 @@ def _dark_item(val) -> QTableWidgetItem:
         val = f"{val:%d/%b/%y}"
     it = QTableWidgetItem("" if val is None else str(val))
     it.setFlags(it.flags() & ~Qt.ItemFlag.ItemIsEditable)
-    it.setForeground(QColor("#111111"))
+    it.setForeground(QColor(_theme.palette()["text"]))
     return it
 
 
@@ -353,34 +354,211 @@ class GINForm(QDialog):
             self.cb_godown.addItem(f"{g['code']} - {g['name']}", g['code'])
 
     def reload(self):
-        # Browse mode - show GIN list
+        """Load GIN list for browse mode."""
         rows = inv.purchase_list()
-        self.tbl = QTableWidget(len(rows), 4)
+        self.tbl.setRowCount(len(rows))
         self.tbl.setHorizontalHeaderLabels(["VNo", "Date", "Party", "DocId"])
-        self.tbl.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
-        self.tbl.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
-        self.tbl.cellDoubleClicked.connect(self._on_edit)
-        # Replace old grid with browse table
-        # For simplicity, we'll just show a message
-        pass
+        for r, i in enumerate(rows):
+            for c, v in enumerate([i["vno"], i["vdate"], i["party_name"], i["docid"]]):
+                self.tbl.setItem(r, c, _dark_item(v))
 
     def set_state(self, enabled: bool):
-        pass  # Simplified for now
+        """Enable/disable form fields based on mode."""
+        self.ed_party.setEnabled(enabled)
+        self.ed_party_name.setEnabled(enabled)
+        self.de_vdate.setEnabled(enabled)
+        self.cb_godown.setEnabled(enabled)
+        self.ed_remarks.setEnabled(enabled)
+        self.ed_oc.setEnabled(enabled)
+        self.ed_pord.setEnabled(enabled)
+        self.grid.setEnabled(enabled)
+        self.btn_add_line.setEnabled(enabled)
+        self.btn_del_line.setEnabled(enabled)
+
+        self.btn_new.setEnabled(not enabled)
+        self.btn_save.setEnabled(enabled)
+        self.btn_cancel.setEnabled(enabled)
+
+        if enabled and self.edit_docid is None:
+            self.state = "Add"
+        elif enabled:
+            self.state = "Edit"
+        else:
+            self.state = "Idle"
+        self.lbl_state.setText(f"State: {self.state}")
 
     def _on_new(self):
-        pass  # TODO: Implement full GIN entry
+        """Start new GIN entry."""
+        self.edit_docid = None
+        self.ed_party.clear()
+        self.ed_party_name.clear()
+        self.de_vdate.setDate(date.today())
+        self.cb_godown.setCurrentIndex(0)
+        self.ed_remarks.clear()
+        self.ed_oc.clear()
+        self.ed_pord.clear()
+        self.grid.setRowCount(0)
+        self.lines = []
+        self.set_state(True)
+        self.ed_party.setFocus()
+
+    def _on_edit(self, row=None, col=None):
+        """Load existing GIN for editing."""
+        if row is None:
+            r = self.tbl.currentRow()
+        else:
+            r = row
+        if r < 0:
+            return
+        docid = self.tbl.item(r, 3).text()
+        header = inv.gin_get(docid)
+        if not header:
+            return
+        self.edit_docid = docid
+        self.ed_party.setText(header["party_code"])
+        self.ed_party_name.setText(header["party_name"])
+        self.de_vdate.setDate(header["vdate"])
+        godown_idx = self.cb_godown.findData(header["godown"])
+        if godown_idx >= 0:
+            self.cb_godown.setCurrentIndex(godown_idx)
+        self.ed_remarks.setText(header["remark"])
+        self.ed_oc.setText(header["oc_docid"])
+        self.ed_pord.setText(header["pord_docid"])
+        
+        # Load lines
+        lines = inv.gin_lines(docid)
+        self.grid.setRowCount(len(lines))
+        for i, line in enumerate(lines):
+            for c, v in enumerate([
+                str(line["sno"]), line["item"], str(line["qty_rec"]), 
+                line["unit"], str(line["rate"]), str(line["amount"]),
+                str(line["tax_per"]), str(line["disc_per"]), 
+                line["godown"], line["remarks"]
+            ]):
+                self.grid.setItem(i, c, _dark_item(v))
+            self.lines.append(line)
+        
+        self.set_state(True)
 
     def _on_save(self):
-        pass
+        """Save GIN header + lines."""
+        party_code = self.ed_party.text().strip()
+        party_name = self.ed_party_name.text().strip()
+        godown = self.cb_godown.currentData() or ""
+        vdate = self.de_vdate.date().toPyDate()
+        remarks = self.ed_remarks.text().strip()
+        
+        if not party_code:
+            QMessageBox.warning(self, "Save", "Party code zaroori hai")
+            return
+        if not party_name:
+            QMessageBox.warning(self, "Save", "Party name zaroori hai")
+            return
+        if self.grid.rowCount() == 0:
+            QMessageBox.warning(self, "Save", "Koi lines nahi")
+            return
+        
+        # Build lines from grid
+        lines = []
+        for r in range(self.grid.rowCount()):
+            item = self.grid.item(r, 1).text().strip() if self.grid.item(r, 1) else ""
+            if not item:
+                continue
+            try:
+                qty_rec = float(self.grid.item(r, 2).text() or 0)
+                unit = self.grid.item(r, 3).text().strip() if self.grid.item(r, 3) else ""
+                rate = float(self.grid.item(r, 4).text() or 0)
+                amount = float(self.grid.item(r, 5).text() or 0)
+                tax_per = float(self.grid.item(r, 6).text() or 0)
+                disc_per = float(self.grid.item(r, 7).text() or 0)
+                godown_line = self.grid.item(r, 8).text().strip() if self.grid.item(r, 8) else godown
+                remarks_line = self.grid.item(r, 9).text().strip() if self.grid.item(r, 9) else ""
+            except ValueError:
+                QMessageBox.warning(self, "Error", f"Row {r+1}: Invalid numeric value")
+                return
+            
+            tax_amt = amount * tax_per / 100
+            disc_amt = amount * disc_per / 100
+            
+            lines.append({
+                "item": item,
+                "qty_rec": qty_rec,
+                "unit": unit,
+                "rate": rate,
+                "amount": amount,
+                "tax_per": tax_per,
+                "tax_amt": tax_amt,
+                "disc_per": disc_per,
+                "disc_amt": disc_amt,
+                "godown": godown_line,
+                "remarks": remarks_line,
+                "party_code": party_code,
+                "party_name": party_name,
+            })
+        
+        if not lines:
+            QMessageBox.warning(self, "Empty", "Koi valid lines nahi")
+            return
+        
+        try:
+            result = inv.gin_create(
+                party_code=party_code,
+                party_name=party_name,
+                godown=godown,
+                vdate=vdate,
+                lines=lines,
+                user="PYADMIN"
+            )
+            QMessageBox.information(self, "Saved", f"GIN saved!\nDocId: {result['docid']}")
+            self.set_state(False)
+            self.reload()
+        except Exception as e:
+            QMessageBox.critical(self, "Error", str(e))
 
     def _on_cancel(self):
-        pass
+        """Cancel edit/new mode."""
+        self.edit_docid = None
+        self.ed_party.clear()
+        self.ed_party_name.clear()
+        self.de_vdate.setDate(date.today())
+        self.cb_godown.setCurrentIndex(0)
+        self.ed_remarks.clear()
+        self.ed_oc.clear()
+        self.ed_pord.clear()
+        self.grid.setRowCount(0)
+        self.lines = []
+        self.set_state(False)
 
     def _add_line(self):
-        pass
+        """Add new line to grid."""
+        r = self.grid.rowCount()
+        self.grid.insertRow(r)
+        self.grid.setItem(r, 0, _dark_item(str(r + 1)))
+        for c in range(1, 10):
+            self.grid.setItem(r, c, _dark_item(""))
 
     def _del_line(self):
-        pass
+        """Delete selected line from grid."""
+        r = self.grid.currentRow()
+        if r >= 0:
+            self.grid.removeRow(r)
+            # Renumber SNo
+            for i in range(self.grid.rowCount()):
+                self.grid.setItem(i, 0, _dark_item(str(i + 1)))
+
+    def _on_cell_changed(self, row, col):
+        """Auto-calculate amount when Qty/Rate changes."""
+        if col not in (2, 4):  # Qty or Rate column
+            return
+        try:
+            qty = float(self.grid.item(row, 2).text() or 0) if self.grid.item(row, 2) else 0
+            rate = float(self.grid.item(row, 4).text() or 0) if self.grid.item(row, 4) else 0
+            amount = qty * rate
+            self.grid.blockSignals(True)
+            self.grid.setItem(row, 5, _dark_item(f"{amount:.2f}"))
+            self.grid.blockSignals(False)
+        except ValueError:
+            pass
 
 
 # ============================================================

@@ -19,6 +19,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor, QFont
+from HMS_py.ui import theme as _theme
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget,
                              QVBoxLayout, QHBoxLayout, QTableWidget,
                              QTableWidgetItem, QPushButton, QLineEdit,
@@ -26,7 +27,7 @@ from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget,
                              QHeaderView, QMessageBox, QComboBox)
 
 
-def _cell(val, fg: str = "#111111") -> QTableWidgetItem:
+def _cell(val, fg: str = "") -> QTableWidgetItem:
     it = QTableWidgetItem("" if val is None else str(val))
     it.setFlags(it.flags() & ~Qt.ItemFlag.ItemIsEditable)
     it.setForeground(QColor(fg))

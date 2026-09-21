@@ -20,6 +20,7 @@ from PyQt6.QtCore import QDate, Qt
 from PyQt6.QtGui import QColor
 
 from HMS_py.core import checkin, guestprof
+from HMS_py.ui import theme as _theme
 from HMS_py.ui.base_master import (BaseMasterForm, Field, MasterConfig,
                                    make_delete_guard)
 
@@ -163,7 +164,7 @@ class CheckInBrowser(QDialog):
                     v = f"{v:%d/%b/%Y}"
                 it = QTableWidgetItem("" if v is None else str(v))
                 it.setFlags(it.flags() & ~Qt.ItemFlag.ItemIsEditable)
-                it.setForeground(QColor("#111111"))
+                it.setForeground(QColor(_theme.palette()["text"]))
                 self.tbl.setItem(r, c, it)
         if keep_folio is not None:
             for r, row in enumerate(rows):

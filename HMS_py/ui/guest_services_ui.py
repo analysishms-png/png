@@ -10,6 +10,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor
 
 from HMS_py.core import guest_services
+from HMS_py.ui import theme as _theme
 
 
 class GuestServicesDialog(QDialog):
@@ -50,7 +51,7 @@ class GuestServicesDialog(QDialog):
             table.insertRow(row_idx)
             for col_idx, val in enumerate(row_data):
                 item = QTableWidgetItem(str(val) if val is not None else "")
-                item.setForeground(QColor("#111111"))
+                item.setForeground(QColor(_theme.palette()["text"]))
                 table.setItem(row_idx, col_idx, item)
 
     def _make_buttons(self, on_new, on_delete, on_refresh):

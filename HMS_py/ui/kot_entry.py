@@ -26,6 +26,7 @@ from PyQt6.QtWidgets import (QApplication, QComboBox, QDateEdit, QDialog,
 
 from HMS_py.core import pos
 from HMS_py.ui.base_master import make_delete_guard
+from HMS_py.ui import theme as _theme
 
 
 class KOTEntryForm(QDialog):
@@ -72,7 +73,10 @@ class KOTEntryForm(QDialog):
 
         # ---- Status label ----
         self.lbl_state = QLabel("State: Idle | New: Ctrl+N | Save: Ctrl+S | Void: Ctrl+D")
-        self.lbl_state.setStyleSheet("color:#111; padding:4px; background:#f0f0f0;")
+        self.lbl_state.setStyleSheet(
+            f"color:{_theme.palette()['text']}; padding:4px;"
+            f"background:{_theme.palette()['glass_tint']};"
+            f"border-radius:6px;")
         root.addWidget(self.lbl_state)
 
         # ---- Buttons ----
@@ -197,7 +201,7 @@ class KOTEntryForm(QDialog):
         # SNo (read-only)
         sno_item = QTableWidgetItem(str(line.get("sno", row + 1)))
         sno_item.setFlags(sno_item.flags() & ~Qt.ItemFlag.ItemIsEditable)
-        sno_item.setForeground(QColor("#111111"))
+        sno_item.setForeground(QColor(_theme.palette()["text"]))
         self.grid.setItem(row, 0, sno_item)
 
         # Item Code - combo
@@ -210,29 +214,29 @@ class KOTEntryForm(QDialog):
         # Item Name (read-only, auto-filled)
         name_item = QTableWidgetItem(line.get("name", ""))
         name_item.setFlags(name_item.flags() & ~Qt.ItemFlag.ItemIsEditable)
-        name_item.setForeground(QColor("#111111"))
+        name_item.setForeground(QColor(_theme.palette()["text"]))
         self.grid.setItem(row, 2, name_item)
 
         # Qty
         qty_item = QTableWidgetItem(str(line.get("qty", 0)))
-        qty_item.setForeground(QColor("#111111"))
+        qty_item.setForeground(QColor(_theme.palette()["text"]))
         self.grid.setItem(row, 3, qty_item)
 
         # Unit (read-only)
         unit_item = QTableWidgetItem(line.get("unit", ""))
         unit_item.setFlags(unit_item.flags() & ~Qt.ItemFlag.ItemIsEditable)
-        unit_item.setForeground(QColor("#111111"))
+        unit_item.setForeground(QColor(_theme.palette()["text"]))
         self.grid.setItem(row, 4, unit_item)
 
         # Rate
         rate_item = QTableWidgetItem(str(line.get("rate", 0)))
-        rate_item.setForeground(QColor("#111111"))
+        rate_item.setForeground(QColor(_theme.palette()["text"]))
         self.grid.setItem(row, 5, rate_item)
 
         # Amount (read-only)
         amt_item = QTableWidgetItem(str(line.get("amount", 0)))
         amt_item.setFlags(amt_item.flags() & ~Qt.ItemFlag.ItemIsEditable)
-        amt_item.setForeground(QColor("#111111"))
+        amt_item.setForeground(QColor(_theme.palette()["text"]))
         self.grid.setItem(row, 6, amt_item)
 
         # Table - combo
@@ -258,7 +262,7 @@ class KOTEntryForm(QDialog):
 
         # Remarks
         rem_item = QTableWidgetItem(line.get("remarks", ""))
-        rem_item.setForeground(QColor("#111111"))
+        rem_item.setForeground(QColor(_theme.palette()["text"]))
         self.grid.setItem(row, 10, rem_item)
 
     def _on_cell_changed(self, row: int, col: int):

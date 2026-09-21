@@ -10,6 +10,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor
 
 from HMS_py.core import facility_billing
+from HMS_py.ui import theme as _theme
 
 
 class FacilityBillingDialog(QDialog):
@@ -89,7 +90,7 @@ class FacilityBillingDialog(QDialog):
             self.table.insertRow(idx)
             for c, val in enumerate(row_data):
                 item = QTableWidgetItem(str(val) if val is not None else "")
-                item.setForeground(QColor("#111111"))
+                item.setForeground(QColor(_theme.palette()["text"]))
                 self.table.setItem(idx, c, item)
 
     def _on_select(self):

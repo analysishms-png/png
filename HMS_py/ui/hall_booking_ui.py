@@ -20,12 +20,13 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor, QFont, QShortcut, QKeySequence
+from HMS_py.ui import theme as _theme
 from PyQt6.QtWidgets import (QApplication, QDialog, QFormLayout, QHBoxLayout,
                              QLabel, QLineEdit, QMessageBox, QPushButton,
                              QTableWidget, QTableWidgetItem, QVBoxLayout)
 
 
-def _cell(val, fg: str = "#111111") -> QTableWidgetItem:
+def _cell(val, fg: str = "") -> QTableWidgetItem:
     if isinstance(val, (datetime.date, datetime.datetime)):
         val = f"{val:%d/%b/%Y}"
     it = QTableWidgetItem("" if val is None else str(val))

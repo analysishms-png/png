@@ -22,6 +22,7 @@ from PyQt6.QtWidgets import (QApplication, QComboBox, QDateEdit, QDialog,
 
 from HMS_py.core import taxstru
 from HMS_py.ui.base_master import make_delete_guard
+from HMS_py.ui import theme as _theme
 
 
 class TaxStruForm(QDialog):
@@ -172,7 +173,7 @@ class TaxStruForm(QDialog):
         # SNo (read-only)
         sno_item = QTableWidgetItem(str(line.get("sno", row + 1)))
         sno_item.setFlags(sno_item.flags() & ~Qt.ItemFlag.ItemIsEditable)
-        sno_item.setForeground(QColor("#111111"))
+        sno_item.setForeground(QColor(_theme.palette()["text"]))
         self.grid.setItem(row, 0, sno_item)
 
         # TaxCode - combo
@@ -191,17 +192,17 @@ class TaxStruForm(QDialog):
 
         # Rate
         rate_item = QTableWidgetItem(str(line.get("rate", 0)))
-        rate_item.setForeground(QColor("#111111"))
+        rate_item.setForeground(QColor(_theme.palette()["text"]))
         self.grid.setItem(row, 3, rate_item)
 
         # Limit
         limit_item = QTableWidgetItem(str(line.get("limit", 0)))
-        limit_item.setForeground(QColor("#111111"))
+        limit_item.setForeground(QColor(_theme.palette()["text"]))
         self.grid.setItem(row, 4, limit_item)
 
         # Limit1
         limit1_item = QTableWidgetItem(str(line.get("limit1", 0)))
-        limit1_item.setForeground(QColor("#111111"))
+        limit1_item.setForeground(QColor(_theme.palette()["text"]))
         self.grid.setItem(row, 5, limit1_item)
 
         # CondApp - combo
@@ -213,7 +214,7 @@ class TaxStruForm(QDialog):
 
         # CompOperator
         compop_item = QTableWidgetItem(line.get("compop", ""))
-        compop_item.setForeground(QColor("#111111"))
+        compop_item.setForeground(QColor(_theme.palette()["text"]))
         self.grid.setItem(row, 7, compop_item)
 
         # TaxBeforeDisc - combo

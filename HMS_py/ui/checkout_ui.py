@@ -26,6 +26,7 @@ from PyQt6.QtWidgets import (QApplication, QDialog, QHBoxLayout, QLabel,
                              QWidget, QTabWidget)
 
 from HMS_py.core import checkout, expenseentry
+from HMS_py.ui import theme as _theme
 
 
 def _cell(val) -> QTableWidgetItem:
@@ -33,19 +34,19 @@ def _cell(val) -> QTableWidgetItem:
         val = f"{val:%d/%b/%Y}"
     it = QTableWidgetItem("" if val is None else str(val))
     it.setFlags(it.flags() & ~Qt.ItemFlag.ItemIsEditable)
-    it.setForeground(QColor("#111111"))
+    it.setForeground(QColor(_theme.palette()["text"]))
     return it
 
 
 def _red_cell(val) -> QTableWidgetItem:
     it = _cell(val)
-    it.setForeground(QColor("#cc0000"))
+    it.setForeground(QColor(_theme.status_colors()["danger_text"]))
     return it
 
 
 def _green_cell(val) -> QTableWidgetItem:
     it = _cell(val)
-    it.setForeground(QColor("#007700"))
+    it.setForeground(QColor(_theme.status_colors()["success_text"]))
     return it
 
 
@@ -103,10 +104,11 @@ class CheckOutBrowser(QDialog):
         lay_active.addWidget(self.tbl_charges)
 
         btns_active = QHBoxLayout()
+        st = _theme.status_colors()
         self.btnCheckOut = QPushButton("Check-Out (PYT*)")
         self.btnCheckOut.setStyleSheet(
-            "background:#c0392b; color:white; font-weight:bold;"
-            "padding:6px 16px;")
+            f"background:{st['danger']}; color:{st['on_danger']};"
+            "font-weight:bold; padding:6px 16px; border:none; border-radius:6px;")
         self.btnRefreshA = QPushButton("Refresh (F5)")
         self.btnCloseA = QPushButton("Close")
         for b in (self.btnCheckOut, self.btnRefreshA, self.btnCloseA):
@@ -131,8 +133,8 @@ class CheckOutBrowser(QDialog):
         btns_co = QHBoxLayout()
         self.btnReverse = QPushButton("Reverse Check-Out (PYT*)")
         self.btnReverse.setStyleSheet(
-            "background:#e67e22; color:white; font-weight:bold;"
-            "padding:6px 16px;")
+            f"background:{st['warning']}; color:{st['on_warning']};"
+            "font-weight:bold; padding:6px 16px; border:none; border-radius:6px;")
         self.btnRefreshCO = QPushButton("Refresh (F5)")
         self.btnCloseCO = QPushButton("Close")
         for b in (self.btnReverse, self.btnRefreshCO, self.btnCloseCO):
@@ -201,9 +203,10 @@ class CheckOutBrowser(QDialog):
                 f"Charges (Dr): ₹{bal['charges_dr']:.2f}  |  "
                 f"Payments (Cr): ₹{bal['payments_cr']:.2f}  |  "
                 f"Balance: ₹{b:.2f} {'  ← OUTSTANDING' if b > 0 else '  ✓ SETTLED'}")
+            st = _theme.status_colors()
             self.lblBal.setStyleSheet(
-                "color: #cc0000; font-weight:bold;" if b > 0
-                else "color: #007700; font-weight:bold;")
+                f"color:{st['danger_text']}; font-weight:bold;" if b > 0
+                else f"color:{st['success_text']}; font-weight:bold;")
 
             charges = expenseentry.list_folio_charges(folio)
             self.tbl_charges.setRowCount(len(charges))

@@ -12,6 +12,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor
 
 from HMS_py.core import hr_payroll
+from HMS_py.ui import theme as _theme
 
 
 class HrPayrollDialog(QDialog):
@@ -35,7 +36,7 @@ class HrPayrollDialog(QDialog):
     @staticmethod
     def _dark_item(text):
         item = QTableWidgetItem(str(text))
-        item.setForeground(QColor("#111111"))
+        item.setForeground(QColor(_theme.palette()["text"]))
         return item
 
     def _clear_form(self, fields):

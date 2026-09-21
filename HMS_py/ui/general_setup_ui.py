@@ -26,6 +26,7 @@ from PyQt6.QtWidgets import (QApplication, QDialog, QHBoxLayout, QLabel,
                              QWidget)
 from HMS_py.core.general_setup import RoomFeatAPI, GodownAPI, VouchCatAPI, voucher_type_list
 from HMS_py.ui.base_master import BaseMasterForm, Field, MasterConfig, make_delete_guard
+from HMS_py.ui import theme as _theme
 
 
 # ── Room Feature Master ───────────────────────────────────────
@@ -64,7 +65,7 @@ def godown_config() -> MasterConfig:
 def _vcell(val) -> QTableWidgetItem:
     it = QTableWidgetItem("" if val is None else str(val))
     it.setFlags(it.flags() & ~Qt.ItemFlag.ItemIsEditable)
-    it.setForeground(QColor("#111111"))
+    it.setForeground(QColor(_theme.palette()["text"]))
     return it
 
 

@@ -21,6 +21,7 @@ from PyQt6.QtWidgets import (QApplication, QDialog, QHBoxLayout, QLabel,
                              QTableWidgetItem, QVBoxLayout)
 
 from HMS_py.core import db
+from HMS_py.ui import theme as _theme
 
 
 _APP = None
@@ -38,7 +39,7 @@ _ensure_qapp()
 def _cell(val) -> QTableWidgetItem:
     it = QTableWidgetItem("" if val is None else str(val))
     it.setFlags(it.flags() & ~Qt.ItemFlag.ItemIsEditable)
-    it.setForeground(QColor("#111111"))
+    it.setForeground(QColor(_theme.palette()["text"]))
     return it
 
 

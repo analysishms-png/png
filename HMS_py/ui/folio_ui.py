@@ -20,9 +20,7 @@ from PyQt6.QtWidgets import (QComboBox, QDateEdit, QDialog, QFormLayout,
                              QTableWidgetItem, QVBoxLayout, QWidget)
 
 from HMS_py.core import db, folio
-from HMS_py.ui.shell import STYLE
-
-DARK = QColor("#111111")
+from HMS_py.ui import theme as _theme
 
 
 def _fill(table: QTableWidget, headers: list, rows: list):
@@ -30,10 +28,11 @@ def _fill(table: QTableWidget, headers: list, rows: list):
     table.setColumnCount(len(headers))
     table.setHorizontalHeaderLabels(headers)
     table.setRowCount(len(rows))
-    for i, row in enumerate(rows):
+    text_col = QColor(_theme.palette()["text"])  # BUG FIX: pehle #111111
+    for i, row in enumerate(rows):               # (dark me invisible)
         for j, val in enumerate(row):
             it = QTableWidgetItem(str(val))
-            it.setForeground(DARK)
+            it.setForeground(text_col)
             table.setItem(i, j, it)
     table.setAlternatingRowColors(False)
 
@@ -308,7 +307,7 @@ def open_folio(parent=None):
 def main():  # pragma: no cover
     from PyQt6.QtWidgets import QApplication
     app = QApplication(sys.argv)
-    app.setStyleSheet(STYLE)
+    _theme.apply_theme(app)
     w = FolioBrowser()
     w.resize(900, 560)
     w.show()

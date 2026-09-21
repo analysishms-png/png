@@ -76,7 +76,7 @@ class StockReceiveWindow(QMainWindow):
         if not lines:
             QMessageBox.warning(self, "Empty", "Koi lines nahi"); return
         try:
-            result = inv.bakery_stock_receive(lines, vdate=vdate)
+            result = inv.stock_receive(lines, vdate=vdate)
             QMessageBox.information(self, "Saved", "Stock Receive saved!\nDocId: %s" % result["docid"])
             self.table.setRowCount(0)
         except Exception as e:

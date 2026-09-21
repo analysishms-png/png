@@ -1108,3 +1108,26 @@ def kitchen_stock_summary(cn=None, top: int = 200) -> list:
         "issued_to_kitchen": float(r.IssuedToKitchen or 0),
         "kitchen_stock_value": float(r.KitchenStockValue or 0)
     } for r in rows]
+def gin_delete(docid: str, cn=None, commit: bool = True) -> dict:
+    """Delete GIN (Purchase Receipt) and reverse ClearYN on linked indent lines.
+    
+    VB6 equivalent: pMREntry delete flow with ClearYN reversal.
+    """
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        # Reverse ClearYN on linked indent lines (from Purch2.IndentDocId/IndentSno)
+        db.execute(
+            """UPDATE Indent1 SET ClearYN = '' WHERE DocId IN (SELECT IndentDocId FROM Purch2 WHERE DocId = ?) AND Sno IN (SELECT IndentSno FROM Purch2 WHERE DocId = ?)""",
+            (docid, docid), cn=cn, commit=False)
+        # Delete Purch2 lines (GIN lines)
+        db.execute("DELETE FROM Purch2 WHERE ContraDocId = ?", (docid,), cn=cn, commit=False)
+        # Delete GIN header
+        db.execute("DELETE FROM GIN WHERE DocId = ?", (docid,), cn=cn, commit=False)
+        if commit:
+            cn.commit()
+        return {"deleted": docid}
+    finally:
+        if own:
+            cn.close()
+

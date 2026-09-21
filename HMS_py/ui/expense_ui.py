@@ -27,9 +27,10 @@ from PyQt6.QtWidgets import (QApplication, QDialog, QFormLayout,
                              QVBoxLayout)
 
 from HMS_py.core import checkout, expenseentry
+from HMS_py.ui import theme as _theme
 
 
-def _cell(val, fg: str = "#111111") -> QTableWidgetItem:
+def _cell(val, fg: str = "") -> QTableWidgetItem:
     if isinstance(val, (datetime.date, datetime.datetime)):
         val = f"{val:%d/%b/%Y}"
     it = QTableWidgetItem("" if val is None else str(val))
@@ -71,7 +72,9 @@ class ExpenseEntryForm(QDialog):
         self.lblBal = QLabel("Folio select karo")
         f = QFont("Segoe UI", 10, QFont.Weight.Bold)
         self.lblBal.setFont(f)
-        self.lblBal.setStyleSheet("padding:4px; background:#f8f8f8;")
+        self.lblBal.setStyleSheet(
+            f"padding:4px; background:{_theme.palette()['glass_tint']};"
+            f"border-radius:6px;")
         root.addWidget(self.lblBal)
 
         # ---- Charge lines (middle) ----
@@ -101,9 +104,11 @@ class ExpenseEntryForm(QDialog):
         exp_form.addRow("Amount *", self.edAmount)
         exp_form.addRow("Remarks", self.edRemarks)
 
+        st = _theme.status_colors()
         self.btnExpense = QPushButton("Post EXPENSE (Dr)")
         self.btnExpense.setStyleSheet(
-            "background:#c0392b; color:white; font-weight:bold; padding:6px;")
+            f"background:{st['danger']}; color:{st['on_danger']};"
+            "font-weight:bold; padding:6px; border:none; border-radius:6px;")
         exp_form.addRow(self.btnExpense)
         entry_row.addLayout(exp_form)
 
@@ -122,7 +127,8 @@ class ExpenseEntryForm(QDialog):
 
         self.btnReceipt = QPushButton("Post RECEIPT (Cr)")
         self.btnReceipt.setStyleSheet(
-            "background:#27ae60; color:white; font-weight:bold; padding:6px;")
+            f"background:{st['success']}; color:{st['on_success']};"
+            "font-weight:bold; padding:6px; border:none; border-radius:6px;")
         rec_form.addRow(self.btnReceipt)
         entry_row.addLayout(rec_form)
 
@@ -185,10 +191,15 @@ class ExpenseEntryForm(QDialog):
                 f"Dr: ₹{bal['charges_dr']:.2f} | "
                 f"Cr: ₹{bal['payments_cr']:.2f} | "
                 f"Balance: ₹{b:.2f}")
+            st = _theme.status_colors()
             self.lblBal.setStyleSheet(
-                "padding:4px; background:#ffe0e0; font-weight:bold;"
+                f"padding:4px; background:{st['danger_bg']};"
+                f"color:{st['danger_text']}; font-weight:bold;"
+                f"border-radius:6px;"
                 if b > 0 else
-                "padding:4px; background:#e0ffe0; font-weight:bold;")
+                f"padding:4px; background:{st['success_bg']};"
+                f"color:{st['success_text']}; font-weight:bold;"
+                f"border-radius:6px;")
 
             charges = expenseentry.list_folio_charges(folio)
             self.tbl_charges.setRowCount(len(charges))
@@ -200,9 +211,12 @@ class ExpenseEntryForm(QDialog):
                     f"{ch['amt_cr']:.2f}" if ch["amt_cr"] else "—",
                     ch["remarks"], ch["u_name"],
                 ]):
-                    fg = ("#cc0000" if c == 4 and ch["amt_dr"] > 0
-                          else "#007700" if c == 5 and ch["amt_cr"] > 0
-                          else "#111111")
+                    st = _theme.status_colors()
+                    fg = (st["danger_text"]
+                          if c == 4 and ch["amt_dr"] > 0
+                          else st["success_text"]
+                          if c == 5 and ch["amt_cr"] > 0
+                          else _theme.palette()["text"])
                     self.tbl_charges.setItem(r, c, _cell(v, fg=fg))
         except Exception as e:
             self.lblBal.setText(f"Error: {e}")

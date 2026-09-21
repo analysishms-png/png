@@ -24,6 +24,7 @@ from PyQt6.QtWidgets import (QApplication, QDialog, QFormLayout, QHBoxLayout,
 from HMS_py.core.hr_masters import EmpCatAPI, HolidayAPI, EmployeeAPI, DesigAPI
 from HMS_py.core.members_masters import MemCatAPI, FacilityAPI, MemRevAPI
 from HMS_py.ui.base_master import BaseMasterForm, Field, MasterConfig, make_delete_guard
+from HMS_py.ui import theme as _theme
 
 
 # ══════════════════════════════════════════════════════════════
@@ -148,7 +149,7 @@ def _cell(val) -> QTableWidgetItem:
         val = f"{val:%d/%b/%Y}"
     it = QTableWidgetItem("" if val is None else str(val))
     it.setFlags(it.flags() & ~Qt.ItemFlag.ItemIsEditable)
-    it.setForeground(QColor("#111111"))
+    it.setForeground(QColor(_theme.palette()["text"]))
     return it
 
 

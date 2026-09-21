@@ -21,6 +21,7 @@ from PyQt6.QtWidgets import (QDialog, QHBoxLayout, QLabel, QMessageBox,
                              QVBoxLayout)
 
 from HMS_py.core import nightaudit, pos
+from HMS_py.ui import theme as _theme
 
 
 def _dark_item(val) -> QTableWidgetItem:
@@ -29,7 +30,7 @@ def _dark_item(val) -> QTableWidgetItem:
         val = f"{val:%d/%b/%y}"
     it = QTableWidgetItem("" if val is None else str(val))
     it.setFlags(it.flags() & ~Qt.ItemFlag.ItemIsEditable)
-    it.setForeground(QColor("#111111"))
+    it.setForeground(QColor(_theme.palette()["text"]))
     return it
 
 

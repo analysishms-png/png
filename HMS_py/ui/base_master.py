@@ -22,6 +22,8 @@ from PyQt6.QtWidgets import (QDialog, QFormLayout, QHBoxLayout, QLabel,
                              QLineEdit, QMessageBox, QPushButton,
                              QTableWidget, QTableWidgetItem, QVBoxLayout)
 
+from HMS_py.ui import theme as _theme
+
 
 @dataclass
 class Field:
@@ -156,7 +158,7 @@ class BaseMasterForm(QDialog):
                 it = QTableWidgetItem(val)
                 it.setFlags(it.flags() & ~Qt.ItemFlag.ItemIsEditable)
                 # Dark-mode fix (P3-b se proven): palette white text na de
-                it.setForeground(QColor("#111111"))
+                it.setForeground(QColor(_theme.palette()["text"]))
                 self.tbl.setItem(r, c, it)
 
     def _selected_pk(self):
