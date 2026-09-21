@@ -75,12 +75,25 @@ class PosTableWindow(QMainWindow):
         self.table.setRowCount(len(rows) if rows else 0)
         if not rows:
             return
+        st = _theme.status_colors()
+        status_style = {
+            "Active":   (st["success_bg"], st["success_text"]),
+            "Inactive": (st["neutral_bg"], st["neutral_text"]),
+            "Blocked":  (st["danger_bg"], st["danger_text"]),
+        }
         for i, rec in enumerate(rows):
             vals = [rec.get("Code", ""), rec.get("RoomName", ""), rec.get("RoomNo", ""),
                     rec.get("Type", ""), rec.get("SeatingCapacity", ""), rec.get("Status", "")]
             for j, v in enumerate(vals):
                 item = QTableWidgetItem(str(v))
-                item.setForeground(QColor(_theme.palette()["text"]))
+                if j == 5:  # Status column — semantic tint + readable text
+                    bg, fg = status_style.get(str(v).strip(),
+                                              (st["neutral_bg"],
+                                               st["neutral_text"]))
+                    item.setBackground(QColor(bg))
+                    item.setForeground(QColor(fg))
+                else:
+                    item.setForeground(QColor(_theme.palette()["text"]))
                 self.table.setItem(i, j, item)
 
     def _on_select(self):

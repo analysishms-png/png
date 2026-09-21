@@ -561,6 +561,12 @@ def status_colors() -> dict[str, str]:
     return {k: _active[k] for k in _STATUS_KEYS if k in _active}
 
 
+def status_base_defaults(mode: str = "light") -> dict[str, str]:
+    """Mode ke liye default status base hues (dialog seeding ke liye)."""
+    src = _STATUS_BASE_DARK if mode == "dark" else _STATUS_BASE_LIGHT
+    return dict(src)
+
+
 def is_dark() -> bool:
     return _active["mode"] == "dark"
 

@@ -151,6 +151,11 @@ class AppearanceDialog(QDialog):
 
         self._start = {**{k: v for k, v in DEFAULTS.items()},
                        **load_tokens()}
+        # Status hues: saved nahi hain to mode defaults seed karo —
+        # warna swatches black dikhte hain aur save pe bhi nahi aate.
+        for _k, _v in theme.status_base_defaults(
+                self._start.get("mode", "light")).items():
+            self._start.setdefault(_k, _v)
         self._tokens = dict(self._start)
 
         root = QVBoxLayout(self)

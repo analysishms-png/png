@@ -127,8 +127,8 @@ class UserMasterForm(QDialog):
         rows = usermaster.list_all()
         self.tbl.setRowCount(len(rows))
         for r, rec in enumerate(rows):
-            vals = [rec["username"], rec["label"], rec["short"],
-                    rec["active"], rec["u_ae"]]
+            vals = [rec["username"], rec["label"], rec.get("short", ""),
+                    rec["active"], rec.get("u_ae", "")]
             for c, v in enumerate(vals):
                 it = QTableWidgetItem(str(v or ""))
                 it.setFlags(it.flags() & ~Qt.ItemFlag.ItemIsEditable)

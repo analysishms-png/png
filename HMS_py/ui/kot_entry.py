@@ -73,10 +73,10 @@ class KOTEntryForm(QDialog):
 
         # ---- Status label ----
         self.lbl_state = QLabel("State: Idle | New: Ctrl+N | Save: Ctrl+S | Void: Ctrl+D")
+        _st = _theme.status_colors()
         self.lbl_state.setStyleSheet(
-            f"color:{_theme.palette()['text']}; padding:4px;"
-            f"background:{_theme.palette()['glass_tint']};"
-            f"border-radius:6px;")
+            f"color:{_st['neutral_text']}; font-weight:bold; padding:4px;"
+            f"background:{_st['neutral_bg']}; border-radius:6px;")
         root.addWidget(self.lbl_state)
 
         # ---- Buttons ----
@@ -432,6 +432,17 @@ class KOTEntryForm(QDialog):
         self.state = "Add" if enabled and self.edit_docid is None else \
                        "Edit" if enabled else "Idle"
         self.lbl_state.setText(f"State: {self.state}")
+        # State-aware color: Add/Edit = accent tint (active work),
+        # Idle = neutral (status palette se, theme-synced).
+        st = _theme.status_colors()
+        if self.state == "Idle":
+            bg, fg = st["neutral_bg"], st["neutral_text"]
+        else:
+            t = _theme.palette()
+            bg, fg = t["accent_soft"], t["text"]
+        self.lbl_state.setStyleSheet(
+            f"color:{fg}; font-weight:bold; padding:4px;"
+            f"background:{bg}; border-radius:6px;")
 
     def _on_new(self):
         self.edit_docid = None

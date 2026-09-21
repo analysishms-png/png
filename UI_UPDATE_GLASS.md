@@ -69,6 +69,18 @@ Key rules jo implement kiye:
 - ✅ Offscreen screenshots: light + dark login/company/main/module
 - ✅ Presets roundtrip + QSettings save/load/reset
 
+## Status colors — user-editable (update 3)
+
+Appearance dialog me ab **4 status hue swatches** bhi hain
+(success/warning/danger/neutral). User hue choose karta hai —
+bg tint, text variant, on-* label colors automatically derive hote
+hain (mode ke hisab se). Preset switch karne par user ke status hues
+preserve rehte hain. Derivation:
+
+- light mode: `bg = mix(base, white, 0.86)`, `text = mix(base, black, 0.70)`
+- dark mode: `bg = mix(base, #101020, 0.78)`, `text = mix(base, white, 0.62)`
+- `on_*`: accent luminance se contrast-safe (WCAG)
+
 ## Status colors — accent theme sync (update 2)
 
 Room Status, Expense, KOT ke semantic colors ab hardcoded nahi —

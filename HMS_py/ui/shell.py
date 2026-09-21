@@ -838,11 +838,11 @@ def _form_registry() -> dict[str, callable]:
         "Main Setup": _open_main_setup,
         # P4-a Front Office:
         "Guest Profile": lambda w: fo.open_guestprof(w),
-        "Check In": lambda w: fo.open_checkin(w, user=w.user),
-        "Check-In": lambda w: fo.open_checkin(w, user=w.user),
-        "Checkin": lambda w: fo.open_checkin(w, user=w.user),
+        "Check In": lambda w: fo.open_checkin(w, user=getattr(w, 'user', 'PYADMIN')),
+        "Check-In": lambda w: fo.open_checkin(w, user=getattr(w, 'user', 'PYADMIN')),
+        "Checkin": lambda w: fo.open_checkin(w, user=getattr(w, 'user', 'PYADMIN')),
         # P5 POS + Night Audit:
-        "KOT Entry": (lambda w: kot.open_kot_entry(w, user=w.user)) if kot else None,
+        "KOT Entry": (lambda w: kot.open_kot_entry(w, user=getattr(w, 'user', 'PYADMIN'))) if kot else None,
         "POS Status": _pos,
         "Sales Register": _pos,
         "Item wise Sale": _pos,
@@ -876,17 +876,17 @@ def _form_registry() -> dict[str, callable]:
         # Reservation:
         "Reservation/Cancellation": lambda w: ReservationBrowser(w).exec(),
         # Utility / User Master:
-        "User Master": lambda w: p2.open_usermaster(w, current_user=w.user),
-        "Permissions": lambda w: p2.open_usermaster(w, current_user=w.user),
+        "User Master": lambda w: p2.open_usermaster(w, current_user=getattr(w, 'user', 'PYADMIN')),
+        "Permissions": lambda w: p2.open_usermaster(w, current_user=getattr(w, 'user', 'PYADMIN')),
         # Wave 2: FO operational screens
-        "Check Out": (lambda w: fo2.open_checkout(w, user=w.user)) if fo2 else None,
-        "Check-Out": (lambda w: fo2.open_checkout(w, user=w.user)) if fo2 else None,
-        "Checkout": (lambda w: fo2.open_checkout(w, user=w.user)) if fo2 else None,
-        "WalkIn CheckIn": lambda w: fo.open_checkin(w, user=w.user),
-        "Reverse Check Out": (lambda w: fo2.open_checkout(w, user=w.user)) if fo2 else None,
-        "Room Status": (lambda w: rs_ui.open_roomstatus(w, user=w.user)) if rs_ui else None,
-        "House Keeping Screen": (lambda w: rs_ui.open_roomstatus(w, user=w.user)) if rs_ui else None,
-        "Expense Entry": (lambda w: exp_ui.open_expense(w, user=w.user)) if exp_ui else None,
+        "Check Out": (lambda w: fo2.open_checkout(w, user=getattr(w, 'user', 'PYADMIN'))) if fo2 else None,
+        "Check-Out": (lambda w: fo2.open_checkout(w, user=getattr(w, 'user', 'PYADMIN'))) if fo2 else None,
+        "Checkout": (lambda w: fo2.open_checkout(w, user=getattr(w, 'user', 'PYADMIN'))) if fo2 else None,
+        "WalkIn CheckIn": lambda w: fo.open_checkin(w, user=getattr(w, 'user', 'PYADMIN')),
+        "Reverse Check Out": (lambda w: fo2.open_checkout(w, user=getattr(w, 'user', 'PYADMIN'))) if fo2 else None,
+        "Room Status": (lambda w: rs_ui.open_roomstatus(w, user=getattr(w, 'user', 'PYADMIN'))) if rs_ui else None,
+        "House Keeping Screen": (lambda w: rs_ui.open_roomstatus(w, user=getattr(w, 'user', 'PYADMIN'))) if rs_ui else None,
+        "Expense Entry": (lambda w: exp_ui.open_expense(w, user=getattr(w, 'user', 'PYADMIN'))) if exp_ui else None,
         # Wave 2: Finance/FO masters (now live)
         "Tax Master": (lambda w: fm.open_taxmaster(w)) if fm else None,
         "Payment Type": (lambda w: fm.open_paymenttype(w)) if fm else None,
@@ -977,8 +977,8 @@ def _form_registry() -> dict[str, callable]:
         "Printing Parameters": (lambda w: gs.open_printing(w)) if gs else None,
         "Printing Setup": (lambda w: gs.open_printing(w)) if gs else None,
         "Revenue Wise Budget Entry": (lambda w: revbud_ui.open_revenue_budget(w)) if revbud_ui else _coming_soon("Revenue Wise Budget Entry"),
-        "Guest History": (lambda w: ghu.open_guest_history(w, user=w.user)) if ghu else None,
-        "Room Display": (lambda w: rs_ui.open_roomstatus(w, user=w.user)) if rs_ui else None,
+        "Guest History": (lambda w: ghu.open_guest_history(w, user=getattr(w, 'user', 'PYADMIN'))) if ghu else None,
+        "Room Display": (lambda w: rs_ui.open_roomstatus(w, user=getattr(w, 'user', 'PYADMIN'))) if rs_ui else None,
         "Update Database Nulls": (lambda w: dbmaint_ui.open_db_maintenance(w)) if dbmaint_ui else _coming_soon("Update Database Nulls"),
         "Account Merging": (lambda w: acmerge_ui.open_account_merge(w)) if acmerge_ui else None,
         # Tally export (frmTallyExport port — read-only XML files)
@@ -1008,7 +1008,7 @@ def _form_registry() -> dict[str, callable]:
         "T.D.S. Certificate Entry": lambda w: _open_fv_list(
             w, "T.D.S. Certificate",
             lambda: __import__("HMS_py.core.tdscerti", fromlist=["x"]).list_all()),
-        "Expense Voucher": (lambda w: exp_ui.open_expense(w, user=w.user)) if exp_ui else None,
+        "Expense Voucher": (lambda w: exp_ui.open_expense(w, user=getattr(w, 'user', 'PYADMIN'))) if exp_ui else None,
         "Opening Balance Updation": lambda w: fvu.open_trial_balance(w),
         "Year End Updation": lambda w: fvu.open_trial_balance(w),
         "Current Balance Updation": lambda w: fvu.open_trial_balance(w),
