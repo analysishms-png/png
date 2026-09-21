@@ -178,9 +178,10 @@ class CheckOutBrowser(QDialog):
         rows = checkout.list_active_folios()
         self.tbl_active.setRowCount(len(rows))
         for r, rec in enumerate(rows):
+            status = "Checked-Out" if rec.get("checkout_date") else "In-House"
             vals = [rec["folio"], rec["name"], rec["guestprof"],
                     rec["city"], rec["depdate"], rec["nodays"],
-                    rec["checkout_yn"] or "In-House"]
+                    status]
             for c, v in enumerate(vals):
                 self.tbl_active.setItem(r, c, _cell(v))
         if keep_folio:

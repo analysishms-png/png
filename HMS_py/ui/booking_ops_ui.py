@@ -278,7 +278,7 @@ class BookingOpsDialog(QDialog):
         ) != QMessageBox.StandardButton.Yes:
             return
         try:
-            self._booking.update(bookno, {"cancel": "Y"})
+            self._booking.cancel(bookno)
             QMessageBox.information(self, "Cancel",
                                     f"Booking {bookno} cancelled")
             self.reload()

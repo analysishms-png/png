@@ -137,6 +137,14 @@ def delete(bookno: int, cn=None, commit: bool = True,
         (site, bookno), cn=cn, commit=commit)
 
 
+def cancel(bookno: int, user: str = USER, cn=None,
+           commit: bool = True, site: str = SITE_CODE) -> int:
+    """Cancel a booking using reservation.cancel (proper VB6 flow with
+    BookingCancelDetails INSERT and BookingLog audit)."""
+    from HMS_py.core.reservation import cancel as _res_cancel
+    return _res_cancel(bookno, user=user, cn=cn, commit=commit, site=site)
+
+
 # ── BookingMore CRUD ──
 
 def _map_more(r) -> dict:
@@ -285,6 +293,9 @@ class BookingAPI:
 
     def delete(self, bookno, cn=None, commit=True, site=SITE_CODE):
         return delete(bookno, cn=cn, commit=commit, site=site)
+
+    def cancel(self, bookno, user=USER, cn=None, commit=True, site=SITE_CODE):
+        return cancel(bookno, user=user, cn=cn, commit=commit, site=site)
 
     def list_more(self, docid, cn=None):
         return list_more(docid, cn=cn)

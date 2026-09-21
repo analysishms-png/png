@@ -98,8 +98,9 @@ class FolioBrowser(QWidget):
         # ArrDate column DB me NAHI hai (ArrFrom varchar hai) - live-probed.
         return db.query(
             "SELECT FolioNo, Name, Vdate, DepDate, DocId, Vprefix "
-            "FROM GuestFolio WHERE Site_Code = 'KK' AND Vprefix = '2026' "
-            "ORDER BY FolioNo DESC")
+            "FROM GuestFolio WHERE Site_Code = ? AND Vprefix = ? "
+            "ORDER BY FolioNo DESC",
+            (folio.SITE_CODE, folio.VPREFIX))
 
     def reload(self):
         self._view = "folios"

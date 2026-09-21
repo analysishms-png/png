@@ -1,14 +1,27 @@
-"""Registration Entry UI (VB6: RegistrationEntry - quick FO registration)."""
+"""Registration Entry UI (VB6: RegistrationEntry - quick FO registration).
+
+Uses checkin.py core for all GuestFolio + RoomOcc + FolioLog writes.
+GuestFolio actual columns: DocId, FolioNo, Vtype, Vprefix, Vdate,
+GuestProf, Name, City, NoDays, DepDate, BookingDocId, Site_Code,
+U_Name, U_EntDt, U_AE, LogSite_Code.
+
+PYT-guard: PYT* names only (production via VB6 EXE).
+"""
 from __future__ import annotations
-import sys, os
+
+import datetime
+import os
+import sys
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-from PyQt6.QtWidgets import (QDialog, QWidget, QVBoxLayout, QHBoxLayout,
+from PyQt6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout,
     QTableWidget, QTableWidgetItem, QPushButton, QLineEdit, QLabel,
-    QGroupBox, QFormLayout, QComboBox, QMessageBox, QDateEdit, QHeaderView)
+    QGroupBox, QFormLayout, QMessageBox, QDateEdit, QHeaderView)
 from PyQt6.QtCore import Qt, QDate
-from PyQt6.QtGui import QColor, QFont
-from core import db
-from ui.theme import palette, status_colors
+from PyQt6.QtGui import QColor
+
+from HMS_py.core import db, checkin, guestprof
+from HMS_py.ui import theme as _theme
 
 
 class RegistrationEntryWindow(QDialog):
@@ -25,88 +38,94 @@ class RegistrationEntryWindow(QDialog):
         root.setContentsMargins(20, 16, 20, 16)
         root.setSpacing(12)
 
-        # Header
         title = QLabel("Registration Entry")
         title.setStyleSheet("font-size: 16px; font-weight: 700; padding: 4px 0;")
         title.setAlignment(Qt.AlignmentFlag.AlignLeft)
         root.addWidget(title)
 
-        # Form section
         form = QGroupBox("Guest Registration")
         fl = QFormLayout(form)
         fl.setSpacing(10)
         fl.setContentsMargins(16, 12, 16, 12)
 
         self.txt_name = QLineEdit()
-        self.txt_name.setPlaceholderText("Enter guest full name")
-        self.txt_company = QLineEdit()
-        self.txt_company.setPlaceholderText("Company or individual")
-        self.txt_phone = QLineEdit()
-        self.txt_phone.setPlaceholderText("Contact number")
-        self.txt_room = QLineEdit()
-        self.txt_room.setPlaceholderText("Room number")
-        self.txt_docid = QLineEdit()
-        self.txt_docid.setPlaceholderText("Auto-generated if empty")
+        self.txt_name.setPlaceholderText("Guest full name (PYT* for test)")
+        self.txt_guestprof = QLineEdit()
+        self.txt_guestprof.setPlaceholderText("Leave blank for auto KK######")
+        self.txt_city = QLineEdit("KK0002")
+        self.txt_city.setPlaceholderText("City code (e.g. KK0002)")
         self.dt_arr = QDateEdit()
         self.dt_arr.setCalendarPopup(True)
         self.dt_arr.setDate(QDate.currentDate())
         self.dt_dep = QDateEdit()
         self.dt_dep.setCalendarPopup(True)
         self.dt_dep.setDate(QDate.currentDate().addDays(1))
-        self.cmb_status = QComboBox()
-        self.cmb_status.addItems(["I", "R", "O"])
-        self.txt_adults = QLineEdit("1")
-        self.txt_children = QLineEdit("0")
+        self.txt_room = QLineEdit()
+        self.txt_room.setPlaceholderText("Leave blank for auto room assign")
+        self.txt_bookdocid = QLineEdit()
+        self.txt_bookdocid.setPlaceholderText("BookingDocId (optional)")
 
         fl.addRow("Guest Name *:", self.txt_name)
-        fl.addRow("Company:", self.txt_company)
-        fl.addRow("Phone:", self.txt_phone)
-        fl.addRow("Room No:", self.txt_room)
-        fl.addRow("DocId:", self.txt_docid)
+        fl.addRow("GuestProf Code:", self.txt_guestprof)
+        fl.addRow("City:", self.txt_city)
         fl.addRow("Arrival:", self.dt_arr)
         fl.addRow("Departure:", self.dt_dep)
-        fl.addRow("Status:", self.cmb_status)
-        fl.addRow("Adults:", self.txt_adults)
-        fl.addRow("Children:", self.txt_children)
+        fl.addRow("Room No:", self.txt_room)
+        fl.addRow("BookingDocId:", self.txt_bookdocid)
         root.addWidget(form)
 
-        # Button bar
         btn_lay = QHBoxLayout()
         btn_lay.setSpacing(8)
         btn_lay.addStretch()
         self.btn_save = QPushButton("Save Registration")
-        self.btn_save.setProperty("success", True)
+        self.btn_save.setProperty("role", "success")
         self.btn_save.setMinimumHeight(36)
+        self.btn_save.setToolTip("Create check-in record (GuestFolio + RoomOcc + FolioLog)")
         self.btn_exit = QPushButton("Exit")
         self.btn_exit.setMinimumHeight(36)
+        self.btn_exit.setToolTip("Close this window")
         self.btn_save.clicked.connect(self._save)
         self.btn_exit.clicked.connect(self.close)
         btn_lay.addWidget(self.btn_save)
         btn_lay.addWidget(self.btn_exit)
         root.addLayout(btn_lay)
 
-        # Table
         self.table = QTableWidget()
-        self.table.setColumnCount(7)
+        self.table.setColumnCount(8)
         self.table.setHorizontalHeaderLabels(
-            ["DocId", "Room", "Name", "Company", "Arrival", "Departure", "Status"])
-        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-        self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
-        self.table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+            ["Folio", "VDate", "Name", "GuestProf", "City",
+             "Days", "DepDate", "Status"])
+        self.table.horizontalHeader().setSectionResizeMode(
+            QHeaderView.ResizeMode.Stretch)
+        self.table.setSelectionBehavior(
+            QTableWidget.SelectionBehavior.SelectRows)
+        self.table.setEditTriggers(
+            QTableWidget.EditTrigger.NoEditTriggers)
+        self.table.setAlternatingRowColors(True)
         root.addWidget(self.table)
 
     def _load_data(self):
         try:
-            rows = db.query(
-                "SELECT TOP 100 G.DocId, G.RoomNo, ISNULL(G.GuestName,''), "
-                "ISNULL(G.Company,''), G.Arrival, G.Departure, G.Status "
-                "FROM GuestFolio G ORDER BY G.DocId DESC")
+            rows = checkin.list_checkins(top=100)
             self.table.setRowCount(len(rows))
-            p = palette()
-            for i, r in enumerate(rows):
-                for j, v in enumerate(r):
-                    it = QTableWidgetItem(str(v or ""))
+            p = _theme.palette()
+            for i, rec in enumerate(rows):
+                vals = [
+                    rec["folio"],
+                    rec["vdate"],
+                    rec["name"],
+                    rec["guestprof"],
+                    rec["city"],
+                    rec["nodays"],
+                    rec["depdate"],
+                    rec["u_ae"],
+                ]
+                for j, v in enumerate(vals):
+                    if isinstance(v, (datetime.date, datetime.datetime)):
+                        v = f"{v:%Y-%m-%d}"
+                    it = QTableWidgetItem("" if v is None else str(v))
                     it.setForeground(QColor(p["text"]))
+                    it.setFlags(it.flags() & ~Qt.ItemFlag.ItemIsEditable)
                     self.table.setItem(i, j, it)
         except Exception:
             pass
@@ -117,18 +136,25 @@ class RegistrationEntryWindow(QDialog):
             QMessageBox.warning(self, "Input", "Guest name is required")
             return
         try:
-            db.execute(
-                "INSERT INTO GuestFolio (DocId, RoomNo, GuestName, Company, "
-                "Phone, Arrival, Departure, Status, Adults, Children, UserId, VDate) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, GETDATE())",
-                (self.txt_docid.text().strip() or "NEW", self.txt_room.text().strip(),
-                 name, self.txt_company.text().strip(), self.txt_phone.text().strip(),
-                 self.dt_arr.date().toPyDate(), self.dt_dep.date().toPyDate(),
-                 self.cmb_status.currentText(),
-                 int(self.txt_adults.text() or 1), int(self.txt_children.text() or 0),
-                 "PYADMIN"))
-            QMessageBox.information(self, "Saved", "Registration saved successfully")
+            arr_date = self.dt_arr.date().toPyDate()
+            dep_date = self.dt_dep.date().toPyDate()
+            gcode = self.txt_guestprof.text().strip()
+            if not gcode:
+                gcode = guestprof.next_code()
+                guestprof.insert({"code": gcode, "name": name,
+                                  "city": self.txt_city.text().strip()})
+            folio = checkin.create_checkin(
+                gcode, name, arr_date, dep_date,
+                city=self.txt_city.text().strip(),
+                roomno=self.txt_room.text().strip(),
+                bookingdocid=self.txt_bookdocid.text().strip())
+            QMessageBox.information(
+                self, "Saved",
+                f"Check-In #{folio} created.\n"
+                f"DocId: {checkin.make_docid(checkin.SITE_CODE, '2026', folio)}")
             self._load_data()
+        except ValueError as e:
+            QMessageBox.warning(self, "Input Error", str(e))
         except Exception as e:
             QMessageBox.critical(self, "Error", str(e))
 

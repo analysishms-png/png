@@ -245,8 +245,8 @@ def post_room_charges_for_date(vdate, vprefix: str = "2026",
                      room["folio"], room["roomno"] or "", sgst, user, SITE_CODE),
                     cn=cn, commit=False)
 
-            # FolioLog for room charge post
-            folio_mod._log(docid, "P", user, cn, SITE_CODE)
+            # FolioLog for room charge post (use GuestFolio DocId, not PayCharge DocId)
+            folio_mod._log(room["docid"], "P", user, cn, SITE_CODE)
 
             posted += 1
             vno += 1
@@ -370,7 +370,8 @@ def post_pos_revenue_for_date(vdate, vprefix: str = "2026",
 # ============================================================
 
 def run_night_audit(date_from, date_to=None, user: str = USER,
-                    cn=None, commit: bool = True) -> dict:
+                    cn=None, commit: bool = True,
+                    vprefix: str = "2026") -> dict:
     """Run full Night Audit for a date range (VB6 fdNDAcPostChrg pattern).
     
     Steps:
@@ -388,6 +389,8 @@ def run_night_audit(date_from, date_to=None, user: str = USER,
     start_time = datetime.datetime.now()
     total_posted = 0
     total_skipped = 0
+    rc_posted = 0
+    pos_posted = 0
     errors = []
     dates_processed = []
 
@@ -416,14 +419,16 @@ def run_night_audit(date_from, date_to=None, user: str = USER,
                     continue
 
             # Post room charges
-            rc_result = post_room_charges_for_date(current, "2026", user, cn=cn, commit=False)
+            rc_result = post_room_charges_for_date(current, vprefix, user, cn=cn, commit=False)
             total_posted += rc_result["posted"]
             total_skipped += rc_result["skipped"]
+            rc_posted += rc_result["posted"]
 
             # Post POS revenue
-            pos_result = post_pos_revenue_for_date(current, "2026", user, cn=cn, commit=False)
+            pos_result = post_pos_revenue_for_date(current, vprefix, user, cn=cn, commit=False)
             total_posted += pos_result["posted"]
             total_skipped += pos_result["skipped"]
+            pos_posted += pos_result["posted"]
 
             # Log NA entry
             end_time = datetime.datetime.now()
@@ -440,8 +445,8 @@ def run_night_audit(date_from, date_to=None, user: str = USER,
             "date_from": date_from,
             "date_to": date_to,
             "dates_processed": dates_processed,
-            "room_charges_posted": total_posted,
-            "pos_revenue_posted": total_posted,  # combined
+            "room_charges_posted": rc_posted,
+            "pos_revenue_posted": pos_posted,
             "total_skipped": total_skipped,
             "errors": errors,
             "start_time": start_time,
