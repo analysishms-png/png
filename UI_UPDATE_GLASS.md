@@ -69,6 +69,25 @@ Key rules jo implement kiye:
 - ✅ Offscreen screenshots: light + dark login/company/main/module
 - ✅ Presets roundtrip + QSettings save/load/reset
 
+## Update 4 — KOT/table-map sync + status reset + CI tests
+
+1. **KOT state label**: Add/Edit = accent tint, Idle = neutral status tint
+   (pehle static glass bar thi)
+2. **POS Table map**: Status column cells tinted — Active=success,
+   Inactive=neutral, Blocked=danger (title-case UI keys)
+3. **REAL BUG FIX** (`HMS_py/core/pos_table.py`): UI `list_all/get/insert/
+   update/delete` call karta tha jo module-level exist nahi karte —
+   Table screen pe pehla click hi AttributeError deta. Ab module-level
+   CRUD wrappers hain (RoomMast Type='TB' via roommaster), Title-case
+   UI keys ke saath
+4. **Appearance dialog**: status hues ke liye "Reset hues" button —
+   explicit tokens prune hote hain taki mode-switch par fresh default
+   derive ho (seeded swatches + preset-preserve bhi prune-aware)
+5. **CI tests**: teeno walkthrough scripts ek pytest file me —
+   `tests/test_ui_walkthroughs.py` (20 tests, offscreen, DB-free,
+   fake menu/room/table data). Root `pytest.ini` me `tests/` path +
+   markers registered. Full suite: **157 passed**
+
 ## Status colors — user-editable (update 3)
 
 Appearance dialog me ab **4 status hue swatches** bhi hain

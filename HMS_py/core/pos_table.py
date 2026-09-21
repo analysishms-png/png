@@ -75,6 +75,85 @@ class _TableMastAPI:
 TableMastAPI = _TableMastAPI()
 
 
+# ------------------------------------------------ module-level CRUD
+# (pos_table_ui.py inhe directly call karta hai — pehle sirf class tha,
+#  UI pe crash: AttributeError: module has no attribute 'list_all')
+def list_all(cn=None, limit: int = 500) -> list[dict]:
+    """Tables (RoomMast Type='TB') Title-case UI keys ke saath."""
+    out = []
+    for r in table_list(cn=cn, limit=limit):
+        out.append({
+            "Code": r.get("code", ""), "RoomName": r.get("name", ""),
+            "RoomNo": r.get("roomno", "") or r.get("code", ""),
+            "Type": r.get("type", ""),
+            "SeatingCapacity": r.get("seating", "") or "",
+            # UI status combo (Active/Inactive/Blocked) <- RoomStat flag:
+            "Status": ("Active" if (r.get("roomstat") or "") != "X"
+                       else "Inactive"),
+        })
+    return out
+
+
+def get(code: str, cn=None) -> dict | None:
+    """Single table record (Title-case keys, UI-compatible)."""
+    r = table_get(code, cn=cn)
+    if not r:
+        return None
+    return {
+        "Code": r.get("code", ""), "RoomName": r.get("name", ""),
+        "RoomNo": r.get("roomno", "") or r.get("code", ""),
+        "Type": r.get("type", ""),
+        "SeatingCapacity": r.get("seating", "") or "",
+        "Status": ("Active" if (r.get("roomstat") or "") != "X"
+                   else "Inactive"),
+    }
+
+
+def insert(rec: dict, cn=None, commit: bool = True) -> int:
+    """New POS table -> RoomMast row (Type='TB')."""
+    from HMS_py.core import roommaster
+    return roommaster.insert({
+        "type": "TB",
+        "code": rec.get("Code", ""),
+        "name": rec.get("RoomName", ""),
+        "roomcat": rec.get("RoomCat", "") or "",
+        "restcode": rec.get("RestCode", "") or "",
+        "roomstat": "X" if rec.get("Status") == "Inactive" else "",
+    }, cn=cn, commit=commit)
+
+
+def update(code: str, rec: dict, cn=None, commit: bool = True) -> int:
+    """POS table update — delete+insert (RoomMast PK Type+Code+RestCode).
+
+    Status/Seating/RoomNo jaise VB6 extra fields ke liye dedicated columns
+    nahi hain; jo fields RoomMast me hain wahi persist hote hain.
+    """
+    from HMS_py.core import roommaster
+    cur = table_get(code, cn=cn)
+    if not cur:
+        raise ValueError(f"Table '{code}' nahi mila")
+    roommaster.delete(code, type="TB",
+                      restcode=cur.get("restcode", ""),
+                      cn=cn, commit=False)
+    return roommaster.insert({
+        "type": "TB",
+        "code": rec.get("Code", "") or code,
+        "name": rec.get("RoomName", ""),
+        "roomcat": cur.get("roomcat", ""),
+        "restcode": cur.get("restcode", ""),
+        "roomstat": "X" if rec.get("Status") == "Inactive" else "",
+    }, cn=cn, commit=commit)
+
+
+def delete(code: str, cn=None, commit: bool = True) -> int:
+    """POS table delete (RoomMast Type='TB' row)."""
+    from HMS_py.core import roommaster
+    cur = table_get(code, cn=cn)
+    restcode = cur.get("restcode", "") if cur else ""
+    return roommaster.delete(code, type="TB", restcode=restcode,
+                             cn=cn, commit=commit)
+
+
 # ============================================================
 # DispColor - Table Display Colors
 # ============================================================

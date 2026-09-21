@@ -222,6 +222,11 @@ class AppearanceDialog(QDialog):
             sw.setToolTip(label)
             self._swatches[key] = sw
             stat_lay.addWidget(sw)
+        self.btnResetHues = QPushButton("Reset hues")
+        self.btnResetHues.setToolTip(
+            "Status hues theme default pe wapas (mode ke hisab se derive)")
+        self.btnResetHues.setCursor(Qt.CursorShape.PointingHandCursor)
+        stat_lay.addWidget(self.btnResetHues)
         stat_lay.addStretch()
         root.addWidget(stat_box)
 
@@ -266,6 +271,7 @@ class AppearanceDialog(QDialog):
 
         # ---- wiring
         self.btnApplyPreset.clicked.connect(self._apply_preset)
+        self.btnResetHues.clicked.connect(self._reset_status_hues)
         self.cmbMode.currentTextChanged.connect(self._set_mode)
         self.sldOpacity.valueChanged.connect(self._collect)
         self.sldRadius.valueChanged.connect(self._collect)
@@ -296,8 +302,12 @@ class AppearanceDialog(QDialog):
         return QApplication.instance()
 
     def _sync_ui(self):
+        sdefs = theme.status_base_defaults(
+            self._tokens.get("mode", "light"))
         for key, sw in self._swatches.items():
-            sw.set_color(self._tokens.get(key, "#000000"))
+            # status hues: token nahi to mode-default dikhao (black nahi)
+            sw.set_color(self._tokens.get(key) or sdefs.get(key)
+                         or "#000000")
         self.cmbMode.setCurrentText(self._tokens.get("mode", "light"))
         self.sldOpacity.blockSignals(True)
         self.sldOpacity.setValue(int(float(self._tokens.get(
@@ -308,13 +318,34 @@ class AppearanceDialog(QDialog):
         self.sldRadius.blockSignals(False)
 
     # ------------------------------------------------------------ slots
+    @staticmethod
+    def _prune_default_status(tokens: dict) -> dict:
+        """Jo status hue current-mode default ke barabar ho use hatao —
+        tabhi mode switch par naya mode-default derive hota hai.
+        """
+        mode = tokens.get("mode", "light")
+        for k, dv in theme.status_base_defaults(mode).items():
+            if tokens.get(k) == dv:
+                tokens.pop(k, None)
+        return tokens
+
+    def _reset_status_hues(self):
+        """Status hues -> theme defaults (explicit tokens hatate hain)."""
+        for k in ("success", "warning", "danger", "neutral"):
+            self._tokens.pop(k, None)
+        self._tokens = self._prune_default_status(self._tokens)
+        apply_tokens(self._app(), self._tokens)
+        self._sync_ui()
+        self.appearanceChanged.emit()
+
     def _apply_preset(self):
-        # Preset base colors load karo, par user ke status hues preserve
-        # (presets status define nahi karte — wo user-personal hain).
+        # Preset base colors load karo, par user ke CUSTOM status hues
+        # preserve (defaults prune honge — mode ke hisab se derive honge).
         status = {k: v for k, v in self._tokens.items()
                   if k in ("success", "warning", "danger", "neutral")}
         self._tokens = preset_tokens(self.cmbPreset.currentText())
         self._tokens.update(status)
+        self._tokens = self._prune_default_status(self._tokens)
         apply_tokens(self._app(), self._tokens)
         self._sync_ui()
         self.appearanceChanged.emit()
@@ -332,6 +363,7 @@ class AppearanceDialog(QDialog):
 
     def _save(self):
         self._collect()
+        self._tokens = self._prune_default_status(self._tokens)
         save_tokens(self._tokens)
         apply_theme(self._app())
         self.appearanceChanged.emit()
