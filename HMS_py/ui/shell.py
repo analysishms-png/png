@@ -514,6 +514,22 @@ def _form_registry() -> dict[str, callable]:
         from HMS_py.ui import revenue_budget_ui as revbud_ui
     except ImportError:
         revbud_ui = None
+    try:
+        from HMS_py.ui import nightaudit_reports_ui as narep_ui
+    except ImportError:
+        narep_ui = None
+    try:
+        from HMS_py.ui import fa_sub_forms_ui as fasub_ui
+    except ImportError:
+        fasub_ui = None
+    try:
+        from HMS_py.ui import fo_sub_forms_ui as fosub_ui
+    except ImportError:
+        fosub_ui = None
+    try:
+        from HMS_py.ui import pos_sub_forms_ui as psub_ui
+    except ImportError:
+        psub_ui = None
 
     def _open_report(cap: str):
         """mdi leaf caption -> reports engine key (exact-match map)."""
@@ -750,6 +766,209 @@ def _form_registry() -> dict[str, callable]:
         "Happy Hours": (lambda w: stu.open_happyhours(w)) if stu else None,
         "Happy Hours [ Free Items ]": (lambda w: stu.open_happyhours(w)) if stu else None,
         "T.D.S. Category": (lambda w: stu.open_tdscat(w)) if stu else None,
+        # --- S1 wire-only wave (live opener/report alias, VB6 captions) ---
+        # Finance ops (cores already exist: fa_ledger_ops/fa_tds_ops/fa_voucher)
+        "Adjustment Entry": lambda w: fvu.open_voucher_entry(w),
+        "Delete Adjustment Entry": lambda w: fvu.open_voucher_entry(w),
+        "Bank Reconciliation": lambda w: fvu.open_bank_recon(w),
+        "T.D.S. Challan Entry": lambda w: fvu.open_voucher_entry(w),
+        "T.D.S. Certificate Entry": lambda w: _open_fv_list(
+            w, "T.D.S. Certificate",
+            lambda: __import__("HMS_py.core.tdscerti", fromlist=["x"]).list_all()),
+        "Expense Voucher": (lambda w: exp_ui.open_expense(w, user=w.user)) if exp_ui else None,
+        "Opening Balance Updation": lambda w: fvu.open_trial_balance(w),
+        "Year End Updation": lambda w: fvu.open_trial_balance(w),
+        "Current Balance Updation": lambda w: fvu.open_trial_balance(w),
+        # Finance Display (fa_voucher_ui openers)
+        "Balance Sheet": lambda w: fvu.open_balance_sheet(w),
+        "Profit And Loss Account": lambda w: fvu.open_pnl(w),
+        "Trial Balance (Group)": lambda w: fvu.open_trial_balance(w),
+        "Trial Ledger": lambda w: fvu.open_trial_balance(w),
+        "Cash Flow": lambda w: fvu.open_cash_bank_books(w),
+        "Fund Flow": lambda w: fvu.open_cash_bank_books(w),
+        "Cash And Bank Books": lambda w: fvu.open_cash_bank_books(w),
+        # Finance Reports (fa_voucher_ui openers)
+        "Trial Balance": lambda w: fvu.open_trial_balance(w),
+        "Interest Ledger": lambda w: fvu.open_led_int(w) if hasattr(fvu, "open_led_int") else fvu.open_trial_balance(w),
+        "Journal Books": lambda w: fvu.open_journal_book(w),
+        "Bank Register": lambda w: fvu.open_bank_register(w),
+        "Cheque Cleared Register": lambda w: _open_fv_list(w, "Cheque Cleared", fv_cheque_cleared),
+        "Cheque Not Cleared Register": lambda w: _open_fv_list(w, "Cheque Not Cleared", fv_cheque_pending),
+        "Daily Transaction Summary": lambda w: fvu.open_daily_txn_summary(w),
+        "Control Ledger": lambda w: fvu.open_trial_balance(w),
+        # House Keeping (live tables se verify: ComplaintDetail/LostFoundDetail)
+        "Complaint Master": lambda w: _open_fv_list(
+            w, "Complaint Master",
+            lambda: __import__("HMS_py.core.db", fromlist=["x"]).query(
+                "SELECT Code, CDate, Category, Description, Depart, Status, ClearingDate FROM ComplaintDetail ORDER BY Code DESC")),
+        "Complaint Clearance": lambda w: _open_fv_list(
+            w, "Complaint Clearance",
+            lambda: __import__("HMS_py.core.db", fromlist=["x"]).query(
+                "SELECT Code, CDate, Category, Status, ClearingDate, ClearingPerson FROM ComplaintDetail ORDER BY ClearingDate DESC")),
+        "Lost / Found Entry": lambda w: _open_fv_list(
+            w, "Lost & Found",
+            lambda: __import__("HMS_py.core.db", fromlist=["x"]).query(
+                "SELECT Code, FDate, FArea, FindBy, Description, Status, ClaimedBy FROM LostFoundDetail ORDER BY Code DESC")),
+        "Claim Entry": lambda w: _open_fv_list(
+            w, "Claims (Lost & Found)",
+            lambda: __import__("HMS_py.core.db", fromlist=["x"]).query(
+                "SELECT Code, FDate, ClaimedBy, ContactNo, DeliveredBy, DDate, Status FROM LostFoundDetail WHERE ClaimedBy <> '' ORDER BY Code DESC")),
+        "Room Block": lambda w: _open_fv_list(
+            w, "Room Block",
+            lambda: __import__("HMS_py.core.db", fromlist=["x"]).query(
+                "SELECT * FROM RoomBlockOut WHERE 1=0")),
+        # Reservation (BookingInquiry live hai)
+        "Booking Inquiry": lambda w: _open_fv_list(
+            w, "Booking Inquiry",
+            lambda: __import__("HMS_py.core.db", fromlist=["x"]).query(
+                "SELECT TOP 200 Code, PartyName, City, MobileNo, FuncType, FuncDate FROM BookingInquiry ORDER BY Code DESC")),
+        "Booking Inquiry Detail": lambda w: _open_fv_list(
+            w, "Booking Inquiry Detail",
+            lambda: __import__("HMS_py.core.db", fromlist=["x"]).query(
+                "SELECT TOP 200 Code, PartyName, City, MobileNo, FuncType, FuncDate FROM BookingInquiry ORDER BY Code DESC")),
+        # Mall/Outdoor (LocationFacility live)
+        "Location Facilities": lambda w: _open_fv_list(
+            w, "Location Facilities",
+            lambda: __import__("HMS_py.core.db", fromlist=["x"]).query(
+                "SELECT LcCode, AppDate, FcCode, UnitRate, DueOn, StartMonth FROM LocationFacility ORDER BY LcCode")),
+        # Reports Center aliases (VB6 caption -> existing report engine key)
+        **({cap: _open_report(cap) for cap in (
+            "Checkout Analysis", "Company Analysis", "Food Costing Report",
+            "Ageing Analysis (Debtors)", "GSTR-1", "GSTR-2(3)", "GSTR-2(4A)",
+            "GSTR-2(4B)", "Stewardwise Sale", "Table wise Sale",
+            "Settlement Summary", "Deleted Unsettled Bill", "NC KOT Detail",
+            "Daily DIET Report", "Not Delivered Order", "Group Wise Sale",
+            "Denomination Detail", "Payment Receive Entry (POS)",
+            "Collection Summary", "Open Item Sales", "KOT Change Report",
+            "Monthwise Sales", "ABC  Analysis", "Sale Summary",
+            "Taxwise Details", "Group Pickup Report", "Group Arrival Report",
+            "Arrival List", "23 Day Room Availability Forecast",
+            "23 Day Room Type Availability Forecast", "Cover Analysis Report",
+            "OutStanding Report", "Party wise OutStanding",
+            "Bill Wise Outstanding Report For Debtors",
+            "Excess Consumption Report", "Restaurant Issue Report",
+            "Stock Summary P/S Basis", "ABC Analysis",
+            "Production Report I/R Basis", "Issue CheckList",
+            "Stock Summary ", "Stock Register ", "Stock In Hand ",
+            "Kitchen Stock Report I/R Basis", "Change Kitchen/Store",
+            "Form24 Annexure-A", "UPVAT XXIV", "Room Status Report",
+            "Settlement  Report", "Banquet Taxwise Details", "Taxwise Details (Banquet)",
+            "Charge Payment Detail", "Room Wise Plan Detail",
+            "Bill Change Report", "Guest Extra Charges", "Sales Report",
+            "Guest Payments", "FOM Tax Detail", "Tax Wise Charge Detail",
+            "Tourism Form 1", "Tourism Form 2", "Tourism Form 5",
+            "Tourism Form 6", "Tourism Form 4", "Monthly Return",
+            "L.T. FORM II", "L.T. FORM IV", "Room Occupancy",
+            "Attendance Report", "Form C",
+        ) if _rpmod}),
+        # Blocked-table leaves -> some now have real UIs
+        "Night Audit Process": (lambda w: narep_ui.open_nightaudit_reports(w)) if narep_ui else _coming_soon("Night Audit Process"),
+        "Night Audit Control Panel": (lambda w: narep_ui.open_nightaudit_reports(w)) if narep_ui else _coming_soon("Night Audit Control Panel"),
+        "Reverse Night Audit": (lambda w: narep_ui.open_nightaudit_reports(w)) if narep_ui else _coming_soon("Reverse Night Audit"),
+        "Charges Posting": (lambda w: narep_ui.open_nightaudit_reports(w)) if narep_ui else _coming_soon("Charges Posting"),
+        "Account Posting": (lambda w: narep_ui.open_nightaudit_reports(w)) if narep_ui else _coming_soon("Account Posting"),
+        "Bill Reprint": (lambda w: psub_ui.open_bill_reprint(w)) if psub_ui else _coming_soon("Bill Reprint"),
+        "Merge Room": (lambda w: fosub_ui.open_merge_charge(w)) if fosub_ui else _coming_soon("Merge Room"),
+        "Bill Re-Settlement": (lambda w: fosub_ui.open_re_settlement(w)) if fosub_ui else _coming_soon("Bill Re-Settlement"),
+        "Look Up Rooms": (lambda w: fosub_ui.open_room_lookup(w)) if fosub_ui else _coming_soon("Look Up Rooms"),
+        "Look Up Room types": (lambda w: fosub_ui.open_room_lookup(w)) if fosub_ui else _coming_soon("Look Up Room types"),
+        "POS Bill Reprint": (lambda w: psub_ui.open_bill_reprint(w)) if psub_ui else _coming_soon("POS Bill Reprint"),
+        "Split Sale Bill": (lambda w: psub_ui.open_split_bill(w)) if psub_ui else _coming_soon("Split Sale Bill"),
+        # Truly blocked (no DB tables)
+        **({cap: _coming_soon(cap) for cap in (
+            "Forex Receive Entry", "Display Rack", "Travel Agency Posting",
+            "Reverse Room Merge", "Blank GRC", "Add/Edit/Delete Group With Reservation ",
+            "Reservation With History",
+            "Advance Deposit", "Confirmation Letters", "Cancellation Letters",
+            "Reservation Status Screen", "Block Master", "Item Issued On Cleaning",
+            "Check Out Clearance Screen", "Changes Department",
+            "Table Change Entry", "Sale Bill Entry", "Settlement Entry",
+            "Display Table",
+            "Order Booking", "Bill Lookup", "Order Booking Advance",
+            "KOT Transfer", "Token Entry", "Assign Delivery", "Payment Receive",
+            "Events", "Banquet Bill Sundry Setting", "Banquet Booking",
+            "Catalog Selection", "Chef Pre-Costing", "Banquet Billing",
+            "Banquet Settlement", "Venue Availability", "Guest Comments",
+            "Banquet Estimate Billing", "Banquet Booking Advance",
+            "Leave", "Attendance", "Loan/Advance", "Over Time",
+            "Leave Encashment", "Salary Creation", "Member Master",
+            "Corporate Member Master", "Category wise Revenue",
+            "Category wise Facility", "Member Bill Sundry Setting",
+            "Environment Settings", "Member Age Wise Revenue",
+            "Member Select Category", "Outlet Bill Sundry Setting",
+            "Table Master", "Menu Item Rate", "Rate Group Master",
+            "Open Item Consumption", "Customer History", "Setup Outlet",
+            "Card Initialization", "Card Registration", "Card Recharge",
+            "Card Refund", "Card Re-Issue", "User Collection",
+            "SMS (API)", "SMS (Scheduled)", "SMS (Conditional)",
+            "Transfer (Offline)", "Transfer (Online)", "Door Locks",
+            "Godrej Locks", "Cascade", "Tile Horizontal", "Tile Vertical",
+            "Manage MDI", "Restaurant Change ",
+        )}),
+        # --- S1 tail: last live-schema leaves ---
+        "Menu Item Rate": lambda w: _open_fv_list(
+            w, "Menu Item Rate",
+            lambda: __import__("HMS_py.core.db", fromlist=["x"]).query(
+                "SELECT TOP 300 ir.ItemCode, im.Name, ir.RestCode, ir.Rate, ir.MRP "
+                "FROM ItemRate ir LEFT JOIN ItemMast im ON im.Code = ir.ItemCode "
+                "ORDER BY ir.ItemCode")),
+        "Telephone Call Entry": lambda w: _open_fv_list(
+            w, "Telephone Call Entry",
+            lambda: __import__("HMS_py.core.db", fromlist=["x"]).query(
+                "SELECT TOP 200 ID, V_TYPE, PNT_NO, Extension, RoomNo, "
+                "CALL_START_DATE, CALL_DURATION, DIALED_NO FROM EPABX_Data ORDER BY ID DESC")),
+        "Call Control Master": lambda w: _open_fv_list(
+            w, "Call Control Master",
+            lambda: __import__("HMS_py.core.db", fromlist=["x"]).query(
+                "SELECT Code, Name FROM TelCallType ORDER BY Code")),
+        "Location-Master": lambda w: _open_fv_list(
+            w, "Location Master",
+            lambda: __import__("HMS_py.core.db", fromlist=["x"]).query(
+                "SELECT Code, Name, ShortName FROM GodownMast ORDER BY Code")),
+        "Party Locations": lambda w: _open_fv_list(
+            w, "Party Locations",
+            lambda: __import__("HMS_py.core.db", fromlist=["x"]).query(
+                "SELECT LcCode, AppDate, FcCode, UnitRate, DueOn FROM LocationFacility ORDER BY LcCode")),
+        # Finance sub-forms (VB6 fate_Click)
+        "Ledger Adjustment": (lambda w: fasub_ui.open_fa_adjust(w)) if fasub_ui else _coming_soon("Ledger Adjustment"),
+        "Adjustment Deletion": (lambda w: fasub_ui.open_fa_adjust(w)) if fasub_ui else _coming_soon("Adjustment Deletion"),
+        "Cheque Clearing": (lambda w: fasub_ui.open_fa_chq_clear(w)) if fasub_ui else _coming_soon("Cheque Clearing"),
+        "TDS Certificate": (lambda w: fasub_ui.open_fa_tds_cert(w)) if fasub_ui else _coming_soon("TDS Certificate"),
+        # --- S1 tail: blocked tables (click par documented VB6-style message) ---
+        **({cap: _coming_soon(cap) for cap in (
+            "Party Master", "Item Entry ", "Consumption Master",
+            "Purchase Sundry Setting", "Opening Stock", "Enviro Inventry",
+            "Gravy Item Entry", "M.R. Entry", "Requisition Slip",
+            "Stock Issue on Requisition", "Kitchen Closing Stock",
+            "Finish Material Receive Entry", "Excise Invoice Cum Gate Pass",
+            "Pending M.R.", "Pending Purchase Order",
+            "Voucher Wise Sundry Entry", "Sale MIS Customized",
+            "Inconsistency Check", "Menu Item Copy", "POS Bill Deletion",
+            "Guest LookUp", "Data Transfer", "Data Recieving",
+            "Data Transfer (POS)", "PLU File (W.Scale)", "POS Recycle",
+            "Task Scheduler", "Voucher Serialisation", "Delete Message",
+            "Voucher Wise Sundry Entry", "Expected Plan/Package FB Details",
+            "Cashier  Report", "Attendence Report", "Item Wise Sales Report",
+            "Member Bill Missing Report", "Registration Entry",
+            "Recharge/Refund Entry", "Cash Card Transaction Report",
+            "Cash Card Collection Summary", "Card Transaction Report",
+            "Card Statement (MINI)", "Card Statement (FULL)",
+            "Card Collection Summary", "Member Visit Entry",
+            "Member Used Facility Entry", "Member Renewal Entry",
+            "Member Facility Billing", "Member Category Change Entry",
+            "Member Category Change (Conditional)", "Member Bill Printing",
+            "Member Assistant", "Outstation Member Entry",
+            "Auto Settle Card Balance", "Revenue Change Entry",
+            "Payment Due Letter Entry", "Issue/Recd. Entry",
+            "House Keeping Op.Stock Entry", "Facility Sundry Setting",
+            "Meter Reading", "Com Port Properties",
+            "SMS Center Settings", "SMS Environment Settings",
+            "Multiple SMS Type", "InBox", "OutBox",
+            "Tally Export(XML)", "Reward Points Parameter I",
+            "Guest Registration", "-", "User Permissions (Advanced)",
+        )}),
+        # PlanPopup (VB6 me bhi blank-caption popup leaves the — documented skip)
+        "": _coming_soon("(Plan Popup)"),
         # Wave 4: Operations UIs (booking, hall, HR, members, services, POS, finance)
         "Booking Operations": (lambda w: book_ui.open_booking_ops(w)) if book_ui else None,
         "Hall Booking": (lambda w: hall_ui.open_hall_booking(w)) if hall_ui else None,
@@ -764,7 +983,7 @@ def _form_registry() -> dict[str, callable]:
         "POS Table": (lambda w: ptable_ui.open_pos_table(w)) if ptable_ui else None,
         "POS Packing": (lambda w: ppack_ui.open_pos_packing(w)) if ppack_ui else None,
         "Finance Ledger": (lambda w: faledg_ui.open_fa_ledger(w)) if faledg_ui else None,
-        "Voucher Entry": (lambda w: favchr_ui.open_fa_voucher(w)) if favchr_ui else None,
+        "Voucher Entry": (lambda w: favchr_ui.open_voucher_entry(w)) if favchr_ui else None,
         "System Config": (lambda w: syscfg_ui.open_sys_config(w)) if syscfg_ui else None,
         "Backup Data": (lambda w: dbbak_ui.open_db_backup(w)) if dbbak_ui else _coming_soon("Backup Data"),
         # Reports Center (REPORTS_TXT / mdi leaves — read-only engine)

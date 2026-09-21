@@ -2679,12 +2679,76 @@ def by_module() -> dict:
     return out
 
 
+# S1: VB6 MDI captions jo isi engine ke report-key par mapped hain.
+# Sirf wahi aliases jinki engine key bhi live hai (by_key me maujood).
+# Evidence: VB6 MDIForm1 menu captions (mdi_menu.json) vs REPORTS_TXT keys.
+VB6_CAPTION_ALIASES: dict[str, str] = {
+    "Checkout Analysis": "SalesDayBook",
+    "Company Analysis": "CompanyAnalysis",
+    "Food Costing Report": "FoodCost",
+    "Ageing Analysis (Debtors)": "AgingDr",
+    "Ageing Analysis (Creditors)": "AgingCr",
+    "GSTR-1": "GSTR1",
+    "GSTR-2(3)": "GSTR2(3)",
+    "GSTR-2(4A)": "GSTR2(4A)",
+    "GSTR-2(4B)": "GSTR2(4B)",
+    "Table wise Sale": "TableWiseSale",
+    "Deleted Unsettled Bill": "DelBillUnsetBill",
+    "NC KOT Detail": "NCKOTWiseDetails",
+    "Daily DIET Report": "DailyDiet",
+    "Not Delivered Order": "DeliveryStatus",
+    "Open Item Sales": "OpenItemSale",
+    "ABC  Analysis": "abc_analysis",
+    "ABC Analysis": "abc_analysis",
+    "23 Day Room Availability Forecast": "DaysForecastRep",
+    "Cover Analysis Report": "CoverAnalysis",
+    "OutStanding Report": "OutstandingReportForDebtors",
+    "Party wise OutStanding": "PartyWiseOutStanding",
+    "Bill Wise Outstanding Report For Debtors": "OutstandingReportForDebtors",
+    "Excess Consumption Report": "ExcessConsumption",
+    "Restaurant Issue Report": "RestIssue",
+    "Stock Summary P/S Basis": "StockSummaryP-SBasis",
+    "Production Report I/R Basis": "ProductionReport",
+    "Issue CheckList": "IssueReg",
+    "Kitchen Stock Report I/R Basis": "KitchenStkRep",
+    "Form24 Annexure-A": "Form24AnnexureA",
+    "UPVAT XXIV": "UPVATXXIV",
+    "Settlement  Report": "SettleRep",
+    "Bill Change Report": "FOMBillChangeReport",
+    "Guest Extra Charges": "ExtraChargesDuringStay",
+    "Sales Report": "SalesDayBook",
+    "Guest Payments": "GuestPayments",
+    "FOM Tax Detail": "FOMTaxDetail",
+    "Tax Wise Charge Detail": "FOMTaxWiseChargeDetail",
+    "Tourism Form 1": "Form1TourismReport",
+    "Tourism Form 2": "Form2TourismReport",
+    "Tourism Form 5": "Form5TourismReport",
+    "Tourism Form 6": "Form6TourismReport",
+    "Tourism Form 4": "Form4TourismReport",
+    "Room Occupancy": "RoomOccupancyAnalysisReport",
+    "Attendance Report": "AttendanceRep",
+    "Form C": "FormCReport",
+    "Stock Summary ": "StockSumm",
+    "Stock Register ": "StockRegister",
+    "Stock In Hand ": "StockINHand",
+    "Excess Consumption": "ExcessConsumption",
+    "Cashier Settlement": "CashierSettlement",
+    "Settlement Report (Hall)": "SettleRepHall",
+    "Taxwise Detail Report (Hall)": "TaxwiseDetailReportHall",
+}
+
+
 def menu_caption_map() -> dict:
-    """Exact mdi leaf caption -> report key (shell wiring ke liye)."""
+    """Exact mdi leaf caption -> report key (shell wiring ke liye).
+    REPORTS menu entries + VB6 caption aliases (sirf live keys)."""
     out = {}
     for r in REPORTS:
         for cap in r.get("menu", []):
             out[cap] = r["key"]
+    live = by_key()
+    for cap, key in VB6_CAPTION_ALIASES.items():
+        if key in live:
+            out[cap] = key
     return out
 
 
