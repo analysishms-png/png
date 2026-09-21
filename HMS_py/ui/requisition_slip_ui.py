@@ -16,13 +16,13 @@ from HMS_py.core import inventory as inv
 from HMS_py.ui import theme as _theme
 
 
-def _cell(val, fg: str = "#111111", editable: bool = False) -> QTableWidgetItem:
+def _cell(val, fg: str = "", editable: bool = False) -> QTableWidgetItem:
     it = QTableWidgetItem("" if val is None else str(val))
     if not editable:
         it.setFlags(it.flags() & ~Qt.ItemFlag.ItemIsEditable)
     else:
         it.setFlags(it.flags() | Qt.ItemFlag.ItemIsEditable)
-    it.setForeground(QColor(fg))
+    it.setForeground(QColor(fg or _theme.palette()["text"]))
     return it
 
 
@@ -44,7 +44,7 @@ class RequisitionSlipWindow(QMainWindow):
             "Pending indent lines (ClearYN='') list. Jo lines issue karni hain "
             "unke 'Issue Qty' me number daalein (blank = skip), phir Save Issue.")
         info.setWordWrap(True)
-        info.setStyleSheet("color:#111; padding:4px;")
+        info.setStyleSheet(f"color:{_theme.palette()['text']}; padding:4px;")
         lay.addWidget(info)
 
         grp = QGroupBox("Pending Requisition Lines")

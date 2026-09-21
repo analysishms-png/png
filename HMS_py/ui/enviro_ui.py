@@ -29,7 +29,7 @@ def _dark_item(val, readonly=False) -> QTableWidgetItem:
         it.setFlags(it.flags() | Qt.ItemFlag.ItemIsEditable)
     it.setForeground(QColor(_theme.palette()["text"]))
     if readonly:
-        it.setBackground(QColor("#eeeeee"))
+        it.setBackground(QColor(_theme.palette()["glass_tint"]))
     return it
 
 

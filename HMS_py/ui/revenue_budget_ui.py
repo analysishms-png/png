@@ -117,7 +117,8 @@ class RevenueBudgetWindow(QMainWindow):
                 for j, v in enumerate([str(r["from_date"]), str(r["to_date"]),
                                        str(r["sr_no"]), r["group_code"],
                                        str(r["amount"])]):
-                    it = QTableWidgetItem(v); it.setForeground(QColor("#111"))
+                    it = QTableWidgetItem(v)
+                    it.setForeground(QColor(_theme.palette()["text"]))
                     self.bg_table.setItem(i, j, it)
         except Exception:
             pass

@@ -84,7 +84,7 @@ class VoucherEntryDialog(QDialog):
         root.addLayout(btns)
 
         self.lblStatus = QLabel("Debit must equal Credit (double entry)")
-        self.lblStatus.setStyleSheet("font-size: 11px; color: #64748b; padding: 2px 0;")
+        self.lblStatus.setStyleSheet(f"font-size: 11px; color: {_theme.palette()['text_dim']}; padding: 2px 0;")
         root.addWidget(self.lblStatus)
         self._add_line()
         self._add_line()

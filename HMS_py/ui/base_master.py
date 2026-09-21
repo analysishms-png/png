@@ -96,7 +96,7 @@ class BaseMasterForm(QDialog):
         root.addLayout(btns)
 
         self.lblState = QLabel("State: Idle")
-        self.lblState.setStyleSheet("font-size: 11px; color: #64748b; padding: 2px 0;")
+        self.lblState.setStyleSheet(f"font-size: 11px; color: {_theme.palette()['text_dim']}; padding: 2px 0;")
         root.addWidget(self.lblState)
 
         self.btnNew.clicked.connect(self._on_new)

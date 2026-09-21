@@ -59,7 +59,7 @@ class OpeningStockWindow(QMainWindow):
         info = QLabel("ItemMast se items load ho rahe hain. "
                        "Opening Qty aur Rate daalein, Save dabaein.")
         info.setWordWrap(True)
-        info.setStyleSheet("color:#555;")
+        info.setStyleSheet(f"color:{_theme.palette()['text_dim']};")
         lay.addWidget(info)
 
         self.table = QTableWidget()
@@ -100,10 +100,10 @@ class OpeningStockWindow(QMainWindow):
                 self.table.setItem(i, 1, _cell(name))
                 self.table.setItem(i, 2, _cell(unit))
                 qty_cell = QTableWidgetItem("0")
-                qty_cell.setForeground(QColor("#0000CC"))
+                qty_cell.setForeground(QColor(_theme.palette()["accent"]))
                 self.table.setItem(i, 3, qty_cell)
                 rate_cell = QTableWidgetItem(str(sale_rate))
-                rate_cell.setForeground(QColor("#0000CC"))
+                rate_cell.setForeground(QColor(_theme.palette()["accent"]))
                 self.table.setItem(i, 4, rate_cell)
                 self.table.setItem(i, 5, _cell("0.00"))
             self.statusBar().showMessage(f"{len(rows)} items loaded")
@@ -318,8 +318,8 @@ class RestaurantMasterWindow(QMainWindow):
                 "NOTE: RestMast table is database me nahi hai.\n"
                 "VB6 HMS me ye table hota hai par is DB copy me missing hai.\n"
                 "Add/Delete functionality kaam nahi karegi.")
-            msg.setStyleSheet("color:#cc0000;font-weight:bold;padding:10px;"
-                              "border:1px solid #cc0000;background:#fff3f3;")
+            msg.setStyleSheet(f"color:{_theme.palette()['danger']};font-weight:bold;padding:10px;"
+                              f"border:1px solid {_theme.palette()['danger']};background:{_theme.palette()['danger_soft']};")
             msg.setWordWrap(True)
             lay.addWidget(msg)
         else:

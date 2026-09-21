@@ -178,7 +178,7 @@ class FaTDSCertificateWindow(QMainWindow):
 
         btn_lay = QHBoxLayout()
         self.btn_gen = QPushButton("Generate Certificate")
-        self.btn_gen.setStyleSheet("QPushButton{background:#28a745;color:white;font-weight:bold;}")
+        self.btn_gen.setProperty("success", True)
         self.btn_exit = QPushButton("Exit")
         self.btn_gen.clicked.connect(self._generate)
         self.btn_exit.clicked.connect(self.close)
