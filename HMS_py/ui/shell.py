@@ -530,6 +530,18 @@ def _form_registry() -> dict[str, callable]:
         from HMS_py.ui import pos_sub_forms_ui as psub_ui
     except ImportError:
         psub_ui = None
+    try:
+        from HMS_py.ui import guest_lookup_ui as gl_ui
+    except ImportError:
+        gl_ui = None
+    try:
+        from HMS_py.ui import registration_entry_ui as reg_ui
+    except ImportError:
+        reg_ui = None
+    try:
+        from HMS_py.ui import tally_export_ui as tally_ui
+    except ImportError:
+        tally_ui = None
 
     def _open_report(cap: str):
         """mdi leaf caption -> reports engine key (exact-match map)."""
@@ -934,6 +946,12 @@ def _form_registry() -> dict[str, callable]:
         "Adjustment Deletion": (lambda w: fasub_ui.open_fa_adjust(w)) if fasub_ui else _coming_soon("Adjustment Deletion"),
         "Cheque Clearing": (lambda w: fasub_ui.open_fa_chq_clear(w)) if fasub_ui else _coming_soon("Cheque Clearing"),
         "TDS Certificate": (lambda w: fasub_ui.open_fa_tds_cert(w)) if fasub_ui else _coming_soon("TDS Certificate"),
+        # Guest & Registration forms (GuestProf/GuestFolio tables exist)
+        "Guest LookUp": (lambda w: gl_ui.open_guest_lookup(w)) if gl_ui else _coming_soon("Guest LookUp"),
+        "Registration Entry": (lambda w: reg_ui.open_registration_entry(w)) if reg_ui else _coming_soon("Registration Entry"),
+        "Guest Registration": (lambda w: reg_ui.open_registration_entry(w)) if reg_ui else _coming_soon("Guest Registration"),
+        # Tally Export
+        "Tally Export(XML)": (lambda w: tally_ui.open_tally_export(w)) if tally_ui else _coming_soon("Tally Export(XML)"),
         # --- S1 tail: blocked tables (click par documented VB6-style message) ---
         **({cap: _coming_soon(cap) for cap in (
             "Party Master", "Item Entry ", "Consumption Master",
@@ -944,12 +962,12 @@ def _form_registry() -> dict[str, callable]:
             "Pending M.R.", "Pending Purchase Order",
             "Voucher Wise Sundry Entry", "Sale MIS Customized",
             "Inconsistency Check", "Menu Item Copy", "POS Bill Deletion",
-            "Guest LookUp", "Data Transfer", "Data Recieving",
+            "Data Transfer", "Data Recieving",
             "Data Transfer (POS)", "PLU File (W.Scale)", "POS Recycle",
             "Task Scheduler", "Voucher Serialisation", "Delete Message",
             "Voucher Wise Sundry Entry", "Expected Plan/Package FB Details",
             "Cashier  Report", "Attendence Report", "Item Wise Sales Report",
-            "Member Bill Missing Report", "Registration Entry",
+            "Member Bill Missing Report",
             "Recharge/Refund Entry", "Cash Card Transaction Report",
             "Cash Card Collection Summary", "Card Transaction Report",
             "Card Statement (MINI)", "Card Statement (FULL)",
@@ -964,7 +982,7 @@ def _form_registry() -> dict[str, callable]:
             "Meter Reading", "Com Port Properties",
             "SMS Center Settings", "SMS Environment Settings",
             "Multiple SMS Type", "InBox", "OutBox",
-            "Tally Export(XML)", "Reward Points Parameter I",
+            "Reward Points Parameter I",
             "Guest Registration", "-", "User Permissions (Advanced)",
         )}),
         # PlanPopup (VB6 me bhi blank-caption popup leaves the — documented skip)
