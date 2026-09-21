@@ -24,6 +24,10 @@ def list_all_reg(cn=None, limit=500):
     return [_map_reg(r) for r in rows]
 
 
+def list_reg(cn=None, limit=500):
+    return list_all_reg(cn, limit)
+
+
 def get_reg(code, cn=None):
     rows = db.query("SELECT * FROM SmartCardRegistration WHERE Code = ?", (code,), cn=cn)
     return _map_reg(rows[0]) if rows else None

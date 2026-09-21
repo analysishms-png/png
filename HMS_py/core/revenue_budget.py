@@ -14,28 +14,37 @@ USER = "PYADMIN"
 # Revenue Group Setting
 # ============================================================
 def revenue_group_list(cn=None) -> list[dict]:
-    rows = db.query(
-        "SELECT RevCode, RevName, GroupCode, GroupNature "
-        "FROM RevenueGroup ORDER BY RevCode", cn=cn)
+    try:
+        rows = db.query(
+            "SELECT RevCode, RevName, GroupCode, GroupNature "
+            "FROM RevenueGroup ORDER BY RevCode", cn=cn)
+    except Exception:
+        return []
     return [{"rev_code": r[0] or "", "rev_name": (r[1] or "").strip(),
              "group_code": r[2] or "", "group_nature": r[3] or ""}
             for r in rows]
 
 
 def revenue_group_insert(rec: dict, cn=None, commit: bool = True) -> int:
-    return db.execute(
-        "INSERT INTO RevenueGroup (RevCode, RevName, GroupCode, GroupNature, "
-        "U_Name, U_EntDt, U_AE, LogSite_Code) "
-        "VALUES (?, ?, ?, ?, ?, getdate(), 'A', ?)",
-        (rec["rev_code"], rec.get("rev_name", ""),
-         rec.get("group_code", ""), rec.get("group_nature", ""),
-         USER, SITE_CODE), cn=cn, commit=commit)
+    try:
+        return db.execute(
+            "INSERT INTO RevenueGroup (RevCode, RevName, GroupCode, GroupNature, "
+            "U_Name, U_EntDt, U_AE, LogSite_Code) "
+            "VALUES (?, ?, ?, ?, ?, getdate(), 'A', ?)",
+            (rec["rev_code"], rec.get("rev_name", ""),
+             rec.get("group_code", ""), rec.get("group_nature", ""),
+             USER, SITE_CODE), cn=cn, commit=commit)
+    except Exception:
+        return 0
 
 
 def revenue_group_delete(rev_code: str, cn=None, commit: bool = True) -> int:
-    return db.execute(
-        "DELETE FROM RevenueGroup WHERE RevCode = ?", (rev_code,),
-        cn=cn, commit=commit)
+    try:
+        return db.execute(
+            "DELETE FROM RevenueGroup WHERE RevCode = ?", (rev_code,),
+            cn=cn, commit=commit)
+    except Exception:
+        return 0
 
 
 # ============================================================

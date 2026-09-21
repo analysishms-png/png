@@ -313,10 +313,17 @@ ITEMCAT_COLS = ("Code, Name, RoundOff, AcName, OutletYN, TaxStru, "
                 "U_Name, U_EntDt, U_AE")
 
 
+def _safe_float(v, default=0.0):
+    try:
+        return float(v)
+    except (ValueError, TypeError):
+        return default
+
+
 def _map_itemcat(r) -> dict:
     try:
         return {"code": r.Code, "name": (r.Name or "").strip(),
-                "roundoff": float(r.RoundOff or 0),
+                "roundoff": _safe_float(r.RoundOff),
                 "acname": (r.AcName or "").strip(),
                 "outletyn": r.OutletYN or "N",
                 "taxstru": r.TaxStru or "",
@@ -325,16 +332,16 @@ def _map_itemcat(r) -> dict:
                 "drcr": r.DrCr or "",
                 "revcode": r.RevCode or "",
                 "status": r.Status or "",
-                "taxp": float(r.TaxP or 0),
+                "taxp": _safe_float(r.TaxP),
                 "u_name": r.U_Name or "", "u_ae": r.U_AE or ""}
     except AttributeError:
         c, n, ro, an, oyn, ts, ct, rc, dc, rvc, st, tp, un, _, uae = r
         return {"code": c, "name": (n or "").strip(),
-                "roundoff": float(ro or 0), "acname": (an or "").strip(),
+                "roundoff": _safe_float(ro), "acname": (an or "").strip(),
                 "outletyn": oyn or "N", "taxstru": ts or "",
                 "cattype": ct or "", "rest": rc or "",
                 "drcr": dc or "", "revcode": rvc or "",
-                "status": st or "", "taxp": float(tp or 0),
+                "status": st or "", "taxp": _safe_float(tp),
                 "u_name": un or "", "u_ae": uae or ""}
 
 

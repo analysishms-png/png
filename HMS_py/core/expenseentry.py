@@ -43,9 +43,10 @@ def _make_docid(vtype: str, vprefix: str, vno: int,
             vprefix.ljust(4) + str(vno).rjust(8))[:21]
 
 
-def list_folio_charges(folio: int, cn=None,
+def list_folio_charges(folio, cn=None,
                        vprefix: str = "2026") -> list[dict]:
     """Ek folio ke sab charges/payments (RsFolioEntry grid jaisa)."""
+    folio = int(folio)
     rec = checkin.get(folio, cn=cn, vprefix=vprefix)
     if not rec:
         return []

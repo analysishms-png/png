@@ -36,9 +36,11 @@ warnings.showwarning = _qt_message_handler
 from PyQt6.QtWidgets import (QApplication, QDialog, QFormLayout, QHBoxLayout,
                              QLabel, QLineEdit, QMainWindow, QMessageBox,
                              QPushButton, QTableWidget, QTableWidgetItem,
-                             QVBoxLayout, QWidget)
+                             QVBoxLayout, QWidget, QFrame, QSizePolicy)
 from PyQt6.QtCore import Qt, qInstallMessageHandler, QtMsgType
-from PyQt6.QtGui import QFont
+from PyQt6.QtGui import QFont, QShortcut, QKeySequence
+
+from HMS_py.ui.theme import apply_theme, toggle_theme, current_theme
 
 
 _APP = None
@@ -1036,36 +1038,46 @@ class MainWindow(QMainWindow):
         root.setSpacing(0)
         root.setContentsMargins(0, 0, 0, 0)
 
+        # Top bar with title + theme toggle
+        topbar = QHBoxLayout()
+        topbar.setContentsMargins(16, 8, 16, 8)
         self.lblTitle = QLabel(
             f"{comp['name']}  {{ {comp['year']} }}")
         f = QFont("Segoe UI", 14, QFont.Weight.Bold)
         self.lblTitle.setFont(f)
-        self.lblTitle.setStyleSheet("color: #2222cc; padding: 6px;")
-        self.lblTitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        root.addWidget(self.lblTitle)
+        topbar.addWidget(self.lblTitle)
+        topbar.addStretch()
+
+        # Theme toggle button
+        self.theme_btn = QPushButton("Dark Mode")
+        self.theme_btn.setCheckable(True)
+        self.theme_btn.setChecked(True)
+        self.theme_btn.setFixedWidth(100)
+        self.theme_btn.clicked.connect(self._toggle_theme)
+        topbar.addWidget(self.theme_btn)
+        root.addLayout(topbar)
 
         body = QHBoxLayout()
-        sidebar = QWidget()
-        sidebar.setFixedWidth(150)
+        body.setSpacing(0)
+        body.setContentsMargins(0, 0, 0, 0)
+
+        # Modern sidebar
+        sidebar = QFrame()
+        sidebar.setProperty("sidebar", True)
+        sidebar.setFixedWidth(200)
         side_lay = QVBoxLayout(sidebar)
-        side_lay.setContentsMargins(2, 2, 2, 2)
-        side_lay.setSpacing(3)
-        self._side_buttons = []   # P0-tail: keyboard shortcuts ke liye
+        side_lay.setContentsMargins(8, 8, 8, 8)
+        side_lay.setSpacing(2)
+
+        self._side_buttons = []
         for m in menu.sidebar_modules():
             b = QPushButton(m["name"])
-            b.setMinimumHeight(34)
+            b.setProperty("sidebar-btn", True)
+            b.setMinimumHeight(38)
             b.setCheckable(True)
-            # UIA fix (P0-tail): Qt accessibility ko explicit naam do,
-            # warna automation (UIA ButtonControl) me name nahi aata
             b.setAccessibleName(m["name"])
             b.setAccessibleDescription(f"Module {m['name']}")
-            b.setStyleSheet(
-                "QPushButton {background: #1b5e5e; color: white;"
-                "font-weight: bold; border: none; text-align: left;"
-                "padding-left: 8px;}"
-                "QPushButton:hover {background: #2a8686;}"
-                "QPushButton:checked {background: #d4a017; color:#222;}")
-            b.clicked.connect(lambda _, mm=m: self._on_module(mm, b))
+            b.clicked.connect(lambda _, mm=m, bb=b: self._on_module(mm, bb))
             self._side_buttons.append(b)
             side_lay.addWidget(b)
         side_lay.addStretch()
@@ -1073,9 +1085,10 @@ class MainWindow(QMainWindow):
 
         self.canvas = QLabel("Module select karo (left sidebar)")
         self.canvas.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.canvas.setStyleSheet("font-size: 14px; color: #8888aa;")
         body.addWidget(self.canvas, stretch=1)
         root.addLayout(body)
-        self.setCentralWidget(central)   # QMainWindow: zaroori (warna GC)
+        self.setCentralWidget(central)
 
         sb = self.statusBar()
         sb.addWidget(QLabel(f"  {user}  "))
@@ -1084,7 +1097,6 @@ class MainWindow(QMainWindow):
         import datetime
         sb.addWidget(QLabel(
             f"S/w Dt.: {datetime.datetime.now():%d/%b/%Y %H:%M:%S}  "))
-        # DB status (VB6 me Analysis.ini keys 1/6 se aata tha)
         from HMS_py.core.db import load_config, connect
         try:
             cfg = load_config()
@@ -1099,12 +1111,7 @@ class MainWindow(QMainWindow):
             from PyQt6.QtWidgets import QLabel as _L
             sb.addPermanentWidget(_L(f"DB: OFFLINE ({e})  "))
 
-        # Keyboard navigation (P0-tail, P3-b E2E fix): windowed-EXE ka UIA
-        # tree minimal hota hai (Qt accessibility ko buttons expose nahi
-        # karta) - VB6 ke &-accelerator pattern jaisa keyboard flow:
-        #   Alt+1..9 = Nth sidebar module, Ctrl+R = Reservation browser,
-        #   Ctrl+P = Plan Master. (Alt+10+ chord nahi hota - note.)
-        from PyQt6.QtGui import QShortcut, QKeySequence
+        # Keyboard navigation
         for i, b in enumerate(self._side_buttons[:9]):
             QShortcut(QKeySequence(f"Alt+{i+1}"), self,
                       activated=lambda bb=b: bb.click())
@@ -1112,7 +1119,6 @@ class MainWindow(QMainWindow):
                   activated=lambda: self.registry["Reservation/Cancellation"](self))
         QShortcut(QKeySequence("Ctrl+P"), self,
                   activated=lambda: self.registry["Plan Master"](self))
-        # Main Setup completion openers (P2-c) - direct dialog shortcuts
         for key, leaf in (("Ctrl+C", "Country Master"),
                           ("Ctrl+B", "State Master"),
                           ("Ctrl+H", "Charge Master"),
@@ -1120,30 +1126,25 @@ class MainWindow(QMainWindow):
                           ("Ctrl+I", "Item Master")):
             QShortcut(QKeySequence(key), self,
                       activated=lambda lf=leaf: self.registry[lf](self))
-        # P4-a Front Office openers
         QShortcut(QKeySequence("Ctrl+F"), self,
                   activated=lambda: self.registry["Guest Profile"](self))
         QShortcut(QKeySequence("Ctrl+K"), self,
                   activated=lambda: self.registry["Check In"](self))
-        # P5 POS + NA openers (only if module available)
         if self.registry.get("KOT Entry"):
             QShortcut(QKeySequence("Ctrl+T"), self,
                       activated=lambda: self.registry["KOT Entry"](self))
         if self.registry.get("Night Audit Log"):
             QShortcut(QKeySequence("Ctrl+N"), self,
                       activated=lambda: self.registry["Night Audit Log"](self))
-        # P5 Inventory + Reports openers
         if self.registry.get("Indent"):
             QShortcut(QKeySequence("Ctrl+Y"), self,
                       activated=lambda: self.registry["Indent"](self))
-        # P4-b Folio openers (FolioLog viewer + Amend)
         if self.registry.get("Folio Log"):
             QShortcut(QKeySequence("Ctrl+G"), self,
                       activated=lambda: self.registry["Folio Log"](self))
         if self.registry.get("Reservation Status Arrival"):
             QShortcut(QKeySequence("Ctrl+J"), self,
                       activated=lambda: self.registry["Reservation Status Arrival"](self))
-        # P2-complete: Room / Package / Season / Company / User shortcuts
         QShortcut(QKeySequence("Ctrl+Shift+R"), self,
                   activated=lambda: self.registry["Room Category"](self))
         QShortcut(QKeySequence("Ctrl+Shift+M"), self,
@@ -1156,7 +1157,6 @@ class MainWindow(QMainWindow):
                   activated=lambda: self.registry["Company Master"](self))
         QShortcut(QKeySequence("Ctrl+Shift+U"), self,
                   activated=lambda: self.registry["User Master"](self))
-        # Wave 2: operational shortcuts
         _safe = lambda key: (self.registry.get(key) or (lambda w: None))
         QShortcut(QKeySequence("Ctrl+Shift+O"), self,
                   activated=lambda: _safe("Check Out")(self))
@@ -1170,6 +1170,12 @@ class MainWindow(QMainWindow):
                   activated=lambda: _safe("Ledger Accounts")(self))
         QShortcut(QKeySequence("Ctrl+Alt+T"), self,
                   activated=lambda: _safe("Tally Export")(self))
+
+    def _toggle_theme(self):
+        app = QApplication.instance()
+        new_theme = toggle_theme(app)
+        self.theme_btn.setText("Dark Mode" if new_theme == "dark" else "Light Mode")
+        self.theme_btn.setChecked(new_theme == "dark")
 
     def _on_module(self, m: dict, btn: QPushButton):
         # sidebar exclusive-check (VB6 jaisa highlight)
@@ -1219,7 +1225,7 @@ class MainWindow(QMainWindow):
 # ---------------------------------------------------------------- flow
 def run_flow() -> int:
     app = QApplication.instance() or QApplication(sys.argv)
-    app.setStyleSheet(STYLE)
+    apply_theme(app, "dark")
     app.setApplicationName("HMS_py")
 
     login = LoginDialog()
@@ -1241,7 +1247,7 @@ def main() -> int:
     if shot:
         from PyQt6.QtTest import QTest
         app = QApplication.instance() or QApplication(sys.argv)
-        app.setStyleSheet(STYLE)
+        apply_theme(app, "dark")
         login = LoginDialog()
         login.show()
         QTest.qWait(500)

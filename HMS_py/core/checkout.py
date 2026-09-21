@@ -68,12 +68,12 @@ def list_active_folios(cn=None, vprefix: str = "2026",
                        top: int = 200) -> list[dict]:
     """Checked-in folios still open in RoomOcc (ChkOutDate IS NULL)."""
     rows = db.query(
-        "SELECT TOP ? ro.DocId, gf.FolioNo, gf.Name, gf.GuestProf, gf.City, "
+        f"SELECT TOP {int(top)} ro.DocId, gf.FolioNo, gf.Name, gf.GuestProf, gf.City, "
         "gf.NoDays, gf.DepDate, ro.ChkOutDate, ro.ChkoutUser, gf.U_Name, gf.U_AE "
         "FROM RoomOcc ro INNER JOIN GuestFolio gf ON gf.DocId = ro.DocId "
         "WHERE ro.Site_Code = ? AND ro.Vprefix = ? AND ro.ChkOutDate IS NULL "
         "ORDER BY gf.FolioNo DESC",
-        (int(top), SITE_CODE, vprefix), cn=cn)
+        (SITE_CODE, vprefix), cn=cn)
     out = []
     for r in rows:
         doc, fno, name, gp, city, nod, dep, cod, cou, un, uae = r
