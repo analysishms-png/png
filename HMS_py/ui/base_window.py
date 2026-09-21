@@ -11,7 +11,8 @@ Usage:
 """
 from __future__ import annotations
 from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-    QLabel, QPushButton, QFrame, QStatusBar, QSizePolicy, QScrollArea)
+    QLabel, QPushButton, QFrame, QStatusBar, QSizePolicy, QScrollArea,
+    QTableWidget, QTableWidgetItem, QHeaderView, QGroupBox, QFormLayout)
 from PyQt6.QtCore import Qt, QSize
 from PyQt6.QtGui import QFont, QIcon
 
@@ -126,7 +127,7 @@ class ModernWindow(QMainWindow):
             table.setRowCount(len(data))
             for i, row in enumerate(data):
                 for j, val in enumerate(row):
-                    item = table QTableWidgetItem(str(val or ""))
+                    item = QTableWidgetItem(str(val or ""))
                     item.setForeground(QColor("#e0e0e0"))
                     table.setItem(i, j, item)
 
