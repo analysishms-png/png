@@ -223,18 +223,30 @@ class CheckOutBrowser(QDialog):
 
     # ---- selected helpers ----
     def _selected_active_folio(self) -> int | None:
+        # BUG-024 fix: currentRow() -1 ho to bhi item access safe rakho +
+        # non-numeric folio text pe crash guard
         r = self.tbl_active.currentRow()
         if r < 0:
             return None
         item = self.tbl_active.item(r, 0)
-        return int(item.text()) if item and item.text() else None
+        if not item or not item.text().strip():
+            return None
+        try:
+            return int(item.text())
+        except ValueError:
+            return None
 
     def _selected_co_folio(self) -> int | None:
         r = self.tbl_co.currentRow()
         if r < 0:
             return None
         item = self.tbl_co.item(r, 0)
-        return int(item.text()) if item and item.text() else None
+        if not item or not item.text().strip():
+            return None
+        try:
+            return int(item.text())
+        except ValueError:
+            return None
 
     # ---- actions ----
     def _do_checkout(self):
@@ -243,9 +255,13 @@ class CheckOutBrowser(QDialog):
             QMessageBox.information(
                 self, "Check-Out", "Pehle folio select karo")
             return
-        # PYT-guard check
+        # PYT-guard check (BUG-024 fix: r >= 0 kaafi nahi - item bhi None ho
+        # sakta hai jab row ka cell khali/missing ho)
         r = self.tbl_active.currentRow()
-        guest = self.tbl_active.item(r, 1).text() if r >= 0 else ""
+        guest = ""
+        if r >= 0:
+            guest_item = self.tbl_active.item(r, 1)
+            guest = guest_item.text() if guest_item else ""
         if not guest.upper().startswith("PYT"):
             QMessageBox.warning(
                 self, "Check-Out",
@@ -291,7 +307,10 @@ class CheckOutBrowser(QDialog):
                 self, "Reverse", "Pehle folio select karo")
             return
         r = self.tbl_co.currentRow()
-        guest = self.tbl_co.item(r, 1).text() if r >= 0 else ""
+        guest = ""
+        if r >= 0:
+            guest_item = self.tbl_co.item(r, 1)
+            guest = guest_item.text() if guest_item else ""
         if not guest.upper().startswith("PYT"):
             QMessageBox.warning(
                 self, "Reverse Check-Out",

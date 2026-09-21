@@ -280,10 +280,16 @@ class KOTEntryForm(QDialog):
                             unit_item = self.grid.item(row, 4)
                             if unit_item:
                                 unit_item.setText(it['unit'])
-                            # Update rate if not set
+                            # Update rate if not set (BUG-019: parse failure pe
+                            # bhi overwrite karo, otherwise invalid text"0" ban jata hai)
                             rate_item = self.grid.item(row, 5)
-                            if rate_item and (not rate_item.text() or float(rate_item.text()) == 0):
-                                rate_item.setText(str(it['rate']))
+                            if rate_item:
+                                try:
+                                    cur_rate = float(rate_item.text() or 0)
+                                except ValueError:
+                                    cur_rate = 0.0
+                                if cur_rate == 0:
+                                    rate_item.setText(str(it['rate']))
                             break
         
         # Auto-calc amount when qty or rate changes
@@ -318,7 +324,9 @@ class KOTEntryForm(QDialog):
             try:
                 sno = int(sno_item.text())
             except ValueError:
-                continue
+                # BUG-019 fix: invalid SNo silently skip mat karo -
+                # user ko batao kaunsi row invalid hai
+                raise ValueError(f"Row {r + 1}: SNo '{sno_item.text()}' valid number nahi hai")
 
             # Item from combo
             combo = self.grid.cellWidget(r, 1)
@@ -336,7 +344,7 @@ class KOTEntryForm(QDialog):
             try:
                 qty = float(qty_item.text() or 0)
             except ValueError:
-                qty = 0
+                raise ValueError(f"Row {r + 1}: Qty '{qty_item.text()}' valid number nahi hai")
 
             # Unit
             unit_item = self.grid.item(r, 4)
@@ -347,7 +355,7 @@ class KOTEntryForm(QDialog):
             try:
                 rate = float(rate_item.text() or 0)
             except ValueError:
-                rate = 0
+                raise ValueError(f"Row {r + 1}: Rate '{rate_item.text()}' valid number nahi hai")
 
             # Amount
             amt_item = self.grid.item(r, 6)
@@ -437,18 +445,18 @@ class KOTEntryForm(QDialog):
         if not lines:
             QMessageBox.warning(self, "Save", "At least one KOT line required")
             return
-        
+
         vdate = self.de_vdate.date().toPyDate()
         waiter = self.cb_waiter.currentData() or ""
-        
+
         try:
             if self.state == "Add":
                 result = pos.create_kot(lines, outlet, vdate, waiter=waiter, user=self.user)
             else:
                 result = pos.update_kot(self.edit_docid, lines, self.user)
                 result = {"docid": self.edit_docid, "lines_inserted": len(lines)}
-            
-            QMessageBox.information(self, "Save", 
+
+            QMessageBox.information(self, "Save",
                 f"KOT saved: {result['docid']} ({result.get('vno', result.get('lines_inserted', 0))} lines)")
             self.set_state(False)
             self.reload()

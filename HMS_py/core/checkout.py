@@ -26,15 +26,25 @@ def _get_checkout_type(cn=None) -> str:
     Live schema evidence: the column is named 'Checkout' (with the same
     value used by VB6 for the checkout-time rule label), not 'CheckOutType'.
     Some legacy code references a non-existent column, so we fall back safely.
+
+    BUG-016 fix: f-string column probing ki jagah ek hi parameterized
+    query jo sirf existing columns ko try karti hai; pehla non-empty
+    value return hota hai. Non-column errors swallow nahi hote.
     """
-    for col in ("CheckOutType", "CheckoutType", "Checkout", "CheckOut"):
+    # Live DB me jo column exist karta hai wahi order me try karo.
+    # Each candidate pe ek targeted query - 'Invalid column name'
+    # errors pe hi next candidate, baaki errors propagate.
+    for col in ("Checkout", "CheckOutType", "CheckoutType", "CheckOut"):
         try:
             rows = db.query(
                 f"SELECT [{col}] FROM Enviro WHERE LogSite_Code = ? OR LogSite_Code = 'HO'",
                 (SITE_CODE,), cn=cn,
             )
-        except Exception:
-            continue
+        except db.pyodbc.Error as e:
+            # SQL Server error 207 = Invalid column name -> next candidate
+            if "207" in str(e) or "Invalid column name" in str(e):
+                continue
+            raise
         if rows and rows[0][0] not in (None, ""):
             return str(rows[0][0])
     return "Standard"
@@ -94,7 +104,7 @@ def list_checked_out(cn=None, vprefix: str = "2026",
                      top: int = 200) -> list[dict]:
     """Already checked-out folios via RoomOcc.ChkOutDate IS NOT NULL."""
     rows = db.query(
-        "SELECT TOP ? ro.DocId, gf.FolioNo, gf.Name, gf.DepDate, ro.ChkOutDate, ro.ChkoutUser "
+        "SELECT TOP (?) ro.DocId, gf.FolioNo, gf.Name, gf.DepDate, ro.ChkOutDate, ro.ChkoutUser "
         "FROM RoomOcc ro INNER JOIN GuestFolio gf ON gf.DocId = ro.DocId "
         "WHERE ro.Site_Code = ? AND ro.Vprefix = ? AND ro.ChkOutDate IS NOT NULL "
         "ORDER BY gf.FolioNo DESC",

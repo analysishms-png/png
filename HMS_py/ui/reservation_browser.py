@@ -105,18 +105,29 @@ class ReservationBrowser(QDialog):
                 self.tbl.setItem(r, c, it)
         if keep_bookno is not None:
             for r, row in enumerate(rows):
-                if int(row[0]) == keep_bookno:
-                    self.tbl.selectRow(r)
-                    break
+                # BUG-022 fix: non-numeric BookNo pe crash nahi - skip
+                try:
+                    if int(row[0]) == keep_bookno:
+                        self.tbl.selectRow(r)
+                        break
+                except (TypeError, ValueError):
+                    continue
         elif rows:
             self.tbl.selectRow(0)
 
     # ---------- helpers ----------
     def _selected_bookno(self):
+        """Selected BookNo (BUG-022: None/empty/non-numeric cell pe crash guard)."""
         r = self.tbl.currentRow()
         if r < 0:
             return None
-        return int(self.tbl.item(r, 0).text())
+        item = self.tbl.item(r, 0)
+        if not item or not item.text().strip():
+            return None
+        try:
+            return int(item.text())
+        except ValueError:
+            return None
 
     def _require_pyt(self, bookno: int):
         """Safety: write-ops sirf PYT* guests par (production VB6 se)

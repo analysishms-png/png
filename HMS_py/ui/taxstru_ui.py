@@ -224,7 +224,11 @@ class TaxStruForm(QDialog):
         self.grid.setCellWidget(row, 8, combo)
 
     def _get_grid_lines(self) -> list[dict]:
-        """Extract lines from grid."""
+        """Extract lines from grid.
+
+        BUG-018 fix: pehle invalid rows silently skip ho rahi thi —
+        ab validation error raise hota hai taaki user ka data na ude.
+        """
         lines = []
         for r in range(self.grid.rowCount()):
             sno_item = self.grid.item(r, 0)
@@ -233,7 +237,8 @@ class TaxStruForm(QDialog):
             try:
                 sno = int(sno_item.text())
             except ValueError:
-                continue
+                raise ValueError(
+                    f"Row {r + 1}: SNo '{sno_item.text()}' valid number nahi hai")
 
             # TaxCode from combo
             combo = self.grid.cellWidget(r, 1)
@@ -248,21 +253,24 @@ class TaxStruForm(QDialog):
             try:
                 rate = float(rate_item.text() if rate_item else 0)
             except ValueError:
-                rate = 0.0
+                raise ValueError(
+                    f"Row {r + 1}: Rate '{rate_item.text() if rate_item else ''}' valid number nahi hai")
 
             # Limit
             limit_item = self.grid.item(r, 4)
             try:
                 limit = float(limit_item.text() if limit_item else 0)
             except ValueError:
-                limit = 0.0
+                raise ValueError(
+                    f"Row {r + 1}: Limit '{limit_item.text() if limit_item else ''}' valid number nahi hai")
 
             # Limit1
             limit1_item = self.grid.item(r, 5)
             try:
                 limit1 = float(limit1_item.text() if limit1_item else 0)
             except ValueError:
-                limit1 = 0.0
+                raise ValueError(
+                    f"Row {r + 1}: Limit1 '{limit1_item.text() if limit1_item else ''}' valid number nahi hai")
 
             # CondApp from combo
             combo = self.grid.cellWidget(r, 6)
@@ -421,6 +429,8 @@ class TaxStruForm(QDialog):
             self.set_state(False)
             self.reload()
         except ValueError as e:
+            # BUG-018 fix: grid validation errors ab user ko dikhengi
+            # (pehle save fail hota tha bina wajah bataye)
             QMessageBox.warning(self, "Save", str(e))
         except Exception as e:
             QMessageBox.critical(self, "Save", f"DB error: {e}")
