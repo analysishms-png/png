@@ -1046,7 +1046,7 @@ def _form_registry() -> dict[str, callable]:
         "T.D.S. Challan Entry": lambda w: fvu.open_voucher_entry(w),
         "T.D.S. Certificate Entry": lambda w: _open_fv_list(
             w, "T.D.S. Certificate",
-            lambda: __import__("HMS_py.core.tdscerti", fromlist=["x"]).list_all()),
+            lambda f=None, t=None: __import__("HMS_py.core.tdscerti", fromlist=["x"]).list_all()),
         "Expense Voucher": (lambda w: exp_ui.open_expense(w, user=getattr(w, 'user', 'PYADMIN'))) if exp_ui else None,
         "Opening Balance Updation": lambda w: fvu.open_trial_balance(w),
         "Year End Updation": lambda w: fvu.open_trial_balance(w),
@@ -1071,37 +1071,37 @@ def _form_registry() -> dict[str, callable]:
         # House Keeping (live tables se verify: ComplaintDetail/LostFoundDetail)
         "Complaint Master": lambda w: _open_fv_list(
             w, "Complaint Master",
-            lambda: __import__("HMS_py.core.db", fromlist=["x"]).query(
+            lambda f=None, t=None: __import__("HMS_py.core.db", fromlist=["x"]).query(
                 "SELECT Code, CDate, Category, Description, Depart, Status, ClearingDate FROM ComplaintDetail ORDER BY Code DESC")),
         "Complaint Clearance": lambda w: _open_fv_list(
             w, "Complaint Clearance",
-            lambda: __import__("HMS_py.core.db", fromlist=["x"]).query(
+            lambda f=None, t=None: __import__("HMS_py.core.db", fromlist=["x"]).query(
                 "SELECT Code, CDate, Category, Status, ClearingDate, ClearingPerson FROM ComplaintDetail ORDER BY ClearingDate DESC")),
         "Lost / Found Entry": lambda w: _open_fv_list(
             w, "Lost & Found",
-            lambda: __import__("HMS_py.core.db", fromlist=["x"]).query(
+            lambda f=None, t=None: __import__("HMS_py.core.db", fromlist=["x"]).query(
                 "SELECT Code, FDate, FArea, FindBy, Description, Status, ClaimedBy FROM LostFoundDetail ORDER BY Code DESC")),
         "Claim Entry": lambda w: _open_fv_list(
             w, "Claims (Lost & Found)",
-            lambda: __import__("HMS_py.core.db", fromlist=["x"]).query(
+            lambda f=None, t=None: __import__("HMS_py.core.db", fromlist=["x"]).query(
                 "SELECT Code, FDate, ClaimedBy, ContactNo, DeliveredBy, DDate, Status FROM LostFoundDetail WHERE ClaimedBy <> '' ORDER BY Code DESC")),
         "Room Block": lambda w: _open_fv_list(
             w, "Room Block",
-            lambda: __import__("HMS_py.core.db", fromlist=["x"]).query(
+            lambda f=None, t=None: __import__("HMS_py.core.db", fromlist=["x"]).query(
                 "SELECT * FROM RoomBlockOut WHERE 1=0")),
         # Reservation (BookingInquiry live hai)
         "Booking Inquiry": lambda w: _open_fv_list(
             w, "Booking Inquiry",
-            lambda: __import__("HMS_py.core.db", fromlist=["x"]).query(
+            lambda f=None, t=None: __import__("HMS_py.core.db", fromlist=["x"]).query(
                 "SELECT TOP 200 Code, PartyName, City, MobileNo, FuncType, FuncDate FROM BookingInquiry ORDER BY Code DESC")),
         "Booking Inquiry Detail": lambda w: _open_fv_list(
             w, "Booking Inquiry Detail",
-            lambda: __import__("HMS_py.core.db", fromlist=["x"]).query(
+            lambda f=None, t=None: __import__("HMS_py.core.db", fromlist=["x"]).query(
                 "SELECT TOP 200 Code, PartyName, City, MobileNo, FuncType, FuncDate FROM BookingInquiry ORDER BY Code DESC")),
         # Mall/Outdoor (LocationFacility live)
         "Location Facilities": lambda w: _open_fv_list(
             w, "Location Facilities",
-            lambda: __import__("HMS_py.core.db", fromlist=["x"]).query(
+            lambda f=None, t=None: __import__("HMS_py.core.db", fromlist=["x"]).query(
                 "SELECT LcCode, AppDate, FcCode, UnitRate, DueOn, StartMonth FROM LocationFacility ORDER BY LcCode")),
         # Reports Center aliases (VB6 caption -> existing report engine key)
         **({cap: _open_report(cap) for cap in (
@@ -1183,25 +1183,25 @@ def _form_registry() -> dict[str, callable]:
         # --- S1 tail: last live-schema leaves ---
         "Menu Item Rate": lambda w: _open_fv_list(
             w, "Menu Item Rate",
-            lambda: __import__("HMS_py.core.db", fromlist=["x"]).query(
+            lambda f=None, t=None: __import__("HMS_py.core.db", fromlist=["x"]).query(
                 "SELECT TOP 300 ir.ItemCode, im.Name, ir.RestCode, ir.Rate, ir.MRP "
                 "FROM ItemRate ir LEFT JOIN ItemMast im ON im.Code = ir.ItemCode "
                 "ORDER BY ir.ItemCode")),        "Telephone Call Entry": lambda w: _open_fv_list(
             w, "Telephone Call Entry",
-            lambda: __import__("HMS_py.core.db", fromlist=["x"]).query(
+            lambda f=None, t=None: __import__("HMS_py.core.db", fromlist=["x"]).query(
                 "SELECT TOP 200 ID, V_TYPE, PNT_NO, Extension, RoomNo, "
                 "CALL_START_DATE, CALL_DURATION, DIALED_NO FROM EPABX_Data ORDER BY ID DESC")),
         "Call Control Master": lambda w: _open_fv_list(
             w, "Call Control Master",
-            lambda: __import__("HMS_py.core.db", fromlist=["x"]).query(
+            lambda f=None, t=None: __import__("HMS_py.core.db", fromlist=["x"]).query(
                 "SELECT Code, Name FROM TelCallType ORDER BY Code")),
         "Location-Master": lambda w: _open_fv_list(
             w, "Location Master",
-            lambda: __import__("HMS_py.core.db", fromlist=["x"]).query(
+            lambda f=None, t=None: __import__("HMS_py.core.db", fromlist=["x"]).query(
                 "SELECT Code, Name, ShortName FROM GodownMast ORDER BY Code")),
         "Party Locations": lambda w: _open_fv_list(
             w, "Party Locations",
-            lambda: __import__("HMS_py.core.db", fromlist=["x"]).query(
+            lambda f=None, t=None: __import__("HMS_py.core.db", fromlist=["x"]).query(
                 "SELECT LcCode, AppDate, FcCode, UnitRate, DueOn FROM LocationFacility ORDER BY LcCode")),
         # Finance sub-forms (VB6 fate_Click)
         "Ledger Adjustment": (lambda w: fasub_ui.open_fa_adjust(w)) if fasub_ui else _coming_soon("Ledger Adjustment"),
@@ -1364,7 +1364,7 @@ class MainWindow(QMainWindow):
         side_lay.addStretch()
         body.addWidget(sidebar)
 
-        self.canvas = QLabel("Module select karo (left sidebar)")
+        self.canvas = QLabel("Select a module from the left sidebar")
         self.canvas.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.canvas.setProperty("glassSub", True)
         body.addWidget(self.canvas, stretch=1)
@@ -1518,7 +1518,7 @@ class MainWindow(QMainWindow):
                 self._add_item(mm, it)
 
         self.canvas.setText(
-            f"{m['name']}\n\nTop menubar se form kholo\n"
+            f"{m['name']}\n\nSelect a form from the top menu bar\n"
             f"(ported: Plan/City/Sundry/Narration/Venue/Department)")
         self.setWindowTitle(
             f"{self.comp['name']} {{ {self.comp['year']} }} - {m['name']}")

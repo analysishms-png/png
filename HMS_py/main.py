@@ -30,6 +30,8 @@ def configure_qt_headless() -> None:
         os.environ["QT_QPA_PLATFORM"] = "offscreen"
         return
     if os.name == "nt" and not os.environ.get("WSL_DISTRO_NAME"):
+        if os.environ.get("HMS_GUI") == "1":
+            return
         os.environ["QT_QPA_PLATFORM"] = "offscreen"
 
 
