@@ -772,6 +772,10 @@ def _form_registry() -> dict[str, callable]:
     except ImportError:
         psub_ui = None
     try:
+        from HMS_py.ui import kot_transfer_ui as kt_ui
+    except ImportError:
+        kt_ui = None
+    try:
         from HMS_py.ui import guest_lookup_ui as gl_ui
     except ImportError:
         gl_ui = None
@@ -1142,6 +1146,9 @@ def _form_registry() -> dict[str, callable]:
         "Look Up Room types": (lambda w: fosub_ui.open_room_lookup(w)) if fosub_ui else _coming_soon("Look Up Room types"),
         "POS Bill Reprint": (lambda w: psub_ui.open_bill_reprint(w)) if psub_ui else _coming_soon("POS Bill Reprint"),
         "Split Sale Bill": (lambda w: psub_ui.open_split_bill(w)) if psub_ui else _coming_soon("Split Sale Bill"),
+        "Table Change Entry": (lambda w: kt_ui.open_table_change(w)) if kt_ui else _coming_soon("Table Change Entry"),
+        "KOT Transfer": (lambda w: kt_ui.open_kot_transfer(w)) if kt_ui else _coming_soon("KOT Transfer"),
+        "Room Change": (lambda w: fosub_ui.open_room_change(w)) if fosub_ui else _coming_soon("Room Change"),
         # Truly blocked (no DB tables)
         **({cap: _coming_soon(cap) for cap in (
             "Forex Receive Entry", "Display Rack", "Travel Agency Posting",
@@ -1150,10 +1157,10 @@ def _form_registry() -> dict[str, callable]:
             "Advance Deposit", "Confirmation Letters", "Cancellation Letters",
             "Reservation Status Screen", "Block Master", "Item Issued On Cleaning",
             "Check Out Clearance Screen", "Changes Department",
-            "Table Change Entry", "Sale Bill Entry", "Settlement Entry",
+            "Sale Bill Entry", "Settlement Entry",
             "Display Table",
             "Order Booking", "Bill Lookup", "Order Booking Advance",
-            "KOT Transfer", "Token Entry", "Assign Delivery", "Payment Receive",
+            "Token Entry", "Assign Delivery", "Payment Receive",
             "Events", "Banquet Bill Sundry Setting", "Banquet Booking",
             "Catalog Selection", "Chef Pre-Costing", "Banquet Billing",
             "Banquet Settlement", "Venue Availability", "Guest Comments",

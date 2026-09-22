@@ -414,3 +414,132 @@ class _SplitBillAPI:
     def delete(docid, cn=None, commit=True): return splitbill_delete(docid, cn, commit)
 
 SplitBillAPI = _SplitBillAPI()
+
+
+# ============================================================
+# Table Change + KOT Transfer (VB6 RsTbChange/RsKOTTransfer)
+# ============================================================
+_KOT_PENDING = ("Pending = 'Y' AND (DelFlag = 'N' OR DelFlag IS NULL "
+                "OR DelFlag = '')")
+
+
+def pending_kot_tables(rest_code: str, site: str = SITE_CODE,
+                       cn=None) -> list[dict]:
+    """RestCode ke pending KOTs table-wise count (Table Change lists)."""
+    rows = db.query(
+        "SELECT RTRIM(RoomNo) RoomNo, COUNT(*) PendingCnt, MAX(VDate) "
+        "LastOrder FROM KOT WHERE RestCode = ? AND " + _KOT_PENDING +
+        " AND RoomNo <> '' GROUP BY RoomNo ORDER BY RoomNo",
+        (rest_code,), cn=cn)
+    return [{"roomno": (r.RoomNo or "").strip(),
+             "pending": int(r.PendingCnt or 0), "last_date": r.LastOrder}
+            for r in rows]
+
+
+def pending_kot_list(rest_code: str, table: str = "",
+                     site: str = SITE_CODE, cn=None) -> list[dict]:
+    """Pending KOT headers for a table (KOT Transfer list)."""
+    params = [rest_code]
+    where = "RestCode = ? AND " + _KOT_PENDING
+    if table:
+        where += " AND RTRIM(RoomNo) = ?"
+        params.append(table)
+    rows = db.query(
+        "SELECT DocId, VNo, VDate, VTime, RoomNo, RoomCat, VType, "
+        "RestCode FROM KOT WHERE " + where + " ORDER BY VDate DESC, VNo",
+        tuple(params), cn=cn)
+    return [{"docid": (r.DocId or "").strip(), "vno": int(r.VNo or 0),
+             "vdate": r.VDate, "vtime": r.VTime or "",
+             "roomno": (r.RoomNo or "").strip(),
+             "roomcat": (r.RoomCat or "").strip(),
+             "vtype": (r.VType or "").strip(),
+             "restcode": (r.RestCode or "").strip()} for r in rows]
+
+
+def table_change(rest_code: str, from_table: str, to_table: str,
+                 user: str = USER, site: str = SITE_CODE, cn=None,
+                 commit: bool = True) -> int:
+    """Table ke saare pending KOTs doosri table pe shift (VB6 RsTbChange
+    loc_...: Update Kot Set ROOMNO=<to>, U_Name1/U_EntDt1/U_AE1='E' Where
+    RestCode And Pending='Y' And DelFlag filter And ROOMNO=<from>)."""
+    rest_code = (rest_code or "").strip()
+    from_table = (from_table or "").strip()
+    to_table = (to_table or "").strip()
+    if not rest_code:
+        raise ValueError("RestCode (outlet) zaroori hai")
+    if not from_table or not to_table:
+        raise ValueError("From/To table dono zaroori hain")
+    if from_table == to_table:
+        raise ValueError("From aur To table same hai")
+    rows = db.query(
+        "SELECT COUNT(*) FROM KOT WHERE RestCode = ? AND " + _KOT_PENDING +
+        " AND RTRIM(RoomNo) = ?", (rest_code, from_table), cn=cn)
+    if not rows or not rows[0][0]:
+        raise ValueError(f"Table {from_table} pe koi pending KOT nahi hai")
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        n = db.execute(
+            "UPDATE KOT SET RoomNo = ?, U_Name1 = ?, U_EntDt1 = getdate(), "
+            "U_AE1 = 'E' WHERE RestCode = ? AND " + _KOT_PENDING +
+            " AND RTRIM(RoomNo) = ?",
+            (to_table, user, rest_code, from_table), cn=cn, commit=False)
+        if commit:
+            cn.commit()
+        return n
+    finally:
+        if own:
+            cn.close()
+
+
+def kot_transfer(rest_code: str, kot_ref: str, to_table: str,
+                 room_service: bool = False, user: str = USER,
+                 site: str = SITE_CODE, cn=None, commit: bool = True) -> dict:
+    """Ek pending KOT ko doosri table/room pe bhejo (VB6 RsKOTTransfer).
+
+    Room Service flow: target room ke open RoomOcc se RoomCat resolve karke
+    KOT ka RoomNo + RoomCat dono update; reference = KOT DOCID.
+    Normal flow: KOT reference = VNo; RoomCat untouched.
+
+    Returns dict(affected, roomcat_updated)."""
+    rest_code = (rest_code or "").strip()
+    kot_ref = (kot_ref or "").strip()
+    to_table = (to_table or "").strip()
+    if not rest_code:
+        raise ValueError("RestCode (outlet) zaroori hai")
+    if not kot_ref:
+        raise ValueError("KOT reference (DocId/VNo) zaroori hai")
+    if not to_table:
+        raise ValueError("Target table/room zaroori hai")
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        roomcat = ""
+        if room_service:
+            # VB6: Room Service me target room se ROOMOCC se RoomCat likho
+            occ = db.query(
+                "SELECT TOP 1 RoomCat FROM RoomOcc WHERE RTRIM(RoomNo) = ? "
+                "AND (LogSite_Code = ? OR LogSite_Code = 'HO') AND "
+                "ChkOutDate IS NULL", (to_table, site), cn=cn)
+            if not occ:
+                raise ValueError(f"Room {to_table} pe koi in-house guest "
+                                 "nahi (Room Service KOT)")
+            roomcat = (occ[0].RoomCat or "").strip()
+            n = db.execute(
+                "UPDATE KOT SET RoomNo = ?, RoomCat = ?, U_Name1 = ?, "
+                "U_EntDt1 = getdate(), U_AE1 = 'E' "
+                "WHERE RestCode = ? AND " + _KOT_PENDING + " AND DocId = ?",
+                (to_table, roomcat, user, rest_code, kot_ref), cn=cn,
+                commit=False)
+        else:
+            n = db.execute(
+                "UPDATE KOT SET RoomNo = ?, U_Name1 = ?, U_EntDt1 = "
+                "getdate(), U_AE1 = 'E' WHERE RestCode = ? AND " +
+                _KOT_PENDING + " AND VNo = ?",
+                (to_table, user, rest_code, kot_ref), cn=cn, commit=False)
+        if commit:
+            cn.commit()
+        return {"affected": n, "roomcat_updated": bool(roomcat)}
+    finally:
+        if own:
+            cn.close()

@@ -27,6 +27,58 @@ python ../test_ui_modules.py            # 62 UI instantiation checks
 
 # CHANGELOG
 
+## v0.1.2 — P1 Frontline Missing Logic: Room Change + KOT Transfer + Table Change + Re-Settlement + Merge Charge (2026-09-22)
+
+### Added
+
+- `HMS_py/core/fo_ops.py` — Front Office core writers (VB6 `fdRoomChange` /
+  `FrmMergeCharge` / `FdReSetlement` faithful port, sar SQL parameterized):
+  - `room_change(docid, new_room, reason, ...)` — New RoomOcc row
+    (SNo=max+1, ChkInDate=change date) + old row checkout
+    (`Type='C', NewRoomNo, Reason`) + GuestMessage room move +
+    `Booking.OccRoom` link + `RoomMast RoomStat='D'` (old room dirty) +
+    PlanDetails delete/re-insert (new RoomNo) + EPABX_IN 'CHKOT'/'CHKIN'
+    audit inserts; validation: new room free + RoomMast-valid.
+  - `merge_charge(from_room, to_room, ...)` — source folio ke saare
+    PayCharge lines target folio pe re-home karta hai: GuestFolio
+    `mFolioNoDocId`/`mFolioNo` link, PayCharge `RelatedFolioNo/NoDocId`
+    mesh, `FolioNoDocid/FolioNo` re-assign; same-folio + missing-folio
+    guards.
+  - `re_settlement(docid, lines, ...)` — last REC settlement receipt
+    reverse (delete) + nayi receipt lines re-post (`ModeSet='S'`,
+    `Vtype='REC'`, race-safe `db.next_vno`); sum purane AmtCr ke barabar
+    hone ka guard; `list_settlements()` / `folio_charge_total()` helpers.
+  - `open_folio_by_room/by_docid`, `free_rooms()` lookup helpers.
+- `HMS_py/core/pos_kot.py` — KOT `table_change` + `kot_transfer` (VB6
+  `RsTbChange` / `RsKOTTransfer`):
+  - `table_change(rest, from_table, to_table)` — pending KOTs
+    (`Pending='Y'`, DELFLAG filter) ki `RoomNo` ek saath shift +
+    `U_Name1/U_EntDt1/U_AE1='E'` audit.
+  - `kot_transfer(rest, kot_ref, to, room_service=...)` — Room Service
+    flow: target room ke open RoomOcc se `RoomCat` resolve + `RoomNo`/
+    `RoomCat` update by `DocId`; normal flow `VNo` se update.
+  - `pending_kot_tables()` / `pending_kot_list()` lists (UI feeds).
+- `HMS_py/ui/fo_sub_forms_ui.py` — `RoomChangeWindow` (naya),
+  `MergeChargeWindow` + `ReSettlementWindow` ab real core writers se
+  judi (pehle info-dialog stubs the); `open_room_change()` helper.
+- `HMS_py/ui/kot_transfer_ui.py` — `TableChangeWindow` +
+  `KOTTransferWindow` (outlet/KOT selection + confirm), `open_table_change`
+  / `open_kot_transfer`.
+- Shell registry ab abut LIVE: `Table Change Entry`, `KOT Transfer`,
+  `Room Change` (blocked-caps list se hataye).
+- `HMS_py/tests/unit/test_missing_logic_core.py` — 14 mock-based unit tests
+  (kabhi live DB nahi chhoote).
+
+### Notes
+
+- Room change transaction me jo VB6 UI-grid part tha (PlanDetails rows
+  editor) abhi nahi, par PlanDetails existing rows nayi RoomNo pe re-link
+  hote hain.
+- PayCharge merge column names (`RelatedFolioNo`, `RelatedFolioNoDocId`,
+  `mFolioNoDocId`, `ContraDocID`) VB6 source + codebase SELECT_COLS se
+  verify kiye hain; driver-isolated machine par ODBC unavailability ki
+  wajah se live run idhar nahi hua.
+
 ## v0.1.1 — Bug-Fix Batch (BUG-016…BUG-025) + UI Registry Completion (2026-09-21)
 
 ### Fixed
