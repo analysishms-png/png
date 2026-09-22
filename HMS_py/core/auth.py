@@ -12,12 +12,44 @@ EVIDENCE (decompiled UserMast.frm):
    (frmPassword.frm: Ucase(Trim(...)) pattern)
 4. User table: UserMast (USER_NAME, PASSWD encrypted, LABEL, ShortName,
    ActiveYN 'Y'/'N'). SA default password '\' (frmCompany.frm line 2415).
+
+SECURITY: VB6-compatible reversible encryption retained for DB compat.
+Brute-force protection added (max 5 attempts per 15 min per user).
 """
 from __future__ import annotations
 
 import random
+import time
+from collections import defaultdict
 
 SHIFT = 0x1B   # 27 - VB6 &H1B
+
+# Brute-force protection: {username: [(timestamp, success), ...]}
+_login_attempts: dict[str, list[tuple[float, bool]]] = defaultdict(list)
+_MAX_ATTEMPTS = 5
+_LOCKOUT_SECONDS = 900  # 15 minutes
+
+
+def _is_locked_out(username: str) -> bool:
+    """Check if user has exceeded max failed attempts in lockout window."""
+    now = time.time()
+    attempts = _login_attempts[username]
+    # Prune old attempts
+    _login_attempts[username] = [
+        (t, s) for t, s in attempts if now - t < _LOCKOUT_SECONDS
+    ]
+    failed = sum(1 for _, s in _login_attempts[username] if not s)
+    return failed >= _MAX_ATTEMPTS
+
+
+def _record_attempt(username: str, success: bool):
+    """Record a login attempt."""
+    _login_attempts[username].append((time.time(), success))
+    if success:
+        # Clear failed attempts on successful login
+        _login_attempts[username] = [
+            (t, s) for t, s in _login_attempts[username] if s
+        ]
 
 
 def encrypt(plain: str, seed: int | None = None) -> str:
@@ -62,13 +94,18 @@ def _stored_passwd(username: str, cn=None) -> str | None:
 def check_login(username: str, password: str, cn=None) -> tuple[bool, str]:
     """frmPassword/frmCompany ka login pattern:
     UCase(Trim(typed)) vs decrypted stored (bhi UCase/Trim).
-    Returns (ok, message)."""
+    Returns (ok, message).
+    SECURITY: brute-force protection (5 attempts / 15 min)."""
     from HMS_py.core import db
     username = (username or "").strip()
+    if _is_locked_out(username):
+        remaining = int(_LOCKOUT_SECONDS - (time.time() - _login_attempts[username][0][0]))
+        return False, f"Account locked. Try again in {max(60, remaining)}s"
     rows = db.query(
         "SELECT ActiveYN, LABEL, ShortName FROM UserMast "
         "WHERE USER_NAME = ?", (username,), cn=cn)
     if not rows:
+        _record_attempt(username, False)
         return False, "Invalid User Name"
     row = rows[0]
     # SELECT order: ActiveYN, LABEL, ShortName
@@ -79,7 +116,12 @@ def check_login(username: str, password: str, cn=None) -> tuple[bool, str]:
     real = decrypt(stored) if stored else ""
     typed = (password or "").strip()
     if typed.upper() == real.upper():
+        _record_attempt(username, True)
         return True, f"Welcome {short or username}"
+    _record_attempt(username, False)
+    attempts_left = _MAX_ATTEMPTS - sum(1 for _, s in _login_attempts[username] if not s)
+    if attempts_left <= 2:
+        return False, f"Invalid Password ({attempts_left} attempts left)"
     return False, "Invalid Password"
 
 
