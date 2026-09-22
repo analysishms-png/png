@@ -149,7 +149,7 @@ class DashboardWidget(QWidget):
     def _load_data(self):
         """Load dashboard data from database."""
         try:
-            from core import db
+            from HMS_py.core import db
 
             # Reservations today
             try:
@@ -196,8 +196,11 @@ class DashboardWidget(QWidget):
             try:
                 rows = db.query("SELECT COUNT(*) FROM RoomMaster")
                 total = rows[0][0] if rows else 0
-                self.card_available.set_value(str(max(0, total - int(
-                    self.card_occupied.value_lbl.text() or 0))))
+                try:
+                    occ = int(self.card_occupied.value_lbl.text() or 0)
+                except (ValueError, TypeError):
+                    occ = 0
+                self.card_available.set_value(str(max(0, total - occ)))
             except Exception:
                 self.card_available.set_value("N/A")
 

@@ -133,7 +133,7 @@ class IndentForm(QDialog):
 
         # Status
         self.lbl_state = QLabel("State: Idle | New: Ctrl+N | Edit: Ctrl+E | Save: Ctrl+S")
-        self.lbl_state.setStyleSheet(f"color:{palette()['text']}; padding:4px; background:{palette()['glass_tint']};")
+        self.lbl_state.setStyleSheet(f"color:{_theme.palette()['text']}; padding:4px; background:{_theme.palette()['glass_tint']};")
         root.addWidget(self.lbl_state)
 
         # Buttons
@@ -333,9 +333,19 @@ class GINForm(QDialog):
         self.btn_add_line.clicked.connect(self._add_line)
         self.btn_del_line.clicked.connect(self._del_line)
 
+        # Browse list (for reload)
+        self.tbl = QTableWidget(0, 4)
+        self.tbl.setHorizontalHeaderLabels(["VNo", "Date", "Party", "DocId"])
+        self.tbl.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        self.tbl.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        self.tbl.setAlternatingRowColors(True)
+        self.tbl.setMaximumHeight(150)
+        self.tbl.setVisible(False)
+        root.addWidget(self.tbl)
+
         # Status
         self.lbl_state = QLabel("State: Idle | New: Ctrl+N | Save: Ctrl+S")
-        self.lbl_state.setStyleSheet(f"color:{palette()['text']}; padding:4px; background:{palette()['glass_tint']};")
+        self.lbl_state.setStyleSheet(f"color:{_theme.palette()['text']}; padding:4px; background:{_theme.palette()['glass_tint']};")
         root.addWidget(self.lbl_state)
 
         # Main buttons
@@ -849,7 +859,7 @@ class EInvoiceConfigForm(QDialog):
         root.addLayout(form)
 
         self.lbl_state = QLabel("State: Loading...")
-        self.lbl_state.setStyleSheet(f"color:{palette()['text']}; padding:4px; background:{palette()['glass_tint']};")
+        self.lbl_state.setStyleSheet(f"color:{_theme.palette()['text']}; padding:4px; background:{_theme.palette()['glass_tint']};")
         root.addWidget(self.lbl_state)
 
         btns = QHBoxLayout()
@@ -979,7 +989,7 @@ class KitchenStockReportForm(QDialog):
 
         # Summary
         self.lbl_summary = QLabel("Rows: 0")
-        self.lbl_summary.setStyleSheet(f"color:{palette()['text']}; padding:4px; background:{palette()['glass_tint']}; font-weight:bold;")
+        self.lbl_summary.setStyleSheet(f"color:{_theme.palette()['text']}; padding:4px; background:{_theme.palette()['glass_tint']}; font-weight:bold;")
         root.addWidget(self.lbl_summary)
 
         # Buttons
@@ -1081,7 +1091,7 @@ class KitchenStockSummaryForm(QDialog):
 
         # Summary
         self.lbl_summary = QLabel("Rows: 0")
-        self.lbl_summary.setStyleSheet(f"color:{palette()['text']}; padding:4px; background:{palette()['glass_tint']}; font-weight:bold;")
+        self.lbl_summary.setStyleSheet(f"color:{_theme.palette()['text']}; padding:4px; background:{_theme.palette()['glass_tint']}; font-weight:bold;")
         root.addWidget(self.lbl_summary)
 
         # Buttons

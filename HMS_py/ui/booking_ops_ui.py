@@ -246,6 +246,9 @@ class BookingOpsDialog(QDialog):
         self.edits["guestname"].setFocus()
 
     def _on_modify(self):
+        if self.edit_bookno is not None:
+            self._on_save()
+            return
         bookno = self._selected_bookno()
         if bookno is None:
             QMessageBox.information(self, "Modify", "Pehle row select karo")
@@ -261,8 +264,29 @@ class BookingOpsDialog(QDialog):
         self.edit_bookno = bookno
         self._rec_to_form(rec)
         self._set_form_enabled(True)
-        self.lblState.setText(f"State: Edit - BookNo {bookno}")
+        self.btnModify.setText("Save (Ctrl+S)")
+        self.lblState.setText(f"State: Edit - BookNo {bookno} (Modify/Save pe click karo)")
         self.edits["guestname"].setFocus()
+
+    def _on_save(self):
+        if self.edit_bookno is None:
+            return
+        rec = {}
+        for key, _ in self.FORM_FIELDS:
+            rec[key] = self.edits[key].text().strip()
+        if not rec.get("guestname"):
+            QMessageBox.warning(self, "Save", "Guest name required")
+            return
+        try:
+            self._booking.update(self.edit_bookno, rec)
+            QMessageBox.information(self, "Save",
+                                    f"Booking {self.edit_bookno} updated")
+            self.edit_bookno = None
+            self.btnModify.setText("Modify")
+            self._set_form_enabled(False)
+            self.reload()
+        except Exception as ex:
+            QMessageBox.critical(self, "Error", f"Save failed:\n{ex}")
 
     def _on_cancel_booking(self):
         bookno = self._selected_bookno()

@@ -7,8 +7,8 @@ from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QGroupBox, QHeaderView, QMessageBox)
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor, QFont
-from core import db
-from ui.theme import palette
+from HMS_py.core import db
+from HMS_py.ui.theme import palette
 
 
 class GuestLookupWindow(QMainWindow):
@@ -36,9 +36,9 @@ class GuestLookupWindow(QMainWindow):
         layout.addLayout(search_lay)
 
         self.table = QTableWidget()
-        self.table.setColumnCount(6)
+        self.table.setColumnCount(5)
         self.table.setHorizontalHeaderLabels(
-            ["Code", "Name", "Company", "Phone", "Address", "City"])
+            ["Code", "Name", "Phone", "Address", "City"])
         self.table.setAlternatingRowColors(True)
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         layout.addWidget(self.table)
@@ -50,8 +50,8 @@ class GuestLookupWindow(QMainWindow):
     def _load_data(self):
         try:
             self._all_rows = db.query(
-                "SELECT Code, Name, ISNULL(Company,''), ISNULL(Phone,''), "
-                "ISNULL(Address,''), ISNULL(City,'') FROM GuestProf ORDER BY Name")
+                "SELECT Code, Name, ISNULL(Phone,''), "
+                "ISNULL(Add1,''), ISNULL(City,'') FROM GuestProf ORDER BY Name")
             self._populate(self._all_rows)
         except Exception:
             self._all_rows = []
@@ -59,7 +59,7 @@ class GuestLookupWindow(QMainWindow):
     def _populate(self, rows):
         self.table.setRowCount(len(rows))
         for i, r in enumerate(rows):
-            for j in range(6):
+            for j in range(5):
                 it = QTableWidgetItem(str(r[j] or ""))
                 it.setForeground(QColor(palette()["text"]))
                 self.table.setItem(i, j, it)
