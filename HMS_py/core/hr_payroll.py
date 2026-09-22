@@ -161,7 +161,7 @@ def insert_leave_ench(rec, cn=None, commit=True, site=SITE_CODE, user=USER):
     new_pk = (code_rows[0][0] or 0) + 1 if code_rows and code_rows[0][0] else 1
     db.execute(
         "INSERT INTO Leave_Ench (Sr_No,L_Date,Emp_Code,Leave_Ench,Amt_Ench,AC_Code,Site_Code,U_EntDt,U_AE,LogSite_Code) VALUES (?,?,?,?,?,?,?,getdate(),'A',?)",
-        (new_pk, rec.get("l_date"), rec.get("emp_code",""), rec.get("leave_ench",0.0), rec.get("amt_ench",0.0), rec.get("ac_code",""), site, user, site),
+        (new_pk, rec.get("l_date"), rec.get("emp_code",""), rec.get("leave_ench",0.0), rec.get("amt_ench",0.0), rec.get("ac_code",""), site, site),
         cn=cn, commit=commit)
     return get_leave_ench(new_pk, cn=cn)
 

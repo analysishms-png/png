@@ -76,7 +76,7 @@ def _map_sale1(r) -> dict:
             "kotno": vals[33] or "", "tokenno": vals[34] or "",
             "custname": vals[40] or "", "phoneno": vals[39] or "",
             "addr1": vals[41] or "", "addr2": vals[42] or "",
-            "cashrcd": float(vals[42] or 0), "printed": vals[51] or "",
+            "cashrcd": float(vals[43] or 0), "printed": vals[51] or "",
             "delflag": vals[52] or "", "deliveredyn": vals[38] or "",
             "cgst": float(vals[47] or 0), "sgst": float(vals[48] or 0),
             "igst": float(vals[49] or 0), "hallrent": float(vals[58] or 0),

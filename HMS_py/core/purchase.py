@@ -60,8 +60,8 @@ def _map_purch1(r) -> dict:
             "u_name": r.U_Name or "", "u_ae": r.U_AE or "",
         }
     except AttributeError:
-        d, vn, vd, vt, vp, rc, p, t, dp, da, nt, tx, sc, aa, \
-            da2, ro, na, un, _, uae, df, pbn, pbd, cp, tin, rem, \
+        d, vn, vd, vt, vp, rc, p, t, dp, da, nt, tx, sc, sc2, \
+            aa, da2, ro, na, un, _, uae, df, pbn, pbd, cp, tin, rem, \
             it, inv, cg, sg, ig, py, bi, lgs = r
         return {
             "docid": d or "", "vno": vn or 0,
@@ -75,7 +75,7 @@ def _map_purch1(r) -> dict:
             "non_taxable": float(nt or 0),
             "taxable": float(tx or 0),
             "tax": float(sc or 0),
-            "service_charge": float(sc or 0),
+            "service_charge": float(sc2 or 0),
             "add_amt": float(aa or 0),
             "ded_amt": float(da2 or 0),
             "round_off": float(ro or 0),
@@ -615,7 +615,7 @@ def indent1_insert(rec: dict, cn=None, commit: bool = True) -> int:
         "Specification, ClearYN, ConvFactor, WtQty, WtUnit, "
         "LogSite_Code, TaxStru, TaxAmt, Total) "
         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, getdate(), 'A', ?, ?, "
-        "?, ?, ?, ?, ?, ?, ?, ?)",
+        "?, ?, ?, ?, ?, ?, ?, ?, ?)",
         (rec["docid"], rec["sno"], rec.get("vtype", ""),
          rec.get("vno", 0), rec.get("vdate"), SITE_CODE,
          rec.get("vprefix", ""), rec["item"],
