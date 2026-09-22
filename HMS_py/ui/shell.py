@@ -45,6 +45,7 @@ from HMS_py.ui import theme as _theme
 from HMS_py.ui.theme import (apply_theme, current_theme, palette,
                              toggle_theme)
 from HMS_py.ui.glass import AppearanceDialog, AuroraCanvas
+from HMS_py.ui.design import WindowSize, Size, Spacing, Font
 
 # Theme-aware legacy stylesheet (folio_ui.py import compatibility).
 # Runtime pe current palette se banta hai; _refresh_style() se update karo.
@@ -241,98 +242,114 @@ class DbSettingsDialog(QDialog):
 
 # ---------------------------------------------------------------- login
 class LoginDialog(QDialog):
-    """Modern login dialog - dark card style."""
+    """Modern login dialog - professional glass card style."""
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("HMS Login")
-        self.setFixedSize(420, 448)
+        self.setFixedSize(*WindowSize.LOGIN)
         self.user = ""
+
+        from HMS_py.ui.design import DS
+        from HMS_py.ui.theme import palette
+
+        p = palette()
+        self.setStyleSheet(f"background: {p['bg']};")
 
         root = QVBoxLayout(self)
         root.setContentsMargins(0, 0, 0, 0)
+        root.setSpacing(0)
 
-        # Header
+        # Header with app branding
         header = QWidget()
-        header.setFixedHeight(80)
-        header.setProperty("glassCard", True)
+        header.setFixedHeight(100)
+        header.setStyleSheet(f"background: transparent;")
         hl = QVBoxLayout(header)
         hl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        hl.setContentsMargins(0, 20, 0, 0)
+        
         app_name = QLabel("HMS")
-        app_name.setFont(QFont("Segoe UI", 22, QFont.Weight.Bold))
-        app_name.setProperty("glassTitle", True)
+        app_name.setFont(QFont("Segoe UI", 28, QFont.Weight.Bold))
+        app_name.setStyleSheet(f"color: {p['accent']}; background: transparent;")
         app_name.setAlignment(Qt.AlignmentFlag.AlignCenter)
         hl.addWidget(app_name)
+        
+        subtitle = QLabel("Hotel Management System")
+        subtitle.setFont(QFont("Segoe UI", 10))
+        subtitle.setStyleSheet(f"color: {p['text_dim']}; background: transparent; margin-top: -8px;")
+        subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        hl.addWidget(subtitle)
+        
         root.addWidget(header)
 
-        # Card body
-        body = QWidget()
-        body.setProperty("glassCard", True)
-        lay = QVBoxLayout(body)
-        lay.setContentsMargins(40, 24, 40, 20)
-        lay.setSpacing(12)
+        # Card body using design system
+        card = DS.make_card_v2("", elevated=True)
+        card.setFixedWidth(380)
+        lay = card.layout()
+        lay.setContentsMargins(32, 24, 32, 24)
+        lay.setSpacing(Spacing.MD)
 
+        # Title
         lbl_title = QLabel("Sign in to your account")
-        lbl_title.setFont(QFont("Segoe UI", 11))
-        lbl_title.setProperty("glassSub", True)
+        lbl_title.setFont(QFont("Segoe UI", 13, QFont.Weight.Medium))
+        lbl_title.setStyleSheet(f"color: {p['text']}; background: transparent;")
         lbl_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         lay.addWidget(lbl_title)
 
-        # User
+        # User field
         lbl_u = QLabel("User Name")
-        lbl_u.setProperty("glassSub", True)
+        lbl_u.setFont(QFont("Segoe UI", 10, QFont.Weight.Medium))
+        lbl_u.setStyleSheet(f"color: {p['text']}; background: transparent; margin-bottom: 4px;")
         lay.addWidget(lbl_u)
-        self.txtUser = QLineEdit()
-        self.txtUser.setPlaceholderText("Enter username...")
-        self.txtUser.setMinimumHeight(38)
+        
+        self.txtUser = DS.make_line_edit(placeholder="Enter username...", min_width=320)
         lay.addWidget(self.txtUser)
 
-        # Password
+        # Password field
         lbl_p = QLabel("Password")
-        lbl_p.setProperty("glassSub", True)
+        lbl_p.setFont(QFont("Segoe UI", 10, QFont.Weight.Medium))
+        lbl_p.setStyleSheet(f"color: {p['text']}; background: transparent; margin-top: 8px; margin-bottom: 4px;")
         lay.addWidget(lbl_p)
-        self.txtPass = QLineEdit()
-        self.txtPass.setPlaceholderText("Enter password...")
+        
+        self.txtPass = DS.make_line_edit(placeholder="Enter password...", min_width=320)
         self.txtPass.setEchoMode(QLineEdit.EchoMode.Password)
-        self.txtPass.setMinimumHeight(38)
         lay.addWidget(self.txtPass)
 
-        lay.addSpacing(8)
+        lay.addSpacing(Spacing.SM)
 
-        # Buttons
-        self.btnLogin = QPushButton("Sign In")
-        self.btnLogin.setFixedHeight(42)
-        self.btnLogin.setProperty("accent", True)
-        self.btnLogin.setToolTip("Sign in to HMS (Enter)")
+        # Buttons using design system
+        self.btnLogin = DS.styled_button("Sign In", role="primary", tooltip="Sign in to HMS (Enter)")
+        self.btnLogin.setFixedHeight(Size.BUTTON_H_LG)
+        self.btnLogin.setMinimumWidth(320)
         lay.addWidget(self.btnLogin)
 
-        self.btnUnLoad = QPushButton("Exit")
-        self.btnUnLoad.setFixedHeight(36)
-        self.btnUnLoad.setToolTip("Close application")
+        self.btnUnLoad = DS.styled_button("Exit", role="default", tooltip="Close application")
+        self.btnUnLoad.setFixedHeight(Size.BUTTON_H)
+        self.btnUnLoad.setMinimumWidth(320)
         lay.addWidget(self.btnUnLoad)
 
+        # Message label
         self.lblMsg = QLabel("")
         self.lblMsg.setWordWrap(True)
-        self.lblMsg.setStyleSheet(
-            f"color: {palette()['danger']}; font-weight: bold;"
-            " background: transparent; font-size: 11px;")
         self.lblMsg.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.lblMsg.setStyleSheet(f"color: {p['danger']}; font-weight: 600; font-size: {Font.SM}px; background: transparent; min-height: 20px;")
         lay.addWidget(self.lblMsg)
 
-        root.addWidget(body)
+        root.addWidget(card, alignment=Qt.AlignmentFlag.AlignHCenter)
+        root.addStretch()
 
         # DB status + settings button
         self.lblDb = QLabel("")
-        self.lblDb.setProperty("glassSub", True)
+        self.lblDb.setFont(QFont("Segoe UI", 9))
+        self.lblDb.setStyleSheet(f"color: {p['text_dim']}; background: transparent;")
         self.lblDb.setAlignment(Qt.AlignmentFlag.AlignCenter)
         root.addWidget(self.lblDb)
 
-        self.btnDb = QPushButton("Database Settings")
-        self.btnDb.setFixedHeight(30)
+        self.btnDb = DS.styled_button("Database Settings", role="default", tooltip="Configure database connection")
+        self.btnDb.setFixedHeight(Size.BUTTON_H_SM)
         self.btnDb.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.btnDb.setToolTip("Configure database connection")
-        root.addWidget(self.btnDb)
-        self._note_shown = False
+        root.addWidget(self.btnDb, alignment=Qt.AlignmentFlag.AlignHCenter)
+        root.addSpacing(Spacing.LG)
 
         self.btnLogin.clicked.connect(self._do_login)
         self.btnUnLoad.clicked.connect(self.reject)
@@ -375,72 +392,76 @@ class LoginDialog(QDialog):
 
 # ------------------------------------------------------------- company
 class CompanyDialog(QDialog):
-    """Modern company selection dialog."""
+    """Modern company selection dialog - professional style."""
 
     def __init__(self, user: str, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Select Company")
-        self.setFixedSize(580, 420)
+        self.setFixedSize(*WindowSize.COMPANY)
         self.user = user
         self.selected = None
 
+        from HMS_py.ui.design import DS
+        from HMS_py.ui.theme import palette
+
+        p = palette()
+        self.setStyleSheet(f"background: {p['bg']};")
+
         root = QVBoxLayout(self)
         root.setContentsMargins(0, 0, 0, 0)
+        root.setSpacing(0)
 
         # Header
         header = QWidget()
-        header.setFixedHeight(70)
-        header.setProperty("glassCard", True)
+        header.setFixedHeight(80)
+        header.setStyleSheet(f"background: transparent;")
         hl = QVBoxLayout(header)
         hl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        hl.setContentsMargins(0, 16, 0, 0)
+        
         lbl = QLabel("Select Company")
-        lbl.setFont(QFont("Segoe UI", 16, QFont.Weight.Bold))
-        lbl.setProperty("glassTitle", True)
+        lbl.setFont(QFont("Segoe UI", 18, QFont.Weight.Bold))
+        lbl.setStyleSheet(f"color: {p['accent']}; background: transparent;")
         lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
         hl.addWidget(lbl)
+        
+        subtitle = QLabel(f"Logged in as: {user}")
+        subtitle.setFont(QFont("Segoe UI", 9))
+        subtitle.setStyleSheet(f"color: {p['text_dim']}; background: transparent; margin-top: -4px;")
+        subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        hl.addWidget(subtitle)
+        
         root.addWidget(header)
 
-        # Card body
-        body = QWidget()
-        body.setProperty("glassCard", True)
-        lay = QVBoxLayout(body)
+        # Card body using design system
+        card = DS.make_card_v2("", elevated=True)
+        lay = card.layout()
         lay.setContentsMargins(24, 16, 24, 20)
-        lay.setSpacing(12)
+        lay.setSpacing(Spacing.MD)
 
-        # Table
+        # Table with design system
         self.tbl = QTableWidget(0, 3)
-        self.tbl.setHorizontalHeaderLabels(
-            ["Company Name", "Short Name", "Current Year"])
-        self.tbl.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
-        self.tbl.setSelectionBehavior(
-            QTableWidget.SelectionBehavior.SelectRows)
-        self.tbl.setMinimumHeight(120)
-        self.tbl.verticalHeader().setVisible(False)
-        self.tbl.setShowGrid(False)
-        self.tbl.setAlternatingRowColors(True)
+        DS.setup_table(self.tbl, ["Company Name", "Short Name", "Current Year"])
+        self.tbl.setMinimumHeight(160)
         self.tbl.cellDoubleClicked.connect(lambda *_: self._do_login())
-        self.tbl.horizontalHeader().setStretchLastSection(True)
         lay.addWidget(self.tbl)
 
-        # Buttons
+        # Buttons using design system
         btn_lay = QHBoxLayout()
-        btn_lay.setSpacing(8)
-        self.btnLogin = QPushButton("Login")
-        self.btnLogin.setFixedHeight(40)
-        self.btnLogin.setProperty("accent", True)
-        self.btnLogin.setToolTip("Select company and continue")
-        self.btnUnLoad = QPushButton("Exit")
-        self.btnUnLoad.setFixedHeight(40)
-        self.btnUnLoad.setToolTip("Cancel and return to login")
-        self.btnDbUpd = QPushButton("DB Update")
-        self.btnDbUpd.setFixedHeight(40)
-        self.btnDbUpd.setToolTip("Update database schema")
+        btn_lay.setSpacing(Spacing.SM)
+        self.btnLogin = DS.styled_button("Login", role="primary", tooltip="Select company and continue")
+        self.btnLogin.setFixedHeight(Size.BUTTON_H_LG)
+        self.btnUnLoad = DS.styled_button("Exit", role="default", tooltip="Cancel and return to login")
+        self.btnUnLoad.setFixedHeight(Size.BUTTON_H)
+        self.btnDbUpd = DS.styled_button("DB Update", role="default", tooltip="Update database schema")
+        self.btnDbUpd.setFixedHeight(Size.BUTTON_H)
         btn_lay.addWidget(self.btnLogin)
         btn_lay.addWidget(self.btnUnLoad)
         btn_lay.addWidget(self.btnDbUpd)
         lay.addLayout(btn_lay)
 
-        root.addWidget(body)
+        root.addWidget(card)
+        root.addSpacing(Spacing.LG)
 
         self.btnLogin.clicked.connect(self._do_login)
         self.btnUnLoad.clicked.connect(self.reject)
@@ -817,10 +838,13 @@ def _form_registry() -> dict[str, callable]:
         def go(w=None):
             from HMS_py.core import reports
             rows = reports.res_status(mode)
-            pdf = reports.res_status_pdf(rows, mode)
+            try:
+                pdf = reports.res_status_pdf(rows, mode)
+            except Exception:
+                pdf = "(PDF preview unavailable)"
             QMessageBox.information(
                 w, f"Reservation Status ({mode})",
-                f"{len(rows)} rows | PDF bana: {pdf}")
+                f"{len(rows)} rows | PDF: {pdf}")
         return go
 
     def _open_tally():
