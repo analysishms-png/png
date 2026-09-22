@@ -62,6 +62,12 @@ def _validate_ledgeradj(rec: dict):
 
 
 def ledgeradj_list(cn=None, limit: int = 500) -> list[dict]:
+    # Validate and sanitize limit to prevent SQL injection
+    limit = int(limit) if limit else 500
+    if limit < 1:
+        limit = 1
+    elif limit > 10000:
+        limit = 10000
     rows = db.query(
         f"SELECT TOP {limit} DocId1, V_SNo1, DocId2, V_SNo2, Cr, "
         "SubCode, Name, AgRefNo, U_Name, U_EntDt, U_AE "
@@ -134,6 +140,12 @@ def _validate_ledgerref(rec: dict):
 
 
 def ledgerref_list(cn=None, limit: int = 500) -> list[dict]:
+    # Validate and sanitize limit to prevent SQL injection
+    limit = int(limit) if limit else 500
+    if limit < 1:
+        limit = 1
+    elif limit > 10000:
+        limit = 10000
     rows = db.query(
         f"SELECT TOP {limit} Id, DocId, V_SNo, Dr, Cr, SubCode, "
         "U_Name, U_EntDt, U_AE, DueDate, AgRefNo, AgRefType, V_Date "
@@ -150,6 +162,12 @@ def ledgerref_get(id: int, cn=None) -> dict | None:
 
 
 def ledgerref_search(subcode: str, cn=None, limit: int = 200) -> list[dict]:
+    # Validate and sanitize limit to prevent SQL injection
+    limit = int(limit) if limit else 200
+    if limit < 1:
+        limit = 1
+    elif limit > 10000:
+        limit = 10000
     rows = db.query(
         f"SELECT TOP {limit} Id, DocId, V_SNo, Dr, Cr, SubCode, "
         "U_Name, U_EntDt, U_AE, DueDate, AgRefNo, AgRefType, V_Date "
@@ -216,6 +234,12 @@ def _validate_ledgertds(rec: dict):
 
 
 def ledgertds_list(cn=None, limit: int = 500) -> list[dict]:
+    # Validate and sanitize limit to prevent SQL injection
+    limit = int(limit) if limit else 500
+    if limit < 1:
+        limit = 1
+    elif limit > 10000:
+        limit = 10000
     rows = db.query(
         f"SELECT TOP {limit} DocId, V_SNo, Site_Code, v_Prefix, V_DATE, "
         "TDSCode, TDSDrCode, TDSYN, ONAMT, TDS, TDSAMT, TDSPOST, "
@@ -278,6 +302,12 @@ def _map_subgroupcurrbal(r) -> dict:
 
 
 def subgroupcurrbal_list(cn=None, limit: int = 500) -> list[dict]:
+    # Validate and sanitize limit to prevent SQL injection
+    limit = int(limit) if limit else 500
+    if limit < 1:
+        limit = 1
+    elif limit > 10000:
+        limit = 10000
     rows = db.query(
         f"SELECT TOP {limit} LogSite_Code, SubCode, V_Date, GroupCode, "
         "Curr_Bal, Site_Code FROM SUBGROUPCURRBAL ORDER BY SubCode", cn=cn)
@@ -293,22 +323,29 @@ def subgroupcurrbal_get(subcode: str, cn=None) -> dict | None:
 
 
 def subgroupcurrbal_upsert(rec: dict, cn=None, commit: bool = True) -> int:
-    """Insert or update current balance (single-row per subcode+site)."""
-    existing = subgroupcurrbal_get(rec.get("subcode", ""), cn=cn)
-    if existing:
-        return db.execute(
-            "UPDATE SUBGROUPCURRBAL SET Curr_Bal = ?, V_Date = ?, GroupCode = ? "
-            "WHERE SubCode = ? AND LogSite_Code = ?",
-            (float(rec.get("curr_bal") or 0), rec.get("v_date"),
-             rec.get("groupcode", ""), rec["subcode"], SITE_CODE),
-            cn=cn, commit=commit)
-    else:
-        return db.execute(
-            "INSERT INTO SUBGROUPCURRBAL (LogSite_Code, SubCode, V_Date, "
-            "GroupCode, Curr_Bal, Site_Code) VALUES (?, ?, ?, ?, ?, ?)",
-            (SITE_CODE, rec["subcode"], rec.get("v_date"),
-             rec.get("groupcode", ""), float(rec.get("curr_bal") or 0),
-             SITE_CODE), cn=cn, commit=commit)
+    """Insert or update current balance (single-row per subcode+site).
+    
+    Uses MERGE with HOLDLOCK to prevent race conditions (BUG-H04 fix)."""
+    subcode = rec.get("subcode", "")
+    if not subcode:
+        raise ValueError("SubCode zaroori hai")
+    # MERGE with HOLDLOCK for race-safe upsert
+    return db.execute(
+        "MERGE SUBGROUPCURRBAL WITH (HOLDLOCK) AS target "
+        "USING (SELECT ? AS SubCode, ? AS LogSite_Code) AS source "
+        "ON target.SubCode = source.SubCode AND target.LogSite_Code = source.LogSite_Code "
+        "WHEN MATCHED THEN "
+        "    UPDATE SET Curr_Bal = ?, V_Date = ?, GroupCode = ? "
+        "WHEN NOT MATCHED THEN "
+        "    INSERT (LogSite_Code, SubCode, V_Date, GroupCode, Curr_Bal, Site_Code) "
+        "    VALUES (?, ?, ?, ?, ?, ?);",
+        (subcode, SITE_CODE,
+         float(rec.get("curr_bal") or 0), rec.get("v_date"),
+         rec.get("groupcode", ""),
+         SITE_CODE, subcode, rec.get("v_date"),
+         rec.get("groupcode", ""), float(rec.get("curr_bal") or 0),
+         SITE_CODE),
+        cn=cn, commit=commit)
 
 
 def subgroupcurrbal_delete(subcode: str, cn=None, commit: bool = True) -> int:
@@ -338,6 +375,12 @@ def _map_acgroupcurrbal(r) -> dict:
 
 
 def acgroupcurrbal_list(cn=None, limit: int = 500) -> list[dict]:
+    # Validate and sanitize limit to prevent SQL injection
+    limit = int(limit) if limit else 500
+    if limit < 1:
+        limit = 1
+    elif limit > 10000:
+        limit = 10000
     rows = db.query(
         f"SELECT TOP {limit} LogSite_Code, GroupCode, V_Date, "
         "Curr_Bal, Site_Code FROM ACGROUPCURRBAL ORDER BY GroupCode", cn=cn)
@@ -353,21 +396,27 @@ def acgroupcurrbal_get(groupcode: str, cn=None) -> dict | None:
 
 
 def acgroupcurrbal_upsert(rec: dict, cn=None, commit: bool = True) -> int:
-    existing = acgroupcurrbal_get(rec.get("groupcode", ""), cn=cn)
-    if existing:
-        return db.execute(
-            "UPDATE ACGROUPCURRBAL SET Curr_Bal = ?, V_Date = ? "
-            "WHERE GroupCode = ? AND LogSite_Code = ?",
-            (float(rec.get("curr_bal") or 0), rec.get("v_date"),
-             rec["groupcode"], SITE_CODE),
-            cn=cn, commit=commit)
-    else:
-        return db.execute(
-            "INSERT INTO ACGROUPCURRBAL (LogSite_Code, GroupCode, V_Date, "
-            "Curr_Bal, Site_Code) VALUES (?, ?, ?, ?, ?)",
-            (SITE_CODE, rec["groupcode"], rec.get("v_date"),
-             float(rec.get("curr_bal") or 0), SITE_CODE),
-            cn=cn, commit=commit)
+    """Insert or update current balance per account group.
+    
+    Uses MERGE with HOLDLOCK to prevent race conditions (BUG-H04 fix)."""
+    groupcode = rec.get("groupcode", "")
+    if not groupcode:
+        raise ValueError("GroupCode zaroori hai")
+    # MERGE with HOLDLOCK for race-safe upsert
+    return db.execute(
+        "MERGE ACGROUPCURRBAL WITH (HOLDLOCK) AS target "
+        "USING (SELECT ? AS GroupCode, ? AS LogSite_Code) AS source "
+        "ON target.GroupCode = source.GroupCode AND target.LogSite_Code = source.LogSite_Code "
+        "WHEN MATCHED THEN "
+        "    UPDATE SET Curr_Bal = ?, V_Date = ? "
+        "WHEN NOT MATCHED THEN "
+        "    INSERT (LogSite_Code, GroupCode, V_Date, Curr_Bal, Site_Code) "
+        "    VALUES (?, ?, ?, ?, ?);",
+        (groupcode, SITE_CODE,
+         float(rec.get("curr_bal") or 0), rec.get("v_date"),
+         SITE_CODE, groupcode, rec.get("v_date"),
+         float(rec.get("curr_bal") or 0), SITE_CODE),
+        cn=cn, commit=commit)
 
 
 def acgroupcurrbal_delete(groupcode: str, cn=None, commit: bool = True) -> int:
@@ -407,6 +456,12 @@ def _validate_budget(rec: dict):
 
 
 def budget_list(cn=None, limit: int = 500) -> list[dict]:
+    # Validate and sanitize limit to prevent SQL injection
+    limit = int(limit) if limit else 500
+    if limit < 1:
+        limit = 1
+    elif limit > 10000:
+        limit = 10000
     rows = db.query(
         f"SELECT TOP {limit} FromDate, ToDate, SrNo, AcCode, AcGroupCode, "
         "BudgetDRAmt, BudgetCRAmt, U_Name, U_EntDt, U_AE "
@@ -485,6 +540,12 @@ def _validate_vprefix(rec: dict):
 
 
 def vprefix_list(cn=None, limit: int = 500) -> list[dict]:
+    # Validate and sanitize limit to prevent SQL injection
+    limit = int(limit) if limit else 500
+    if limit < 1:
+        limit = 1
+    elif limit > 10000:
+        limit = 10000
     rows = db.query(
         f"SELECT TOP {limit} V_Type, Date_From, Date_To, Prefix, "
         "Start_Srl_No, Site_Code, U_EntDt, LogSite_Code, U_Name, U_AE "
@@ -554,6 +615,12 @@ def _map_vinclude(r) -> dict:
 
 
 def vinclude_list(cn=None, limit: int = 500) -> list[dict]:
+    # Validate and sanitize limit to prevent SQL injection
+    limit = int(limit) if limit else 500
+    if limit < 1:
+        limit = 1
+    elif limit > 10000:
+        limit = 10000
     rows = db.query(
         f"SELECT TOP {limit} V_Type, GroupCode, Dr, Cr, Site_Code, "
         "U_EntDt, U_AE, LogSite_Code, U_Name "
@@ -613,6 +680,12 @@ def _map_vexclude(r) -> dict:
 
 
 def vexclude_list(cn=None, limit: int = 500) -> list[dict]:
+    # Validate and sanitize limit to prevent SQL injection
+    limit = int(limit) if limit else 500
+    if limit < 1:
+        limit = 1
+    elif limit > 10000:
+        limit = 10000
     rows = db.query(
         f"SELECT TOP {limit} V_Type, GroupCode, Dr, Cr, Site_Code, "
         "U_EntDt, U_AE, LogSite_Code, U_Name "
@@ -674,6 +747,12 @@ def _map_lastvou(r) -> dict:
 
 
 def lastvou_list(cn=None, limit: int = 500) -> list[dict]:
+    # Validate and sanitize limit to prevent SQL injection
+    limit = int(limit) if limit else 500
+    if limit < 1:
+        limit = 1
+    elif limit > 10000:
+        limit = 10000
     rows = db.query(
         f"SELECT TOP {limit} user_name, V_Type, Last_Ent_Date, DocId, "
         "U_Name, U_EntDt, U_AE, v_Prefix, Site_Code, LogSite_Code "
@@ -691,26 +770,34 @@ def lastvou_get(user_name: str, vtype: str, cn=None) -> dict | None:
 
 
 def lastvou_upsert(rec: dict, cn=None, commit: bool = True) -> int:
-    """Update last voucher entry (VB6 updates existing, no new insert per user+vtype)."""
-    existing = lastvou_get(rec.get("user_name", ""), rec.get("vtype", ""), cn=cn)
-    if existing:
-        return db.execute(
-            "UPDATE LastVoucher SET Last_Ent_Date = ?, DocId = ?, "
-            "v_Prefix = ?, U_Name = ?, U_EntDt = getdate(), U_AE = 'E' "
-            "WHERE user_name = ? AND V_Type = ? AND Site_Code = ?",
-            (rec.get("last_ent_date"), rec.get("docid", ""),
-             rec.get("v_prefix", ""), USER,
-             rec["user_name"], rec["vtype"], SITE_CODE),
-            cn=cn, commit=commit)
-    else:
-        return db.execute(
-            "INSERT INTO LastVoucher (user_name, V_Type, Last_Ent_Date, DocId, "
-            "U_Name, U_EntDt, U_AE, v_Prefix, Site_Code, LogSite_Code) "
-            "VALUES (?, ?, ?, ?, ?, getdate(), 'A', ?, ?, ?)",
-            (rec["user_name"], rec["vtype"], rec.get("last_ent_date"),
-             rec.get("docid", ""), USER, rec.get("v_prefix", ""),
-             SITE_CODE, SITE_CODE),
-            cn=cn, commit=commit)
+    """Update last voucher entry (VB6 updates existing, no new insert per user+vtype).
+    
+    Uses MERGE with HOLDLOCK to prevent race conditions (BUG-H04 fix)."""
+    user_name = rec.get("user_name", "")
+    vtype = rec.get("vtype", "")
+    if not user_name or not vtype:
+        raise ValueError("user_name aur vtype zaroori hain")
+    # MERGE with HOLDLOCK for race-safe upsert
+    return db.execute(
+        "MERGE LastVoucher WITH (HOLDLOCK) AS target "
+        "USING (SELECT ? AS user_name, ? AS V_Type, ? AS Site_Code) AS source "
+        "ON target.user_name = source.user_name "
+        "   AND target.V_Type = source.V_Type "
+        "   AND target.Site_Code = source.Site_Code "
+        "WHEN MATCHED THEN "
+        "    UPDATE SET Last_Ent_Date = ?, DocId = ?, v_Prefix = ?, "
+        "           U_Name = ?, U_EntDt = getdate(), U_AE = 'E' "
+        "WHEN NOT MATCHED THEN "
+        "    INSERT (user_name, V_Type, Last_Ent_Date, DocId, U_Name, "
+        "           U_EntDt, U_AE, v_Prefix, Site_Code, LogSite_Code) "
+        "    VALUES (?, ?, ?, ?, ?, getdate(), 'A', ?, ?, ?);",
+        (user_name, vtype, SITE_CODE,
+         rec.get("last_ent_date"), rec.get("docid", ""),
+         rec.get("v_prefix", ""), USER,
+         user_name, vtype, rec.get("last_ent_date"),
+         rec.get("docid", ""), USER, rec.get("v_prefix", ""),
+         SITE_CODE, SITE_CODE),
+        cn=cn, commit=commit)
 
 
 # ============================================================
@@ -761,6 +848,12 @@ def _map_ledgerlog(r) -> dict:
 
 
 def ledgerlog_list(cn=None, limit: int = 500) -> list[dict]:
+    # Validate and sanitize limit to prevent SQL injection
+    limit = int(limit) if limit else 500
+    if limit < 1:
+        limit = 1
+    elif limit > 10000:
+        limit = 10000
     rows = db.query(
         f"SELECT TOP {limit} DocId, V_SNo, V_Type, V_No, v_Prefix, "
         "Site_Code, V_Date, SubCode, AmtCr, AmtDr, ContraSub, "
@@ -843,6 +936,12 @@ def _map_ledgermlog(r) -> dict:
 
 
 def ledgermlog_list(cn=None, limit: int = 500) -> list[dict]:
+    # Validate and sanitize limit to prevent SQL injection
+    limit = int(limit) if limit else 500
+    if limit < 1:
+        limit = 1
+    elif limit > 10000:
+        limit = 10000
     rows = db.query(
         f"SELECT TOP {limit} DocId, V_Type, v_Prefix, V_No, Site_Code, "
         "V_Date, Narration, U_Name, U_EntDt, U_AE, Trf_Date, "
@@ -867,7 +966,7 @@ def ledgermlog_insert(rec: dict, cn=None, commit: bool = True) -> int:
         "V_Date, Narration, U_Name, U_EntDt, U_AE, Trf_Date, LogSite_Code, SeqNo) "
         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, getdate(), 'A', ?, ?, ?)",
         (rec["docid"], rec.get("vtype", ""), rec.get("v_prefix", ""),
-         rec.get("vno", 0), SITE_CODE,
+         rec.get("vno", 1) or 1, SITE_CODE,
          rec.get("v_date"), rec.get("narration", ""),
          USER, rec.get("trf_date"), SITE_CODE, rec.get("seqno", 0)),
         cn=cn, commit=commit)

@@ -607,17 +607,20 @@ def indent1_lines(docid: str, cn=None) -> list[dict]:
 
 def indent1_insert(rec: dict, cn=None, commit: bool = True) -> int:
     _validate_indent1(rec)
+    # 24 columns = 22 params + 2 literals (getdate(), 'A')
+    # Note: U_Name position 11 uses USER constant, not from rec
     return db.execute(
         "INSERT INTO INDENT1 (DocId, Sno, Vtype, VNo, VDate, Site_Code, "
         "Vprefix, Item, Qty, Unit, U_Name, U_EntDt, U_AE, Rate, Amount, "
         "Specification, ClearYN, ConvFactor, WtQty, WtUnit, "
         "LogSite_Code, TaxStru, TaxAmt, Total) "
         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, getdate(), 'A', ?, ?, "
-        "?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "?, ?, ?, ?, ?, ?, ?, ?)",
         (rec["docid"], rec["sno"], rec.get("vtype", ""),
          rec.get("vno", 0), rec.get("vdate"), SITE_CODE,
          rec.get("vprefix", ""), rec["item"],
          float(rec.get("qty") or 0), rec.get("unit", ""),
+         USER,  # U_Name - was missing, causing parameter shift
          float(rec.get("rate") or 0), float(rec.get("amount") or 0),
          rec.get("specification", ""), rec.get("clear_yn", "N"),
          float(rec.get("conv_factor") or 0),
@@ -752,27 +755,31 @@ def porder1_lines(docid: str, cn=None) -> list[dict]:
 
 def porder1_insert(rec: dict, cn=None, commit: bool = True) -> int:
     _validate_porder1(rec)
+    # 27 columns = 25 params + 2 literals (getdate(), 'A')
+    params = (rec["docid"], rec["sno"], rec.get("vno", 0),
+              rec.get("vdate"), rec.get("vtype", ""),
+              rec.get("vprefix", ""), SITE_CODE,
+              rec.get("party_code", ""), rec["item_code"],
+              float(rec.get("qty") or 0), rec.get("unit", ""),
+              float(rec.get("rate") or 0), float(rec.get("per_unit") or 0),
+              float(rec.get("amount") or 0), USER,
+              rec.get("indent_docid", ""), rec.get("indent_sno", 0),
+              rec.get("specification", ""),
+              float(rec.get("conv_ratio") or 0),
+              float(rec.get("wt_qty") or 0), rec.get("wt_unit", ""),
+              SITE_CODE, rec.get("tax_stru", ""),
+              float(rec.get("tax_amt") or 0), float(rec.get("total") or 0))
+    # Verify param count matches placeholders (25 params + 2 literals = 27 cols)
+    assert len(params) == 25, f"Expected 25 params, got {len(params)}"
     return db.execute(
         "INSERT INTO PORDER1 (Docid, Sno, VNo, VDate, VType, VPrefix, "
         "Site_Code, PartyCode, ItemCode, Qty, Unit, Rate, PerUnit, "
         "Amount, U_Name, U_EntDt, U_AE, IndentDocId, IndentSno, "
         "Specification, ConvRatio, WtQty, WtUnit, LogSite_Code, "
         "TaxStru, TaxAmt, Total) "
-        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
         "getdate(), 'A', ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        (rec["docid"], rec["sno"], rec.get("vno", 0),
-         rec.get("vdate"), rec.get("vtype", ""),
-         rec.get("vprefix", ""), SITE_CODE,
-         rec.get("party_code", ""), rec["item_code"],
-         float(rec.get("qty") or 0), rec.get("unit", ""),
-         float(rec.get("rate") or 0), float(rec.get("per_unit") or 0),
-         float(rec.get("amount") or 0), USER,
-         rec.get("indent_docid", ""), rec.get("indent_sno", 0),
-         rec.get("specification", ""),
-         float(rec.get("conv_ratio") or 0),
-         float(rec.get("wt_qty") or 0), rec.get("wt_unit", ""),
-         SITE_CODE, rec.get("tax_stru", ""),
-         float(rec.get("tax_amt") or 0), float(rec.get("total") or 0)),
+        params,
         cn=cn, commit=commit)
 
 

@@ -138,8 +138,9 @@ class EnviroViewer(QDialog):
 
     def reload(self):
         from HMS_py.core import db
+        cn = db.connect()
         try:
-            cur = db.connect().cursor()
+            cur = cn.cursor()
             cur.execute("SELECT TOP 1 * FROM Enviro")
             if cur.description:
                 cols = [d[0] for d in cur.description]
@@ -151,6 +152,8 @@ class EnviroViewer(QDialog):
                     self.tbl.setItem(r, 1, _vcell(v))
         except Exception as e:
             QMessageBox.warning(self, "Enviro", f"Load error: {e}")
+        finally:
+            cn.close()
 
 
 # ── GuestParam viewer ─────────────────────────────────────────
@@ -178,8 +181,9 @@ class GuestParamViewer(QDialog):
 
     def reload(self):
         from HMS_py.core import db
+        cn = db.connect()
         try:
-            cur = db.connect().cursor()
+            cur = cn.cursor()
             cur.execute("SELECT TOP 1 * FROM GuestParam")
             if cur.description:
                 cols = [d[0] for d in cur.description]
@@ -191,6 +195,8 @@ class GuestParamViewer(QDialog):
                     self.tbl.setItem(r, 1, _vcell(v))
         except Exception as e:
             QMessageBox.warning(self, "GuestParam", f"Load error: {e}")
+        finally:
+            cn.close()
 
 
 class PrintingSettingsViewer(QDialog):
@@ -223,6 +229,7 @@ class PrintingSettingsViewer(QDialog):
     def reload(self):
         try:
             from HMS_py.core.general_setup import printing_settings_snapshot
+            from HMS_py.core import db
             data = printing_settings_snapshot()
             rows = [
                 ("Reports Path", data.get("reports")),

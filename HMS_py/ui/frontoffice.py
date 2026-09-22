@@ -86,7 +86,6 @@ class CheckInBrowser(QDialog):
         self._empty_label = QLabel("No check-ins found. Click 'New Check-In' to add one.")
         self._empty_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._empty_label.setStyleSheet(f"color:{_theme.palette()['text_dim']}; font-size:13px; padding:24px;")
-        self.tbl.setEmptyStateMessage("")
         root.addWidget(self.tbl)
         root.addWidget(self._empty_label)
 

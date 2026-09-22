@@ -1208,11 +1208,20 @@ class TestGuestProfCascade:
 
 
 class TestCheckoutBalanceGuard:
-    """VB6 FdCheckOut.frm:3202 'Guest Balance is Not Zero' blocks checkout."""
+    """VB6 FdCheckOut.frm:3202 'Guest Balance is Not Zero' blocks checkout — ONLY for Strict type."""
 
-    def test_checkout_blocks_when_balance_nonzero(self):
-        from HMS_py.core import checkin, checkout, folio, guestprof
+    def test_checkout_blocks_when_balance_nonzero_strict(self):
+        from HMS_py.core import checkin, checkout, folio, guestprof, db
         import datetime
+
+        # Set checkout type to Strict for this test
+        own_cn = db.connect()
+        try:
+            db.execute(
+                "UPDATE Enviro SET Checkout = 'Strict' WHERE LogSite_Code = ?",
+                (db.get_site_code(),), cn=own_cn, commit=True)
+        finally:
+            own_cn.close()
 
         gcode = guestprof.next_code()
         guestprof.insert({"code": gcode, "name": "PYT GUARD TEST",
@@ -1226,9 +1235,9 @@ class TestCheckoutBalanceGuard:
             folio.post_room_charge(folio_no, 500.0)
             try:
                 checkout.do_checkout(folio_no, user="PYADMIN")
-                raise AssertionError("checkout allowed with non-zero balance")
+                raise AssertionError("checkout allowed with non-zero balance in Strict mode")
             except ValueError as e:
-                assert "Guest Balance is Not Zero" in str(e)
+                assert "Checkout type 'Strict' requires zero balance" in str(e)
             # folio stays open; 500 + 25 CGST + 25 SGST = 550
             assert checkout.folio_balance(folio_no)["balance"] == 550.0
         finally:
@@ -1241,6 +1250,60 @@ class TestCheckoutBalanceGuard:
                 guestprof.delete(gcode)
             except Exception:
                 pass
+            # Restore Enviro
+            own_cn = db.connect()
+            try:
+                db.execute(
+                    "UPDATE Enviro SET Checkout = 'Standard' WHERE LogSite_Code = ?",
+                    (db.get_site_code(),), cn=own_cn, commit=True)
+            finally:
+                own_cn.close()
+
+    def test_checkout_allows_nonzero_balance_standard(self):
+        from HMS_py.core import checkin, checkout, folio, guestprof, db
+        import datetime
+
+        # Ensure checkout type is Standard (default)
+        own_cn = db.connect()
+        try:
+            db.execute(
+                "UPDATE Enviro SET Checkout = 'Standard' WHERE LogSite_Code = ?",
+                (db.get_site_code(),), cn=own_cn, commit=True)
+        finally:
+            own_cn.close()
+
+        gcode = guestprof.next_code()
+        guestprof.insert({"code": gcode, "name": "PYT GUARD TEST 2",
+                          "add1": "T", "type": "India"})
+        folio_no = None
+        try:
+            folio_no = checkin.create_checkin(
+                gcode, "PYT GUARD TEST 2",
+                datetime.date.today(),
+                datetime.date.today() + datetime.timedelta(days=1))
+            folio.post_room_charge(folio_no, 500.0)
+            # Standard mode should ALLOW checkout with non-zero balance
+            # (settlement is separate flow)
+            bal = checkout.do_checkout(folio_no, user="PYADMIN")
+            assert bal["balance"] == 550.0  # balance preserved
+        finally:
+            if folio_no:
+                try:
+                    checkin.delete_checkin(folio_no)
+                except Exception:
+                    pass
+            try:
+                guestprof.delete(gcode)
+            except Exception:
+                pass
+            # Restore Enviro
+            own_cn = db.connect()
+            try:
+                db.execute(
+                    "UPDATE Enviro SET Checkout = 'Standard' WHERE LogSite_Code = ?",
+                    (db.get_site_code(),), cn=own_cn, commit=True)
+            finally:
+                own_cn.close()
 
     def test_checkout_allows_zero_balance(self):
         from HMS_py.core import checkin, checkout, guestprof

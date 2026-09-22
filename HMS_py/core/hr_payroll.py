@@ -109,9 +109,21 @@ def search_loan(term, cn=None, limit=100):
 def insert_loan(rec, cn=None, commit=True, site=SITE_CODE, user=USER):
     code_rows = db.query("SELECT MAX(Sr_No) FROM Loan", cn=cn)
     new_pk = (code_rows[0][0] or 0) + 1 if code_rows and code_rows[0][0] else 1
+    # 14 columns = 10 params + 4 literals ('LD', getdate(), getdate(), 'A')
     db.execute(
-        "INSERT INTO Loan (Sr_No,V_Type,V_Date,Emp_Code,Amount,Installment,Remark,AC_Code,Mth_Year,Site_Code,U_Name,U_EntDt,U_AE,LogSite_Code) VALUES (?,'LD',getdate(),?,?,?,?,?,?,?,?,getdate(),'A',?)",
-        (new_pk, rec.get("emp_code",""), rec.get("amount",0.0), rec.get("installment",0.0), rec.get("remark",""), rec.get("ac_code",""), rec.get("mth_year",""), site, user, site),
+        "INSERT INTO Loan (Sr_No, V_Type, V_Date, Emp_Code, Amount, Installment, "
+        "Remark, AC_Code, Mth_Year, Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code) "
+        "VALUES (?, 'LD', getdate(), ?, ?, ?, ?, ?, ?, ?, ?, getdate(), 'A', ?)",
+        (new_pk, 
+         rec.get("emp_code", ""),
+         rec.get("amount", 0.0),
+         rec.get("installment", 0.0),
+         rec.get("remark", ""),
+         rec.get("ac_code", ""),
+         rec.get("mth_year", ""),
+         site,
+         user,
+         site),
         cn=cn, commit=commit)
     return get_loan(new_pk, cn=cn)
 
@@ -222,3 +234,93 @@ class HRPayrollAPI:
     def search_overtime(self, term, cn=None, limit=100): return search_overtime(term, cn, limit)
     def insert_overtime(self, rec, cn=None, commit=True, site=SITE_CODE, user=USER): return insert_overtime(rec, cn, commit, site, user)
     def delete_overtime(self, empcode, cn=None, commit=True): return delete_overtime(empcode, cn, commit)
+
+
+# ============================================================
+# Phase A (api-mismatch audit): UI hr_payroll_ui.py in update fns ko
+# call karta tha par core me the hi nahi -> Edit buttons AttributeError.
+# ============================================================
+def update_salary(mth_year, emp_code, rec, cn=None, commit=True,
+                  user=USER) -> dict:
+    sets, params = [], []
+    for fld in ("Work_Day", "CL", "Leave", "Sunday", "Holiday", "Absent",
+                "Basic", "DA", "HRA", "Income_Tax", "Other_Allow",
+                "Other_Deduc", "Conveyance", "Medical", "LTA", "PF", "EPF",
+                "ESI", "Loan", "Advance", "Net_Salary", "Loan_Bal",
+                "OverTime", "OverTimeAmt"):
+        key = fld.lower()
+        if key in rec:
+            sets.append(fld + " = ?")
+            params.append(float(rec[key] or 0))
+    if not sets:
+        raise ValueError("Koi field update nahi diya")
+    sets += ["U_Name = ?", "U_EntDt = getdate()", "U_AE = 'E'"]
+    params += [user, mth_year, emp_code]
+    db.execute("UPDATE Salary SET " + ", ".join(sets) +
+               " WHERE Mth_Year = ? AND Emp_Code = ?", params,
+               cn=cn, commit=commit)
+    return get_salary(mth_year, emp_code, cn=cn)
+
+
+def update_attendence(emp_code, date_or_mth, rec, cn=None, commit=True,
+                      user=USER) -> dict:
+    # UI (Emp_Code, Date, rec) bhejta hai; DB key Mth_Year+Emp_Code hai.
+    # Attn_Str = "In-Out-Status" composite (VB6 Attendence string pattern).
+    attn = rec.get("attn_str")
+    if attn is None:
+        parts = [str(rec.get("intime", "") or ""),
+                 str(rec.get("outtime", "") or ""),
+                 str(rec.get("status", "") or "")]
+        attn = "-".join(p for p in parts if p)
+    mth = str(rec.get("mth_year") or "")
+    d = str(date_or_mth or "")
+    if not mth and len(d) >= 7 and d[4:5] == "-":
+        mth = d[:7]
+    db.execute(
+        "UPDATE Attendence SET Attn_Str = ?, U_Name = ?, "
+        "U_EntDt = getdate(), U_AE = 'E' WHERE Mth_Year = ? AND Emp_Code = ?",
+        (attn, user, mth, emp_code), cn=cn, commit=commit)
+    return get_attendence(mth, emp_code, cn=cn)
+
+
+def update_loan(emp_code, sr_no, rec, cn=None, commit=True,
+                user=USER) -> dict:
+    sr = rec.get("sr_no", sr_no)
+    sets, params = [], []
+    if "amount" in rec:
+        sets.append("Amount = ?"); params.append(float(rec["amount"] or 0))
+    if "installment" in rec:
+        sets.append("Installment = ?"); params.append(float(rec["installment"] or 0))
+    if "remark" in rec:
+        sets.append("Remark = ?"); params.append(str(rec["remark"] or ""))
+    if "ac_code" in rec:
+        sets.append("AC_Code = ?"); params.append(str(rec["ac_code"] or ""))
+    if "mth_year" in rec:
+        sets.append("Mth_Year = ?"); params.append(str(rec["mth_year"] or ""))
+    if not sets:
+        raise ValueError("Koi field update nahi diya")
+    sets += ["U_Name = ?", "U_EntDt = getdate()", "U_AE = 'E'"]
+    params += [user, sr]
+    db.execute("UPDATE Loan SET " + ", ".join(sets) + " WHERE Sr_No = ?",
+               params, cn=cn, commit=commit)
+    return get_loan(sr, cn=cn)
+
+
+def update_overtime(empcode, date_or_none, rec, cn=None, commit=True,
+                    user=USER) -> dict:
+    sets, params = [], []
+    if "otime" in rec:
+        sets.append("OTime = ?"); params.append(float(rec["otime"] or 0))
+    if "otrate" in rec:
+        sets.append("OTRate = ?"); params.append(float(rec["otrate"] or 0))
+    if "amount" in rec:
+        sets.append("Amount = ?"); params.append(float(rec["amount"] or 0))
+    if "remark" in rec:
+        sets.append("Remark = ?"); params.append(str(rec["remark"] or ""))
+    if not sets:
+        raise ValueError("Koi field update nahi diya")
+    sets += ["U_Name = ?", "U_EntDt = getdate()", "U_AE = 'E'"]
+    params += [user, empcode]
+    db.execute("UPDATE OverTime SET " + ", ".join(sets) +
+               " WHERE EmpCode = ?", params, cn=cn, commit=commit)
+    return get_overtime(empcode, cn=cn)

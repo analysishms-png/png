@@ -25,6 +25,7 @@ from PyQt6.QtWidgets import (QComboBox, QDateEdit, QDialog, QFormLayout,
                              QTableWidgetItem, QVBoxLayout)
 
 from HMS_py.core import fa_voucher as fv
+from HMS_py.ui import theme as _theme
 
 
 def _cell(v) -> QTableWidgetItem:

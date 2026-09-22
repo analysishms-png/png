@@ -319,7 +319,7 @@ class RestaurantMasterWindow(QMainWindow):
                 "VB6 HMS me ye table hota hai par is DB copy me missing hai.\n"
                 "Add/Delete functionality kaam nahi karegi.")
             msg.setStyleSheet(f"color:{_theme.palette()['danger']};font-weight:bold;padding:10px;"
-                              f"border:1px solid {_theme.palette()['danger']};background:{_theme.palette()['danger_soft']};")
+                              f"border:1px solid {_theme.palette()['danger']};background:{_theme.palette()['danger_bg']};")
             msg.setWordWrap(True)
             lay.addWidget(msg)
         else:

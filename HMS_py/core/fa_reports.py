@@ -31,6 +31,10 @@ def _ledger_summary(date_to=None, cn=None) -> list[dict]:
 
     VB6 FaMagic: open-type reports aggregate LEDGER by SubCode,
     then join ACGROUP for GroupNature classification.
+    
+    Net calculation respects GroupNature sign convention:
+    - Assets (A), Expenses (E): net = Dr - Cr
+    - Liabilities (L), Revenue (R): net = Cr - Dr
     """
     if date_to:
         rows = db.query(
@@ -57,12 +61,17 @@ def _ledger_summary(date_to=None, cn=None) -> list[dict]:
     for r in rows:
         dr = float(r.DrTotal or 0)
         cr = float(r.CrTotal or 0)
-        net = dr - cr
+        gn = r.GroupNature or ""
+        # Sign convention per GroupNature (BUG-H03 fix)
+        if gn in ("L", "R"):  # Liabilities, Revenue
+            net = cr - dr
+        else:  # Assets (A), Expenses (E), or unknown
+            net = dr - cr
         result.append({
             "subcode": r.SubCode or "",
             "name": (r.Name or "").strip(),
             "groupcode": r.GroupCode or "",
-            "groupnature": r.GroupNature or "",
+            "groupnature": gn,
             "dr_total": dr,
             "cr_total": cr,
             "net": net,
@@ -71,7 +80,12 @@ def _ledger_summary(date_to=None, cn=None) -> list[dict]:
 
 
 def _group_summary(date_to=None, cn=None) -> list[dict]:
-    """SUM(AmtDr-AmtCr) per GroupCode with group info."""
+    """SUM(AmtDr-AmtCr) per GroupCode with group info.
+    
+    Net calculation respects GroupNature sign convention:
+    - Assets (A), Expenses (E): net = Dr - Cr
+    - Liabilities (L), Revenue (R): net = Cr - Dr
+    """
     if date_to:
         rows = db.query(
             "SELECT S.GroupCode, S.GroupNature, "
@@ -97,10 +111,15 @@ def _group_summary(date_to=None, cn=None) -> list[dict]:
     for r in rows:
         dr = float(r.DrTotal or 0)
         cr = float(r.CrTotal or 0)
-        net = dr - cr
+        gn = r.GroupNature or ""
+        # Sign convention per GroupNature (BUG-H03 fix)
+        if gn in ("L", "R"):  # Liabilities, Revenue
+            net = cr - dr
+        else:  # Assets (A), Expenses (E), or unknown
+            net = dr - cr
         result.append({
             "groupcode": r.GroupCode or "",
-            "groupnature": r.GroupNature or "",
+            "groupnature": gn,
             "dr_total": dr,
             "cr_total": cr,
             "net": net,
@@ -603,3 +622,192 @@ def cash_bank_summary(cn=None, date_to=None) -> list[dict]:
         })
 
     return result
+
+
+# ============================================================
+# 8. Aging Analysis (VB6: FaAgingReport)
+# ============================================================
+def aging_analysis(cn=None, date_to=None, aging_days=None) -> dict:
+    """VB6 aging: categorize outstanding amounts by age buckets.
+    Buckets: 0-30, 31-60, 61-90, 91-120, 120+ days."""
+    import datetime as _dt
+    if aging_days is None:
+        aging_days = [30, 60, 90, 120]
+    today = date_to or _dt.date.today()
+
+    rows = db.query(
+        "SELECT L.SubCode, S.Name, S.GroupCode, SG.GroupNature, "
+        "L.V_Date, L.AmtDr, L.AmtCr "
+        "FROM LEDGER L "
+        "LEFT JOIN SubGroup S ON S.SubCode = L.SubCode "
+        "LEFT JOIN AcGroup SG ON SG.GroupCode = S.GroupCode "
+        "WHERE L.V_Date <= ? ORDER BY L.SubCode, L.V_Date",
+        (today,), cn=cn)
+
+    accounts = {}
+    for r in rows:
+        sc = (r.SubCode or "").strip()
+        if not sc:
+            continue
+        if sc not in accounts:
+            accounts[sc] = {
+                "name": (r.Name or "").strip(),
+                "groupcode": r.GroupCode or "",
+                "nature": r.GroupNature or "", "entries": []}
+        accounts[sc]["entries"].append({
+            "vdate": r.V_date, "dr": float(r.AmtDr or 0),
+            "cr": float(r.AmtCr or 0)})
+
+    def _calc_aging(entries):
+        net = sum(e["dr"] - e["cr"] for e in entries)
+        if abs(net) < 0.005:
+            return None
+        buckets = [0.0] * (len(aging_days) + 1)
+        remaining = abs(net)
+        direction = "dr" if net > 0 else "cr"
+        for e in sorted(entries, key=lambda x: x["vdate"]):
+            amt = e["dr"] if direction == "dr" else e["cr"]
+            if amt <= 0:
+                continue
+            age = (today - e["vdate"]).days if hasattr(e["vdate"], "days") else 0
+            idx = len(aging_days)
+            for i, lim in enumerate(aging_days):
+                if age <= lim:
+                    idx = i
+                    break
+            alloc = min(amt, remaining)
+            buckets[idx] += alloc
+            remaining -= alloc
+            if remaining <= 0:
+                break
+        return {"buckets": buckets, "total": net}
+
+    debtors = {}
+    creditors = {}
+    for sc, info in accounts.items():
+        res = _calc_aging(info["entries"])
+        if res is None:
+            continue
+        entry = {"subcode": sc, "name": info["name"],
+                 "buckets": res["buckets"], "total": res["total"]}
+        if info["nature"] == "A":
+            debtors[sc] = entry
+        elif info["nature"] == "L":
+            creditors[sc] = entry
+
+    labels = [f"0-{aging_days[0]}"]
+    for i in range(1, len(aging_days)):
+        labels.append(f"{aging_days[i-1]+1}-{aging_days[i]}")
+    labels.append(f"{aging_days[-1]+1}+")
+
+    return {"bucket_labels": labels, "debtors": debtors, "creditors": creditors,
+            "total_debtors": sum(d["total"] for d in debtors.values()),
+            "total_creditors": sum(c["total"] for c in creditors.values())}
+
+
+# ============================================================
+# 9. Ledger with Opening Balance (VB6: FaLedgerOpening)
+# ============================================================
+def ledger_with_opening(subcode: str, date_from=None, date_to=None,
+                        cn=None) -> dict:
+    """VB6 ledger with opening balance: carry-forward from previous FY."""
+    import datetime as _dt
+    if date_from is None:
+        date_from = _dt.date(_dt.date.today().year, 4, 1)
+    if date_to is None:
+        date_to = _dt.date.today()
+
+    opening_rows = db.query(
+        "SELECT ISNULL(SUM(AmtDr), 0), ISNULL(SUM(AmtCr), 0) "
+        "FROM LEDGER WHERE SubCode = ? AND V_Date < ?",
+        (subcode, date_from), cn=cn)
+    opening_bal = float(opening_rows[0][0] or 0) - float(opening_rows[0][1] or 0)
+
+    txns = db.query(
+        "SELECT DocId, V_Date, V_Type, V_No, AmtDr, AmtCr, Narration, "
+        "ContraSub FROM LEDGER WHERE SubCode = ? AND V_Date BETWEEN ? AND ? "
+        "ORDER BY V_Date, DocId",
+        (subcode, date_from, date_to), cn=cn)
+
+    transactions = []
+    running = opening_bal
+    for r in txns:
+        dr = float(r.AmtDr or 0)
+        cr = float(r.AmtCr or 0)
+        running += dr - cr
+        transactions.append({
+            "docid": r.DocId or "", "vdate": r.V_date,
+            "vtype": r.V_Type or "", "vno": r.V_No,
+            "amt_dr": dr, "amt_cr": cr,
+            "narration": (r.Narration or "").strip(),
+            "contra_sub": (r.ContraSub or "").strip(),
+            "running_bal": running})
+
+    name_rows = db.query(
+        "SELECT Name FROM SubGroup WHERE SubCode = ?", (subcode,), cn=cn)
+    name = (name_rows[0][0] or "").strip() if name_rows else ""
+
+    return {"subcode": subcode, "name": name, "date_from": date_from,
+            "date_to": date_to, "opening_bal": opening_bal,
+            "transactions": transactions, "closing_bal": running,
+            "total_dr": sum(t["amt_dr"] for t in transactions),
+            "total_cr": sum(t["amt_cr"] for t in transactions)}
+
+
+# ============================================================
+# 10. Bank Reconciliation Statement (VB6: FaBRS)
+# ============================================================
+def bank_reconciliation(subcode: str, date_to=None, cn=None) -> dict:
+    """VB6 bank reconciliation: cleared vs pending cheques."""
+    if date_to is None:
+        date_to = datetime.date.today()
+
+    all_cheques = db.query(
+        "SELECT DocId, V_SNo, V_Date, Chq_No, Chq_Date, Clg_Date, "
+        "AmtDr, AmtCr FROM Ledger "
+        "WHERE SubCode = ? AND Chq_No <> '' AND V_Date <= ? ORDER BY V_Date",
+        (subcode, date_to), cn=cn)
+
+    cleared = []
+    pending = []
+    for r in all_cheques:
+        entry = {"docid": r.DocId, "sno": r.V_SNo, "vdate": r.V_date,
+                 "chq_no": r.Chq_No or "", "chq_date": r.Chq_Date,
+                 "clg_date": r.Clg_Date,
+                 "amt_dr": float(r.AmtDr or 0), "amt_cr": float(r.AmtCr or 0)}
+        if r.Clg_Date:
+            cleared.append(entry)
+        else:
+            pending.append(entry)
+
+    bal_rows = db.query(
+        "SELECT ISNULL(SUM(AmtDr), 0), ISNULL(SUM(AmtCr), 0) "
+        "FROM LEDGER WHERE SubCode = ? AND V_Date <= ?",
+        (subcode, date_to), cn=cn)
+    bank_book_bal = float(bal_rows[0][0] or 0) - float(bal_rows[0][1] or 0)
+
+    return {"subcode": subcode, "date_to": date_to,
+            "bank_book_bal": bank_book_bal,
+            "cleared": cleared, "pending": pending,
+            "cleared_count": len(cleared), "pending_count": len(pending),
+            "cleared_dr": sum(c["amt_dr"] for c in cleared),
+            "cleared_cr": sum(c["amt_cr"] for c in cleared),
+            "pending_dr": sum(p["amt_dr"] for p in pending),
+            "pending_cr": sum(p["amt_cr"] for p in pending)}
+
+
+# ============================================================
+# 11. Voucher Type Routing (VB6: FaVrEnt Auto-routing)
+# ============================================================
+def route_voucher(subcode: str, cn=None) -> str:
+    """VB6 auto-routing: determine voucher type based on account group."""
+    rows = db.query(
+        "SELECT SG.GroupName FROM SubGroup S "
+        "JOIN AcGroup SG ON SG.GroupCode = S.GroupCode "
+        "WHERE S.SubCode = ?", (subcode,), cn=cn)
+    if not rows:
+        return "JV"
+    name = (rows[0][0] or "").upper()
+    if "CASH" in name or "BANK" in name:
+        return "RV"
+    return "JV"

@@ -304,7 +304,7 @@ def gin_create(party_code: str, party_name: str, godown: str, vdate,
              lines[0].get("godown", godown), "", user, SITE_CODE),
             cn=cn, commit=False)
         
-        # Lines - insert into Purch2 with ContraDocId = GIN.DocId
+# Lines - insert into Purch2 with ContraDocId = GIN.DocId
         for i, line in enumerate(lines, 1):
             sno = i
             item = line.get("item", "")
@@ -316,12 +316,12 @@ def gin_create(party_code: str, party_name: str, godown: str, vdate,
             tax_amt = float(line.get("tax_amt") or 0)
             disc_per = float(line.get("disc_per") or 0)
             disc_amt = float(line.get("disc_amt") or 0)
-            godown = line.get("godown", "")
+            line_godown = line.get("godown", "")
             remarks = line.get("remarks", "")
             indent_docid = line.get("indent_docid", "")
             indent_sno = int(line.get("indent_sno") or 0)
             item_rest_code = line.get("item_rest_code", "")
-            
+
             db.execute(
                 "INSERT INTO Purch2 (DocId, Sno, Vtype, VNo, Site_Code, Vprefix, Vdate, "
                 "PartyCode, Item, QtyIss, QtyRec, Unit, Rate, Amount, TaxPer, TaxAmt, DiscPer, DiscAmt, "
@@ -333,7 +333,7 @@ def gin_create(party_code: str, party_name: str, godown: str, vdate,
                  lines[0].get("party_code", ""), item, 0, qty_rec, unit, rate, amount,
                  tax_per, tax_amt, disc_per, disc_amt,
                  remarks, docid, sno,
-                 user, godown, SITE_CODE), cn=cn, commit=False)
+                 user, line_godown, SITE_CODE), cn=cn, commit=False)
         
         # Write Stock rows (VB6 pMREntry lines 216622-216638)
         for i, line in enumerate(lines, 1):
@@ -387,6 +387,8 @@ def porder_create(party_code: str, vdate, lines: list[dict],
     """Create Purchase Order (POrder + POrder1 lines)."""
     if not lines:
         raise ValueError("At least one line required")
+    if not party_code or not party_code.strip():
+        raise ValueError("PartyCode zaroori hai")
     
     vdate = vdate or date.today()
     vno = _next_vno_table("POrder", "PORD", vprefix, cn=cn)
@@ -395,25 +397,27 @@ def porder_create(party_code: str, vdate, lines: list[dict],
     own = cn is None
     cn = cn or db.connect()
     try:
-        # Header
+        # Header - use party_code parameter instead of hardcoded value
         db.execute(
             "INSERT INTO POrder (DocId, VNo, VDate, VType, VPrefix, Site_Code, "
             "PartyCode, U_Name, U_EntDt, U_AE, LogSite_Code) "
             "VALUES (?, ?, ?, 'PORD', ?, ?, ?, ?, getdate(), 'A', ?)",
-            (docid, vno, vdate, "2026", SITE_CODE, "KK000265", USER, SITE_CODE, SITE_CODE),
+            (docid, vno, vdate, "2026", SITE_CODE, party_code.strip(), USER, SITE_CODE, SITE_CODE),
             cn=cn, commit=False)
         
-        # Lines
+        # Lines - use header party_code as default, allow line-level override
+        header_party = party_code.strip()
         for i, line in enumerate(lines, 1):
+            line_party = line.get("party_code", "").strip() or header_party
             db.execute(
                 "INSERT INTO POrder1 (DocId, Sno, VNo, VDate, VType, VPrefix, Site_Code, "
                 "PartyCode, ItemCode, Qty, Unit, Rate, PerUnit, Amount, U_Name, U_EntDt, "
                 "U_AE, IndentDocId, IndentSno, Specification, ConvRatio, WtQty, WtUnit, "
                 "LogSite_Code, TaxStru, TaxAmt, Total) "
-                "VALUES (?, ?, ?, ?, 'PORD', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, getdate(), 'A', "
+                "VALUES (?, ?, ?, ?, 'PORD', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, getdate(), 'A', "
                 "?, ?, ?, ?, ?, ?)",
                 (docid, i, vno, vdate, "2026", SITE_CODE,
-                 line.get("party_code", ""), line["item"], line["qty"], line["unit"],
+                 line_party, line["item"], line["qty"], line["unit"],
                  line["rate"], 0, line.get("amount", 0), USER,
                  line.get("indent_docid", ""), line.get("indent_sno", 0),
                  line.get("specification", ""), 1, 0, "",

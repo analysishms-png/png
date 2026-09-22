@@ -71,9 +71,9 @@ class TaxStruForm(QDialog):
         self.grid.cellChanged.connect(self._on_cell_changed)
         root.addWidget(self.grid)
 
-        # ---- Status label ----
+# ---- Status label ----
         self.lbl_state = QLabel("State: Idle | New: Ctrl+N | Edit: Ctrl+E | Save: Ctrl+S | Delete: Ctrl+D")
-        self.lbl_state.setStyleSheet(f"color:{palette()['text']}; padding:4px; background:{palette()['glass_tint']};")
+        self.lbl_state.setStyleSheet(f"color:{_theme.palette()['text']}; padding:4px; background:{_theme.palette()['glass_tint']};")
         root.addWidget(self.lbl_state)
 
         # ---- Buttons ----

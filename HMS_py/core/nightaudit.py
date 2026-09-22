@@ -182,7 +182,7 @@ def post_room_charges_for_date(vdate, vprefix: str = "2026",
     (PayCharge Vtype='RC' for that folio/date), insert RC charge + tax.
     Returns: {'posted': count, 'skipped': count, 'errors': list}
     """
-    rooms = get_inhouse_rooms(vdate, "2026", cn=cn)
+    rooms = get_inhouse_rooms(vdate, vprefix, cn=cn)
     posted = 0
     skipped = 0
     errors = []

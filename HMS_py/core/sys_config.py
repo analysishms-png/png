@@ -43,6 +43,12 @@ def _map_roundoff(r) -> dict:
 
 
 def roundoff_list(cn=None, limit: int = 500) -> list[dict]:
+    # Validate and sanitize limit to prevent SQL injection
+    limit = int(limit) if limit else 500
+    if limit < 1:
+        limit = 1
+    elif limit > 10000:
+        limit = 10000
     rows = db.query(
         f"SELECT TOP {limit} Code, Department, RoundOFFType, U_Name, "
         "U_EntDt, Site_Code, U_AE, ModuleName, LogSite_Code "
@@ -133,6 +139,12 @@ def _map_datelock(r) -> dict:
 
 
 def datelock_list(cn=None, limit: int = 500) -> list[dict]:
+    # Validate and sanitize limit to prevent SQL injection
+    limit = int(limit) if limit else 500
+    if limit < 1:
+        limit = 1
+    elif limit > 10000:
+        limit = 10000
     rows = db.query(
         f"SELECT TOP {limit} CODE, NAME, LEVEL1, LEVEL2, id, srno, "
         "flag, SDate, EDate FROM DATELOCK ORDER BY CODE, srno", cn=cn)
@@ -220,6 +232,12 @@ def _map_site(r) -> dict:
 
 
 def site_list(cn=None, limit: int = 500) -> list[dict]:
+    # Validate and sanitize limit to prevent SQL injection
+    limit = int(limit) if limit else 500
+    if limit < 1:
+        limit = 1
+    elif limit > 10000:
+        limit = 10000
     rows = db.query(
         f"SELECT TOP {limit} CompCode, Site_Code, Site_Desc, U_Name, "
         "U_EntDt, U_AE, SiteType, Short_Name, SendDate, RecDate "
@@ -331,6 +349,12 @@ def _map_menuhelp(r) -> dict:
 
 
 def menuhelp_list(cn=None, limit: int = 500) -> list[dict]:
+    # Validate and sanitize limit to prevent SQL injection
+    limit = int(limit) if limit else 500
+    if limit < 1:
+        limit = 1
+    elif limit > 10000:
+        limit = 10000
     cols = ("CompCode, UserName, Opt1, Opt2, Opt3, Opt4, Code, Option, "
             "Menu_Index, Menu_Visible, Pro_Name, Tag, User_Name, "
             "Param_Str, ID, Module_Name, Flag, ShowInList, OutletCode")
@@ -426,6 +450,12 @@ def _map_menuhelp1(r) -> dict:
 
 
 def menuhelp1_list(cn=None, limit: int = 500) -> list[dict]:
+    # Validate and sanitize limit to prevent SQL injection
+    limit = int(limit) if limit else 500
+    if limit < 1:
+        limit = 1
+    elif limit > 10000:
+        limit = 10000
     cols = ("CompCode, UserName, Opt1, Opt2, Opt3, Opt4, Code, "
             "MenuName, MenuIndex, MenuCaption, Param_Str, Flag")
     rows = db.query(
@@ -529,6 +559,12 @@ def _map_userperm(r) -> dict:
 
 
 def userperm_list(cn=None, limit: int = 500) -> list[dict]:
+    # Validate and sanitize limit to prevent SQL injection
+    limit = int(limit) if limit else 500
+    if limit < 1:
+        limit = 1
+    elif limit > 10000:
+        limit = 10000
     cols = ("CompCode, UserName, LogSite_Code, POSDiscountAllowUpto, "
             "CancelGuestBill, ChangeRoomDtl, DeleteGuestCharges, "
             "Site_Code, POSSettlementYN, ChangeGuestCharges, backcolor, "
@@ -656,7 +692,7 @@ def _map_sundryfix(r) -> dict:
         }
     except AttributeError:
         sc, sn, dn, cf, pa, ro, sv, lm, pa2, na, cs, sy, gr, \
-            site, _, uae, lgs = r
+            site, un, uae, lgs = r
         return {
             "sundry_code": sc or "", "sno": sn or 0,
             "disp_name": (dn or "").strip(),
@@ -682,6 +718,12 @@ def _validate_sundryfix(rec: dict):
 
 
 def sundryfix_list(cn=None, limit: int = 500) -> list[dict]:
+    # Validate and sanitize limit to prevent SQL injection
+    limit = int(limit) if limit else 500
+    if limit < 1:
+        limit = 1
+    elif limit > 10000:
+        limit = 10000
     cols = ("SundryCode, SNo, DispName, CalcFormula, PerOrAmt, RoundOff, "
             "SValue, Limit, PostAc, Nature, CalcSign, SysYN, Grp, "
             "Site_Code, U_EntDt, U_AE, LogSite_Code")
@@ -759,3 +801,37 @@ class _SundryTypeFixAPI:
     def delete(sundry_code, sno, cn=None, commit=True): return sundryfix_delete(sundry_code, sno, cn, commit)
 
 SundryTypeFixAPI = _SundryTypeFixAPI()
+
+
+
+# ============================================================
+# Phase A: sys_config_ui get_config/update_config call karta tha.
+# Enviro me DateLock col nahi (Datelock alag table hai); UI labels
+# real config par map kiye — koi schema invention nahi.
+# ============================================================
+def get_config(cn=None) -> dict:
+    from HMS_py.core import enviro
+    e = enviro.get(cn=cn)
+    val = e.get("RoundOff")
+    return {"RoundOffSetting": "Yes" if val in (1, True) else
+            ("No" if val in (0, False) else ""),
+            "SiteCode": SITE_CODE,
+            "NCKOTPercentage": e.get("NCKOTPercentage", ""),
+            "CheckoutTime": e.get("CheckoutVar", "")}
+
+
+def update_config(rec: dict, cn=None, commit: bool = True) -> int:
+    from HMS_py.core import enviro
+    changes = {}
+    if "RoundOffSetting" in rec:
+        s = str(rec["RoundOffSetting"]).strip().lower()
+        if s not in ("yes", "no", ""):
+            raise ValueError("RoundOffSetting: 'Yes'/'No' hi")
+        changes["RoundOff"] = "Yes" if s == "yes" else "No"
+    if "NCKOTPercentage" in rec:
+        changes["NCKOTPercentage"] = rec["NCKOTPercentage"]
+    if "CheckoutTime" in rec:
+        changes["CheckoutVar"] = rec["CheckoutTime"]
+    if changes:
+        enviro.update_settings(changes, cn=cn, commit=commit)
+    return 1

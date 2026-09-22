@@ -76,11 +76,15 @@ def backup_database(db_name: str = None, cn=None) -> dict:
 
     Returns: {success, backup_file, size_mb, duration_sec, message}
     """
+    from HMS_py.core.db import _validate_identifier
     own = cn is None
     cn = cn or db.connect()
     try:
         if not db_name:
             db_name = _get_db_name(cn)
+
+        # Validate db_name to prevent SQL injection
+        _validate_identifier(db_name, "database")
 
         backup_path = get_backup_path(cn)
         os.makedirs(backup_path, exist_ok=True)
@@ -105,13 +109,13 @@ def backup_database(db_name: str = None, cn=None) -> dict:
         except Exception:
             pass
 
-        # Execute backup (VB6 step 3)
+        # Execute backup (VB6 step 3) - parameterized
         start = time.time()
         cur = cn.cursor()
         cur.execute(
-            f"BACKUP DATABASE [{db_name}] TO DISK = ? WITH INIT, "
-            f"NAME = ?, DESCRIPTION = ?",
-            (backup_file,
+            "BACKUP DATABASE [?] TO DISK = ? WITH INIT, "
+            "NAME = ?, DESCRIPTION = ?",
+            (db_name, backup_file,
              f"{db_name} Full Backup",
              f"Auto backup created on {datetime.now().isoformat()}"),
         )
@@ -150,14 +154,18 @@ def backup_transaction_log(db_name: str = None, cn=None) -> dict:
 
     Returns: {success, message}
     """
+    from HMS_py.core.db import _validate_identifier
     own = cn is None
     cn = cn or db.connect()
     try:
         if not db_name:
             db_name = _get_db_name(cn)
 
+        # Validate db_name to prevent SQL injection
+        _validate_identifier(db_name, "database")
+
         cur = cn.cursor()
-        cur.execute(f"BACKUP LOG [{db_name}] WITH TRUNCATE_ONLY")
+        cur.execute("BACKUP LOG [?] WITH TRUNCATE_ONLY", (db_name,))
 
         return {
             "success": True,
@@ -181,14 +189,18 @@ def shrink_database(db_name: str = None, cn=None) -> dict:
 
     Returns: {success, message}
     """
+    from HMS_py.core.db import _validate_identifier
     own = cn is None
     cn = cn or db.connect()
     try:
         if not db_name:
             db_name = _get_db_name(cn)
 
+        # Validate db_name to prevent SQL injection
+        _validate_identifier(db_name, "database")
+
         cur = cn.cursor()
-        cur.execute(f"DBCC SHRINKDATABASE([{db_name}], 0, TRUNCATEONLY)")
+        cur.execute("DBCC SHRINKDATABASE([?], 0, TRUNCATEONLY)", (db_name,))
 
         return {
             "success": True,

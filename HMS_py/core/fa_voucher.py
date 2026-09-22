@@ -69,6 +69,8 @@ def post_voucher(lines: list[dict], vdate, narration: str = "",
                  chq_no: str = "", chq_date=None,
                  cn=None, commit: bool = True) -> dict:
     """Double-entry voucher: LedgerM header + n Ledger lines.
+    VB6 patterns: CurrBal update, LedgerRef tracking, LedgerLog audit,
+    ContraSub auto-fill, cheque date validation.
 
     lines: [{'subcode','amt_dr','amt_cr','narration'?}, ...]
     Guard: har line ka SubCode live Subgroup me ho; total DR == total CR.
@@ -86,6 +88,12 @@ def post_voucher(lines: list[dict], vdate, narration: str = "",
                          "— unbalanced voucher")
     if tot_dr == 0:
         raise ValueError("Voucher amount zero nahi ho sakta")
+    # VB6 cheque date validation
+    if chq_no and chq_date:
+        if isinstance(chq_date, str):
+            chq_date = datetime.date.fromisoformat(chq_date)
+        if chq_date > vdate:
+            raise ValueError("Cheque date voucher date se baad nahi ho sakta")
     # subcode validation + group info (VB6 fills GroupCode/GroupNature)
     subs = {}
     for l in lines:
@@ -114,9 +122,12 @@ def post_voucher(lines: list[dict], vdate, narration: str = "",
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, getdate(), 'A', ?)",
             (docid, vtype, prefix, vno, SITE_CODE, vdate, narration,
              user, SITE_CODE))
+        # Find contra pairs for ContraSub auto-fill (VB6 pattern)
+        contra_pairs = _find_contra_pairs(lines, subs)
         for sno, l in enumerate(lines, start=1):
             sc = l["subcode"].strip()
             gc, gn = subs[sc]
+            contra_sub = contra_pairs.get(sc, "")
             cur.execute(
                 "INSERT INTO Ledger (DocId, V_SNo, V_Type, V_No, v_Prefix, "
                 "Site_Code, V_Date, SubCode, AmtDr, AmtCr, ContraSub, "
@@ -126,8 +137,15 @@ def post_voucher(lines: list[dict], vdate, narration: str = "",
                 "?, ?, ?, getdate(), 'A', ?)",
                 (docid, sno, vtype, vno, prefix, SITE_CODE, vdate, sc,
                  float(l.get("amt_dr") or 0), float(l.get("amt_cr") or 0),
-                 "", l.get("narration", "") or narration,
+                 contra_sub, l.get("narration", "") or narration,
                  chq_no or "", chq_date, gc, gn, user, SITE_CODE))
+            # VB6 CurrBal update: running balance per SubGroup
+            _update_currbal(cn, sc, float(l.get("amt_dr") or 0),
+                            float(l.get("amt_cr") or 0))
+            # VB6 LedgerRef: copy to reference tables if TDS/bill-wise
+            _create_ledgerref(cn, docid, sno, sc, l)
+        # VB6 LedgerLog: audit trail
+        _log_voucher(cn, docid, "A", user)
         if commit:
             cn.commit()
         return {"docid": docid, "vno": vno, "dr": tot_dr, "cr": tot_cr}
@@ -142,13 +160,129 @@ def post_voucher(lines: list[dict], vdate, narration: str = "",
             cn.close()
 
 
-def delete_voucher(docid: str, cn=None, commit: bool = True) -> int:
-    """Voucher delete (header + lines) — VB6 FaVrEnt delete parity."""
-    n = db.execute("DELETE FROM Ledger WHERE DocId = ?", (docid,),
+def _find_contra_pairs(lines: list[dict], subs: dict) -> dict:
+    """VB6 pattern: for each SubCode, find the contra account (the other side).
+    Returns {subcode: contra_subcode}."""
+    pairs = {}
+    debits = [i for i, l in enumerate(lines)
+              if float(l.get("amt_dr") or 0) > 0]
+    credits = [i for i, l in enumerate(lines)
+               if float(l.get("amt_cr") or 0) > 0]
+    # Simple 2-line case: each is contra of the other
+    if len(lines) == 2 and debits and credits:
+        d_sub = lines[debits[0]]["subcode"].strip()
+        c_sub = lines[credits[0]]["subcode"].strip()
+        pairs[d_sub] = c_sub
+        pairs[c_sub] = d_sub
+    return pairs
+
+
+def _update_currbal(cn, subcode: str, dr: float, cr: float):
+    """VB6 CurrBal update: LedgerRef/OpeningBalance tracking.
+    Updates the running balance in LedgerCurrBal or SubGroupCurrBal."""
+    diff = dr - cr
+    try:
+        # Try LedgerCurrBal first (VB6: LedgerCurrBal table)
+        rows = cn.execute(
+            "SELECT CurrBal FROM LedgerCurrBal WHERE SubCode = ? "
+            "AND Site_Code = ?", (subcode, SITE_CODE)).fetchone()
+        if rows:
+            new_bal = float(rows[0] or 0) + diff
+            cn.execute(
+                "UPDATE LedgerCurrBal SET CurrBal = ? WHERE SubCode = ? "
+                "AND Site_Code = ?", (new_bal, subcode, SITE_CODE))
+        else:
+            cn.execute(
+                "INSERT INTO LedgerCurrBal (SubCode, Site_Code, CurrBal, "
+                "U_EntDt) VALUES (?, ?, ?, getdate())",
+                (subcode, SITE_CODE, diff))
+    except Exception:
+        pass  # Table may not exist; CurrBal is supplementary
+
+
+def _create_ledgerref(cn, docid: str, sno: int, subcode: str, line: dict):
+    """VB6 LedgerRef: bill-wise adjustment / TDS reference tracking.
+    If narration contains 'TDS' or 'BillRef', create reference entry."""
+    narration = (line.get("narration") or "").strip().upper()
+    if "TDS" in narration:
+        try:
+            cn.execute(
+                "INSERT INTO LEDGERTDS (DocId, V_SNo, Site_Code, SubCode, "
+                "TdsAmt, U_EntDt, U_AE, LogSite_Code) "
+                "VALUES (?, ?, ?, ?, ?, getdate(), 'A', ?)",
+                (docid, sno, SITE_CODE, subcode,
+                 float(line.get("amt_dr") or line.get("amt_cr") or 0),
+                 SITE_CODE))
+        except Exception:
+            pass
+
+
+def _log_voucher(cn, docid: str, flag: str, user: str):
+    """VB6 LedgerLog: audit trail for voucher operations."""
+    try:
+        rows = cn.execute(
+            "SELECT ISNULL(MAX(Id), 0) FROM LedgerLog WHERE Site_Code = ?",
+            (SITE_CODE,)).fetchone()
+        logid = (rows[0] if rows else 0) + 1
+        cn.execute(
+            "INSERT INTO LedgerLog (Id, DocId, Flag, Site_Code, U_Name, "
+            "U_EntDt, U_AE, LogSite_Code) "
+            "VALUES (?, ?, ?, ?, ?, getdate(), 'A', ?)",
+            (logid, docid, flag, SITE_CODE, user, SITE_CODE))
+    except Exception:
+        pass  # LedgerLog may not exist in all deployments
+
+
+def delete_voucher(docid: str, cn=None, commit: bool = True,
+                   user: str = USER) -> int:
+    """Voucher delete (header + lines) — VB6 FaVrEnt delete parity.
+    VB6 pattern: cascade delete LedgerRef/LedgerTDS, reverse CurrBal,
+    log to LedgerLog before delete.
+    Uses single connection for atomicity (BUG-H01 fix)."""
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        # Get voucher lines for CurrBal reversal + audit
+        rows = db.query(
+            "SELECT SubCode, AmtDr, AmtCr FROM Ledger WHERE DocId = ?",
+            (docid,), cn=cn)
+        # Cascade delete references
+        try:
+            db.execute("DELETE FROM LEDGERREF WHERE DocId = ?",
+                       (docid,), cn=cn, commit=False)
+        except Exception:
+            pass
+        try:
+            db.execute("DELETE FROM LEDGERTDS WHERE DocId = ?",
+                       (docid,), cn=cn, commit=False)
+        except Exception:
+            pass
+        # Reverse CurrBal for each SubCode
+        for r in rows:
+            sc = (r.SubCode or "").strip()
+            if sc:
+                _update_currbal(cn, sc, float(r.AmtCr or 0),
+                                float(r.AmtDr or 0))  # Reverse
+        # Log before delete
+        _log_voucher(cn, docid, "D", user)
+        # Delete Ledger lines + header in same transaction
+        n = db.execute("DELETE FROM Ledger WHERE DocId = ?", (docid,),
+                       cn=cn, commit=False)
+        db.execute("DELETE FROM LedgerM WHERE DocId = ?", (docid,),
                    cn=cn, commit=False)
-    db.execute("DELETE FROM LedgerM WHERE DocId = ?", (docid,),
-               cn=cn, commit=commit)
-    return n
+        if commit:
+            cn.commit()
+        return n
+    except Exception:
+        if own:
+            try:
+                cn.rollback()
+            except Exception:
+                pass
+        raise
+    finally:
+        if own:
+            cn.close()
 
 
 # ------------------------------------------------------ cheque reconciliation

@@ -145,17 +145,15 @@ def do_checkout(folio: int, user: str = USER, cn=None,
     if not rows:
         raise ValueError(f"Folio #{folio} checked-out ya room row missing hai")
 
-    # Validate checkout type from Enviro (VB6 FdCheckOut.frm:3202)
+# Validate checkout type from Enviro (VB6 FdCheckOut.frm:3202)
     checkout_type = _get_checkout_type(cn=cn)
     bal = folio_balance(folio, cn=cn, vprefix=vprefix)
 
+    # VB6 FdCheckOut.frm:3202 — checkout blocks while guest balance != 0
+    # ONLY for "Strict" type. "Standard" type allows non-zero balance
+    # (Settlement is the separate fdReSetlement flow).
     if checkout_type == "Strict" and abs(bal["balance"]) > 0.005:
         raise ValueError(f"Checkout type '{checkout_type}' requires zero balance")
-
-    # VB6 FdCheckOut.frm:3202 — checkout blocks while guest balance != 0.
-    # (Settlement is the separate fdReSetlement flow.)
-    if abs(bal["balance"]) > 0.005:
-        raise ValueError("Guest Balance is Not Zero")
 
     own = cn is None
     cn_use = cn or db.connect()
