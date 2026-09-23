@@ -994,16 +994,11 @@ def _form_registry() -> dict[str, callable]:
         "Stock Issue": (lambda w: stiss_ui.open_stock_issue(w)) if stiss_ui else _coming_soon("Stock Issue"),
         "Stock Receive": (lambda w: strec_ui.open_stock_receive(w)) if strec_ui else _coming_soon("Stock Receive"),
         "Stock Adjustment": (lambda w: stadj_ui.open_stock_adjust(w)) if stadj_ui else _coming_soon("Stock Adjustment"),
-        "Purchase Register": (lambda w: _inv.open_inv(w)) if _inv else None,
-        "Stock Summary": (lambda w: _inv.open_inv(w)) if _inv else None,
-        "Stock Register": (lambda w: _inv.open_inv(w)) if _inv else None,
         # P5-b Reports (PDF):
         "Reservation Status Report": _open_res_report("arrival"),
         "Reservation Status": _open_res_report("arrival"),
         "Reservation Status Arrival": _open_res_report("arrival"),
         "Reservation Status In-House": _open_res_report("inhouse"),
-        # Godown master (Inventory master):
-        "Godown Master": (lambda w: _inv.open_godown(w)) if _inv else None,
         # P4-b Folio/Check-Out (folio_ui - FolioLog + Amend views):
         "Folio Log": (lambda w: folui.open_folio(w)) if folui else None,
         "Amend Departure": (lambda w: folui.open_folio(w)) if folui else None,
@@ -1034,7 +1029,6 @@ def _form_registry() -> dict[str, callable]:
         "Call Codes Master": (lambda w: epabx.open_callcode(w)) if epabx else None,
         "Designation Master": (lambda w: hr.open_desig(w)) if hr else None,
         # Naye modules (Scheme/HappyHours/TDS)
-        "Scheme Master": (lambda w: stu.open_scheme(w)) if stu else None,
         "Happy Hours": (lambda w: stu.open_happyhours(w)) if stu else None,
         "Happy Hours [ Free Items ]": (lambda w: stu.open_happyhours(w)) if stu else None,
         "T.D.S. Category": (lambda w: stu.open_tdscat(w)) if stu else None,
@@ -1218,7 +1212,6 @@ def _form_registry() -> dict[str, callable]:
         "Tally Export(XML)": (lambda w: tally_ui.open_tally_export(w)) if tally_ui else _coming_soon("Tally Export(XML)"),
         # Misc sub-forms (Opening Stock, Sundry Master, Restaurant Master)
         "Opening Stock": (lambda w: misc_ui.open_opening_stock(w)) if misc_ui else _coming_soon("Opening Stock"),
-        "Sundry Master": (lambda w: misc_ui.open_sundry_master(w)) if misc_ui else _coming_soon("Sundry Master"),
         "Restaurant Master": (lambda w: misc_ui.open_restaurant_master(w)) if misc_ui else _coming_soon("Restaurant Master"),
         # Kitchen Closing Stock (VB6 kClStk port — KClStk table live hai)
         "Kitchen Closing Stock": (lambda w: kclstk_ui.open_kitchen_closing_stock(w)) if kclstk_ui else _coming_soon("Kitchen Closing Stock"),
