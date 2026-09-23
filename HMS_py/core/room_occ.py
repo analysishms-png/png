@@ -7,7 +7,7 @@ from __future__ import annotations
 from HMS_py.core import db
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
-USER = "PYADMIN"
+USER = db.get_user()
 TABLE_PRIMARY = "RoomOcc"
 
 SELECT_COLS = (
@@ -63,7 +63,7 @@ def _validate(rec: dict):
 
 def list_all(cn=None, limit=500) -> list[dict]:
     rows = db.query(
-        f"SELECT TOP {limit} {SELECT_COLS} FROM RoomOcc "
+        f"SELECT TOP {int(limit)} {SELECT_COLS} FROM RoomOcc "
         "WHERE Site_Code = ? AND ChkOutDate IS NULL "
         "ORDER BY RoomNo",
         (SITE_CODE,), cn=cn)
@@ -89,7 +89,7 @@ def get_by_room(roomno: str, site: str = SITE_CODE,
 def list_occupied(site: str = SITE_CODE, cn=None,
                   limit=500) -> list[dict]:
     rows = db.query(
-        f"SELECT TOP {limit} {SELECT_COLS} FROM RoomOcc "
+        f"SELECT TOP {int(limit)} {SELECT_COLS} FROM RoomOcc "
         "WHERE Site_Code = ? AND ChkOutDate IS NULL "
         "ORDER BY RoomNo",
         (site,), cn=cn)
@@ -99,7 +99,7 @@ def list_occupied(site: str = SITE_CODE, cn=None,
 def search(term: str, site: str = SITE_CODE, cn=None,
            limit=100) -> list[dict]:
     rows = db.query(
-        f"SELECT TOP {limit} {SELECT_COLS} FROM RoomOcc "
+        f"SELECT TOP {int(limit)} {SELECT_COLS} FROM RoomOcc "
         "WHERE Site_Code = ? AND (RoomNo LIKE ? OR GuestProf LIKE ? OR "
         "DocId LIKE ?) ORDER BY RoomNo",
         (site, f"%{term}%", f"%{term}%", f"%{term}%"), cn=cn)
@@ -120,7 +120,7 @@ def insert(rec: dict, cn=None, commit: bool = True,
         "DepTime, ChkOutDate, ChkOutTime, Type, U_Name, U_EntDt, U_AE, "
         "LogSite_Code) "
         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
-        "NULL, NULL, '', ?, ?, getdate(), 'A', ?)",
+        "NULL, NULL, 'I', ?, getdate(), 'A', ?)",
         (rec.get("docid", ""), sno, rec.get("folio", 0),
          rec.get("vtype", "CHK"), site, rec.get("vprefix", "2026"),
          rec.get("guestprof", ""), rec.get("roomcat", ""),
@@ -139,7 +139,7 @@ def checkout(docid: str, user: str = USER, cn=None,
     from datetime import datetime
     db.execute(
         "UPDATE RoomOcc SET ChkOutDate = ?, ChkOutTime = ?, "
-        "U_Name = ?, U_EntDt = getdate(), U_AE = 'E', "
+        "Type = 'O', U_Name = ?, U_EntDt = getdate(), U_AE = 'E', "
         "UserchkoutDate = getdate(), ChkoutUser = ? "
         "WHERE DocId = ?",
         (datetime.now().date(), datetime.now().strftime("%H:%M"),
@@ -201,3 +201,80 @@ class RoomOccAPI:
 
     def delete(self, docid, cn=None, commit=True):
         return delete(docid, cn=cn, commit=commit)
+
+
+
+# ============================================================
+# Phase B: REAL availability - Booking (Confirm/cancel aware) +
+# RoomOcc (in-house) + RoomMast.RoomStat (D=dirty, M=blocked) +
+# RoomBLockOut. Koi hardcoded "sab available" nahi.
+# ============================================================
+def room_availability(date_from, date_to=None, cn=None,
+                      site: str = SITE_CODE) -> dict:
+    """Real availability - Booking (Confirm/cancel aware) + RoomOcc (in-house)
+    + RoomMast.RoomStat (D=dirty, M=blocked) + RoomBLockOut.
+    Koi hardcoded "sab available" nahi.
+    """
+    from datetime import datetime
+    # Validate date range
+    if isinstance(date_from, str):
+        date_from = datetime.strptime(date_from, "%Y-%m-%d").date()
+    if isinstance(date_to, str):
+        date_to = datetime.strptime(date_to, "%Y-%m-%d").date()
+    if date_to is None:
+        date_to = date_from
+    if date_from > date_to:
+        date_from, date_to = date_to, date_from
+    
+    rooms = db.query(
+        "SELECT RTRIM(Code) AS Code, RTRIM(Name) AS Name, RTRIM(RoomCat) "
+        "AS RoomCat, RTRIM(RoomStat) AS RoomStat FROM RoomMast "
+        "WHERE RTRIM(ISNULL(Type, 'RO')) = 'RO' AND Site_Code = ?",
+        (site,), cn=cn)
+    
+    if not rooms:
+        return {"date": str(date_from), "total_rooms": 0,
+                "available": [], "occupied": [], "dirty": [],
+                "blocked": [], "reserved": [], "per_category": {}}
+    
+    occupied = {str(r[0]) for r in db.query(
+        "SELECT DISTINCT RTRIM(RoomNo) FROM RoomOcc WHERE Site_Code = ? "
+        "AND ChkOutDate IS NULL AND RoomNo IS NOT NULL", (site,), cn=cn)}
+    booked = {str(r[0]) for r in db.query(
+        "SELECT DISTINCT RTRIM(b.RoomNo) FROM Booking b "
+        "WHERE b.Site_Code = ? AND ISNULL(b.Cancel, 'N') <> 'Y' "
+        "AND ISNULL(b.RoomNo, '') <> '' AND b.DepDate > ? AND ? >= b.ArrDate",
+        (site, date_from, date_to), cn=cn)}
+    # RoomBLockOut: sirf VALID dated blocks (NULL ToDate wali 50 legacy
+    # rows block nahi karti — live data: 9 dated (sab expired), 50 NULL).
+    blocked = {str(r[0]) for r in db.query(
+        "SELECT DISTINCT RTRIM(b.RoomCode) FROM RoomBLockOut b "
+        "WHERE b.RoomCode IS NOT NULL AND b.FromDate IS NOT NULL "
+        "AND b.ToDate IS NOT NULL AND b.FromDate <= b.ToDate "
+        "AND b.ToDate >= ? AND b.FromDate <= ?",
+        (date_from, date_to), cn=cn)}
+    available, occ_list, dirty, blocked_list = [], [], [], []
+    for r in rooms:
+        code = str(r.Code or "").strip()
+        stat = str(r.RoomStat or "").strip().upper()
+        if code in occupied:
+            occ_list.append(code)
+        elif code in blocked:
+            blocked_list.append(code)
+        elif code in booked:
+            continue  # reserved -> available pool me nahi
+        elif stat == "D":
+            dirty.append(code)
+        else:
+            available.append(code)
+    cats = {}
+    for r in rooms:
+        cats.setdefault(str(r.RoomCat or ""), 0)
+    for r in rooms:
+        code = str(r.Code or "").strip()
+        if code in available:
+            cats[str(r.RoomCat or "")] = cats.get(str(r.RoomCat or ""), 0) + 1
+    return {"date": str(date_from), "total_rooms": len(rooms),
+            "available": available, "occupied": occ_list, "dirty": dirty,
+            "blocked": blocked_list, "reserved": sorted(booked),
+            "per_category": cats}

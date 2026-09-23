@@ -23,7 +23,7 @@ import datetime
 from HMS_py.core import db
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
-USER = "PYADMIN"
+USER = db.get_user()
 
 
 # ============================================================
@@ -69,7 +69,7 @@ def ledgeradj_list(cn=None, limit: int = 500) -> list[dict]:
     elif limit > 10000:
         limit = 10000
     rows = db.query(
-        f"SELECT TOP {limit} DocId1, V_SNo1, DocId2, V_SNo2, Cr, "
+        "SELECT TOP " + str(limit) + " DocId1, V_SNo1, DocId2, V_SNo2, Cr, "
         "SubCode, Name, AgRefNo, U_Name, U_EntDt, U_AE "
         "FROM LEDGERADJ ORDER BY DocId1", cn=cn)
     return [_map_ledgeradj(r) for r in rows]
@@ -147,7 +147,7 @@ def ledgerref_list(cn=None, limit: int = 500) -> list[dict]:
     elif limit > 10000:
         limit = 10000
     rows = db.query(
-        f"SELECT TOP {limit} Id, DocId, V_SNo, Dr, Cr, SubCode, "
+        "SELECT TOP " + str(limit) + " Id, DocId, V_SNo, Dr, Cr, SubCode, "
         "U_Name, U_EntDt, U_AE, DueDate, AgRefNo, AgRefType, V_Date "
         "FROM LEDGERREF ORDER BY Id", cn=cn)
     return [_map_ledgerref(r) for r in rows]
@@ -169,7 +169,7 @@ def ledgerref_search(subcode: str, cn=None, limit: int = 200) -> list[dict]:
     elif limit > 10000:
         limit = 10000
     rows = db.query(
-        f"SELECT TOP {limit} Id, DocId, V_SNo, Dr, Cr, SubCode, "
+        "SELECT TOP " + str(limit) + " Id, DocId, V_SNo, Dr, Cr, SubCode, "
         "U_Name, U_EntDt, U_AE, DueDate, AgRefNo, AgRefType, V_Date "
         "FROM LEDGERREF WHERE SubCode = ? ORDER BY V_Date DESC",
         (subcode,), cn=cn)
@@ -241,7 +241,7 @@ def ledgertds_list(cn=None, limit: int = 500) -> list[dict]:
     elif limit > 10000:
         limit = 10000
     rows = db.query(
-        f"SELECT TOP {limit} DocId, V_SNo, Site_Code, v_Prefix, V_DATE, "
+        "SELECT TOP " + str(limit) + " DocId, V_SNo, Site_Code, v_Prefix, V_DATE, "
         "TDSCode, TDSDrCode, TDSYN, ONAMT, TDS, TDSAMT, TDSPOST, "
         "TDSDocId, TDSV_SNo, U_Name, U_EntDt, U_AE "
         "FROM LEDGERTDS ORDER BY DocId, V_SNo", cn=cn)
@@ -309,7 +309,7 @@ def subgroupcurrbal_list(cn=None, limit: int = 500) -> list[dict]:
     elif limit > 10000:
         limit = 10000
     rows = db.query(
-        f"SELECT TOP {limit} LogSite_Code, SubCode, V_Date, GroupCode, "
+        "SELECT TOP " + str(limit) + " LogSite_Code, SubCode, V_Date, GroupCode, "
         "Curr_Bal, Site_Code FROM SUBGROUPCURRBAL ORDER BY SubCode", cn=cn)
     return [_map_subgroupcurrbal(r) for r in rows]
 
@@ -382,7 +382,7 @@ def acgroupcurrbal_list(cn=None, limit: int = 500) -> list[dict]:
     elif limit > 10000:
         limit = 10000
     rows = db.query(
-        f"SELECT TOP {limit} LogSite_Code, GroupCode, V_Date, "
+        "SELECT TOP " + str(limit) + " LogSite_Code, GroupCode, V_Date, "
         "Curr_Bal, Site_Code FROM ACGROUPCURRBAL ORDER BY GroupCode", cn=cn)
     return [_map_acgroupcurrbal(r) for r in rows]
 
@@ -463,7 +463,7 @@ def budget_list(cn=None, limit: int = 500) -> list[dict]:
     elif limit > 10000:
         limit = 10000
     rows = db.query(
-        f"SELECT TOP {limit} FromDate, ToDate, SrNo, AcCode, AcGroupCode, "
+        "SELECT TOP " + str(limit) + " FromDate, ToDate, SrNo, AcCode, AcGroupCode, "
         "BudgetDRAmt, BudgetCRAmt, U_Name, U_EntDt, U_AE "
         "FROM Budget ORDER BY FromDate, SrNo", cn=cn)
     return [_map_budget(r) for r in rows]
@@ -547,7 +547,7 @@ def vprefix_list(cn=None, limit: int = 500) -> list[dict]:
     elif limit > 10000:
         limit = 10000
     rows = db.query(
-        f"SELECT TOP {limit} V_Type, Date_From, Date_To, Prefix, "
+        "SELECT TOP " + str(limit) + " V_Type, Date_From, Date_To, Prefix, "
         "Start_Srl_No, Site_Code, U_EntDt, LogSite_Code, U_Name, U_AE "
         "FROM VOUCHER_Prefix ORDER BY V_Type, Date_From", cn=cn)
     return [_map_vprefix(r) for r in rows]
@@ -622,7 +622,7 @@ def vinclude_list(cn=None, limit: int = 500) -> list[dict]:
     elif limit > 10000:
         limit = 10000
     rows = db.query(
-        f"SELECT TOP {limit} V_Type, GroupCode, Dr, Cr, Site_Code, "
+        "SELECT TOP " + str(limit) + " V_Type, GroupCode, Dr, Cr, Site_Code, "
         "U_EntDt, U_AE, LogSite_Code, U_Name "
         "FROM Voucher_Include ORDER BY V_Type, GroupCode", cn=cn)
     return [_map_vinclude(r) for r in rows]
@@ -687,7 +687,7 @@ def vexclude_list(cn=None, limit: int = 500) -> list[dict]:
     elif limit > 10000:
         limit = 10000
     rows = db.query(
-        f"SELECT TOP {limit} V_Type, GroupCode, Dr, Cr, Site_Code, "
+        "SELECT TOP " + str(limit) + " V_Type, GroupCode, Dr, Cr, Site_Code, "
         "U_EntDt, U_AE, LogSite_Code, U_Name "
         "FROM Voucher_Exclude ORDER BY V_Type, GroupCode", cn=cn)
     return [_map_vexclude(r) for r in rows]
@@ -754,7 +754,7 @@ def lastvou_list(cn=None, limit: int = 500) -> list[dict]:
     elif limit > 10000:
         limit = 10000
     rows = db.query(
-        f"SELECT TOP {limit} user_name, V_Type, Last_Ent_Date, DocId, "
+        "SELECT TOP " + str(limit) + " user_name, V_Type, Last_Ent_Date, DocId, "
         "U_Name, U_EntDt, U_AE, v_Prefix, Site_Code, LogSite_Code "
         "FROM LastVoucher ORDER BY user_name, V_Type", cn=cn)
     return [_map_lastvou(r) for r in rows]
@@ -855,7 +855,7 @@ def ledgerlog_list(cn=None, limit: int = 500) -> list[dict]:
     elif limit > 10000:
         limit = 10000
     rows = db.query(
-        f"SELECT TOP {limit} DocId, V_SNo, V_Type, V_No, v_Prefix, "
+        "SELECT TOP " + str(limit) + " DocId, V_SNo, V_Type, V_No, v_Prefix, "
         "Site_Code, V_Date, SubCode, AmtCr, AmtDr, ContraSub, "
         "Chq_No, Chq_Date, Clg_Date, Narration, U_Name, U_EntDt, U_AE, "
         "SQty, Pqty, AgRefNo, VTime, Mth_Year, emp_code, GroupCode, "
@@ -892,9 +892,9 @@ def ledgerlog_insert(rec: dict, cn=None, commit: bool = True) -> int:
          float(rec.get("amt_cr") or 0), float(rec.get("amt_dr") or 0),
          rec.get("contra_sub", ""), rec.get("chq_no", ""),
          rec.get("chq_date"), rec.get("clg_date"),
-         rec.get("narration", ""),
+         rec.get("narration", ""), rec.get("u_name") or USER,
          float(rec.get("sqty") or 0), float(rec.get("pqty") or 0),
-         rec.get("agrefno", ""),
+         rec.get("agrefno", ""), rec.get("vtime", "00:00"),
          rec.get("mth_year", ""), rec.get("emp_code", ""),
          rec.get("groupcode", ""), rec.get("groupnature", ""),
          SITE_CODE, rec.get("t_imp_dt"), rec.get("seqno", 0)),
@@ -943,7 +943,7 @@ def ledgermlog_list(cn=None, limit: int = 500) -> list[dict]:
     elif limit > 10000:
         limit = 10000
     rows = db.query(
-        f"SELECT TOP {limit} DocId, V_Type, v_Prefix, V_No, Site_Code, "
+        "SELECT TOP " + str(limit) + " DocId, V_Type, v_Prefix, V_No, Site_Code, "
         "V_Date, Narration, U_Name, U_EntDt, U_AE, Trf_Date, "
         "LogSite_Code, SeqNo FROM LedgerMLog ORDER BY DocId", cn=cn)
     return [_map_ledgermlog(r) for r in rows]
@@ -1196,7 +1196,7 @@ def _validate_ledger(rec: dict):
 
 def ledger_list(cn=None, limit: int = 500) -> list[dict]:
     rows = db.query(
-        f"SELECT TOP {limit} DocId, V_SNo, V_Type, V_No, v_Prefix, "
+        "SELECT TOP " + str(limit) + " DocId, V_SNo, V_Type, V_No, v_Prefix, "
         "Site_Code, V_Date, SubCode, AmtDr, AmtCr, ContraSub, "
         "Narration, Chq_No, Chq_Date, Clg_Date, AgRefNo, "
         "GroupCode, GroupNature, U_Name, U_EntDt, U_AE, LogSite_Code "
@@ -1244,7 +1244,7 @@ def ledger_delete(docid: str, sno: int, cn=None, commit: bool = True) -> int:
 
 def ledger_by_subcode(subcode: str, cn=None, limit: int = 500) -> list[dict]:
     rows = db.query(
-        f"SELECT TOP {limit} DocId, V_SNo, V_Type, V_No, v_Prefix, "
+        "SELECT TOP " + str(limit) + " DocId, V_SNo, V_Type, V_No, v_Prefix, "
         "Site_Code, V_Date, SubCode, AmtDr, AmtCr, ContraSub, "
         "Narration, Chq_No, Chq_Date, Clg_Date, AgRefNo, "
         "GroupCode, GroupNature, U_Name, U_EntDt, U_AE, LogSite_Code "
@@ -1302,7 +1302,7 @@ def _map_ledgerm(r) -> dict:
 
 def ledgerm_list(cn=None, limit: int = 500) -> list[dict]:
     rows = db.query(
-        f"SELECT TOP {limit} DocId, V_Type, v_Prefix, V_No, Site_Code, "
+        "SELECT TOP " + str(limit) + " DocId, V_Type, v_Prefix, V_No, Site_Code, "
         "V_Date, Narration, U_Name, U_EntDt, U_AE, LogSite_Code "
         "FROM LEDGERM ORDER BY V_Date DESC, DocId", cn=cn)
     return [_map_ledgerm(r) for r in rows]
@@ -1342,63 +1342,79 @@ def ledgerm_delete(docid: str, cn=None, commit: bool = True) -> int:
 # After posting, refresh SUBGROUPCURRBAL and ACGROUPCURRBAL
 # ============================================================
 def refresh_currbal(subcode: str, cn=None) -> dict:
-    rows = db.query(
-        "SELECT SUM(AmtDr) AS dr, SUM(AmtCr) AS cr "
-        "FROM LEDGER WHERE SubCode = ?",
-        (subcode,), cn=cn)
-    if rows:
-        dr = float(rows[0].dr or 0)
-        cr = float(rows[0].cr or 0)
-    else:
-        dr, cr = 0.0, 0.0
-    net = dr - cr
-
-    existing = subgroupcurrbal_get(subcode, cn=cn)
-    if existing:
-        db.execute(
-            "UPDATE SUBGROUPCURRBAL SET Curr_Bal = ?, V_Date = getdate() "
-            "WHERE SubCode = ? AND LogSite_Code = ?",
-            (net, subcode, SITE_CODE), cn=cn, commit=False)
-    else:
-        db.execute(
-            "INSERT INTO SUBGROUPCURRBAL (LogSite_Code, SubCode, V_Date, "
-            "GroupCode, Curr_Bal, Site_Code) VALUES (?, ?, getdate(), '', ?, ?)",
-            (SITE_CODE, subcode, net, SITE_CODE), cn=cn, commit=False)
-
-    sg_rows = db.query(
-        "SELECT GroupCode FROM SubGroup WHERE SubCode = ?", (subcode,), cn=cn)
-    groupcode = sg_rows[0].GroupCode if sg_rows else ""
-
-    if groupcode:
-        grp_rows = db.query(
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        rows = db.query(
             "SELECT SUM(AmtDr) AS dr, SUM(AmtCr) AS cr "
-            "FROM LEDGER L INNER JOIN SubGroup S ON L.SubCode = S.SubCode "
-            "WHERE S.GroupCode = ?",
-            (groupcode,), cn=cn)
-        if grp_rows:
-            g_dr = float(grp_rows[0].dr or 0)
-            g_cr = float(grp_rows[0].cr or 0)
+            "FROM LEDGER WHERE SubCode = ?",
+            (subcode,), cn=cn)
+        if rows:
+            dr = float(rows[0].dr or 0)
+            cr = float(rows[0].cr or 0)
         else:
-            g_dr, g_cr = 0.0, 0.0
-        g_net = g_dr - g_cr
+            dr, cr = 0.0, 0.0
+        net = dr - cr
 
-        grp_exist = acgroupcurrbal_get(groupcode, cn=cn)
-        if grp_exist:
+        existing = subgroupcurrbal_get(subcode, cn=cn)
+        if existing:
             db.execute(
-                "UPDATE ACGROUPCURRBAL SET Curr_Bal = ?, V_Date = getdate() "
-                "WHERE GroupCode = ? AND LogSite_Code = ?",
-                (g_net, groupcode, SITE_CODE), cn=cn, commit=False)
+                "UPDATE SUBGROUPCURRBAL SET Curr_Bal = ?, V_Date = getdate() "
+                "WHERE SubCode = ? AND LogSite_Code = ?",
+                (net, subcode, SITE_CODE), cn=cn, commit=False)
         else:
             db.execute(
-                "INSERT INTO ACGROUPCURRBAL (LogSite_Code, GroupCode, V_Date, "
-                "Curr_Bal, Site_Code) VALUES (?, ?, getdate(), ?, ?)",
-                (SITE_CODE, groupcode, g_net, SITE_CODE), cn=cn, commit=False)
+                "INSERT INTO SUBGROUPCURRBAL (LogSite_Code, SubCode, V_Date, "
+                "GroupCode, Curr_Bal, Site_Code) VALUES (?, ?, getdate(), '', ?, ?)",
+                (SITE_CODE, subcode, net, SITE_CODE), cn=cn, commit=False)
 
-    if cn is None:
-        db.commit()
+        sg_rows = db.query(
+            "SELECT GroupCode FROM SubGroup WHERE SubCode = ?", (subcode,), cn=cn)
+        groupcode = sg_rows[0].GroupCode if sg_rows else ""
 
-    return {"subcode": subcode, "dr": dr, "cr": cr, "net": net,
-            "groupcode": groupcode}
+        if groupcode:
+            grp_rows = db.query(
+                "SELECT SUM(AmtDr) AS dr, SUM(AmtCr) AS cr "
+                "FROM LEDGER L INNER JOIN SubGroup S ON L.SubCode = S.SubCode "
+                "WHERE S.GroupCode = ?",
+                (groupcode,), cn=cn)
+            if grp_rows:
+                g_dr = float(grp_rows[0].dr or 0)
+                g_cr = float(grp_rows[0].cr or 0)
+            else:
+                g_dr, g_cr = 0.0, 0.0
+            g_net = g_dr - g_cr
+
+            grp_exist = acgroupcurrbal_get(groupcode, cn=cn)
+            if grp_exist:
+                db.execute(
+                    "UPDATE ACGROUPCURRBAL SET Curr_Bal = ?, V_Date = getdate() "
+                    "WHERE GroupCode = ? AND LogSite_Code = ?",
+                    (g_net, groupcode, SITE_CODE), cn=cn, commit=False)
+            else:
+                db.execute(
+                    "INSERT INTO ACGROUPCURRBAL (LogSite_Code, GroupCode, V_Date, "
+                    "Curr_Bal, Site_Code) VALUES (?, ?, getdate(), ?, ?)",
+                    (SITE_CODE, groupcode, g_net, SITE_CODE), cn=cn, commit=False)
+
+        if own:
+            cn.commit()
+
+        return {"subcode": subcode, "dr": dr, "cr": cr, "net": net,
+                "groupcode": groupcode}
+    except Exception:
+        if own:
+            try:
+                cn.rollback()
+            except Exception:
+                pass
+        raise
+    finally:
+        if own:
+            try:
+                cn.close()
+            except Exception:
+                pass
 
 
 def refresh_all_currbal(cn=None) -> int:

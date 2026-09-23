@@ -1,0 +1,37 @@
+USER: SA
+SIDEBAR: Finance | Main Setup | Reservation | Front Office | House Keeping | Inventory | Point Of Sale | Banquet | Night Audit | HR/Payroll | EXTRAs | EPABX | Messaging | Members Mgmt
+
+Finance -> Transaction(6/6), Reports(25/27), Display(5/5)
+Main Setup -> General Setup(6/6), Front Office(12/12), Point of Sale(18/19), Members Mgmt(4/5), Banquet(8/9), Inventory(8/10), HR/Payroll(4/5), Finance(13/13), Utility(25/26), EPABX(5/6), Smart Card(3/3)
+Reservation -> Operations(9/9), Reservation Status Report(7/7), Advance Recd. Report(3/3), M.I.S.(3/4)
+Front Office -> Operations(15/15), Reports(24/26), Tourism Forms(9/10), M.I.S.(12/14), Tax Reports(2/2)
+House Keeping -> Operations(6/7), Reports(6/6), LAUNDRY(0/2), Setup(1/1), Changes Department(1/1)
+Inventory -> Operations(11/11), Look Ups(3/3), Reports(19/19), Tax Reports(6/6)
+Point Of Sale -> Point Of Sale(1/1), POS Reports(23/23), POS M.I.S.(10/10), Tax Reports(4/4), ROOM SERVICE(8/8), Hight Way point(8/8), Garden Aroma(12/12), Hight Way point KOT(10/10), MOON TEA CAFE(7/8), ECOMERSE SALES(7/8), Stock Register(1/1), Stock Summary(1/1), Kitchen Stock Summary(1/1), Restaurant Change (1/1), POS Status(1/1), POS Operations(1/2)
+Banquet -> Operation(9/10), Reports(10/10), MIS(2/2), Tax Report(3/3), Setup(8/8)
+Night Audit -> Operation(5/5), Reports(13/14), Log(3/3), GST Reports(4/6), Tally Reports(1/1)
+HR/Payroll -> Operations(5/5), Reports(9/9)
+EXTRAs -> SMS(3/4), Smart Card(11/12), Data Transfer(3/3), Reward Points(3/4)
+EPABX -> Telephone Call Entry(1/1), Telephone Report(1/1)
+Messaging -> InBox(1/1), OutBox(1/1)
+Members Mgmt -> Operations(12/12), Reports(8/8)
+disabled leaves: 29
+USER: AMIR
+SIDEBAR: Finance | Main Setup | Reservation | Front Office | House Keeping | Inventory | Point Of Sale | Banquet | Night Audit | HR/Payroll
+
+Finance -> Transaction(5/5), Reports(15/15)
+Main Setup -> General Setup(6/6), Front Office(2/2), Point of Sale(5/5), Banquet(6/6), Inventory(5/6), HR/Payroll(3/3), Finance(10/10), Utility(9/9)
+Reservation -> Operations(9/9), Reservation Status Report(3/3), Advance Recd. Report(2/2), M.I.S.(3/4)
+Front Office -> Operations(12/12), Reports(18/20), Tourism Forms(9/10), M.I.S.(11/11), Tax Reports(2/2)
+House Keeping -> Operations(5/5)
+Inventory -> Operations(9/9), Look Ups(3/3), Reports(13/13), Tax Reports(6/6)
+Point Of Sale -> POS Reports(13/13), POS M.I.S.(9/9), Tax Reports(4/4), ROOM SERVICE(5/5), Hight Way point(3/3), Garden Aroma(10/10)
+Banquet -> Operation(9/9), Reports(10/10), MIS(2/2), Tax Report(3/3)
+Night Audit -> Operation(5/5), Reports(11/11), Log(2/2), GST Reports(4/6)
+HR/Payroll -> Operations(5/6), Reports(9/9)
+disabled leaves: 8
+USER: kot
+SIDEBAR: Point Of Sale
+
+Point Of Sale -> Garden Aroma(2/2)
+disabled leaves: 0

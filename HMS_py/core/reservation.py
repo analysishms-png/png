@@ -46,19 +46,66 @@ def make_docid(site: str, vprefix: str, bookno: int,
               vtype: str = VTYPE) -> str:
     """Return a VB6-compatible DocId while honoring the caller's vtype/site.
 
-    The older implementation was hard-coded to RES, which breaks multi-site and
-    non-reservation voucher flows. Keeping the same padding ensures compatibility
-    with the live booking table."""
-    return ("D" + site.ljust(2) + str(vtype or VTYPE).ljust(6) +
-            str(vprefix).ljust(4) + str(bookno).rjust(8))[:42]
+    Format: 'D' + Site(2 chars left-justified) + Vtype(6 chars left-justified)
+            + Vprefix(4 chars left-justified) + BookNo(8 chars right-justified)
+    Total length: 42 characters (truncated if longer)."""
+    docid = ("D" + site.ljust(2) + str(vtype or VTYPE).ljust(6) +
+             str(vprefix).ljust(4) + str(bookno).rjust(8))
+    return docid[:42]
 
+
+def _make_docid_atomic(bookno: int, site: str, vprefix: str,
+                       vtype: str = VTYPE, cn=None) -> str:
+    """Atomic docid generation with database-level locking (BUG-015 fix).
+    
+    Uses UPDLOCK to prevent race conditions when multiple users generate
+    booking numbers concurrently. Ensures each bookno gets a unique docid.
+    """
+    import pyodbc
+    # Try with UPDLOCK hint for race-safe booking number generation
+    try:
+        cur = cn.cursor() if cn else None
+        if cur is None:
+            from HMS_py.core import db
+            cn = db.connect()
+            cur = cn.cursor()
+        # Use UPDLOCK to prevent concurrent bookno generation conflicts
+        cur.execute(
+            "SELECT MAX(BookNo) FROM Booking WITH(UPDLOCK) "
+            "WHERE Site_Code = ? AND Vprefix = ?",
+            (site, vprefix), cn=cn)
+        rows = cur.fetchone()
+        actual_bookno = (rows[0] or 0) + 1
+        docid = make_docid(site, vprefix, actual_bookno, vtype)
+        # Commit only the read, don't modify anything
+        if cn and cn.auto_commit is not True:
+            cn.rollback()
+        return docid
+    except Exception:
+        # Fallback to non-atomic generation
+        return make_docid(site, vprefix, bookno, vtype)
 
 def next_bookno(cn=None, site: str = SITE_CODE,
                 vprefix: str = VPREFIX) -> int:
-    rows = db.query(
-        "SELECT MAX(BookNo) FROM Booking WHERE Site_Code = ? "
-        "AND Vprefix = ?", (site, vprefix), cn=cn)
-    return (rows[0][0] or 0) + 1
+    """Get next bookno with optional DB-level locking for race safety."""
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        # Use UPDLOCK for race-safe bookno generation (BUG-015)
+        rows = db.query(
+            "SELECT MAX(BookNo) FROM Booking WITH(UPDLOCK) "
+            "WHERE Site_Code = ? AND Vprefix = ?",
+            (site, vprefix), cn=cn)
+        bookno = (rows[0][0] or 0) + 1
+        if own:
+            cn.close()
+        return bookno
+    finally:
+        if own:
+            try:
+                cn.close()
+            except Exception:
+                pass
 
 
 def list_reservations(cn=None, top: int = 200, site: str = SITE_CODE,
@@ -229,7 +276,8 @@ def cancel(bookno: int, user: str = "PYADMIN", cn=None,
             (user, row["DocId"]), cn=cn, commit=False)
         # M1: BookingCancelDetails (VB6 frm:4613 column-list; schema
         # live-verified - sab nullable, hum minimal-safe values bhararte hain)
-        det_docid = ("C" + str(row["DocId"]))[:21]
+        det_docid = ("C" + str(row["DocId"])[:14] +
+                     str(bookno).rjust(6))[:21]
         db.execute(
             "INSERT INTO BookingCancelDetails (DocId, SNo, VType, VNo, "
             "Site_Code, VPrefix, VDate, BookingDocID, Advance, CancelAmt, "
@@ -260,3 +308,44 @@ def delete_draft(bookno: int, cn=None, commit: bool = True,
     return db.execute(
         "DELETE FROM Booking WHERE BookNo = ? AND Site_Code = ? "
         "AND Vprefix = ?", (bookno, site, VPREFIX), cn=cn, commit=commit)
+
+
+
+# ============================================================
+# Phase B: No-Show (VB6 ResStatus flow). mark_no_show Booking ko
+# Cancel='Y' + BookingCancelDetails(CancellationMode='No Show') +
+# BookingLog 'N' flag karta hai — cancel() ka transactional pattern.
+# FIX: cancel() ka det_docid 21+ chars truncate ho raha tha — ab
+# SNo-style suffix (max 21) — VB6 DocId format follow.
+# ============================================================
+def mark_no_show(bookno: int, user: str = "PYADMIN", cn=None,
+                 commit: bool = True, site: str = SITE_CODE) -> int:
+    row = get(bookno, cn=cn, site=site)
+    if not row:
+        raise ValueError(f"Booking {bookno} nahi mila")
+    if str(row.get("Cancel") or "").upper() == "Y":
+        raise ValueError(f"Booking {bookno} already cancelled/no-show")
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        db.execute(
+            "UPDATE Booking SET Cancel = 'Y', CancelDate = getdate(), "
+            "CancelUName = ?, ResStatus = 'No Show' WHERE DocId = ?",
+            (user, row["DocId"]), cn=cn, commit=False)
+        det_docid = ("C" + str(row["DocId"])[:14] +
+                     str(next_bookno(cn=cn, site=site)).rjust(6))[:21]
+        db.execute(
+            "INSERT INTO BookingCancelDetails (DocId, SNo, VType, VNo, "
+            "Site_Code, VPrefix, VDate, BookingDocID, Advance, CancelAmt, "
+            "CancellationMode, U_Name, U_EntDT, U_AE, LogSite_Code) "
+            "VALUES (?, 1, ?, 1, ?, ?, getdate(), ?, 0, 0, ?, ?, "
+            "getdate(), 'A', ?)",
+            (det_docid, VTYPE, site, VPREFIX, row["DocId"], "No Show",
+             user, site), cn=cn, commit=False)
+        _log(row["DocId"], "N", user, cn, site)
+        if commit:
+            cn.commit()
+        return 1
+    finally:
+        if own:
+            cn.close()

@@ -1,21 +1,58 @@
-"""Tax Master CRUD (VB6: 'Tax Master' - Main Setup -> General Setup).
+"""Tax Master CRUD (VB6: FrmTaxMast - Main Setup -> General Setup).
 
-Schema: TaxStru table (multi-line tax structure).
-  Code varchar(6) PK, Name varchar(35), Sno smallint PK,
-  TaxCode varchar(6), Nature varchar(25), Rate float, Limit float,
-  CondApp varchar(25), CompOperator varchar(9),
-  TaxBeforeDisc varchar(3), Limit1 float,
-  Site_Code varchar(2), U_Name varchar(10), U_EntDt datetime,
-  U_AE varchar(1), LogSite_Code varchar(2).
-VB6 use: Tax structure building block (each tax slab = one TaxStru row).
+Schema: RevMast table filtered by FieldType='T' (NOT TaxStru, NOT TaxMast).
+  Code varchar(6) PK, Name varchar(50), ShortName varchar(5),
+  ACCode varchar(8) FK->SubGroup (ledger), PayableAc, UnregisteredAc,
+  Sundry varchar(6), RoundOff varchar(3), Nature varchar(20),
+  Active varchar(3), SysYN varchar(1), TaxStru varchar(6),
+  Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code.
+VB6 FrmTaxMast.frm evidence:
+  SELECT ... FROM RevMast WHERE FieldType='T'
+  INSERT INTO RevMast(..., FieldType, ...) VALUES (..., 'T', ...)
+  SYSTEM ENTRY (SysYN='Y') can't be deleted.
+Tax Structure lines live separately in TaxStru (see taxstru.py).
 """
 from __future__ import annotations
 
 from HMS_py.core import db
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
-USER = "PYADMIN"
-LIMITS = {"code": 6, "name": 35, "taxcode": 6, "nature": 25}
+USER = db.get_user()
+LIMITS = {
+    "code": 6, "name": 50, "short": 5, "accode": 8, "payableac": 8,
+    "unregisteredac": 8, "sundry": 6, "roundoff": 3, "nature": 20,
+    "active": 3, "taxstru": 6,
+}
+SELECT_COLS = (
+    "Code, Name, ShortName, ACCode, PayableAc, UnregisteredAc, Sundry, "
+    "RoundOff, Nature, Active, TaxStru, SysYN"
+)
+
+
+def _map(r) -> dict:
+    try:
+        return {
+            "code": r.Code,
+            "name": (r.Name or "").strip(),
+            "short": (r.ShortName or "").strip(),
+            "accode": r.ACCode or "",
+            "payableac": r.PayableAc or "",
+            "unregisteredac": r.UnregisteredAc or "",
+            "sundry": r.Sundry or "",
+            "roundoff": r.RoundOff or "No",
+            "nature": r.Nature or "",
+            "active": r.Active or "Y",
+            "taxstru": r.TaxStru or "",
+            "sysyn": r.SysYN or "N",
+        }
+    except AttributeError:
+        c, n, sn, ac, pa, ua, su, ro, na, act, ts, sy = r
+        return {
+            "code": c, "name": (n or "").strip(), "short": (sn or "").strip(),
+            "accode": ac or "", "payableac": pa or "", "unregisteredac": ua or "",
+            "sundry": su or "", "roundoff": ro or "No", "nature": na or "",
+            "active": act or "Y", "taxstru": ts or "", "sysyn": sy or "N",
+        }
 
 
 def _validate(rec: dict):
@@ -27,88 +64,77 @@ def _validate(rec: dict):
         raise ValueError("Name zaroori hai")
     if len(rec["name"]) > LIMITS["name"]:
         raise ValueError(f"Name max {LIMITS['name']} chars")
+    if len(rec.get("short", "")) > LIMITS["short"]:
+        raise ValueError(f"ShortName max {LIMITS['short']} chars")
+    if len(rec.get("nature", "")) > LIMITS["nature"]:
+        raise ValueError(f"Nature max {LIMITS['nature']} chars")
 
 
 def list_all(cn=None) -> list[dict]:
+    """List tax masters (RevMast rows where FieldType='T')."""
     rows = db.query(
-        "SELECT Code, Name, Sno, TaxCode, Nature, Rate, Limit, "
-        "CondApp, CompOperator, TaxBeforeDisc, Limit1 "
-        "FROM TaxStru ORDER BY Code, Sno", cn=cn)
-    return [{"code": r.Code, "name": (r.Name or "").strip(),
-             "sno": r.Sno, "taxcode": r.TaxCode or "",
-             "nature": r.Nature or "", "rate": float(r.Rate or 0),
-             "limit": float(r.Limit or 0),
-             "cond_app": r.CondApp or "", "comp_op": r.CompOperator or "",
-             "tax_before_disc": r.TaxBeforeDisc or "",
-             "limit1": float(r.Limit1 or 0)}
-            for r in rows]
+        f"SELECT {SELECT_COLS} FROM RevMast "
+        "WHERE FieldType = ? ORDER BY Name",
+        ("T",), cn=cn)
+    return [_map(r) for r in rows]
 
 
-def list_codes(cn=None) -> list[dict]:
-    """List distinct tax structure codes."""
+def get(code: str, cn=None) -> dict | None:
     rows = db.query(
-        "SELECT Code, Name FROM TaxStru GROUP BY Code, Name ORDER BY Code",
-        cn=cn)
-    return [{"code": r[0], "name": (r[1] or "").strip()} for r in rows]
-
-
-def get(code: str, cn=None) -> list[dict]:
-    """Get all lines for a tax structure code."""
-    rows = db.query(
-        "SELECT Code, Name, Sno, TaxCode, Nature, Rate, Limit, "
-        "CondApp, CompOperator, TaxBeforeDisc, Limit1, "
-        "U_Name, U_EntDt, U_AE "
-        "FROM TaxStru WHERE Code = ? ORDER BY Sno",
-        (code,), cn=cn)
-    return [{"code": r[0], "name": (r[1] or "").strip(),
-             "sno": r[2], "taxcode": r[3] or "",
-             "nature": r[4] or "", "rate": float(r[5] or 0),
-             "limit": float(r[6] or 0),
-             "cond_app": r[7] or "", "comp_op": r[8] or "",
-             "tax_before_disc": r[9] or "",
-             "limit1": float(r[10] or 0),
-             "u_name": r[11] or "", "u_ae": r[13] or ""}
-            for r in rows]
+        f"SELECT {SELECT_COLS} FROM RevMast "
+        "WHERE Code = ? AND FieldType = ?",
+        (code, "T"), cn=cn)
+    return _map(rows[0]) if rows else None
 
 
 def exists(code: str, cn=None) -> bool:
     return bool(db.query(
-        "SELECT 1 FROM TaxStru WHERE Code = ?", (code,), cn=cn))
+        "SELECT 1 FROM RevMast WHERE Code = ? AND FieldType = ?",
+        (code, "T"), cn=cn))
 
 
-def insert(code: str, name: str, lines: list[dict],
-           cn=None, commit: bool = True) -> int:
-    """Insert a tax structure with multiple lines."""
-    _validate({"code": code, "name": name})
-    total = 0
-    for i, ln in enumerate(lines, 1):
-        total += db.execute(
-            "INSERT INTO TaxStru (Code, Name, Sno, TaxCode, Nature, Rate, "
-            "Limit, CondApp, CompOperator, TaxBeforeDisc, Limit1, "
-            "Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, getdate(), 'A', ?)",
-            (code, name, i, ln.get("taxcode", ""),
-             ln.get("nature", ""), float(ln.get("rate") or 0),
-             float(ln.get("limit") or 0), ln.get("cond_app", ""),
-             ln.get("comp_op", ""), ln.get("tax_before_disc", ""),
-             float(ln.get("limit1") or 0),
-             SITE_CODE, USER, SITE_CODE),
-            cn=cn, commit=False)
-    if commit:
-        cn.commit() if cn else None
-    return total
+def insert(rec: dict, cn=None, commit: bool = True) -> int:
+    _validate(rec)
+    db.require_absent("RevMast", "Code", rec["code"], "Tax Code")
+    return db.execute(
+        "INSERT INTO RevMast (Code, Name, ShortName, ACCode, PayableAc, "
+        "UnregisteredAc, Sundry, RoundOff, Nature, Active, TaxStru, "
+        "FieldType, Type, SysYN, Site_Code, U_Name, U_EntDt, U_AE, "
+        "LogSite_Code) "
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'T', 'Cr', 'N', ?, ?, "
+        "getdate(), 'A', ?)",
+        (rec["code"], rec["name"], rec.get("short", ""),
+         rec.get("accode", ""), rec.get("payableac", ""),
+         rec.get("unregisteredac", ""), rec.get("sundry", ""),
+         rec.get("roundoff", "No"), rec.get("nature", ""),
+         rec.get("active", "Y"), rec.get("taxstru", ""),
+         SITE_CODE, USER, SITE_CODE),
+        cn=cn, commit=commit)
 
 
-def update(code: str, name: str, lines: list[dict],
-           cn=None, commit: bool = True) -> int:
-    """Update tax structure: delete old lines, insert new."""
-    _validate({"code": code, "name": name})
-    db.execute("DELETE FROM TaxStru WHERE Code = ?", (code,),
-               cn=cn, commit=False)
-    return insert(code, name, lines, cn=cn, commit=commit)
+def update(code: str, rec: dict, cn=None, commit: bool = True) -> int:
+    _validate(rec)
+    return db.execute(
+        "UPDATE RevMast SET Name = ?, ShortName = ?, ACCode = ?, "
+        "PayableAc = ?, UnregisteredAc = ?, Sundry = ?, RoundOff = ?, "
+        "Nature = ?, Active = ?, TaxStru = ?, "
+        "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' "
+        "WHERE Code = ? AND FieldType = ?",
+        (rec["name"], rec.get("short", ""), rec.get("accode", ""),
+         rec.get("payableac", ""), rec.get("unregisteredac", ""),
+         rec.get("sundry", ""), rec.get("roundoff", "No"),
+         rec.get("nature", ""), rec.get("active", "Y"),
+         rec.get("taxstru", ""), USER, code, "T"),
+        cn=cn, commit=commit)
 
 
 def delete(code: str, cn=None, commit: bool = True) -> int:
+    """Delete tax master. System entries (SysYN='Y') protected (VB6)."""
+    rows = db.query(
+        "SELECT SysYN FROM RevMast WHERE Code = ? AND FieldType = ?",
+        (code, "T"), cn=cn)
+    if rows and (rows[0][0] or "").strip().upper() == "Y":
+        raise ValueError("SYSTEM ENTRY CAN'T BE DELETED")
     return db.execute(
-        "DELETE FROM TaxStru WHERE Code = ?", (code,),
-        cn=cn, commit=commit)
+        "DELETE FROM RevMast WHERE Code = ? AND FieldType = ?",
+        (code, "T"), cn=cn, commit=commit)

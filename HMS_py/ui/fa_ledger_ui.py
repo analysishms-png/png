@@ -8,7 +8,47 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor
-from HMS_py.core import fa_ledger_ops
+from HMS_py.core import ledger as _ledger_mod
+
+
+class _LedgerMasterBridge:
+    """fa_ledger_ops ke stale calls ko asli ledger-master (SubGroup,
+    HMS_py/core/ledger.py) par route karta hai. Keys UI-shaped
+    (AcCode/AcName/...) <-> core (code/name/...) translate hoti hain."""
+
+    @staticmethod
+    def list_ledger(cn=None):
+        rows = _ledger_mod.list_all(cn=cn, top=500)
+        return [{"AcCode": r["code"], "AcName": r["name"],
+                 "GroupCode": r["group"], "OpBalance": "",
+                 "DrCr": "", "Address": r["add1"]} for r in rows]
+
+    @staticmethod
+    def get_ledger(code, cn=None):
+        r = _ledger_mod.get(code, cn=cn)
+        if not r:
+            return None
+        return {"AcCode": r["code"], "AcName": r["name"],
+                "GroupCode": r["group"], "OpBalance": "",
+                "DrCr": "", "Address": r["add1"]}
+
+    @staticmethod
+    def insert_ledger(rec, cn=None, commit=True):
+        return _ledger_mod.insert({
+            "code": rec.get("AcCode", ""),
+            "name": rec.get("AcName", ""),
+            "group": rec.get("GroupCode", ""),
+            "add1": rec.get("Address", "")}, cn=cn, commit=commit)
+
+    @staticmethod
+    def update_ledger(code, rec, cn=None, commit=True):
+        return _ledger_mod.update(code, {
+            "name": rec.get("AcName", ""),
+            "group": rec.get("GroupCode", ""),
+            "add1": rec.get("Address", "")}, cn=cn, commit=commit)
+
+
+fa_ledger_ops = _LedgerMasterBridge()
 from HMS_py.ui import theme as _theme
 
 

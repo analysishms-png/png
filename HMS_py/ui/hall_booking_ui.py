@@ -271,7 +271,6 @@ class HallBookingDialog(QDialog):
                 QMessageBox.information(self, "Modify",
                                         "Pehle row select karo")
                 return
-            docid = self._selected_docid()
             try:
                 # Try to get vprefix from docid if available
                 rec = self._hb.get_hallbook(vno)

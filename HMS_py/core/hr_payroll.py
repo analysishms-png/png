@@ -3,7 +3,7 @@ from __future__ import annotations
 from HMS_py.core import db
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
-USER = "PYADMIN"
+USER = db.get_user()
 
 # === Salary ===
 def _map_salary(r) -> dict:
@@ -14,7 +14,7 @@ def _map_salary(r) -> dict:
 
 
 def list_salary(cn=None, limit=500):
-    rows = db.query(f"SELECT TOP {limit} * FROM Salary WHERE Site_Code = ? ORDER BY Emp_Code DESC",
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM Salary WHERE Site_Code = ? ORDER BY Emp_Code DESC",
                     (SITE_CODE,), cn=cn)
     return [_map_salary(r) for r in rows]
 
@@ -25,7 +25,7 @@ def get_salary(Mth_Year, Emp_Code, cn=None):
 
 
 def search_salary(term, cn=None, limit=100):
-    rows = db.query(f"SELECT TOP {limit} * FROM Salary WHERE Site_Code = ? AND (Emp_Code LIKE ? OR Mth_Year LIKE ?)",
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM Salary WHERE Site_Code = ? AND (Emp_Code LIKE ? OR Mth_Year LIKE ?)",
                     (SITE_CODE, f"%{term}%", f"%{term}%"), cn=cn)
     return [_map_salary(r) for r in rows]
 
@@ -52,7 +52,7 @@ def _map_attendence(r) -> dict:
 
 
 def list_attendence(cn=None, limit=500):
-    rows = db.query(f"SELECT TOP {limit} * FROM Attendence WHERE Site_Code = ? ORDER BY Emp_Code DESC",
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM Attendence WHERE Site_Code = ? ORDER BY Emp_Code DESC",
                     (SITE_CODE,), cn=cn)
     return [_map_attendence(r) for r in rows]
 
@@ -63,7 +63,7 @@ def get_attendence(Mth_Year, Emp_Code, cn=None):
 
 
 def search_attendence(term, cn=None, limit=100):
-    rows = db.query(f"SELECT TOP {limit} * FROM Attendence WHERE Site_Code = ? AND (Emp_Code LIKE ? OR Mth_Year LIKE ?)",
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM Attendence WHERE Site_Code = ? AND (Emp_Code LIKE ? OR Mth_Year LIKE ?)",
                     (SITE_CODE, f"%{term}%", f"%{term}%"), cn=cn)
     return [_map_attendence(r) for r in rows]
 
@@ -90,7 +90,7 @@ def _map_loan(r) -> dict:
 
 
 def list_loan(cn=None, limit=500):
-    rows = db.query(f"SELECT TOP {limit} * FROM Loan WHERE Site_Code = ? ORDER BY Sr_No DESC",
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM Loan WHERE Site_Code = ? ORDER BY Sr_No DESC",
                     (SITE_CODE,), cn=cn)
     return [_map_loan(r) for r in rows]
 
@@ -101,7 +101,7 @@ def get_loan(Sr_No, cn=None):
 
 
 def search_loan(term, cn=None, limit=100):
-    rows = db.query(f"SELECT TOP {limit} * FROM Loan WHERE Site_Code = ? AND (Emp_Code LIKE ? OR Remark LIKE ?)",
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM Loan WHERE Site_Code = ? AND (Emp_Code LIKE ? OR Remark LIKE ?)",
                     (SITE_CODE, f"%{term}%", f"%{term}%"), cn=cn)
     return [_map_loan(r) for r in rows]
 
@@ -114,7 +114,7 @@ def insert_loan(rec, cn=None, commit=True, site=SITE_CODE, user=USER):
         "INSERT INTO Loan (Sr_No, V_Type, V_Date, Emp_Code, Amount, Installment, "
         "Remark, AC_Code, Mth_Year, Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code) "
         "VALUES (?, 'LD', getdate(), ?, ?, ?, ?, ?, ?, ?, ?, getdate(), 'A', ?)",
-        (new_pk, 
+        (new_pk,
          rec.get("emp_code", ""),
          rec.get("amount", 0.0),
          rec.get("installment", 0.0),
@@ -140,7 +140,7 @@ def _map_leave_ench(r) -> dict:
 
 
 def list_leave_ench(cn=None, limit=500):
-    rows = db.query(f"SELECT TOP {limit} * FROM Leave_Ench WHERE Site_Code = ? ORDER BY Sr_No DESC",
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM Leave_Ench WHERE Site_Code = ? ORDER BY Sr_No DESC",
                     (SITE_CODE,), cn=cn)
     return [_map_leave_ench(r) for r in rows]
 
@@ -151,7 +151,7 @@ def get_leave_ench(Sr_No, cn=None):
 
 
 def search_leave_ench(term, cn=None, limit=100):
-    rows = db.query(f"SELECT TOP {limit} * FROM Leave_Ench WHERE Site_Code = ? AND (Emp_Code LIKE ?)",
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM Leave_Ench WHERE Site_Code = ? AND (Emp_Code LIKE ?)",
                     (SITE_CODE, f"%{term}%"), cn=cn)
     return [_map_leave_ench(r) for r in rows]
 
@@ -178,7 +178,7 @@ def _map_overtime(r) -> dict:
 
 
 def list_overtime(cn=None, limit=500):
-    rows = db.query(f"SELECT TOP {limit} * FROM OverTime WHERE Site_Code = ? ORDER BY EmpCode DESC",
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM OverTime WHERE Site_Code = ? ORDER BY EmpCode DESC",
                     (SITE_CODE,), cn=cn)
     return [_map_overtime(r) for r in rows]
 
@@ -189,7 +189,7 @@ def get_overtime(EmpCode, cn=None):
 
 
 def search_overtime(term, cn=None, limit=100):
-    rows = db.query(f"SELECT TOP {limit} * FROM OverTime WHERE Site_Code = ? AND (EmpCode LIKE ?)",
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM OverTime WHERE Site_Code = ? AND (EmpCode LIKE ?)",
                     (SITE_CODE, f"%{term}%"), cn=cn)
     return [_map_overtime(r) for r in rows]
 

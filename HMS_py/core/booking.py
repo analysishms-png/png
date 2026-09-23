@@ -8,7 +8,7 @@ from __future__ import annotations
 from HMS_py.core import db
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
-USER = "PYADMIN"
+USER = db.get_user()
 TABLE_PRIMARY = "Booking"
 
 
@@ -50,7 +50,7 @@ def _validate(rec: dict):
 
 def list_all(cn=None, limit=500) -> list[dict]:
     rows = db.query(
-        f"SELECT TOP {limit} DocId, BookNo, Vtype, Vprefix, VDate, GuestName, "
+        f"SELECT TOP {int(limit)} DocId, BookNo, Vtype, Vprefix, VDate, GuestName, "
         "ArrDate, DepDate, NoDays, Adult, Child, NoofRooms, RoomRate, Remarks, "
         "Cancel, Site_Code, U_Name, U_AE, ResStatus, MobNo, Email, GuestProf, "
         "RoomNo FROM Booking ORDER BY BookNo DESC",
@@ -72,7 +72,7 @@ def get(bookno: int, site: str = SITE_CODE, cn=None) -> dict | None:
 
 def search(term: str, site: str = SITE_CODE, cn=None, limit=100) -> list[dict]:
     rows = db.query(
-        f"SELECT TOP {limit} DocId, BookNo, Vtype, Vprefix, VDate, GuestName, "
+        f"SELECT TOP {int(limit)} DocId, BookNo, Vtype, Vprefix, VDate, GuestName, "
         "ArrDate, DepDate, NoDays, Adult, Child, NoofRooms, RoomRate, Remarks, "
         "Cancel, Site_Code, U_Name, U_AE, ResStatus, MobNo, Email, GuestProf, "
         "RoomNo FROM Booking WHERE Site_Code = ? AND "

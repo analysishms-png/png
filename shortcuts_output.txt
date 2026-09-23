@@ -1,0 +1,39 @@
+======================================================================
+KEYBOARD SHORTCUT FORM TEST
+======================================================================
+
+--- Launch ---
+
+--- Login ---
+  Title: 'Moon and Mars Resorts { 2026-27 }'
+  [IMG] ks_01_main.png
+
+--- Testing Ctrl+K (Check In) ---
+  [IMG] ks_Check_In.png
+  No new window detected
+
+--- Testing Ctrl+T (KOT Entry) ---
+  [IMG] ks_KOT_Entry.png
+  No new window detected
+
+--- Testing Ctrl+N (Night Audit Log) ---
+  [IMG] ks_Night_Audit_Log.png
+  No new window detected
+
+--- Testing Ctrl+R (Reservation/Cancellation) ---
+  [IMG] ks_Reservation_Cancellation.png
+  No new window detected
+
+--- Testing Ctrl+P (Plan Master) ---
+  [IMG] ks_Plan_Master.png
+  No new window detected
+
+--- Testing Ctrl+F (Guest Profile) ---
+  [IMG] ks_Guest_Profile.png
+  No new window detected
+
+--- Testing Ctrl+Y (Indent) ---
+  FATAL: Lost main
+
+======================================================================
+DONE

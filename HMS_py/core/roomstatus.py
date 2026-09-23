@@ -33,7 +33,7 @@ import datetime
 from HMS_py.core import db
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
-USER = "PYADMIN"
+USER = db.get_user()
 
 # RoomMast.RoomStat (varchar(1)) - VB6 RoomStat='D' = Dirty (frm:704)
 ROOMSTAT_DIRTY = "D"

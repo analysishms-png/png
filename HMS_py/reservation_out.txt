@@ -1,0 +1,16 @@
+============================= test session starts =============================
+platform win32 -- Python 3.14.4, pytest-9.0.3, pluggy-1.6.0 -- C:\Python314\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\LENOVO\Desktop\serialkey\PROJECT_REPAIR - Copy\HMS_py\HMS_py
+configfile: pyproject.toml
+plugins: anyio-4.14.2, asyncio-1.4.0, cov-7.1.0, timeout-2.4.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 5 items
+
+tests/test_front_office.py::TestReservationLifecycle::test_draft_insert_get_update PASSED [ 20%]
+tests/test_front_office.py::TestReservationLifecycle::test_draft_validation_negatives PASSED [ 40%]
+tests/test_front_office.py::TestReservationLifecycle::test_no_show_marks_and_blocks_repeat PASSED [ 60%]
+tests/test_front_office.py::TestReservationLifecycle::test_cancel_writes_details_and_blocks_repeat PASSED [ 80%]
+tests/test_front_office.py::TestReservationLifecycle::test_cancel_missing_booking PASSED [100%]
+
+============================== 5 passed in 0.35s ==============================

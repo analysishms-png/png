@@ -1,0 +1,180 @@
+HMS VB6 MODULAR LOGIC PLAN
+============================
+Generated from decompiled VB6 HMS analysis + Python port evidence
+Module-wise logic extracted from: HMS.bas, MDIForm1.frm, User_Module, User1, menuHelp tables
+================================================================================
+
+MODULE 1: MENU SYSTEM LOGIC (User_Module + User1 + menuHelp)
+-----------------------------------------------------------------
+SOURCES:
+- User_Module table: Stores menu structure (code, name, flag, srno, Module_Name)
+- User1 table: User rights mapping (USER_NAME, SRNO -> links to User_Module.srno)
+- menuHelp table: Per-user/module rights (Option, Param_Str, Flag, Module_Name, Opt1-Opt4)
+- Analysis.ini key 9: Sidebar module order (#-delimited)
+
+FLAG VALUES (from VB6 decompilation evidence):
+- flag='9': Sidebar root node (appears in Analysis.ini key 9 list)
+- flag='1': Submenu header / parent item (creates dropdown in menubar)
+- flag='0': Leaf child item (appears under flag=1 parent with same 'code')
+- flag='E': Entry/form access (in menuHelp Param_Str)
+- flag='R': Report access (in menuHelp Param_Str)
+- flag='N': Node/header (in menuHelp)
+- flag='V': Hidden (in menuHelp - never shown)
+
+MENU NAVIGATION FLOW:
+1. Login -> Company select (frmCompany) -> Main window
+2. Main window sidebar = Analysis.ini key 9 list, filtered by User_Module flag=9
+3. Menubar groups = DISTINCT Module_Name from User_Module (flag<>'9'), ordered by MIN(srno)
+4. Each group = menu title + item list built from _group_rows + _build_dropdown
+5. Nesting logic: flag=1 item => submenu; same-code flag=0 rows => children of that parent
+6. Rights check: User1 rows for username -> if NONE, full access; else menu leaf srno must be in User1 set
+
+USER RIGHTS LOGIC (menu.py:menu_name_allowed):
+- If User1 has NO rows for user => full access (SA 617/617 case)
+- If User1 has rows => menu leaf must map to User_Module.srno recorded for this user
+- Normalization: strip "- HMS_py", "- HMS", remove parens, lowercase, collapse spaces
+
+MODULE 2: MENUHELP RIGHTS SYSTEM (menuHelp table)
+--------------------------------------------------
+SOURCE: FODER\FaVoucher.bas + MainLib.bas decompilation evidence
+
+TABLE STRUCTURE:
+- menuHelp: UserName, CompCode, [Option], Param_Str, Flag, Module_Name, Opt1, Opt2, Opt3, Opt4
+
+RIGHTS PATTERN (Param_Str - 4 characters):
+- Position 1: Add (A) or no-add
+- Position 2: Edit (E) or no-edit
+- Position 3: Delete (D) or no-delete
+- Position 4: Print (P) or no-print
+
+DEFAULT RIGHTS (missing row/leaf):
+- Full access => "AEDP"
+- If row exists => use Param_Str value, default "AEDP" if empty
+
+PERMISSION CHECK FUNCTIONS:
+- flag_for(caption, username): Returns E/R/N/V or None
+- rights(username, caption): Returns Param_Str string
+- can(username, caption, right): True if right in Param_Sr (case-insensitive)
+- can_open(username, caption): True if flag!=V; also checks AEDP for leaf access
+
+NO menuHelp row for user => full access (mirrors User1 pattern in menu.py)
+
+MODULE 3: master LIST FROM DATABASE (User_Module table)
+--------------------------------------------------------
+EXTRACTED FROM: SQL query evidence + VB6 decompiled structure
+
+USER_MODULE COLUMNS (from decompiled HMS.bas + Python port):
+- code: Menu control name / code (e.g., "FA", "Mast", "FrontDesk")
+- name: Menu display name (e.g., "Session Master", "Tax Master", "User Master")
+- flag: Visibility/role flag ('9'=sidebar root, '1'=submenu, '0'=leaf)
+- srno: Sort order number (used for nesting and menubar ordering)
+- Module_Name: Parent module/category group (e.g., "Front Office", "Finance", "POS")
+
+SAMPLE QUERIES (from core\menu.py):
+1. roots(): SELECT code, name, srno FROM User_Module WHERE flag='9' ORDER BY srno
+   => Returns sidebar root nodes for Analysis.ini key 9
+
+2. _group_rows(module_name): SELECT code, name, flag, srno FROM User_Module WHERE Module_Name=? AND flag<>'9' ORDER BY srno
+   => Returns module items for a given category
+
+3. Menu building: Distinct Module_Name values determine menubar groups
+   => Groups: Front Office, General Setup, Finance & Reports, POS & Banquet, HR & Members, Inventory & Reports
+
+USER1 RIGHTS TABLE:
+- USER_NAME: Login username (e.g., "SA", "PYADMIN")
+- SRNO: Maps to User_Module.srno for rights assignment
+
+SAMPLE DATA PATTERNS (from fix plans and project map):
+- flag=9 roots: Typically 15-20 top-level sidebar entries
+- Module_Name groups: ~10 distinct categories
+- Per-group: 3-15 items (flag=1 parent + flag=0 children)
+- Example: "GENMas" flag=1 (43) -> flag=0 children (44-47) = "Tax Master" sub-items
+
+MODULE 4: VB6 MISSING LOGIC DOCUMENTATION
+-------------------------------------------
+BASED ON: HMS.bas decompilation (995,854 lines), Project fix plans, Python port gaps
+
+KEY LOGIC GAPS IDENTIFIED:
+
+1. ClearYN Integration (Critical - from Phase 3 fix plan):
+   - porder_create: UPDATE Indent1 SET ClearYN='Y' WHERE DocId=indentDocId AND SNo=indentSno
+   - gin_create: UPDATE Indent1 SET ClearYN='Y' WHERE DocId=indentDocId AND SNo=indentSno
+   - stock_issue: UPDATE Indent1 SET ClearYN='Y' WHERE DocId=indentDocId AND SNo=indentSno
+   - porder_delete: UPDATE Indent1 SET ClearYN='' (reverse)
+   - gin_delete: UPDATE Indent1 SET ClearYN='' (reverse)
+
+2. Stock Table Write for GIN (Phase 3B):
+   - gin_create: After INSERT GIN+Purch2, also INSERT Stock rows
+   - Stock columns: DocId, V_SNo, VType='MRE', VPrefix, VNo, Site_Code, VDate,
+     ItemCode, Qty, Rate, Godown, ContraGodown, IndentDocId, IndentSno
+
+3. Menu Item Nesting (from menu.py docstring):
+   - Flat nesting in VB6 MDIForm1.frm was misleading
+   - Actual logic: flag=1 item ke baad same-code flag=0 rows = uske children
+   - Example: 43 'Tax Master' flag=1 -> 44-47 flag=0 = children
+   - NOTE: decompiled MDIForm1.frm nesting flattened hai - flag hi sachi
+
+4. Menu Rights Fallback (menu.py:15-16):
+   - User1 rows na hon => full access (SA 617/617)
+   - This is the "trust SA" pattern - if no User1 restrictions, all menu items open
+
+5. Sidebar Ordering (Analysis.ini key 9):
+   - #`-delimited module list from INI
+   - Falls back to ALL roots if INI empty or module not found
+   - Manual review required for menubar order (MIN(srno) vs runtime order)
+
+6. _coming_soon stubs (shell.py:957-964):
+   - 15+ menu entries currently show "not in database" message
+   - These are VB6-inactive items migrated without table support
+   - Wire-up required in shell.py _form_registry()
+
+MODULE 5: TODO LIST - MODULAR LOGIC IMPLEMENTATION (CONTINUED)
+---------------------------------------------------
+DYNAMIC MENU REGENERATION MODULE (NEW - DB-Driven)
+
+This module enables complete dynamic rebuild of the Main Setup menu/system
+entirely from database tables, replacing all hardcoded entries:
+
+5. MOD-009: Dynamic Menu Rebuild Module
+   - Function: rebuild_menu_from_database(username="SA")
+   - Reads: User_Module table (structure: code, name, flag, srno, Module_Name)
+   - Reads: User1 table (USER_NAME, SRNO for rights)
+   - Reads: menuHelp table (Option, Param_Str, Flag, Module_Name for permissions)
+   - Output: {"menubar": [...], "sidebar": [...], "user_rights": {...}}
+   - Implements VB6 nesting: flag=1 => submenu; same-code flag=0 => children
+   - Orders modules by MIN(srno) within each Module_Name group
+   - Filters by Analysis.ini key 9 for sidebar order
+   - Checks menuHelp for per-user rights (Param_Str AEDP pattern)
+   - Default: full access if User1 has no rows for user (SA 617/617 pattern)
+
+5. MOD-010: MainSetupWorkbench Dynamic Builder
+   - Function: _build_main_setup_workbench_dynamic(user, username="SA")
+   - Builds entire workbench UI from DB-derived menubar groups
+   - Categories modules: Finance, General Setup, HR/Payroll, Inventory,
+     POS & Banquet, Front Office, EPABX, Messaging, Members Mgmt
+   - Creates QPushButton for each menu item with proper click handlers
+   - Maps User_Module codes to Python UI form openers
+   - Replaces hardcoded groups list in shell.py:_open_main_setup()
+
+5. MOD-011: Menu Rights Verification from DB
+   - Function: _check_menu_rights(username, caption)
+   - Queries menuHelp table: Option, Param_Str, Flag, Module_Name
+   - Returns: {"allowed": bool, "flag": str|None, "param_str": str}
+   - Default "AEDP" if no row exists + User1 has no rows
+   - Case-insensitive normalization matching menu.py:menu_name_allowed()
+
+5. MOD-012: Module Category Mapping
+   - Function: _get_module_category(module_name)
+   - Maps Module_Name values to display categories for workbench
+   - Finance -> "Finance & Reports"
+   - General Setup -> "General Setup"
+   - HR/Payroll -> "HR & Members"
+   - Inventory -> "Inventory & Reports"
+   - Point of Sale / Banquet -> "POS & Banquet"
+   - Front Office -> "Front Office"
+   - EPABX -> "HR & Members"
+   - Messaging -> "Utility"
+   - Members Mgmt -> "HR & Members"
+
+================================================================================
+END OF MODULAR LOGIC PLAN

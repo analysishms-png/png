@@ -135,29 +135,29 @@ class GlobalSearchDialog(QDialog):
         results = []
 
         try:
-            # 1. Guests
+            # 1. Guests (live cols: MobileNo, PhoneNo)
             q_guests = db.query(
-                "SELECT TOP 10 Code, Name, Mobile, City FROM GuestProf "
-                "WHERE Name LIKE ? OR Code LIKE ? OR Mobile LIKE ? OR Phone LIKE ?",
+                "SELECT TOP 10 Code, Name, MobileNo, City FROM GuestProf "
+                "WHERE Name LIKE ? OR Code LIKE ? OR MobileNo LIKE ? OR PhoneNo LIKE ?",
                 (pattern, pattern, pattern, pattern)
             )
             for r in q_guests:
                 results.append(("Guest", r[0], f"{r[1]} ({r[3] or ''})", f"📱 {r[2] or 'No mobile'}"))
 
-            # 2. Folios
+            # 2. Folios (GuestFolio has no Status col)
             q_folios = db.query(
-                "SELECT TOP 10 FolioNo, Name, Vdate, Status FROM GuestFolio "
+                "SELECT TOP 10 FolioNo, Name, Vdate, DepDate FROM GuestFolio "
                 "WHERE Name LIKE ? OR CAST(FolioNo AS VARCHAR) LIKE ?",
                 (pattern, pattern)
             )
             for r in q_folios:
-                st = "In-House" if r[3] == "I" else "Checked-Out"
+                st = "Departed" if r[3] else "In-House"
                 dt_str = r[2].strftime("%d/%b/%Y") if hasattr(r[2], "strftime") else str(r[2])
                 results.append(("Folio", str(r[0]), str(r[1]), f"{st} ({dt_str})"))
 
-            # 3. Reservations
+            # 3. Reservations (Booking.ResStatus, not Status)
             q_res = db.query(
-                "SELECT TOP 10 BookNo, GuestName, VDate, Status FROM Booking "
+                "SELECT TOP 10 BookNo, GuestName, VDate, ResStatus FROM Booking "
                 "WHERE GuestName LIKE ? OR CAST(BookNo AS VARCHAR) LIKE ?",
                 (pattern, pattern)
             )
@@ -175,7 +175,7 @@ class GlobalSearchDialog(QDialog):
                 st = "Dirty" if (r[3] or "").strip() == "D" else "Clean/Vacant"
                 results.append(("Room", str(r[0]), f"{r[1]} ({r[2] or ''})", st))
 
-        except Exception as e:
+        except Exception:
             pass
 
         self.tblResults.setRowCount(len(results))

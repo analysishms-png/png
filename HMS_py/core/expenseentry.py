@@ -23,7 +23,7 @@ from __future__ import annotations
 from HMS_py.core import db, checkin
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
-USER = "PYADMIN"
+USER = db.get_user()
 VTYPE_EXP = "EXP"
 VTYPE_REC = "REC"
 
@@ -53,7 +53,7 @@ def list_folio_charges(folio, cn=None,
     rows = db.query(
         "SELECT DocId, Vtype, VNo, PayCode, Amount, AmtDr, AmtCr, "
         "Remarks, TaxAmt, U_Name, U_EntDt, U_AE "
-        "FROM PayCharge WHERE FolioDocId = ? AND Site_Code = ? "
+        "FROM PayCharge WHERE FolioNoDocid = ? AND Site_Code = ? "
         "ORDER BY VNo",
         (rec["docid"], SITE_CODE), cn=cn)
     out = []
@@ -105,7 +105,7 @@ def post_expense(folio: int, paycode: str, amount: float,
         docid = _make_docid(VTYPE_EXP, vprefix, vno, site)
         db.execute(
             "INSERT INTO PayCharge (DocId, Vtype, VNo, VPrefix, Site_Code, "
-            "FolioDocId, FolioNo, PayCode, Amount, AmtDr, AmtCr, "
+            "FolioNoDocid, FolioNo, PayCode, Amount, AmtDr, AmtCr, "
             "Remarks, TaxAmt, TaxPer, U_Name, U_EntDt, U_AE, "
             "LogSite_Code) VALUES "
             "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, 0, ?, "
@@ -145,7 +145,7 @@ def post_receipt(folio: int, paycode: str, amount: float,
         docid = _make_docid(VTYPE_REC, vprefix, vno, site)
         db.execute(
             "INSERT INTO PayCharge (DocId, Vtype, VNo, VPrefix, Site_Code, "
-            "FolioDocId, FolioNo, PayCode, Amount, AmtDr, AmtCr, "
+            "FolioNoDocid, FolioNo, PayCode, Amount, AmtDr, AmtCr, "
             "Remarks, TaxAmt, TaxPer, U_Name, U_EntDt, U_AE, "
             "LogSite_Code) VALUES "
             "(?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, 0, 0, ?, "
@@ -164,16 +164,31 @@ def post_receipt(folio: int, paycode: str, amount: float,
 
 def delete_charge(docid: str, cn=None, commit: bool = True,
                   site: str = SITE_CODE) -> int:
-    """Test-only: sirf PYT* folio charges delete hoti hain."""
+    """Test-only: sirf PYT* folio charges delete hoti hain.
+    VB6 pattern: PayChargeLog me copy before delete (audit trail)."""
     rows = db.query(
         "SELECT gf.Name FROM PayCharge pc "
-        "JOIN GuestFolio gf ON gf.DocId = pc.FolioDocId "
+        "JOIN GuestFolio gf ON gf.DocId = pc.FolioNoDocid "
         "WHERE pc.DocId = ? AND pc.Site_Code = ?",
         (docid, site), cn=cn)
     if not rows:
         raise ValueError(f"Charge {docid} nahi mila")
     if not str(rows[0][0] or "").upper().startswith("PYT"):
         raise ValueError("Safety: sirf PYT* folio charges delete ho sakti hain")
-    return db.execute(
-        "DELETE FROM PayCharge WHERE DocId = ?", (docid,),
-        cn=cn, commit=commit)
+    own = cn is None
+    cn_use = cn or db.connect()
+    try:
+        # VB6 pattern: copy to PayChargeLog before delete (audit trail)
+        db.execute(
+            "INSERT INTO PayChargeLog SELECT *, getdate(), ? "
+            "FROM PayCharge WHERE DocId = ?",
+            (USER, docid), cn=cn_use, commit=False)
+        n = db.execute(
+            "DELETE FROM PayCharge WHERE DocId = ?", (docid,),
+            cn=cn_use, commit=False)
+        if commit:
+            cn_use.commit()
+        return n
+    finally:
+        if own:
+            cn_use.close()

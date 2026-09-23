@@ -151,7 +151,7 @@ class KitchenClosingStockWindow(QMainWindow):
                     "vno": vno, "vprefix": vprefix, "vdate": vdate,
                     "item": line["item"], "qty": line["qty"],
                     "unit": line["unit"], "dept_code": line["dept_code"],
-                    "remarks": line["remarks"],
+                    "remarks": line["remarks"], "user": user,
                 }, cn=cn, commit=False)
             cn.commit()
             QMessageBox.information(

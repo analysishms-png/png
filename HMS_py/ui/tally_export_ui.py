@@ -58,12 +58,12 @@ class TallyExportWindow(QMainWindow):
         if not path: return
         try:
             rows = db.query(
-                "SELECT L.DocId, L.VType, L.VDate, L.SubCode, L.CheqNo, "
-                "L.Narration, L.Debit, L.Credit, L.ClDate, "
+                "SELECT L.DocId, L.V_Type, L.V_Date, L.SubCode, L.Chq_No, "
+                "L.Narration, L.AmtDr, L.AmtCr, L.Clg_Date, "
                 "ISNULL(S.Name,'') as SubName "
-                "FROM LEDGER L LEFT JOIN SubGroup S ON L.SubCode = S.Code "
-                "WHERE L.VDate BETWEEN ? AND ? "
-                "ORDER BY L.VDate, L.DocId",
+                "FROM LEDGER L LEFT JOIN SubGroup S ON L.SubCode = S.SubCode "
+                "WHERE L.V_Date BETWEEN ? AND ? "
+                "ORDER BY L.V_Date, L.DocId",
                 (self.dt_from.date().toPyDate(), self.dt_to.date().toPyDate()))
 
             root = ET.Element("ENVELOPE")
@@ -79,15 +79,15 @@ class TallyExportWindow(QMainWindow):
 
             for r in rows:
                 vch = ET.SubElement(data, "TALLYMESSAGE", attrib={"OBJECT": "Voucher"})
-                ET.SubElement(vch, "VOUCHERTYPENAME").text = str(r["VType"] or "Journal")
-                ET.SubElement(vch, "VOUCHERDATE").text = str(r["VDate"] or "")
+                ET.SubElement(vch, "VOUCHERTYPENAME").text = str(r["V_Type"] or "Journal")
+                ET.SubElement(vch, "VOUCHERDATE").text = str(r["V_Date"] or "")
                 ET.SubElement(vch, "REFERENCE").text = str(r["DocId"] or "")
                 ET.SubElement(vch, "NARRATION").text = str(r["Narration"] or "")
                 ledger = ET.SubElement(vch, "LEDGERENTRIES.LIST")
                 ent = ET.SubElement(ledger, "LEDGERENTRIES")
                 ET.SubElement(ent, "LEDGERNAME").text = str(r["SubName"] or "")
-                dr = float(r["Debit"] or 0)
-                cr = float(r["Credit"] or 0)
+                dr = float(r["AmtDr"] or 0)
+                cr = float(r["AmtCr"] or 0)
                 if dr > 0:
                     ET.SubElement(ent, "DEBIT").text = f"{dr:.2f}"
                 elif cr > 0:

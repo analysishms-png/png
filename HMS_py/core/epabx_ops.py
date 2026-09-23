@@ -14,7 +14,7 @@ from __future__ import annotations
 from HMS_py.core import db
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
-USER = "PYADMIN"
+USER = db.get_user()
 
 
 # ============================================================
@@ -57,7 +57,7 @@ def _map_epabxdata(r) -> dict:
 
 def epabxdata_list(cn=None, limit: int = 500) -> list[dict]:
     rows = db.query(
-        f"SELECT TOP {limit} ID, V_TYPE, PNT_NO, Extension, RoomNo, "
+        f"SELECT TOP {int(limit)} ID, V_TYPE, PNT_NO, Extension, RoomNo, "
         "ShopNo, DepCode, CALL_START_DATE, CALL_START_TIME, "
         "CALL_DURATION, DIALED_NO, CALL_INFO, CALL_RATE, CALL_AMT, "
         "Site_Code, LogSite_Code "
@@ -78,7 +78,7 @@ def epabxdata_search(extension: int = None, roomno: str = None,
                      dialed_no: str = None, cn=None,
                      limit: int = 200) -> list[dict]:
     """Search CDR by extension, room, or dialed number."""
-    sql = f"SELECT TOP {limit} ID, V_TYPE, PNT_NO, Extension, RoomNo, " \
+    sql = f"SELECT TOP {int(limit)} ID, V_TYPE, PNT_NO, Extension, RoomNo, " \
           "ShopNo, DepCode, CALL_START_DATE, CALL_START_TIME, " \
           "CALL_DURATION, DIALED_NO, CALL_INFO, CALL_RATE, CALL_AMT, " \
           "Site_Code, LogSite_Code FROM EPABX_Data WHERE 1=1 "

@@ -1,0 +1,9 @@
+cap: Indent
+row: {'caption': 'Indent', 'param': 'A**P', 'flag': 'E', 'module': 'Purch', 'opt1': '16', 'opt2': '11', 'opt3': '12', 'opt4': '', 'code': 310}
+setData ok
+  set col 2 -> widget=True
+  set col 3 -> widget=True
+  set col 4 -> widget=True
+  set col 5 -> widget=True
+setText ok
+BULK_OK

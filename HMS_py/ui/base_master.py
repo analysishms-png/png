@@ -21,7 +21,8 @@ from PyQt6.QtGui import QColor, QKeySequence, QShortcut
 from PyQt6.QtWidgets import (QDialog, QFormLayout, QHBoxLayout, QLabel,
                              QLineEdit, QMessageBox, QPushButton,
                              QTableWidget, QTableWidgetItem, QVBoxLayout,
-                             QAbstractItemView, QHeaderView, QGroupBox)
+                             QAbstractItemView, QHeaderView, QGroupBox,
+                             QWidget)
 
 from HMS_py.ui import theme as _theme
 

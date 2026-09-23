@@ -380,9 +380,6 @@ class TestReservationValidation:
     """Test Reservation validation."""
 
     def test_insert_requires_guest_name(self):
-        from HMS_py.core import reservation
-        from datetime import date, timedelta
-        
         # Test the validation logic directly - empty guest name should raise
         with pytest.raises(ValueError, match="GuestName zaroori hai"):
             # This simulates the check in insert_draft
@@ -391,9 +388,6 @@ class TestReservationValidation:
                 raise ValueError("GuestName zaroori hai")
 
     def test_insert_requires_arrival_before_departure(self):
-        from HMS_py.core import reservation
-        from datetime import date, timedelta
-        
         arr = date.today() + timedelta(days=5)
         dep = date.today() + timedelta(days=3)  # Before arrival!
         
@@ -406,17 +400,11 @@ class TestCheckinValidation:
     """Test Check-in validation."""
 
     def test_create_requires_guest_name(self):
-        from HMS_py.core import checkin
-        from datetime import date, timedelta
-        
         with pytest.raises(ValueError, match="Guest Name zaroori hai"):
             if not "".strip():
                 raise ValueError("Guest Name zaroori hai")
 
     def test_create_requires_arrival_before_departure(self):
-        from HMS_py.core import checkin
-        from datetime import date, timedelta
-        
         arr = date.today() + timedelta(days=5)
         dep = date.today() + timedelta(days=3)
         
@@ -1000,7 +988,7 @@ class TestConfigLoading:
         cfg = load_config()
         # Should have fallback defaults even if INI missing
         assert cfg["server"] == "Localhost" or cfg["server"] != ""
-        assert cfg["database"] == "KailashData2526" or cfg["database"] != ""
+        assert cfg["database"] in ("Moondata2627", "KailashData2526") or cfg["database"] != ""
 
     def test_load_config_prefers_project_analysis_ini(self):
         from HMS_py.core.db import find_analysis_ini, load_config
@@ -1165,7 +1153,7 @@ class TestGuestProfCascade:
     """VB6 GuestProfile.frm:6863-6871 — guest update cascades to GuestFolio + RoomOcc."""
 
     def test_update_cascades_to_guestfolio_and_roomocc(self):
-        from HMS_py.core import checkin, checkout, db, guestprof
+        from HMS_py.core import checkin, db, guestprof
         import datetime
 
         gcode = guestprof.next_code()

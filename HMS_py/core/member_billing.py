@@ -3,7 +3,7 @@ from __future__ import annotations
 from HMS_py.core import db
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
-USER = "PYADMIN"
+USER = db.get_user()
 
 # === MemberFamily ===
 def _map_family(r) -> dict:
@@ -18,7 +18,7 @@ def _map_family(r) -> dict:
 
 
 def list_family(subcode, cn=None, limit=500):
-    rows = db.query(f"SELECT TOP {limit} * FROM MemberFamily WHERE SubCode = ? ORDER BY SNo", (subcode,), cn=cn)
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM MemberFamily WHERE SubCode = ? ORDER BY SNo", (subcode,), cn=cn)
     return [_map_family(r) for r in rows]
 
 
@@ -53,7 +53,7 @@ def _map_membill(r) -> dict:
 
 
 def list_membill(cn=None, limit=500):
-    rows = db.query(f"SELECT TOP {limit} * FROM MemBill WHERE Site_Code = ? ORDER BY vno DESC",
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM MemBill WHERE Site_Code = ? ORDER BY vno DESC",
                     (SITE_CODE,), cn=cn)
     return [_map_membill(r) for r in rows]
 
@@ -70,7 +70,7 @@ def insert_membill(rec, cn=None, commit=True, site=SITE_CODE, user=USER):
     docid = ("D" + site.ljust(2) + "MB".ljust(6) + str(vprefix).ljust(4) + str(vno).rjust(8))[:21]
     db.execute(
         "INSERT INTO MemBill (Docid,vdate,vno,vprefix,Vtype,MemCode,MemCatCode,cardno,MthYear,NetAmount,Site_Code,U_Name,U_EntDt,U_AE,LogSite_Code,BillDate,RoundOff,Amount)"
-        " VALUES (?,getdate(),?,?,?,?,?,?,?,?,?,?,?,?,getdate(),'A',?,?,?)",
+        " VALUES (?,getdate(),?,?,?,?,?,?,?,?,?,?,?,getdate(),'A',?,?,?)",
         (docid, vno, vprefix, rec.get("vtype","MB"), rec.get("memcode",""),
          rec.get("memcatcode",""), rec.get("cardno",""), rec.get("mthyear",""),
          rec.get("netamount",0.0), site, user, site,
@@ -128,7 +128,7 @@ def _mapcatchng(r) -> dict:
 
 
 def list_catchng(cn=None, limit=500):
-    rows = db.query(f"SELECT TOP {limit} * FROM MemCatChngDetail WHERE Site_Code = ? ORDER BY Code",
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM MemCatChngDetail WHERE Site_Code = ? ORDER BY Code",
                     (SITE_CODE,), cn=cn)
     return [_mapcatchng(r) for r in rows]
 
@@ -155,7 +155,7 @@ def _map_proposed(r) -> dict:
 
 
 def list_proposed(cn=None, limit=500):
-    rows = db.query(f"SELECT TOP {limit} * FROM MemProposedMemInf WHERE Site_Code = ? ORDER BY SubCode",
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM MemProposedMemInf WHERE Site_Code = ? ORDER BY SubCode",
                     (SITE_CODE,), cn=cn)
     return [_map_proposed(r) for r in rows]
 
@@ -184,3 +184,10 @@ class MemberBillingAPI:
     def insert_catchng(self, rec, cn=None, commit=True, site=SITE_CODE, user=USER): return insert_catchng(rec, cn, commit, site, user)
     def list_proposed(self, cn=None, limit=500): return list_proposed(cn, limit)
     def insert_proposed(self, rec, cn=None, commit=True, site=SITE_CODE, user=USER): return insert_proposed(rec, cn, commit, site, user)
+
+
+# Phase A (api-mismatch audit): UI member_billing_ui list_all/get/insert
+# call karta tha — MemBill ke canonical fns ke aliases.
+list_all = list_membill
+get = get_membill
+insert = insert_membill

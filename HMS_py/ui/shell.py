@@ -558,11 +558,12 @@ class MainSetupWorkbench(QDialog):
                 "FA Environment", "Parameter", "Printing Setup",
                 "Voucher Category", "Voucher Type", "eInvoice Config",
             ]),
-            ("Finance & Reports", [
-                "Tax Master", "Tax Structure", "Payment Type", "Market Segment",
-                "Business Source", "Guest Status", "Forex Master",
-                "Ledger Accounts", "Group Accounts",
-            ]),
+             ("Finance & Reports", [
+                 "Tax Master", "Tax Structure", "Payment Type", "Market Segment",
+                 "Business Source", "Guest Status", "Forex Master",
+                 "Ledger Accounts", "Group Accounts",
+                 "Year End Updation",
+             ]),
             ("POS & Banquet", [
                 "Session Master", "Scheme Master", "Delivery Boy",
                 "Menu Category", "Venue Master", "Venue Features",
@@ -757,6 +758,10 @@ def _form_registry() -> dict[str, callable]:
     except ImportError:
         favchr_ui = None
     try:
+        from HMS_py.ui import einvoice_ui as einv_ui
+    except ImportError:
+        einv_ui = None
+    try:
         from HMS_py.ui import db_backup_ui as dbbak_ui
     except ImportError:
         dbbak_ui = None
@@ -836,6 +841,27 @@ def _form_registry() -> dict[str, callable]:
         from HMS_py.ui import requisition_slip_ui as reqslip_ui
     except ImportError:
         reqslip_ui = None
+    try:
+        from HMS_py.ui import company_profile_ui as cprof_ui
+        from HMS_py.ui import misc_vb6_ui as mvb6_ui
+    except ImportError:
+        cprof_ui = mvb6_ui = None
+    try:
+        from HMS_py.ui import door_lock_ui as dl_ui
+    except ImportError:
+        dl_ui = None
+    try:
+        from HMS_py.ui import year_end_ui as ye
+    except ImportError:
+        ye = None
+    try:
+        from HMS_py.ui import sms_ui as sms_ui_mod
+    except ImportError:
+        sms_ui_mod = None
+    try:
+        from HMS_py.ui import user_permissions_ui as perm_ui
+    except ImportError:
+        perm_ui = None
 
     def _open_report(cap: str):
         """mdi leaf caption -> reports engine key (exact-match map)."""
@@ -848,6 +874,16 @@ def _form_registry() -> dict[str, callable]:
         def go(w=None):
             _rpt.open_reports(w, report_key=key)
         return go
+
+    def _pick_date_dialog(w, title: str):
+        """VB6 FrmCalender/repTouchDate: modal date picker (parity port)."""
+        if mvb6_ui:
+            mvb6_ui.pick_date(w, title=title)
+
+    def _touch_kb_dialog(w):
+        """VB6 RsTouchScreenKeyBoard: on-screen keyboard entry."""
+        if mvb6_ui:
+            mvb6_ui.get_touch_text(w)
 
     def _open_sms_log(w, box: str):
         """InBox/OutBox: DBSendSMS live log viewer (VB6 MsgCenter)."""
@@ -984,7 +1020,7 @@ def _form_registry() -> dict[str, callable]:
         "Reservation/Cancellation": lambda w: ReservationBrowser(w).exec(),
         # Utility / User Master:
         "User Master": lambda w: p2.open_usermaster(w, current_user=getattr(w, 'user', 'PYADMIN')),
-        "Permissions": lambda w: p2.open_usermaster(w, current_user=getattr(w, 'user', 'PYADMIN')),
+        "Permissions": (lambda w: perm_ui.open_user_permissions(w, user=getattr(w, 'user', 'PYADMIN'))) if perm_ui else _coming_soon("Permissions"),
         # Wave 2: FO operational screens
         "Check Out": (lambda w: fo2.open_checkout(w, user=getattr(w, 'user', 'PYADMIN'))) if fo2 else None,
         "Check-Out": (lambda w: fo2.open_checkout(w, user=getattr(w, 'user', 'PYADMIN'))) if fo2 else None,
@@ -1058,6 +1094,9 @@ def _form_registry() -> dict[str, callable]:
         "Purchase Bill": (lambda w: purbill_ui.open_purchase_bill(w)) if purbill_ui else _coming_soon("Purchase Bill"),
         "Stock Transfer": (lambda w: _inv.open_stock_transfer(w)) if _inv else None,
         "eInvoice Config": (lambda w: _inv.open_einvoice_config(w)) if _inv else None,
+        "eInvoice Generator": (lambda w: einv_ui.open_einvoice_generator(w)) if einv_ui else None,
+        "eInvoice Browser": (lambda w: einv_ui.open_einvoice_browser(w)) if einv_ui else None,
+        "Generate eInvoice": (lambda w: einv_ui.open_einvoice_generator(w)) if einv_ui else None,
         "Kitchen Stock Report": (lambda w: _inv.open_kitchen_stock_report(w)) if _inv else None,
         "Stock Issue": (lambda w: stiss_ui.open_stock_issue(w)) if stiss_ui else _coming_soon("Stock Issue"),
         "Stock Receive": (lambda w: strec_ui.open_stock_receive(w)) if strec_ui else _coming_soon("Stock Receive"),
@@ -1111,7 +1150,7 @@ def _form_registry() -> dict[str, callable]:
             lambda f=None, t=None: __import__("HMS_py.core.tdscerti", fromlist=["x"]).list_all()),
         "Expense Voucher": (lambda w: exp_ui.open_expense(w, user=getattr(w, 'user', 'PYADMIN'))) if exp_ui else None,
         "Opening Balance Updation": lambda w: fvu.open_trial_balance(w),
-        "Year End Updation": lambda w: fvu.open_trial_balance(w),
+        "Year End Updation": (lambda w: ye.open_year_end(w)) if ye else _coming_soon("Year End Updation"),
         "Current Balance Updation": lambda w: fvu.open_trial_balance(w),
         # Finance Display (fa_voucher_ui openers)
         "Balance Sheet": lambda w: fvu.open_balance_sheet(w),
@@ -1139,10 +1178,7 @@ def _form_registry() -> dict[str, callable]:
             w, "Complaint Clearance",
             lambda f=None, t=None: __import__("HMS_py.core.db", fromlist=["x"]).query(
                 "SELECT Code, CDate, Category, Status, ClearingDate, ClearingPerson FROM ComplaintDetail ORDER BY ClearingDate DESC")),
-        "Lost / Found Entry": lambda w: _open_fv_list(
-            w, "Lost & Found",
-            lambda f=None, t=None: __import__("HMS_py.core.db", fromlist=["x"]).query(
-                "SELECT Code, FDate, FArea, FindBy, Description, Status, ClaimedBy FROM LostFoundDetail ORDER BY Code DESC")),
+        "Lost / Found Entry": (lambda w: gsvc_ui.open_guest_services(w)) if gsvc_ui else _coming_soon("Lost / Found Entry"),
         "Claim Entry": lambda w: _open_fv_list(
             w, "Claims (Lost & Found)",
             lambda f=None, t=None: __import__("HMS_py.core.db", fromlist=["x"]).query(
@@ -1219,29 +1255,45 @@ def _form_registry() -> dict[str, callable]:
             "Advance Deposit", "Confirmation Letters", "Cancellation Letters",
             "Reservation Status Screen", "Block Master", "Item Issued On Cleaning",
             "Check Out Clearance Screen", "Changes Department",
+            # Laundry/Linen tables (LinenMem/StockIssue) is DB me absent —
+            # VB6 sources me bhi LinenMem kahin nahi (site-specific build tha)
+            "Laundry Memo", "Memo Reprint",
+            # GSTR-2A upload: Table_GSTR2A absent (VB6 FrmUploadProcess port pending-table)
+            "Upload Process",
             "Sale Bill Entry", "Settlement Entry",
             "Display Table",
             "Order Booking", "Bill Lookup", "Order Booking Advance",
             "Token Entry", "Assign Delivery", "Payment Receive",
-            "Events", "Banquet Bill Sundry Setting", "Banquet Booking",
-            "Catalog Selection", "Chef Pre-Costing", "Banquet Billing",
-            "Banquet Settlement", "Venue Availability", "Guest Comments",
-            "Banquet Estimate Billing", "Banquet Booking Advance",
-            "Leave", "Attendance", "Loan/Advance", "Over Time",
-            "Leave Encashment", "Salary Creation", "Member Master",
+            "Events", "Banquet Bill Sundry Setting",
+            "Catalog Selection", "Guest Comments",
+            "Member Master",
             "Corporate Member Master", "Category wise Revenue",
             "Category wise Facility", "Member Bill Sundry Setting",
             "Environment Settings", "Member Age Wise Revenue",
             "Member Select Category", "Outlet Bill Sundry Setting",
             "Table Master", "Menu Item Rate", "Rate Group Master",
-            "Open Item Consumption", "Customer History", "Setup Outlet",
-            "Card Initialization", "Card Registration", "Card Recharge",
+             "Open Item Consumption", "Customer History", "Setup Outlet",
+             "Card Initialization", "Card Recharge",
             "Card Refund", "Card Re-Issue", "User Collection",
-            "SMS (API)", "SMS (Scheduled)", "SMS (Conditional)",
-            "Transfer (Offline)", "Transfer (Online)", "Door Locks",
-            "Godrej Locks", "Cascade", "Tile Horizontal", "Tile Vertical",
+             "SMS (API)", "SMS (Scheduled)", "SMS (Conditional)",
+"Transfer (Offline)", "Transfer (Online)",
+             "Cascade", "Tile Horizontal", "Tile Vertical",
             "Manage MDI", "Restaurant Change ",
         )}),
+        "Leave": (lambda w: payroll_ui.open_hr_payroll(w)) if payroll_ui else _coming_soon("Leave"),
+        "Attendance": (lambda w: payroll_ui.open_hr_payroll(w)) if payroll_ui else _coming_soon("Attendance"),
+        "Loan/Advance": (lambda w: payroll_ui.open_hr_payroll(w)) if payroll_ui else _coming_soon("Loan/Advance"),
+        "Over Time": (lambda w: payroll_ui.open_hr_payroll(w)) if payroll_ui else _coming_soon("Over Time"),
+        "Leave Encashment": (lambda w: payroll_ui.open_hr_payroll(w)) if payroll_ui else _coming_soon("Leave Encashment"),
+        "Salary Creation": (lambda w: payroll_ui.open_hr_payroll(w)) if payroll_ui else _coming_soon("Salary Creation"),
+        "Banquet Booking": (lambda w: hall_ui.open_hall_booking(w)) if hall_ui else _coming_soon("Banquet Booking"),
+        "Banquet Billing": (lambda w: hall_ui.open_hall_booking(w)) if hall_ui else _coming_soon("Banquet Billing"),
+        "Banquet Settlement": (lambda w: hall_ui.open_hall_booking(w)) if hall_ui else _coming_soon("Banquet Settlement"),
+        "Banquet Estimate Billing": (lambda w: hall_ui.open_hall_booking(w)) if hall_ui else _coming_soon("Banquet Estimate Billing"),
+        "Banquet Booking Advance": (lambda w: hall_ui.open_hall_booking(w)) if hall_ui else _coming_soon("Banquet Booking Advance"),
+        "Chef Pre-Costing": (lambda w: hall_ui.open_hall_booking(w)) if hall_ui else _coming_soon("Chef Pre-Costing"),
+        "Venue Availability": (lambda w: hall_ui.open_hall_booking(w)) if hall_ui else _coming_soon("Venue Availability"),
+        "Card Registration": (lambda w: pm.open_smartcard(w)) if pm else _coming_soon("Card Registration"),
         # --- S1 tail: last live-schema leaves ---
         "Menu Item Rate": lambda w: _open_fv_list(
             w, "Menu Item Rate",
@@ -1313,11 +1365,11 @@ def _form_registry() -> dict[str, callable]:
             "Auto Settle Card Balance", "Revenue Change Entry",
             "Payment Due Letter Entry", "Issue/Recd. Entry",
             "House Keeping Op.Stock Entry", "Facility Sundry Setting",
-            "Meter Reading", "Com Port Properties",
-            "SMS Center Settings", "SMS Environment Settings",
-            "Multiple SMS Type", "InBox", "OutBox",
+             "Meter Reading", "Com Port Properties",
+             "SMS Environment Settings",
+             "Multiple SMS Type", "InBox", "OutBox",
             "Reward Points Parameter I",
-            "Guest Registration", "-", "User Permissions (Advanced)",
+            "Guest Registration", "-",
         )}),
         # PlanPopup (VB6 me bhi blank-caption popup leaves the — documented skip)
         "": _coming_soon("(Plan Popup)"),
@@ -1338,6 +1390,9 @@ def _form_registry() -> dict[str, callable]:
         "Voucher Entry": (lambda w: favchr_ui.open_voucher_entry(w)) if favchr_ui else None,
         "System Config": (lambda w: syscfg_ui.open_sys_config(w)) if syscfg_ui else None,
         "Backup Data": (lambda w: dbbak_ui.open_db_backup(w)) if dbbak_ui else _coming_soon("Backup Data"),
+        # Door Locks (VB6 frmGodrejLockSettings port)
+        "Door Locks": (lambda w: dl_ui.open_door_lock(w)) if dl_ui else None,
+        "Godrej Locks": (lambda w: dl_ui.open_door_lock(w)) if dl_ui else None,
         # Reports Center (REPORTS_TXT / mdi leaves — read-only engine)
         **({cap: _open_report(cap)
             for cap in (_rpmod.menu_caption_map() if _rpmod else {})}),
@@ -1348,9 +1403,35 @@ def _form_registry() -> dict[str, callable]:
         "Purchase Sundry Setting": (lambda w: p2.open_sundry(w)) if p2 else _coming_soon("Purchase Sundry Setting"),
         "Enviro Inventry": (lambda w: gs.open_enviro(w)) if gs else _coming_soon("Enviro Inventry"),
         "Auto Settle Card Balance": (lambda w: pm.open_auto_settle_card_balance(w)) if pm else _coming_soon("Auto Settle Card Balance"),
-        "InBox": (lambda w: _open_sms_log(w, "inbox")),
-        "OutBox": (lambda w: _open_sms_log(w, "outbox")),
+        "User Permissions (Advanced)": (lambda w: perm_ui.open_user_permissions(w, user=getattr(w, 'user', 'PYADMIN'))) if perm_ui else _coming_soon("User Permissions (Advanced)"),
+        "InBox": (lambda w: sms_ui_mod.open_sms_history(w)) if sms_ui_mod else None,
+        "OutBox": (lambda w: sms_ui_mod.open_sms_history(w)) if sms_ui_mod else None,
+        # parity-matrix ports (VB6 MISSING bucket, 2026-09-24)
+        "Company Profile": (lambda w: cprof_ui.open_company_profile(w)) if cprof_ui else _coming_soon("Company Profile"),
+        "Calender": (lambda w: _pick_date_dialog(w, "Calender")),
+        "Select Report Date": (lambda w: _pick_date_dialog(w, "Select Report Date")),
+        "Touch Screen KeyBoard": (lambda w: _touch_kb_dialog(w)),
+        "Customer Information": (lambda w: mvb6_ui.get_customer_info(w)) if mvb6_ui else _coming_soon("Customer Information"),
+        "FA Find": (lambda w: mvb6_ui.find_item(w, title="FA Find")) if mvb6_ui else _coming_soon("FA Find"),
+        "Key Massage": (lambda w: mvb6_ui.show_message_key(w)) if mvb6_ui else _coming_soon("Key Massage"),
+        "EInvoice Report": (lambda w: einv_ui.open_einvoice_browser(w)) if einv_ui else _coming_soon("EInvoice Report"),
+        # SMS N-flag orphans (VB6 me hidden menu nodes — live ports pe route):
+        "Sstup": (lambda w: sms_ui_mod.SMSEnviroSettings(w)) if sms_ui_mod else None,
+        "Operations": (lambda w: sms_ui_mod.open_sms_send(w)) if sms_ui_mod else None,
+        "SMS (API)": (lambda w: sms_ui_mod.open_sms_send(w)) if sms_ui_mod else None,
+        "SMS (Scheduled)": (lambda w: sms_ui_mod.open_sms_history(w)) if sms_ui_mod else None,
+        "SMS Environment Settings": (lambda w: sms_ui_mod.SMSEnviroSettings(w)) if sms_ui_mod else None,
+        # Reports Center (REPORTS_TXT / mdi leaves — read-only engine)
+        **({cap: _open_report(cap)
+            for cap in (_rpmod.menu_caption_map() if _rpmod else {})}),
     }
+
+
+# Try to import e-invoice UI module
+try:
+    from HMS_py.ui import einvoice_ui as einv_ui
+except ImportError:
+    einv_ui = None
 
 
 class MainWindow(QMainWindow):

@@ -1,0 +1,12 @@
+======================================================================
+FORM OPENING VERIFICATION TEST
+======================================================================
+
+--- Launch ---
+
+--- Login ---
+  [IMG] f2_01_login.png
+  Title: 'Moon and Mars Resorts { 2026-27 }'
+  [IMG] f2_02_main.png
+
+--- Test: Finance Voucher Entry ---

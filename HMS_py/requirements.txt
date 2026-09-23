@@ -4,11 +4,17 @@
 # Install: pip install -r requirements.txt
 # Run:     python -m HMS_py.main
 
+# HTTP client for SMS API calls
+requests==2.31.0
+
 # GUI framework
 PyQt6==6.7.1
 
 # SQL Server ODBC connectivity
 pyodbc==5.1.0
+
+# Serial port communication (Godrej door locks)
+pyserial==3.5
 
 # Packaging / freeze (optional - EXE build ke liye)
 # pyinstaller==6.8.0

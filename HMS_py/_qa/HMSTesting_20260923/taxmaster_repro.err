@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "C:\Users\LENOVO\Desktop\serialkey\PROJECT_REPAIR - Copy\HMS_py\HMS_py\_qa\HMSTesting_20260923\taxmaster_repro.py", line 9, in <module>
+    cfg = taxmaster_config()
+  File "C:\Users\LENOVO\Desktop\serialkey\PROJECT_REPAIR - Copy\HMS_py\HMS_py\ui\finance_masters_ui.py", line 41, in taxmaster_config
+    max_len=taxmaster.LIMITS["taxtype"]),
+            ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+KeyError: 'taxtype'

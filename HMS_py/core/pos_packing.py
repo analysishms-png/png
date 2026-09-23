@@ -9,7 +9,7 @@ from __future__ import annotations
 from HMS_py.core import db
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
-USER = "PYADMIN"
+USER = db.get_user()
 
 
 # ============================================================
@@ -83,7 +83,7 @@ def _validate_packing(rec: dict):
 
 def packing_list(cn=None, limit: int = 500) -> list[dict]:
     rows = db.query(
-        f"SELECT TOP {limit} {_PACKINGORDER_COLS} FROM PackingOrder ORDER BY U_EntDt DESC",
+        f"SELECT TOP {int(limit)} {_PACKINGORDER_COLS} FROM PackingOrder ORDER BY U_EntDt DESC",
         cn=cn)
     return [_map_packing(r) for r in rows]
 
@@ -101,7 +101,7 @@ def packing_get(docid: str, cn=None) -> dict | None:
 
 def packing_search(custname: str, cn=None, limit: int = 100) -> list[dict]:
     rows = db.query(
-        f"SELECT TOP {limit} {_PACKINGORDER_COLS} FROM PackingOrder "
+        f"SELECT TOP {int(limit)} {_PACKINGORDER_COLS} FROM PackingOrder "
         "WHERE CustName LIKE ? ORDER BY U_EntDt DESC",
         (f"%{custname}%",), cn=cn)
     return [_map_packing(r) for r in rows]
@@ -110,36 +110,52 @@ def packing_search(custname: str, cn=None, limit: int = 100) -> list[dict]:
 def packing_insert(rec: dict, cn=None, commit: bool = True) -> int:
     _validate_packing(rec)
     items = rec.get("items", [])
-    db.execute(
-        "INSERT INTO PackingOrder (Docid, VNo, VPrefix, VType, Site_Code, "
-        "VDate, VTime, DDate, DTime, CustName, Total, Discount, Tax, "
-        "Addition, Deduction, RoundOff, NetAmt, U_Name, U_EntDt, U_AE, "
-        "LogSite_Code, RestCode, AdvAmt, DiscPer, TaxPer, PhoneNo, Addr1, "
-        "Addr2, TokenNo, NCBOOKING, NCTYPE, PrintedYN, Remark, OrderType) "
-        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
-        "getdate(), 'A', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        (rec["docid"], int(rec.get("vno") or 0), rec.get("vprefix", ""),
-         rec.get("vtype", ""), SITE_CODE,
-         rec.get("vdate"), rec.get("vtime", ""),
-         rec.get("ddate"), rec.get("dtime", ""),
-         rec.get("custname", ""), float(rec.get("total") or 0),
-         float(rec.get("discount") or 0), float(rec.get("tax") or 0),
-         float(rec.get("addition") or 0), float(rec.get("deduction") or 0),
-         float(rec.get("roundoff") or 0), float(rec.get("netamt") or 0),
-         USER, SITE_CODE,
-         rec.get("restcode", ""), float(rec.get("advamt") or 0),
-         float(rec.get("discper") or 0), float(rec.get("taxper") or 0),
-         rec.get("phoneno", ""), rec.get("addr1", ""),
-         rec.get("addr2", ""), rec.get("tokenno", ""),
-         rec.get("ncbooking", ""), rec.get("nctype", ""),
-         rec.get("printedy", ""), rec.get("remark", ""),
-         rec.get("ordertype", "")),
-        cn=cn, commit=False)
-    for item in items:
-        packing_detail_insert({**item, "docid": rec["docid"]}, cn=cn, commit=False)
-    if commit:
-        cn.commit()
-    return 0
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        db.execute(
+            "INSERT INTO PackingOrder (Docid, VNo, VPrefix, VType, Site_Code, "
+            "VDate, VTime, DDate, DTime, CustName, Total, Discount, Tax, "
+            "Addition, Deduction, RoundOff, NetAmt, U_Name, U_EntDt, U_AE, "
+            "LogSite_Code, RestCode, AdvAmt, DiscPer, TaxPer, PhoneNo, Addr1, "
+            "Addr2, TokenNo, NCBOOKING, NCTYPE, PrintedYN, Remark, OrderType) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
+            "getdate(), 'A', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (rec["docid"], int(rec.get("vno") or 0), rec.get("vprefix", ""),
+             rec.get("vtype", ""), SITE_CODE,
+             rec.get("vdate"), rec.get("vtime", ""),
+             rec.get("ddate"), rec.get("dtime", ""),
+             rec.get("custname", ""), float(rec.get("total") or 0),
+             float(rec.get("discount") or 0), float(rec.get("tax") or 0),
+             float(rec.get("addition") or 0), float(rec.get("deduction") or 0),
+             float(rec.get("roundoff") or 0), float(rec.get("netamt") or 0),
+             USER, SITE_CODE,
+             rec.get("restcode", ""), float(rec.get("advamt") or 0),
+             float(rec.get("discper") or 0), float(rec.get("taxper") or 0),
+             rec.get("phoneno", ""), rec.get("addr1", ""),
+             rec.get("addr2", ""), rec.get("tokenno", ""),
+             rec.get("ncbooking", ""), rec.get("nctype", ""),
+             rec.get("printedy", ""), rec.get("remark", ""),
+             rec.get("ordertype", "")),
+            cn=cn, commit=False)
+        for item in items:
+            packing_detail_insert({**item, "docid": rec["docid"]}, cn=cn, commit=False)
+        if commit:
+            cn.commit()
+        return 0
+    except Exception:
+        if own:
+            try:
+                cn.rollback()
+            except Exception:
+                pass
+        raise
+    finally:
+        if own:
+            try:
+                cn.close()
+            except Exception:
+                pass
 
 
 def packing_update(docid: str, rec: dict, cn=None, commit: bool = True) -> int:
@@ -159,11 +175,29 @@ def packing_update(docid: str, rec: dict, cn=None, commit: bool = True) -> int:
 
 
 def packing_delete(docid: str, cn=None, commit: bool = True) -> int:
-    db.execute("DELETE FROM PackingOrderDetail WHERE DocID = ?",
-               (docid,), cn=cn, commit=False)
-    r = db.execute("DELETE FROM PackingOrder WHERE Docid = ?",
-                   (docid,), cn=cn, commit=commit)
-    return r
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        db.execute("DELETE FROM PackingOrderDetail WHERE DocID = ?",
+                   (docid,), cn=cn, commit=False)
+        r = db.execute("DELETE FROM PackingOrder WHERE Docid = ?",
+                       (docid,), cn=cn, commit=False)
+        if commit:
+            cn.commit()
+        return r
+    except Exception:
+        if own:
+            try:
+                cn.rollback()
+            except Exception:
+                pass
+        raise
+    finally:
+        if own:
+            try:
+                cn.close()
+            except Exception:
+                pass
 
 
 class _PackingOrderAPI:
@@ -291,3 +325,51 @@ class _PackingDetailAPI:
     def delete(docid, cn=None, commit=True): return packing_detail_delete(docid, cn, commit)
 
 PackingDetailAPI = _PackingDetailAPI()
+
+
+
+# ============================================================
+# Phase A (api-mismatch audit): UI pos_packing_ui list_all/get/
+# insert/update (docid-keyed) call karta tha. insert() UI-keys
+# (PartyName/ItemName/Qty/...) se PackingOrder+detail bhar deta hai.
+# ============================================================
+def list_all(cn=None, limit: int = 500) -> list:
+    return packing_list(cn=cn, limit=limit)
+
+
+def get(docid: str, cn=None):
+    return packing_get(docid, cn=cn)
+
+
+def insert(rec: dict, cn=None, commit: bool = True) -> int:
+    if not str(rec.get("docid", "")).strip():
+        vno_rows = db.query(
+            "SELECT MAX(VNo) FROM PackingOrder WITH (UPDLOCK, HOLDLOCK)",
+            cn=cn)
+        vno = (vno_rows[0][0] or 0) + 1 if vno_rows and vno_rows[0][0] else 1
+        vtype = str(rec.get("vtype") or "PK")
+        rec = {**rec,
+               "docid": ("D" + SITE_CODE.ljust(2) + "PK".ljust(6) +
+                         str(rec.get("vprefix", "2026")).ljust(4) +
+                         str(vno).rjust(8))[:21],
+               "vno": vno, "vtype": vtype,
+               "custname": str(rec.get("custname") or rec.get("PartyName") or ""),
+               "remark": str(rec.get("remark") or rec.get("Remarks") or ""),
+               "items": rec.get("items") or [{
+                   "sno": 1, "vtype": vtype,
+                   "vprefix": rec.get("vprefix", "2026"),
+                   "vdate": rec.get("vdate"), "itemcode": "",
+                   "qty": rec.get("Qty", 0) or 0, "rate": 0,
+                   "amount": 0, "remark": rec.get("ItemName", "")}]}
+    return packing_insert(rec, cn=cn, commit=commit)
+
+
+def update(docid: str, rec: dict, cn=None, commit: bool = True) -> int:
+    n = packing_update(docid, rec, cn=cn, commit=commit)
+    # UI ka fake "Status" field -> PrintedYN par map (Packed = printed)
+    if "status" in rec:
+        db.execute(
+            "UPDATE PackingOrder SET PrintedYN = ? WHERE Docid = ?",
+            ("Y" if str(rec["status"]).lower() == "packed" else "N", docid),
+            cn=cn, commit=commit)
+    return n

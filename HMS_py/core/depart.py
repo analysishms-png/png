@@ -9,7 +9,7 @@ from __future__ import annotations
 from HMS_py.core import db
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
-USER = "PYADMIN"
+USER = db.get_user()
 LIMITS = {"code": 6, "name": 35, "flag": 1, "header": 50, "phone": 50}
 SELECT_COLS = "Code, Name, KotYn, POS, Phone, U_Name, U_EntDt, U_AE"
 
@@ -81,3 +81,8 @@ def update(code: str, rec: dict, cn=None, commit: bool = True) -> int:
 def delete(code: str, cn=None, commit: bool = True) -> int:
     return db.execute("DELETE FROM Depart WHERE Code = ?", (code,),
                       cn=cn, commit=commit)
+
+
+
+# Phase A: UI inventory.py depart_list() call karta tha.
+depart_list = list_all

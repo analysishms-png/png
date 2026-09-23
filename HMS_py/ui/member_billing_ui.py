@@ -92,7 +92,11 @@ class MemberBillingDialog(QDialog):
         self.btn_exit = QPushButton("Exit")
         self.btn_exit.setToolTip("Close this window")
         self.btn_exit.clicked.connect(self.close)
-        for b in (self.btn_new, self.btn_view, self.btn_refresh, self.btn_exit):
+        self.btn_save = QPushButton("Save Bill")
+        self.btn_save.setToolTip("Save the billing record to database")
+        self.btn_save.clicked.connect(self._on_save)
+        for b in (self.btn_new, self.btn_save, self.btn_view,
+                  self.btn_refresh, self.btn_exit):
             btn_row.addWidget(b)
         bl.addLayout(btn_row)
 
@@ -142,7 +146,11 @@ class MemberBillingDialog(QDialog):
             return
         self.table.setRowCount(len(rows))
         for i, r in enumerate(rows):
-            for j, val in enumerate(r):
+            vals = ([r.get("vno", ""), r.get("memcode", ""), "",
+                     str(r.get("billdate") or ""), r.get("netamount", 0),
+                     r.get("u_ae", "")]
+                    if isinstance(r, dict) else list(r))
+            for j, val in enumerate(vals):
                 self.table.setItem(i, j, self._dark_item(val))
 
     def _on_select(self):
@@ -183,13 +191,38 @@ class MemberBillingDialog(QDialog):
         except Exception as e:
             QMessageBox.critical(self, "Error", str(e))
 
+    def _on_save(self):
+        rec = {
+            "memcode": self.fld_memcode.text().strip(),
+            "billdate": self.fld_billdate.text().strip() or None,
+            "amount": self.fld_netamt.text().strip() or 0,
+            "netamount": self.fld_netamt.text().strip() or 0,
+        }
+        if not rec["memcode"]:
+            QMessageBox.warning(self, "Warning", "MemCode required.")
+            return
+        try:
+            if self.current_mode == "new":
+                member_billing.insert(rec)
+            elif self.current_mode == "edit" and self.current_vno:
+                member_billing.get(self.current_vno)  # exists-check
+                member_billing.delete_membill(self.current_vno)
+                member_billing.insert(rec)
+            self._refresh()
+            self._clear_form()
+            self._fields_enabled(False)
+            self.current_mode = None
+            QMessageBox.information(self, "Success", "Bill saved.")
+        except Exception as e:
+            QMessageBox.critical(self, "Error", str(e))
+
     def _on_add_family(self):
         memcode = self.fld_famcode.text().strip()
         famname = self.fld_famname.text().strip()
         if not memcode or not famname:
             QMessageBox.warning(self, "Warning", "Family code and name are required.")
             return
-        rec = {"MemCode": memcode, "FamilyName": famname}
+        rec = {"subcode": memcode, "name": famname}
         try:
             member_billing.insert_family(rec)
             QMessageBox.information(self, "Success", "Family record added.")

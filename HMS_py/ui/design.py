@@ -104,8 +104,7 @@ class WindowSize:
 # ---------------------------------------------------------------------------
 def make_card(parent=None, title: str = "", content_layout=None):
     """Create a glass-card frame with optional title and content layout."""
-    from PyQt6.QtWidgets import QFrame, QVBoxLayout, QLabel
-    from PyQt6.QtCore import Qt
+    from PyQt6.QtWidgets import QFrame, QVBoxLayout
 
     frame = QFrame(parent)
     frame.setProperty("glassCard", True)
@@ -188,7 +187,6 @@ def styled_button(text: str, role: str = "default", tooltip: str = ""):
 
     role: 'primary', 'danger', 'warning', 'success', 'default'
     """
-    from PyQt6.QtWidgets import QPushButton
 
     btn = QPushButton(text)
     if role == "primary":
@@ -207,7 +205,7 @@ def make_button_bar(buttons: list, add_stretch: bool = True):
     buttons: [(text, role, callback, tooltip), ...]
     Returns QWidget with QHBoxLayout.
     """
-    from PyQt6.QtWidgets import QWidget, QHBoxLayout
+    from PyQt6.QtWidgets import QWidget
 
     bar = QWidget()
     lay = QHBoxLayout(bar)
@@ -234,7 +232,6 @@ def make_form_row(label_text: str, widget, required: bool = False):
 
     Returns (QLabel, widget) for use in QFormLayout.
     """
-    from PyQt6.QtWidgets import QLabel
     from ui.theme import palette
 
     p = palette()
@@ -249,8 +246,6 @@ def make_form_row(label_text: str, widget, required: bool = False):
 
 def add_empty_state(table, message: str = "No records found"):
     """Show an empty-state message in a QTableWidget."""
-    from PyQt6.QtWidgets import QTableWidgetItem
-    from PyQt6.QtCore import Qt
     from ui.theme import palette
 
     p = palette()
@@ -291,8 +286,6 @@ def setup_table(table, columns: list, sortable: bool = True,
     Sets headers, selection behavior, edit triggers, alternating rows,
     and sorting. Call this instead of manual per-table configuration.
     """
-    from PyQt6.QtWidgets import QHeaderView, QAbstractItemView
-    from PyQt6.QtCore import Qt
 
     table.setColumnCount(len(columns))
     table.setHorizontalHeaderLabels(columns)
@@ -316,7 +309,6 @@ def setup_table(table, columns: list, sortable: bool = True,
 
 def set_cell_text(table, row: int, col: int, text: str, fg: str = ""):
     """Set a table cell with theme-consistent text color."""
-    from PyQt6.QtWidgets import QTableWidgetItem
     from PyQt6.QtGui import QColor
     from ui.theme import palette
 
@@ -390,7 +382,6 @@ def make_date_edit(placeholder: str = "dd/MM/yyyy", min_width: int = 120,
                    tooltip: str = "") -> QDateEdit:
     """Create a consistently styled QDateEdit with calendar popup."""
     from PyQt6.QtWidgets import QDateEdit
-    from PyQt6.QtCore import QDate, Qt
     from ui.theme import palette
 
     p = palette()
@@ -474,8 +465,7 @@ def make_text_edit(placeholder: str = "", min_height: int = 80,
 def make_card_v2(title: str = "", content=None, parent=None, 
                  elevated: bool = False) -> QFrame:
     """Enhanced glass card with optional elevation."""
-    from PyQt6.QtWidgets import QFrame, QVBoxLayout, QLabel
-    from PyQt6.QtCore import Qt
+    from PyQt6.QtWidgets import QFrame, QVBoxLayout
     from ui.theme import palette
 
     p = palette()
@@ -522,8 +512,7 @@ def make_card_v2(title: str = "", content=None, parent=None,
 def make_info_bar(message: str, type_: str = "info", 
                   dismissible: bool = True) -> QWidget:
     """Create an info/warning/error/success bar."""
-    from PyQt6.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton
-    from PyQt6.QtCore import Qt
+    from PyQt6.QtWidgets import QWidget
     from ui.theme import palette, status_colors
 
     p = palette()
@@ -570,8 +559,7 @@ def make_info_bar(message: str, type_: str = "info",
 
 def make_progress_indicator(steps: list, current_step: int = 0) -> QWidget:
     """Create a step progress indicator (wizard-style)."""
-    from PyQt6.QtWidgets import QWidget, QHBoxLayout, QLabel, QFrame
-    from PyQt6.QtCore import Qt
+    from PyQt6.QtWidgets import QWidget, QFrame
     from ui.theme import palette
 
     p = palette()

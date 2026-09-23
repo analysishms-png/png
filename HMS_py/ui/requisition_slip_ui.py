@@ -153,7 +153,7 @@ def db_pending_lines() -> list:
     """Indent1 lines jinka ClearYN='' hai (pending requisitions)."""
     from HMS_py.core import db
     rows = db.query(
-        "SELECT TOP 200 i1.DocId, i1.Sno, i1.VDate, i1.Department, "
+        "SELECT TOP 200 i1.DocId, i1.Sno, i1.VDate, i.Department, "
         "i1.Item, i1.Qty, i1.Unit "
         "FROM Indent1 i1 INNER JOIN Indent i ON i.DocId = i1.DocId "
         "WHERE RTRIM(ISNULL(i1.ClearYN, '')) = '' "

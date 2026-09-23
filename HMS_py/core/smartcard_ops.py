@@ -3,7 +3,7 @@ from __future__ import annotations
 from HMS_py.core import db
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
-USER = "PYADMIN"
+USER = db.get_user()
 
 # === SmartCardRegistration ===
 def _map_reg(r) -> dict:
@@ -20,7 +20,7 @@ def _map_reg(r) -> dict:
 
 
 def list_all_reg(cn=None, limit=500):
-    rows = db.query(f"SELECT TOP {limit} * FROM SmartCardRegistration WHERE Site_Code = ? ORDER BY Code", (SITE_CODE,), cn=cn)
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM SmartCardRegistration WHERE Site_Code = ? ORDER BY Code", (SITE_CODE,), cn=cn)
     return [_map_reg(r) for r in rows]
 
 
@@ -34,7 +34,7 @@ def get_reg(code, cn=None):
 
 
 def search_reg(term, cn=None, limit=100):
-    rows = db.query(f"SELECT TOP {limit} * FROM SmartCardRegistration WHERE Site_Code = ? AND (Code LIKE ? OR Name LIKE ? OR CardNo LIKE ?)",
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM SmartCardRegistration WHERE Site_Code = ? AND (Code LIKE ? OR Name LIKE ? OR CardNo LIKE ?)",
                     (SITE_CODE, f"%{term}%", f"%{term}%", f"%{term}%"), cn=cn)
     return [_map_reg(r) for r in rows]
 
@@ -83,14 +83,14 @@ def _map_ledger(r) -> dict:
 
 
 def list_ledger(code, cn=None, limit=500):
-    rows = db.query(f"SELECT TOP {limit} * FROM SmartCardLedger WHERE Code = ? ORDER BY VDate DESC", (code,), cn=cn)
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM SmartCardLedger WHERE Code = ? ORDER BY VDate DESC", (code,), cn=cn)
     return [_map_ledger(r) for r in rows]
 
 
 def insert_ledger(rec, cn=None, commit=True, site=SITE_CODE, user=USER):
     db.execute(
         "INSERT INTO SmartCardLedger (Code,VType,VNo,VDate,VPrefix,Type,Narration,AmtCr,AmtDr,DocId,VSNO,HW_Id,Site_Code,U_Name,U_EntDt,U_AE,LogSite_Code,PreBalance)"
-        " VALUES (?,?,?,getdate(),?,?,?,?,?,?,?,?,getdate(),'A',?,?)",
+        " VALUES (?,?,?,getdate(),?,?,?,?,?,?,?,?,?,?,getdate(),'A',?,?)",
         (rec.get("code",""), rec.get("vtype",""), rec.get("vno",0),
          rec.get("vprefix",""), rec.get("type",""), rec.get("narration",""),
          rec.get("amtcr",0.0), rec.get("amtdr",0.0), rec.get("docid",""),
@@ -98,6 +98,99 @@ def insert_ledger(rec, cn=None, commit=True, site=SITE_CODE, user=USER):
          site, user, site, rec.get("prebalance",0.0)),
         cn=cn, commit=commit)
     return rec
+
+
+# === Auto Settle Card Balance (VB6 MemAutoSettleCardBalance.frm) ===
+def auto_settle_pending(cn=None, limit=500):
+    """Fill-grid query (VB6 Proc_341_19): active member cards jinke paas
+    outstanding balance hai (CurrBal<>0 ya SecurBal<>0).
+
+    Returns list[dict]: code, cardno, name, serialno, curr_bal, secur_bal,
+    member_name, mem_category.
+    """
+    rows = db.query(
+        "SELECT SC.Code, SC.CardNo, SC.Name, SC.SerialNo, SC.CurrBal, "
+        "SC.SecurBal, S.Name AS MemberName, M.Name AS MemCategory "
+        "FROM SmartCardRegistration SC "
+        "LEFT JOIN SubGroup S ON SC.MemberCode = S.SubCode "
+        "INNER JOIN MemCatMast M ON S.CompanyType = M.Code "
+        "WHERE (SC.LogSite_Code = ? OR SC.LogSite_Code = 'HO') "
+        "AND S.ActiveYN = 0 AND (SC.CurrBal <> 0 OR SC.SecurBal <> 0) "
+        "ORDER BY SC.Code",
+        (SITE_CODE,), cn=cn)
+    out = []
+    for r in rows:
+        try:
+            out.append({
+                "code": r.Code or "", "cardno": r.CardNo or "",
+                "name": r.Name or "", "serialno": r.SerialNo or "",
+                "curr_bal": float(r.CurrBal or 0),
+                "secur_bal": float(r.SecurBal or 0),
+                "member_name": r.MemberName or "",
+                "mem_category": r.MemCategory or "",
+            })
+        except AttributeError:
+            continue
+    return out
+
+
+def auto_settle_card(code: str, secur_settle: str = "C",
+                     cn=None, commit=True, site=SITE_CODE, user=USER):
+    """Ek card settle (VB6 CmdSave + Proc_341_20): ledger refund entry
+    ('Agnst. Auto Refund' narration) + registration zero-out.
+
+    secur_settle: 'C' = cash refund (AmtCr), 'R' = reverse to SecurBal
+    (VB6 DGRestType 'C'/'R' radio). Returns dict.
+    """
+    code = str(code or "").strip()
+    if not code:
+        raise ValueError("Card Code zaroori hai")
+    head = db.query(
+        "SELECT CurrBal, SecurBal, LastTransAmt, LastTransDate "
+        "FROM SmartCardRegistration WHERE Code = ?", (code,), cn=cn)
+    if not head:
+        raise ValueError(f"Card '{code}' SmartCardRegistration me nahi mila")
+    curr = float(head[0].CurrBal or 0)
+    sec = float(head[0].SecurBal or 0)
+
+    def _go(c, commit_):
+        if curr == 0 and sec == 0:
+            return {"code": code, "refund": 0.0, "ledger_rows": 0,
+                    "registration_rows": 0}
+        ledger_rows = 0
+        if curr != 0:
+            insert_ledger({
+                "code": code, "vtype": "ASB", "vno": 0,
+                "type": "Refund", "narration": "Agnst. Auto Refund",
+                "amtcr": abs(curr), "amtdr": 0.0, "prebalance": curr,
+            }, cn=c, commit=False, site=site, user=user)
+            ledger_rows += 1
+        if sec != 0 and secur_settle == "C":
+            insert_ledger({
+                "code": code, "vtype": "ASB", "vno": 0,
+                "type": "Refund", "narration": "Agnst. Auto Refund (Security)",
+                "amtcr": abs(sec), "amtdr": 0.0, "prebalance": sec,
+            }, cn=c, commit=False, site=site, user=user)
+            ledger_rows += 1
+        reg_rows = db.execute(
+            "UPDATE SmartCardRegistration SET CurrBal = 0, SecurBal = 0, "
+            "LastTransAmt = ?, LastTransDate = getdate() WHERE Code = ?",
+            (abs(curr), code), cn=c, commit=False)
+        if commit_:
+            c.commit()
+        return {"code": code, "refund": abs(curr) + (abs(sec) if secur_settle == "C" else 0),
+                "ledger_rows": ledger_rows, "registration_rows": reg_rows}
+
+    if cn is not None:
+        return _go(cn, commit)
+    own = db.connect()
+    try:
+        return _go(own, commit)
+    except Exception:
+        own.rollback()
+        raise
+    finally:
+        own.close()
 
 
 # === SmartCardReIssueDetail ===
@@ -112,7 +205,7 @@ def _map_reissue(r) -> dict:
 
 
 def list_reissue(cn=None, limit=500):
-    rows = db.query(f"SELECT TOP {limit} * FROM SmartCardReIssueDetail WHERE Site_Code = ? ORDER BY Trans_Id DESC",
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM SmartCardReIssueDetail WHERE Site_Code = ? ORDER BY Trans_Id DESC",
                     (SITE_CODE,), cn=cn)
     return [_map_reissue(r) for r in rows]
 
@@ -122,7 +215,7 @@ def insert_reissue(rec, cn=None, commit=True, site=SITE_CODE, user=USER):
     trans_id = (sno_rows[0][0] or 0) + 1 if sno_rows and sno_rows[0][0] else 1
     db.execute(
         "INSERT INTO SmartCardReIssueDetail (Trans_Id,CardRegId,HW_Id,IssDate,ValidUpto,Remark,OldHW_Id,OldIssDate,OldValidUpto,U_Name,U_EntDt,U_AE,Site_Code,LogSite_Code)"
-        " VALUES (?,?,?,?,getdate(),?,?,?,?,getdate(),'A',?,?)",
+        " VALUES (?,?,?,getdate(),?,?,?,?,?,?,getdate(),'A',?,?)",
         (trans_id, rec.get("cardregid",""), rec.get("hw_id",""),
          rec.get("validupto"), rec.get("remark",""), rec.get("oldhw_id",""),
          rec.get("oldissdate"), rec.get("oldvalidupto"), user, site, site),
@@ -141,7 +234,7 @@ def _map_master(r) -> dict:
 
 
 def list_master(cn=None, limit=500):
-    rows = db.query(f"SELECT TOP {limit} * FROM SmartCardMaster ORDER BY ContraDocid", cn=cn)
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM SmartCardMaster ORDER BY ContraDocid", cn=cn)
     return [_map_master(r) for r in rows]
 
 

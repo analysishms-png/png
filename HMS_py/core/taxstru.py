@@ -21,7 +21,7 @@ from __future__ import annotations
 from HMS_py.core import db
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
-USER = "PYADMIN"
+USER = db.get_user()
 LIMITS = {"code": 6, "name": 35, "taxcode": 6, "nature": 25,
           "condapp": 25, "compop": 9, "taxbeforedisc": 3}
 SELECT_COLS = ("Code, Name, Sno, TaxCode, Nature, Rate, "
@@ -156,7 +156,7 @@ def insert(rec: dict, cn=None, commit: bool = True) -> int:
         "INSERT INTO TaxStru (Code, Name, Sno, TaxCode, Nature, Rate, "
         "Limit, Limit1, Site_Code, U_Name, U_EntDt, U_AE, "
         "CondApp, LogSite_Code, CompOperator, TaxBeforeDisc) "
-        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, getdate(), 'A', ?, ?, ?, ?, ?)",
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, getdate(), 'A', ?, ?, ?, ?)",
         (rec["code"], rec["name"], rec["sno"], rec["taxcode"],
          rec.get("nature", "On Base Amt"), float(rec.get("rate") or 0),
          float(rec.get("limit") or 0), float(rec.get("limit1") or 0),
@@ -229,7 +229,7 @@ def update_structure(code: str, name: str, lines: list[dict], cn=None,
                 "INSERT INTO TaxStru (Code, Name, Sno, TaxCode, Nature, Rate, "
                 "Limit, Limit1, Site_Code, U_Name, U_EntDt, U_AE, "
                 "CondApp, LogSite_Code, CompOperator, TaxBeforeDisc) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, getdate(), 'A', ?, ?, ?, ?, ?)",
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, getdate(), 'A', ?, ?, ?, ?)",
                 (code, name, sno, line["taxcode"],
                  line.get("nature", "On Base Amt"), float(line.get("rate") or 0),
                  float(line.get("limit") or 0), float(line.get("limit1") or 0),

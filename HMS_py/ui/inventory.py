@@ -52,14 +52,6 @@ def _combo(choices: list, current: str = "") -> QComboBox:
 # ============================================================
 def godown_config() -> MasterConfig:
     import types
-    api = types.SimpleNamespace(
-        list_all=inv.godown_list,
-        get=inv.godown_get,
-        exists=inv.godown_exists,
-        insert=inv.godown_insert,
-        update=inv.godown_update,
-        delete=inv.godown_delete,
-    )
     return MasterConfig(
         title="Godown Master (P5) - HMS_py",
         columns=[("Code", "code"), ("Name", "name"), ("Short", "short"),
@@ -107,7 +99,7 @@ class IndentForm(QDialog):
         header = QWidget()
         hform = QFormLayout(header)
         self.cb_dept = QComboBox()
-        self.de_vdate = QDateEdit(date.today())
+        self.de_vdate = QDateEdit(datetime.date.today())
         self.de_vdate.setCalendarPopup(True)
         self.cb_godown = QComboBox()
         self.ed_remarks = QLineEdit()
@@ -206,7 +198,7 @@ class IndentForm(QDialog):
     def _on_new(self):
         self.edit_docid = None
         self.cb_dept.setCurrentIndex(0)
-        self.de_vdate.setDate(date.today())
+        self.de_vdate.setDate(datetime.date.today())
         self.cb_godown.setCurrentIndex(0)
         self.ed_remarks.clear()
         self.cb_clear.setCurrentIndex(0)
@@ -231,7 +223,6 @@ class IndentForm(QDialog):
 
     def _on_save(self):
         dept = self.cb_dept.currentData()
-        godown = self.cb_godown.currentData()
         if not dept:
             QMessageBox.warning(self, "Save", "Department zaroori hai")
             return
@@ -290,7 +281,7 @@ class GINForm(QDialog):
         self.ed_party.setPlaceholderText("Party code")
         self.ed_party_name = QLineEdit()
         self.ed_party_name.setPlaceholderText("Party name")
-        self.de_vdate = QDateEdit(date.today())
+        self.de_vdate = QDateEdit(datetime.date.today())
         self.de_vdate.setCalendarPopup(True)
         self.cb_godown = QComboBox()
         self.ed_remarks = QLineEdit()
@@ -421,7 +412,7 @@ class GINForm(QDialog):
         self.edit_docid = None
         self.ed_party.clear()
         self.ed_party_name.clear()
-        self.de_vdate.setDate(date.today())
+        self.de_vdate.setDate(datetime.date.today())
         self.cb_godown.setCurrentIndex(0)
         self.ed_remarks.clear()
         self.ed_oc.clear()
@@ -536,6 +527,7 @@ class GINForm(QDialog):
                 godown=godown,
                 vdate=vdate,
                 lines=lines,
+                remark=remarks,
                 user="PYADMIN"
             )
             QMessageBox.information(self, "Saved", f"GIN saved!\nDocId: {result['docid']}")
@@ -549,7 +541,7 @@ class GINForm(QDialog):
         self.edit_docid = None
         self.ed_party.clear()
         self.ed_party_name.clear()
-        self.de_vdate.setDate(date.today())
+        self.de_vdate.setDate(datetime.date.today())
         self.cb_godown.setCurrentIndex(0)
         self.ed_remarks.clear()
         self.ed_oc.clear()
@@ -939,9 +931,6 @@ def open_einvoice_config(parent=None):
 # Kitchen Stock Report (P7-1) - KSISS/KSREC
 # ============================================================
 class KitchenStockReportForm(QDialog):
-    """Kitchen Stock Report - filters KSISS/KSREC stock movements."""
-
-class KitchenStockReportForm(QDialog):
     """Kitchen Stock Report (KitchenStkRep.txt)
     VB6 Evidence: MatRep_Click, Material > Reports
     Source Tables: Stock + ItemMast
@@ -1121,6 +1110,8 @@ class KitchenStockSummaryForm(QDialog):
         # Use the core function that matches VB6 KitchenStkSumm
         rows = inv.kitchen_stock_summary(
             cn=None,
+            vdate_from=from_dt,
+            vdate_to=to_dt,
             top=500
         )
 
@@ -1150,7 +1141,6 @@ def open_kitchen_stock_summary(parent=None):
 
 
 def main() -> int:
-    from PyQt6.QtWidgets import QApplication
     app = QApplication(sys.argv)
     w = InvBrowser()
     w.show()

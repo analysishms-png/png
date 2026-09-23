@@ -8,7 +8,7 @@ from __future__ import annotations
 from HMS_py.core import db
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")  # Analysis.ini key 7
-USER = "PYADMIN"  # jab tak login wired na ho
+USER = db.get_user()
 # Column limits (schema evidence): Code varchar(5), Name varchar(25),
 # Plan_Package varchar(7), U_Name varchar(10), ActiveYN varchar(3)
 LIMITS = {"code": 5, "name": 25, "package": 7}
@@ -18,6 +18,31 @@ def list_plans(cn=None) -> list:
     return db.query(
         "SELECT Code, Name, Total, Plan_Package, ActiveYN FROM PlanMast "
         "ORDER BY Code", cn=cn)
+
+
+# Alias for standard UI interface (same as list_plans)
+def list_all(cn=None) -> list:
+    """Standard list_all alias - UI modules use this."""
+    rows = list_plans(cn=cn)
+    result = []
+    for r in rows:
+        try:
+            result.append({
+                "code": r.Code or "",
+                "name": (r.Name or "").strip(),
+                "total": float(r.Total or 0),
+                "package": r.Plan_Package or "",
+                "active": r.ActiveYN or "Y",
+            })
+        except AttributeError:
+            result.append({
+                "code": r[0] or "",
+                "name": (r[1] or "").strip(),
+                "total": float(r[2] or 0),
+                "package": r[3] or "",
+                "active": r[4] or "Y",
+            })
+    return result
 
 
 def get(code: str, cn=None):

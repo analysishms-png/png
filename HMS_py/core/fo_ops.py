@@ -24,7 +24,7 @@ from HMS_py.core.folio import PAY_TYPES as _PAY_TYPES
 from HMS_py.core.room_occ import SELECT_COLS as _ROOM_OCC_COLS
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven
-USER = "PYADMIN"
+USER = db.get_user()
 
 
 # ------------------------------------------------------------
@@ -154,7 +154,7 @@ def room_change(docid: str, new_room: str, reason: str = "",
             "RRTaxInc, RRServiceChrg, ChngDate, ExtraBed, RoomTarrif, "
             "RackRate, RoomTaxStru) "
             "VALUES (?, ?, ?, 'CHK', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
-            "?, ?, '', ?, getdate(), 'A', ?, ?, ?, ?, ?, ?, ?, ?)",
+            "?, ?, 'I', ?, getdate(), 'A', ?, ?, ?, ?, ?, ?, ?, ?)",
             (docid, new_sno, r.FolioNo, site, r.Vprefix or "", r.GuestProf,
              r.RoomCat or "", r.RoomType or "", new_room, r.RateCode or "",
              r.RoomRate or 0, raised_dates[0], raised_dates[1],

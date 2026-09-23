@@ -37,7 +37,7 @@ def _cell(val, fg: str = "") -> QTableWidgetItem:
 # ─── Opening Stock Entry ────────────────────────────────────────────
 class OpeningStockWindow(QMainWindow):
     """Opening stock: ItemMast grid with opening qty + rate input.
-    Saves to Stock table with Vtype='OPN'."""
+    Saves to Stock table with Vtype='STOP'."""
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -94,7 +94,6 @@ class OpeningStockWindow(QMainWindow):
             self.table.setRowCount(len(rows))
             for i, r in enumerate(rows):
                 code, name, unit = str(r[0] or ""), str(r[1] or ""), str(r[2] or "")
-                minstock = r[3] or 0
                 sale_rate = r[4] or 0
                 self.table.setItem(i, 0, _cell(code))
                 self.table.setItem(i, 1, _cell(name))
@@ -111,7 +110,6 @@ class OpeningStockWindow(QMainWindow):
             self.statusBar().showMessage(f"Load error: {e}")
 
     def _save(self):
-        from PyQt6.QtWidgets import QMessageBox
         saved = 0
         for i in range(self.table.rowCount()):
             qty_item = self.table.item(i, 3)
@@ -131,13 +129,15 @@ class OpeningStockWindow(QMainWindow):
             item_code = code_item.text()
             try:
                 from HMS_py.core import db
+                site = db.get_site_code()
                 db.execute(
                     "INSERT INTO Stock (DocId, Sno, Vtype, VNo, Site_Code, "
                     "Vprefix, Vdate, Item, QtyRec, Rate, Amount, VoidYN, "
                     "U_Name, U_EntDt, U_AE, LogSite_Code) "
-                    "VALUES (?, 1, 'OPN', 0, '001', '', GETDATE(), ?, ?, ?, "
-                    "?, 'N', 'SA', GETDATE(), 'A', '001')",
-                    (f"OPN{item_code}{i}", item_code, qty, rate, qty * rate))
+                    "VALUES (?, 1, 'STOP', 0, ?, '', GETDATE(), ?, ?, ?, "
+                    "?, 'N', 'SA', GETDATE(), 'A', ?)",
+                    (f"STOP{item_code}{i}", site, item_code, qty, rate,
+                     qty * rate, site))
                 saved += 1
             except Exception as e:
                 self.statusBar().showMessage(f"Save error on {item_code}: {e}")
@@ -231,7 +231,6 @@ class SundryMasterWindow(QMainWindow):
             self.statusBar().showMessage(f"Load error: {e}")
 
     def _add(self):
-        from PyQt6.QtWidgets import QMessageBox
         code = self.txt_code.text().strip()
         name = self.txt_name.text().strip()
         if not code or not name:
@@ -257,7 +256,6 @@ class SundryMasterWindow(QMainWindow):
             QMessageBox.critical(self, "Error", str(e))
 
     def _delete(self):
-        from PyQt6.QtWidgets import QMessageBox
         row = self.table.currentRow()
         if row < 0:
             QMessageBox.warning(self, "Select", "Pehle row select karo.")
@@ -371,7 +369,6 @@ class RestaurantMasterWindow(QMainWindow):
     def _add(self):
         if not self._table_exists:
             return
-        from PyQt6.QtWidgets import QMessageBox
         code = self.txt_code.text().strip()
         name = self.txt_name.text().strip()
         if not code or not name:

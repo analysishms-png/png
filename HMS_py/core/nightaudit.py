@@ -25,7 +25,7 @@ from HMS_py.core import db
 from HMS_py.core import folio as folio_mod
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
-USER = "PYADMIN"
+USER = db.get_user()
 VTYPE_RC = "RC"
 VTYPE_PPOS = "PPOS"
 PAY_CODE_RC = "KKRMCH"
@@ -190,6 +190,17 @@ def post_room_charges_for_date(vdate, vprefix: str = "2026",
     # Get next VNo for RC series
     vno = _next_vno(VTYPE_RC, vprefix, cn=cn)
 
+    # Pre-compute max sno per folio to avoid N+1 queries
+    folios = [r["folio"] for r in rooms]
+    sno_map = {}
+    if folios:
+        placeholders = ",".join("?" for _ in folios)
+        rows = db.query(
+            f"SELECT FolioNo, MAX(SNo) FROM PayCharge WHERE FolioNo IN ({placeholders}) AND Site_Code = ? AND VPrefix = ? GROUP BY FolioNo",
+            tuple(folios + [SITE_CODE, vprefix]), cn=cn)
+        for r in rows:
+            sno_map[r[0]] = r[1] or 0
+
     own = cn is None
     cn = cn or db.connect()
     try:
@@ -210,7 +221,8 @@ def post_room_charges_for_date(vdate, vprefix: str = "2026",
                 continue
 
             docid = _make_rc_docid(vprefix, vno)
-            sno = _next_sno(room["folio"], cn=cn)
+            sno = sno_map.get(room["folio"], 0) + 1
+            sno_map[room["folio"]] = sno
 
             # Room charge row (Dr)
             db.execute(
@@ -300,11 +312,11 @@ def _get_voucher_prefix(vtype: str, vdate, cn=None) -> tuple[str, int]:
     Returns (vprefix, start_srl)"""
     rows = db.query(
         "SELECT VP.Prefix, VP.Start_Srl_No FROM Voucher_Type VT "
-        "INNER JOIN Voucher_Prefix VP ON VT.V_Type = VP.V_Type AND VT.Site_Code = VP.Site_Code "
-        "AND VP.LogSite_Code = VP.LogSite_Code "
-        "WHERE VT.Site_Code = ? AND VP.Site_Code = ? AND VP.V_Type = ? "
+        "INNER JOIN Voucher_Prefix VP ON VT.V_Type = VP.V_Type "
+        "AND VT.Site_Code = VP.Site_Code AND VT.LogSite_Code = VP.LogSite_Code "
+        "WHERE VT.Site_Code = ? AND VP.V_Type = ? "
         "AND VP.Date_From <= ? ORDER BY VP.Date_From DESC",
-        (SITE_CODE, SITE_CODE, vtype, vdate), cn=cn)
+        (SITE_CODE, vtype, vdate), cn=cn)
     if not rows:
         return str(vdate.year), 1
     return rows[0][0] or str(vdate.year), int(rows[0][1] or 1)
@@ -351,7 +363,7 @@ def post_pos_revenue_for_date(vdate, vprefix: str = "2026",
                 "GuestProf, Comments, PayCode, FolioNo, RoomNo, AmtDr, U_Name, U_EntDt, U_AE, LogSite_Code) "
                 "VALUES (?, ?, 'PPOS', ?, ?, ?, ?, '', '', ?, 0, '', ?, ?, getdate(), 'A', ?)",
                 (docid, 1, vno, SITE_CODE, vprefix, vdate, rev["revcode"],
-                 0, "", amount, user, SITE_CODE),
+                 amount, user, SITE_CODE),
                 cn=cn, commit=False)
 
             posted += 1
@@ -622,18 +634,34 @@ def post_pos_revenue(date_from, date_to, user=USER, cn=None) -> int:
     Returns count of new records posted."""
     posted = 0
     aggregates = aggregate_pos_revenue(date_from, date_to, cn)
-    for agg in aggregates:
-        if is_already_posted(date_from, date_to, agg["restcode"], agg["revcode"], cn):
-            continue
-        contra_docid = f"NA_{agg['restcode']}_{agg['revcode']}_{date_from}"
-        db.execute(
-            "INSERT INTO PayCharge (DocId, Vtype, Vdate, RestCode, RevCode, "
-            "AmtDr, AmtCr, Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code) "
-            "VALUES (?, 'PPOS', ?, ?, ?, ?, 0, ?, ?, getdate(), 'A', ?)",
-            (contra_docid, date_to, agg["restcode"], agg["revcode"],
-             agg["total_net"], SITE_CODE, user, SITE_CODE),
-            cn=cn, commit=False)
-        posted += 1
-    if posted:
-        cn.commit() if cn else None
-    return posted
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        for agg in aggregates:
+            if is_already_posted(date_from, date_to, agg["restcode"], agg["revcode"], cn):
+                continue
+            contra_docid = f"NA_{agg['restcode']}_{agg['revcode']}_{date_from}"
+            db.execute(
+                "INSERT INTO PayCharge (DocId, Vtype, Vdate, RestCode, RevCode, "
+                "AmtDr, AmtCr, Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code) "
+                "VALUES (?, 'PPOS', ?, ?, ?, ?, 0, ?, ?, getdate(), 'A', ?)",
+                (contra_docid, date_to, agg["restcode"], agg["revcode"],
+                 agg["total_net"], SITE_CODE, user, SITE_CODE),
+                cn=cn, commit=False)
+            posted += 1
+        if posted:
+            cn.commit()
+        return posted
+    except Exception:
+        if own:
+            try:
+                cn.rollback()
+            except Exception:
+                pass
+        raise
+    finally:
+        if own:
+            try:
+                cn.close()
+            except Exception:
+                pass

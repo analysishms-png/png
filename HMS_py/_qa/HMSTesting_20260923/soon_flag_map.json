@@ -1,0 +1,1541 @@
+[
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "POSMas",
+    "pro": "",
+    "caption": "Setup Outlet",
+    "path": "Main Setup > Point of Sale > Setup Outlet"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "POSMas",
+    "pro": "",
+    "caption": "Outlet Bill Sundry Setting",
+    "path": "Main Setup > Point of Sale > Outlet Bill Sundry Setting"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "POSMas",
+    "pro": "",
+    "caption": "Table Master",
+    "path": "Main Setup > Point of Sale > Table Master"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Rate Group Master",
+    "path": "Main Setup > Point of Sale > Rate Group Master"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "POSMas",
+    "pro": "",
+    "caption": "Open Item Consumption",
+    "path": "Main Setup > Point of Sale > Open Item Consumption"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "POSMas",
+    "pro": "",
+    "caption": "Customer History",
+    "path": "Main Setup > Point of Sale > Customer History"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "MemMas",
+    "pro": "",
+    "caption": "Member Master",
+    "path": "Main Setup > Members Mgmt > Member Master"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Corporate Member Master",
+    "path": "Main Setup > Members Mgmt > Corporate Member Master"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Category wise Revenue",
+    "path": "Main Setup > Members Mgmt > Category wise Revenue"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Category wise Facility",
+    "path": "Main Setup > Members Mgmt > Category wise Facility"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Member Bill Sundry Setting",
+    "path": "Main Setup > Members Mgmt > Member Bill Sundry Setting"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "MemMas",
+    "pro": "",
+    "caption": "Environment Settings",
+    "path": "Main Setup > Members Mgmt > Environment Settings"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Member Age Wise Revenue",
+    "path": "Main Setup > Members Mgmt > Member Age Wise Revenue"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "MemMas",
+    "pro": null,
+    "caption": "Member Select Category",
+    "path": "Main Setup > Members Mgmt > Member Select Category"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "HallM",
+    "pro": "",
+    "caption": "Events",
+    "path": "Main Setup > Banquet > Events"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "HallM",
+    "pro": "",
+    "caption": "Banquet Bill Sundry Setting",
+    "path": "Main Setup > Banquet > Banquet Bill Sundry Setting"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "CCenterMas",
+    "pro": "",
+    "caption": "Party Master",
+    "path": "Main Setup > Inventory > Party Master"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "CCenterMas",
+    "pro": "",
+    "caption": "Item Entry ",
+    "path": "Main Setup > Inventory > Item Entry "
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Consumption Master",
+    "path": "Main Setup > Inventory > Consumption Master"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "CCenterMas",
+    "pro": "",
+    "caption": "Purchase Sundry Setting",
+    "path": "Main Setup > Inventory > Purchase Sundry Setting"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "CCenterMas",
+    "pro": "",
+    "caption": "Enviro Inventry",
+    "path": "Main Setup > Inventory > Enviro Inventry"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Com Port Properties",
+    "path": "Main Setup > EPABX > Com Port Properties"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Delete Message",
+    "path": "Main Setup > Finance > Delete Message"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "fame",
+    "pro": "",
+    "caption": "Voucher Serialisation",
+    "path": "Main Setup > Finance > Voucher Serialisation"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Voucher Wise Sundry Entry",
+    "path": "Main Setup > Utility > Voucher Wise Sundry Entry"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Sale MIS Customized",
+    "path": "Main Setup > Utility > Sale MIS Customized"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "UTL",
+    "pro": "",
+    "caption": "Inconsistency Check",
+    "path": "Main Setup > Utility > Inconsistency Check"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Data Transfer",
+    "path": "Main Setup > Utility > Data Transfer"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Data Recieving",
+    "path": "Main Setup > Utility > Data Recieving"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "UTL",
+    "pro": "",
+    "caption": "Menu Item Copy",
+    "path": "Main Setup > Utility > Menu Item Copy"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "POS Bill Deletion",
+    "path": "Main Setup > Utility > POS Bill Deletion"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Data Transfer (POS)",
+    "path": "Main Setup > Utility > Data Transfer (POS)"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "PLU File (W.Scale)",
+    "path": "Main Setup > Utility > PLU File (W.Scale)"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "User Permissions (Advanced)",
+    "path": "Main Setup > Utility > User Permissions (Advanced)"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "POS Recycle",
+    "path": "Main Setup > Utility > POS Recycle"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "UTL",
+    "pro": null,
+    "caption": "Task Scheduler",
+    "path": "Main Setup > Utility > Task Scheduler"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Recharge/Refund Entry",
+    "path": "Main Setup > Smart Card > Recharge/Refund Entry"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "-",
+    "path": "Main Setup > Smart Card > -"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Cash Card Transaction Report",
+    "path": "Main Setup > Smart Card > Cash Card Transaction Report"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Cash Card Collection Summary",
+    "path": "Main Setup > Smart Card > Cash Card Collection Summary"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Add/Edit/Delete Group With Reservation ",
+    "path": "Reservation > Operations > Add/Edit/Delete Group With Reservation "
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "ResOpEnt",
+    "pro": "",
+    "caption": "Reservation With History",
+    "path": "Reservation > Operations > Reservation With History"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "ResOpEnt",
+    "pro": "",
+    "caption": "Advance Deposit",
+    "path": "Reservation > Operations > Advance Deposit"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "ResOpEnt",
+    "pro": "",
+    "caption": "Confirmation Letters",
+    "path": "Reservation > Operations > Confirmation Letters"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "ResOpEnt",
+    "pro": "",
+    "caption": "Cancellation Letters",
+    "path": "Reservation > Operations > Cancellation Letters"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "ResOpEnt",
+    "pro": "",
+    "caption": "Reservation Status Screen",
+    "path": "Reservation > Operations > Reservation Status Screen"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Group Pickup Report",
+    "path": "Reservation > Reservation Status Report > Group Pickup Report"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Group Arrival Report",
+    "path": "Reservation > Reservation Status Report > Group Arrival Report"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "R",
+    "param": "***P",
+    "module_name": "ResStatusRpt",
+    "pro": "",
+    "caption": "Arrival List",
+    "path": "Reservation > Reservation Status Report > Arrival List"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "ReservationMIS",
+    "pro": "",
+    "caption": "23 Day Room Type Availability Forecast",
+    "path": "Reservation > M.I.S. > 23 Day Room Type Availability Forecast"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Forex Receive Entry",
+    "path": "Front Office > Operations > Forex Receive Entry"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "FDOMenu",
+    "pro": "",
+    "caption": "Display Rack",
+    "path": "Front Office > Operations > Display Rack"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Travel Agency Posting",
+    "path": "Front Office > Operations > Travel Agency Posting"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "FDOMenu",
+    "pro": "",
+    "caption": "Reverse Room Merge",
+    "path": "Front Office > Operations > Reverse Room Merge"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "FDOMenu",
+    "pro": "",
+    "caption": "Blank GRC",
+    "path": "Front Office > Operations > Blank GRC"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "R",
+    "param": "***P",
+    "module_name": "FDORep",
+    "pro": "",
+    "caption": "Charge Payment Detail",
+    "path": "Front Office > Reports > Charge Payment Detail"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "R",
+    "param": "***P",
+    "module_name": "FDORep",
+    "pro": "",
+    "caption": "Room Wise Plan Detail",
+    "path": "Front Office > Reports > Room Wise Plan Detail"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Expected Plan/Package FB Details",
+    "path": "Front Office > Reports > Expected Plan/Package FB Details"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "FDOForms",
+    "pro": "",
+    "caption": "Monthly Return",
+    "path": "Front Office > Tourism Forms > Monthly Return"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "FDOForms",
+    "pro": "",
+    "caption": "L.T. FORM II",
+    "path": "Front Office > Tourism Forms > L.T. FORM II"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "FDOForms",
+    "pro": "",
+    "caption": "L.T. FORM IV",
+    "path": "Front Office > Tourism Forms > L.T. FORM IV"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Block Master",
+    "path": "House Keeping > Setup > Block Master"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "House Keeping Op.Stock Entry",
+    "path": "House Keeping > Operations > House Keeping Op.Stock Entry"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Issue/Recd. Entry",
+    "path": "House Keeping > Operations > Issue/Recd. Entry"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Item Issued On Cleaning",
+    "path": "House Keeping > Operations > Item Issued On Cleaning"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Check Out Clearance Screen",
+    "path": "House Keeping > Operations > Check Out Clearance Screen"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Room Status Report",
+    "path": "House Keeping > Reports > Room Status Report"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Changes Department",
+    "path": "House Keeping > Changes Department"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Gravy Item Entry",
+    "path": "Inventory > Operations > Gravy Item Entry"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": null,
+    "module_name": "Purch",
+    "pro": null,
+    "caption": "Finish Material Receive Entry",
+    "path": "Inventory > Operations > Finish Material Receive Entry"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Excise Invoice Cum Gate Pass",
+    "path": "Inventory > Operations > Excise Invoice Cum Gate Pass"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "MatStat",
+    "pro": "",
+    "caption": "Pending Purchase Order",
+    "path": "Inventory > Look Ups > Pending Purchase Order"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Change Kitchen/Store",
+    "path": "Inventory > Reports > Change Kitchen/Store"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Restaurant Change ",
+    "path": "Point Of Sale > Restaurant Change "
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "",
+    "pro": "",
+    "caption": "Sale Bill Entry",
+    "path": "Point Of Sale > POS Operations > Sale Bill Entry"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "",
+    "pro": "",
+    "caption": "Settlement Entry",
+    "path": "Point Of Sale > POS Operations > Settlement Entry"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "",
+    "pro": "",
+    "caption": "Display Table",
+    "path": "Point Of Sale > POS Operations > Display Table"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "",
+    "module_name": "",
+    "pro": null,
+    "caption": "Order Booking",
+    "path": "Point Of Sale > POS Operations > Order Booking"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "",
+    "pro": null,
+    "caption": "Bill Lookup",
+    "path": "Point Of Sale > POS Operations > Bill Lookup"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "",
+    "module_name": "",
+    "pro": null,
+    "caption": "Order Booking Advance",
+    "path": "Point Of Sale > POS Operations > Order Booking Advance"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "V",
+    "param": "",
+    "module_name": "",
+    "pro": null,
+    "caption": "Token Entry",
+    "path": "Point Of Sale > POS Operations > Token Entry"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Assign Delivery",
+    "path": "Point Of Sale > POS Operations > Assign Delivery"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "POSEnt",
+    "pro": null,
+    "caption": "Payment Receive",
+    "path": "Point Of Sale > POS Operations > Payment Receive"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "R",
+    "param": "***P",
+    "module_name": "POSRep",
+    "pro": "",
+    "caption": "Stewardwise Sale",
+    "path": "Point Of Sale > POS Reports > Stewardwise Sale"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "R",
+    "param": "***P",
+    "module_name": "POSRep",
+    "pro": "",
+    "caption": "Settlement Summary",
+    "path": "Point Of Sale > POS Reports > Settlement Summary"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "R",
+    "param": "***P",
+    "module_name": "POSRep",
+    "pro": "",
+    "caption": "Group Wise Sale",
+    "path": "Point Of Sale > POS Reports > Group Wise Sale"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Denomination Detail",
+    "path": "Point Of Sale > POS Reports > Denomination Detail"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "POSRep",
+    "pro": null,
+    "caption": "Payment Receive Entry (POS)",
+    "path": "Point Of Sale > POS Reports > Payment Receive Entry (POS)"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "R",
+    "param": "***P",
+    "module_name": "MISREP",
+    "pro": "",
+    "caption": "Collection Summary",
+    "path": "Point Of Sale > POS M.I.S. > Collection Summary"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "R",
+    "param": "***P",
+    "module_name": "MISREP",
+    "pro": "",
+    "caption": "KOT Change Report",
+    "path": "Point Of Sale > POS M.I.S. > KOT Change Report"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "R",
+    "param": "***P",
+    "module_name": "MISREP",
+    "pro": "",
+    "caption": "Monthwise Sales",
+    "path": "Point Of Sale > POS M.I.S. > Monthwise Sales"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "R",
+    "param": "***P",
+    "module_name": "MISREP",
+    "pro": "",
+    "caption": "Sale Summary",
+    "path": "Point Of Sale > POS M.I.S. > Sale Summary"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "R",
+    "param": "***P",
+    "module_name": "PosTaxRep",
+    "pro": "",
+    "caption": "Taxwise Details",
+    "path": "Point Of Sale > Tax Reports > Taxwise Details"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "HallM",
+    "pro": "",
+    "caption": "Events",
+    "path": "Banquet > Setup > Events"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "HallM",
+    "pro": "",
+    "caption": "Banquet Bill Sundry Setting",
+    "path": "Banquet > Setup > Banquet Bill Sundry Setting"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "Hallop",
+    "pro": "",
+    "caption": "Banquet Booking",
+    "path": "Banquet > Operation > Banquet Booking"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "Hallop",
+    "pro": "",
+    "caption": "Catalog Selection",
+    "path": "Banquet > Operation > Catalog Selection"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "Hallop",
+    "pro": "",
+    "caption": "Chef Pre-Costing",
+    "path": "Banquet > Operation > Chef Pre-Costing"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "Hallop",
+    "pro": "",
+    "caption": "Banquet Billing",
+    "path": "Banquet > Operation > Banquet Billing"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Banquet Settlement",
+    "path": "Banquet > Operation > Banquet Settlement"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "Hallop",
+    "pro": "",
+    "caption": "Venue Availability",
+    "path": "Banquet > Operation > Venue Availability"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "Hallop",
+    "pro": "",
+    "caption": "Guest Comments",
+    "path": "Banquet > Operation > Guest Comments"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "Hallop",
+    "pro": "",
+    "caption": "Banquet Estimate Billing",
+    "path": "Banquet > Operation > Banquet Estimate Billing"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "Hallop",
+    "pro": "",
+    "caption": "Banquet Booking Advance",
+    "path": "Banquet > Operation > Banquet Booking Advance"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "R",
+    "param": "***P",
+    "module_name": "BanqRep",
+    "pro": "",
+    "caption": "Cashier  Report",
+    "path": "Banquet > Reports > Cashier  Report"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "R",
+    "param": "***P",
+    "module_name": "BanqRep",
+    "pro": "",
+    "caption": "Item Wise Sales Report",
+    "path": "Banquet > Reports > Item Wise Sales Report"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "R",
+    "param": "***P",
+    "module_name": "MISREP",
+    "pro": "",
+    "caption": "Collection Summary",
+    "path": "Banquet > MIS > Collection Summary"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "HallTaxP",
+    "pro": "",
+    "caption": "Banquet Taxwise Details",
+    "path": "Banquet > Tax Report > Banquet Taxwise Details"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "PayOpr",
+    "pro": null,
+    "caption": "Leave",
+    "path": "HR/Payroll > Operations > Leave"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Attendance",
+    "path": "HR/Payroll > Operations > Attendance"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "PayOpr",
+    "pro": null,
+    "caption": "Loan/Advance",
+    "path": "HR/Payroll > Operations > Loan/Advance"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "PayOpr",
+    "pro": null,
+    "caption": "Over Time",
+    "path": "HR/Payroll > Operations > Over Time"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "PayOpr",
+    "pro": null,
+    "caption": "Leave Encashment",
+    "path": "HR/Payroll > Operations > Leave Encashment"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "PayOpr",
+    "pro": null,
+    "caption": "Salary Creation",
+    "path": "HR/Payroll > Operations > Salary Creation"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "R",
+    "param": "***P",
+    "module_name": "PayRep",
+    "pro": null,
+    "caption": "Attendence Report",
+    "path": "HR/Payroll > Reports > Attendence Report"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "InBox",
+    "path": "Messaging > InBox"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "OutBox",
+    "path": "Messaging > OutBox"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Member Visit Entry",
+    "path": "Members Mgmt > Operations > Member Visit Entry"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Member Renewal Entry",
+    "path": "Members Mgmt > Operations > Member Renewal Entry"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Member Used Facility Entry",
+    "path": "Members Mgmt > Operations > Member Used Facility Entry"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Member Facility Billing",
+    "path": "Members Mgmt > Operations > Member Facility Billing"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Member Bill Printing",
+    "path": "Members Mgmt > Operations > Member Bill Printing"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Member Assistant",
+    "path": "Members Mgmt > Operations > Member Assistant"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Outstation Member Entry",
+    "path": "Members Mgmt > Operations > Outstation Member Entry"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Member Category Change Entry",
+    "path": "Members Mgmt > Operations > Member Category Change Entry"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Revenue Change Entry",
+    "path": "Members Mgmt > Operations > Revenue Change Entry"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Payment Due Letter Entry",
+    "path": "Members Mgmt > Operations > Payment Due Letter Entry"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Member Category Change (Conditional)",
+    "path": "Members Mgmt > Operations > Member Category Change (Conditional)"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "MemOpr",
+    "pro": null,
+    "caption": "Auto Settle Card Balance",
+    "path": "Members Mgmt > Operations > Auto Settle Card Balance"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Member Bill Missing Report",
+    "path": "Members Mgmt > Reports > Member Bill Missing Report"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "SMS Center Settings",
+    "path": "SMS > General > SMS Center Settings"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "SMS Environment Settings",
+    "path": "SMS > General > SMS Environment Settings"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Multiple SMS Type",
+    "path": "SMS > Send SMS > Multiple SMS Type"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Meter Reading",
+    "path": "Mall Mgmt > Operations > Meter Reading"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Facility Sundry Setting",
+    "path": "Mall Mgmt > Operations > Facility Sundry Setting"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "HallM",
+    "pro": "",
+    "caption": "Events",
+    "path": "Outdoor Banquet > Setup > Events"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "HallM",
+    "pro": "",
+    "caption": "Banquet Bill Sundry Setting",
+    "path": "Outdoor Banquet > Setup > Banquet Bill Sundry Setting"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "Hallop",
+    "pro": "",
+    "caption": "Banquet Booking",
+    "path": "Outdoor Banquet > Operation > Banquet Booking"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "Hallop",
+    "pro": "",
+    "caption": "Catalog Selection",
+    "path": "Outdoor Banquet > Operation > Catalog Selection"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "Hallop",
+    "pro": "",
+    "caption": "Chef Pre-Costing",
+    "path": "Outdoor Banquet > Operation > Chef Pre-Costing"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "Hallop",
+    "pro": "",
+    "caption": "Banquet Billing",
+    "path": "Outdoor Banquet > Operation > Banquet Billing"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Banquet Settlement",
+    "path": "Outdoor Banquet > Operation > Banquet Settlement"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "Hallop",
+    "pro": "",
+    "caption": "Venue Availability",
+    "path": "Outdoor Banquet > Operation > Venue Availability"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "Hallop",
+    "pro": "",
+    "caption": "Guest Comments",
+    "path": "Outdoor Banquet > Operation > Guest Comments"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "Hallop",
+    "pro": "",
+    "caption": "Banquet Estimate Billing",
+    "path": "Outdoor Banquet > Operation > Banquet Estimate Billing"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "Hallop",
+    "pro": "",
+    "caption": "Banquet Booking Advance",
+    "path": "Outdoor Banquet > Operation > Banquet Booking Advance"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "HallTaxP",
+    "pro": "",
+    "caption": "Banquet Taxwise Details",
+    "path": "Outdoor Banquet > Tax Report > Banquet Taxwise Details"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Card Initialization",
+    "path": "EXTRAs > Smart Card > Operations > Card Initialization"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Card Registration",
+    "path": "EXTRAs > Smart Card > Operations > Card Registration"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Card Recharge",
+    "path": "EXTRAs > Smart Card > Operations > Card Recharge"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Card Refund",
+    "path": "EXTRAs > Smart Card > Operations > Card Refund"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Card Re-Issue",
+    "path": "EXTRAs > Smart Card > Operations > Card Re-Issue"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "User Collection",
+    "path": "EXTRAs > Smart Card > Operations > User Collection"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Card Statement (MINI)",
+    "path": "EXTRAs > Smart Card > Reports > Card Statement (MINI)"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Card Statement (FULL)",
+    "path": "EXTRAs > Smart Card > Reports > Card Statement (FULL)"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Card Transaction Report",
+    "path": "EXTRAs > Smart Card > Reports > Card Transaction Report"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Card Collection Summary",
+    "path": "EXTRAs > Smart Card > Reports > Card Collection Summary"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "EXTSMSSETUP",
+    "pro": null,
+    "caption": "SMS (API)",
+    "path": "EXTRAs > SMS > Sstup > SMS (API)"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "EXTSMSOPR",
+    "pro": null,
+    "caption": "SMS (Scheduled)",
+    "path": "EXTRAs > SMS > Operations > SMS (Scheduled)"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": "E",
+    "param": "AEDP",
+    "module_name": "EXTSMSOPR",
+    "pro": null,
+    "caption": "SMS (Conditional)",
+    "path": "EXTRAs > SMS > Operations > SMS (Conditional)"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Transfer (Offline)",
+    "path": "EXTRAs > Data Transfer > Transfer (Offline)"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Transfer (Online)",
+    "path": "EXTRAs > Data Transfer > Transfer (Online)"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Guest Registration",
+    "path": "EXTRAs > Reward Points > Guest Registration"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Reward Points Parameter I",
+    "path": "EXTRAs > Reward Points > Reward Points Parameter I"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Godrej Locks",
+    "path": "EXTRAs > Lock Mgmt > Door Lock > Godrej Locks"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Restaurant Change ",
+    "path": "Direct Sale > Restaurant Change "
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Cascade",
+    "path": "Windows > Cascade"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Tile Horizontal",
+    "path": "Windows > Tile Horizontal"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Tile Vertical",
+    "path": "Windows > Tile Vertical"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Sale Bill Modification",
+    "path": "Sale Bill Modification"
+  },
+  {
+    "status": "SOON",
+    "mh_flag": null,
+    "param": null,
+    "module_name": null,
+    "pro": null,
+    "caption": "Manage MDI",
+    "path": "MDI > Manage MDI"
+  }
+]

@@ -8,7 +8,7 @@ from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
 from PyQt6.QtCore import Qt, QDate
 from PyQt6.QtGui import QColor, QFont
 from HMS_py.core import revenue_budget as rb
-from ui.theme import palette
+from HMS_py.ui.theme import palette
 
 
 class RevenueBudgetWindow(QMainWindow):
@@ -130,7 +130,7 @@ class RevenueBudgetWindow(QMainWindow):
                                        str(r["sr_no"]), r["group_code"],
                                        str(r["amount"])]):
                     it = QTableWidgetItem(v)
-                    it.setForeground(QColor(_theme.palette()["text"]))
+                    it.setForeground(QColor(palette()["text"]))
                     self.bg_table.setItem(i, j, it)
         except Exception:
             pass

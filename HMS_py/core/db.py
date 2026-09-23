@@ -10,7 +10,9 @@ import pyodbc
 
 DEFAULT_CONFIG = {
     "server": "Localhost",
-    "database": "KailashData2526",
+    # Live Analysis.ini (HMS_py/Analysis.ini) = Moondata2627 (KY 2026-27).
+    # Fallback only — load_config() Analysis.ini key 6 padhta hai.
+    "database": "Moondata2627",
     "reports": r"C:\Drive\HMS2526\Reports",
     "temp": r"C:\Drive\HMS2526\Temp",
     "company": "KK",
@@ -245,6 +247,20 @@ def get_user() -> str:
     """
     env = os.environ.get("HMS_USER", "").strip()
     return env[:10].upper() if env else "PYADMIN"
+
+
+def get_comp_code(cfg: dict | None = None) -> str:
+    """menuHelp CompCode - Analysis.ini key 7 (company), env HMS_COMP_CODE.
+
+    menuHelp/menuHelp1 PK ka part; default '2' (live DB evidence).
+    """
+    env = os.environ.get("HMS_COMP_CODE", "").strip()
+    if env:
+        return env
+    cfg = cfg or load_config()
+    # Company code 'KK' nahi - CompCode numeric string chahiye ('2').
+    # Analysis.ini me alag key nahi; live DB default '2'.
+    return "2"
 
 
 def get_vprefix(cfg: dict | None = None) -> str:

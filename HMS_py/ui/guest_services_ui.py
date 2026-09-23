@@ -113,9 +113,9 @@ class GuestServicesDialog(QDialog):
 
         def add():
             rec = {
-                "FolioNo": self.txt_c_folio.text(),
-                "GuestName": self.txt_c_name.text(),
-                "Comment": self.txt_c_comment.text(),
+                "name": self.txt_c_name.text(),
+                "comments": self.txt_c_comment.text(),
+                "mobile": "",
             }
             try:
                 guest_services.insert_comment(rec)
@@ -131,8 +131,8 @@ class GuestServicesDialog(QDialog):
             if row is None:
                 return
             try:
-                vno = int(self.tbl_comments.item(row, 0).text())
-                guest_services.delete_comment(vno)
+                code = int(self.tbl_comments.item(row, 0).text())
+                guest_services.delete_comments(code)
                 refresh()
             except Exception as e:
                 QMessageBox.warning(self, "Error", str(e))
@@ -179,10 +179,9 @@ class GuestServicesDialog(QDialog):
 
         def add():
             rec = {
-                "FolioNo": self.txt_co_folio.text(),
-                "Complaint": self.txt_co_comp.text(),
-                "Category": self.txt_co_cat.text(),
-                "Status": self.txt_co_status.text(),
+                "description": self.txt_co_comp.text(),
+                "category": self.txt_co_cat.text(),
+                "status": self.txt_co_status.text() or "Open",
             }
             try:
                 guest_services.insert_complaint(rec)
@@ -241,8 +240,8 @@ class GuestServicesDialog(QDialog):
 
         def add():
             rec = {
-                "FolioNo": self.txt_w_folio.text(),
-                "WakeUpTime": self.txt_w_time.text(),
+                "vtime": self.txt_w_time.text() or "07:00",
+                "folio": self.txt_w_folio.text() or 0,
             }
             try:
                 guest_services.insert_wakeup(rec)
@@ -257,8 +256,8 @@ class GuestServicesDialog(QDialog):
             if row is None:
                 return
             try:
-                vno = int(self.tbl_wakeup.item(row, 0).text())
-                guest_services.delete_wakeup(vno)
+                docid = self.tbl_wakeup.item(row, 0).text()
+                guest_services.delete_wakeup(docid)
                 refresh()
             except Exception as e:
                 QMessageBox.warning(self, "Error", str(e))
@@ -302,9 +301,9 @@ class GuestServicesDialog(QDialog):
 
         def add():
             rec = {
-                "ItemName": self.txt_lf_item.text(),
-                "Description": self.txt_lf_desc.text(),
-                "Status": self.txt_lf_status.text(),
+                "farea": self.txt_lf_item.text(),
+                "description": self.txt_lf_desc.text(),
+                "status": self.txt_lf_status.text() or "Open",
             }
             try:
                 guest_services.insert_lostfound(rec)
@@ -320,8 +319,8 @@ class GuestServicesDialog(QDialog):
             if row is None:
                 return
             try:
-                vno = int(self.tbl_lf.item(row, 0).text())
-                guest_services.delete_lostfound(vno)
+                code = int(self.tbl_lf.item(row, 0).text())
+                guest_services.delete_lostfound(code)
                 refresh()
             except Exception as e:
                 QMessageBox.warning(self, "Error", str(e))

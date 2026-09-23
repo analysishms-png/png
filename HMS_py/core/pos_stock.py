@@ -9,7 +9,7 @@ from __future__ import annotations
 from HMS_py.core import db
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
-USER = "PYADMIN"
+USER = db.get_user()
 
 
 def _f(v, default: float = 0.0) -> float:
@@ -110,7 +110,7 @@ def _validate_stock(rec: dict):
 
 def stock_list(cn=None, limit: int = 500) -> list[dict]:
     rows = db.query(
-        f"SELECT TOP {limit} {_STOCK_COLS} FROM Stock ORDER BY U_EntDt DESC",
+        f"SELECT TOP {int(limit)} {_STOCK_COLS} FROM Stock ORDER BY U_EntDt DESC",
         cn=cn)
     return [_map_stock(r) for r in rows]
 
@@ -131,7 +131,7 @@ def stock_get(docid: str, sno: int, cn=None) -> dict | None:
 
 def stock_search(item_part: str, cn=None, limit: int = 100) -> list[dict]:
     rows = db.query(
-        f"SELECT TOP {limit} {_STOCK_COLS} FROM Stock "
+        f"SELECT TOP {int(limit)} {_STOCK_COLS} FROM Stock "
         "WHERE Item LIKE ? ORDER BY U_EntDt DESC",
         (f"%{item_part}%",), cn=cn)
     return [_map_stock(r) for r in rows]

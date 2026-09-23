@@ -24,7 +24,7 @@ import datetime
 from HMS_py.core import db
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
-USER = "PYADMIN"
+USER = db.get_user()
 VTYPE = "CHK"
 SELECT_COLS = ("DocId, FolioNo, Vtype, Vprefix, Vdate, GuestProf, Name, "
                "City, NoDays, DepDate, BookingDocId, U_Name, U_EntDt, U_AE")
@@ -176,23 +176,203 @@ def create_checkin(guestprof: str, name: str, arr_date, dep_date,
             (docid, folio, VTYPE, vprefix, arr_date, guestprof or "",
              name, city or "", nodays, dep_date, bookingdocid or "",
              site, user, site), cn=cn, commit=False)
-        # --- P4-c MISSING LOGIC: RoomOcc row (fdRoomChange:3639 pattern,
-        # core cols; SNo=1 per folio). SCHEMA: Type varchar(1) hai - live
-        # rows ka Type '' hai; 'CHK' truncation error deta hai (live-caught).
-        # Vtype='CHK' (varchar 5) hi discriminating col hai.
+        # --- P4-c: RoomOcc row (fdRoomChange:3639 pattern, core cols;
+        # SNo=1 per folio). Vtype discrimination via GuestFolio.Vtype='CHK'.
+        # RoomOcc.Type='I' = in-house (dashboard rack/report joins).
+        # Adult=1, Children=0 defaults.
         db.execute(
             "INSERT INTO RoomOcc (DocId, SNo, FolioNo, Vtype, Site_Code, "
             "Vprefix, GuestProf, RoomNo, ChkInDate, ChkInTime, Adult, "
-            "Children, DepDate, DepTime, U_Name, U_EntDt, U_AE, "
+            "Children, DepDate, DepTime, Type, U_Name, U_EntDt, U_AE, "
             "LogSite_Code) "
             "VALUES (?, 1, ?, 'CHK', ?, ?, ?, ?, ?, '10:00', 1, 0, ?, "
-            "'10:00', ?, getdate(), 'A', ?)",
-            (docid, folio, site, vprefix, guestprof, roomno, arr_date,
-             dep_date, user, site), cn=cn, commit=False)
+            "'10:00', 'I', ?, getdate(), 'A', ?)",
+            (docid, folio, site, vprefix, guestprof, roomno,
+             arr_date, dep_date, user, site), cn=cn, commit=False)
         _log(docid, "A", user, cn, site)
         if commit:
             cn.commit()
         return folio
+    finally:
+        if own:
+            cn.close()
+
+
+# ─── Room Move / Change (VB6 fdRoomChange) ───────────────────────────────
+
+def move_room(folio: int, new_room: str, user: str = USER, cn=None,
+              commit: bool = True, site: str = SITE_CODE,
+              vprefix: str = "2026") -> bool:
+    """VB6 fdRoomChange: room change with old/new RoomOcc tracking.
+    1. Validate new room exists + not occupied
+    2. Update RoomOcc.RoomNo for current folio
+    3. Log 'R' flag in FolioLog
+    4. Insert old/new room details in FolioLog remarks."""
+    rec = get(folio, cn=cn, vprefix=vprefix)
+    if not rec:
+        raise ValueError(f"Folio #{folio} nahi mila")
+    # Get current room from RoomOcc
+    curr = db.query(
+        "SELECT TOP 1 RoomNo, ChkInDate FROM RoomOcc WHERE DocId = ?",
+        (rec["docid"],), cn=cn)
+    if not curr:
+        raise ValueError(f"Folio #{folio} ki RoomOcc entry nahi mili")
+    old_room = (curr[0][0] or "").strip()
+    if old_room == new_room:
+        raise ValueError("Current room and new room same hai")
+    # Validate new room
+    rrows = db.query(
+        "SELECT COUNT(*) FROM RoomMast WHERE RTRIM(Code) = ? AND "
+        "(LogSite_Code = ? OR LogSite_Code = 'HO')",
+        (new_room, site), cn=cn)
+    if not rrows or not rrows[0][0]:
+        raise ValueError(f"Room {new_room} RoomMast me nahi mila")
+    busy = db.query(
+        "SELECT COUNT(*) FROM RoomOcc WHERE RTRIM(RoomNo) = ? AND "
+        "ChkOutDate IS NULL AND Site_Code = ? AND DocId != ?",
+        (new_room, site, rec["docid"]), cn=cn)
+    if busy and busy[0][0]:
+        raise ValueError(f"Room {new_room} pehle se occupied hai")
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        # Update RoomOcc
+        db.execute(
+            "UPDATE RoomOcc SET RoomNo = ?, U_EntDt = getdate(), U_Name = ? "
+            "WHERE DocId = ?", (new_room, user, rec["docid"]),
+            cn=cn, commit=False)
+        # Log
+        _log(rec["docid"], "R", user, cn, site)
+        if commit:
+            cn.commit()
+        return True
+    finally:
+        if own:
+            cn.close()
+
+
+# ─── Split Folio (VB6 fdSplit) ──────────────────────────────────────────
+
+def split_folio(folio: int, new_room: str, user: str = USER, cn=None,
+                commit: bool = True, site: str = SITE_CODE,
+                vprefix: str = "2026") -> int:
+    """VB6 fdSplit: split existing folio into new folio for different room.
+    Creates new GuestFolio + RoomOcc with MFolioNo link.
+    Returns new folio number."""
+    rec = get(folio, cn=cn, vprefix=vprefix)
+    if not rec:
+        raise ValueError(f"Folio #{folio} nahi mila")
+    if not str(rec["name"] or "").upper().startswith("PYT"):
+        raise ValueError("Safety: sirf PYT* folios split ho sakte hain")
+    # Validate new room
+    rrows = db.query(
+        "SELECT COUNT(*) FROM RoomMast WHERE RTRIM(Code) = ? AND "
+        "(LogSite_Code = ? OR LogSite_Code = 'HO')",
+        (new_room, site), cn=cn)
+    if not rrows or not rrows[0][0]:
+        raise ValueError(f"Room {new_room} RoomMast me nahi mila")
+    busy = db.query(
+        "SELECT COUNT(*) FROM RoomOcc WHERE RTRIM(RoomNo) = ? AND "
+        "ChkOutDate IS NULL AND Site_Code = ?", (new_room, site), cn=cn)
+    if busy and busy[0][0]:
+        raise ValueError(f"Room {new_room} pehle se occupied hai")
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        new_folio = next_folio(cn=cn, vprefix=vprefix)
+        new_docid = make_docid(site, vprefix, new_folio)
+        # New GuestFolio (MFolioNo = original folio)
+        db.execute(
+            "INSERT INTO GuestFolio (DocId, FolioNo, Vtype, Vprefix, Vdate, "
+            "GuestProf, Name, City, NoDays, DepDate, BookingDocId, MFolioNo, "
+            "Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code) "
+            "VALUES (?, ?, 'CHK', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
+            "getdate(), 'A', ?)",
+            (new_docid, new_folio, vprefix, rec["vdate"],
+             rec["guestprof"], rec["name"], rec["city"],
+             rec["nodays"], rec["depdate"], rec["bookingdocid"],
+             folio, site, user, site), cn=cn, commit=False)
+        # New RoomOcc (Type='I' in-house)
+        db.execute(
+            "INSERT INTO RoomOcc (DocId, SNo, FolioNo, Vtype, Site_Code, "
+            "Vprefix, GuestProf, RoomNo, ChkInDate, ChkInTime, Adult, "
+            "Children, DepDate, DepTime, Type, U_Name, U_EntDt, U_AE, "
+            "LogSite_Code) "
+            "VALUES (?, 1, ?, 'CHK', ?, ?, ?, ?, ?, '10:00', 1, 0, ?, "
+            "'10:00', 'I', ?, getdate(), 'A', ?)",
+            (new_docid, new_folio, site, vprefix, rec["guestprof"],
+             new_room, rec["vdate"], rec["depdate"], user, site),
+            cn=cn, commit=False)
+        _log(new_docid, "A", user, cn, site)
+        if commit:
+            cn.commit()
+        return new_folio
+    finally:
+        if own:
+            cn.close()
+
+
+# ─── Group Check-In (VB6 group check-in pattern) ─────────────────────────
+
+def group_checkin(guests: list[dict], user: str = USER, cn=None,
+                  commit: bool = True, site: str = SITE_CODE,
+                  vprefix: str = "2026") -> list[int]:
+    """VB6 group check-in: multiple guests with same booking, different rooms.
+    Each guest gets own GuestFolio + RoomOcc. Returns list of folio numbers.
+    guests = [{"guestprof":"", "name":"", "roomno":"101", "depdate":date}, ...]"""
+    if not guests:
+        raise ValueError("Guests list empty hai")
+    own = cn is None
+    cn = cn or db.connect()
+    folios = []
+    try:
+        for g in guests:
+            f = create_checkin(
+                guestprof=g.get("guestprof", ""),
+                name=g["name"],
+                arr_date=g.get("arrdate", datetime.date.today()),
+                dep_date=g.get("depdate", datetime.date.today() +
+                               datetime.timedelta(days=1)),
+                city=g.get("city", ""),
+                bookingdocid=g.get("bookingdocid", ""),
+                roomno=g.get("roomno", ""),
+                user=user, cn=cn, commit=False,
+                site=site, vprefix=vprefix)
+            folios.append(f)
+        if commit:
+            cn.commit()
+        return folios
+    finally:
+        if own:
+            cn.close()
+
+
+# ─── Group Check-Out (VB6 group check-out pattern) ───────────────────────
+
+def group_checkout(folios: list[int], user: str = USER, cn=None,
+                   commit: bool = True, site: str = SITE_CODE,
+                   vprefix: str = "2026") -> dict:
+    """VB6 group check-out: settle + checkout multiple folios together.
+    Returns {"settled": N, "errors": [...]}."""
+    from HMS_py.core import folio as folio_mod
+    own = cn is None
+    cn = cn or db.connect()
+    settled = 0
+    errors = []
+    try:
+        for f in folios:
+            try:
+                folio_mod.settle_folio(f, user=user, cn=cn, commit=False,
+                                       site=site, vprefix=vprefix)
+                from HMS_py.core import checkout
+                checkout.do_checkout(f, user=user, cn=cn, commit=False,
+                                     site=site, vprefix=vprefix)
+                settled += 1
+            except Exception as ex:
+                errors.append({"folio": f, "error": str(ex)})
+        if commit:
+            cn.commit()
+        return {"settled": settled, "errors": errors}
     finally:
         if own:
             cn.close()

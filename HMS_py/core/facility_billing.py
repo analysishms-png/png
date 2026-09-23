@@ -4,7 +4,7 @@ from __future__ import annotations
 from HMS_py.core import db
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
-USER = "PYADMIN"
+USER = db.get_user()
 
 # === FacilityBill ===
 def _map_fbill(r) -> dict:
@@ -18,7 +18,7 @@ def _map_fbill(r) -> dict:
 
 
 def list_fbill(cn=None, limit=500):
-    rows = db.query(f"SELECT TOP {limit} * FROM FacilityBill WHERE Site_Code = ? ORDER BY Vno DESC",
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM FacilityBill WHERE Site_Code = ? ORDER BY Vno DESC",
                     (SITE_CODE,), cn=cn)
     return [_map_fbill(r) for r in rows]
 
@@ -37,11 +37,16 @@ def insert_fbill(rec, cn=None, commit=True, site=SITE_CODE, user=USER):
     vprefix = rec.get("vprefix", "2026")
     docid = ("D" + site.ljust(2) + "FB".ljust(6) + str(vprefix).ljust(4) + str(vno).rjust(8))[:21]
     db.execute(
-        "INSERT INTO FacilityBill (Docid,VType,Vdate,Vno,Vprefix,PartyCode,LocationCode,DueDate,ForPeriod,ToPeriod,U_AE,U_Name,U_EntDt,Site_Code,LogSite_Code,Remark)"
-        " VALUES (?,'FB',?,?,?,?,?,?,?,getdate(),'A',getdate(),?,?,?)",
-        (docid, vno, vprefix, rec.get("partycode",""), rec.get("locationcode",""),
-         rec.get("duedate"), rec.get("forperiod",""), rec.get("toperiod",""),
-         user, site, site, rec.get("remark","")),
+        # 16 columns == 16 VALUES == 12 markers — order matters:
+        # ToPeriod=?, U_AE='A', U_Name=?, U_EntDt=getdate(), Site/LogSite=?, Remark=?
+        "INSERT INTO FacilityBill (Docid, VType, Vdate, Vno, Vprefix, "
+        "PartyCode, LocationCode, DueDate, ForPeriod, ToPeriod, U_AE, "
+        "U_Name, U_EntDt, Site_Code, LogSite_Code, Remark) "
+        "VALUES (?, 'FB', getdate(), ?, ?, ?, ?, ?, ?, ?, 'A', ?, getdate(), ?, ?, ?)",
+        (docid, vno, vprefix, rec.get("partycode", ""),
+         rec.get("locationcode", ""), rec.get("duedate"),
+         rec.get("forperiod"), rec.get("toperiod"),
+         user, site, site, rec.get("remark", "")),
         cn=cn, commit=commit)
     return get_fbill(docid, cn=cn)
 
@@ -71,14 +76,17 @@ def insert_fbill1(rec, cn=None, commit=True, site=SITE_CODE, user=USER):
     sno_rows = db.query("SELECT MAX(Sno) FROM FacilityBill1 WHERE Docid = ?", (rec.get("docid",""),), cn=cn)
     sno = (sno_rows[0][0] or 0) + 1 if sno_rows and sno_rows[0][0] else 1
     db.execute(
-        "INSERT INTO FacilityBill1 (Docid,Vno,Sno,VType,Vdate,Vprefix,PartyCode,FacilityCode,Unit,UnitRate,Amount,ForPeriod,ToPeriod,AppDate,U_AE,U_Name,U_EntDt,Site_Code,LogSite_Code)"
-        " VALUES (?,?,?,?,?,?,?,?,?,?,?,getdate(),'A',getdate(),?,?)",
-        (rec.get("docid",""), rec.get("vno",0), sno, rec.get("vtype",""),
-         rec.get("vprefix","2026"), rec.get("partycode",""),
-         rec.get("facilitycode",""), rec.get("unit",""), rec.get("unitrate",0.0),
-         rec.get("amount",0.0), user, site, site),
+        "INSERT INTO FacilityBill1 (Docid, Vno, Sno, VType, Vdate, Vprefix, "
+        "PartyCode, FacilityCode, Unit, UnitRate, Amount, AppDate, U_AE, "
+        "U_Name, U_EntDt, Site_Code, LogSite_Code) "
+        "VALUES (?, ?, ?, ?, getdate(), ?, ?, ?, ?, ?, ?, getdate(), 'A', ?, getdate(), ?, ?)",
+        (rec.get("docid", ""), rec.get("vno", 0), sno,
+         rec.get("vtype", "FB"), rec.get("vprefix", "2026"),
+         rec.get("partycode", ""), rec.get("facilitycode", ""),
+         rec.get("unit", ""), rec.get("unitrate", 0.0),
+         rec.get("amount", 0.0), user, site, site),
         cn=cn, commit=commit)
-    return {"docid": rec.get("docid",""), "sno": sno}
+    return {"docid": rec.get("docid", ""), "sno": sno}
 
 
 def delete_fbill1(docid, sno, cn=None, commit=True):
@@ -110,6 +118,7 @@ def insert_fbill2(rec, cn=None, commit=True, site=SITE_CODE, user=USER):
         " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,getdate(),'A','N',?,?)",
         (rec.get("docid",""), rec.get("docid1",""), sno, rec.get("vtype",""),
          rec.get("vno",0), site, rec.get("vprefix","2026"),
+         rec.get("vdate"), rec.get("restcode",""),
          rec.get("taxcode",""), rec.get("basevalue",0.0), rec.get("taxper",0.0),
          rec.get("taxamt",0.0), user, site, sno),
         cn=cn, commit=commit)
@@ -132,7 +141,7 @@ def _map_locfac(r) -> dict:
 
 
 def list_locfac(cn=None, limit=500):
-    rows = db.query(f"SELECT TOP {limit} * FROM LocationFacility WHERE Site_Code = ? ORDER BY LcCode",
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM LocationFacility WHERE Site_Code = ? ORDER BY LcCode",
                     (SITE_CODE,), cn=cn)
     return [_map_locfac(r) for r in rows]
 
@@ -140,7 +149,7 @@ def list_locfac(cn=None, limit=500):
 def insert_locfac(rec, cn=None, commit=True, site=SITE_CODE, user=USER):
     db.execute(
         "INSERT INTO LocationFacility (LcCode,AppDate,FcCode,UnitRate,DueOn,StartMonth,U_AE,U_Name,U_EntDt,Site_Code,LogSite_Code)"
-        " VALUES (?,getdate(),?,?,?,?,'A',getdate(),?,?)",
+        " VALUES (?,getdate(),?,?,?,?,'A',?,getdate(),?,?)",
         (rec.get("lccode",""), rec.get("fcrcode",""), rec.get("unitrate",0.0),
          rec.get("dueon",""), rec.get("startmonth",""), user, site, site),
         cn=cn, commit=commit)
@@ -164,7 +173,7 @@ def _map_sunfac(r) -> dict:
 
 
 def list_sunfac(cn=None, limit=500):
-    rows = db.query(f"SELECT TOP {limit} * FROM SunTranFacility WHERE LogSite_Code = ? ORDER BY DocId DESC",
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM SunTranFacility WHERE LogSite_Code = ? ORDER BY DocId DESC",
                     (SITE_CODE,), cn=cn)
     return [_map_sunfac(r) for r in rows]
 
@@ -174,7 +183,7 @@ def insert_sunfac(rec, cn=None, commit=True, site=SITE_CODE, user=USER):
     sno = (sno_rows[0][0] or 0) + 1 if sno_rows and sno_rows[0][0] else 1
     db.execute(
         "INSERT INTO SunTranFacility (DocId,Sno,Vtype,VNo,Vdate,PartyCode,SunCode,Limit,DispName,ROff,CalcFormula,SValue,Amount,BaseAmount,U_Name,U_EntDt,U_AE,SunAppDate,RevCode,RestCode,DelFlag,SiteCode,LogSite_Code)"
-        " VALUES (?,?,?,?,getdate(),?,?,?,?,?,?,?,?,?,getdate(),'A',?,?,?,?,?,?,?,?)",
+        " VALUES (?,?,?,?,getdate(),?,?,?,?,?,?,?,?,?,?,getdate(),'A',?,?,?,?,?,?)",
         (rec.get("docid",""), sno, rec.get("vtype",""), rec.get("vno",0),
          rec.get("partycode",""), rec.get("suncode",""), rec.get("limit",0.0),
          rec.get("dispname",""), rec.get("roff",0.0), rec.get("calcformula",""),
@@ -202,7 +211,7 @@ def _map_dendetail(r) -> dict:
 
 
 def list_dendetail(cn=None, limit=500):
-    rows = db.query(f"SELECT TOP {limit} * FROM DenominationDetail WHERE Site_Code = ? ORDER BY Sno DESC",
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM DenominationDetail WHERE Site_Code = ? ORDER BY Sno DESC",
                     (SITE_CODE,), cn=cn)
     return [_map_dendetail(r) for r in rows]
 
@@ -212,7 +221,7 @@ def insert_dendetail(rec, cn=None, commit=True, site=SITE_CODE, user=USER):
     sno = (sno_rows[0][0] or 0) + 1 if sno_rows and sno_rows[0][0] else 1
     db.execute(
         "INSERT INTO DenominationDetail (Sno,Sno1,Vdate,Name,DenominationType,DenominationValue,DenominationUnit,DenominationTotal,Site_Code,U_Name,U_EntDt,U_AE,LogSite_Code)"
-        " VALUES (?,?,getdate(),?,?,?,?,?,?,?,?,getdate(),'A',?)",
+        " VALUES (?,?,getdate(),?,?,?,?,?,?,?,getdate(),'A',?)",
         (sno, rec.get("sno1",0), rec.get("name",""), rec.get("denominationtype",""),
          rec.get("denominationvalue",0.0), rec.get("denominationunit",0),
          rec.get("denominationtotal",0.0), site, user, site),
@@ -236,7 +245,7 @@ def _map_denformat(r) -> dict:
 
 
 def list_denformat(cn=None, limit=500):
-    rows = db.query(f"SELECT TOP {limit} * FROM DenominationFormat WHERE Site_Code = ? ORDER BY Sno",
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM DenominationFormat WHERE Site_Code = ? ORDER BY Sno",
                     (SITE_CODE,), cn=cn)
     return [_map_denformat(r) for r in rows]
 
@@ -281,3 +290,47 @@ class FacilityBillingAPI:
     def list_denformat(self, cn=None, limit=500): return list_denformat(cn, limit)
     def insert_denformat(self, rec, cn=None, commit=True, site=SITE_CODE, user=USER): return insert_denformat(rec, cn, commit, site, user)
     def delete_denformat(self, sno, cn=None, commit=True): return delete_denformat(sno, cn, commit)
+
+
+# ============================================================
+# Phase A (api-mismatch audit): UI facility_billing_ui list_all/
+# get/insert call karta tha. FacilityBill header me Amount column
+# nahi hai (schema-verified) — bill = header (FacilityBill) + line
+# (FacilityBill1). insert() dono ek transaction me banata hai.
+# ============================================================
+def get_fbill1(docid, cn=None):
+    rows = db.query("SELECT * FROM FacilityBill1 WHERE Docid = ? ORDER BY Sno",
+                    (docid,), cn=cn)
+    return _map_fbill1(rows[0]) if rows else None
+
+
+def insert_bill_with_line(rec, cn=None, commit: bool = True) -> dict:
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        hdr = insert_fbill({"partycode": rec.get("partycode", ""),
+                            "remark": rec.get("remark", "")},
+                           cn=cn, commit=False)
+        line = insert_fbill1({"docid": hdr["docid"], "vno": hdr["vno"],
+                              "partycode": rec.get("partycode", ""),
+                              "facilitycode": rec.get("facilitycode", ""),
+                              "unitrate": rec.get("unitrate", 0) or 0,
+                              "amount": rec.get("amount", 0) or 0},
+                             cn=cn, commit=False)
+        if commit:
+            cn.commit()
+        return {**hdr, "line": line}
+    finally:
+        if own:
+            cn.close()
+
+
+def list_all(cn=None, limit: int = 500) -> list:
+    rows = db.query(
+        f"SELECT TOP {int(limit)} * FROM FacilityBill1 "
+        "ORDER BY Docid DESC, Sno", cn=cn)
+    return [_map_fbill1(r) for r in rows]
+
+
+get = get_fbill1
+insert = insert_bill_with_line

@@ -1,8 +1,10 @@
-"""Front Office UI (P4-a): GuestProfile master + Check-In browser.
+"""Front Office UI (P4-a): Guest Profile master + Check-In browser.
 
 Run: python -m HMS_py.ui.frontoffice
-Menu (Front Office module): leaves 'Guest Profile' / 'Check In' ke saath.
-VB6 patterns: GuestProf Code auto KK######; CHK DocId 21-char; PYT-guard.
+Menu: DB User_Module me Guest Profile/Check In leaf NAHI hai — shell.py
+_inject_ported_extras() Operation menu me add karta hai; Ctrl+F / Ctrl+K
+bhi kaam karte hain. VB6 patterns: GuestProf Code auto KK######; CHK
+DocId 21-char; PYT-guard.
 """
 from __future__ import annotations
 

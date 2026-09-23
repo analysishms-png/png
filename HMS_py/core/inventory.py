@@ -22,7 +22,7 @@ from datetime import date, datetime
 from HMS_py.core import db
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
-USER = "PYADMIN"
+USER = db.get_user()
 LIMITS = {"code": 6, "name": 25, "short": 6, "depart": 6}
 SELECT_COLS = ("Code, Name, ShortName, DepartCode, SysYn, "
                "U_Name, U_EntDt, U_AE")
@@ -276,7 +276,8 @@ def gin_lines(docid: str, cn=None) -> list:
 
 def gin_create(party_code: str, party_name: str, godown: str, vdate,
                lines: list[dict], vprefix: str = "2026",
-               user: str = USER, cn=None, commit: bool = True) -> dict:
+               user: str = USER, remark: str = "",
+               cn=None, commit: bool = True) -> dict:
     """Create GIN (Purchase Receipt) with lines (VB6 pMREntry 'Add' flow).
     lines: [{"item", "qty_rec", "unit", "rate", "amount", "godown", "remarks",
              "tax_per", "tax_amt", "disc_per", "disc_amt", "indent_docid", "indent_sno"}]
@@ -286,8 +287,8 @@ def gin_create(party_code: str, party_name: str, godown: str, vdate,
         raise ValueError("At least one line required")
     
     vdate = vdate or date.today()
-    vno = _next_vno_table("GIN", "MRCR", "2026", cn=cn)
-    docid = _make_docid("MRCR", "2026", vno)
+    vno = _next_vno_table("GIN", "MRCR", vprefix, cn=cn)
+    docid = _make_docid("MRCR", vprefix, vno)
     
     own = cn is None
     cn = cn or db.connect()
@@ -299,9 +300,9 @@ def gin_create(party_code: str, party_name: str, godown: str, vdate,
             "PartyCode, PartyName, GodownCode, Remark, U_Name, U_EntDt, U_AE, "
             "LogSite_Code) "
             "VALUES (?, 'MRCR', ?, ?, ?, ?, ?, ?, ?, ?, ?, getdate(), 'A', ?)",
-            (docid, vno, SITE_CODE, "2026", vdate,
-             lines[0].get("party_code", ""), lines[0].get("party_name", party_name),
-             lines[0].get("godown", godown), "", user, SITE_CODE),
+            (docid, vno, SITE_CODE, vprefix, vdate,
+             party_code, party_name,
+             godown, remark or "", user, SITE_CODE),
             cn=cn, commit=False)
         
 # Lines - insert into Purch2 with ContraDocId = GIN.DocId
@@ -320,7 +321,6 @@ def gin_create(party_code: str, party_name: str, godown: str, vdate,
             remarks = line.get("remarks", "")
             indent_docid = line.get("indent_docid", "")
             indent_sno = int(line.get("indent_sno") or 0)
-            item_rest_code = line.get("item_rest_code", "")
 
             db.execute(
                 "INSERT INTO Purch2 (DocId, Sno, Vtype, VNo, Site_Code, Vprefix, Vdate, "
@@ -329,8 +329,8 @@ def gin_create(party_code: str, party_name: str, godown: str, vdate,
                 "GodCode, LogSite_Code) "
                 "VALUES (?, ?, 'PBPB', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
                 "'N', ?, ?, ?, '00:00', ?, getdate(), 'A', ?, ?)",
-                (docid, sno, vno, SITE_CODE, "2026", vdate,
-                 lines[0].get("party_code", ""), item, 0, qty_rec, unit, rate, amount,
+                (docid, sno, vno, SITE_CODE, vprefix, vdate,
+                 party_code, item, 0, qty_rec, unit, rate, amount,
                  tax_per, tax_amt, disc_per, disc_amt,
                  remarks, docid, sno,
                  user, line_godown, SITE_CODE), cn=cn, commit=False)
@@ -348,12 +348,12 @@ def gin_create(party_code: str, party_name: str, godown: str, vdate,
                 "INSERT INTO Stock (DocId, Sno, Vtype, VNo, Site_Code, VPrefix, "
                 "VDate, VTime, PartyCode, RestCode, RoomCat, RoomType, RoomNo, "
                 "Item, QtyIss, QtyRec, Unit, Rate, Amount, U_Name, U_EntDt, "
-                "U_AE, LogSite_Code, GodownCode, DelFlag) "
-                "VALUES (?, ?, 'MRE', ?, ?, '2026', ?, '00:00', '', '', '', '', "
-                "?, ?, 0, ?, ?, ?, ?, ?, getdate(), 'A', ?, ?, 'N')",
-                (docid, i, vno, SITE_CODE, vdate, "", item, qty_rec,
+                "U_AE, LogSite_Code, GodownCode, DelFlag, IndentDocId, IndentSNo) "
+                "VALUES (?, ?, 'MRE', ?, ?, ?, ?, '00:00', '', '', '', '', "
+                "?, ?, 0, ?, ?, ?, ?, ?, getdate(), 'A', ?, ?, 'N', ?, ?)",
+                (docid, i, vno, SITE_CODE, vprefix, vdate, "", item, qty_rec,
                  line.get("unit", ""), rate, amount, user, SITE_CODE,
-                 godown_code), cn=cn, commit=False)
+                 godown_code, indent_docid, indent_sno), cn=cn, commit=False)
             # ClearYN: mark linked indent lines as fulfilled
             if indent_docid and indent_sno:
                 db.execute(
@@ -402,7 +402,7 @@ def porder_create(party_code: str, vdate, lines: list[dict],
             "INSERT INTO POrder (DocId, VNo, VDate, VType, VPrefix, Site_Code, "
             "PartyCode, U_Name, U_EntDt, U_AE, LogSite_Code) "
             "VALUES (?, ?, ?, 'PORD', ?, ?, ?, ?, getdate(), 'A', ?)",
-            (docid, vno, vdate, "2026", SITE_CODE, party_code.strip(), USER, SITE_CODE, SITE_CODE),
+            (docid, vno, vdate, vprefix, SITE_CODE, party_code.strip(), USER, SITE_CODE),
             cn=cn, commit=False)
         
         # Lines - use header party_code as default, allow line-level override
@@ -415,8 +415,8 @@ def porder_create(party_code: str, vdate, lines: list[dict],
                 "U_AE, IndentDocId, IndentSno, Specification, ConvRatio, WtQty, WtUnit, "
                 "LogSite_Code, TaxStru, TaxAmt, Total) "
                 "VALUES (?, ?, ?, ?, 'PORD', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, getdate(), 'A', "
-                "?, ?, ?, ?, ?, ?)",
-                (docid, i, vno, vdate, "2026", SITE_CODE,
+                "?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (docid, i, vno, vdate, vprefix, SITE_CODE,
                  line_party, line["item"], line["qty"], line["unit"],
                  line["rate"], 0, line.get("amount", 0), USER,
                  line.get("indent_docid", ""), line.get("indent_sno", 0),
@@ -447,12 +447,14 @@ def porder_delete(docid: str, cn=None, commit: bool = True) -> dict:
     own = cn is None
     cn = cn or db.connect()
     try:
-        # Reverse ClearYN on linked indent lines
+        # Reverse ClearYN on linked indent lines (row-wise pairing)
         db.execute(
             "UPDATE Indent1 SET ClearYN = '' "
-            "WHERE DocId IN (SELECT IndentDocId FROM POrder1 WHERE DocId = ?) "
-            "AND Sno IN (SELECT IndentSno FROM POrder1 WHERE DocId = ?)",
-            (docid, docid), cn=cn, commit=False)
+            "WHERE EXISTS ("
+            "SELECT 1 FROM POrder1 p "
+            "WHERE p.DocId = ? AND p.IndentDocId = Indent1.DocId "
+            "AND ISNULL(p.IndentSno, 0) = Indent1.Sno)",
+            (docid,), cn=cn, commit=False)
         # Delete POrder1 lines
         db.execute("DELETE FROM POrder1 WHERE DocId = ?", (docid,), cn=cn, commit=False)
         # Delete POrder header
@@ -598,7 +600,7 @@ def stock_create(vtype: str, lines: list[dict], vdate=None, vprefix: str = "2026
                 "PartyCode, RestCode, RoomCat, RoomType, RoomNo, Item, QtyIss, QtyRec, "
                 "Unit, Rate, Amount, U_Name, U_EntDt, U_AE, LogSite_Code, GodownCode, "
                 "DelFlag) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, getdate(), 'A', ?, ?, 'N')",
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, getdate(), 'A', ?, ?, 'N')",
                 (docid, i, vtype, vno, SITE_CODE, vprefix, vdate, vtime,
                  "", "", "", "", "", line["item"], qty_iss, qty_rec,
                  line.get("unit", ""), line.get("rate", 0), line.get("amount", 0),
@@ -616,11 +618,11 @@ def stock_issue(lines: list[dict], vdate=None, vprefix: str = "2026",
                 user: str = USER, cn=None, commit: bool = True) -> dict:
     """Requisition Issue (Vtype='RQI'). lines: [{"item", "godown", "qty", "unit", "rate",
     "indent_docid", "indent_sno"}]"""
-    result = stock_create("RQI", lines, vdate, vprefix, user, cn, commit=False)
-    # ClearYN: mark linked indent lines as fulfilled
     own = cn is None
     cn = cn or db.connect()
     try:
+        result = stock_create("RQI", lines, vdate, vprefix, user, cn, commit=False)
+        # ClearYN: mark linked indent lines as fulfilled
         for line in lines:
             indent_docid = line.get("indent_docid", "")
             indent_sno = int(line.get("indent_sno") or 0)
@@ -810,8 +812,8 @@ def purchase_register(vprefix: str = "2026", cn=None, top: int = 200) -> list:
         f"SELECT TOP {int(top)} DocId, VNo, VDate, PartyCode, Vtype "
         "FROM POrder WHERE Site_Code = ? AND Vprefix = ? AND Vtype = 'PORD' "
         "UNION "
-        f"SELECT TOP {int(top)} DocId, VNo, VDate, PartyName, Vtype "
-        "FROM GIN WHERE Site_Code = ? AND Vprefix = ? AND Vtype = 'PBPB' "
+        f"SELECT TOP {int(top)} DocId, VNo, Vdate, Party, Vtype "
+        "FROM Purch1 WHERE Site_Code = ? AND Vprefix = ? AND Vtype = 'PBPB' "
         "ORDER BY VDate DESC, VNo DESC",
         (SITE_CODE, vprefix, SITE_CODE, vprefix, SITE_CODE, vprefix), cn=cn)
     return [{"docid": r[0], "vno": r[1], "vdate": r[2],
@@ -1089,7 +1091,8 @@ def stock_in_hand(cn=None, top: int = 200) -> list:
 # VB6-style Inventory Reports (read-only) - Continued
 # ============================================================
 
-def kitchen_stock_summary(cn=None, top: int = 200) -> list:
+def kitchen_stock_summary(cn=None, top: int = 200,
+                          vdate_from=None, vdate_to=None) -> list:
     """
     Kitchen Stock Summary (KitchenStkSumm.txt)
     VB6 Evidence: Kitchen Stock Summary report
@@ -1103,10 +1106,16 @@ def kitchen_stock_summary(cn=None, top: int = 200) -> list:
             SUM(ISNULL(S.QtyIss,0)) * MAX(ISNULL(S.Rate,0)) AS KitchenStockValue
         FROM Stock S
         WHERE S.Site_Code = ? AND ISNULL(S.QtyIss,0) > 0
-        GROUP BY S.Item
-        ORDER BY KitchenStockValue DESC
     """
-    rows = db.query(sql, (SITE_CODE,), cn=cn)
+    params = [SITE_CODE]
+    if vdate_from is not None:
+        sql += " AND S.Vdate >= ?"
+        params.append(vdate_from)
+    if vdate_to is not None:
+        sql += " AND S.Vdate <= ?"
+        params.append(vdate_to)
+    sql += " GROUP BY S.Item ORDER BY KitchenStockValue DESC"
+    rows = db.query(sql, tuple(params), cn=cn)
     return [{
         "item": r.Item or "",
         "issued_to_kitchen": float(r.IssuedToKitchen or 0),
@@ -1120,10 +1129,14 @@ def gin_delete(docid: str, cn=None, commit: bool = True) -> dict:
     own = cn is None
     cn = cn or db.connect()
     try:
-        # Reverse ClearYN on linked indent lines (from Purch2.IndentDocId/IndentSno)
+        # Reverse ClearYN on linked indent lines (row-wise pairing via Stock)
         db.execute(
-            """UPDATE Indent1 SET ClearYN = '' WHERE DocId IN (SELECT IndentDocId FROM Purch2 WHERE DocId = ?) AND Sno IN (SELECT IndentSno FROM Purch2 WHERE DocId = ?)""",
-            (docid, docid), cn=cn, commit=False)
+            """UPDATE Indent1 SET ClearYN = ''
+            WHERE EXISTS (
+                SELECT 1 FROM Stock s
+                WHERE s.DocId = ? AND s.IndentDocId = Indent1.DocId
+                AND ISNULL(s.IndentSNo, 0) = Indent1.Sno)""",
+            (docid,), cn=cn, commit=False)
         # Delete Purch2 lines (GIN lines)
         db.execute("DELETE FROM Purch2 WHERE ContraDocId = ?", (docid,), cn=cn, commit=False)
         # Delete GIN header

@@ -17,7 +17,7 @@ import datetime
 from HMS_py.core import db, checkin
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
-USER = "PYADMIN"
+USER = db.get_user()
 
 
 def _get_checkout_type(cn=None) -> str:
@@ -79,18 +79,19 @@ def list_active_folios(cn=None, vprefix: str = "2026",
     """Checked-in folios still open in RoomOcc (ChkOutDate IS NULL)."""
     rows = db.query(
         f"SELECT TOP {int(top)} ro.DocId, gf.FolioNo, gf.Name, gf.GuestProf, gf.City, "
-        "gf.NoDays, gf.DepDate, ro.ChkOutDate, ro.ChkoutUser, gf.U_Name, gf.U_AE "
+        "gf.NoDays, gf.DepDate, ro.ChkOutDate, ro.ChkoutUser, gf.U_Name, gf.U_AE, ro.RoomNo "
         "FROM RoomOcc ro INNER JOIN GuestFolio gf ON gf.DocId = ro.DocId "
         "WHERE ro.Site_Code = ? AND ro.Vprefix = ? AND ro.ChkOutDate IS NULL "
         "ORDER BY gf.FolioNo DESC",
         (SITE_CODE, vprefix), cn=cn)
     out = []
     for r in rows:
-        doc, fno, name, gp, city, nod, dep, cod, cou, un, uae = r
+        doc, fno, name, gp, city, nod, dep, cod, cou, un, uae, room = r
         out.append({
             "docid": doc, "folio": fno,
             "name": (name or "").strip(),
             "guestprof": gp or "", "city": city or "",
+            "roomno": (room or "").strip(),
             "nodays": nod or 0,
             "depdate": dep.date() if isinstance(dep, datetime.datetime) else dep,
             "checkout_date": cod,
@@ -155,6 +156,12 @@ def do_checkout(folio: int, user: str = USER, cn=None,
     if checkout_type == "Strict" and abs(bal["balance"]) > 0.005:
         raise ValueError(f"Checkout type '{checkout_type}' requires zero balance")
 
+    # VB6 FdCheckOut.frm:3465-3482: RoomCheckOutClearanceYN enabled hone
+    # par clearance pending ho to checkout block.
+    clr = check_clearance(folio, cn=cn)
+    if clr["enabled"] and not clr["cleared"]:
+        raise ValueError("Room Check Out Clearance Is Still Pending.")
+
     own = cn is None
     cn_use = cn or db.connect()
     try:
@@ -200,9 +207,42 @@ def reverse_checkout(folio: int, user: str = USER, cn=None,
     try:
         n = db.execute(
             "UPDATE RoomOcc SET ChkOutDate = NULL, ChkOutTime = '', "
-            "ChkoutUser = NULL, Type = '', U_Name = ?, U_EntDt = getdate(), U_AE = 'E' "
+            "ChkoutUser = NULL, UserChkOutDate = NULL, Type = '', "
+            "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' "
             "WHERE Site_Code = ? AND Vprefix = ? AND FolioNo = ? AND ChkOutDate IS NOT NULL",
             (user, site, vprefix, folio), cn=cn_use, commit=False)
+
+        # VB6 FdRevCheckOut.frm:1482: group members (MFolioNoDocid link)
+        # bhi reverse - UserChkOutDate/ChkOutUser clear on Type='O' rows.
+        gf = db.query(
+            "SELECT MFolioNoDocid FROM GuestFolio WHERE DocId = ?",
+            (rows[0][0],), cn=cn_use)
+        mfdocid = (gf[0][0] or "").strip() if gf and gf[0][0] else ""
+        if mfdocid:
+            db.execute(
+                "UPDATE RoomOcc SET ChkOutDate = NULL, ChkOutTime = '', "
+                "ChkoutUser = NULL, UserChkOutDate = NULL, Type = '', "
+                "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' "
+                "WHERE Site_Code = ? AND Type = 'O' AND DocId IN ("
+                "SELECT DocId FROM GuestFolio WHERE MFolioNoDocid = ?)",
+                (user, site, mfdocid), cn=cn_use, commit=False)
+
+        # VB6 FdRevCheckOut.frm:1490-1503: settle marks reverse
+        db.execute(
+            "UPDATE PayCharge SET SettleDate = NULL, Bill_No = NULL "
+            "WHERE Site_Code = ? AND VPrefix = ? AND FolioNo = ? AND "
+            "Vtype NOT IN ('ARRES', 'ADRES')",
+            (site, vprefix, folio), cn=cn_use, commit=False)
+        db.execute(
+            "UPDATE PayCharge SET ModeSet = '' WHERE Site_Code = ? AND "
+            "VPrefix = ? AND FolioNo = ? AND ModeSet = 'S' AND "
+            "PayCode <> ?",
+            (site, vprefix, folio, "KKROFF"), cn=cn_use, commit=False)
+        db.execute(
+            "UPDATE FOMBillDetails SET Status = 'CANCEL', U_Name = ?, "
+            "U_EntDt = getdate(), U_AE = 'E' WHERE FolioNo = ? AND "
+            "SiteCode = ? AND Status = 'SETTLE'",
+            (user, folio, site), cn=cn_use, commit=False)
 
         log_rows = db.query(
             "SELECT MAX(Id) FROM FolioLog WHERE LogSite_Code = ?",

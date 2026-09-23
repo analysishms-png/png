@@ -120,10 +120,12 @@ class NightAuditReportsWindow(QMainWindow):
                 from HMS_py.core import db
                 cfg = db.load_config()
                 cn = db.connect(cfg)
-                rows = db.query(f"SELECT TOP 100 * FROM LEDGER", cn=cn)
+                rows = db.query(
+                    "SELECT TOP 100 DocId, V_Date, V_Type, SubCode, "
+                    "AmtDr, AmtCr FROM LEDGER ORDER BY V_Date DESC", cn=cn)
                 cn.close()
                 QMessageBox.information(self, desc, f"Report executed ({len(rows)} rows)")
-        except Exception as e:
+        except Exception:
             QMessageBox.information(self, desc,
                 f"Report '{key}' - DB me data nahi ya query issue.\n"
                 f"VB6 me Crystal Report .rpt file se bind hota tha.")

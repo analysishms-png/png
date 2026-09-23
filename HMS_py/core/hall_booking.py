@@ -3,7 +3,7 @@ from __future__ import annotations
 from HMS_py.core import db
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
-USER = "PYADMIN"
+USER = db.get_user()
 
 
 # === HallBook ===
@@ -27,7 +27,7 @@ def _validate_hallbook(rec: dict):
 
 
 def list_all_hallbook(cn=None, limit=500):
-    rows = db.query(f"SELECT TOP {limit} * FROM HallBook WHERE Site_Code = ? ORDER BY VNo DESC", (SITE_CODE,), cn=cn)
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM HallBook WHERE Site_Code = ? ORDER BY VNo DESC", (SITE_CODE,), cn=cn)
     return [_map_hallbook(r) for r in rows]
 
 
@@ -37,7 +37,7 @@ def get_hallbook(vno, site=SITE_CODE, cn=None, vprefix="2026"):
 
 
 def search_hallbook(term, site=SITE_CODE, cn=None, limit=100):
-    rows = db.query(f"SELECT TOP {limit} * FROM HallBook WHERE Site_Code = ? AND (PartyName LIKE ? OR DocId LIKE ?)",
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM HallBook WHERE Site_Code = ? AND (PartyName LIKE ? OR DocId LIKE ?)",
                     (site, f"%{term}%", f"%{term}%"), cn=cn)
     return [_map_hallbook(r) for r in rows]
 
@@ -54,7 +54,7 @@ def insert_hallbook(rec, cn=None, commit=True, site=SITE_CODE, user=USER):
     docid = ("D" + site.ljust(2) + "HB".ljust(6) + str(vprefix).ljust(4) + str(vno).rjust(8))[:21]
     db.execute(
         "INSERT INTO HallBook (DocId,Vtype,VNo,VTime,Site_Code,Vprefix,Vdate,PartyName,Add1,Add2,City,Func_Name,BookingStatus,RestCode,FrBookDate,FrBookTime,ToBookDate,ToBookTime,Total,DiscPer,DiscAmt,NonTaxable,Taxable,Tax,ServiceCharge,AddAmt,DedAmt,RoundOff,U_Name,U_EntDt,U_AE,HallRent,Remarks,Advance,NetAmount,LogSite_Code,BookingAgent)"
-        " VALUES (?,'HB',?,?,?,?,getdate(),?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,getdate(),'A',?,?,0,0,?,?)",
+        " VALUES (?,'HB',?,?,?,?,getdate(),?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,getdate(),'A',?,?,?,?,?,?)",
         (docid, vno, rec.get("vtime", ""), site, vprefix,
          rec.get("partyname", ""), rec.get("add1", ""), rec.get("add2", ""),
          rec.get("city", ""), rec.get("func_name", ""),
@@ -116,12 +116,12 @@ def insert_hallbook1(rec, cn=None, commit=True, site=SITE_CODE, user=USER):
     sno = (sno_rows[0][0] or 0) + 1 if sno_rows and sno_rows[0][0] else 1
     db.execute(
         "INSERT INTO HallBook1 (DocId,Sno,Vtype,VNo,Site_Code,Vprefix,Vdate,PartyCode,RestCode,RoomCat,RoomType,RoomNo,Item,QtyIss,Unit,Rate,Amount,TaxPer,TaxAmt,DiscPer,DiscAmt,VoidYN,Remarks,U_Name,U_EntDt,U_AE,LogSite_Code)"
-        " VALUES (?,?,?,?,?,?,getdate(),?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'',getdate(),'A',?)",
+        " VALUES (?,?,?,?,?,?,getdate(),?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'',?,getdate(),'A',?)",
         (rec.get("docid",""), sno, rec.get("vtype","HB"), rec.get("vno",0), site, rec.get("vprefix","2026"),
          rec.get("partycode",""), rec.get("restcode",""), rec.get("roomcat",""), rec.get("roomtype",""),
          rec.get("roomno",""), rec.get("item",""), rec.get("qtyiss",0.0), rec.get("unit",""),
          rec.get("rate",0.0), rec.get("amount",0.0), rec.get("taxper",0.0), rec.get("taxamt",0.0),
-         rec.get("discper",0.0), rec.get("discamt",0.0), user, site),
+         rec.get("discper",0.0), rec.get("discamt",0.0), rec.get("remarks",""), user, site),
         cn=cn, commit=commit)
     return {"docid": rec.get("docid",""), "sno": sno}
 
@@ -143,7 +143,7 @@ def _map_hallsale1(r) -> dict:
 
 
 def list_hallsale1(cn=None, limit=500):
-    rows = db.query(f"SELECT TOP {limit} * FROM HallSale1 WHERE Site_Code = ? ORDER BY VNo DESC", (SITE_CODE,), cn=cn)
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM HallSale1 WHERE Site_Code = ? ORDER BY VNo DESC", (SITE_CODE,), cn=cn)
     return [_map_hallsale1(r) for r in rows]
 
 
@@ -162,13 +162,14 @@ def insert_hallsale1(rec, cn=None, commit=True, site=SITE_CODE, user=USER):
     docid = ("D" + site.ljust(2) + "HS".ljust(6) + str(vprefix).ljust(4) + str(vno).rjust(8))[:21]
     db.execute(
         "INSERT INTO HallSale1 (DocId,Vtype,VNo,VTime,Site_Code,Vprefix,Vdate,RestCode,Party,Total,DiscPer,DiscAmt,NonTaxable,Taxable,Tax,ServiceCharge,AddAmt,DedAmt,RoundOff,NetAmt,FrBookDate,FrBookTime,U_Name,U_EntDt,U_AE,ToBookDate,ToBookTime,HallRent,Remarks,NoOfPax,RatePerPax,TotalPerCover,Amount,Advance,RectNo,rectDate,CrCardNo,CrCardHolder,BookDocId,DelFlag,Narration,LogSite_Code,Narration1,CGST,SGST,IGST)"
-        " VALUES (?,'HS',?,?,?,?,getdate(),?,?,?,?,?,?,?,?,?,?,?,?,?,getdate(),'A',?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'N','',?,?,?,?)",
+        " VALUES (?,'HS',?,?,?,?,getdate(),?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,getdate(),'A',?,?,?,?,?,?,?,?,?,?,?,NULL,'','',?,'N','',?,?,?,?,?)",
         (docid, vno, rec.get("vtime",""), site, vprefix,
          rec.get("restcode",""), rec.get("party",""), rec.get("total",0.0),
          rec.get("discper",0.0), rec.get("discamt",0.0), rec.get("nontaxable",0.0),
          rec.get("taxable",0.0), rec.get("tax",0.0), rec.get("servicecharge",0.0),
          rec.get("addamt",0.0), rec.get("dedamt",0.0), rec.get("roundoff",0.0),
          rec.get("netamt",0.0), rec.get("frbookdate"), rec.get("frbooktime",""),
+         user,
          rec.get("tobookdate"), rec.get("tobooktime",""), rec.get("hallrent",0.0),
          rec.get("remarks",""), rec.get("noofpax",0), rec.get("rateperpax",0.0),
          rec.get("totalpercover",0.0), rec.get("amount",0.0), rec.get("advance",0.0),
@@ -210,7 +211,7 @@ def _map_hallstock(r) -> dict:
 
 
 def list_hallstock(cn=None, limit=500):
-    rows = db.query(f"SELECT TOP {limit} * FROM HallStock WHERE Site_Code = ? ORDER BY DocId DESC", (SITE_CODE,), cn=cn)
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM HallStock WHERE Site_Code = ? ORDER BY DocId DESC", (SITE_CODE,), cn=cn)
     return [_map_hallstock(r) for r in rows]
 
 
@@ -219,13 +220,14 @@ def insert_hallstock(rec, cn=None, commit=True, site=SITE_CODE, user=USER):
     sno = (sno_rows[0][0] or 0) + 1 if sno_rows and sno_rows[0][0] else 1
     db.execute(
         "INSERT INTO HallStock (DocId,Sno,Vtype,VNo,Site_Code,Vprefix,Vdate,Party,RestCode,ContraDocId,ContraSno,Item,QtyIss,Unit,Rate,Amount,TaxPer,TaxAmt,DiscPer,DiscAmt,VoidYN,Remarks,U_Name,U_EntDt,U_AE,Total,DiscApp,RoundOff,DepartCode,GodCode,DelFlag,LogSite_Code,SChrgApp,SChrgPer,SChrgAmt)"
-        " VALUES (?,?,?,?,?,?,getdate(),?,?,?,?,?,?,?,?,?,?,?,?,?,?,'',getdate(),'A',?,?,?,?,?,?,?='N',?,?,?)",
+        " VALUES (?,?,?,?,?,?,getdate(),?,?,?,?,?,?,?,?,?,?,?,?,?,'',?,?,getdate(),'A',?,?,?,?,?,'N',?,?,?,?)",
         (rec.get("docid",""), sno, rec.get("vtype",""), rec.get("vno",0), site,
          rec.get("vprefix",""), rec.get("party",""), rec.get("restcode",""),
          rec.get("contradocid",""), rec.get("contrasno",0), rec.get("item",""),
          rec.get("qtyiss",0.0), rec.get("unit",""), rec.get("rate",0.0),
          rec.get("amount",0.0), rec.get("taxper",0.0), rec.get("taxamt",0.0),
-         rec.get("discper",0.0), rec.get("discamt",0.0), user,
+         rec.get("discper",0.0), rec.get("discamt",0.0),
+         rec.get("remarks",""), user,
          rec.get("total",0.0), rec.get("discapp",0.0), rec.get("roundoff",0.0),
          rec.get("departcode",""), rec.get("godcode",""), site,
          rec.get("schrgapp","").strip(), rec.get("schrgper",0.0), rec.get("schrgamt",0.0)),
@@ -251,7 +253,7 @@ def _map_pchargeh(r) -> dict:
 
 
 def list_pchargeh(cn=None, limit=500):
-    rows = db.query(f"SELECT TOP {limit} * FROM PayChargeH WHERE Site_Code = ? ORDER BY DocId DESC", (SITE_CODE,), cn=cn)
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM PayChargeH WHERE Site_Code = ? ORDER BY DocId DESC", (SITE_CODE,), cn=cn)
     return [_map_pchargeh(r) for r in rows]
 
 
@@ -260,7 +262,7 @@ def insert_pchargeh(rec, cn=None, commit=True, site=SITE_CODE, user=USER):
     sno = (sno_rows[0][0] or 0) + 1 if sno_rows and sno_rows[0][0] else 1
     db.execute(
         "INSERT INTO PayChargeH (DocId,SNo,Vtype,VNo,Site_Code,VPrefix,Vdate,VTime,GuestProf,EmpCode,CompCode,Comments,PayCode,PayType,AmtCr,AmtDr,TipAmt,RoomCat,RoomType,RoomNo,FPNo,CardNo,CardHolder,ChqNo,ChqDate,ExpDate,BookNo,BookType,U_Name,U_EntDt,U_AE,RestCode,BillAmount,ContraDocID,DbtChkIn,TaxPer,OnAmt,Bill_No,MarkEntry,ModeSet,SettleDate,BatchNo,PostDocId,LogSite_Code,TaxStru,TxnNo)"
-        " VALUES (?,?,?,?,?,?,getdate(),?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,getdate(),'A',?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        " VALUES (?,?,?,?,?,?,getdate(),?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,getdate(),'A',?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
         (rec.get("docid",""), sno, rec.get("vtype",""), rec.get("vno",0), site,
          rec.get("vprefix",""), rec.get("vtime",""), rec.get("guestprof",""),
          rec.get("empcode",""), rec.get("compcode",""), rec.get("comments",""),
@@ -297,7 +299,7 @@ def _map_suntranH(r) -> dict:
 
 
 def list_suntranH(cn=None, limit=500):
-    rows = db.query(f"SELECT TOP {limit} * FROM SunTranH WHERE LogSite_Code = ? ORDER BY DocId DESC", (SITE_CODE,), cn=cn)
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM SunTranH WHERE LogSite_Code = ? ORDER BY DocId DESC", (SITE_CODE,), cn=cn)
     return [_map_suntranH(r) for r in rows]
 
 
@@ -306,7 +308,7 @@ def insert_suntranH(rec, cn=None, commit=True, site=SITE_CODE, user=USER):
     sno = (sno_rows[0][0] or 0) + 1 if sno_rows and sno_rows[0][0] else 1
     db.execute(
         "INSERT INTO SunTranH (DocId,Sno,Vtype,VNo,Vdate,PartyCode,SunCode,Limit,DispName,ROff,CalcFormula,SValue,Amount,BaseAmount,U_Name,U_EntDt,U_AE,SunAppDate,RevCode,RestCode,DelFlag,SiteCode,LogSite_Code)"
-        " VALUES (?,?,?,?,getdate(),?,?,?,?,?,?,?,?,?,getdate(),'A',?,?,?,?,?,?,?,?)",
+        " VALUES (?,?,?,?,getdate(),?,?,?,?,?,?,?,?,?,?,getdate(),'A',?,?,?,?,?,?)",
         (rec.get("docid",""), sno, rec.get("vtype",""), rec.get("vno",0),
          rec.get("partycode",""), rec.get("suncode",""), rec.get("limit",0.0),
          rec.get("dispname",""), rec.get("roff",0.0), rec.get("calcformula",""),

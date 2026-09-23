@@ -11,7 +11,7 @@ from __future__ import annotations
 from HMS_py.core import db
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
-USER = "PYADMIN"
+USER = db.get_user()
 
 
 # ============================================================
@@ -51,7 +51,7 @@ def _validate_tdschal(rec: dict):
 
 def tdschal_list(cn=None, limit: int = 500) -> list[dict]:
     rows = db.query(
-        f"SELECT TOP {limit} DocId, ChalType, ChalNo, ChalDate, Site_Code, "
+        f"SELECT TOP {int(limit)} DocId, ChalType, ChalNo, ChalDate, Site_Code, "
         "v_Prefix, BankCode, MonthNo, TDSAmt, Chq_No, Chq_Date, "
         "U_Name, U_EntDt, U_AE, BankName, LogSite_Code "
         "FROM TDSChal ORDER BY DocId", cn=cn)
@@ -147,7 +147,7 @@ def _validate_tdschal1(rec: dict):
 
 def tdschal1_list(cn=None, limit: int = 500) -> list[dict]:
     rows = db.query(
-        f"SELECT TOP {limit} DocId, VSNo, ChalType, ChalNo, Site_Code, "
+        f"SELECT TOP {int(limit)} DocId, VSNo, ChalType, ChalNo, Site_Code, "
         "ChalDate, TDSDOCID, TDSVSNo, V_Date, TDSCODE, ACCODE, "
         "Amt, TDS, TDSAmt, CertiNo, CertiDate, U_Name, U_EntDt, U_AE, "
         "LogSite_Code FROM TDSChal1 ORDER BY DocId, VSNo", cn=cn)
@@ -206,6 +206,35 @@ def tdschal1_delete_all(docid: str, cn=None, commit: bool = True) -> int:
     return db.execute(
         "DELETE FROM TDSChal1 WHERE DocId = ?", (docid,),
         cn=cn, commit=commit)
+
+
+def tds_detail(subcode: str, d_from=None, d_to=None, cn=None) -> list[dict]:
+    """Party-wise TDS lines (VB6 FaTDSCertificate: LEDGERTDS by TDSDrCode).
+    Returns dicts with 'tds_amt' (UI FaTDSCertificate sum key)."""
+    subcode = (subcode or "").strip()
+    sql = ("SELECT t.DocId, t.V_SNo, t.V_DATE, t.TDSCode, t.TDSDrCode, "
+           "t.TDSYN, t.ONAMT, t.TDS, t.TDSAMT, t.TDSPOST, t.TDSDocId, "
+           "t.TDSV_SNo, s.Name "
+           "FROM LEDGERTDS t "
+           "LEFT JOIN SubGroup s ON s.SubCode = t.TDSDrCode "
+           "WHERE RTRIM(t.TDSDrCode) = ?")
+    params: list = [subcode]
+    if d_from is not None:
+        sql += " AND t.V_DATE >= ?"
+        params.append(d_from)
+    if d_to is not None:
+        sql += " AND t.V_DATE <= ?"
+        params.append(d_to)
+    sql += " ORDER BY t.V_DATE, t.DocId, t.V_SNo"
+    rows = db.query(sql, tuple(params), cn=cn)
+    return [{
+        "docid": r[0] or "", "v_sno": r[1] or 0, "v_date": r[2],
+        "tdscode": r[3] or "", "tdsdrcode": r[4] or "",
+        "tdsyn": r[5] or "", "onamt": float(r[6] or 0),
+        "tds": float(r[7] or 0), "tds_amt": float(r[8] or 0),
+        "tdspost": r[9] or "", "tds_docid": r[10] or "",
+        "tds_v_sno": r[11] or 0, "name": (r[12] or "").strip(),
+    } for r in rows]
 
 
 # ============================================================

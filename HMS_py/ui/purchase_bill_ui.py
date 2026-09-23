@@ -9,7 +9,7 @@ from PyQt6.QtCore import Qt, QDate
 from PyQt6.QtGui import QColor
 from HMS_py.core import purchase as purch
 from HMS_py.core import ledger as led
-from ui.theme import palette
+from HMS_py.ui.theme import palette
 
 class PurchaseBillWindow(QMainWindow):
     def __init__(self, parent=None):
@@ -99,13 +99,15 @@ class PurchaseBillWindow(QMainWindow):
                           "disc_per": 0, "disc_amt": 0})
         if not lines:
             QMessageBox.warning(self, "Empty", "Koi lines nahi"); return
+        if not party_code:
+            QMessageBox.warning(self, "Input", "Party code zaroori hai"); return
         try:
-            result = purch.purch1_insert({
-                "party_code": party_code, "vdate": vdate, "narration": self.txt_remark.text(),
-                "net_amount": sum(l["amount"] for l in lines),
-                "tax_amount": sum(l["tax_amt"] for l in lines),
-            })
-            QMessageBox.information(self, "Saved", "Purchase Bill saved!")
+            result = purch.purchase_bill_create(
+                party_code, vdate, lines,
+                remark=self.txt_remark.text().strip())
+            QMessageBox.information(
+                self, "Saved",
+                f"Purchase Bill saved!\nDocId: {result['docid']}")
             self.table.setRowCount(0)
         except Exception as e:
             QMessageBox.critical(self, "Error", str(e))

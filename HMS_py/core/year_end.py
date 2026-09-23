@@ -25,7 +25,7 @@ import datetime
 from HMS_py.core import db
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
-USER = "PYADMIN"
+USER = db.get_user()
 
 
 def get_fy_dates(fy_year: str = None, cn=None) -> dict:
@@ -46,7 +46,7 @@ def get_fy_dates(fy_year: str = None, cn=None) -> dict:
             start_year = today.year - 1
             end_year = today.year
     return {
-        "fy": f"{start_year}-{end_year}",
+        "fy": f"{start_year}-{str(end_year % 100).zfill(2)}",
         "start": datetime.date(start_year, 4, 1),
         "end": datetime.date(end_year, 3, 31),
     }
@@ -66,7 +66,7 @@ def check_datelock(vdate, cn=None) -> bool:
 def get_subgroup_balances(fy_start=None, fy_end=None,
                           cn=None, limit: int = 1000) -> list[dict]:
     """Get all subgroup current balances for year-end report."""
-    sql = f"SELECT TOP {limit} LogSite_Code, SubCode, V_Date, GroupCode, " \
+    sql = f"SELECT TOP {int(limit)} LogSite_Code, SubCode, V_Date, GroupCode, " \
           "Curr_Bal, Site_Code FROM SubGroupCurrBal WHERE LogSite_Code = ? "
     params: list = [SITE_CODE]
     if fy_start:
@@ -85,7 +85,7 @@ def get_subgroup_balances(fy_start=None, fy_end=None,
 def get_acgroup_balances(fy_start=None, fy_end=None,
                          cn=None, limit: int = 500) -> list[dict]:
     """Get all account group current balances for year-end report."""
-    sql = f"SELECT TOP {limit} LogSite_Code, GroupCode, V_Date, " \
+    sql = f"SELECT TOP {int(limit)} LogSite_Code, GroupCode, V_Date, " \
           "Curr_Bal, Site_Code FROM ACGroupCurrBal WHERE LogSite_Code = ? "
     params: list = [SITE_CODE]
     if fy_start:

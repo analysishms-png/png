@@ -11,7 +11,7 @@ from __future__ import annotations
 from HMS_py.core import db
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
-USER = "PYADMIN"
+USER = db.get_user()
 
 
 # ============================================================
@@ -59,7 +59,7 @@ def _validate_happyhours(rec: dict):
 
 def happyhours_list(cn=None, limit: int = 500) -> list[dict]:
     rows = db.query(
-        f"SELECT TOP {limit} {_HAPPYHOURS_COLS} FROM HappyHours ORDER BY SchemeCode",
+        f"SELECT TOP {int(limit)} {_HAPPYHOURS_COLS} FROM HappyHours ORDER BY SchemeCode",
         cn=cn)
     return [_map_happyhours(r) for r in rows]
 
@@ -176,7 +176,7 @@ def _validate_head(rec: dict):
 
 def happyhourshead_list(cn=None, limit: int = 500) -> list[dict]:
     rows = db.query(
-        f"SELECT TOP {limit} {_HAPPYHOURSHEAD_COLS} FROM HappyHoursHead ORDER BY SchemeCode",
+        f"SELECT TOP {int(limit)} {_HAPPYHOURSHEAD_COLS} FROM HappyHoursHead ORDER BY SchemeCode",
         cn=cn)
     return [_map_happyhourshead(r) for r in rows]
 
@@ -285,7 +285,7 @@ def _validate_schemeitem(rec: dict):
 
 def schemeitem_list(cn=None, limit: int = 500) -> list[dict]:
     rows = db.query(
-        f"SELECT TOP {limit} {_SCHEMEITEM_COLS} FROM SchemeItemDetail ORDER BY Code",
+        f"SELECT TOP {int(limit)} {_SCHEMEITEM_COLS} FROM SchemeItemDetail ORDER BY Code",
         cn=cn)
     return [_map_schemeitem(r) for r in rows]
 
@@ -379,7 +379,7 @@ def _validate_freeitem(rec: dict):
 
 def freeitem_list(cn=None, limit: int = 500) -> list[dict]:
     rows = db.query(
-        f"SELECT TOP {limit} {_FREEITEM_COLS} FROM FreeItemDetail ORDER BY Code",
+        f"SELECT TOP {int(limit)} {_FREEITEM_COLS} FROM FreeItemDetail ORDER BY Code",
         cn=cn)
     return [_map_freeitem(r) for r in rows]
 

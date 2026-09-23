@@ -11,6 +11,8 @@
 """
 from __future__ import annotations
 
+import datetime
+
 from HMS_py.core import db
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
@@ -248,7 +250,6 @@ def profit_and_loss(cn=None, date_from=None, date_to=None) -> dict:
 
     expenditure = []
     for entry in classified.get("E", []):
-        grp_name = groups.get(entry["groupcode"], {}).get("name", entry["groupcode"])
         expenditure.append({
             "group": entry["groupcode"],
             "name": entry["name"],
@@ -257,7 +258,6 @@ def profit_and_loss(cn=None, date_from=None, date_to=None) -> dict:
 
     revenue = []
     for entry in classified.get("R", []):
-        grp_name = groups.get(entry["groupcode"], {}).get("name", entry["groupcode"])
         revenue.append({
             "group": entry["groupcode"],
             "name": entry["name"],
@@ -305,14 +305,20 @@ def _ledger_by_date_range(date_from, date_to=None, cn=None) -> list[dict]:
     for r in rows:
         dr = float(r.DrTotal or 0)
         cr = float(r.CrTotal or 0)
+        gn = r.GroupNature or ""
+        # Sign convention per GroupNature (match _ledger_summary)
+        if gn in ("L", "R"):  # Liabilities, Revenue
+            net = cr - dr
+        else:  # Assets (A), Expenses (E), or unknown
+            net = dr - cr
         result.append({
             "subcode": r.SubCode or "",
             "name": (r.Name or "").strip(),
             "groupcode": r.GroupCode or "",
-            "groupnature": r.GroupNature or "",
+            "groupnature": gn,
             "dr_total": dr,
             "cr_total": cr,
-            "net": dr - cr,
+            "net": net,
         })
     return result
 

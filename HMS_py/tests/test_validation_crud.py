@@ -15,7 +15,7 @@ from HMS_py.core import usermaster, reservation, checkin
 # PART 1: Data-Entry Validation Testing
 # ============================================================
 
-def test_validation(module_name, validate_fn, valid_rec, invalid_cases):
+def check_validation(module_name, validate_fn, valid_rec, invalid_cases):  # noqa: N802 (helper - parametrize driver kabhi wire nahi hua)
     """Test validate() with invalid and valid data."""
     results = []
     
@@ -47,7 +47,7 @@ def run_validation_tests():
     all_results = []
     
     # 1. Country validation
-    all_results.extend(test_validation(
+    all_results.extend(check_validation(
         "Country", country._validate,
         {"code": "PYT01", "name": "Test Country", "short": "TC", "type": "India", "nationality": "Indian"},
         [
@@ -62,7 +62,7 @@ def run_validation_tests():
     ))
     
     # 2. State validation
-    all_results.extend(test_validation(
+    all_results.extend(check_validation(
         "State", state._validate,
         {"code": "PYT01", "name": "Test State", "short": "TS", "country": "KK0002"},
         [
@@ -74,7 +74,7 @@ def run_validation_tests():
     ))
     
     # 3. City validation
-    all_results.extend(test_validation(
+    all_results.extend(check_validation(
         "City", city._validate,
         {"code": "PYT01", "name": "Test City", "short": "TC", "zip": "123456", "state": "KK0002"},
         [
@@ -87,7 +87,7 @@ def run_validation_tests():
     ))
     
     # 4. Area validation
-    all_results.extend(test_validation(
+    all_results.extend(check_validation(
         "Area", lambda r: area._validate(r, cn=None),
         {"code": "PYT01", "name": "Test Area", "city": "KK0002"},
         [
@@ -99,7 +99,7 @@ def run_validation_tests():
     ))
     
     # 5. GuestProf validation
-    all_results.extend(test_validation(
+    all_results.extend(check_validation(
         "GuestProf", lambda r: guestprof._validate(r, cn=None, check_duplicates=False),
         {"code": "PYT01", "name": "Test Guest", "add1": "Address", "city": "KK0002", "type": "India"},
         [
@@ -115,7 +115,7 @@ def run_validation_tests():
     ))
     
     # 6. RoomMaster validation
-    all_results.extend(test_validation(
+    all_results.extend(check_validation(
         "RoomMaster", roommaster._validate,
         {"code": "PYT01", "name": "Test Room", "type": "RO", "roomcat": "DLX"},
         [
@@ -129,7 +129,7 @@ def run_validation_tests():
     ))
     
     # 7. Depart validation
-    all_results.extend(test_validation(
+    all_results.extend(check_validation(
         "Depart", depart._validate,
         {"code": "PYT01", "name": "Test Dept", "kotyn": "Y", "pos": "N", "phone": "12345"},
         [
@@ -144,7 +144,7 @@ def run_validation_tests():
     ))
     
     # 8. TaxMaster validation
-    all_results.extend(test_validation(
+    all_results.extend(check_validation(
         "TaxMaster", taxmaster._validate,
         {"code": "PYT01", "name": "Test Tax"},
         [
@@ -156,7 +156,7 @@ def run_validation_tests():
     ))
     
     # 9. Plans validation
-    all_results.extend(test_validation(
+    all_results.extend(check_validation(
         "Plans", lambda r: plans._validate(r["code"], r["name"], r.get("package", "")),
         {"code": "PYT01", "name": "Test Plan", "package": "PKG1"},
         [
@@ -167,7 +167,7 @@ def run_validation_tests():
     ))
     
     # 10. UserMaster validation
-    all_results.extend(test_validation(
+    all_results.extend(check_validation(
         "UserMaster", usermaster._validate,
         {"username": "PYTUSR", "label": "Test User", "short": "TU"},
         [
@@ -239,7 +239,7 @@ def run_validation_tests():
 # PART 2: CRUD Testing (Live DB - PYT prefix only)
 # ============================================================
 
-def test_crud(module_name, mod, test_code, test_rec, update_rec, code_key="code"):
+def check_crud(module_name, mod, test_code, test_rec, update_rec, code_key="code"):  # noqa: N802 (helper - parametrize driver kabhi wire nahi hua)
     """Test CRUD operations on a module with PYT prefix data."""
     results = []
     
@@ -328,42 +328,42 @@ def run_crud_tests():
     all_results = []
     
     # 1. Country CRUD
-    all_results.extend(test_crud(
+    all_results.extend(check_crud(
         "Country", country, "PYTCN",
         {"code": "PYTCN", "name": "PYT Test Country", "short": "PTC", "type": "India", "nationality": "Indian"},
         {"code": "PYTCN", "name": "PYT Updated Country", "short": "PUC", "type": "Foreign", "nationality": "Foreigner"}
     ))
     
     # 2. State CRUD
-    all_results.extend(test_crud(
+    all_results.extend(check_crud(
         "State", state, "PYTST",
         {"code": "PYTST", "name": "PYT Test State", "short": "PTS", "country": "KK0002"},
         {"code": "PYTST", "name": "PYT Updated State", "short": "PUS", "country": "KK0002"}
     ))
     
     # 3. City CRUD
-    all_results.extend(test_crud(
+    all_results.extend(check_crud(
         "City", city, "PYTCTY",
         {"code": "PYTCTY", "name": "PYT Test City", "short": "PTC", "zip": "123456", "state": "KK0002"},
         {"code": "PYTCTY", "name": "PYT Updated City", "short": "PUC", "zip": "654321", "state": "KK0002"}
     ))
     
     # 4. Area CRUD (CityCode is varchar(5), so use 4-char city code)
-    all_results.extend(test_crud(
+    all_results.extend(check_crud(
         "Area", area, "PYTA1",
         {"code": "PYTA1", "name": "PYT Test Area", "city": "TCY1"},
         {"code": "PYTA1", "name": "PYT Updated Area", "city": "TCY1"}
     ))
     
     # 5. Narr CRUD
-    all_results.extend(test_crud(
+    all_results.extend(check_crud(
         "Narr", narr, "PYTNR",
         {"code": "PYTNR", "name": "PYT Test Narration"},
         {"code": "PYTNR", "name": "PYT Updated Narration"}
     ))
     
     # 6. Unit CRUD
-    all_results.extend(test_crud(
+    all_results.extend(check_crud(
         "Unit", unit, "PYTUN",
         {"code": "PYTUN", "pricetype": 1, "status": "Active"},
         {"code": "PYTUN", "pricetype": 2, "status": "Inactive"}

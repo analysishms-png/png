@@ -90,10 +90,15 @@ class FacilityBillingDialog(QDialog):
 
     def _fill(self, rows):
         self.table.setRowCount(0)
-        for row_data in rows:
+        for row_data in rows or []:
+            vals = ([row_data.get("vno", ""), row_data.get("facilitycode", ""),
+                     row_data.get("partycode", ""),
+                     str(row_data.get("vdate") or ""),
+                     row_data.get("amount", 0), row_data.get("u_ae", "")]
+                    if isinstance(row_data, dict) else list(row_data))
             idx = self.table.rowCount()
             self.table.insertRow(idx)
-            for c, val in enumerate(row_data):
+            for c, val in enumerate(vals):
                 item = QTableWidgetItem(str(val) if val is not None else "")
                 item.setForeground(QColor(_theme.palette()["text"]))
                 self.table.setItem(idx, c, item)
@@ -104,13 +109,11 @@ class FacilityBillingDialog(QDialog):
             return
         vno = self.table.item(row, 0).text()
         try:
-            rec = facility_billing.get(int(vno))
+            rec = facility_billing.get_fbill1(vno)
             if rec:
-                self.txt_facility.setText(str(rec.get("FacilityCode", "")))
-                self.txt_member.setText(str(rec.get("MemberCode", "")))
-                self.txt_date.setText(str(rec.get("BillDate", "")))
-                self.txt_amount.setText(str(rec.get("Amount", "")))
-                self.txt_remarks.setText(str(rec.get("Remarks", "")))
+                self.txt_facility.setText(str(rec.get("facilitycode", "")))
+                self.txt_member.setText(str(rec.get("partycode", "")))
+                self.txt_amount.setText(str(rec.get("amount", "")))
                 self._selected_vno = int(vno)
         except Exception as e:
             QMessageBox.warning(self, "Error", str(e))
@@ -119,6 +122,25 @@ class FacilityBillingDialog(QDialog):
         try:
             rows = facility_billing.list_all()
             self._fill(rows)
+        except Exception as e:
+            QMessageBox.warning(self, "Error", str(e))
+
+    def _new_bill(self):
+        if not self.txt_facility.text().strip():
+            QMessageBox.warning(self, "Validation", "FacilityCode required.")
+            return
+        rec = {
+            "facilitycode": self.txt_facility.text(),
+            "partycode": self.txt_member.text(),
+            "amount": self.txt_amount.text() or 0,
+            "unitrate": self.txt_amount.text() or 0,
+            "remark": self.txt_remarks.text(),
+        }
+        try:
+            facility_billing.insert(rec)
+            self._refresh()
+            self._clear_form()
+            QMessageBox.information(self, "Success", "Bill saved.")
         except Exception as e:
             QMessageBox.warning(self, "Error", str(e))
 
@@ -131,20 +153,6 @@ class FacilityBillingDialog(QDialog):
         self._selected_vno = None
 
     # ── actions ──────────────────────────────────────────────────
-    def _new_bill(self):
-        rec = {
-            "FacilityCode": self.txt_facility.text(),
-            "MemberCode": self.txt_member.text(),
-            "BillDate": self.txt_date.text(),
-            "Amount": self.txt_amount.text(),
-            "Remarks": self.txt_remarks.text(),
-        }
-        try:
-            facility_billing.insert(rec)
-            self._refresh()
-            self._clear_form()
-        except Exception as e:
-            QMessageBox.warning(self, "Error", str(e))
 
     def _view_details(self):
         row = self._selected_row()

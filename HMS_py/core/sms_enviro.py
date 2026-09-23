@@ -14,7 +14,7 @@ from __future__ import annotations
 from HMS_py.core import db
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
-USER = "PYADMIN"
+USER = db.get_user()
 
 
 # ============================================================
@@ -122,7 +122,7 @@ def _map_emailforward(r) -> dict:
 
 def emailforward_list(cn=None, limit: int = 500) -> list[dict]:
     rows = db.query(
-        f"SELECT TOP {limit} Id, Type, MobileNo, EmailId, Site_Code, "
+        f"SELECT TOP {int(limit)} Id, Type, MobileNo, EmailId, Site_Code, "
         "U_Name, U_EntDt, U_AE, LogSite_Code, TxtMsg, FlagType, "
         "DepartCode, GuestMsg "
         "FROM EmailSMSForward ORDER BY Id", cn=cn)
@@ -232,7 +232,7 @@ def _map_dbsendsms(r) -> dict:
 
 def dbsendsms_list(cn=None, limit: int = 500) -> list[dict]:
     rows = db.query(
-        f"SELECT TOP {limit} DocId, Vtype, Vdate, VNo, SubCode, "
+        f"SELECT TOP {int(limit)} DocId, Vtype, Vdate, VNo, SubCode, "
         "Mobile1, Mobile2, TxtMsg, SMSDt, SMSTm, DelvDt, DelvTm, "
         "SenderName, PartyName, U_AE, U_Name, U_EntDt, Site_Code, "
         "LogSite_Code, RoomNo, BillAmount, SendTF, Comp_Code, MsgType, SNo "
@@ -376,7 +376,7 @@ def jobschedule_list(cn=None, limit: int = 500) -> list[dict]:
             "DFreqOccursStartTime, DFreqOccursEndTime, "
             "U_Name, U_EntDt, U_AE, Site_Code, LogSite_Code")
     rows = db.query(
-        f"SELECT TOP {limit} {cols} FROM JobSchedule ORDER BY Schedule_Id",
+        f"SELECT TOP {int(limit)} {cols} FROM JobSchedule ORDER BY Schedule_Id",
         cn=cn)
     return [_map_jobschedule(r) for r in rows]
 
@@ -526,7 +526,7 @@ def jobscheddetail_list(cn=None, limit: int = 500) -> list[dict]:
             "Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code, "
             "MsgHeader, TemplateId, MsgFooter")
     rows = db.query(
-        f"SELECT TOP {limit} {cols} FROM JobScheduledDetail ORDER BY Job_Id",
+        f"SELECT TOP {int(limit)} {cols} FROM JobScheduledDetail ORDER BY Job_Id",
         cn=cn)
     return [_map_jobscheddetail(r) for r in rows]
 

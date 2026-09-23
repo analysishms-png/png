@@ -51,15 +51,16 @@ class RoomLookupWindow(QMainWindow):
     def _load_data(self):
         try:
             rows = db.query(
-                "SELECT R.RoomNo, RC.Name, R.Status, "
-                "ISNULL(G.GuestName, '') as GuestName "
+                "SELECT R.Code, RC.Name, R.RoomStat, "
+                "ISNULL(GP.Name, '') as GuestName "
                 "FROM RoomMast R "
                 "LEFT JOIN RoomCat RC ON R.RoomCat = RC.Code "
-                "LEFT JOIN RoomOcc G ON R.RoomNo = G.RoomNo AND G.Status = 'I' "
-                "ORDER BY R.RoomNo")
+                "LEFT JOIN RoomOcc G ON R.Code = G.RoomNo AND G.Type = 'I' "
+                "LEFT JOIN GuestProf GP ON G.GuestProf = GP.Code "
+                "ORDER BY R.Code")
             self._all_rows = rows
             self._populate(rows)
-        except Exception as e:
+        except Exception:
             self._all_rows = []
 
     def _populate(self, rows):
@@ -355,7 +356,7 @@ class ReSettlementWindow(QMainWindow):
         self.lbl_folio.setText(f"Folio {rec['folio']} - {rec['name']}")
         try:
             rows = fo_ops.list_settlements(self._docid)
-        except Exception as e:
+        except Exception:
             rows = []
         self.table.setRowCount(len(rows))
         for i, r in enumerate(rows):

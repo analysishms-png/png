@@ -60,16 +60,39 @@ def exists(username: str, cn=None) -> bool:
         "SELECT 1 FROM UserMast WHERE USER_NAME = ?", (username,), cn=cn))
 
 
+def _label_column_is_int(cn=None) -> bool:
+    """Live DB schema check: UserMast.LABEL smallint hai? (schema-drift guard;
+    VB6 doc me LABEL varchar(30) tha, kuch live DBs me smallint hai)."""
+    try:
+        rows = db.query(
+            "SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS "
+            "WHERE TABLE_NAME = 'UserMast' AND COLUMN_NAME = 'LABEL'", cn=cn)
+        return bool(rows) and str(rows[0][0]).lower() in ("smallint", "int")
+    except Exception:
+        return False
+
+
+def _label_value(label: str, cn=None):
+    """LABEL value column-type ke hisab se: smallint -> 0, varchar -> text."""
+    return 0 if _label_column_is_int(cn) else (label or "")
+
+
 def insert(rec: dict, plain_password: str = "", cn=None,
            commit: bool = True) -> int:
-    """Naya user. Password plaintext dena hai - encrypt hokar store hoga."""
+    """Naya user. Password plaintext dena hai - encrypt hokar store hoga.
+
+    PASSWD bind: CAST(? AS varchar(50)) + latin-1 bytes — VB6 encrypt ke
+    >127 chars varchar codepage conversion me lossy nahi hote (E2E fix
+    2026-09-23; SA ka VB6-era password isi path se byte-exact aata hai).
+    """
     _validate(rec)
-    encrypted = auth.encrypt(plain_password) if plain_password else auth.encrypt("")
+    enc = auth.enc_bytes(plain_password) if plain_password else auth.enc_bytes("")
     return db.execute(
         "INSERT INTO UserMast (USER_NAME, PASSWD, LABEL, ShortName, ActiveYN) "
-        "VALUES (?, ?, ?, ?, ?)",
-        (rec["username"].upper(), encrypted,
-         rec.get("label", ""), rec.get("short", ""),
+        "VALUES (?, CAST(? AS varchar(50)), ?, ?, ?)",
+        (rec["username"].upper(), enc,
+         _label_value(rec.get("label", ""), cn),
+         rec.get("short", ""),
          rec.get("active", "Y")),
         cn=cn, commit=commit)
 
@@ -78,19 +101,21 @@ def update(username: str, rec: dict, plain_password: str | None = None,
            cn=None, commit: bool = True) -> int:
     """Existing user update. plain_password=None to password nahi badlega."""
     _validate(rec)
+    lbl = _label_value(rec.get("label", ""), cn)
     if plain_password is not None:
-        encrypted = auth.encrypt(plain_password)
+        enc = auth.enc_bytes(plain_password)
         return db.execute(
-            "UPDATE UserMast SET PASSWD = ?, LABEL = ?, ShortName = ?, "
+            "UPDATE UserMast SET PASSWD = CAST(? AS varchar(50)), LABEL = ?, "
+            "ShortName = ?, "
             "ActiveYN = ? WHERE USER_NAME = ?",
-            (encrypted, rec.get("label", ""), rec.get("short", ""),
+            (enc, lbl, rec.get("short", ""),
              rec.get("active", "Y"), username.upper()),
             cn=cn, commit=commit)
     else:
         return db.execute(
             "UPDATE UserMast SET LABEL = ?, ShortName = ?, ActiveYN = ? "
             "WHERE USER_NAME = ?",
-            (rec.get("label", ""), rec.get("short", ""),
+            (lbl, rec.get("short", ""),
              rec.get("active", "Y"), username.upper()),
             cn=cn, commit=commit)
 
@@ -98,9 +123,9 @@ def update(username: str, rec: dict, plain_password: str | None = None,
 def set_password(username: str, plain_password: str, cn=None,
                  commit: bool = True) -> int:
     """Sirf password change karo (VB6 password-reset pattern)."""
-    encrypted = auth.encrypt(plain_password)
+    encrypted = auth.enc_bytes(plain_password)
     return db.execute(
-        "UPDATE UserMast SET PASSWD = ? WHERE USER_NAME = ?",
+        "UPDATE UserMast SET PASSWD = CAST(? AS varchar(50)) WHERE USER_NAME = ?",
         (encrypted, username.upper()), cn=cn, commit=commit)
 
 

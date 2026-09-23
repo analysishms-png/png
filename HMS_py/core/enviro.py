@@ -55,7 +55,7 @@ import datetime
 from HMS_py.core import db
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
-USER = "PYADMIN"
+USER = db.get_user()
 
 # VB6 Cmd_Click UPDATE-chain se SAFELY-editable operational settings.
 # (col, type) — type validate ke liye: yn3='Yes'/'No', yn1='Y'/'N',

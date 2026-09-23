@@ -135,7 +135,12 @@ class HrPayrollDialog(QDialog):
             return
         self.sal_table.setRowCount(len(rows))
         for i, r in enumerate(rows):
-            for j, val in enumerate(r):
+            vals = ([r.get("mth_year", ""), r.get("emp_code", ""),
+                     r.get("basic", 0), r.get("da", 0), r.get("hra", 0),
+                     (r.get("basic", 0) or 0) + (r.get("da", 0) or 0) +
+                     (r.get("hra", 0) or 0), "", r.get("net_salary", 0)]
+                    if isinstance(r, dict) else list(r))
+            for j, val in enumerate(vals):
                 self.sal_table.setItem(i, j, self._dark_item(val))
 
     def _sal_select(self):
@@ -188,12 +193,11 @@ class HrPayrollDialog(QDialog):
             QMessageBox.warning(self, "Warning", "Mth_Year and Emp_Code required.")
             return
         rec = {
-            "Mth_Year": mth,
-            "Emp_Code": emp,
-            "Basic": self.sal_basic.text().strip(),
-            "DA": self.sal_da.text().strip(),
-            "HRA": self.sal_hra.text().strip(),
-            "Deductions": self.sal_ded.text().strip(),
+            "mth_year": mth,
+            "emp_code": emp,
+            "basic": self.sal_basic.text().strip() or 0,
+            "da": self.sal_da.text().strip() or 0,
+            "hra": self.sal_hra.text().strip() or 0,
         }
         try:
             if self.current_mode == "new":
@@ -278,7 +282,15 @@ class HrPayrollDialog(QDialog):
             return
         self.att_table.setRowCount(len(rows))
         for i, r in enumerate(rows):
-            for j, val in enumerate(r):
+            attn = str(r.get("attn_str", "") if isinstance(r, dict)
+                       else (r[2] if len(r) > 2 else "")) or "-"
+            parts = attn.split("-")
+            vals = [r.get("emp_code", "") if isinstance(r, dict) else r[1],
+                    str(r.get("mth_year", "") if isinstance(r, dict) else r[0]),
+                    parts[0] if len(parts) > 0 else "",
+                    parts[1] if len(parts) > 1 else "",
+                    parts[2] if len(parts) > 2 else ""]
+            for j, val in enumerate(vals):
                 self.att_table.setItem(i, j, self._dark_item(val))
 
     def _att_select(self):
@@ -330,11 +342,10 @@ class HrPayrollDialog(QDialog):
             QMessageBox.warning(self, "Warning", "Emp_Code and Date required.")
             return
         rec = {
-            "Emp_Code": emp,
-            "Date": dt,
-            "InTime": self.att_in.text().strip(),
-            "OutTime": self.att_out.text().strip(),
-            "Status": self.att_status.text().strip(),
+            "emp_code": emp,
+            "intime": self.att_in.text().strip(),
+            "outtime": self.att_out.text().strip(),
+            "status": self.att_status.text().strip(),
         }
         try:
             if self.current_mode == "new":
@@ -419,7 +430,11 @@ class HrPayrollDialog(QDialog):
             return
         self.loan_table.setRowCount(len(rows))
         for i, r in enumerate(rows):
-            for j, val in enumerate(r):
+            vals = ([r.get("emp_code", ""), r.get("sr_no", ""),
+                     r.get("amount", 0), r.get("installment", 0),
+                     (r.get("amount", 0) or 0) - (r.get("installment", 0) or 0)]
+                    if isinstance(r, dict) else list(r))
+            for j, val in enumerate(vals):
                 self.loan_table.setItem(i, j, self._dark_item(val))
 
     def _loan_select(self):
@@ -471,11 +486,10 @@ class HrPayrollDialog(QDialog):
             QMessageBox.warning(self, "Warning", "Emp_Code and Sr_No required.")
             return
         rec = {
-            "Emp_Code": emp,
-            "Sr_No": sr,
-            "LoanAmt": self.loan_amt.text().strip(),
-            "Installment": self.loan_inst.text().strip(),
-            "Balance": self.loan_bal.text().strip(),
+            "emp_code": emp,
+            "sr_no": sr,
+            "amount": self.loan_amt.text().strip() or 0,
+            "installment": self.loan_inst.text().strip() or 0,
         }
         try:
             if self.current_mode == "new":
@@ -560,7 +574,10 @@ class HrPayrollDialog(QDialog):
             return
         self.ot_table.setRowCount(len(rows))
         for i, r in enumerate(rows):
-            for j, val in enumerate(r):
+            vals = ([r.get("empcode", ""), str(r.get("otdate", "")),
+                     r.get("otime", 0), r.get("otrate", 0), r.get("amount", 0)]
+                    if isinstance(r, dict) else list(r))
+            for j, val in enumerate(vals):
                 self.ot_table.setItem(i, j, self._dark_item(val))
 
     def _ot_select(self):
@@ -612,11 +629,10 @@ class HrPayrollDialog(QDialog):
             QMessageBox.warning(self, "Warning", "Emp_Code and Date required.")
             return
         rec = {
-            "Emp_Code": emp,
-            "Date": dt,
-            "Hours": self.ot_hours.text().strip(),
-            "Rate": self.ot_rate.text().strip(),
-            "Amount": self.ot_amt.text().strip(),
+            "empcode": emp,
+            "otime": self.ot_hours.text().strip() or 0,
+            "otrate": self.ot_rate.text().strip() or 0,
+            "amount": self.ot_amt.text().strip() or 0,
         }
         try:
             if self.current_mode == "new":

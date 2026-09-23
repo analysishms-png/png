@@ -12,7 +12,7 @@ from __future__ import annotations
 from HMS_py.core import db
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
-USER = "PYADMIN"
+USER = db.get_user()
 
 
 # ============================================================
@@ -94,14 +94,14 @@ def _validate_sale1(rec: dict):
 
 def sale1_list(cn=None, limit: int = 500) -> list[dict]:
     rows = db.query(
-        f"SELECT TOP {limit} {_SALE1_COLS} FROM Sale1 ORDER BY U_EntDt DESC",
+        f"SELECT TOP {int(limit)} {_SALE1_COLS} FROM Sale1 ORDER BY U_EntDt DESC",
         cn=cn)
     return [_map_sale1(r) for r in rows]
 
 
 def sale1_search(name_part: str, cn=None, limit: int = 100) -> list[dict]:
     rows = db.query(
-        f"SELECT TOP {limit} {_SALE1_COLS} FROM Sale1 "
+        f"SELECT TOP {int(limit)} {_SALE1_COLS} FROM Sale1 "
         "WHERE CustName LIKE ? ORDER BY U_EntDt DESC",
         (f"%{name_part}%",), cn=cn)
     return [_map_sale1(r) for r in rows]
@@ -172,8 +172,27 @@ def sale1_update(docid: str, rec: dict, cn=None, commit: bool = True) -> int:
 
 
 def sale1_delete(docid: str, cn=None, commit: bool = True) -> int:
-    return db.execute("DELETE FROM Sale1 WHERE DocId = ?", (docid,),
-                      cn=cn, commit=commit)
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        db.execute(
+            "UPDATE KOT SET Pending = 'Y', ContraDocId = NULL, ContraSNo = 0 "
+            "WHERE ContraDocId = ?",
+            (docid,), cn=cn, commit=False)
+        db.execute("DELETE FROM Sale2 WHERE DocId = ?", (docid,),
+                   cn=cn, commit=False)
+        db.execute("DELETE FROM SunTran WHERE DocId = ?", (docid,),
+                   cn=cn, commit=False)
+        db.execute("DELETE FROM PayCharge WHERE DocId = ?", (docid,),
+                   cn=cn, commit=False)
+        n = db.execute("DELETE FROM Sale1 WHERE DocId = ?", (docid,),
+                       cn=cn, commit=False)
+        if commit:
+            cn.commit()
+        return n
+    finally:
+        if own:
+            cn.close()
 
 
 class _Sale1API:
@@ -448,7 +467,7 @@ def _map_paycharge(r) -> dict:
             "refno": vals[46] if len(vals) > 46 else "",
             "plancode": vals[48] if len(vals) > 48 else "",
             "seqno": int(vals[49] if len(vals) > 49 else 0),
-            "refdocid": vals[50] if len(vals) > 50 else "",
+            "refdocid": vals[44] if len(vals) > 44 else "",
             "u_name": vals[28] or "", "u_ae": vals[30] or "",
         }
 
@@ -477,8 +496,8 @@ def paycharge_insert(rec: dict, cn=None, commit: bool = True) -> int:
         "TaxPer, OnAmt, Split, Bill_No, SettleDate, BatchNo, Remarks, "
         "RefNo, PlanCode, SeqNo, RefDocId, LogSite_Code) "
         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
-        "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, getdate(), 'A', ?, ?, ?, ?, ?, "
-        "?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "?, ?, ?, ?, ?, ?, ?, ?, ?, getdate(), 'A', ?, ?, ?, ?, ?, "
+        "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         (rec["docid"], int(rec.get("sno") or 0), rec.get("vtype", ""),
          int(rec.get("vno") or 0), SITE_CODE, rec.get("vprefix", ""),
          rec.get("vdate"), rec.get("vtime", ""),

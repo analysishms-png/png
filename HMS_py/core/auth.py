@@ -18,7 +18,10 @@ Brute-force protection added (max 5 attempts per 15 min per user).
 """
 from __future__ import annotations
 
+import json
+import os
 import random
+import tempfile
 import time
 from collections import defaultdict
 
@@ -28,10 +31,50 @@ SHIFT = 0x1B   # 27 - VB6 &H1B
 _login_attempts: dict[str, list[tuple[float, bool]]] = defaultdict(list)
 _MAX_ATTEMPTS = 5
 _LOCKOUT_SECONDS = 900  # 15 minutes
+# BUG-LOCKOUT-NOT-PERSISTENT: restart pe lockout na gire — temp file me
+# attempts persist karo (process restart safe; multi-user same machine OK).
+_LOCKOUT_PATH = os.path.join(
+    tempfile.gettempdir(), "hms_py_login_attempts.json")
+
+
+def _load_attempts() -> None:
+    """Best-effort load of persisted attempts (ignore corrupt file)."""
+    try:
+        if not os.path.isfile(_LOCKOUT_PATH):
+            return
+        with open(_LOCKOUT_PATH, encoding="utf-8") as f:
+            raw = json.load(f)
+        now = time.time()
+        for user, items in (raw or {}).items():
+            kept = [(float(t), bool(s)) for t, s in items
+                    if now - float(t) < _LOCKOUT_SECONDS]
+            if kept:
+                _login_attempts[user] = kept
+    except Exception:
+        pass
+
+
+def _save_attempts() -> None:
+    """Best-effort persist (never raise into login path)."""
+    try:
+        now = time.time()
+        out = {u: [[t, s] for t, s in items if now - t < _LOCKOUT_SECONDS]
+               for u, items in _login_attempts.items()}
+        out = {u: items for u, items in out.items() if items}
+        tmp = _LOCKOUT_PATH + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(out, f)
+        os.replace(tmp, _LOCKOUT_PATH)
+    except Exception:
+        pass
+
+
+_load_attempts()
 
 
 def _is_locked_out(username: str) -> bool:
     """Check if user has exceeded max failed attempts in lockout window."""
+    _load_attempts()  # aur process (restart) se aaye attempts bhi dekho
     now = time.time()
     attempts = _login_attempts[username]
     # Prune old attempts
@@ -50,6 +93,7 @@ def _record_attempt(username: str, success: bool):
         _login_attempts[username] = [
             (t, s) for t, s in _login_attempts[username] if s
         ]
+    _save_attempts()
 
 
 def encrypt(plain: str, seed: int | None = None) -> str:
@@ -71,6 +115,19 @@ def decrypt(stored: str) -> str:
     for i in range(1, len(stored)):
         out += chr(ord(stored[i]) - SHIFT - seed)
     return out
+
+
+def enc_bytes(plain: str, seed: int | None = None) -> bytes:
+    """encrypt() ka byte-exact form — UserMast.PASSWD writes ke liye.
+
+    VB6 char-math (ord(ch)+SHIFT+seed) se chars >127 ban sakte hain;
+    SQL varchar param me wo Native Client codepage conversion se
+    lossy ho jaate hain (e.g. 'e'->'?' 0x3F) aur decrypt toot jaata hai
+    (E2E 2026-09-23: seed 95 pe 'e2etest123' corrupt hua). Pyodbc ko
+    latin-1 bytes bind karne se VB6 ke ANSI bytes byte-exact store hote
+    hain; _stored_passwd() CAST(varbinary) side already byte-exact hai.
+    """
+    return encrypt(plain, seed=seed).encode("latin-1")
 
 
 def _stored_passwd(username: str, cn=None) -> str | None:
@@ -109,7 +166,7 @@ def check_login(username: str, password: str, cn=None) -> tuple[bool, str]:
         return False, "Invalid User Name"
     row = rows[0]
     # SELECT order: ActiveYN, LABEL, ShortName
-    active, label, short = row[0], row[1], row[2]
+    active, _label, short = row[0], row[1], row[2]
     if (active or "Y").upper() != "Y":
         return False, "User is INACTIVE - admin se contact karein"
     stored = _stored_passwd(username, cn=cn)

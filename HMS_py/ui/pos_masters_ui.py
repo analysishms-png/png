@@ -231,6 +231,97 @@ def open_smartcard(parent=None, user: str = "SA"):
     _open(smartcard_config, parent, user)
 
 
+# ── Auto Settle Card Balance (VB6 MemAutoSettleCardBalance.frm port) ──
+def open_auto_settle_card_balance(parent=None, user: str = "SA"):
+    """Pending-balance cards grid + Settle (VB6 Fill/CmdSave pattern).
+
+    Settle -> SmartCardLedger refund entries + registration zero-out
+    (core/smartcard_ops.auto_settle_card). Security: Cash refund ya
+    Reverse-to-Security (VB6 DGRestType 'C'/'R').
+    """
+    from PyQt6.QtCore import Qt
+    from PyQt6.QtWidgets import (
+        QComboBox, QDialog, QHBoxLayout, QHeaderView, QLabel, QMessageBox,
+        QPushButton, QTableWidget, QTableWidgetItem, QVBoxLayout)
+    from HMS_py.core import smartcard_ops as sc
+
+    dlg = QDialog(parent)
+    dlg.setWindowTitle("Auto Settle Card Balance")
+    dlg.resize(940, 520)
+    lay = QVBoxLayout(dlg)
+
+    info = QLabel("Cards with outstanding balance (CurrBal/SecurBal <> 0). "
+                  "Settle = refund ledger entry + balance zero-out.")
+    lay.addWidget(info)
+
+    tbl = QTableWidget(0, 9, dlg)
+    tbl.setHorizontalHeaderLabels(
+        ["\u2713", "Code", "Card No", "Name", "Serial No", "Member",
+         "Category", "Curr Bal", "Secur Bal"])
+    tbl.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+    tbl.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+    tbl.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
+    lay.addWidget(tbl)
+
+    bottom = QHBoxLayout()
+    cmb_sec = QComboBox()
+    cmb_sec.addItems(["Security: Cash refund", "Security: Reverse (keep)"])
+    btn_fill = QPushButton("Fill")
+    btn_settle = QPushButton("Settle Selected")
+    btn_close = QPushButton("Close")
+    for w_ in (cmb_sec, btn_fill, btn_settle, btn_close):
+        bottom.addWidget(w_)
+    bottom.addStretch(1)
+    lay.addLayout(bottom)
+
+    def _fill():
+        rows = sc.auto_settle_pending()
+        tbl.setRowCount(0)
+        for r in rows:
+            row = tbl.rowCount()
+            tbl.insertRow(row)
+            chk = QTableWidgetItem()
+            chk.setFlags(chk.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+            chk.setCheckState(Qt.CheckState.Checked)
+            tbl.setItem(row, 0, chk)
+            vals = [r["code"], r["cardno"], r["name"], r["serialno"],
+                    r["member_name"], r["mem_category"],
+                    f"{r['curr_bal']:.2f}", f"{r['secur_bal']:.2f}"]
+            for col, v in enumerate(vals, 1):
+                tbl.setItem(row, col, QTableWidgetItem(str(v)))
+        info.setText(f"{len(rows)} card(s) pending "
+                     f"(user: {user})")
+
+    def _settle():
+        picked = []
+        for row in range(tbl.rowCount()):
+            it = tbl.item(row, 0)
+            if it and it.checkState() == Qt.CheckState.Checked:
+                picked.append(tbl.item(row, 1).text())
+        if not picked:
+            QMessageBox.information(dlg, "Settle", "Koi card select nahi hua")
+            return
+        mode = "C" if cmb_sec.currentIndex() == 0 else "R"
+        done, errs = 0, []
+        for code in picked:
+            try:
+                sc.auto_settle_card(code, secur_settle=mode, user=user)
+                done += 1
+            except Exception as e:
+                errs.append(f"{code}: {e}")
+        _fill()
+        msg = f"{done} card(s) settled"
+        if errs:
+            msg += "\nErrors:\n" + "\n".join(errs[:5])
+        QMessageBox.information(dlg, "Settle", msg)
+
+    btn_fill.clicked.connect(_fill)
+    btn_settle.clicked.connect(_settle)
+    btn_close.clicked.connect(dlg.reject)
+    _fill()
+    dlg.exec()
+
+
 # ── Standalone launcher ───────────────────────────────────────
 class POSMastersLauncher(QMainWindow):
     def __init__(self):

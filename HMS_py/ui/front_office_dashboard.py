@@ -300,7 +300,6 @@ class FrontOfficeDashboard(QWidget):
         c_warn = p.get("warning", "#f59e0b")
         c_dang = p.get("danger", "#ef4444")
         c_info = p.get("info", "#0284c7")
-        c_muted = p.get("text_dim", "#64748b")
 
         self.cards = {
             "arr": StatCard("arr", "Today's Arrivals", "0", "Scheduled today", "📥", c_succ),
@@ -623,15 +622,13 @@ class FrontOfficeDashboard(QWidget):
 
     def refresh(self):
         """Query live database and refresh cards, tables, and rack."""
-        db_ok = False
         try:
             from HMS_py.core import db, roomstatus, reservation, checkin, checkout
 
             # 1. Room Status / Rack Live Data
             try:
                 self._rack_data = roomstatus.room_rack()
-                db_ok = True
-                
+
                 total_rooms = len([r for r in self._rack_data if r.get("type") == "RO"]) or len(self._rack_data)
                 occ_rooms = len([r for r in self._rack_data if r.get("status") == "Occupied"])
                 dirty_rooms = len([r for r in self._rack_data if r.get("status") == "Dirty"])
@@ -649,7 +646,7 @@ class FrontOfficeDashboard(QWidget):
                 self.lbl_rack_counts.setText(
                     f"Available: {avail_rooms}  |  Occupied: {occ_rooms}  |  Dirty: {dirty_rooms}  |  Maintenance: {maint_rooms}"
                 )
-            except Exception as e:
+            except Exception:
                 for k in ("occ", "dirty", "vac", "avail"):
                     self.cards[k].set_data("Database unavailable", "Offline")
 
@@ -669,7 +666,7 @@ class FrontOfficeDashboard(QWidget):
                 for r, item in enumerate(deps_today):
                     self.tbl_dep.setItem(r, 0, QTableWidgetItem(str(item.get("folio", ""))))
                     self.tbl_dep.setItem(r, 1, QTableWidgetItem(str(item.get("name", ""))))
-                    self.tbl_dep.setItem(r, 2, QTableWidgetItem(str(item.get("city", ""))))
+                    self.tbl_dep.setItem(r, 2, QTableWidgetItem(str(item.get("roomno", ""))))
                     dep_str = item.get("depdate").strftime("%d/%b/%Y") if isinstance(item.get("depdate"), datetime.date) else str(item.get("depdate") or "")
                     self.tbl_dep.setItem(r, 3, QTableWidgetItem(dep_str))
 
@@ -703,7 +700,7 @@ class FrontOfficeDashboard(QWidget):
                 for row in res_rows:
                     arr_val = row[3]
                     arr_date = arr_val.date() if isinstance(arr_val, datetime.datetime) else arr_val
-                    if arr_date == today or (isinstance(arr_date, datetime.date) and arr_date <= today and row[8] == 'N'):
+                    if row[8] == 'N' and (arr_date == today or (isinstance(arr_date, datetime.date) and arr_date <= today)):
                         arr_today.append(row)
 
                 self.cards["arr"].set_data(str(len(arr_today)), "Arrivals scheduled")
@@ -748,7 +745,7 @@ class FrontOfficeDashboard(QWidget):
             except Exception:
                 self.cards["pending"].set_data("Database unavailable", "Offline")
 
-        except Exception as e:
+        except Exception:
             for c in self.cards.values():
                 c.set_data("Database unavailable", "Offline")
 

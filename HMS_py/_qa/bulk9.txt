@@ -1,0 +1,6 @@
+cap: Indent row: True
+full_access: False
+param: A**P
+chk created: <PyQt6.QtWidgets.QCheckBox object at 0x000002972F9ADA90>
+setItemWidget OK: True
+BULK_OK

@@ -17,7 +17,6 @@ def main():
     try:
         # basline counts
         nM0 = db.query("SELECT COUNT(*) FROM LedgerM")[0][0]
-        nL0 = db.query("SELECT COUNT(*) FROM Ledger")[0][0]
         cash = db.query("SELECT TOP 1 SubCode FROM Subgroup WHERE Name LIKE '%CASH IN HAND%'")[0][0]
         bank = db.query("SELECT TOP 1 SubCode FROM Subgroup WHERE Name LIKE '%ICIC%'")[0][0]
         # V1: unbalanced reject

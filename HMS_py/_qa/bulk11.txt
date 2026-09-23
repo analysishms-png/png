@@ -1,0 +1,3 @@
+without _apply_filter -> widget: False
+after _apply_filter -> widget: False
+BULK_OK

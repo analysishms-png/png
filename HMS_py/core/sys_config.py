@@ -17,7 +17,7 @@ from __future__ import annotations
 from HMS_py.core import db
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
-USER = "PYADMIN"
+USER = db.get_user()
 
 
 # ============================================================
@@ -50,7 +50,7 @@ def roundoff_list(cn=None, limit: int = 500) -> list[dict]:
     elif limit > 10000:
         limit = 10000
     rows = db.query(
-        f"SELECT TOP {limit} Code, Department, RoundOFFType, U_Name, "
+        f"SELECT TOP {int(limit)} Code, Department, RoundOFFType, U_Name, "
         "U_EntDt, Site_Code, U_AE, ModuleName, LogSite_Code "
         "FROM RoundOffSetting ORDER BY RoundOFFType, ModuleName", cn=cn)
     return [_map_roundoff(r) for r in rows]
@@ -146,7 +146,7 @@ def datelock_list(cn=None, limit: int = 500) -> list[dict]:
     elif limit > 10000:
         limit = 10000
     rows = db.query(
-        f"SELECT TOP {limit} CODE, NAME, LEVEL1, LEVEL2, id, srno, "
+        f"SELECT TOP {int(limit)} CODE, NAME, LEVEL1, LEVEL2, id, srno, "
         "flag, SDate, EDate FROM DATELOCK ORDER BY CODE, srno", cn=cn)
     return [_map_datelock(r) for r in rows]
 
@@ -239,7 +239,7 @@ def site_list(cn=None, limit: int = 500) -> list[dict]:
     elif limit > 10000:
         limit = 10000
     rows = db.query(
-        f"SELECT TOP {limit} CompCode, Site_Code, Site_Desc, U_Name, "
+        f"SELECT TOP {int(limit)} CompCode, Site_Code, Site_Desc, U_Name, "
         "U_EntDt, U_AE, SiteType, Short_Name, SendDate, RecDate "
         "FROM Site ORDER BY Site_Code", cn=cn)
     return [_map_site(r) for r in rows]
@@ -359,7 +359,7 @@ def menuhelp_list(cn=None, limit: int = 500) -> list[dict]:
             "Menu_Index, Menu_Visible, Pro_Name, Tag, User_Name, "
             "Param_Str, ID, Module_Name, Flag, ShowInList, OutletCode")
     rows = db.query(
-        f"SELECT TOP {limit} {cols} FROM menuHelp ORDER BY Code", cn=cn)
+        f"SELECT TOP {int(limit)} {cols} FROM menuHelp ORDER BY Code", cn=cn)
     return [_map_menuhelp(r) for r in rows]
 
 
@@ -459,7 +459,7 @@ def menuhelp1_list(cn=None, limit: int = 500) -> list[dict]:
     cols = ("CompCode, UserName, Opt1, Opt2, Opt3, Opt4, Code, "
             "MenuName, MenuIndex, MenuCaption, Param_Str, Flag")
     rows = db.query(
-        f"SELECT TOP {limit} {cols} FROM menuHelp1 ORDER BY Code", cn=cn)
+        f"SELECT TOP {int(limit)} {cols} FROM menuHelp1 ORDER BY Code", cn=cn)
     return [_map_menuhelp1(r) for r in rows]
 
 
@@ -572,7 +572,7 @@ def userperm_list(cn=None, limit: int = 500) -> list[dict]:
             "FOMDiscountAllowUpto, CancelReservation, FreeItemAllow, "
             "RefundCashCardAmt")
     rows = db.query(
-        f"SELECT TOP {limit} {cols} FROM UserPermission ORDER BY UserName",
+        f"SELECT TOP {int(limit)} {cols} FROM UserPermission ORDER BY UserName",
         cn=cn)
     return [_map_userperm(r) for r in rows]
 
@@ -728,7 +728,7 @@ def sundryfix_list(cn=None, limit: int = 500) -> list[dict]:
             "SValue, Limit, PostAc, Nature, CalcSign, SysYN, Grp, "
             "Site_Code, U_EntDt, U_AE, LogSite_Code")
     rows = db.query(
-        f"SELECT TOP {limit} {cols} FROM SundryTypeFix ORDER BY SundryCode, SNo",
+        f"SELECT TOP {int(limit)} {cols} FROM SundryTypeFix ORDER BY SundryCode, SNo",
         cn=cn)
     return [_map_sundryfix(r) for r in rows]
 

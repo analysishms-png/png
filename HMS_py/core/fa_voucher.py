@@ -3,7 +3,8 @@
 EVIDENCE (live + VB6):
 - FaVrEnt.frm:13872 INSERT INTO LedgerM (DocId,V_Type,v_Prefix,V_No,...);
   :13719 INSERT INTO LEDGER (...SubCode,AmtCr,AmtDr,ContraSub,Narration,...);
-  DocId = '{V_Type}{v_Prefix}{V_No:04d}' pattern (VB6 compiles these).
+  DocId (VB6 FaVrEnt.frm:13332): 'D'+site(2)+V_Type.ljust(5)+
+  Prefix.ljust(5)+V_No.rjust(8) = 21 char.
 - Voucher_Prefix table: V_Type/Date_From/Date_To/Prefix/Start_Srl_No
   (next V_No = MAX(V_No)+1 per V_Type+Prefix, else Start_Srl_No+1).
 - FaChqClear.frm:663 'Update Ledger Set Chq_No=...,Chq_Date=...,Clg_Date=...'
@@ -21,7 +22,7 @@ import datetime
 from HMS_py.core import db
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
-USER = "PYADMIN"
+USER = db.get_user()
 
 
 # ---------------------------------------------------------------- numbering
@@ -60,7 +61,9 @@ def next_vno(vtype: str, vdate, cn=None) -> int:
 
 
 def _make_docid(vtype: str, prefix: str, vno: int) -> str:
-    return f"{vtype}{prefix}{vno:04d}"
+    """VB6 FaVrEnt.frm:13332 — 21 char: D+site(2)+type(5)+prefix(5)+vno(8)."""
+    return ("D" + SITE_CODE + str(vtype).ljust(5) +
+            str(prefix).ljust(5) + str(vno).rjust(8))
 
 
 # ---------------------------------------------------------------- posting
@@ -141,11 +144,28 @@ def post_voucher(lines: list[dict], vdate, narration: str = "",
                  chq_no or "", chq_date, gc, gn, user, SITE_CODE))
             # VB6 CurrBal update: running balance per SubGroup
             _update_currbal(cn, sc, float(l.get("amt_dr") or 0),
-                            float(l.get("amt_cr") or 0))
+                            float(l.get("amt_cr") or 0), vdate=vdate)
             # VB6 LedgerRef: copy to reference tables if TDS/bill-wise
             _create_ledgerref(cn, docid, sno, sc, l)
         # VB6 LedgerLog: audit trail
         _log_voucher(cn, docid, "A", user)
+        # VB6: UPDATE Voucher_Prefix SET Start_Srl_No = V_No (number consumed)
+        try:
+            cn.execute(
+                "UPDATE Voucher_Prefix SET Start_Srl_No = ?, U_EntDt = getdate(), "
+                "U_AE = 'E' WHERE V_Type = ? AND Prefix = ? AND Site_Code = ?",
+                (vno, vtype, prefix, SITE_CODE))
+        except Exception:
+            pass
+        # VB6 LASTVOU / LastVoucher: track last docid per user+vtype
+        try:
+            from HMS_py.core import fa_ledger_ops as flo
+            flo.lastvou_upsert(
+                {"user_name": user, "vtype": vtype, "docid": docid,
+                 "v_prefix": prefix, "last_ent_date": vdate},
+                cn=cn, commit=False)
+        except Exception:
+            pass
         if commit:
             cn.commit()
         return {"docid": docid, "vno": vno, "dr": tot_dr, "cr": tot_cr}
@@ -161,43 +181,93 @@ def post_voucher(lines: list[dict], vdate, narration: str = "",
 
 
 def _find_contra_pairs(lines: list[dict], subs: dict) -> dict:
-    """VB6 pattern: for each SubCode, find the contra account (the other side).
+    """VB6 FaVrEnt ContraSub auto-fill.
+    Har DR line ka ContraSub = pehli CR line ka SubCode;
+    har CR line ka ContraSub = pehli DR line ka SubCode.
     Returns {subcode: contra_subcode}."""
-    pairs = {}
-    debits = [i for i, l in enumerate(lines)
-              if float(l.get("amt_dr") or 0) > 0]
-    credits = [i for i, l in enumerate(lines)
-               if float(l.get("amt_cr") or 0) > 0]
-    # Simple 2-line case: each is contra of the other
-    if len(lines) == 2 and debits and credits:
-        d_sub = lines[debits[0]]["subcode"].strip()
-        c_sub = lines[credits[0]]["subcode"].strip()
-        pairs[d_sub] = c_sub
-        pairs[c_sub] = d_sub
+    pairs: dict[str, str] = {}
+    first_dr = ""
+    first_cr = ""
+    for l in lines:
+        sc = (l.get("subcode") or "").strip()
+        if not sc:
+            continue
+        if not first_dr and float(l.get("amt_dr") or 0) > 0:
+            first_dr = sc
+        if not first_cr and float(l.get("amt_cr") or 0) > 0:
+            first_cr = sc
+    if not first_dr or not first_cr:
+        return pairs
+    for l in lines:
+        sc = (l.get("subcode") or "").strip()
+        if not sc:
+            continue
+        if float(l.get("amt_dr") or 0) > 0:
+            pairs.setdefault(sc, first_cr)
+        if float(l.get("amt_cr") or 0) > 0:
+            pairs.setdefault(sc, first_dr)
     return pairs
 
 
-def _update_currbal(cn, subcode: str, dr: float, cr: float):
-    """VB6 CurrBal update: LedgerRef/OpeningBalance tracking.
-    Updates the running balance in LedgerCurrBal or SubGroupCurrBal."""
-    diff = dr - cr
-    try:
-        # Try LedgerCurrBal first (VB6: LedgerCurrBal table)
-        rows = cn.execute(
-            "SELECT CurrBal FROM LedgerCurrBal WHERE SubCode = ? "
-            "AND Site_Code = ?", (subcode, SITE_CODE)).fetchone()
-        if rows:
-            new_bal = float(rows[0] or 0) + diff
+def _update_currbal(cn, subcode: str, dr: float, cr: float, vdate=None):
+    """VB6 FaLib Proc_183_0: SUBGROUPCURRBAL delta + ACGROUPCURRBAL chain.
+
+    Curr_Bal += (AmtDr - AmtCr) for (LogSite_Code, SubCode, V_Date);
+    nahi mila to INSERT. Phir SubGroup.GroupCode se MainGrCode chain
+    par ACGROUPCURRBAL me bhi same delta upsert hota hai."""
+    delta = float(dr) - float(cr)
+    if abs(delta) < 0.005:
+        return
+    g = db.query(
+        "SELECT GroupCode FROM SubGroup WHERE RTRIM(SubCode) = ?",
+        (subcode,), cn=cn)
+    groupcode = ((g[0][0] if g else "") or "").strip()
+    rows = db.query(
+        "SELECT ISNULL(Curr_Bal, 0) FROM SUBGROUPCURRBAL "
+        "WHERE SubCode = ? AND LogSite_Code = ? AND V_Date = ?",
+        (subcode, SITE_CODE, vdate), cn=cn)
+    if rows:
+        cn.execute(
+            "UPDATE SUBGROUPCURRBAL SET Curr_Bal = ?, GroupCode = ? "
+            "WHERE SubCode = ? AND LogSite_Code = ? AND V_Date = ?",
+            (float(rows[0][0] or 0) + delta, groupcode,
+             subcode, SITE_CODE, vdate))
+    else:
+        cn.execute(
+            "INSERT INTO SUBGROUPCURRBAL (LogSite_Code, SubCode, V_Date, "
+            "GroupCode, Curr_Bal, Site_Code) VALUES (?, ?, ?, ?, ?, ?)",
+            (SITE_CODE, subcode, vdate, groupcode, delta, SITE_CODE))
+    if not groupcode:
+        return
+    seen: set[str] = set()
+    gc = groupcode
+    for _ in range(10):
+        if not gc or gc in seen:
+            break
+        seen.add(gc)
+        ar = db.query(
+            "SELECT ISNULL(Curr_Bal, 0) FROM ACGROUPCURRBAL "
+            "WHERE GroupCode = ? AND LogSite_Code = ? AND V_Date = ?",
+            (gc, SITE_CODE, vdate), cn=cn)
+        if ar:
             cn.execute(
-                "UPDATE LedgerCurrBal SET CurrBal = ? WHERE SubCode = ? "
-                "AND Site_Code = ?", (new_bal, subcode, SITE_CODE))
+                "UPDATE ACGROUPCURRBAL SET Curr_Bal = ? "
+                "WHERE GroupCode = ? AND LogSite_Code = ? AND V_Date = ?",
+                (float(ar[0][0] or 0) + delta, gc, SITE_CODE, vdate))
         else:
             cn.execute(
-                "INSERT INTO LedgerCurrBal (SubCode, Site_Code, CurrBal, "
-                "U_EntDt) VALUES (?, ?, ?, getdate())",
-                (subcode, SITE_CODE, diff))
-    except Exception:
-        pass  # Table may not exist; CurrBal is supplementary
+                "INSERT INTO ACGROUPCURRBAL (LogSite_Code, GroupCode, "
+                "V_Date, Curr_Bal, Site_Code) VALUES (?, ?, ?, ?, ?)",
+                (SITE_CODE, gc, vdate, delta, SITE_CODE))
+        p = db.query(
+            "SELECT MainGrCode FROM AcGroup WHERE GroupCode = ?",
+            (gc,), cn=cn)
+        if not p:
+            break
+        parent = ((p[0][0] or "").strip())
+        if not parent or parent == gc:
+            break
+        gc = parent
 
 
 def _create_ledgerref(cn, docid: str, sno: int, subcode: str, line: dict):
@@ -218,19 +288,55 @@ def _create_ledgerref(cn, docid: str, sno: int, subcode: str, line: dict):
 
 
 def _log_voucher(cn, docid: str, flag: str, user: str):
-    """VB6 LedgerLog: audit trail for voucher operations."""
+    """VB6 LedgerLog audit: Ledger lines + LedgerM header (SeqNo = Max+1).
+    flag ('A'/'D') signature me rehta hai; log row flo helpers se jaati hai."""
     try:
-        rows = cn.execute(
-            "SELECT ISNULL(MAX(Id), 0) FROM LedgerLog WHERE Site_Code = ?",
-            (SITE_CODE,)).fetchone()
-        logid = (rows[0] if rows else 0) + 1
-        cn.execute(
-            "INSERT INTO LedgerLog (Id, DocId, Flag, Site_Code, U_Name, "
-            "U_EntDt, U_AE, LogSite_Code) "
-            "VALUES (?, ?, ?, ?, ?, getdate(), 'A', ?)",
-            (logid, docid, flag, SITE_CODE, user, SITE_CODE))
+        from HMS_py.core import fa_ledger_ops as flo
+        rows = db.query(
+            "SELECT V_SNo, V_Type, V_No, v_Prefix, V_Date, SubCode, "
+            "AmtCr, AmtDr, ContraSub, Chq_No, Chq_Date, Clg_Date, "
+            "Narration, GroupCode, GroupNature "
+            "FROM Ledger WHERE DocId = ? ORDER BY V_SNo",
+            (docid,), cn=cn)
+        seq_rows = db.query(
+            "SELECT ISNULL(MAX(SeqNo), 0) FROM LedgerLog WHERE DocId = ?",
+            (docid,), cn=cn)
+        seq = int(seq_rows[0][0] or 0) if seq_rows else 0
+        for r in rows:
+            seq += 1
+            flo.ledgerlog_insert({
+                "docid": docid, "v_sno": r.V_SNo or 0,
+                "vtype": r.V_Type or "", "vno": r.V_No or 0,
+                "v_prefix": r.v_Prefix or "", "v_date": r.V_Date,
+                "subcode": (r.SubCode or "").strip(),
+                "amt_cr": float(r.AmtCr or 0),
+                "amt_dr": float(r.AmtDr or 0),
+                "contra_sub": r.ContraSub or "",
+                "chq_no": r.Chq_No or "", "chq_date": r.Chq_Date,
+                "clg_date": r.Clg_Date,
+                "narration": (r.Narration or "").strip(),
+                "groupcode": r.GroupCode or "",
+                "groupnature": r.GroupNature or "",
+                "u_name": user, "seqno": seq,
+            }, cn=cn, commit=False)
+        hm = db.query(
+            "SELECT V_Type, v_Prefix, V_No, V_Date, Narration "
+            "FROM LedgerM WHERE DocId = ?", (docid,), cn=cn)
+        if hm:
+            h = hm[0]
+            hseq_rows = db.query(
+                "SELECT ISNULL(MAX(SeqNo), 0) FROM LedgerMLog "
+                "WHERE DocId = ?", (docid,), cn=cn)
+            hseq = int(hseq_rows[0][0] or 0) if hseq_rows else 0
+            flo.ledgermlog_insert({
+                "docid": docid, "vtype": h.V_Type or "",
+                "v_prefix": h.v_Prefix or "", "vno": h.V_No or 1,
+                "v_date": h.V_Date,
+                "narration": (h.Narration or "").strip(),
+                "seqno": hseq + 1,
+            }, cn=cn, commit=False)
     except Exception:
-        pass  # LedgerLog may not exist in all deployments
+        pass  # audit trail best-effort (deployment me table missing ho sakti hai)
 
 
 def delete_voucher(docid: str, cn=None, commit: bool = True,
@@ -244,8 +350,19 @@ def delete_voucher(docid: str, cn=None, commit: bool = True,
     try:
         # Get voucher lines for CurrBal reversal + audit
         rows = db.query(
-            "SELECT SubCode, AmtDr, AmtCr FROM Ledger WHERE DocId = ?",
-            (docid,), cn=cn)
+            "SELECT SubCode, AmtDr, AmtCr, V_Date FROM Ledger "
+            "WHERE DocId = ?", (docid,), cn=cn)
+        # Linked TDS vouchers (capture BEFORE LEDGERTDS cascade delete)
+        tds_docs: list[str] = []
+        try:
+            tds_rows = db.query(
+                "SELECT DISTINCT TDSDocId FROM LEDGERTDS WHERE DocId = ?",
+                (docid,), cn=cn)
+            tds_docs = [((r[0] or "").strip()) for r in tds_rows
+                        if (r[0] or "").strip() and
+                        (r[0] or "").strip() != docid]
+        except Exception:
+            pass
         # Cascade delete references
         try:
             db.execute("DELETE FROM LEDGERREF WHERE DocId = ?",
@@ -257,12 +374,34 @@ def delete_voucher(docid: str, cn=None, commit: bool = True,
                        (docid,), cn=cn, commit=False)
         except Exception:
             pass
-        # Reverse CurrBal for each SubCode
+        # Reverse CurrBal for each SubCode (VB6 Proc_183_0 delta reverse)
         for r in rows:
             sc = (r.SubCode or "").strip()
             if sc:
                 _update_currbal(cn, sc, float(r.AmtCr or 0),
-                                float(r.AmtDr or 0))  # Reverse
+                                float(r.AmtDr or 0), vdate=r.V_Date)
+        # TDS cascade: linked TDS voucher bhi reverse + delete
+        for td in tds_docs:
+            try:
+                trows = db.query(
+                    "SELECT SubCode, AmtDr, AmtCr, V_Date FROM Ledger "
+                    "WHERE DocId = ?", (td,), cn=cn)
+                for r in trows:
+                    sc = (r.SubCode or "").strip()
+                    if sc:
+                        _update_currbal(cn, sc, float(r.AmtCr or 0),
+                                        float(r.AmtDr or 0), vdate=r.V_Date)
+                db.execute("DELETE FROM LEDGERREF WHERE DocId = ?",
+                           (td,), cn=cn, commit=False)
+                db.execute("DELETE FROM LEDGERTDS WHERE DocId = ?",
+                           (td,), cn=cn, commit=False)
+                _log_voucher(cn, td, "D", user)
+                db.execute("DELETE FROM Ledger WHERE DocId = ?",
+                           (td,), cn=cn, commit=False)
+                db.execute("DELETE FROM LedgerM WHERE DocId = ?",
+                           (td,), cn=cn, commit=False)
+            except Exception:
+                pass
         # Log before delete
         _log_voucher(cn, docid, "D", user)
         # Delete Ledger lines + header in same transaction
@@ -321,12 +460,26 @@ def cheque_cleared(subcode: str | None = None, cn=None) -> list[dict]:
 
 
 def cheque_mark_cleared(docid: str, sno: int, clg_date=None,
+                        chq_no=None, chq_date=None,
                         cn=None, commit: bool = True) -> int:
-    """VB6 FaChqClear.frm:663 exact UPDATE (Chq_No/Chq_Date/Clg_Date set)."""
+    """VB6 FaChqClear.frm:663 — Clg_Date + Chq_No + Chq_Date UPDATE.
+    Params jo None hain unki existing Ledger value preserve hoti hai."""
     clg = clg_date or datetime.date.today()
+    if isinstance(clg, str):
+        clg = datetime.date.fromisoformat(clg)
+    if isinstance(chq_date, str) and chq_date:
+        chq_date = datetime.date.fromisoformat(chq_date)
+    rows = db.query(
+        "SELECT Chq_No, Chq_Date FROM Ledger WHERE DocId = ? AND V_SNo = ?",
+        (docid, sno), cn=cn)
+    old_chq = ((rows[0][0] if rows else "") or "")
+    old_chq_date = rows[0][1] if rows else None
+    new_chq = old_chq if chq_no is None else chq_no
+    new_chq_date = old_chq_date if chq_date is None else chq_date
     return db.execute(
-        "UPDATE Ledger SET Clg_Date = ? WHERE DocId = ? AND V_SNo = ?",
-        (clg, docid, sno), cn=cn, commit=commit)
+        "UPDATE Ledger SET Clg_Date = ?, Chq_No = ?, Chq_Date = ? "
+        "WHERE DocId = ? AND V_SNo = ?",
+        (clg, new_chq, new_chq_date, docid, sno), cn=cn, commit=commit)
 
 
 # ------------------------------------------------------------- statements
@@ -348,18 +501,25 @@ def trial_balance(d_from=None, d_to=None, cn=None) -> list[dict]:
 
 
 def profit_and_loss(d_from, d_to, cn=None) -> dict:
-    """P&L: Revenue (R) minus Expenses (E) group-wise."""
+    """P&L: Revenue (R) = Cr-Dr; Expenses (E) = Dr-Cr (GroupNature signs)."""
     rows = db.query(
         "SELECT a.GroupNature, l.GroupCode, a.GroupName, "
-        "SUM(l.AmtDr) - SUM(l.AmtCr) AS Bal "
+        "SUM(l.AmtDr) AS DrTot, SUM(l.AmtCr) AS CrTot "
         "FROM Ledger l JOIN Acgroup a ON a.GroupCode = l.GroupCode "
         "WHERE l.V_Date BETWEEN ? AND ? AND a.GroupNature IN ('E', 'R') "
         "GROUP BY a.GroupNature, l.GroupCode, a.GroupName "
         "ORDER BY a.GroupNature, l.GroupCode", (d_from, d_to), cn=cn)
-    income = [{"groupcode": r[1], "name": r[2], "amount": r[3] or 0.0}
-              for r in rows if r[0] == "R"]
-    expense = [{"groupcode": r[1], "name": r[2], "amount": r[3] or 0.0}
-               for r in rows if r[0] == "E"]
+    income = []
+    expense = []
+    for r in rows:
+        dr = float(r[3] or 0)
+        cr = float(r[4] or 0)
+        if r[0] == "R":
+            income.append({"groupcode": r[1], "name": r[2],
+                           "amount": cr - dr})
+        else:
+            expense.append({"groupcode": r[1], "name": r[2],
+                            "amount": dr - cr})
     ti = sum(i["amount"] for i in income)
     te = sum(e["amount"] for e in expense)
     return {"income": income, "expense": expense,

@@ -26,14 +26,18 @@ def get_backup_path(cn=None) -> str:
     falls back to a standard path if not configured.
     """
     rows = db.query(
-        "SELECT TOP 1 BackupPath FROM Company WHERE Site_Code = ? "
-        "OR LogSite_Code = 'HO'",
+        "SELECT TOP 1 Repo_Path, CentralData_Path FROM Company WHERE SiteCode = ? "
+        "OR HeadOffice = 1",
         (SITE_CODE,), cn=cn,
     )
-    if rows and rows[0][0]:
-        path = str(rows[0][0]).strip()
-        if path:
-            return path
+    if rows:
+        # Try Repo_Path first, then CentralData_Path
+        for idx in (0, 1):
+            val = rows[0][idx] if len(rows[0]) > idx else None
+            if val:
+                path = str(val).strip()
+                if path:
+                    return path
 
     # Fallback: use Analysis.ini reports path parent + Backup
     try:
@@ -53,9 +57,9 @@ def _get_db_name(cn=None) -> str:
         return str(rows[0].dbname or "")
     try:
         cfg = db.load_config()
-        return cfg.get("database", "KailashData2526")
+        return cfg.get("database", "Moondata2627")
     except Exception:
-        return "KailashData2526"
+        return "Moondata2627"
 
 
 def _get_server(cn=None) -> str:
@@ -113,9 +117,9 @@ def backup_database(db_name: str = None, cn=None) -> dict:
         start = time.time()
         cur = cn.cursor()
         cur.execute(
-            "BACKUP DATABASE [?] TO DISK = ? WITH INIT, "
+            f"BACKUP DATABASE [{db_name}] TO DISK = ? WITH INIT, "
             "NAME = ?, DESCRIPTION = ?",
-            (db_name, backup_file,
+            (backup_file,
              f"{db_name} Full Backup",
              f"Auto backup created on {datetime.now().isoformat()}"),
         )
@@ -165,7 +169,7 @@ def backup_transaction_log(db_name: str = None, cn=None) -> dict:
         _validate_identifier(db_name, "database")
 
         cur = cn.cursor()
-        cur.execute("BACKUP LOG [?] WITH TRUNCATE_ONLY", (db_name,))
+        cur.execute(f"BACKUP LOG [{db_name}] WITH TRUNCATE_ONLY")
 
         return {
             "success": True,
@@ -200,7 +204,7 @@ def shrink_database(db_name: str = None, cn=None) -> dict:
         _validate_identifier(db_name, "database")
 
         cur = cn.cursor()
-        cur.execute("DBCC SHRINKDATABASE([?], 0, TRUNCATEONLY)", (db_name,))
+        cur.execute(f"DBCC SHRINKDATABASE([{db_name}], 0, TRUNCATEONLY)")
 
         return {
             "success": True,

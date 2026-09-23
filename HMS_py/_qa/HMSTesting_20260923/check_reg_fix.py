@@ -1,0 +1,16 @@
+import re, inspect, sys, os
+os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+sys.path.insert(0, r"C:\Users\LENOVO\Desktop\serialkey\PROJECT_REPAIR - Copy\HMS_py")
+import HMS_py.ui.shell as shell
+body = inspect.getsource(shell._form_registry)
+direct = re.findall(r'"([^"]+)":\s*_coming_soon', body)
+print("direct", direct)
+reg = shell._form_registry()
+print("Exit", callable(reg.get("Exit")))
+print("SBM", callable(reg.get("Sale Bill Modification")))
+print("Tally Interface", callable(reg.get("Tally Interface")))
+print("Advance Recd. Report", callable(reg.get("Advance Recd. Report")))
+print("GST Reports", callable(reg.get("GST Reports")))
+print("Telephone Report", callable(reg.get("Telephone Report")))
+print("POS Reports", callable(reg.get("POS Reports")))
+print("POS M.I.S.", callable(reg.get("POS M.I.S.")))

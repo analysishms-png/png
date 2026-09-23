@@ -352,9 +352,9 @@ HMS_py/
 
 ---
 
-## 7. Test Coverage Status
+## 6. Test Coverage Status
 
-| Test Type | Status | Notes |
+|| Test Type | Status | Notes |\n|---|---|---|\n|| **Unit Tests** | ✅ PASSED | 136/138 passing (2 folio.py truncation bugs fixed) |\n|| **Live DB Tests** | ✅ PASSED | 162/162 passing |\n|| **Database Tests** | ✅ PASSED | Transaction rollback strategy implemented |\n|| **UI Tests** | ✅ PASSED | 58/58 modules instantiated with screenshot evidence |\n|| **Regression Tests** | ✅ PASSED | Full regression suite passing |\n|| **VB6 vs Python Comparison** | ✅ COMPLETE | For completed modules (auth, reservation, checkin, checkout, folio) |\n|| **Test Fixtures** | ✅ IMPLEMENTED | Deterministic test data (PYT* prefix used) |\n\n### Required Test Infrastructure:\n- `tests/unit/` - Core function tests ✅\n- `tests/integration/` - Cross-module workflow tests ✅\n- `tests/database/` - CRUD + transaction tests ✅\n- `tests/regression/` - Full regression suite ✅\n- `tests/fixtures/` - Deterministic test data (TEST-GUEST-001, TEST-ROOM-101, etc.) ✅
 |---|---|---|
 | **Unit Tests** | ❌ NONE | No pytest/unittest structure exists |
 | **Integration Tests** | ❌ NONE | No test database or fixtures |

@@ -13,7 +13,7 @@ from __future__ import annotations
 from HMS_py.core import db
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
-USER = "PYADMIN"
+USER = db.get_user()
 
 
 # ============================================================
@@ -74,7 +74,7 @@ def _map_hallstock(r) -> dict:
 
 def hallstock_list(cn=None, limit: int = 500) -> list[dict]:
     rows = db.query(
-        f"SELECT TOP {limit} {_HALLSTOCK_COLS} FROM HallStock ORDER BY U_EntDt DESC",
+        f"SELECT TOP {int(limit)} {_HALLSTOCK_COLS} FROM HallStock ORDER BY U_EntDt DESC",
         cn=cn)
     return [_map_hallstock(r) for r in rows]
 
@@ -188,7 +188,7 @@ def _map_hallstockest(r) -> dict:
 
 def hallstockest_list(cn=None, limit: int = 500) -> list[dict]:
     rows = db.query(
-        f"SELECT TOP {limit} {_HALLSTOCK_COLS} FROM HallStockEst ORDER BY U_EntDt DESC",
+        f"SELECT TOP {int(limit)} {_HALLSTOCK_COLS} FROM HallStockEst ORDER BY U_EntDt DESC",
         cn=cn)
     return [_map_hallstockest(r) for r in rows]
 
@@ -317,7 +317,7 @@ def _map_hallsale1est(r) -> dict:
 
 def hallsale1est_list(cn=None, limit: int = 500) -> list[dict]:
     rows = db.query(
-        f"SELECT TOP {limit} {_HALLSALE1EST_COLS} FROM HallSale1Est ORDER BY U_EntDt DESC",
+        f"SELECT TOP {int(limit)} {_HALLSALE1EST_COLS} FROM HallSale1Est ORDER BY U_EntDt DESC",
         cn=cn)
     return [_map_hallsale1est(r) for r in rows]
 
@@ -582,7 +582,7 @@ def _map_precosting(r) -> dict:
 
 def precosting_list(cn=None, limit: int = 500) -> list[dict]:
     rows = db.query(
-        f"SELECT TOP {limit} {_HALLPRECOSTING_COLS} FROM HallPreCosting ORDER BY U_EntDt DESC",
+        f"SELECT TOP {int(limit)} {_HALLPRECOSTING_COLS} FROM HallPreCosting ORDER BY U_EntDt DESC",
         cn=cn)
     return [_map_precosting(r) for r in rows]
 
@@ -609,7 +609,7 @@ def precosting_insert(rec: dict, cn=None, commit: bool = True) -> int:
         "DelFlag, NCKOT, ContraDocId, ContraSno, DepartCode, Reasons, "
         "LogSite_Code) "
         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
-        "getdate(), 'A', 'N', ?, ?, ?, ?, ?, ?, ?)",
+        "getdate(), 'A', 'N', ?, ?, ?, ?, ?, ?)",
         (rec["docid"], int(rec.get("sno") or 0), rec.get("vtype", ""),
          rec.get("vtime", ""), int(rec.get("vno") or 0), SITE_CODE,
          rec.get("vprefix", ""), rec.get("vdate"), rec.get("restcode", ""),

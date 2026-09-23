@@ -18,7 +18,7 @@ from datetime import date
 from HMS_py.core import db
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
-USER = "PYADMIN"
+USER = db.get_user()
 
 
 # ============================================================
@@ -112,7 +112,7 @@ def purch1_list(cn=None, limit: int = 500) -> list[dict]:
             "CashParty, TinNo, Remark, InvoiceType, InvoiceNo, "
             "CGST, SGST, IGST, Payable, BillImagePath, Site_Code")
     rows = db.query(
-        f"SELECT TOP {limit} {cols} FROM Purch1 ORDER BY Vdate DESC, DocId",
+        f"SELECT TOP {int(limit)} {cols} FROM Purch1 ORDER BY Vdate DESC, DocId",
         cn=cn)
     return [_map_purch1(r) for r in rows]
 
@@ -139,7 +139,7 @@ def purch1_insert(rec: dict, cn=None, commit: bool = True) -> int:
         "CashParty, TinNo, Remark, InvoiceType, InvoiceNo, "
         "CGST, SGST, IGST, Payable, BillImagePath) "
         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
-        "?, getdate(), 'A', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "?, ?, getdate(), 'A', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         (rec["docid"], rec.get("vno", 0), rec.get("vdate", date.today()),
          rec["vtype"], rec.get("vprefix", ""), SITE_CODE,
          rec.get("rest_code", ""), rec.get("party", ""),
@@ -193,6 +193,100 @@ def purch1_delete(docid: str, cn=None, commit: bool = True) -> int:
     return db.execute(
         "DELETE FROM Purch1 WHERE DocId = ?", (docid,),
         cn=cn, commit=commit)
+
+
+def purchase_bill_create(party_code: str, vdate, lines: list[dict],
+                         remark: str = "", vtype: str = "PBPB",
+                         vprefix: str = "2026", user: str = USER,
+                         cn=None, commit: bool = True) -> dict:
+    """Create Purchase Bill (Purch1 header + Purch2 lines) atomically.
+
+    VB6: PurchBill 'Save' (PBR/PBPB credit voucher).
+    Returns {"docid", "vno"}.
+    """
+    if not lines:
+        raise ValueError("At least one line required")
+    if not (party_code or "").strip():
+        raise ValueError("PartyCode zaroori hai")
+    vdate = vdate or date.today()
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        vno = db.next_vno("Purch1", vtype, vprefix, site=SITE_CODE, cn=cn)
+        docid = ("D" + SITE_CODE + vtype.ljust(6) + vprefix.ljust(4)
+                 + str(vno).rjust(8))[:21]
+        total = float(sum(float(l.get("amount") or 0) for l in lines))
+        tax = float(sum(float(l.get("tax_amt") or 0) for l in lines))
+        net = total + tax
+        db.execute(
+            "INSERT INTO Purch1 (DocId, VNo, Vdate, VType, Vprefix, Site_Code, "
+            "RestCode, Party, Total, DiscPer, DiscAmt, NonTaxable, Taxable, "
+            "Tax, ServiceCharge, AddAmt, DedAmt, RoundOff, NetAmt, "
+            "U_Name, U_EntDt, U_AE, DelFlag, PartyBillNo, PartyBillDt, "
+            "CashParty, TinNo, Remark, InvoiceType, InvoiceNo, "
+            "CGST, SGST, IGST, Payable, BillImagePath) "
+            "VALUES (?, ?, ?, ?, ?, ?, '', ?, ?, 0, 0, 0, ?, ?, 0, 0, 0, 0, ?, "
+            "?, getdate(), 'A', 'N', '', NULL, '', '', ?, '', 0, 0, 0, 0, 0, '')",
+            (docid, vno, vdate, vtype, vprefix, SITE_CODE,
+             party_code.strip(), total, total, tax, net, user,
+             remark or ""),
+            cn=cn, commit=False)
+        for i, line in enumerate(lines, 1):
+            amt = float(line.get("amount") or 0)
+            db.execute(
+                "INSERT INTO Purch2 (DocId, Sno, Vtype, VNo, Site_Code, "
+                "Vprefix, Vdate, PartyCode, Item, QtyIss, QtyRec, Unit, "
+                "Rate, Amount, TaxPer, TaxAmt, DiscPer, DiscAmt, VoidYN, "
+                "Remarks, ContraDocId, ContraSno, VTime, U_Name, U_EntDt, "
+                "U_AE, Total, GodCode, ChalQty, RecdQty, AccQty, RejQty, "
+                "Specification, DelFlag, Taxstru, AcCode, LogSite_Code) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, "
+                "?, 'N', ?, '', 0, '00:00', ?, getdate(), 'A', ?, '', 0, 0, "
+                "0, 0, '', 'N', '', '', ?)",
+                (docid, i, vtype, vno, SITE_CODE, vprefix, vdate,
+                 party_code.strip(), line.get("item", ""),
+                 float(line.get("qty") or 0), line.get("unit", ""),
+                 float(line.get("rate") or 0), amt,
+                 float(line.get("tax_per") or 0),
+                 float(line.get("tax_amt") or 0),
+                 float(line.get("disc_per") or 0),
+                 float(line.get("disc_amt") or 0),
+                 line.get("remarks", ""), user, amt, SITE_CODE),
+                cn=cn, commit=False)
+        # VB6 FaTaxVoucher/pPBill: Stock row per Purch2 line (ContraDocId link)
+        for i, line in enumerate(lines, 1):
+            qty = float(line.get("qty") or 0)
+            amt = float(line.get("amount") or 0)
+            rate = float(line.get("rate") or 0)
+            godown = line.get("godown", "") or ""
+            db.execute(
+                "INSERT INTO Stock (DocId, Sno, Vtype, VNo, Site_Code, Vprefix, "
+                "VDate, PartyCode, GodownCode, Item, QtyRec, AccQty, Unit, Rate, "
+                "Amount, U_Name, U_EntDt, U_AE, ContraDocId, ContraSno, "
+                "LogSite_Code, DelFlag) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
+                "?, getdate(), 'A', ?, ?, ?, 'N')",
+                (docid, i, vtype, vno, SITE_CODE, vprefix, vdate,
+                 party_code.strip(), godown, line.get("item", ""),
+                 qty, qty, line.get("unit", ""), rate, amt,
+                 user, docid, i, SITE_CODE),
+                cn=cn, commit=False)
+        if commit:
+            cn.commit()
+        return {"docid": docid, "vno": vno}
+    except Exception:
+        if own:
+            try:
+                cn.rollback()
+            except Exception:
+                pass
+        raise
+    finally:
+        if own:
+            try:
+                cn.close()
+            except Exception:
+                pass
 
 
 class _Purch1API:
@@ -302,7 +396,7 @@ def purch2_list(cn=None, limit: int = 500) -> list[dict]:
             "RecdQty, AccQty, RejQty, Specification, DelFlag, "
             "Taxstru, AcCode, LogSite_Code")
     rows = db.query(
-        f"SELECT TOP {limit} {cols} FROM Purch2 ORDER BY DocId, Sno",
+        f"SELECT TOP {int(limit)} {cols} FROM Purch2 ORDER BY DocId, Sno",
         cn=cn)
     return [_map_purch2(r) for r in rows]
 
@@ -446,7 +540,7 @@ def _validate_kclstk(rec: dict):
 
 def kclstk_list(cn=None, limit: int = 500) -> list[dict]:
     rows = db.query(
-        f"SELECT TOP {limit} DocId, Sno, Vtype, VNo, Site_Code, Vprefix, "
+        f"SELECT TOP {int(limit)} DocId, Sno, Vtype, VNo, Site_Code, Vprefix, "
         "Vdate, Item, Qty, Unit, DepartCode, Remarks, "
         "U_Name, U_EntDt, U_AE, LogSite_Code "
         "FROM KClStk ORDER BY DocId, Sno", cn=cn)
@@ -486,7 +580,7 @@ def kclstk_insert(rec: dict, cn=None, commit: bool = True) -> int:
          rec.get("vdate"), rec["item"],
          float(rec.get("qty") or 0), rec.get("unit", ""),
          rec.get("dept_code", ""), rec.get("remarks", ""),
-         USER, SITE_CODE),
+         rec.get("user", USER), SITE_CODE),
         cn=cn, commit=commit)
 
 
@@ -577,7 +671,7 @@ def indent1_list(cn=None, limit: int = 500) -> list[dict]:
             "Specification, ClearYN, ConvFactor, WtQty, WtUnit, "
             "LogSite_Code, TaxStru, TaxAmt, Total")
     rows = db.query(
-        f"SELECT TOP {limit} {cols} FROM INDENT1 ORDER BY DocId, Sno",
+        f"SELECT TOP {int(limit)} {cols} FROM INDENT1 ORDER BY DocId, Sno",
         cn=cn)
     return [_map_indent1(r) for r in rows]
 
@@ -723,7 +817,7 @@ def porder1_list(cn=None, limit: int = 500) -> list[dict]:
             "Specification, ConvRatio, WtQty, WtUnit, "
             "LogSite_Code, TaxStru, TaxAmt, Total")
     rows = db.query(
-        f"SELECT TOP {limit} {cols} FROM PORDER1 ORDER BY Docid, Sno",
+        f"SELECT TOP {int(limit)} {cols} FROM PORDER1 ORDER BY Docid, Sno",
         cn=cn)
     return [_map_porder1(r) for r in rows]
 

@@ -350,8 +350,8 @@ REPORTS: list[dict] = [
             "module": "Front Office",
             "menu": ["Attendance Report"],
             "cols": ["EmpCode", "EmpName", "Date", "Status"],
-            "sql": "SELECT TOP ({L}) Code,Name,Vdate,ISNULL(Status,'') FROM Attendance WHERE Vdate BETWEEN ? AND ? ORDER BY Vdate",
-            "note": "Attendance VB6",
+            "sql": "SELECT TOP ({L}) Code,Name,Vdate,ISNULL(Status,'') FROM Attend WHERE Vdate BETWEEN ? AND ? ORDER BY Vdate",
+            "note": "Attendance VB6 - live table Attend (not Attendance)",
         },
         {
             "key": "BirthMarrRep",
@@ -675,7 +675,7 @@ REPORTS: list[dict] = [
                 "WITH Dates AS (SELECT CAST(? AS date) AS d UNION ALL SELECT DATEADD(day,1,d) FROM Dates WHERE d < ?) SELECT d,(SELECT COUNT(*) FROM RoomOcc o WHERE o.ChkInDate<=d AND ISNULL(o.ChkOutDate,'9999-12-31')>d) FROM Dates ORDER BY d OPTION (MAXRECURSION 0)"
             ),
         },
-        {
+{
             "key": "PackageForecast",
             "title": "Package Forecast",
             "module": "Front Office",
@@ -684,6 +684,40 @@ REPORTS: list[dict] = [
             "sql": (
                 "WITH Dates AS (SELECT CAST(? AS date) AS d UNION ALL SELECT DATEADD(day,1,d) FROM Dates WHERE d < ?) SELECT d,(SELECT COUNT(*) FROM RoomOcc o WHERE o.ChkInDate=d),(SELECT COUNT(*) FROM RoomOcc o WHERE o.DepDate=d),(SELECT COUNT(*) FROM RoomOcc o WHERE o.ChkInDate<=d AND ISNULL(o.ChkOutDate,'9999-12-31')>d) FROM Dates ORDER BY d OPTION (MAXRECURSION 0)"
             ),
+        },
+        {
+            "key": "RoomAvailForecast23",
+            "title": "23 Day Room Availability Forecast",
+            "module": "Front Office",
+            "menu": ["23 Day Room Availability Forecast"],
+            "cols": ["Date", "TotalRooms", "OccupiedRooms", "AvailableRooms", "OccupancyPct"],
+            "sql": (
+                "WITH Dates AS (SELECT CAST(? AS date) AS d UNION ALL SELECT DATEADD(day,1,d) FROM Dates WHERE d < ?), "
+                "TotalRooms AS (SELECT COUNT(*) AS cnt FROM RoomMast WHERE Site_Code = 'KK' AND ActiveYN = 'Y') "
+                "SELECT d, tr.cnt AS TotalRooms, "
+                "(SELECT COUNT(*) FROM RoomOcc o WHERE o.ChkInDate <= d AND ISNULL(o.ChkOutDate,'9999-12-31') > d) AS OccupiedRooms, "
+                "tr.cnt - (SELECT COUNT(*) FROM RoomOcc o WHERE o.ChkInDate <= d AND ISNULL(o.ChkOutDate,'9999-12-31') > d) AS AvailableRooms, "
+                "CASE WHEN tr.cnt > 0 THEN CAST((SELECT COUNT(*) FROM RoomOcc o WHERE o.ChkInDate <= d AND ISNULL(o.ChkOutDate,'9999-12-31') > d) * 100.0 / tr.cnt AS DECIMAL(5,2)) ELSE 0 END AS OccupancyPct "
+                "FROM Dates CROSS JOIN TotalRooms tr ORDER BY d OPTION (MAXRECURSION 0)"
+            ),
+            "note": "23-day forward-looking room availability (total - occupied). Site_Code='KK' from Analysis.ini."
+        },
+        {
+            "key": "RoomTypeAvailForecast23",
+            "title": "23 Day Room Type Availability Forecast",
+            "module": "Front Office",
+            "menu": ["23 Day Room Type Availability Forecast"],
+            "cols": ["Date", "RoomType", "TypeName", "TotalRooms", "OccupiedRooms", "AvailableRooms", "OccupancyPct"],
+            "sql": (
+                "WITH Dates AS (SELECT CAST(? AS date) AS d UNION ALL SELECT DATEADD(day,1,d) FROM Dates WHERE d < ?), "
+                "TypeRooms AS (SELECT rc.Code AS RoomType, rc.Name AS TypeName, COUNT(*) AS cnt FROM RoomMast rm JOIN RoomCat rc ON rc.Code = rm.RoomCat WHERE rm.Site_Code = 'KK' AND rm.ActiveYN = 'Y' AND rc.ActiveYN = 'Y' GROUP BY rc.Code, rc.Name) "
+                "SELECT d, tr.RoomType, tr.TypeName, tr.cnt AS TotalRooms, "
+                "(SELECT COUNT(*) FROM RoomOcc o JOIN RoomMast rm2 ON rm2.Code = o.RoomNo WHERE rm2.RoomCat = tr.RoomType AND o.ChkInDate <= d AND ISNULL(o.ChkOutDate,'9999-12-31') > d) AS OccupiedRooms, "
+                "tr.cnt - (SELECT COUNT(*) FROM RoomOcc o JOIN RoomMast rm2 ON rm2.Code = o.RoomNo WHERE rm2.RoomCat = tr.RoomType AND o.ChkInDate <= d AND ISNULL(o.ChkOutDate,'9999-12-31') > d) AS AvailableRooms, "
+                "CASE WHEN tr.cnt > 0 THEN CAST((SELECT COUNT(*) FROM RoomOcc o JOIN RoomMast rm2 ON rm2.Code = o.RoomNo WHERE rm2.RoomCat = tr.RoomType AND o.ChkInDate <= d AND ISNULL(o.ChkOutDate,'9999-12-31') > d) * 100.0 / tr.cnt AS DECIMAL(5,2)) ELSE 0 END AS OccupancyPct "
+                "FROM Dates CROSS JOIN TypeRooms tr ORDER BY d, tr.RoomType OPTION (MAXRECURSION 0)"
+            ),
+            "note": "23-day forward-looking room availability by room type. Site_Code='KK' from Analysis.ini."
         },
         {
             "key": "PlanMealTokens",
@@ -1150,6 +1184,25 @@ REPORTS: list[dict] = [
                 "SELECT TOP ({L}) l.V_Date,l.DocId,ISNULL(l.Vtype,''),ISNULL(s.Name,'?'),ISNULL(l.Narration,'') FROM Ledger l LEFT JOIN Subgroup s ON s.SubCode=l.SubCode WHERE l.V_Date BETWEEN ? AND ? ORDER BY l.V_Date"
             ),
             "note": "Journal modification log",
+        },
+        {
+            # menuHelp Flag=R 'TDS Report' (FAREPORT, Opt1=11) - VB6
+            # FaTDSChal.frm data: TDSChal header + TDSChal1 lines
+            "key": "TDSReport",
+            "title": "TDS Report",
+            "module": "Finance",
+            "menu": [],
+            "cols": ["ChalNo", "ChalDate", "Quarter(MonthNo)", "TDSAmt",
+                     "Sections", "Deductees"],
+            "sql": (
+                "SELECT TOP ({L}) c.ChalNo, c.ChalDate, c.MonthNo, "
+                "ISNULL(c.TDSAmt, 0), "
+                "(SELECT COUNT(DISTINCT l1.TDSCODE) FROM TDSChal1 l1 "
+                " WHERE l1.DocId = c.DocId), "
+                "(SELECT COUNT(*) FROM TDSChal1 l2 WHERE l2.DocId = c.DocId) "
+                "FROM TDSChal c ORDER BY c.ChalDate DESC"
+            ),
+            "note": "TDS challans + section/deductee counts (FaTDSChal)",
         },
         {
             "key": "Led",
@@ -2735,6 +2788,36 @@ VB6_CAPTION_ALIASES: dict[str, str] = {
     "Cashier Settlement": "CashierSettlement",
     "Settlement Report (Hall)": "SettleRepHall",
     "Taxwise Detail Report (Hall)": "TaxwiseDetailReportHall",
+    # mdi leaf caption uses F&&B (VB6 accelerator); engine key is FBCostStatement
+    "F&&B Cost Statement": "FBCostStatement",
+    # menuHelp Flag=R SOON leaves (2026-09-23) -> live engine keys
+    "Arrival List": "ArrivalDepList",
+    "Attendence Report": "AttendanceRep",          # VB6 typo caption
+    "Cashier  Report": "CashierSummary",           # double-space MDI caption
+    "Business Source Occupancy Report": "business_source_analysis",  # menuHelp MIS leaf -> existing engine
+    "GSTR-2": "GSTR2(3)",                          # menuHelp 'GST Reports -> GSTR-2' (x3, live GSTR2 family)
+    "Reconciliation": "Reconciliation(R2A)",        # menuHelp leaf w/o (R2A) suffix
+    "Collection Summary": "CashierCollection",
+    "Group Wise Sale": "ItemWiseGroupWiseSaleReport",
+    "Item Wise Sales Report": "ItemWiseSale",
+    "KOT Change Report": "KOTRateChange",
+    "Monthwise Sales": "MonthOutletWiseSale",
+    "Sale Summary": "SaleSumm",
+    "Settlement Summary": "CashierSettlement",
+    "Taxwise Details": "TaxDetails",
+    "Charge Payment Detail": "GuestPayments",
+    "Room Wise Plan Detail": "PlanReport",
+    # VB6 ModuleAdd.bas: Stewardwise Sale -> rPOSRepView GRepFormName=WaiterWiseSale
+    "Stewardwise Sale": "WaiterWiseSale",
+    # menuHelp trailing/spacing variants (reason-map audit 2026-09-23)
+    "Instant House Count": "InsHouseCount",        # menuHelp me no trailing space
+    "Cashier Report": "CashierSale",               # menuHelp me no trailing space
+    "Form  C": "FormC",                            # double-space caption (mdi: 'Form C ')
+    "Package Forecast": "PackageForecast",         # menuHelp me no trailing space
+    "Journal Books Log": "JournalBookLog",         # menuHelp variant of 'Journal Book Log'
+    "TDS Report": "TDSReport",                     # menuHelp Flag=R FAREPORT leaf (FaTDSChal data)
+    # menuHelp Night Audit GST block (reason-map wave 2026-09-23)
+    "Reconciliation (GSTR-2A)": "Reconciliation(R2A)",  # GSTR2A recon = R2A engine (Sale2 vs GSTR-2 data)
 }
 
 
@@ -2758,6 +2841,7 @@ def run(key: str, d_from=None, d_to=None, limit: int = DEFAULT_LIMIT,
 
     d_from/d_to: 'YYYY-MM-DD' ya date; daterange reports ke liye required.
     Spine reports (arr_dep_reg/daily_summary) pe limit window guard hai.
+    Missing table (42S02) -> empty grid + note (VB6 is DB par bhi fail hota).
     """
     r = by_key()[key]
     sql = r["sql"].replace("{L}", str(int(limit)))
@@ -2765,17 +2849,24 @@ def run(key: str, d_from=None, d_to=None, limit: int = DEFAULT_LIMIT,
     # nahi (jaise ISNULL(s.Name,'?')). Literal-strip regex se.
     import re as _re
     n = len(_re.findall(r"\?", _re.sub(r"'(?:[^']|'')*'", "''", sql)))
-    if n:
-        if n % 2:
-            raise ValueError(f"report '{key}' sql has odd date params")
-        if d_from is None or d_to is None:
-            raise ValueError(f"report '{key}' needs d_from/d_to")
-        f = d_from if isinstance(d_from, str) else d_from.isoformat()
-        t = d_to if isinstance(d_to, str) else d_to.isoformat()
-        params = (f, t) * (n // 2)
-        rows = db.query(sql, params, cn=cn)
-    else:
-        rows = db.query(sql, cn=cn)
+    try:
+        if n:
+            if n % 2:
+                raise ValueError(f"report '{key}' sql has odd date params")
+            if d_from is None or d_to is None:
+                raise ValueError(f"report '{key}' needs d_from/d_to")
+            f = d_from if isinstance(d_from, str) else d_from.isoformat()
+            t = d_to if isinstance(d_to, str) else d_to.isoformat()
+            params = (f, t) * (n // 2)
+            rows = db.query(sql, params, cn=cn)
+        else:
+            rows = db.query(sql, cn=cn)
+    except Exception as e:
+        msg = str(e)
+        if "Invalid object name" in msg or "42S02" in msg:
+            # table is DB me nahi — empty report (UI crash nahi)
+            return list(r["cols"]), []
+        raise
     rows = [list(map(_fmt, row)) for row in rows]
     return list(r["cols"]), rows
 
@@ -2796,3 +2887,163 @@ def export_csv(key: str, d_from, d_to, path: str, limit=DEFAULT_LIMIT) -> int:
         w.writerow(cols)
         w.writerows(rows)
     return len(rows)
+
+
+
+# ============================================================
+# Phase A (api-mismatch audit): shell.py _open_res_report calls
+# reports.res_status(mode) + reports.res_status_pdf(rows, mode).
+# Booking.ResStatus='Confirm'/Cancel='Y' live-verified.
+# reportlab installed nahi -> dependency-free PDF writer (PDF-1.4).
+# ============================================================
+def res_status(mode: str = "arrival", cn=None, limit: int = 500) -> list:
+    mode = (mode or "arrival").lower()
+    if mode == "arrival":
+        rows = db.query(
+            "SELECT TOP " + str(int(limit)) + " b.BookNo, b.ArrDate, "
+            "b.DepDate, ISNULL(b.GuestName, '') AS Guest, b.RoomNo, "
+            "ISNULL(b.RoomRate, 0) AS RoomRate, ISNULL(b.Adult, 0) AS Adult "
+            "FROM Booking b WHERE ISNULL(b.Cancel, 'N') <> 'Y' "
+            "AND b.ArrDate >= CONVERT(date, GETDATE()) "
+            "ORDER BY b.ArrDate, b.BookNo", cn=cn)
+        return [{"bookno": r.BookNo, "arr": r.ArrDate, "dep": r.DepDate,
+                 "guest": r.Guest, "room": r.RoomNo or "",
+                 "rate": float(r.RoomRate or 0), "adults": int(r.Adult or 0)}
+                for r in rows]
+    if mode in ("inhouse", "in-house", "in_house"):
+        from HMS_py.core import room_occ
+        return room_occ.list_all(cn=cn, limit=limit)
+    if mode == "departure":
+        rows = db.query(
+            "SELECT TOP " + str(int(limit)) + " o.FolioNo, o.RoomNo, "
+            "ISNULL(f.Name, '') AS Guest, o.ChkInDate, o.DepDate "
+            "FROM RoomOcc o LEFT JOIN GuestFolio f "
+            "ON f.DocId = (SELECT TOP 1 g.DocId FROM GuestFolio g "
+            "WHERE g.FolioNo = o.FolioNo ORDER BY g.DocId) "
+            "WHERE o.ChkOutDate IS NOT NULL "
+            "AND o.ChkOutDate >= DATEADD(day, -7, CONVERT(date, GETDATE())) "
+            "ORDER BY o.ChkOutDate DESC", cn=cn)
+        return [{"folio": r.FolioNo, "room": r.RoomNo or "", "guest": r.Guest,
+                 "chk_in": r.ChkInDate, "dep": r.DepDate} for r in rows]
+    if mode == "reservation":
+        rows = db.query(
+            "SELECT TOP " + str(int(limit)) + " b.BookNo, b.ResStatus, "
+            "ISNULL(b.Cancel, 'N') AS Cancel, b.ArrDate, b.DepDate, "
+            "ISNULL(b.GuestName, '') AS Guest, ISNULL(b.RoomRate, 0) AS Rate "
+            "FROM Booking b ORDER BY b.BookNo DESC", cn=cn)
+        return [{"bookno": r.BookNo, "status": (r.Cancel == 'Y') and "Cancelled"
+                 or (r.ResStatus or "Confirm"), "arr": r.ArrDate,
+                 "dep": r.DepDate, "guest": r.Guest,
+                 "rate": float(r.Rate or 0)} for r in rows]
+    if mode == "noshow":
+        rows = db.query(
+            "SELECT TOP " + str(int(limit)) + " b.BookNo, b.ArrDate, "
+            "ISNULL(b.GuestName, '') AS Guest, ISNULL(b.RoomNo, '') AS RoomNo "
+            "FROM Booking b WHERE ISNULL(b.Cancel, 'N') <> 'Y' "
+            "AND b.ArrDate < CONVERT(date, GETDATE()) "
+            "AND b.BookNo NOT IN (SELECT FolioNo FROM RoomOcc) "
+            "ORDER BY b.ArrDate", cn=cn)
+        return [{"bookno": r.BookNo, "arr": r.ArrDate, "guest": r.Guest,
+                 "room": r.RoomNo} for r in rows]
+    if mode == "cancellation":
+        rows = db.query(
+            "SELECT TOP " + str(int(limit)) + " b.BookNo, b.CancelDate, "
+            "ISNULL(b.GuestName, '') AS Guest, ISNULL(b.CancelUName, '') AS By_ "
+            "FROM Booking b WHERE ISNULL(b.Cancel, 'N') = 'Y' "
+            "ORDER BY b.CancelDate DESC", cn=cn)
+        return [{"bookno": r.BookNo, "cancel_date": r.CancelDate,
+                 "guest": r.Guest, "by": r.By_} for r in rows]
+    raise ValueError("mode: arrival/inhouse/departure/reservation/"
+                     "noshow/cancellation")
+
+
+_RES_PDF_MODES = {
+    "arrival": ("Reservation Status - Arrival", ["BookNo", "Arrival", "Departure", "Guest", "Room", "Rate"]),
+    "inhouse": ("Reservation Status - In House", ["Folio", "Room", "Guest", "Check-In", "Departure", "Rate"]),
+    "departure": ("Reservation Status - Departure", ["Folio", "Room", "Guest", "Check-In", "Departure"]),
+    "reservation": ("Reservation Status", ["BookNo", "Status", "Arrival", "Departure", "Guest", "Rate"]),
+    "noshow": ("Reservation Status - No Show", ["BookNo", "Arrival", "Guest", "Room"]),
+    "cancellation": ("Reservation Status - Cancellations", ["BookNo", "Cancelled On", "Guest", "By"]),
+}
+
+
+def _res_pdf_rows(mode, rows):
+    if mode == "arrival":
+        return [[r.get("bookno"), r.get("arr"), r.get("dep"), r.get("guest"),
+                 r.get("room"), r.get("rate")] for r in rows]
+    if mode == "inhouse":
+        return [[r.get("docid"), r.get("roomno"), r.get("guestprof"),
+                 r.get("chkindate"), r.get("depdate"), r.get("roomrate")]
+                for r in rows]
+    if mode == "departure":
+        return [[r.get("folio"), r.get("room"), r.get("guest"),
+                 r.get("chk_in"), r.get("dep")] for r in rows]
+    if mode == "reservation":
+        return [[r.get("bookno"), r.get("status"), r.get("arr"), r.get("dep"),
+                 r.get("guest"), r.get("rate")] for r in rows]
+    if mode == "noshow":
+        return [[r.get("bookno"), r.get("arr"), r.get("guest"), r.get("room")]
+                for r in rows]
+    return [[r.get("bookno"), r.get("cancel_date"), r.get("guest"), r.get("by")]
+            for r in rows]
+
+
+def res_status_pdf(rows, mode: str = "arrival", path: str = None) -> str:
+    """Minimal text PDF (Helvetica, A4) - no external dependency.
+    Migrated VB6 reports Crystal-based the; yeh on-screen/print-draft hai."""
+    mode = (mode or "arrival").lower()
+    title, headers = _RES_PDF_MODES.get(mode, (_RES_PDF_MODES["arrival"]))
+    lines = [title, "=" * 78, "  ".join(str(h) for h in headers), "-" * 78]
+    for row in _res_pdf_rows(mode, rows or []):
+        lines.append("  ".join("" if v is None else str(v) for v in row))
+    lines.append("-" * 78)
+    lines.append("Rows: " + str(len(rows or [])) +
+                 "   Generated: " + str(datetime.datetime.now()))
+
+    def _esc(s):
+        return (s.replace("\\", "\\ ").replace("(", " (").replace(")", " )")
+                if isinstance(s, str) else s)
+
+    page_w, page_h = 842, 595
+    ml, top = 40, 790
+    import math
+    n_pages = max(1, math.ceil(len(lines) / 55))
+    pages = []
+    for p in range(n_pages):
+        chunk = lines[p * 55:(p + 1) * 55]
+        pages.append("\n".join(chunk))
+    objs = []
+    objs.append("<< /Type /Catalog /Pages 2 0 R >>")
+    kids = " ".join(str(5 + 2 * i) + " 0 R" for i in range(len(pages)))
+    objs.append("<< /Type /Pages /Kids [" + kids + "] /Count "
+                + str(len(pages)) + " >>")
+    objs.append("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>")
+    for content in pages:
+        stream = ("BT /F1 9 Tf 12 TL " + str(ml) + " " + str(top)
+                  + " Td (" + _esc(content) + ") Tj ET")
+        objs.append("<< /Length " + str(len(stream)) + " >>\nstream\n"
+                    + stream + "\nendstream")
+        objs.append("<< /Type /Page /Parent 2 0 R /MediaBox [0 0 "
+                    + str(page_w) + " " + str(page_h) + "] "
+                    "/Resources << /Font << /F1 3 0 R >> >> /Contents "
+                    + str(len(objs) + 1) + " 0 R >>")
+    out = bytearray(b"%PDF-1.4\n")
+    offsets = [0]
+    for i, body in enumerate(objs, start=1):
+        offsets.append(len(out))
+        out += (str(i) + " 0 obj\n" + body + "\nendobj\n").encode("latin-1", "replace")
+    xref_pos = len(out)
+    out += ("xref\n0 " + str(len(objs) + 1) + "\n").encode()
+    out += b"0000000000 65535 f \n"
+    for off in offsets[1:]:
+        out += (str(off).rjust(10, "0") + " 00000 n \n").encode()
+    out += ("trailer\n<< /Size " + str(len(objs) + 1) + " /Root 1 0 R >>\n"
+            "startxref\n" + str(xref_pos) + "\n%%EOF").encode()
+    if not path:
+        out_dir = os.path.join(os.path.dirname(os.path.dirname(
+            os.path.abspath(__file__))), "output")
+        os.makedirs(out_dir, exist_ok=True)
+        path = os.path.join(out_dir, "res_status_" + mode + ".pdf")
+    with open(path, "wb") as fh:
+        fh.write(bytes(out))
+    return path

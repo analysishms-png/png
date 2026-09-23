@@ -11,7 +11,7 @@ from __future__ import annotations
 from HMS_py.core import db
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
-USER = "PYADMIN"
+USER = db.get_user()
 
 
 # ============================================================
@@ -85,7 +85,7 @@ def _validate_kotlog(rec: dict):
 
 def kotlog_list(cn=None, limit: int = 500) -> list[dict]:
     rows = db.query(
-        f"SELECT TOP {limit} {_KOTLOG_COLS} FROM KOTLog ORDER BY U_EntDt DESC",
+        f"SELECT TOP {int(limit)} {_KOTLOG_COLS} FROM KOTLog ORDER BY U_EntDt DESC",
         cn=cn)
     return [_map_kotlog(r) for r in rows]
 
@@ -244,7 +244,7 @@ def _validate_token(rec: dict):
 
 def token_list(cn=None, limit: int = 500) -> list[dict]:
     rows = db.query(
-        f"SELECT TOP {limit} {_TOKEN_COLS} FROM TOKEN ORDER BY U_EntDt DESC",
+        f"SELECT TOP {int(limit)} {_TOKEN_COLS} FROM TOKEN ORDER BY U_EntDt DESC",
         cn=cn)
     return [_map_token(r) for r in rows]
 
@@ -419,8 +419,10 @@ SplitBillAPI = _SplitBillAPI()
 # ============================================================
 # Table Change + KOT Transfer (VB6 RsTbChange/RsKOTTransfer)
 # ============================================================
-_KOT_PENDING = ("Pending = 'Y' AND (DelFlag = 'N' OR DelFlag IS NULL "
-                "OR DelFlag = '')")
+_KOT_PENDING = ("Pending = 'Y' AND ISNULL(VoidYN, 'N') <> 'Y' "
+                "AND ISNULL(NCKOT, 'N') <> 'Y' "
+                "AND ISNULL(DelFlag, '') IN ('', 'N') "
+                "AND ISNULL(ContraDocId, '') = ''")
 
 
 def pending_kot_tables(rest_code: str, site: str = SITE_CODE,

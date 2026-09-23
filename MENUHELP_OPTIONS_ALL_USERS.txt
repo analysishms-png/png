@@ -1,0 +1,1001 @@
+================================================================================================
+HMS MENU_HELP — ALL USERS OPTIONS REPORT (SA = template baseline)
+Generated: 2026-09-23   CompCode=2   users=66
+Leaf = (caption, Opt2, Opt3, Opt4) — position-keyed, no dedupe.
+================================================================================================
+
+SECTION 1: MODULE-WISE E/R/V MATRIX (rows=modules, cols=users)
+================================================================================================
+Module                      SA   Abhijit  Abhishek    ADITYA aditya hk     admin       AGM     AHSAN     AKASH      AMIR     Anoop      ANUJ    ANURAG     ARPIT  Ashutosh   AWDHESH    Danish    Deepak       dev  DEVANSHU    Dinesh    Gaurav        GM      Gopi    GUFRAN   Hari Om    HARIOM himanshu1        HR htw_syste   kamlesh   Kitchen       kot        MD   MITLESH    Monika     MUDIT    MUKESH MUKESH AC  Nagendra  NIHARIKA   NIRBHAY     NITIN    PANKAJ   PKVERMA       POS   Praveen     Ramji      Ravi    Risabh    Sanjay   SAURABH    Saurav    shivam   Shubham     shyam     STORE     Sumit     SUNIL     Suraj     TALIB     Tarun       tea     VIKAS     Vipin  VIRENDRA
+------------------------------------------------------------------------------------------------
+Finance                 5/25/0         -         -         -         -    5/19/0         -         -         -    5/15/0    5/15/0         -         -         -         -    5/15/0         -         -         -         -    5/15/0         -         -    5/19/0         -         -    5/16/0         -         -         -     1/0/0         -         -    3/15/0         -    5/15/0    5/16/0         -    3/15/0         -         -         -    5/16/0         -         -         -    3/15/0         -         -         -         -    2/17/0    5/15/0         -    5/15/0         -         -         -         -         -         -         -         -         -         -    5/16/0
+Main Setup              82/0/0         -     1/0/0    18/0/0         -    77/0/0         -     1/0/0         -    47/0/0    47/0/0     1/0/0     9/0/0    19/0/0     6/0/0    32/0/0         -     1/0/0         -         -    75/0/0     9/0/0     9/0/0     1/0/0     2/0/0     4/0/0     7/0/0     1/0/0         -         -         -         -         -    39/0/0         -         -    73/0/0         -     6/0/0    13/0/0     1/0/0    13/0/0    73/0/0     3/0/0         -         -         -         -         -    18/0/0    13/0/0     4/0/0    48/0/0     1/0/0    16/0/0         -     9/0/0    18/0/0    13/0/0     6/0/0         -    21/0/0     4/0/0         -         -     5/0/0
+Reservation             13/5/0         -    13/5/0    13/5/0         -    13/5/0    13/5/0         -         -    13/5/0    13/5/0         -         -    13/5/0         -    13/5/0         -    13/5/0         -         -    13/5/0         -         -    13/5/0         -         -         -         -         -         -         -         -         -    13/5/0         -    13/5/0         -         -         -    13/5/0    13/5/0         -         -         -         -         -         -         -         -    13/5/0         -    13/5/0    13/5/0    13/5/0         -         -         -    13/5/0         -         -         -         -         -         -         -    13/5/0
+Front Office           24/33/0         -   10/30/0   23/32/0         -   24/31/0   24/31/0   22/31/0         -   24/31/0   24/31/0   10/30/0     7/0/0   24/32/0         -   24/31/0         -   10/30/0         -     0/1/0   24/31/0     7/0/0     7/0/0   24/31/0         -         -         -         -         -   24/31/0         -         -         -   24/31/0         -   24/31/0    9/20/0         -   24/30/0   24/32/0   10/30/0         -    9/20/0         -         -         -         -         -         -   24/32/0         -    0/30/0   24/31/0   10/30/0   24/31/0         -         -   24/32/0         -         -   24/30/0         -         -         -         -   24/31/0
+House Keeping            7/1/2         -         -     5/0/0     5/0/0     7/0/0         -         -         -     5/0/0     5/0/0         -         -         -         -     5/0/0     7/1/0         -     5/0/0     5/0/0     7/1/0         -         -     7/1/0         -         -         -         -         -     7/1/0         -         -         -     5/0/0         -     7/0/0     7/1/0         -         -         -         -         -     7/1/0         -         -         -         -         -         -     5/0/0         -         -     7/0/0         -         -         -         -     7/1/0         -         -         -         -         -         -         -     7/0/0
+Inventory              18/13/0     9/7/0     4/0/0     1/0/0   18/11/0   18/13/0     1/0/0         -   18/11/0   18/13/0   18/13/0         -         -     1/0/0   18/12/0   17/13/0     2/0/0         -         -   12/11/0   18/11/0         -     1/0/0   17/13/0     1/0/0     9/7/0    10/8/0   18/11/0         -     1/0/0   17/13/0     9/4/0         -   18/11/0     1/0/0   18/13/0   18/13/0     1/0/0   16/13/0     1/0/0     2/0/0     2/3/0   18/13/0     1/0/0         -         -   17/13/0     1/0/0     1/0/0     1/0/0   18/11/0   10/13/0   18/13/0         -   18/11/0   10/11/0   17/13/0     1/0/0     1/0/0     9/7/0         -   18/11/0         -         -     1/0/0   18/13/0
+Point Of Sale         55/28/14         -   18/12/0    18/7/0         -   33/28/0     7/1/0   18/12/0         -   18/26/0   18/26/0   18/12/0         -    18/1/0         -   22/28/0     4/5/0   18/12/0         -         -   21/27/0   10/22/0    20/5/0    3/28/0    15/8/0         -         -   15/13/0         -    17/0/0         -     0/3/0     2/0/0   21/27/0    15/6/0   18/26/0    18/7/0    18/6/0    0/11/0   19/17/0   18/12/0   22/14/0    18/7/0    18/8/0         -     8/0/0    0/11/0   15/13/0     3/0/0    18/7/0   36/13/0    0/13/0   18/26/0   18/12/0    0/11/0         -         -    18/7/0    15/6/0         -         -   15/13/0    7/22/0         -   15/13/0   34/26/0
+Banquet                10/14/0         -   10/14/0   10/14/0         -   10/14/0   10/14/0   10/14/0         -   10/14/0   10/14/0   10/14/0   10/14/0   10/14/0         -   10/14/0         -   10/14/0         -         -   10/14/0   10/14/0   10/14/0   10/14/0         -         -         -         -         -   10/14/0         -         -         -   10/14/0         -   10/14/0    8/12/0         -         -   10/14/0   10/14/0         -    8/12/0         -   10/14/0         -         -         -         -   10/14/0         -   10/14/0   10/14/0   10/14/0   10/14/0         -         -   10/14/0         -         -   10/14/0         -         -    9/12/0         -   10/14/0
+Night Audit             17/9/0         -    16/2/0    14/3/0         -    17/8/0    14/3/0    16/2/0         -    17/7/0    17/7/0    16/2/0    16/2/0    14/3/0     1/0/0    17/7/0         -    14/1/0         -         -    17/7/0    16/2/0    16/2/0    13/8/0         -     1/0/0     0/1/0         -         -         -         -         -         -    17/7/0         -         -    16/3/0         -    12/7/0    14/3/0    16/2/0         -    16/3/0         -         -         -         -         -         -    14/3/0         -    17/7/0    17/7/0    14/1/0         -         -     4/5/0    14/3/0         -         -         -         -         -         -         -    17/8/0
+HR/Payroll               5/9/0         -         -         -         -     5/9/0         -         -         -     5/9/0     5/9/0         -         -         -         -         -         -         -         -         -     5/9/0         -         -         -         -         -         -         -     5/9/0         -         -         -         -     5/9/0         -         -         -         -     5/9/0         -         -         -         -         -         -         -         -         -         -         -         -     5/9/0     5/9/0         -         -         -         -         -         -         -         -         -         -         -         -     5/9/0
+Members Mgmt             1/0/0         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -
+EXTRAs                   3/0/0         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -         -
+------------------------------------------------------------------------------------------------
+TOTAL (E/R/V)       240/137/16     9/7/0   72/63/0  102/61/0   23/11/0 209/127/0   69/54/0   67/59/0   18/11/0 162/120/0 162/120/0   55/58/0   42/16/0   99/55/0   25/12/0 145/113/0    13/6/0   66/62/0     5/0/0   17/12/0 195/120/0   52/38/0   63/21/0  93/119/0    18/8/0    14/7/0   22/25/0   34/24/0     5/9/0   59/46/0   18/13/0     9/7/0     2/0/0 155/119/0    16/6/0  95/104/0  154/72/0    19/6/0   66/85/0   94/71/0   70/63/0   37/17/0  154/72/0    22/8/0   10/14/0     8/0/0   20/39/0   16/13/0     4/0/0  103/61/0   67/24/0  61/108/0 165/120/0   66/62/0   73/82/0   10/11/0   30/18/0  105/62/0    29/6/0    15/7/0   34/44/0   54/24/0   11/22/0    9/12/0   16/13/0 138/122/0
+
+SECTION 2: PER-USER SA-DIFF SUMMARY (ABSENT / V-FLAG / RIGHTS)
+================================================================================================
+  Abhijit      leaves E/R/V=9/7/0   SA-diffs: absent=361 v-flag=0 rights=9
+  Abhishek     leaves E/R/V=72/63/0   SA-diffs: absent=242 v-flag=0 rights=72
+  ADITYA       leaves E/R/V=102/61/0   SA-diffs: absent=214 v-flag=0 rights=102
+  aditya hk    leaves E/R/V=23/11/0   SA-diffs: absent=343 v-flag=0 rights=23
+  admin        leaves E/R/V=209/127/0   SA-diffs: absent=41 v-flag=0 rights=161
+  AGM          leaves E/R/V=69/54/0   SA-diffs: absent=254 v-flag=0 rights=56
+  AHSAN        leaves E/R/V=67/59/0   SA-diffs: absent=251 v-flag=0 rights=67
+  AKASH        leaves E/R/V=18/11/0   SA-diffs: absent=348 v-flag=0 rights=18
+  AMIR         leaves E/R/V=162/120/0   SA-diffs: absent=95 v-flag=0 rights=150
+  Anoop        leaves E/R/V=162/120/0   SA-diffs: absent=95 v-flag=0 rights=150
+  ANUJ         leaves E/R/V=55/58/0   SA-diffs: absent=264 v-flag=0 rights=55
+  ANURAG       leaves E/R/V=42/16/0   SA-diffs: absent=319 v-flag=0 rights=35
+  ARPIT        leaves E/R/V=99/55/0   SA-diffs: absent=223 v-flag=0 rights=86
+  Ashutosh     leaves E/R/V=25/12/0   SA-diffs: absent=340 v-flag=0 rights=25
+  AWDHESH      leaves E/R/V=145/113/0   SA-diffs: absent=119 v-flag=0 rights=145
+  Danish       leaves E/R/V=13/6/0   SA-diffs: absent=358 v-flag=0 rights=13
+  Deepak       leaves E/R/V=66/62/0   SA-diffs: absent=249 v-flag=0 rights=66
+  dev          leaves E/R/V=5/0/0   SA-diffs: absent=372 v-flag=0 rights=5
+  DEVANSHU     leaves E/R/V=17/12/0   SA-diffs: absent=348 v-flag=0 rights=17
+  Dinesh       leaves E/R/V=195/120/0   SA-diffs: absent=62 v-flag=0 rights=139
+  Gaurav       leaves E/R/V=52/38/0   SA-diffs: absent=287 v-flag=0 rights=44
+  GM           leaves E/R/V=63/21/0   SA-diffs: absent=293 v-flag=0 rights=63
+  Gopi         leaves E/R/V=93/119/0   SA-diffs: absent=165 v-flag=0 rights=93
+  GUFRAN       leaves E/R/V=18/8/0   SA-diffs: absent=351 v-flag=0 rights=18
+  Hari Om      leaves E/R/V=14/7/0   SA-diffs: absent=356 v-flag=0 rights=14
+  HARIOM       leaves E/R/V=22/25/0   SA-diffs: absent=330 v-flag=0 rights=22
+  himanshu1    leaves E/R/V=34/24/0   SA-diffs: absent=319 v-flag=0 rights=32
+  HR           leaves E/R/V=5/9/0   SA-diffs: absent=363 v-flag=0 rights=5
+  htw_system   leaves E/R/V=59/46/0   SA-diffs: absent=272 v-flag=0 rights=2
+  kamlesh      leaves E/R/V=18/13/0   SA-diffs: absent=346 v-flag=0 rights=18
+  Kitchen      leaves E/R/V=9/7/0   SA-diffs: absent=361 v-flag=0 rights=9
+  kot          leaves E/R/V=2/0/0   SA-diffs: absent=375 v-flag=0 rights=2
+  MD           leaves E/R/V=155/119/0   SA-diffs: absent=103 v-flag=0 rights=104
+  MITLESH      leaves E/R/V=16/6/0   SA-diffs: absent=355 v-flag=0 rights=16
+  Monika       leaves E/R/V=95/104/0   SA-diffs: absent=178 v-flag=0 rights=95
+  MUDIT        leaves E/R/V=154/72/0   SA-diffs: absent=151 v-flag=0 rights=154
+  MUKESH       leaves E/R/V=19/6/0   SA-diffs: absent=352 v-flag=0 rights=19
+  MUKESH AC    leaves E/R/V=66/85/0   SA-diffs: absent=226 v-flag=0 rights=65
+  Nagendra     leaves E/R/V=94/71/0   SA-diffs: absent=212 v-flag=0 rights=71
+  NIHARIKA     leaves E/R/V=70/63/0   SA-diffs: absent=244 v-flag=0 rights=70
+  NIRBHAY      leaves E/R/V=37/17/0   SA-diffs: absent=323 v-flag=0 rights=37
+  NITIN        leaves E/R/V=154/72/0   SA-diffs: absent=151 v-flag=0 rights=154
+  PANKAJ       leaves E/R/V=22/8/0   SA-diffs: absent=347 v-flag=0 rights=22
+  PKVERMA      leaves E/R/V=10/14/0   SA-diffs: absent=353 v-flag=0 rights=10
+  POS          leaves E/R/V=8/0/0   SA-diffs: absent=369 v-flag=0 rights=8
+  Praveen      leaves E/R/V=20/39/0   SA-diffs: absent=318 v-flag=0 rights=20
+  Ramji        leaves E/R/V=16/13/0   SA-diffs: absent=348 v-flag=0 rights=14
+  Ravi         leaves E/R/V=4/0/0   SA-diffs: absent=373 v-flag=0 rights=4
+  Risabh       leaves E/R/V=103/61/0   SA-diffs: absent=213 v-flag=0 rights=103
+  Sanjay       leaves E/R/V=67/24/0   SA-diffs: absent=286 v-flag=0 rights=65
+  SAURABH      leaves E/R/V=61/108/0   SA-diffs: absent=208 v-flag=0 rights=55
+  Saurav       leaves E/R/V=165/120/0   SA-diffs: absent=92 v-flag=0 rights=165
+  shivam       leaves E/R/V=66/62/0   SA-diffs: absent=249 v-flag=0 rights=66
+  Shubham      leaves E/R/V=73/82/0   SA-diffs: absent=222 v-flag=0 rights=73
+  shyam        leaves E/R/V=10/11/0   SA-diffs: absent=356 v-flag=0 rights=10
+  STORE        leaves E/R/V=30/18/0   SA-diffs: absent=329 v-flag=0 rights=13
+  Sumit        leaves E/R/V=105/62/0   SA-diffs: absent=210 v-flag=0 rights=105
+  SUNIL        leaves E/R/V=29/6/0   SA-diffs: absent=342 v-flag=0 rights=29
+  Suraj        leaves E/R/V=15/7/0   SA-diffs: absent=355 v-flag=0 rights=15
+  TALIB        leaves E/R/V=34/44/0   SA-diffs: absent=299 v-flag=0 rights=34
+  Tarun        leaves E/R/V=54/24/0   SA-diffs: absent=299 v-flag=0 rights=52
+  tea          leaves E/R/V=11/22/0   SA-diffs: absent=344 v-flag=0 rights=11
+  VIKAS        leaves E/R/V=9/12/0   SA-diffs: absent=356 v-flag=0 rights=9
+  Vipin        leaves E/R/V=16/13/0   SA-diffs: absent=348 v-flag=0 rights=14
+  VIRENDRA     leaves E/R/V=138/122/0   SA-diffs: absent=117 v-flag=0 rights=137
+
+SECTION 3: MODULE-WISE DIFF COUNTS (absent/v-flag/rights)
+================================================================================================
+  Abhijit:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=82   v=0   rights=0
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=57   v=0   rights=0
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=15   v=0   rights=9
+      Point Of Sale      absent=83   v=0   rights=0
+      Banquet            absent=24   v=0   rights=0
+      Night Audit        absent=26   v=0   rights=0
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  Abhishek:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=81   v=0   rights=1
+      Reservation        absent=0    v=0   rights=13
+      Front Office       absent=17   v=0   rights=10
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=27   v=0   rights=4
+      Point Of Sale      absent=53   v=0   rights=18
+      Banquet            absent=0    v=0   rights=10
+      Night Audit        absent=8    v=0   rights=16
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  ADITYA:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=64   v=0   rights=18
+      Reservation        absent=0    v=0   rights=13
+      Front Office       absent=2    v=0   rights=23
+      House Keeping      absent=3    v=0   rights=5
+      Inventory          absent=30   v=0   rights=1
+      Point Of Sale      absent=58   v=0   rights=18
+      Banquet            absent=0    v=0   rights=10
+      Night Audit        absent=9    v=0   rights=14
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  aditya hk:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=82   v=0   rights=0
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=57   v=0   rights=0
+      House Keeping      absent=3    v=0   rights=5
+      Inventory          absent=2    v=0   rights=18
+      Point Of Sale      absent=83   v=0   rights=0
+      Banquet            absent=24   v=0   rights=0
+      Night Audit        absent=26   v=0   rights=0
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  admin:
+      Finance            absent=6    v=0   rights=5
+      Main Setup         absent=5    v=0   rights=29
+      Reservation        absent=0    v=0   rights=13
+      Front Office       absent=2    v=0   rights=24
+      House Keeping      absent=1    v=0   rights=7
+      Inventory          absent=0    v=0   rights=18
+      Point Of Sale      absent=22   v=0   rights=33
+      Banquet            absent=0    v=0   rights=10
+      Night Audit        absent=1    v=0   rights=17
+      HR/Payroll         absent=0    v=0   rights=5
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  AGM:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=82   v=0   rights=0
+      Front Office       absent=2    v=0   rights=24
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=30   v=0   rights=1
+      Point Of Sale      absent=75   v=0   rights=7
+      Banquet            absent=0    v=0   rights=10
+      Night Audit        absent=9    v=0   rights=14
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  AHSAN:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=81   v=0   rights=1
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=4    v=0   rights=22
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=31   v=0   rights=0
+      Point Of Sale      absent=53   v=0   rights=18
+      Banquet            absent=0    v=0   rights=10
+      Night Audit        absent=8    v=0   rights=16
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  AKASH:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=82   v=0   rights=0
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=57   v=0   rights=0
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=2    v=0   rights=18
+      Point Of Sale      absent=83   v=0   rights=0
+      Banquet            absent=24   v=0   rights=0
+      Night Audit        absent=26   v=0   rights=0
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  AMIR:
+      Finance            absent=10   v=0   rights=5
+      Main Setup         absent=35   v=0   rights=47
+      Reservation        absent=0    v=0   rights=13
+      Front Office       absent=2    v=0   rights=12
+      House Keeping      absent=3    v=0   rights=5
+      Inventory          absent=0    v=0   rights=18
+      Point Of Sale      absent=39   v=0   rights=18
+      Banquet            absent=0    v=0   rights=10
+      Night Audit        absent=2    v=0   rights=17
+      HR/Payroll         absent=0    v=0   rights=5
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  Anoop:
+      Finance            absent=10   v=0   rights=5
+      Main Setup         absent=35   v=0   rights=47
+      Reservation        absent=0    v=0   rights=13
+      Front Office       absent=2    v=0   rights=12
+      House Keeping      absent=3    v=0   rights=5
+      Inventory          absent=0    v=0   rights=18
+      Point Of Sale      absent=39   v=0   rights=18
+      Banquet            absent=0    v=0   rights=10
+      Night Audit        absent=2    v=0   rights=17
+      HR/Payroll         absent=0    v=0   rights=5
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  ANUJ:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=81   v=0   rights=1
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=17   v=0   rights=10
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=31   v=0   rights=0
+      Point Of Sale      absent=53   v=0   rights=18
+      Banquet            absent=0    v=0   rights=10
+      Night Audit        absent=8    v=0   rights=16
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  ANURAG:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=73   v=0   rights=9
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=50   v=0   rights=0
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=31   v=0   rights=0
+      Point Of Sale      absent=83   v=0   rights=0
+      Banquet            absent=0    v=0   rights=10
+      Night Audit        absent=8    v=0   rights=16
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  ARPIT:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=63   v=0   rights=19
+      Front Office       absent=1    v=0   rights=24
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=30   v=0   rights=1
+      Point Of Sale      absent=64   v=0   rights=18
+      Banquet            absent=0    v=0   rights=10
+      Night Audit        absent=9    v=0   rights=14
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  Ashutosh:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=76   v=0   rights=6
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=57   v=0   rights=0
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=1    v=0   rights=18
+      Point Of Sale      absent=83   v=0   rights=0
+      Banquet            absent=24   v=0   rights=0
+      Night Audit        absent=25   v=0   rights=1
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  AWDHESH:
+      Finance            absent=10   v=0   rights=5
+      Main Setup         absent=50   v=0   rights=32
+      Reservation        absent=0    v=0   rights=13
+      Front Office       absent=2    v=0   rights=24
+      House Keeping      absent=3    v=0   rights=5
+      Inventory          absent=1    v=0   rights=17
+      Point Of Sale      absent=33   v=0   rights=22
+      Banquet            absent=0    v=0   rights=10
+      Night Audit        absent=2    v=0   rights=17
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  Danish:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=82   v=0   rights=0
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=57   v=0   rights=0
+      House Keeping      absent=0    v=0   rights=7
+      Inventory          absent=29   v=0   rights=2
+      Point Of Sale      absent=74   v=0   rights=4
+      Banquet            absent=24   v=0   rights=0
+      Night Audit        absent=26   v=0   rights=0
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  Deepak:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=81   v=0   rights=1
+      Reservation        absent=0    v=0   rights=13
+      Front Office       absent=17   v=0   rights=10
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=31   v=0   rights=0
+      Point Of Sale      absent=53   v=0   rights=18
+      Banquet            absent=0    v=0   rights=10
+      Night Audit        absent=11   v=0   rights=14
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  dev:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=82   v=0   rights=0
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=57   v=0   rights=0
+      House Keeping      absent=3    v=0   rights=5
+      Inventory          absent=31   v=0   rights=0
+      Point Of Sale      absent=83   v=0   rights=0
+      Banquet            absent=24   v=0   rights=0
+      Night Audit        absent=26   v=0   rights=0
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  DEVANSHU:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=82   v=0   rights=0
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=56   v=0   rights=0
+      House Keeping      absent=3    v=0   rights=5
+      Inventory          absent=8    v=0   rights=12
+      Point Of Sale      absent=83   v=0   rights=0
+      Banquet            absent=24   v=0   rights=0
+      Night Audit        absent=26   v=0   rights=0
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  Dinesh:
+      Finance            absent=10   v=0   rights=2
+      Main Setup         absent=7    v=0   rights=74
+      Reservation        absent=0    v=0   rights=3
+      Front Office       absent=2    v=0   rights=0
+      House Keeping      absent=0    v=0   rights=5
+      Inventory          absent=2    v=0   rights=16
+      Point Of Sale      absent=35   v=0   rights=13
+      Banquet            absent=0    v=0   rights=9
+      Night Audit        absent=2    v=0   rights=17
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  Gaurav:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=73   v=0   rights=9
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=50   v=0   rights=0
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=31   v=0   rights=0
+      Point Of Sale      absent=51   v=0   rights=9
+      Banquet            absent=0    v=0   rights=10
+      Night Audit        absent=8    v=0   rights=16
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  GM:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=73   v=0   rights=9
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=50   v=0   rights=7
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=30   v=0   rights=1
+      Point Of Sale      absent=58   v=0   rights=20
+      Banquet            absent=0    v=0   rights=10
+      Night Audit        absent=8    v=0   rights=16
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  Gopi:
+      Finance            absent=6    v=0   rights=5
+      Main Setup         absent=81   v=0   rights=1
+      Reservation        absent=0    v=0   rights=13
+      Front Office       absent=2    v=0   rights=24
+      House Keeping      absent=0    v=0   rights=7
+      Inventory          absent=1    v=0   rights=17
+      Point Of Sale      absent=52   v=0   rights=3
+      Banquet            absent=0    v=0   rights=10
+      Night Audit        absent=5    v=0   rights=13
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  GUFRAN:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=80   v=0   rights=2
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=57   v=0   rights=0
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=30   v=0   rights=1
+      Point Of Sale      absent=60   v=0   rights=15
+      Banquet            absent=24   v=0   rights=0
+      Night Audit        absent=26   v=0   rights=0
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  Hari Om:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=78   v=0   rights=4
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=57   v=0   rights=0
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=15   v=0   rights=9
+      Point Of Sale      absent=83   v=0   rights=0
+      Banquet            absent=24   v=0   rights=0
+      Night Audit        absent=25   v=0   rights=1
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  HARIOM:
+      Finance            absent=9    v=0   rights=5
+      Main Setup         absent=75   v=0   rights=7
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=57   v=0   rights=0
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=13   v=0   rights=10
+      Point Of Sale      absent=83   v=0   rights=0
+      Banquet            absent=24   v=0   rights=0
+      Night Audit        absent=25   v=0   rights=0
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  himanshu1:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=81   v=0   rights=1
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=57   v=0   rights=0
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=2    v=0   rights=18
+      Point Of Sale      absent=55   v=0   rights=13
+      Banquet            absent=24   v=0   rights=0
+      Night Audit        absent=26   v=0   rights=0
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  HR:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=82   v=0   rights=0
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=57   v=0   rights=0
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=31   v=0   rights=0
+      Point Of Sale      absent=83   v=0   rights=0
+      Banquet            absent=24   v=0   rights=0
+      Night Audit        absent=26   v=0   rights=0
+      HR/Payroll         absent=0    v=0   rights=5
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  htw_system:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=82   v=0   rights=0
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=2    v=0   rights=0
+      House Keeping      absent=0    v=0   rights=2
+      Inventory          absent=30   v=0   rights=0
+      Point Of Sale      absent=66   v=0   rights=0
+      Night Audit        absent=26   v=0   rights=0
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  kamlesh:
+      Finance            absent=29   v=0   rights=1
+      Main Setup         absent=82   v=0   rights=0
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=57   v=0   rights=0
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=1    v=0   rights=17
+      Point Of Sale      absent=83   v=0   rights=0
+      Banquet            absent=24   v=0   rights=0
+      Night Audit        absent=26   v=0   rights=0
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  Kitchen:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=82   v=0   rights=0
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=57   v=0   rights=0
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=18   v=0   rights=9
+      Point Of Sale      absent=80   v=0   rights=0
+      Banquet            absent=24   v=0   rights=0
+      Night Audit        absent=26   v=0   rights=0
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  kot:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=82   v=0   rights=0
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=57   v=0   rights=0
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=31   v=0   rights=0
+      Point Of Sale      absent=81   v=0   rights=2
+      Banquet            absent=24   v=0   rights=0
+      Night Audit        absent=26   v=0   rights=0
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  MD:
+      Finance            absent=12   v=0   rights=2
+      Main Setup         absent=43   v=0   rights=39
+      Reservation        absent=0    v=0   rights=12
+      Front Office       absent=2    v=0   rights=0
+      House Keeping      absent=3    v=0   rights=5
+      Inventory          absent=2    v=0   rights=16
+      Point Of Sale      absent=35   v=0   rights=13
+      Night Audit        absent=2    v=0   rights=17
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  MITLESH:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=82   v=0   rights=0
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=57   v=0   rights=0
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=30   v=0   rights=1
+      Point Of Sale      absent=62   v=0   rights=15
+      Banquet            absent=24   v=0   rights=0
+      Night Audit        absent=26   v=0   rights=0
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  Monika:
+      Finance            absent=10   v=0   rights=5
+      Main Setup         absent=82   v=0   rights=0
+      Reservation        absent=0    v=0   rights=13
+      Front Office       absent=2    v=0   rights=24
+      House Keeping      absent=1    v=0   rights=7
+      Inventory          absent=0    v=0   rights=18
+      Point Of Sale      absent=39   v=0   rights=18
+      Banquet            absent=0    v=0   rights=10
+      Night Audit        absent=26   v=0   rights=0
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  MUDIT:
+      Finance            absent=9    v=0   rights=5
+      Main Setup         absent=9    v=0   rights=73
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=28   v=0   rights=9
+      House Keeping      absent=0    v=0   rights=7
+      Inventory          absent=0    v=0   rights=18
+      Point Of Sale      absent=58   v=0   rights=18
+      Banquet            absent=4    v=0   rights=8
+      Night Audit        absent=7    v=0   rights=16
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  MUKESH:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=82   v=0   rights=0
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=57   v=0   rights=0
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=30   v=0   rights=1
+      Point Of Sale      absent=59   v=0   rights=18
+      Banquet            absent=24   v=0   rights=0
+      Night Audit        absent=26   v=0   rights=0
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  MUKESH AC:
+      Finance            absent=12   v=0   rights=3
+      Main Setup         absent=76   v=0   rights=6
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=3    v=0   rights=24
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=2    v=0   rights=16
+      Point Of Sale      absent=72   v=0   rights=0
+      Banquet            absent=24   v=0   rights=0
+      Night Audit        absent=7    v=0   rights=12
+      HR/Payroll         absent=0    v=0   rights=4
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  Nagendra:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=69   v=0   rights=11
+      Front Office       absent=1    v=0   rights=22
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=30   v=0   rights=1
+      Point Of Sale      absent=47   v=0   rights=13
+      Banquet            absent=0    v=0   rights=10
+      Night Audit        absent=9    v=0   rights=14
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  NIHARIKA:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=81   v=0   rights=1
+      Reservation        absent=0    v=0   rights=13
+      Front Office       absent=17   v=0   rights=10
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=29   v=0   rights=2
+      Point Of Sale      absent=53   v=0   rights=18
+      Banquet            absent=0    v=0   rights=10
+      Night Audit        absent=8    v=0   rights=16
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  NIRBHAY:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=69   v=0   rights=13
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=57   v=0   rights=0
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=26   v=0   rights=2
+      Point Of Sale      absent=47   v=0   rights=22
+      Banquet            absent=24   v=0   rights=0
+      Night Audit        absent=26   v=0   rights=0
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  NITIN:
+      Finance            absent=9    v=0   rights=5
+      Main Setup         absent=9    v=0   rights=73
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=28   v=0   rights=9
+      House Keeping      absent=0    v=0   rights=7
+      Inventory          absent=0    v=0   rights=18
+      Point Of Sale      absent=58   v=0   rights=18
+      Banquet            absent=4    v=0   rights=8
+      Night Audit        absent=7    v=0   rights=16
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  PANKAJ:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=79   v=0   rights=3
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=57   v=0   rights=0
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=30   v=0   rights=1
+      Point Of Sale      absent=57   v=0   rights=18
+      Banquet            absent=24   v=0   rights=0
+      Night Audit        absent=26   v=0   rights=0
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  PKVERMA:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=82   v=0   rights=0
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=57   v=0   rights=0
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=31   v=0   rights=0
+      Point Of Sale      absent=83   v=0   rights=0
+      Banquet            absent=0    v=0   rights=10
+      Night Audit        absent=26   v=0   rights=0
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  POS:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=82   v=0   rights=0
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=57   v=0   rights=0
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=31   v=0   rights=0
+      Point Of Sale      absent=75   v=0   rights=8
+      Banquet            absent=24   v=0   rights=0
+      Night Audit        absent=26   v=0   rights=0
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  Praveen:
+      Finance            absent=12   v=0   rights=3
+      Main Setup         absent=82   v=0   rights=0
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=57   v=0   rights=0
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=1    v=0   rights=17
+      Point Of Sale      absent=72   v=0   rights=0
+      Banquet            absent=24   v=0   rights=0
+      Night Audit        absent=26   v=0   rights=0
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  Ramji:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=82   v=0   rights=0
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=57   v=0   rights=0
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=30   v=0   rights=1
+      Point Of Sale      absent=55   v=0   rights=13
+      Banquet            absent=24   v=0   rights=0
+      Night Audit        absent=26   v=0   rights=0
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  Ravi:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=82   v=0   rights=0
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=57   v=0   rights=0
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=30   v=0   rights=1
+      Point Of Sale      absent=80   v=0   rights=3
+      Banquet            absent=24   v=0   rights=0
+      Night Audit        absent=26   v=0   rights=0
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  Risabh:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=64   v=0   rights=18
+      Reservation        absent=0    v=0   rights=13
+      Front Office       absent=1    v=0   rights=24
+      House Keeping      absent=3    v=0   rights=5
+      Inventory          absent=30   v=0   rights=1
+      Point Of Sale      absent=58   v=0   rights=18
+      Banquet            absent=0    v=0   rights=10
+      Night Audit        absent=9    v=0   rights=14
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  Sanjay:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=69   v=0   rights=13
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=57   v=0   rights=0
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=2    v=0   rights=18
+      Point Of Sale      absent=34   v=0   rights=34
+      Banquet            absent=24   v=0   rights=0
+      Night Audit        absent=26   v=0   rights=0
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  SAURABH:
+      Finance            absent=11   v=0   rights=2
+      Main Setup         absent=78   v=0   rights=0
+      Reservation        absent=0    v=0   rights=13
+      Front Office       absent=27   v=0   rights=0
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=8    v=0   rights=10
+      Point Of Sale      absent=70   v=0   rights=0
+      Banquet            absent=0    v=0   rights=10
+      Night Audit        absent=2    v=0   rights=17
+      HR/Payroll         absent=0    v=0   rights=3
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  Saurav:
+      Finance            absent=10   v=0   rights=5
+      Main Setup         absent=34   v=0   rights=48
+      Reservation        absent=0    v=0   rights=13
+      Front Office       absent=2    v=0   rights=24
+      House Keeping      absent=1    v=0   rights=7
+      Inventory          absent=0    v=0   rights=18
+      Point Of Sale      absent=39   v=0   rights=18
+      Banquet            absent=0    v=0   rights=10
+      Night Audit        absent=2    v=0   rights=17
+      HR/Payroll         absent=0    v=0   rights=5
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  shivam:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=81   v=0   rights=1
+      Reservation        absent=0    v=0   rights=13
+      Front Office       absent=17   v=0   rights=10
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=31   v=0   rights=0
+      Point Of Sale      absent=53   v=0   rights=18
+      Banquet            absent=0    v=0   rights=10
+      Night Audit        absent=11   v=0   rights=14
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  Shubham:
+      Finance            absent=10   v=0   rights=5
+      Main Setup         absent=66   v=0   rights=16
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=2    v=0   rights=24
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=2    v=0   rights=18
+      Point Of Sale      absent=72   v=0   rights=0
+      Banquet            absent=0    v=0   rights=10
+      Night Audit        absent=26   v=0   rights=0
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  shyam:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=82   v=0   rights=0
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=57   v=0   rights=0
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=10   v=0   rights=10
+      Point Of Sale      absent=83   v=0   rights=0
+      Banquet            absent=24   v=0   rights=0
+      Night Audit        absent=26   v=0   rights=0
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  STORE:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=73   v=0   rights=9
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=57   v=0   rights=0
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=1    v=0   rights=0
+      Point Of Sale      absent=83   v=0   rights=0
+      Banquet            absent=24   v=0   rights=0
+      Night Audit        absent=17   v=0   rights=4
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  Sumit:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=64   v=0   rights=18
+      Reservation        absent=0    v=0   rights=13
+      Front Office       absent=1    v=0   rights=24
+      House Keeping      absent=0    v=0   rights=7
+      Inventory          absent=30   v=0   rights=1
+      Point Of Sale      absent=58   v=0   rights=18
+      Banquet            absent=0    v=0   rights=10
+      Night Audit        absent=9    v=0   rights=14
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  SUNIL:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=69   v=0   rights=13
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=57   v=0   rights=0
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=30   v=0   rights=1
+      Point Of Sale      absent=62   v=0   rights=15
+      Banquet            absent=24   v=0   rights=0
+      Night Audit        absent=26   v=0   rights=0
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  Suraj:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=76   v=0   rights=6
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=57   v=0   rights=0
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=15   v=0   rights=9
+      Point Of Sale      absent=83   v=0   rights=0
+      Banquet            absent=24   v=0   rights=0
+      Night Audit        absent=26   v=0   rights=0
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  TALIB:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=82   v=0   rights=0
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=3    v=0   rights=24
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=31   v=0   rights=0
+      Point Of Sale      absent=83   v=0   rights=0
+      Banquet            absent=0    v=0   rights=10
+      Night Audit        absent=26   v=0   rights=0
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  Tarun:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=61   v=0   rights=21
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=57   v=0   rights=0
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=2    v=0   rights=18
+      Point Of Sale      absent=55   v=0   rights=13
+      Banquet            absent=24   v=0   rights=0
+      Night Audit        absent=26   v=0   rights=0
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  tea:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=78   v=0   rights=4
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=57   v=0   rights=0
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=31   v=0   rights=0
+      Point Of Sale      absent=54   v=0   rights=7
+      Banquet            absent=24   v=0   rights=0
+      Night Audit        absent=26   v=0   rights=0
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  VIKAS:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=82   v=0   rights=0
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=57   v=0   rights=0
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=31   v=0   rights=0
+      Point Of Sale      absent=83   v=0   rights=0
+      Banquet            absent=3    v=0   rights=9
+      Night Audit        absent=26   v=0   rights=0
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  Vipin:
+      Finance            absent=30   v=0   rights=0
+      Main Setup         absent=82   v=0   rights=0
+      Reservation        absent=18   v=0   rights=0
+      Front Office       absent=57   v=0   rights=0
+      House Keeping      absent=8    v=0   rights=0
+      Inventory          absent=30   v=0   rights=1
+      Point Of Sale      absent=55   v=0   rights=13
+      Banquet            absent=24   v=0   rights=0
+      Night Audit        absent=26   v=0   rights=0
+      HR/Payroll         absent=14   v=0   rights=0
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+  VIRENDRA:
+      Finance            absent=9    v=0   rights=5
+      Main Setup         absent=77   v=0   rights=4
+      Reservation        absent=0    v=0   rights=13
+      Front Office       absent=2    v=0   rights=24
+      House Keeping      absent=1    v=0   rights=7
+      Inventory          absent=0    v=0   rights=18
+      Point Of Sale      absent=23   v=0   rights=34
+      Banquet            absent=0    v=0   rights=10
+      Night Audit        absent=1    v=0   rights=17
+      HR/Payroll         absent=0    v=0   rights=5
+      Members Mgmt       absent=1    v=0   rights=0
+      EXTRAs             absent=3    v=0   rights=0
+
+================================================================================================
+END OF REPORT
+================================================================================================

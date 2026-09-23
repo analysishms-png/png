@@ -1,0 +1,22 @@
+expected admin modules: ['finance', 'main setup', 'reservation', 'front office', 'house keeping', 'inventory', 'point of sale', 'banquet', 'night audit', 'hr/payroll']
+expected AMIR  modules: ['finance', 'main setup', 'reservation', 'front office', 'house keeping', 'inventory', 'point of sale', 'banquet', 'night audit', 'hr/payroll']
+real login admin/KANPUR -> False (Invalid Password (2 attempts left))
+real login AMIR/KANPUR -> False (User is INACTIVE - admin se contact karein)
+template user E2E_ADM <- admin: menuHelp rows=392
+template user E2E_AMR <- AMIR: menuHelp rows=333
+--- flow: E2E_ADM (rights of admin) ---
+  [E2E_ADM] LOGIN OK: 'E2E_ADM'
+  [E2E_ADM] COMPANY: 'Moon and Mars Resorts'
+  [E2E_ADM] sidebar: ['Dashboard', '__action_room_status', '__action_guest_profile', '__action_folio', '__action_checkin', '__action_checkout', 'finance', 'main setup', 'reservation', 'front office', 'house keeping', 'inventory', 'point of sale', 'banquet', 'night audit', 'hr/payroll']
+  [E2E_ADM] modules: finance=2g/0d, main setup=9g/0d, reservation=4g/0d, front office=5g/0d, house keeping=1g/0d, inventory=4g/0d, point of sale=8g/0d, banquet=4g/0d, night audit=4g/0d, hr/payroll=2g/0d
+  [E2E_ADM] modals: ['Main Setup', 'Reservation Master (P3-b) - HMS_py']
+  [E2E_ADM] sidebar order + menubar non-empty ✓
+--- flow: E2E_AMR (rights of AMIR) ---
+  [E2E_AMR] LOGIN OK: 'E2E_AMR'
+  [E2E_AMR] COMPANY: 'Moon and Mars Resorts'
+  [E2E_AMR] sidebar: ['Dashboard', '__action_room_status', '__action_guest_profile', '__action_folio', '__action_checkin', '__action_checkout', 'finance', 'main setup', 'reservation', 'front office', 'house keeping', 'inventory', 'point of sale', 'banquet', 'night audit', 'hr/payroll']
+  [E2E_AMR] modules: finance=2g/0d, main setup=8g/0d, reservation=4g/0d, front office=5g/0d, house keeping=1g/0d, inventory=4g/0d, point of sale=6g/0d, banquet=4g/0d, night audit=4g/0d, hr/payroll=2g/0d
+  [E2E_AMR] modals: ['Main Setup', 'Reservation Master (P3-b) - HMS_py']
+  [E2E_AMR] sidebar order + menubar non-empty ✓
+cleanup: E2E_ users + rights deleted
+RESTRICTED_LOGIN_FLOW_OK

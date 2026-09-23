@@ -1,0 +1,43 @@
+1. LOGIN OK: user='SA'
+2. COMPANY OK: 'Moon and Mars Resorts' year='2026-27'
+3. MAIN WINDOW: sidebar items=21
+   - 📊  Dashboard
+   - 🚪  Room Status
+   - 👥  Guests
+   - 💳  Folio/Billing
+   - 📥  Check-In
+   - 📤  Check-Out
+   - 💰  Finance
+   - 📋  Main Setup
+   - 📅  Reservation
+   - 🏨  Front Office
+   - 🧹  Housekeeping
+   - 📦  Inventory
+   - 🍽  Point of Sale
+   - 🥂  Banquet
+   - 🌙  Night Audit
+   - 👔  HR / Payroll
+   - 🎗  Members Mgmt
+   - 🛠  Utility
+   - 📨  Extras
+   - 📡  Epabx
+   - 💬  Messaging
+4. click 'Dashboard': menubar groups=5, disabled=0
+4. click 'finance': menubar groups=2, disabled=0
+4. click 'main setup': menubar groups=9, disabled=0
+4. click 'reservation': menubar groups=4, disabled=0
+4. click 'front office': menubar groups=5, disabled=0
+4. click 'house keeping': menubar groups=2, disabled=0
+4. click 'inventory': menubar groups=4, disabled=0
+4. click 'point of sale': menubar groups=10, disabled=0
+4. click 'banquet': menubar groups=4, disabled=0
+4. click 'night audit': menubar groups=5, disabled=0
+4. click 'hr/payroll': menubar groups=2, disabled=0
+4. click 'members mgmt': menubar groups=1, disabled=0
+4. click 'utility': menubar groups=1, disabled=0
+4. click 'extras': menubar groups=1, disabled=0
+4. click 'EPABX': menubar groups=2, disabled=0
+4. click 'Messaging': menubar groups=2, disabled=0
+4b. sab modules menubar non-empty ✓ (modals opened: ['Main Setup', 'Reservation Master (P3-b) - HMS_py'])
+5. window close OK
+LOGIN_FLOW_TEST_OK

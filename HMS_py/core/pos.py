@@ -349,7 +349,7 @@ def create_kot(lines: list[dict], outlet: str, vdate, waiter: str = "", user: st
             nc_type = (line.get("nc_type") or "").strip()
             remarks = (line.get("remarks") or "").strip()
             db.execute(
-                "INSERT INTO KOT (DocId, VNo, VDate, VType, VPrefix, Site_Code, RestCode, RoomCat, RoomType, RoomNo, Pending, Sno, VTime, Item, Qty, VoidYN, Waiter, U_Name, U_EntDt, U_AE, NCKOT, Rate, Amount, Reasons, Remarks, LogSite_Code, NCType, Printed, FreeSno, SchemeCode, Description, Party, ItemRestCode, TokenNo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?, ?, ?, 'N', ?, ?, getdate(), 'A', 'N', ?, ?, ?, ?, ?, ?, ?, '', '', '', '', '', '', '')",
+                "INSERT INTO KOT (DocId, VNo, VDate, VType, VPrefix, Site_Code, RestCode, RoomCat, RoomType, RoomNo, Pending, Sno, VTime, Item, Qty, VoidYN, Waiter, U_Name, U_EntDt, U_AE, NCKOT, Rate, Amount, Reasons, Remarks, LogSite_Code, NCType, Printed, FreeSno, SchemeCode, Description, Party, ItemRestCode, TokenNo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?, ?, ?, 'N', ?, ?, getdate(), 'A', 'N', ?, ?, ?, ?, ?, ?, '', '', '', '', '', '', '')",
                 (
                     docid, vno, vdate, "K", "K", SITE_CODE, outlet,
                     "", "", table, seq, "00:00:00", item_code, qty,
@@ -410,3 +410,69 @@ def void_kot(docid: str, user: str = "SA", cn=None) -> dict:
     except Exception:
         return {"docid": docid, "voided": False, "error": "KOT update failed"}
     return {"docid": docid, "voided": True}
+
+
+
+# ============================================================
+# Phase A (api-mismatch audit): pos_na.py KOT-browser + report fns
+# jo core me the hi nahi (AttributeError on first click).
+# Outlet master = Depart (POS='Y'/'KotYn'='Y'), RestMast DB me NAHI hai.
+# ============================================================
+def kot_list(cn=None, limit: int = 300) -> list:
+    rows = db.query(
+        "SELECT TOP " + str(int(limit)) + " k.DocId, k.VNo, k.VDate, "
+        "k.RestCode, d.Name, ISNULL(SUM(k.Amount), 0) AS Amount, "
+        "COUNT(*) AS Lines "
+        "FROM KOT k LEFT JOIN Depart d ON d.Code = k.RestCode "
+        "WHERE ISNULL(k.VoidYN, 'N') <> 'Y' "
+        "GROUP BY k.DocId, k.VNo, k.VDate, k.RestCode, d.Name "
+        "ORDER BY k.VNo DESC", cn=cn)
+    return [{"docid": r.DocId, "vno": r.VNo, "vdate": r.VDate,
+             "rest": r.RestCode or "", "outlet": r.Name or r.RestCode or "",
+             "lines": int(r.Lines or 0), "amount": float(r.Amount or 0)}
+            for r in rows]
+
+
+def kot_lines(docid: str, cn=None) -> list:
+    rows = db.query(
+        "SELECT k.Sno, k.Item, i.Name, k.Qty, k.Unit, k.Amount "
+        "FROM KOT k LEFT JOIN ItemMast i ON i.Code = k.Item "
+        "WHERE k.DocId = ? ORDER BY k.Sno", (docid,), cn=cn)
+    return [{"sno": r.Sno, "item": r.Item or "", "name": r.Name or r.Item or "",
+             "qty": r.Qty, "unit": r.Unit or "",
+             "amount": float(r.Amount or 0)} for r in rows]
+
+
+def sales_summary(cn=None, limit: int = 300) -> list:
+    rows = db.query(
+        "SELECT TOP " + str(int(limit)) + " k.RestCode, d.Name, "
+        "COUNT(DISTINCT k.DocId) AS KOTs, ISNULL(SUM(k.Amount), 0) AS Amount "
+        "FROM KOT k LEFT JOIN Depart d ON d.Code = k.RestCode "
+        "WHERE ISNULL(k.VoidYN, 'N') <> 'Y' "
+        "GROUP BY k.RestCode, d.Name ORDER BY Amount DESC", cn=cn)
+    return [{"rest": r.RestCode or "", "outlet": r.Name or r.RestCode or "",
+             "kots": int(r.KOTs or 0), "amount": float(r.Amount or 0)}
+            for r in rows]
+
+
+def itemwise_sale(cn=None, limit: int = 300) -> list:
+    rows = db.query(
+        "SELECT TOP " + str(int(limit)) + " k.Item, i.Name, "
+        "ISNULL(SUM(k.Qty), 0) AS Qty, ISNULL(SUM(k.Amount), 0) AS Amount "
+        "FROM KOT k LEFT JOIN ItemMast i ON i.Code = k.Item "
+        "WHERE ISNULL(k.VoidYN, 'N') <> 'Y' "
+        "GROUP BY k.Item, i.Name ORDER BY Amount DESC", cn=cn)
+    return [{"item": r.Item or "", "name": r.Name or r.Item or "",
+             "qty": float(r.Qty or 0), "amount": float(r.Amount or 0)}
+            for r in rows]
+
+
+
+# Phase A: pos_na NABrowser ne pos.occupancy/revenue_summary/
+# room_revenue calls kiye — yeh NightAudit (nightaudit.py) reports
+# hain. Aliases single-source rakhte hain.
+from HMS_py.core import nightaudit as _nightaudit
+
+occupancy = _nightaudit.occupancy
+revenue_summary = _nightaudit.revenue_summary
+room_revenue = _nightaudit.room_revenue

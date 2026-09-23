@@ -64,7 +64,7 @@ def _validate_rev_group(rec: dict):
 
 def revenue_group_list(cn=None, limit: int = 500) -> list[dict]:
     rows = _query_safe(
-        f"SELECT TOP {limit} RevCode, RevName, GroupCode, GroupNature, "
+        f"SELECT TOP {int(limit)} RevCode, RevName, GroupCode, GroupNature, "
         "U_Name, U_EntDt, U_AE, LogSite_Code "
         "FROM RevenueGroup ORDER BY RevCode", cn=cn)
     return [_map_rev_group(r) for r in rows]
@@ -154,7 +154,7 @@ def _validate_budget(rec: dict):
 
 def budget_list(cn=None, limit: int = 500) -> list[dict]:
     rows = _query_safe(
-        f"SELECT TOP {limit} FromDate, ToDate, SrNo, GroupCode, Amount, "
+        f"SELECT TOP {int(limit)} FromDate, ToDate, SrNo, GroupCode, Amount, "
         "U_Name, U_EntDt, U_AE, LogSite_Code "
         "FROM Budget ORDER BY FromDate, ToDate, SrNo", cn=cn)
     return [_map_budget(r) for r in rows]

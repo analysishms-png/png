@@ -38,10 +38,18 @@ def _qapp():
 
 @pytest.fixture(autouse=True)
 def _fresh_theme():
-    """Har test ke baad user tokens reset (test isolation)."""
-    yield
+    """Har test se pehle/baad tokens + in-memory _active reset.
+
+    Sirf QSettings clear karne se _active leak rehta hai — random test
+    order (pytest-randomly) pe dark mode cancel/reset assertions fail
+    karta tha.
+    """
     from HMS_py.ui import theme
     theme.reset_tokens()
+    theme._active = theme._resolve({})
+    yield
+    theme.reset_tokens()
+    theme._active = theme._resolve({})
 
 
 # =================================================================
@@ -52,10 +60,12 @@ class TestAppearanceDialog:
         from HMS_py.ui.glass import AppearanceDialog
         from HMS_py.ui import theme
         _qapp()
-        theme.apply_theme(_qapp())
+        # Saved tokens (pichle tests ka dark preset etc.) seed-pollute
+        # karte hain — deterministic light-default check ke liye reset.
+        theme.reset_tokens()
         d = AppearanceDialog()
         sdefs = theme.status_base_defaults(
-            theme.current_theme())   # active mode ke defaults
+            d._start.get("mode", "light"))  # dialog ke apne mode se
         assert d._swatches["success"]._color == sdefs["success"]
         assert d._swatches["neutral"]._color == sdefs["neutral"]
         d._cancel()
@@ -294,6 +304,20 @@ class TestMainWindowFlow:
         monkeypatch.setattr(
             "HMS_py.core.db.connect",
             lambda cfg=None: (_ for _ in ()).throw(OSError("offline")))
+
+        # Modal auto-open guard: Main Setup / Reservation .exec() test pe
+        # infinite block karta tha (QA pattern: spy_exec auto-close).
+        from PyQt6.QtCore import QTimer
+        from PyQt6.QtWidgets import QDialog
+        _orig_exec = QDialog.exec
+
+        def _spy_exec(self, *a, **k):
+            if type(self).__name__ in ("MainSetupWorkbench",
+                                       "PlanMasterForm"):
+                QTimer.singleShot(0, self.close)
+            return _orig_exec(self, *a, **k)
+
+        monkeypatch.setattr(QDialog, "exec", _spy_exec)
 
         win = MainWindow("SA", {"name": "Test Resort", "short": "TR",
                                 "year": "2025-26"})

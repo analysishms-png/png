@@ -8,7 +8,7 @@ from __future__ import annotations
 from HMS_py.core import db
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
-USER = "PYADMIN"
+USER = db.get_user()
 TABLE_PRIMARY = "GuestFolio"
 
 SELECT_COLS = (
@@ -68,7 +68,7 @@ def _validate(rec: dict):
 
 def list_all(cn=None, limit=500) -> list[dict]:
     rows = db.query(
-        f"SELECT TOP {limit} {SELECT_COLS} FROM GuestFolio "
+        f"SELECT TOP {int(limit)} {SELECT_COLS} FROM GuestFolio "
         "WHERE Site_Code = ? ORDER BY FolioNo DESC",
         (SITE_CODE,), cn=cn)
     return [_map(r) for r in rows]
@@ -85,7 +85,7 @@ def get(folio: int, site: str = SITE_CODE, cn=None,
 def search(term: str, site: str = SITE_CODE, cn=None,
            limit=100) -> list[dict]:
     rows = db.query(
-        f"SELECT TOP {limit} {SELECT_COLS} FROM GuestFolio "
+        f"SELECT TOP {int(limit)} {SELECT_COLS} FROM GuestFolio "
         "WHERE Site_Code = ? AND (Name LIKE ? OR DocId LIKE ? OR "
         "GuestProf LIKE ?) ORDER BY FolioNo DESC",
         (site, f"%{term}%", f"%{term}%", f"%{term}%"), cn=cn)

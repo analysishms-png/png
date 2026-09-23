@@ -62,7 +62,7 @@ class BillReprintWindow(QMainWindow):
     def _load_data(self):
         try:
             rows = db.query(
-                "SELECT TOP 100 S1.DocId, S1.VDate, D.Name, S1.NetAmount, S1.VoidYN "
+                "SELECT TOP 100 S1.DocId, S1.VDate, D.Name, S1.NetAmt, S1.DelFlag "
                 "FROM Sale1 S1 LEFT JOIN Depart D ON S1.RestCode = D.Code "
                 "WHERE S1.VDate BETWEEN ? AND ? ORDER BY S1.DocId DESC",
                 (self.dt_from.date().toPyDate(), self.dt_to.date().toPyDate()))

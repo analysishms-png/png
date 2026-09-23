@@ -9,7 +9,7 @@ from __future__ import annotations
 from HMS_py.core import db
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
-USER = "PYADMIN"
+USER = db.get_user()
 
 
 # ============================================================
@@ -38,7 +38,7 @@ def _map_table(r) -> dict:
 def table_list(cn=None, limit: int = 500) -> list[dict]:
     """List POS tables from RoomMast where Type='TB'."""
     rows = db.query(
-        f"SELECT TOP {limit} Type, Code, Name, RoomCat, RestCode, "
+        f"SELECT TOP {int(limit)} Type, Code, Name, RoomCat, RestCode, "
         "U_Name, U_EntDt, U_AE FROM RoomMast "
         "WHERE Type = 'TB' ORDER BY Code",
         cn=cn)
@@ -55,7 +55,7 @@ def table_get(code: str, cn=None) -> dict | None:
 
 def table_search(name_part: str, cn=None, limit: int = 100) -> list[dict]:
     rows = db.query(
-        f"SELECT TOP {limit} Type, Code, Name, RoomCat, RestCode, "
+        f"SELECT TOP {int(limit)} Type, Code, Name, RoomCat, RestCode, "
         "U_Name, U_EntDt, U_AE FROM RoomMast "
         "WHERE Type = 'TB' AND Name LIKE ? ORDER BY Code",
         (f"%{name_part}%",), cn=cn)
@@ -129,20 +129,36 @@ def update(code: str, rec: dict, cn=None, commit: bool = True) -> int:
     nahi hain; jo fields RoomMast me hain wahi persist hote hain.
     """
     from HMS_py.core import roommaster
-    cur = table_get(code, cn=cn)
-    if not cur:
-        raise ValueError(f"Table '{code}' nahi mila")
-    roommaster.delete(code, type="TB",
-                      restcode=cur.get("restcode", ""),
-                      cn=cn, commit=False)
-    return roommaster.insert({
-        "type": "TB",
-        "code": rec.get("Code", "") or code,
-        "name": rec.get("RoomName", ""),
-        "roomcat": cur.get("roomcat", ""),
-        "restcode": cur.get("restcode", ""),
-        "roomstat": "X" if rec.get("Status") == "Inactive" else "",
-    }, cn=cn, commit=commit)
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        cur = table_get(code, cn=cn)
+        if not cur:
+            raise ValueError(f"Table '{code}' nahi mila")
+        roommaster.delete(code, type="TB",
+                          restcode=cur.get("restcode", ""),
+                          cn=cn, commit=False)
+        n = roommaster.insert({
+            "type": "TB",
+            "code": rec.get("Code", "") or code,
+            "name": rec.get("RoomName", ""),
+            "roomcat": cur.get("roomcat", ""),
+            "restcode": cur.get("restcode", ""),
+            "roomstat": "X" if rec.get("Status") == "Inactive" else "",
+        }, cn=cn, commit=False)
+        if commit:
+            cn.commit()
+        return n
+    except Exception:
+        if own:
+            try:
+                cn.rollback()
+            except Exception:
+                pass
+        raise
+    finally:
+        if own:
+            cn.close()
 
 
 def delete(code: str, cn=None, commit: bool = True) -> int:
@@ -183,7 +199,7 @@ def _validate_dispcolor(rec: dict):
 
 def dispcolor_list(cn=None, limit: int = 200) -> list[dict]:
     rows = db.query(
-        f"SELECT TOP {limit} {_DISPCOLOR_COLS} FROM DispColor ORDER BY [Index]",
+        f"SELECT TOP {int(limit)} {_DISPCOLOR_COLS} FROM DispColor ORDER BY [Index]",
         cn=cn)
     return [_map_dispcolor(r) for r in rows]
 

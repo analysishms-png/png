@@ -32,7 +32,7 @@ from HMS_py.core import db
 from HMS_py.core.menu import menu_name_allowed
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
-USER = "PYADMIN"
+USER = db.get_user()
 
 
 def _require_permission(menu_name: str, user: str = "SA"):
@@ -734,60 +734,101 @@ def combo_insert(rec: dict, cn=None, commit=True, user: str = "SA") -> int:
     if not rec.get("name", "").strip():
         raise ValueError("Name zaroori hai")
     items = rec.get("items", [])
-    db.execute(
-        "INSERT INTO ComboPackHead (ComboCode, Name, ComboName, Rate, "
-        "Active, ServiceCharge, RestCode, Site_Code, U_Name, U_EntDt, "
-        "U_AE, LogSite_Code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, getdate(), 'A', ?)",
-        (rec["code"], rec["name"], rec.get("comboname", ""),
-         float(rec.get("rate") or 0), rec.get("active", "Y"),
-         float(rec.get("servicecharge") or 0), rec.get("rest", ""),
-         SITE_CODE, USER, SITE_CODE), cn=cn, commit=False)
-    for item in items:
+    own = cn is None
+    cn = cn or db.connect()
+    try:
         db.execute(
-            "INSERT INTO ComboPackDetail (ComboCode, ItemCode, Qty, "
-            "Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code) "
-            "VALUES (?, ?, ?, ?, ?, getdate(), 'A', ?)",
-            (rec["code"], item.get("itemcode", ""),
-             float(item.get("qty") or 0), SITE_CODE, USER, SITE_CODE),
-            cn=cn, commit=False)
-    if commit:
-        cn.commit()
-    return 0
+            "INSERT INTO ComboPackHead (ComboCode, Name, ComboName, Rate, "
+            "Active, ServiceCharge, RestCode, Site_Code, U_Name, U_EntDt, "
+            "U_AE, LogSite_Code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, getdate(), 'A', ?)",
+            (rec["code"], rec["name"], rec.get("comboname", ""),
+             float(rec.get("rate") or 0), rec.get("active", "Y"),
+             float(rec.get("servicecharge") or 0), rec.get("rest", ""),
+             SITE_CODE, USER, SITE_CODE), cn=cn, commit=False)
+        for item in items:
+            db.execute(
+                "INSERT INTO ComboPackDetail (ComboCode, ItemCode, Qty, "
+                "Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code) "
+                "VALUES (?, ?, ?, ?, ?, getdate(), 'A', ?)",
+                (rec["code"], item.get("itemcode", ""),
+                 float(item.get("qty") or 0), SITE_CODE, USER, SITE_CODE),
+                cn=cn, commit=False)
+        if commit:
+            cn.commit()
+        return 0
+    except Exception:
+        if own:
+            try:
+                cn.rollback()
+            except Exception:
+                pass
+        raise
+    finally:
+        if own:
+            cn.close()
 
 
 def combo_update(code: str, rec: dict, cn=None, commit=True) -> int:
     if not rec.get("name", "").strip():
         raise ValueError("Name zaroori hai")
-    db.execute(
-        "UPDATE ComboPackHead SET Name = ?, ComboName = ?, Rate = ?, "
-        "Active = ?, ServiceCharge = ?, RestCode = ?, "
-        "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' WHERE ComboCode = ?",
-        (rec["name"], rec.get("comboname", ""),
-         float(rec.get("rate") or 0), rec.get("active", "Y"),
-         float(rec.get("servicecharge") or 0), rec.get("rest", ""),
-         USER, code), cn=cn, commit=False)
-    if "items" in rec:
-        db.execute("DELETE FROM ComboPackDetail WHERE ComboCode = ?",
-                   (code,), cn=cn, commit=False)
-        for item in rec["items"]:
-            db.execute(
-                "INSERT INTO ComboPackDetail (ComboCode, ItemCode, Qty, "
-                "Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code) "
-                "VALUES (?, ?, ?, ?, ?, getdate(), 'A', ?)",
-                (code, item.get("itemcode", ""),
-                 float(item.get("qty") or 0), SITE_CODE, USER, SITE_CODE),
-                cn=cn, commit=False)
-    if commit:
-        cn.commit()
-    return 0
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        db.execute(
+            "UPDATE ComboPackHead SET Name = ?, ComboName = ?, Rate = ?, "
+            "Active = ?, ServiceCharge = ?, RestCode = ?, "
+            "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' WHERE ComboCode = ?",
+            (rec["name"], rec.get("comboname", ""),
+             float(rec.get("rate") or 0), rec.get("active", "Y"),
+             float(rec.get("servicecharge") or 0), rec.get("rest", ""),
+             USER, code), cn=cn, commit=False)
+        if "items" in rec:
+            db.execute("DELETE FROM ComboPackDetail WHERE ComboCode = ?",
+                       (code,), cn=cn, commit=False)
+            for item in rec["items"]:
+                db.execute(
+                    "INSERT INTO ComboPackDetail (ComboCode, ItemCode, Qty, "
+                    "Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code) "
+                    "VALUES (?, ?, ?, ?, ?, getdate(), 'A', ?)",
+                    (code, item.get("itemcode", ""),
+                     float(item.get("qty") or 0), SITE_CODE, USER, SITE_CODE),
+                    cn=cn, commit=False)
+        if commit:
+            cn.commit()
+        return 0
+    except Exception:
+        if own:
+            try:
+                cn.rollback()
+            except Exception:
+                pass
+        raise
+    finally:
+        if own:
+            cn.close()
 
 
 def combo_delete(code: str, cn=None, commit=True) -> int:
-    db.execute("DELETE FROM ComboPackDetail WHERE ComboCode = ?",
-               (code,), cn=cn, commit=False)
-    r = db.execute("DELETE FROM ComboPackHead WHERE ComboCode = ?",
-                   (code,), cn=cn, commit=commit)
-    return r
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        db.execute("DELETE FROM ComboPackDetail WHERE ComboCode = ?",
+                   (code,), cn=cn, commit=False)
+        r = db.execute("DELETE FROM ComboPackHead WHERE ComboCode = ?",
+                       (code,), cn=cn, commit=False)
+        if commit:
+            cn.commit()
+        return r
+    except Exception:
+        if own:
+            try:
+                cn.rollback()
+            except Exception:
+                pass
+        raise
+    finally:
+        if own:
+            cn.close()
 
 
 class _ComboAPI:

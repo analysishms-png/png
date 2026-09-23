@@ -4,7 +4,7 @@ from __future__ import annotations
 from HMS_py.core import db
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
-USER = "PYADMIN"
+USER = db.get_user()
 
 # === GuestComments ===
 def _map_comments(r) -> dict:
@@ -18,7 +18,7 @@ def _map_comments(r) -> dict:
 
 
 def list_comments(cn=None, limit=500):
-    rows = db.query(f"SELECT TOP {limit} * FROM GuestComments WHERE Site_Code = ? ORDER BY Code DESC",
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM GuestComments WHERE Site_Code = ? ORDER BY Code DESC",
                     (SITE_CODE,), cn=cn)
     return [_map_comments(r) for r in rows]
 
@@ -29,7 +29,7 @@ def get_comments(code, cn=None):
 
 
 def search_comments(term, cn=None, limit=100):
-    rows = db.query(f"SELECT TOP {limit} * FROM GuestComments WHERE Site_Code = ? AND (Name LIKE ? OR Comments LIKE ?)",
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM GuestComments WHERE Site_Code = ? AND (Name LIKE ? OR Comments LIKE ?)",
                     (SITE_CODE, f"%{term}%", f"%{term}%"), cn=cn)
     return [_map_comments(r) for r in rows]
 
@@ -77,7 +77,7 @@ def _map_complaint(r) -> dict:
 
 
 def list_complaint(cn=None, limit=500):
-    rows = db.query(f"SELECT TOP {limit} * FROM ComplaintDetail WHERE Site_Code = ? ORDER BY Code DESC",
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM ComplaintDetail WHERE Site_Code = ? ORDER BY Code DESC",
                     (SITE_CODE,), cn=cn)
     return [_map_complaint(r) for r in rows]
 
@@ -88,7 +88,7 @@ def get_complaint(code, cn=None):
 
 
 def search_complaint(term, cn=None, limit=100):
-    rows = db.query(f"SELECT TOP {limit} * FROM ComplaintDetail WHERE Site_Code = ? AND (Description LIKE ? OR Category LIKE ?)",
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM ComplaintDetail WHERE Site_Code = ? AND (Description LIKE ? OR Category LIKE ?)",
                     (SITE_CODE, f"%{term}%", f"%{term}%"), cn=cn)
     return [_map_complaint(r) for r in rows]
 
@@ -98,7 +98,7 @@ def insert_complaint(rec, cn=None, commit=True, site=SITE_CODE, user=USER):
     code = (code_rows[0][0] or 0) + 1 if code_rows and code_rows[0][0] else 1
     db.execute(
         "INSERT INTO ComplaintDetail (Code,CDate,CTime,Category,Description,Depart,UName,Status,Site_Code,U_Name,U_EntDt,U_AE,LogSite_Code)"
-        " VALUES (?,getdate(),?,?,?,?,?,?,?,getdate(),?,?)",
+        " VALUES (?,getdate(),?,?,?,?,?,?,?,?,getdate(),?,?)",
         (code, rec.get("ctime",""), rec.get("category",""), rec.get("description",""),
          rec.get("depart",""), user, rec.get("status","Open"), site, user, "A", site),
         cn=cn, commit=commit)
@@ -133,7 +133,7 @@ def _map_ccat(r) -> dict:
 
 
 def list_complaint_category(cn=None, limit=500):
-    rows = db.query(f"SELECT TOP {limit} * FROM ComplaintCategory WHERE Site_Code = ? ORDER BY Code",
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM ComplaintCategory WHERE Site_Code = ? ORDER BY Code",
                     (SITE_CODE,), cn=cn)
     return [_map_ccat(r) for r in rows]
 
@@ -163,7 +163,7 @@ def _map_lostfound(r) -> dict:
 
 
 def list_lostfound(cn=None, limit=500):
-    rows = db.query(f"SELECT TOP {limit} * FROM LostFoundDetail WHERE Site_Code = ? ORDER BY Code DESC",
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM LostFoundDetail WHERE Site_Code = ? ORDER BY Code DESC",
                     (SITE_CODE,), cn=cn)
     return [_map_lostfound(r) for r in rows]
 
@@ -174,7 +174,7 @@ def get_lostfound(code, cn=None):
 
 
 def search_lostfound(term, cn=None, limit=100):
-    rows = db.query(f"SELECT TOP {limit} * FROM LostFoundDetail WHERE Site_Code = ? AND (Description LIKE ? OR Code LIKE ?)",
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM LostFoundDetail WHERE Site_Code = ? AND (Description LIKE ? OR Code LIKE ?)",
                     (SITE_CODE, f"%{term}%", f"%{term}%"), cn=cn)
     return [_map_lostfound(r) for r in rows]
 
@@ -184,7 +184,7 @@ def insert_lostfound(rec, cn=None, commit=True, site=SITE_CODE, user=USER):
     code = (code_rows[0][0] or 0) + 1 if code_rows and code_rows[0][0] else 1
     db.execute(
         "INSERT INTO LostFoundDetail (Code,FDate,FTime,FArea,FindBy,Description,UName1,ContactNo,Status,Site_Code,U_Name,U_EntDt,U_AE,LogSite_Code)"
-        " VALUES (?,getdate(),?,?,?,?,?,?,?,?,getdate(),?,?)",
+        " VALUES (?,getdate(),?,?,?,?,?,?,?,?,?,getdate(),?,?)",
         (code, rec.get("ftime",""), rec.get("farea",""), rec.get("findby",""),
          rec.get("description",""), rec.get("uname1",""), rec.get("contactno",""),
          rec.get("status","Open"), site, user, "A", site),
@@ -224,7 +224,7 @@ def _map_wakeup(r) -> dict:
 
 
 def list_wakeup(cn=None, limit=500):
-    rows = db.query(f"SELECT TOP {limit} * FROM GuestWakeUp WHERE Site_Code = ? ORDER BY VNo DESC",
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM GuestWakeUp WHERE Site_Code = ? ORDER BY VNo DESC",
                     (SITE_CODE,), cn=cn)
     return [_map_wakeup(r) for r in rows]
 
@@ -240,7 +240,7 @@ def insert_wakeup(rec, cn=None, commit=True, site=SITE_CODE, user=USER):
     docid = ("D" + site.ljust(2) + "WK".ljust(6) + str(vprefix).ljust(4) + str(vno).rjust(8))[:21]
     db.execute(
         "INSERT INTO GuestWakeUp (DocId,Vtype,VNo,Site_Code,Vprefix,Vdate,VTime,RoomCat,RoomType,RoomNo,RemReqd,GuestProf,FolioNo,U_Name,U_EntDt,U_AE,LogSite_Code)"
-        " VALUES (?,'WK',?,?,?,getdate(),?,?,?,?,?,?,?,getdate(),'A',?)",
+        " VALUES (?,'WK',?,?,?,getdate(),?,?,?,?,?,?,?,?,getdate(),'A',?)",
         (docid, vno, site, vprefix, rec.get("vtime",""),
          rec.get("roomcat",""), rec.get("roomtype",""), rec.get("roomno",""),
          rec.get("remreqd",""), rec.get("guestprof",""), rec.get("folio",0), user, site),
@@ -266,7 +266,7 @@ def _map_message(r) -> dict:
 
 
 def list_message(cn=None, limit=500):
-    rows = db.query(f"SELECT TOP {limit} * FROM GuestMessage WHERE Site_Code = ? ORDER BY VNo DESC",
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM GuestMessage WHERE Site_Code = ? ORDER BY VNo DESC",
                     (SITE_CODE,), cn=cn)
     return [_map_message(r) for r in rows]
 
@@ -318,7 +318,7 @@ def _map_stat(r) -> dict:
 
 
 def list_stat(cn=None, limit=500):
-    rows = db.query(f"SELECT TOP {limit} * FROM GuestStat WHERE Site_Code = ? ORDER BY Code",
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM GuestStat WHERE Site_Code = ? ORDER BY Code",
                     (SITE_CODE,), cn=cn)
     return [_map_stat(r) for r in rows]
 
@@ -364,3 +364,9 @@ class GuestServicesAPI:
     def list_stat(self, cn=None, limit=500): return list_stat(cn, limit)
     def insert_stat(self, rec, cn=None, commit=True, site=SITE_CODE, user=USER): return insert_stat(rec, cn, commit, site, user)
     def delete_stat(self, code, cn=None, commit=True): return delete_stat(code, cn, commit)
+
+
+# Phase A: UI singular/plural dono naam use karta tha — aliases.
+insert_comment = insert_comments
+delete_comment = delete_comments
+list_complaints = list_complaint

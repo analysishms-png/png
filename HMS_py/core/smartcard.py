@@ -15,7 +15,7 @@ import datetime
 from HMS_py.core import db
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
-USER = "PYADMIN"
+USER = db.get_user()
 
 
 SMARTCARD_LIMITS = {"code": 6, "cardtype": 10, "cardno": 20,

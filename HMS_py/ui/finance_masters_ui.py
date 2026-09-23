@@ -26,21 +26,32 @@ from HMS_py.ui.base_master import BaseMasterForm, Field, MasterConfig, \
 # ---- MasterConfig definitions ----
 
 def taxmaster_config() -> MasterConfig:
+    # VB6 FrmTaxMast: flat RevMast FieldType='T' (Name/Short/Ledger/...).
+    # P0 fix: pehle LIMITS["taxtype"] KeyError se app crash hota tha.
     return MasterConfig(
         title="Tax Master - HMS_py",
         columns=[("TaxCode", "code"), ("TaxName", "name"),
-                 ("TaxPer%", "taxper"), ("Type", "taxtype"),
-                 ("Active", "active")],
+                 ("Short", "short"), ("Ledger", "accode"),
+                 ("Nature", "nature"), ("Active", "active")],
         fields=[
             Field("code", "Tax Code", max_len=taxmaster.LIMITS["code"],
                   required=True),
             Field("name", "Tax Name", max_len=taxmaster.LIMITS["name"],
                   required=True),
-            Field("taxper", "Tax % (0-100)", default="0"),
-            Field("taxtype", "Tax Type (GST/CGST/SGST/VAT/LT)",
-                  max_len=taxmaster.LIMITS["taxtype"]),
-            Field("onamount", "On Amount (Yes/No)",
-                  max_len=taxmaster.LIMITS["onamount"], default="No"),
+            Field("short", "Short Name",
+                  max_len=taxmaster.LIMITS["short"]),
+            Field("accode", "Ledger A/C (FK->SubGroup)",
+                  max_len=taxmaster.LIMITS["accode"]),
+            Field("payableac", "Payable A/C",
+                  max_len=taxmaster.LIMITS["payableac"]),
+            Field("unregisteredac", "Unregistered A/C",
+                  max_len=taxmaster.LIMITS["unregisteredac"]),
+            Field("sundry", "Sundry Code",
+                  max_len=taxmaster.LIMITS["sundry"]),
+            Field("nature", "Nature",
+                  max_len=taxmaster.LIMITS["nature"]),
+            Field("roundoff", "Round Off (Yes/No)",
+                  max_len=taxmaster.LIMITS["roundoff"], default="No"),
             Field("active", "Active Y/N", max_len=1, default="Y"),
         ],
         api=taxmaster,

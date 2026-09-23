@@ -7,8 +7,8 @@ from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QTableWidget, QTableWidgetItem)
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor, QFont
-from core import account_merge
-from core import ledger as led
+from HMS_py.core import account_merge
+from HMS_py.core import ledger as led
 
 
 class AccountMergeWindow(QMainWindow):

@@ -10,7 +10,7 @@ from __future__ import annotations
 from HMS_py.core import db
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
-USER = "PYADMIN"
+USER = db.get_user()
 
 
 # ============================================================
@@ -51,7 +51,7 @@ def _validate_assign(rec: dict):
 
 def assign_list(cn=None, limit: int = 500) -> list[dict]:
     rows = db.query(
-        f"SELECT TOP {limit} {_ASSIGNDEL_COLS} FROM AssignDelivery ORDER BY U_EntDt DESC",
+        f"SELECT TOP {int(limit)} {_ASSIGNDEL_COLS} FROM AssignDelivery ORDER BY U_EntDt DESC",
         cn=cn)
     return [_map_assign(r) for r in rows]
 
@@ -65,7 +65,7 @@ def assign_get(docid: str, cn=None) -> dict | None:
 
 def assign_search(deliboy: str, cn=None, limit: int = 100) -> list[dict]:
     rows = db.query(
-        f"SELECT TOP {limit} {_ASSIGNDEL_COLS} FROM AssignDelivery "
+        f"SELECT TOP {int(limit)} {_ASSIGNDEL_COLS} FROM AssignDelivery "
         "WHERE DeliBoy LIKE ? ORDER BY U_EntDt DESC",
         (f"%{deliboy}%",), cn=cn)
     return [_map_assign(r) for r in rows]
@@ -180,7 +180,7 @@ def _validate_reward(rec: dict):
 
 def reward_list(cn=None, limit: int = 500) -> list[dict]:
     rows = db.query(
-        f"SELECT TOP {limit} {_GUESTREWARD_COLS} FROM GuestReward ORDER BY U_EntDt DESC",
+        f"SELECT TOP {int(limit)} {_GUESTREWARD_COLS} FROM GuestReward ORDER BY U_EntDt DESC",
         cn=cn)
     return [_map_reward(r) for r in rows]
 
@@ -194,7 +194,7 @@ def reward_get(docid: str, cn=None) -> dict | None:
 
 def reward_search(custcode: str, cn=None, limit: int = 100) -> list[dict]:
     rows = db.query(
-        f"SELECT TOP {limit} {_GUESTREWARD_COLS} FROM GuestReward "
+        f"SELECT TOP {int(limit)} {_GUESTREWARD_COLS} FROM GuestReward "
         "WHERE CustCode LIKE ? ORDER BY U_EntDt DESC",
         (f"%{custcode}%",), cn=cn)
     return [_map_reward(r) for r in rows]

@@ -4,7 +4,7 @@ from __future__ import annotations
 from HMS_py.core import db
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
-USER = "PYADMIN"
+USER = db.get_user()
 
 # === EmailSMSForward ===
 def _map_email(r) -> dict:
@@ -17,7 +17,7 @@ def _map_email(r) -> dict:
 
 
 def list_email_forward(cn=None, limit=500):
-    rows = db.query(f"SELECT TOP {limit} * FROM EmailSMSForward WHERE Site_Code = ? ORDER BY Id DESC",
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM EmailSMSForward WHERE Site_Code = ? ORDER BY Id DESC",
                     (SITE_CODE,), cn=cn)
     return [_map_email(r) for r in rows]
 
@@ -51,7 +51,7 @@ def _map_dbsms(r) -> dict:
 
 
 def list_dbsms(cn=None, limit=500):
-    rows = db.query(f"SELECT TOP {limit} * FROM DBSendSMS WHERE Site_Code = ? ORDER BY DocId DESC",
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM DBSendSMS WHERE Site_Code = ? ORDER BY DocId DESC",
                     (SITE_CODE,), cn=cn)
     return [_map_dbsms(r) for r in rows]
 
@@ -81,7 +81,7 @@ def _map_reward(r) -> dict:
 
 
 def list_reward(cn=None, limit=500):
-    rows = db.query(f"SELECT TOP {limit} * FROM GuestReward WHERE Site_code = ? ORDER BY DocId DESC",
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM GuestReward WHERE Site_code = ? ORDER BY DocId DESC",
                     (SITE_CODE,), cn=cn)
     return [_map_reward(r) for r in rows]
 
@@ -89,7 +89,7 @@ def list_reward(cn=None, limit=500):
 def insert_reward(rec, cn=None, commit=True, site=SITE_CODE, user=USER):
     db.execute(
         "INSERT INTO GuestReward (DocId,CustCode,Vdate,BillNo,BillAmt,RewardPoint,RedemPoint,MobileNo,Site_code,LogSite_Code,U_Name,U_AE,U_EntDt)"
-        " VALUES (?,?,getdate(),?,?,?,?,?,?,?,?,getdate())",
+        " VALUES (?,?,getdate(),?,?,?,?,?,?,?,?,?,getdate())",
         (rec.get("docid",""), rec.get("custcode",""), rec.get("billno",""),
          rec.get("billamt",0.0), rec.get("rewardpoint",0.0), rec.get("redeempoint",0.0),
          rec.get("mobileno",""), site, site, user, "A"),
@@ -110,7 +110,7 @@ def _map_delivery(r) -> dict:
 
 
 def list_delivery(cn=None, limit=500):
-    rows = db.query(f"SELECT TOP {limit} * FROM AssignDelivery WHERE Site_Code = ? ORDER BY DocId DESC",
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM AssignDelivery WHERE Site_Code = ? ORDER BY DocId DESC",
                     (SITE_CODE,), cn=cn)
     return [_map_delivery(r) for r in rows]
 
@@ -125,7 +125,7 @@ def insert_delivery(rec, cn=None, commit=True, site=SITE_CODE, user=USER):
     docid = ("D" + site.ljust(2) + "AD".ljust(6) + str(vprefix).ljust(4) + str(vno).rjust(8))[:21]
     db.execute(
         "INSERT INTO AssignDelivery (DocId,Vtype,VNo,Vprefix,Vdate,Ddate,RestCode,DeliBoy,BillAmt,Remark,Site_Code,U_Name,U_AE,U_EntDt,LogSite_Code)"
-        " VALUES (?,'AD',?,?,getdate(),?,?,?,?,?,?,?,getdate(),?)",
+        " VALUES (?,'AD',?,?,getdate(),?,?,?,?,?,?,?,?,getdate(),?)",
         (docid, vno, vprefix, rec.get("ddate"), rec.get("restcode",""),
          rec.get("deliboy",""), rec.get("billamt",0.0), rec.get("remark",""),
          site, user, "A", site),
@@ -148,7 +148,7 @@ def _map_dboy(r) -> dict:
 
 
 def list_dboy(cn=None, limit=500):
-    rows = db.query(f"SELECT TOP {limit} * FROM DeliveryBoy WHERE Site_Code = ? ORDER BY Code",
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM DeliveryBoy WHERE Site_Code = ? ORDER BY Code",
                     (SITE_CODE,), cn=cn)
     return [_map_dboy(r) for r in rows]
 
@@ -177,7 +177,7 @@ def _map_jobschedule(r) -> dict:
 
 
 def list_jobschedule(cn=None, limit=500):
-    rows = db.query(f"SELECT TOP {limit} * FROM JobSchedule WHERE Site_Code = ? ORDER BY Schedule_Id DESC",
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM JobSchedule WHERE Site_Code = ? ORDER BY Schedule_Id DESC",
                     (SITE_CODE,), cn=cn)
     return [_map_jobschedule(r) for r in rows]
 
@@ -187,7 +187,7 @@ def insert_jobschedule(rec, cn=None, commit=True, site=SITE_CODE, user=USER):
     new_id = (id_rows[0][0] or 0) + 1 if id_rows and id_rows[0][0] else 1
     db.execute(
         "INSERT INTO JobSchedule (Schedule_Id,ScheduleName,ScheduleType,ScheduleEnabled,ScheduleStartDate,ScheduleEndDate,OneTimeOccur,Site_Code,U_Name,U_EntDt,U_AE,LogSite_Code)"
-        " VALUES (?,?,?,?,?,?,?,?,getdate(),'A',?)",
+        " VALUES (?,?,?,?,?,?,?,?,?,getdate(),'A',?)",
         (new_id, rec.get("schedulename",""), rec.get("scheduletype",""),
          rec.get("scheduleenabled","N"), rec.get("startdate"), rec.get("enddate"),
          rec.get("onetimeoccur",""), site, user, site),
@@ -211,7 +211,7 @@ def _map_jobschdetail(r) -> dict:
 
 
 def list_jobschdetail(cn=None, limit=500):
-    rows = db.query(f"SELECT TOP {limit} * FROM JobScheduledDetail WHERE Site_Code = ? ORDER BY Job_Id DESC",
+    rows = db.query(f"SELECT TOP {int(limit)} * FROM JobScheduledDetail WHERE Site_Code = ? ORDER BY Job_Id DESC",
                     (SITE_CODE,), cn=cn)
     return [_map_jobschdetail(r) for r in rows]
 

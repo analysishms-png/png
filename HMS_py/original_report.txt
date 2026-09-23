@@ -1,0 +1,189 @@
+MENUHELP -> MISSING OPENERS (dynamic menu audit)
+Generated: menuHelp tree vs shell registry + reports caption map
+======================================================================
+
+
+## Finance
+  [R] Reports -> Journal Books Log
+  [R] Reports -> TDS Report
+
+## Main Setup
+  [E] Point of Sale -> Outlet Bill Sundry Setting
+  [E] Point of Sale -> Table Master
+  [E] Point of Sale -> Open Item Consumption
+  [N] Point of Sale -> Point of Sale
+  [E] Members Mgmt -> Member Master
+  [E] Members Mgmt -> Member Select Category
+  [N] Members Mgmt -> Members Mgmt
+  [E] Banquet -> Banquet Bill Sundry Setting
+  [N] Banquet -> Banquet
+  [E] Inventory -> Purchase Sundry Setting
+  [E] Inventory -> Enviro Inventry
+  [N] Inventory -> Inventory
+  [E] Finance -> Voucher Serialisation
+  [N] Finance -> Delete Message
+  [N] Finance -> Voucher Serialisation
+  [E] Utility -> Inconsistency Check
+  [E] Utility -> Menu Item Copy
+  [E] Utility -> Task Scheduler
+  [N] Utility -> Utility
+  [N] Utility -> Sale MIS Customized
+  [N] Utility -> Data Recieving
+  [N] Utility -> PLU File (W.Scale)
+  [N] Utility -> User Permissions (Advanced)
+  [N] Utility -> POS Recycle
+  [N] Utility -> Task Scheduler
+  [N] EPABX -> EPABX
+  [N] EPABX -> Com Port Properties
+  [N] Smart Card -> Recharge/Refund Entry
+
+## Reservation
+  [E] Operations -> Reservation With History
+  [E] Operations -> Advance Deposit
+  [E] Operations -> Confirmation Letters
+  [E] Operations -> Cancellation Letters
+  [E] Operations -> Reservation Status Screen
+  [N] Reservation Status Report -> Group Pickup Report
+  [N] Reservation Status Report -> Group Arrival Report
+  [E] M.I.S. -> 23 Day Room Type Availability Forecast
+
+## Front Office
+  [E] Operations -> Display Rack
+  [E] Operations -> Reverse Room Merge
+  [E] Operations -> Blank GRC
+  [N] Operations -> Travel Agency Posting
+  [E] Tourism Forms -> Monthly Return
+  [R] M.I.S. -> Business Source Occupancy Report
+  [N] M.I.S. -> M.I.S.
+
+## House Keeping
+  [N] Operations -> Operations
+  [N] Operations -> Issue/Recd. Entry
+  [N] Reports -> Room Status Report
+  [E] LAUNDRY -> Laundry Memo
+  [E] LAUNDRY -> Memo Reprint
+  [N] Setup -> Block Master
+  [N] Changes Department -> Changes Department
+
+## Inventory
+  [E] Operations -> Finish Material Receive Entry
+  [N] Operations -> Gravy Item Entry
+  [N] Operations -> Excise Invoice Cum Gate Pass
+  [E] Look Ups -> Pending Purchase Order
+  [N] Reports -> Change Kitchen/Store
+
+## Point Of Sale
+  [E] Point Of Sale -> Payment Receive
+  [E] POS Reports -> Payment Receive Entry (POS)
+  [N] POS Reports -> Denomination Detail
+  [E] ROOM SERVICE -> Sale Bill Entry
+  [E] ROOM SERVICE -> Settlement Entry
+  [E] ROOM SERVICE -> Display Table
+  [E] ROOM SERVICE -> Payment Receive
+  [E] Hight Way point -> Sale Bill Entry
+  [E] Hight Way point -> Settlement Entry
+  [E] Hight Way point -> Order Booking
+  [E] Hight Way point -> Order Booking
+  [E] Hight Way point -> Order Booking Advance
+  [E] Hight Way point -> Order Booking Advance
+  [E] Garden Aroma -> Sale Bill Entry
+  [E] Garden Aroma -> Settlement Entry
+  [E] Garden Aroma -> Display Table
+  [E] Garden Aroma -> Order Booking
+  [E] Garden Aroma -> Order Booking Advance
+  [E] Garden Aroma -> Bill Lookup
+  [E] Garden Aroma -> Payment Receive
+  [E] Hight Way point KOT -> Sale Bill Entry
+  [E] Hight Way point KOT -> Settlement Entry
+  [E] Hight Way point KOT -> Display Table
+  [E] Hight Way point KOT -> Bill Lookup
+  [E] Hight Way point KOT -> Payment Receive
+  [E] MOON TEA CAFE -> Token Entry
+  [E] MOON TEA CAFE -> Sale Bill Entry
+  [E] MOON TEA CAFE -> Settlement Entry
+  [E] MOON TEA CAFE -> Display Table
+  [E] MOON TEA CAFE -> Bill Lookup
+  [E] MOON TEA CAFE -> Payment Receive
+  [E] ECOMERSE SALES -> Token Entry
+  [E] ECOMERSE SALES -> Sale Bill Entry
+  [E] ECOMERSE SALES -> Settlement Entry
+  [E] ECOMERSE SALES -> Display Table
+  [E] ECOMERSE SALES -> Bill Lookup
+  [E] ECOMERSE SALES -> Payment Receive
+  [N] Restaurant Change  -> Restaurant Change 
+  [N] POS Operations -> POS Operations
+  [N] POS Operations -> Assign Delivery
+
+## Banquet
+  [E] Operation -> Catalog Selection
+  [E] Operation -> Chef Pre-Costing
+  [E] Operation -> Banquet Billing
+  [E] Operation -> Banquet Estimate Billing
+  [E] Operation -> Banquet Booking Advance
+  [N] Operation -> Operation
+  [E] Tax Report -> Banquet Taxwise Details
+  [N] Setup -> Banquet Bill Sundry Setting
+
+## Night Audit
+  [R] Reports -> EInvoice Report
+  [R] GST Reports -> Reconciliation (GSTR-2A)
+  [E] GST Reports -> Upload Process
+
+## EXTRAs
+  [N] SMS -> Sstup
+  [N] SMS -> Operations
+  [N] SMS -> SMS
+  [N] Smart Card -> Card Initialization
+  [N] Smart Card -> Card Registration
+  [N] Smart Card -> Card Recharge
+  [N] Smart Card -> Card Refund
+  [N] Smart Card -> Card Re-Issue
+  [N] Smart Card -> Card Statement (MINI)
+  [N] Smart Card -> Card Statement (FULL)
+  [N] Smart Card -> Card Transaction Report
+  [N] Smart Card -> Card Collection Summary
+  [N] Data Transfer -> Data Transfer
+  [N] Data Transfer -> Transfer (Offline)
+  [N] Data Transfer -> Transfer (Online)
+  [N] Reward Points -> Reward Points
+  [N] Reward Points -> Reward Points Parameter I
+
+## Messaging
+  [N] InBox -> InBox
+  [N] OutBox -> OutBox
+
+## Members Mgmt
+  [N] Operations -> Member Visit Entry
+  [N] Operations -> Member Renewal Entry
+  [N] Operations -> Member Used Facility Entry
+  [N] Operations -> Member Facility Billing
+  [N] Operations -> Member Bill Printing
+  [N] Operations -> Member Assistant
+  [N] Operations -> Outstation Member Entry
+  [N] Operations -> Member Category Change Entry
+  [N] Operations -> Revenue Change Entry
+  [N] Operations -> Payment Due Letter Entry
+  [N] Operations -> Member Category Change (Conditional)
+  [N] Reports -> Member Bill Missing Report
+
+TOTAL missing: 141
+
+Per-module summary:
+  Point Of Sale: 40
+  Main Setup: 28
+  EXTRAs: 19
+  Members Mgmt: 12
+  Reservation: 8
+  Banquet: 8
+  Front Office: 7
+  House Keeping: 7
+  Inventory: 5
+  Night Audit: 3
+  Finance: 2
+  Messaging: 2
+
+## DATA-GAP: orphan menuHelp rows (no L1 node, VB6 me hidden)
+  O1=23 O2= O3=11 O4= [E] Auto Settle Card Balance
+
+TOTAL orphan rows: 1
+ vb6 se samjh menu help ytavle se ye data ata hai side bar me iske hisab se ui redegain kro bugs idetify kr fix kro vb6 se samjh

@@ -9,7 +9,7 @@ from PyQt6.QtCore import Qt, QDate
 from PyQt6.QtGui import QColor, QFont
 from core import fa_ledger_ops as falo
 from core import fa_tds_ops as tds
-from core import db
+from core import fa_voucher as fv
 from ui.theme import palette
 
 
@@ -118,10 +118,13 @@ class FaChqClearWindow(QMainWindow):
         self.dt_clg = QDateEdit(); self.dt_clg.setCalendarPopup(True)
         self.dt_clg.setDate(QDate.currentDate())
         self.txt_chq = QLineEdit(); self.txt_chq.setPlaceholderText("Cheque Number")
+        self.dt_chq = QDateEdit(); self.dt_chq.setCalendarPopup(True)
+        self.dt_chq.setDate(QDate.currentDate())
         form_lay.addRow("DocId:", self.txt_docid)
         form_lay.addRow("SNo:", self.txt_sno)
         form_lay.addRow("Clearing Date:", self.dt_clg)
         form_lay.addRow("Cheque No:", self.txt_chq)
+        form_lay.addRow("Cheque Date:", self.dt_chq)
         layout.addWidget(form)
 
         btn_lay = QHBoxLayout()
@@ -142,10 +145,11 @@ class FaChqClearWindow(QMainWindow):
         if not docid:
             QMessageBox.warning(self, "Input", "DocId zaroori hai"); return
         try:
-            db.execute(
-                "UPDATE LEDGER SET Clg_Date = ?, Chq_No = ? "
-                "WHERE DocId = ? AND V_SNo = ?",
-                (clg_date, self.txt_chq.text().strip(), docid, sno))
+            chq = self.txt_chq.text().strip()
+            fv.cheque_mark_cleared(
+                docid, sno, clg_date,
+                chq_no=chq if chq else None,
+                chq_date=self.dt_chq.date().toPyDate())
             QMessageBox.information(self, "Saved", "Cheque marked as cleared!")
         except Exception as e:
             QMessageBox.critical(self, "Error", str(e))

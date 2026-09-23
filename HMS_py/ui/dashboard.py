@@ -151,40 +151,39 @@ class DashboardWidget(QWidget):
         try:
             from HMS_py.core import db
 
-            # Reservations today
+            # Reservations today (live schema: Booking, ResStatus)
             try:
                 rows = db.query(
-                    "SELECT COUNT(*) FROM Reservation "
+                    "SELECT COUNT(*) FROM Booking "
                     "WHERE CAST(VDate AS DATE) = CAST(GETDATE() AS DATE)")
                 self.card_reservations.set_value(str(rows[0][0] if rows else 0))
             except Exception:
                 self.card_reservations.set_value("N/A")
 
-            # Check-ins today
+            # Check-ins today (RoomOcc: Type='I' = in-house, ChkInDate)
             try:
                 rows = db.query(
-                    "SELECT COUNT(*) FROM GuestFolio "
-                    "WHERE CAST(Arrival AS DATE) = CAST(GETDATE() AS DATE) "
-                    "AND Status = 'I'")
+                    "SELECT COUNT(*) FROM RoomOcc "
+                    "WHERE CAST(ChkInDate AS DATE) = CAST(GETDATE() AS DATE) "
+                    "AND Type = 'I'")
                 self.card_checkins.set_value(str(rows[0][0] if rows else 0))
             except Exception:
                 self.card_checkins.set_value("N/A")
 
-            # Check-outs today
+            # Check-outs today (GuestFolio.DepDate = departure)
             try:
                 rows = db.query(
                     "SELECT COUNT(*) FROM GuestFolio "
-                    "WHERE CAST(CheckOutDate AS DATE) = CAST(GETDATE() AS DATE) "
-                    "AND Status = 'O'")
+                    "WHERE CAST(DepDate AS DATE) = CAST(GETDATE() AS DATE)")
                 self.card_checkouts.set_value(str(rows[0][0] if rows else 0))
             except Exception:
                 self.card_checkouts.set_value("N/A")
 
-            # Room status counts
+            # Room status counts (RoomOcc.Type, not Status)
             try:
                 rows = db.query(
-                    "SELECT Status, COUNT(*) FROM RoomOcc "
-                    "GROUP BY Status")
+                    "SELECT Type, COUNT(*) FROM RoomOcc "
+                    "GROUP BY Type")
                 occ_map = {}
                 for r in rows:
                     occ_map[str(r[0] or "")] = r[1]
@@ -194,7 +193,7 @@ class DashboardWidget(QWidget):
                 self.card_occupied.set_value("N/A")
 
             try:
-                rows = db.query("SELECT COUNT(*) FROM RoomMaster")
+                rows = db.query("SELECT COUNT(*) FROM RoomMast")
                 total = rows[0][0] if rows else 0
                 try:
                     occ = int(self.card_occupied.value_lbl.text() or 0)
@@ -204,32 +203,32 @@ class DashboardWidget(QWidget):
             except Exception:
                 self.card_available.set_value("N/A")
 
-            # Dirty rooms
+            # Dirty rooms (RoomMast.RoomStat='D')
             try:
                 rows = db.query(
-                    "SELECT COUNT(*) FROM RoomOcc WHERE Status = 'D'")
+                    "SELECT COUNT(*) FROM RoomMast WHERE RoomStat = 'D'")
                 self.card_dirty.set_value(str(rows[0][0] if rows else 0))
             except Exception:
                 self.card_dirty.set_value("N/A")
 
-            # Today's revenue
+            # Today's revenue (PayCharge.AmtDr - live cols)
             try:
                 rows = db.query(
-                    "SELECT ISNULL(SUM(Amount), 0) FROM PayCharge "
-                    "WHERE VType NOT IN ('HPOST') "
-                    "AND CAST(VDate AS DATE) = CAST(GETDATE() AS DATE)")
+                    "SELECT ISNULL(SUM(AmtDr - AmtCr), 0) FROM PayCharge "
+                    "WHERE Vtype NOT IN ('HPOST') "
+                    "AND CAST(Vdate AS DATE) = CAST(GETDATE() AS DATE)")
                 val = rows[0][0] if rows else 0
-                self.card_revenue.set_value(f"\u20B9{val:,.0f}")
+                self.card_revenue.set_value(f"₹{val:,.0f}")
             except Exception:
                 self.card_revenue.set_value("N/A")
 
-            # Pending payments
+            # Pending payments (AmtDr > AmtCr)
             try:
                 rows = db.query(
-                    "SELECT ISNULL(SUM(Dr - Cr), 0) FROM PayCharge "
-                    "WHERE Dr > Cr")
+                    "SELECT ISNULL(SUM(AmtDr - AmtCr), 0) FROM PayCharge "
+                    "WHERE AmtDr > AmtCr")
                 val = rows[0][0] if rows else 0
-                self.card_pending.set_value(f"\u20B9{val:,.0f}")
+                self.card_pending.set_value(f"₹{val:,.0f}")
             except Exception:
                 self.card_pending.set_value("N/A")
 

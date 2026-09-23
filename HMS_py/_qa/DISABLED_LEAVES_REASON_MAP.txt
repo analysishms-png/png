@@ -1,0 +1,20 @@
+DISABLED LEAVES REASON MAP (2026-09-23)
+reasons: V-flag (menuHelp hidden) | absent (row hi nahi) | missing-opener (form port pending)
+========================================================================
+
+## AMIR (full_access=False)
+
+  TOTAL AMIR: {}
+
+## admin (full_access=False)
+
+### House Keeping
+  [missing-opener ] LAUNDRY -> Laundry Memo
+  [missing-opener ] LAUNDRY -> Memo Reprint
+
+  TOTAL admin: {'missing-opener': 2}
+
+========================================================================
+SUMMARY
+  AMIR: V-flag=0 absent=0 missing-opener=0
+  admin: V-flag=0 absent=0 missing-opener=2
