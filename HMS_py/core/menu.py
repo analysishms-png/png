@@ -140,10 +140,6 @@ def menubar_for(module_name: str, username: str = "SA") -> list[dict]:
     allowed = user_allowed_srnos(username)
     groups: list[dict] = []
     seen: dict[str, dict] = {}
-    cur_group = None
-    for r in _group_rows(module_name):
-        gname = module_name  # rows already is module ki
-        break
     # groups = DISTINCT Module_Name is module ki range me
     root = next((r for r in roots() if r["name"] == module_name), None)
     if root is None:

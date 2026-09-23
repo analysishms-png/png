@@ -101,7 +101,7 @@ class ModernWindow(QMainWindow):
 
     def add_section(self, title: str) -> QGroupBox:
         """Add a titled section group to the content area."""
-        from PyQt6.QtWidgets import QGroupBox, QFormLayout
+        from PyQt6.QtWidgets import QGroupBox
         grp = QGroupBox(title)
         grp_lay = QFormLayout(grp)
         grp_lay.setContentsMargins(16, 20, 16, 12)
@@ -111,7 +111,7 @@ class ModernWindow(QMainWindow):
 
     def add_table(self, headers: list, data: list = None) -> 'QTableWidget':
         """Add a styled table to the content area."""
-        from PyQt6.QtWidgets import QTableWidget, QHeaderView
+        from PyQt6.QtWidgets import QTableWidget
         from PyQt6.QtGui import QColor
         table = QTableWidget()
         table.setColumnCount(len(headers))

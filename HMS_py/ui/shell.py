@@ -244,115 +244,115 @@ class DbSettingsDialog(QDialog):
 
 
 # ---------------------------------------------------------------- login
+# VB6 frmCompany colors (BGR decoded):
+#   &HCEE0C2& -> #C2E0CE mint bg | &H80& -> #800000 maroon labels
+#   &HC00000& -> #0000C0 navy branding | &HC000& -> #00C000 green caption
+#   &HFFC0FF& -> #FFC0FF pink frame   | &HC0FFFF& -> #FFFFC0 pale-yellow buttons
+_VB6_DIALOG_QSS = """
+    QDialog { background: #c2e0ce; }
+    QLabel { background: transparent; font-family: 'Arial'; }
+    QLineEdit {
+        background: #ffffff; color: #000000;
+        font-family: 'Arial'; font-size: 11pt;
+        border: 2px inset; border-color: #808080 #ffffff #ffffff #808080;
+        padding: 3px 6px;
+    }
+    QPushButton {
+        background: #ffffc0; color: #000000;
+        font-family: 'Arial'; font-size: 10pt; font-weight: bold;
+        border: 2px outset; border-color: #ffffff #808080 #808080 #ffffff;
+        padding: 4px 18px;
+    }
+    QPushButton:pressed { border-style: inset; }
+"""
+
+
 class LoginDialog(QDialog):
-    """Modern login dialog - professional glass card style."""
+    """VB6 'User Information' style login (frmCompany/frmPassword):
+    mint bg, maroon labels, sunken white fields, pale-yellow bevel
+    buttons (&Accept / E&xit)."""
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("HMS Login")
-        self.setFixedSize(*WindowSize.LOGIN)
+        self.setWindowTitle("User Information")
+        self.setFixedSize(390, 310)
         self.user = ""
 
-        from HMS_py.ui.design import DS
-        from HMS_py.ui.theme import palette
-
-        p = palette()
-        self.setStyleSheet(f"background: {p['bg']};")
+        self.setStyleSheet(_VB6_DIALOG_QSS)
 
         root = QVBoxLayout(self)
-        root.setContentsMargins(0, 0, 0, 0)
-        root.setSpacing(0)
+        root.setContentsMargins(24, 16, 24, 12)
+        root.setSpacing(9)
 
-        # Header with app branding
-        header = QWidget()
-        header.setFixedHeight(100)
-        header.setStyleSheet(f"background: transparent;")
-        hl = QVBoxLayout(header)
-        hl.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        hl.setContentsMargins(0, 20, 0, 0)
-        
-        app_name = QLabel("HMS")
-        app_name.setFont(QFont("Segoe UI", 28, QFont.Weight.Bold))
-        app_name.setStyleSheet(f"color: {p['accent']}; background: transparent;")
-        app_name.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        hl.addWidget(app_name)
-        
-        subtitle = QLabel("Hotel Management System")
-        subtitle.setFont(QFont("Segoe UI", 10))
-        subtitle.setStyleSheet(f"color: {p['text_dim']}; background: transparent; margin-top: -8px;")
-        subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        hl.addWidget(subtitle)
-        
-        root.addWidget(header)
+        # Branding (VB6: navy bold Arial)
+        title = QLabel("HMS - Hotel Management System")
+        title.setFont(QFont("Arial", 13, QFont.Weight.Bold))
+        title.setStyleSheet("color: #0000c0;")
+        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        root.addWidget(title)
 
-        # Card body using design system
-        card = DS.make_card_v2("", elevated=True)
-        card.setFixedWidth(380)
-        lay = card.layout()
-        lay.setContentsMargins(32, 24, 32, 24)
-        lay.setSpacing(Spacing.MD)
+        sub = QLabel("User Login")
+        sub.setFont(QFont("Arial", 10, QFont.Weight.Bold))
+        sub.setStyleSheet("color: #008000;")
+        sub.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        root.addWidget(sub)
+        root.addSpacing(2)
 
-        # Title
-        lbl_title = QLabel("Sign in to your account")
-        lbl_title.setFont(QFont("Segoe UI", 13, QFont.Weight.Medium))
-        lbl_title.setStyleSheet(f"color: {p['text']}; background: transparent;")
-        lbl_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        lay.addWidget(lbl_title)
+        form = QFormLayout()
+        form.setSpacing(8)
 
-        # User field
         lbl_u = QLabel("User Name")
-        lbl_u.setFont(QFont("Segoe UI", 10, QFont.Weight.Medium))
-        lbl_u.setStyleSheet(f"color: {p['text']}; background: transparent; margin-bottom: 4px;")
-        lay.addWidget(lbl_u)
-        
-        self.txtUser = DS.make_line_edit(placeholder="Enter username...", min_width=320)
-        lay.addWidget(self.txtUser)
+        lbl_u.setFont(QFont("Arial", 11, QFont.Weight.Bold))
+        lbl_u.setStyleSheet("color: #800000;")
+        self.txtUser = QLineEdit()
+        self.txtUser.setPlaceholderText("Enter username...")
+        form.addRow(lbl_u, self.txtUser)
 
-        # Password field
         lbl_p = QLabel("Password")
-        lbl_p.setFont(QFont("Segoe UI", 10, QFont.Weight.Medium))
-        lbl_p.setStyleSheet(f"color: {p['text']}; background: transparent; margin-top: 8px; margin-bottom: 4px;")
-        lay.addWidget(lbl_p)
-        
-        self.txtPass = DS.make_line_edit(placeholder="Enter password...", min_width=320)
+        lbl_p.setFont(QFont("Arial", 11, QFont.Weight.Bold))
+        lbl_p.setStyleSheet("color: #800000;")
+        self.txtPass = QLineEdit()
+        self.txtPass.setPlaceholderText("Enter password...")
         self.txtPass.setEchoMode(QLineEdit.EchoMode.Password)
-        lay.addWidget(self.txtPass)
+        form.addRow(lbl_p, self.txtPass)
+        root.addLayout(form)
 
-        lay.addSpacing(Spacing.SM)
-
-        # Buttons using design system
-        self.btnLogin = DS.styled_button("Sign In", role="primary", tooltip="Sign in to HMS (Enter)")
-        self.btnLogin.setFixedHeight(Size.BUTTON_H_LG)
-        self.btnLogin.setMinimumWidth(320)
-        lay.addWidget(self.btnLogin)
-
-        self.btnUnLoad = DS.styled_button("Exit", role="default", tooltip="Close application")
-        self.btnUnLoad.setFixedHeight(Size.BUTTON_H)
-        self.btnUnLoad.setMinimumWidth(320)
-        lay.addWidget(self.btnUnLoad)
-
-        # Message label
         self.lblMsg = QLabel("")
         self.lblMsg.setWordWrap(True)
         self.lblMsg.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.lblMsg.setStyleSheet(f"color: {p['danger']}; font-weight: 600; font-size: {Font.SM}px; background: transparent; min-height: 20px;")
-        lay.addWidget(self.lblMsg)
+        self.lblMsg.setStyleSheet(
+            "color: #800000; font-weight: bold; min-height: 18px;")
+        root.addWidget(self.lblMsg)
 
-        root.addWidget(card, alignment=Qt.AlignmentFlag.AlignHCenter)
+        btns = QHBoxLayout()
+        btns.setSpacing(10)
+        self.btnLogin = QPushButton("&Accept")
+        self.btnLogin.setToolTip("Sign in to HMS (Enter)")
+        self.btnLogin.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.btnUnLoad = QPushButton("E&xit")
+        self.btnUnLoad.setToolTip("Close application")
+        btns.addStretch()
+        btns.addWidget(self.btnLogin)
+        btns.addWidget(self.btnUnLoad)
+        btns.addStretch()
+        root.addLayout(btns)
         root.addStretch()
 
-        # DB status + settings button
         self.lblDb = QLabel("")
-        self.lblDb.setFont(QFont("Segoe UI", 9))
-        self.lblDb.setStyleSheet(f"color: {p['text_dim']}; background: transparent;")
+        self.lblDb.setFont(QFont("Arial", 8))
+        self.lblDb.setStyleSheet("color: #0000c0;")
         self.lblDb.setAlignment(Qt.AlignmentFlag.AlignCenter)
         root.addWidget(self.lblDb)
 
-        self.btnDb = DS.styled_button("Database Settings", role="default", tooltip="Configure database connection")
-        self.btnDb.setFixedHeight(Size.BUTTON_H_SM)
+        self.btnDb = QPushButton("Database Settings")
+        self.btnDb.setFixedHeight(22)
+        self.btnDb.setStyleSheet(
+            "QPushButton { background: #c2e0ce; color: #0000c0;"
+            " border: none; font-size: 8pt; font-weight: normal;"
+            " text-decoration: underline; padding: 1px 6px; }"
+            "QPushButton:hover { color: #800000; }")
         self.btnDb.setCursor(Qt.CursorShape.PointingHandCursor)
         root.addWidget(self.btnDb, alignment=Qt.AlignmentFlag.AlignHCenter)
-        root.addSpacing(Spacing.LG)
 
         self.btnLogin.clicked.connect(self._do_login)
         self.btnUnLoad.clicked.connect(self.reject)
@@ -395,76 +395,87 @@ class LoginDialog(QDialog):
 
 # ------------------------------------------------------------- company
 class CompanyDialog(QDialog):
-    """Modern company selection dialog - professional style."""
+    """VB6 frmCompany 'User Information' style: mint bg, pink
+    'Company Information' frame (green caption), gray VB6 grid,
+    pale-yellow bevel buttons (&Accept / E&xit / St&ructure Update)."""
 
     def __init__(self, user: str, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Select Company")
-        self.setFixedSize(*WindowSize.COMPANY)
+        self.setWindowTitle("User Information")
+        self.setFixedSize(640, 470)
         self.user = user
         self.selected = None
 
-        from HMS_py.ui.design import DS
-        from HMS_py.ui.theme import palette
-
-        p = palette()
-        self.setStyleSheet(f"background: {p['bg']};")
+        self.setStyleSheet(_VB6_DIALOG_QSS + """
+            QTableWidget {
+                background: #ffffff; color: #000000;
+                gridline-color: #808080;
+                font-family: 'Arial'; font-size: 10pt;
+            }
+            QTableWidget::item:selected { background: #000080; color: #ffffff; }
+            QHeaderView::section {
+                background: #d4d0c8; color: #000000;
+                border: 1px solid #808080; font-weight: bold; padding: 3px;
+            }
+        """)
 
         root = QVBoxLayout(self)
-        root.setContentsMargins(0, 0, 0, 0)
-        root.setSpacing(0)
+        root.setContentsMargins(20, 14, 20, 12)
+        root.setSpacing(10)
 
-        # Header
-        header = QWidget()
-        header.setFixedHeight(80)
-        header.setStyleSheet(f"background: transparent;")
-        hl = QVBoxLayout(header)
-        hl.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        hl.setContentsMargins(0, 16, 0, 0)
-        
-        lbl = QLabel("Select Company")
-        lbl.setFont(QFont("Segoe UI", 18, QFont.Weight.Bold))
-        lbl.setStyleSheet(f"color: {p['accent']}; background: transparent;")
-        lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        hl.addWidget(lbl)
-        
-        subtitle = QLabel(f"Logged in as: {user}")
-        subtitle.setFont(QFont("Segoe UI", 9))
-        subtitle.setStyleSheet(f"color: {p['text_dim']}; background: transparent; margin-top: -4px;")
-        subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        hl.addWidget(subtitle)
-        
-        root.addWidget(header)
+        title = QLabel("HMS - Hotel Management System")
+        title.setFont(QFont("Arial", 13, QFont.Weight.Bold))
+        title.setStyleSheet("color: #0000c0;")
+        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        root.addWidget(title)
 
-        # Card body using design system
-        card = DS.make_card_v2("", elevated=True)
-        lay = card.layout()
-        lay.setContentsMargins(24, 16, 24, 20)
-        lay.setSpacing(Spacing.MD)
+        sub = QLabel(f"Logged in as: {user}")
+        sub.setFont(QFont("Arial", 9, QFont.Weight.Bold))
+        sub.setStyleSheet("color: #800000;")
+        sub.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        root.addWidget(sub)
 
-        # Table with design system
+        # VB6: pink 'Company Information' frame, green caption
+        frame = QFrame()
+        frame.setStyleSheet(
+            "QFrame { background: #ffc0ff; border: 1px solid #808080; }")
+        flay = QVBoxLayout(frame)
+        flay.setContentsMargins(10, 6, 10, 10)
+        flay.setSpacing(8)
+
+        cap = QLabel("Company Information")
+        cap.setFont(QFont("Arial", 11, QFont.Weight.Bold))
+        cap.setStyleSheet("color: #00c000; border: none;")
+        flay.addWidget(cap)
+
         self.tbl = QTableWidget(0, 3)
-        DS.setup_table(self.tbl, ["Company Name", "Short Name", "Current Year"])
-        self.tbl.setMinimumHeight(160)
+        self.tbl.setHorizontalHeaderLabels(
+            ["Company Name", "Short Name", "Current Year"])
+        self.tbl.verticalHeader().setVisible(False)
+        self.tbl.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        self.tbl.setSelectionMode(QTableWidget.SelectionMode.SingleSelection)
+        self.tbl.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        self.tbl.setMinimumHeight(180)
         self.tbl.cellDoubleClicked.connect(lambda *_: self._do_login())
-        lay.addWidget(self.tbl)
+        flay.addWidget(self.tbl)
+        root.addWidget(frame, stretch=1)
 
-        # Buttons using design system
-        btn_lay = QHBoxLayout()
-        btn_lay.setSpacing(Spacing.SM)
-        self.btnLogin = DS.styled_button("Login", role="primary", tooltip="Select company and continue")
-        self.btnLogin.setFixedHeight(Size.BUTTON_H_LG)
-        self.btnUnLoad = DS.styled_button("Exit", role="default", tooltip="Cancel and return to login")
-        self.btnUnLoad.setFixedHeight(Size.BUTTON_H)
-        self.btnDbUpd = DS.styled_button("DB Update", role="default", tooltip="Update database schema")
-        self.btnDbUpd.setFixedHeight(Size.BUTTON_H)
-        btn_lay.addWidget(self.btnLogin)
-        btn_lay.addWidget(self.btnUnLoad)
-        btn_lay.addWidget(self.btnDbUpd)
-        lay.addLayout(btn_lay)
-
-        root.addWidget(card)
-        root.addSpacing(Spacing.LG)
+        # VB6 buttons: &Accept / E&xit / St&ructure Update
+        btns = QHBoxLayout()
+        btns.setSpacing(10)
+        self.btnLogin = QPushButton("&Accept")
+        self.btnLogin.setToolTip("Select company and continue")
+        self.btnLogin.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.btnUnLoad = QPushButton("E&xit")
+        self.btnUnLoad.setToolTip("Cancel and return to login")
+        self.btnDbUpd = QPushButton("St&ructure Update")
+        self.btnDbUpd.setToolTip("Update database schema (VB6: Structure Update)")
+        btns.addStretch()
+        btns.addWidget(self.btnLogin)
+        btns.addWidget(self.btnUnLoad)
+        btns.addWidget(self.btnDbUpd)
+        btns.addStretch()
+        root.addLayout(btns)
 
         self.btnLogin.clicked.connect(self._do_login)
         self.btnUnLoad.clicked.connect(self.reject)
@@ -479,7 +490,6 @@ class CompanyDialog(QDialog):
                                      rec["year"])):
                 it = QTableWidgetItem(str(val))
                 it.setFlags(it.flags() & ~Qt.ItemFlag.ItemIsEditable)
-                it.setForeground(QColor(palette()["text"]))
                 self.tbl.setItem(r, c, it)
         if rows:
             self.tbl.selectRow(0)

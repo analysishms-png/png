@@ -43,6 +43,23 @@ _STATUS_EDITABLE = (
     ("neutral", "Neutral (Maintenance)"),
 )
 
+# VB6 sidebar gradient tokens (teal module buttons) — hover/checked/
+# on-sidebar-text derived hote hain (theme._resolve me).
+_SIDEBAR_EDITABLE = (
+    ("sidebar_top", "Gradient top"),
+    ("sidebar_bottom", "Gradient bottom"),
+    ("sidebar_text", "Button text"),
+    ("sidebar_border", "Button border"),
+)
+
+# VB6 live-app teal ("Reset to VB6 teal" isko tokens me daalta hai)
+_VB6_SIDEBAR = {
+    "sidebar_top": "#2b8c9d",
+    "sidebar_bottom": "#0d4f60",
+    "sidebar_text": "#ffffff",
+    "sidebar_border": "#0a3d4a",
+}
+
 
 # ============================================================ aurora
 class AuroraCanvas(QWidget):
@@ -76,22 +93,39 @@ class AuroraCanvas(QWidget):
             pm.fill(QColor(t["bg"]))
             p = QPainter(pm)
             p.setRenderHint(QPainter.RenderHint.Antialiasing)
-            rmax = max(w, h)
-            colors = (t["blob1"], t["blob2"], t["blob3"], t["blob4"],
-                      t["blob1"])
-            base_alpha = 95 if t["mode"] == "dark" else 130
-            for (fx, fy, fr), col in zip(self._SPOTS, colors):
-                cx, cy, r = fx * w, fy * h, fr * rmax
-                g = QRadialGradient(cx, cy, r)
-                c0 = QColor(col)
-                c0.setAlpha(base_alpha)
-                c1 = QColor(col)
-                c1.setAlpha(0)
-                g.setColorAt(0.0, c0)
-                g.setColorAt(1.0, c1)
-                p.setBrush(QBrush(g))
-                p.setPen(Qt.PenStyle.NoPen)
-                p.drawEllipse(QPointF(cx, cy), r, r)
+            
+            bg_style = t.get("bg_style", "aurora")
+            if bg_style == "solid":
+                pass
+            elif bg_style == "image" and t.get("bg_image_path"):
+                import os
+                if os.path.exists(t["bg_image_path"]):
+                    img = QPixmap(t["bg_image_path"])
+                    if not img.isNull():
+                        img = img.scaled(self.size(), Qt.AspectRatioMode.KeepAspectRatioByExpanding, Qt.TransformationMode.SmoothTransformation)
+                        x = (self.width() - img.width()) // 2
+                        y = (self.height() - img.height()) // 2
+                        p.drawPixmap(x, y, img)
+                        
+                        overlay_color = QColor("#000000" if t.get("mode") == "dark" else "#ffffff")
+                        overlay_color.setAlpha(120 if t.get("mode") == "dark" else 150)
+                        p.fillRect(pm.rect(), overlay_color)
+            else:
+                rmax = max(w, h)
+                colors = (t["blob1"], t["blob2"], t["blob3"], t["blob4"], t["blob1"])
+                base_alpha = 95 if t.get("mode", "light") == "dark" else 130
+                for (fx, fy, fr), col in zip(self._SPOTS, colors):
+                    cx, cy, r = fx * w, fy * h, fr * rmax
+                    g = QRadialGradient(cx, cy, r)
+                    c0 = QColor(col)
+                    c0.setAlpha(base_alpha)
+                    c1 = QColor(col)
+                    c1.setAlpha(0)
+                    g.setColorAt(0.0, c0)
+                    g.setColorAt(1.0, c1)
+                    p.setBrush(QBrush(g))
+                    p.setPen(Qt.PenStyle.NoPen)
+                    p.drawEllipse(QPointF(cx, cy), r, r)
             p.end()
             self._cache = pm
         painter = QPainter(self)
@@ -146,7 +180,9 @@ class AppearanceDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Appearance — Colors & Glass")
-        self.resize(620, 680)
+        # min width: Save/Cancel/Reset row + status swatches overflow < 660
+        self.resize(680, 680)
+        self.setMinimumWidth(660)
         self.setModal(True)
 
         self._start = {**{k: v for k, v in DEFAULTS.items()},
@@ -187,6 +223,20 @@ class AppearanceDialog(QDialog):
         mrow.addWidget(self.cmbMode)
         mrow.addStretch()
         root.addLayout(mrow)
+
+        # ---- background style
+        bg_row = QHBoxLayout()
+        bg_row.addWidget(QLabel("Background:"))
+        self.cmbBg = QComboBox()
+        self.cmbBg.addItems(["aurora", "solid", "image"])
+        self.cmbBg.setMinimumHeight(32)
+        bg_row.addWidget(self.cmbBg)
+        
+        self.btnBgImage = QPushButton("Browse...")
+        self.btnBgImage.setVisible(self.cmbBg.currentText() == "image")
+        bg_row.addWidget(self.btnBgImage)
+        bg_row.addStretch()
+        root.addLayout(bg_row)
 
         # ---- color grid
         grid_box = QFrame()
@@ -230,6 +280,29 @@ class AppearanceDialog(QDialog):
         stat_lay.addStretch()
         root.addWidget(stat_box)
 
+        # ---- sidebar (VB6 teal gradient) — user-customizable
+        side_box = QFrame()
+        side_box.setProperty("glassCard", True)
+        side_lay = QHBoxLayout(side_box)
+        side_lay.setContentsMargins(14, 10, 14, 10)
+        side_lay.setSpacing(10)
+        side_lbl = QLabel("Sidebar:\n(teal gradient)")
+        side_lbl.setProperty("glassSub", True)
+        side_lay.addWidget(side_lbl)
+        for key, label in _SIDEBAR_EDITABLE:
+            sw = SwatchButton(self._tokens.get(key, "#000000"),
+                              self._make_color_cb(key))
+            sw.setToolTip(f"Sidebar {label}")
+            self._swatches[key] = sw
+            side_lay.addWidget(sw)
+        self.btnVb6Teal = QPushButton("VB6 teal")
+        self.btnVb6Teal.setToolTip(
+            "Sidebar colors live VB6 app jaise teal gradient pe wapas")
+        self.btnVb6Teal.setCursor(Qt.CursorShape.PointingHandCursor)
+        side_lay.addWidget(self.btnVb6Teal)
+        side_lay.addStretch()
+        root.addWidget(side_box)
+
         # ---- sliders
         slab = QFrame()
         slab.setProperty("glassCard", True)
@@ -272,7 +345,10 @@ class AppearanceDialog(QDialog):
         # ---- wiring
         self.btnApplyPreset.clicked.connect(self._apply_preset)
         self.btnResetHues.clicked.connect(self._reset_status_hues)
+        self.btnVb6Teal.clicked.connect(self._reset_vb6_teal)
         self.cmbMode.currentTextChanged.connect(self._set_mode)
+        self.cmbBg.currentTextChanged.connect(self._set_bg_style)
+        self.btnBgImage.clicked.connect(self._pick_bg_image)
         self.sldOpacity.valueChanged.connect(self._collect)
         self.sldRadius.valueChanged.connect(self._collect)
         self.btnSave.clicked.connect(self._save)
@@ -282,6 +358,19 @@ class AppearanceDialog(QDialog):
         self._sync_ui()
 
     # ------------------------------------------------------------ utils
+    def _set_bg_style(self, style: str):
+        self._tokens["bg_style"] = style
+        self.btnBgImage.setVisible(style == "image")
+        apply_tokens(self._app(), self._tokens)
+        self.appearanceChanged.emit()
+
+    def _pick_bg_image(self):
+        from PyQt6.QtWidgets import QFileDialog
+        path, _ = QFileDialog.getOpenFileName(self, "Select Background Image", "", "Images (*.png *.jpg *.jpeg *.bmp)")
+        if path:
+            self._tokens["bg_image_path"] = path
+            apply_tokens(self._app(), self._tokens)
+            self.appearanceChanged.emit()
     def _hook_slider(self, sld, lbl, fmt):
         def upd(v):
             lbl.setText(fmt(v))
@@ -309,6 +398,8 @@ class AppearanceDialog(QDialog):
             sw.set_color(self._tokens.get(key) or sdefs.get(key)
                          or "#000000")
         self.cmbMode.setCurrentText(self._tokens.get("mode", "light"))
+        self.cmbBg.setCurrentText(self._tokens.get("bg_style", "aurora"))
+        self.btnBgImage.setVisible(self.cmbBg.currentText() == "image")
         self.sldOpacity.blockSignals(True)
         self.sldOpacity.setValue(int(float(self._tokens.get(
             "glass_opacity", "0.62")) * 100))
@@ -334,6 +425,13 @@ class AppearanceDialog(QDialog):
         for k in ("success", "warning", "danger", "neutral"):
             self._tokens.pop(k, None)
         self._tokens = self._prune_default_status(self._tokens)
+        apply_tokens(self._app(), self._tokens)
+        self._sync_ui()
+        self.appearanceChanged.emit()
+
+    def _reset_vb6_teal(self):
+        """Sidebar colors -> live VB6 app teal gradient."""
+        self._tokens.update(_VB6_SIDEBAR)
         apply_tokens(self._app(), self._tokens)
         self._sync_ui()
         self.appearanceChanged.emit()

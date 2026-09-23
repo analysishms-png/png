@@ -46,6 +46,13 @@ DEFAULTS: dict[str, str] = {
     "blob4": "#fbcfe8",
     "radius": "10",
     "glass_opacity": "0.62",
+    "bg_style": "aurora",
+    "bg_image_path": "",
+    # VB6 sidebar gradient (live VB6 app ke teal buttons)
+    "sidebar_top": "#2b8c9d",
+    "sidebar_bottom": "#0d4f60",
+    "sidebar_text": "#ffffff",
+    "sidebar_border": "#0a3d4a",
 }
 
 # ============================================================ presets
@@ -159,7 +166,8 @@ def _resolve(tokens: dict[str, str]) -> dict[str, str]:
 
     for k in ("accent", "accent_hover", "bg", "surface_solid", "text",
               "text_dim", "blob1", "blob2", "blob3", "blob4",
-              "header_grad_top", "header_grad_bottom"):
+              "header_grad_top", "header_grad_bottom", "bg_style", "bg_image_path",
+              "sidebar_top", "sidebar_bottom", "sidebar_text", "sidebar_border"):
         v = tokens.get(k)
         if v:
             t[k] = v
@@ -206,6 +214,12 @@ def _resolve(tokens: dict[str, str]) -> dict[str, str]:
         t["accent_soft"] = _rgba(t["accent"], 0.12)
 
     t["radius"] = t["radius"]
+    # Sidebar derived colors: hover = top-stop se lighter, checked =
+    # bottom-stop se darker, on_sidebar_text = contrast-safe label.
+    t["sidebar_hover"] = _mix(t["sidebar_top"], "#ffffff", 0.18)
+    t["sidebar_checked"] = _mix(t["sidebar_bottom"], "#000000", 0.30)
+    t["on_sidebar_text"] = ("#0f172a" if not _is_dark(t["sidebar_bottom"])
+                            else "#ffffff")
     # WCAG fix: light accent pe white text 2:1 tak gir jaata hai —
     # accent luminance se button/selection text color derive karo.
     t["on_accent"] = ("#0f172a" if not _is_dark(t["accent"])
@@ -509,7 +523,12 @@ QPushButton#themeToggle:checked {{
 
 # ============================================================ palette
 def palette() -> dict[str, str]:
-    """Active token set (copy)."""
+    """Active token set (copy). Derived keys (sidebar_hover/checked,
+    on_sidebar_text, on_accent, status colors) guaranteed — agar
+    apply_theme abhi tak na chala ho to abhi resolve karo."""
+    global _active
+    if "sidebar_hover" not in _active or "on_accent" not in _active:
+        _active = _resolve(_active)
     return dict(_active)
 
 
@@ -628,7 +647,9 @@ def save_tokens(tokens: dict[str, str]) -> None:
     keep = ("mode", "accent", "accent_hover", "bg", "surface_solid", "text",
             "text_dim", "blob1", "blob2", "blob3", "blob4",
             "header_grad_top", "header_grad_bottom", "glass_opacity",
-            "radius", "success", "warning", "danger", "neutral")
+            "radius", "success", "warning", "danger", "neutral",
+            "sidebar_top", "sidebar_bottom", "sidebar_text",
+            "sidebar_border", "bg_style", "bg_image_path")
     s.setValue("tokens", json.dumps({k: tokens.get(k, "") for k in keep}))
     s.sync()
 
