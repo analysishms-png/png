@@ -120,8 +120,9 @@ from HMS_py.core import auth, company, menu
 class DbSettingsDialog(QDialog):
     """Manual DB config: Server + Database -> Analysis.ini key 1/6.
 
-    Save ke baad config [HMS] section me likhi jaati hai (VB6 wahi
-    Analysis.ini use karta hai) aur connection test hota hai."""
+    VB6 gray-dialog style: sunken fields, bevel buttons (VB6 'Database
+    Update' jaisa). Save ke baad config [HMS] section me likhi jaati hai
+    (VB6 wahi Analysis.ini use karta hai) aur connection test hota hai."""
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -131,12 +132,19 @@ class DbSettingsDialog(QDialog):
         from HMS_py.core.db import load_config
         cfg = load_config()
 
+        self.setStyleSheet(_VB6_DIALOG_QSS + """
+            QDialog { background: #d4d0c8; }
+            QLabel { color: #000000; font-size: 10pt; font-weight: bold;
+                     background: transparent; }
+        """)
+
         root = QVBoxLayout(self)
-        root.setContentsMargins(20, 20, 20, 20)
-        root.setSpacing(14)
+        root.setContentsMargins(20, 16, 20, 14)
+        root.setSpacing(12)
 
         title = QLabel("Database Connection")
-        title.setFont(QFont("Segoe UI", 14, QFont.Weight.Bold))
+        title.setFont(QFont("Arial", 13, QFont.Weight.Bold))
+        title.setStyleSheet("color: #000080; background: transparent;")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         root.addWidget(title)
 
@@ -144,45 +152,37 @@ class DbSettingsDialog(QDialog):
             "SQL Server ke liye server name aur database naam yahan daalo.\n"
             "Save karne par Analysis.ini update hogi aur login fir isi DB se hoga.")
         note.setWordWrap(True)
-        note.setProperty("glassSub", True)
+        note.setStyleSheet("color: #800000; font-weight: normal; font-size: 9pt; background: transparent;")
         note.setAlignment(Qt.AlignmentFlag.AlignCenter)
         root.addWidget(note)
 
         form = QFormLayout()
-        form.setSpacing(12)
+        form.setSpacing(10)
 
         lbl_s = QLabel("Server Name")
-        lbl_s.setProperty("glassSub", True)
         self.txtServer = QLineEdit(cfg.get("server", ""))
-        self.txtServer.setMinimumHeight(36)
         self.txtServer.setPlaceholderText("e.g. Localhost or DESKTOP-XYZ\\SQLEXPRESS")
         form.addRow(lbl_s, self.txtServer)
 
         lbl_d = QLabel("Database Name")
-        lbl_d.setProperty("glassSub", True)
         self.txtDatabase = QLineEdit(cfg.get("database", ""))
-        self.txtDatabase.setMinimumHeight(36)
-        self.txtDatabase.setPlaceholderText("e.g. KailashData2526")
+        self.txtDatabase.setPlaceholderText("e.g. Moondata2627")
         form.addRow(lbl_d, self.txtDatabase)
         root.addLayout(form)
 
         self.lblStatus = QLabel("")
         self.lblStatus.setWordWrap(True)
-        self.lblStatus.setProperty("glassSub", True)
+        self.lblStatus.setStyleSheet("color: #000080; font-weight: bold; background: transparent;")
         self.lblStatus.setAlignment(Qt.AlignmentFlag.AlignCenter)
         root.addWidget(self.lblStatus)
 
         btns = QHBoxLayout()
         btns.setSpacing(8)
         self.btnTest = QPushButton("Test")
-        self.btnTest.setFixedHeight(38)
         self.btnTest.setToolTip("Test database connection")
         self.btnSave = QPushButton("Save")
-        self.btnSave.setFixedHeight(38)
-        self.btnSave.setProperty("accent", True)
         self.btnSave.setToolTip("Save database connection settings")
         self.btnCancel = QPushButton("Cancel")
-        self.btnCancel.setFixedHeight(38)
         self.btnCancel.setToolTip("Discard changes and close")
         btns.addWidget(self.btnTest)
         btns.addStretch()
@@ -199,13 +199,18 @@ class DbSettingsDialog(QDialog):
         return {"server": self.txtServer.text().strip(),
                 "database": self.txtDatabase.text().strip()}
 
+    def _status(self, ok: bool, text: str):
+        # VB6 status colors: green ok / dark-red fail (gray dialog pe)
+        self.lblStatus.setStyleSheet(
+            f"color: {'#008000' if ok else '#c00000'}; font-weight: bold;"
+            " background: transparent;")
+        self.lblStatus.setText(text)
+
     def _test(self):
         from HMS_py.core import db
         info = self._connect_info()
         if not info["server"] or not info["database"]:
-            self.lblStatus.setText("Server aur Database dono bharo")
-            self.lblStatus.setStyleSheet(
-                f"color: {palette()['danger']}; font-size: 11px;")
+            self._status(False, "Server aur Database dono bharo")
             return
         try:
             tmp = dict(db.load_config())
@@ -215,32 +220,22 @@ class DbSettingsDialog(QDialog):
             cur.execute("SELECT @@SERVERNAME, DB_NAME()")
             srv, dbn = cur.fetchone()
             cn.close()
-            self.lblStatus.setStyleSheet(
-                f"color: {palette()['success']}; font-size: 11px;")
-            self.lblStatus.setText(f"Connected: {srv} / {dbn}")
+            self._status(True, f"Connected: {srv} / {dbn}")
         except Exception as e:
-            self.lblStatus.setStyleSheet(
-                f"color: {palette()['danger']}; font-size: 11px;")
-            self.lblStatus.setText(f"Fail: {e}")
+            self._status(False, f"Fail: {e}")
 
     def _save(self):
         from HMS_py.core import db
         info = self._connect_info()
         if not info["server"] or not info["database"]:
-            self.lblStatus.setText("Server aur Database dono bharo")
-            self.lblStatus.setStyleSheet(
-                f"color: {palette()['danger']}; font-size: 11px;")
+            self._status(False, "Server aur Database dono bharo")
             return
         try:
             path = db.save_config(server=info["server"], database=info["database"])
-            self.lblStatus.setStyleSheet(
-                f"color: {palette()['success']}; font-size: 11px;")
-            self.lblStatus.setText(f"Saved: {path}")
+            self._status(True, f"Saved: {path}")
             self.accept()
         except Exception as e:
-            self.lblStatus.setStyleSheet(
-                f"color: {palette()['danger']}; font-size: 11px;")
-            self.lblStatus.setText(f"Save fail: {e}")
+            self._status(False, f"Save fail: {e}")
 
 
 # ---------------------------------------------------------------- login
@@ -514,8 +509,10 @@ class CompanyDialog(QDialog):
 
 
 class MainSetupWorkbench(QDialog):
-    """VB6-style Main Setup workbench. It groups the setup masters into
-    categories and opens the actual implemented forms from the registry."""
+    """VB6-style Main Setup workbench (frmCompany ke master-grid jaisa):
+    gray dialog, navy section captions, VB6 bevel buttons per master.
+    Categories setup masters ko group karte hain; click se registry ka
+    real form khulta hai."""
 
     def __init__(self, parent=None, user: str = "SA"):
         super().__init__(parent)
@@ -524,9 +521,26 @@ class MainSetupWorkbench(QDialog):
         self.resize(1100, 700)
         self.setModal(True)
 
+        self.setStyleSheet(_VB6_DIALOG_QSS + """
+            QDialog { background: #d4d0c8; }
+            QLabel { color: #000080; font-size: 10pt; font-weight: bold;
+                     background: transparent; }
+            QPushButton {
+                background: #ffffc0; color: #000000;
+                font-family: 'Arial'; font-size: 9pt; font-weight: bold;
+                border: 2px outset;
+                border-color: #ffffff #808080 #808080 #ffffff;
+                padding: 4px 10px;
+            }
+            QPushButton:hover { background: #ffffe0; }
+            QPushButton:pressed { border-style: inset; }
+            QScrollArea { background: #d4d0c8; border: none; }
+        """)
+
         root = QVBoxLayout(self)
         title = QLabel("Main Setup")
-        title.setProperty("glassTitle", True)
+        title.setFont(QFont("Arial", 14, QFont.Weight.Bold))
+        title.setStyleSheet("color: #000080; background: transparent;")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         root.addWidget(title)
 
@@ -571,14 +585,22 @@ class MainSetupWorkbench(QDialog):
         ]
 
         body = QVBoxLayout()
+        body.setSpacing(10)
         for name, items in groups:
             group = QWidget(self)
+            group.setStyleSheet("QWidget { background: transparent; }")
             box = QVBoxLayout(group)
+            box.setSpacing(4)
+            # VB6: navy section caption + underline separator
             label = QLabel(name)
-            label.setProperty("glassSub", True)
+            label.setStyleSheet(
+                "color: #000080; font-size: 10pt; font-weight: bold;"
+                " background: transparent;"
+                " border-bottom: 1px solid #808080; padding-bottom: 2px;")
             box.addWidget(label)
 
             grid = QGridLayout()
+            grid.setSpacing(5)
             row = 0
             col = 0
             for item in items:
@@ -586,21 +608,23 @@ class MainSetupWorkbench(QDialog):
                 if opener is None:
                     continue
                 btn = QPushButton(item)
-                btn.setObjectName("vbBtn")
-                btn.setMinimumHeight(32)
+                btn.setMinimumHeight(28)
                 btn.setToolTip(f"Open {item} form")
                 btn.clicked.connect(lambda _, fn=opener: fn(self))
                 grid.addWidget(btn, row, col)
                 col += 1
-                if col >= 4:
+                if col >= 5:
                     col = 0
                     row += 1
             box.addLayout(grid)
             body.addWidget(group)
 
-        scroll = QWidget()
-        scroll.setLayout(body)
-        root.addWidget(scroll)
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        inner = QWidget()
+        inner.setLayout(body)
+        scroll_area.setWidget(inner)
+        root.addWidget(scroll_area, stretch=1)
 
         btns = QHBoxLayout()
         btn_close = QPushButton("Close")
@@ -1775,7 +1799,7 @@ class MainWindow(QMainWindow):
             self.lbl_date.setText(f"{now:%d/%b/%Y}")
 
         if hasattr(self, "clocks"):
-            utc_now = _dt.datetime.utcnow()
+            utc_now = _dt.datetime.now(_dt.timezone.utc).replace(tzinfo=None)
             offsets = {
                 "India": _dt.timedelta(hours=5, minutes=30),
                 "Canada": _dt.timedelta(hours=-4),
