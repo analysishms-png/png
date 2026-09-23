@@ -39,13 +39,16 @@ from PyQt6.QtWidgets import (QApplication, QDialog, QFormLayout, QGridLayout,
                              QTableWidgetItem, QVBoxLayout, QWidget, QFrame,
                              QSizePolicy, QScrollArea)
 from PyQt6.QtCore import Qt, qInstallMessageHandler, QtMsgType, QTimer
-from PyQt6.QtGui import QFont, QShortcut, QKeySequence, QColor
+from PyQt6.QtGui import QFont, QShortcut, QKeySequence, QColor, QPixmap
 
 from HMS_py.ui import theme as _theme
 from HMS_py.ui.theme import (apply_theme, current_theme, palette,
                              toggle_theme)
 from HMS_py.ui.glass import AppearanceDialog, AuroraCanvas
 from HMS_py.ui.design import WindowSize, Size, Spacing, Font
+from HMS_py.ui.front_office_dashboard import FrontOfficeDashboard
+from HMS_py.ui import sidebar_buttons as _sb
+from HMS_py.core import menu_help as _mh
 
 # Theme-aware legacy stylesheet (folio_ui.py import compatibility).
 # Runtime pe current palette se banta hai; _refresh_style() se update karo.
@@ -804,11 +807,42 @@ def _form_registry() -> dict[str, callable]:
         """mdi leaf caption -> reports engine key (exact-match map)."""
         key = _rpmod.menu_caption_map().get(cap) if _rpmod else None
         if not key:
+            key = (_rpmod.VB6_CAPTION_ALIASES.get(cap) if _rpmod else None)
+        if not key:
             return _coming_soon(cap)
 
         def go(w=None):
             _rpt.open_reports(w, report_key=key)
         return go
+
+    def _open_sms_log(w, box: str):
+        """InBox/OutBox: DBSendSMS live log viewer (VB6 MsgCenter)."""
+        try:
+            from HMS_py.core import db as _db
+            if box == "outbox":
+                rows = _db.query("SELECT TOP 200 CONVERT(varchar(19), SentDate, 120) AS dt, MobileNo, Message FROM DBSendSMS WHERE ISNULL(SendTF,'') <> 'Y' ORDER BY SentDate DESC")
+            else:
+                rows = _db.query("SELECT TOP 200 CONVERT(varchar(19), SentDate, 120) AS dt, MobileNo, Message FROM DBSendSMS WHERE SendTF = 'Y' ORDER BY SentDate DESC")
+        except Exception as e:
+            QMessageBox.information(w, "InBox", f"SMS log unavailable: {e}")
+            return
+        dlg = QDialog(w)
+        dlg.setWindowTitle("SMS InBox (Sent)" if box == "inbox" else "SMS OutBox (Pending)")
+        dlg.resize(640, 480)
+        lay = QVBoxLayout(dlg)
+        tw = QTableWidget(len(rows), 3, dlg)
+        tw.setHorizontalHeaderLabels(["Date", "Mobile", "Message"])
+        for r, row in enumerate(rows):
+            for c, val in enumerate(row):
+                tw.setItem(r, c, QTableWidgetItem(str(val or "")))
+        tw.setColumnWidth(0, 130)
+        tw.setColumnWidth(1, 110)
+        tw.horizontalHeader().setStretchLastSection(True)
+        lay.addWidget(tw)
+        btn = QPushButton("Close")
+        btn.clicked.connect(dlg.accept)
+        lay.addWidget(btn)
+        dlg.exec()
 
     # FA cheque-register + interest wrappers (fa_voucher_ui ReportViewer)
     def fv_cheque_cleared(f=None, t=None):
@@ -1273,273 +1307,695 @@ def _form_registry() -> dict[str, callable]:
         # Reports Center (REPORTS_TXT / mdi leaves — read-only engine)
         **({cap: _open_report(cap)
             for cap in (_rpmod.menu_caption_map() if _rpmod else {})}),
+        # ── menuHelp missing-opener wires (VB6 ports; 2026-09-23 audit) ──
+        "Table Master": (lambda w: ptable_ui.open_pos_table(w)) if ptable_ui else _coming_soon("Table Master"),
+        "Member Master": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else _coming_soon("Member Master"),
+        "Member Select Category": (lambda w: hr.open_memcat(w)) if hr else _coming_soon("Member Select Category"),
+        "Purchase Sundry Setting": (lambda w: p2.open_sundry(w)) if p2 else _coming_soon("Purchase Sundry Setting"),
+        "Enviro Inventry": (lambda w: gs.open_enviro(w)) if gs else _coming_soon("Enviro Inventry"),
+        "Auto Settle Card Balance": (lambda w: pm.open_auto_settle_card_balance(w)) if pm else _coming_soon("Auto Settle Card Balance"),
+        "InBox": (lambda w: _open_sms_log(w, "inbox")),
+        "OutBox": (lambda w: _open_sms_log(w, "outbox")),
     }
 
 
 class MainWindow(QMainWindow):
-    """VB6 MDIForm1 jaisa: title '{Company} { Year }', left sidebar
-    (ini key 9), module click se User_Module menubar."""
+    """VB6 MDIForm1 jaisa: centered blue company title, teal sidebar
+    (menuHelp L1 nodes), Hotel.bmp canvas, world-clocks float panel,
+    VB6 status bar. Menubar = menuHelp tree (mh.menubar_for)."""
+
+    # Modules that show the FO Dashboard as their home view
+    _DASHBOARD_MODULES = {"dashboard", "front office"}
+
+    # Modules that auto-open their primary form + load menu (CI keys)
+    _AUTO_OPEN = dict(_sb.AUTO_OPEN)
+
+    # Direct-opener sidebar targets
+    _DIRECT_OPENERS = {
+        "__action_checkin":       "Check In",
+        "__action_checkout":      "Check Out",
+        "__action_room_status":   "Room Status",
+        "__action_guest_profile": "Guest Profile",
+        "__action_folio":         "Folio Log",
+    }
 
     def __init__(self, user: str, comp: dict):
         super().__init__()
         self.user = user
         self.comp = comp
         self.setWindowTitle(f"{comp['name']} {{ {comp['year']} }}")
-        self.resize(1150, 720)
+        self.resize(1400, 800)
         self.registry = _form_registry()
-        self._menus = menu.menubar_for  # shortcut
+        # CI index (first-wins): menuHelp lowercase captions ke liye
+        self._reg_ci = {str(k).strip().lower(): v
+                        for k, v in self.registry.items()}
+        # menuHelp-driven dynamic menu (VB6 MDIForm1 Opt-tree);
+        # menuHelp me na ho to User_Module fallback + gap-merge
+        self._menus = _mh.menubar_for
 
         central = QWidget()
         root = QVBoxLayout(central)
         root.setSpacing(0)
         root.setContentsMargins(0, 0, 0, 0)
 
-        # Aurora glass backdrop (sab layers ke peeche)
+        # Aurora glass backdrop (behind all layers)
         self.aurora = AuroraCanvas(central)
         self.aurora.lower()
 
-        # Top bar with title + theme toggle + appearance
-        topbar = QHBoxLayout()
-        topbar.setContentsMargins(16, 8, 16, 8)
-        self.lblTitle = QLabel(
-            f"  {comp['name']}  {{ {comp['year']} }}")
-        f = QFont("Segoe UI", 14, QFont.Weight.Bold)
-        self.lblTitle.setFont(f)
-        self.lblTitle.setProperty("header", True)
-        topbar.addWidget(self.lblTitle)
-        topbar.addStretch()
+        # ==============================================================
+        # 1. VB6 HEADER: white band, centered blue company title
+        # ==============================================================
+        header = QFrame()
+        header.setStyleSheet("QFrame { background: #ffffff; border: none; }")
+        header_lay = QHBoxLayout(header)
+        header_lay.setContentsMargins(8, 4, 8, 0)
+        self.lblTitle = QLabel(f"{comp['name']} {{ {comp['year']} }}")
+        self.lblTitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.lblTitle.setStyleSheet(
+            "color: #0020c0; font-family: 'Arial'; font-size: 17pt;"
+            "font-weight: bold; background: transparent; border: none;")
+        header_lay.addWidget(self.lblTitle)
+        root.addWidget(header)
 
-        # Theme toggle button
-        self.theme_btn = QPushButton("Light" if current_theme() == "dark"
-                                     else "Dark")
-        self.theme_btn.setCheckable(True)
-        self.theme_btn.setChecked(current_theme() == "dark")
-        self.theme_btn.setFixedWidth(80)
-        self.theme_btn.setFixedHeight(32)
-        self.theme_btn.setObjectName("themeToggle")
-        self.theme_btn.setToolTip("Switch between dark and light mode")
-        self.theme_btn.clicked.connect(self._toggle_theme)
-        topbar.addWidget(self.theme_btn)
-
-        # Appearance dialog button (user-defined colors)
-        self.btnAppearance = QPushButton("🎨 Appearance")
-        self.btnAppearance.setObjectName("themeToggle")
-        self.btnAppearance.setFixedHeight(32)
-        self.btnAppearance.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.btnAppearance.setToolTip("Customize colors and glass intensity")
-        self.btnAppearance.clicked.connect(self._open_appearance)
-        topbar.addWidget(self.btnAppearance)
-        root.addLayout(topbar)
-
+        # ==============================================================
+        # 2. BODY: teal sidebar | workspace (dashboard OR tree canvas)
+        # ==============================================================
         body = QHBoxLayout()
         body.setSpacing(0)
         body.setContentsMargins(0, 0, 0, 0)
 
-        # Modern glass sidebar
-        sidebar = QFrame()
-        sidebar.setProperty("sidebar", True)
-        sidebar.setFixedWidth(220)
-        side_lay = QVBoxLayout(sidebar)
-        side_lay.setContentsMargins(10, 8, 10, 8)
-        side_lay.setSpacing(2)
+        # --- VB6 Sidebar: teal gradient module buttons ---
+        self.sidebar = QFrame()
+        self._sidebar_collapsed = False
+        self.sidebar.setFixedWidth(150)
+        self.sidebar.setStyleSheet("QFrame { background: #ffffff; border: none; }")
+        side_lay = QVBoxLayout(self.sidebar)
+        side_lay.setContentsMargins(0, 6, 0, 0)
+        side_lay.setSpacing(3)
+
+        side_scroll = QScrollArea()
+        side_scroll.setWidgetResizable(True)
+        side_scroll.setStyleSheet("QScrollArea { border: none; background: #ffffff; }")
+        side_scroll_content = QWidget()
+        side_scroll_content.setStyleSheet("background: #ffffff;")
+        self.side_menu_lay = QVBoxLayout(side_scroll_content)
+        self.side_menu_lay.setContentsMargins(1, 1, 1, 1)
+        self.side_menu_lay.setSpacing(1)
 
         self._side_buttons = []
-        for m in menu.sidebar_modules():
-            b = QPushButton(f"  {m['name']}")
-            b.setProperty("sidebar-btn", True)
-            b.setMinimumHeight(38)
-            b.setCheckable(True)
-            b.setAccessibleName(m["name"])
-            b.setAccessibleDescription(f"Module {m['name']}")
-            b.clicked.connect(lambda _, mm=m, bb=b: self._on_module(mm, bb))
-            self._side_buttons.append(b)
-            side_lay.addWidget(b)
-        side_lay.addStretch()
-        body.addWidget(sidebar)
+        self._side_section_labels = []
 
-        self.canvas = QLabel("Select a module from the left sidebar")
+        all_buttons = _sb.build_all_buttons(self.user or "SA")
+
+        # VB6 sidebar order (live VB6 app / Analysis.ini key 9)
+        _vb6_order = ["utility", "finance", "members mgmt", "main setup",
+                      "reservation", "front office", "house keeping",
+                      "inventory", "point of sale", "banquet", "night audit",
+                      "hr/payroll", "extras", "epabx", "messaging"]
+        for _sec, _items in all_buttons.items():
+            if _items and not str(_items[0].get("mod_target", "")).startswith("__action_"):
+                _items.sort(key=lambda it: (
+                    _vb6_order.index(str(it["label"]).strip().lower())
+                    if str(it["label"]).strip().lower() in _vb6_order else 99,
+                    str(it["label"]).strip().lower()))
+
+        _p0 = palette()
+        for sec_title, items in all_buttons.items():
+            sec_lbl = QLabel(sec_title.upper())
+            sec_lbl.setStyleSheet(f"""
+                QLabel {{
+                    background: {_p0['sidebar_bottom']};
+                    color: {_p0['sidebar_hover']};
+                    font-size: 7pt;
+                    font-weight: bold;
+                    letter-spacing: 2px;
+                    padding: 1px 6px;
+                    border: none;
+                }}
+            """)
+            sec_lbl.setFixedHeight(14)
+            self.side_menu_lay.addWidget(sec_lbl)
+            self._side_section_labels.append(sec_lbl)
+
+            for item in items:
+                # VB6 teal gradient button (bold italic, token colors)
+                label_text = item["label"]
+                b = QPushButton(label_text)
+                b.setProperty("sidebar-btn", True)
+                b.setObjectName("vb6SidebarBtn")
+                b.setCheckable(True)
+                b.setCursor(Qt.CursorShape.PointingHandCursor)
+                b.setStyleSheet(self._sidebar_btn_qss())
+                b.setToolTip(label_text)
+                b.setMinimumHeight(40)
+                b.setSizePolicy(QSizePolicy.Policy.Expanding,
+                                QSizePolicy.Policy.Fixed)
+                b.setProperty("mod_target", item["mod_target"])
+                b.setAccessibleName(item["mod_target"])
+
+                if item["mod_target"].startswith("__action_"):
+                    b.clicked.connect(
+                        lambda _, ac=item.get("action", ""): self._handle_dashboard_action(ac))
+                else:
+                    b.clicked.connect(
+                        lambda _, m_name=item["mod_target"], btn=b: self._on_sidebar_click(m_name, btn))
+                self.side_menu_lay.addWidget(b)
+                self._side_buttons.append(b)
+
+        self.side_menu_lay.addStretch()
+        side_scroll.setWidget(side_scroll_content)
+        side_lay.addWidget(side_scroll)
+        body.addWidget(self.sidebar)
+
+        # --- Central Workspace (Dashboard OR Canvas) ---
+        self.central_workspace = QWidget()
+        self.central_ws_lay = QVBoxLayout(self.central_workspace)
+        self.central_ws_lay.setContentsMargins(0, 0, 0, 0)
+        self.central_ws_lay.setSpacing(0)
+
+        # 1. Front Office Dashboard
+        self.fo_dashboard = FrontOfficeDashboard(self.central_workspace, user=self.user)
+        self.fo_dashboard.openModule.connect(self._handle_dashboard_action)
+        self.central_ws_lay.addWidget(self.fo_dashboard)
+
+        # 2. Module Canvas: VB6 MDI background (Hotel.bmp tree) + hint strip
+        self.canvas = QLabel()
         self.canvas.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.canvas.setProperty("glassSub", True)
-        body.addWidget(self.canvas, stretch=1)
+        self.canvas.setStyleSheet("QLabel { background: #ffffff; border: none; }")
+        self._tree_pix = QPixmap(os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            "pic", "Hotel.bmp"))
+        if not self._tree_pix.isNull():
+            self.canvas.setPixmap(self._tree_pix)
+        self.canvas.setVisible(False)
+        self.central_ws_lay.addWidget(self.canvas, stretch=1)
+
+        self.canvas_hint = QLabel("")
+        self.canvas_hint.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.canvas_hint.setStyleSheet(
+            "QLabel { color: #444444; font-size: 10pt;"
+            " background: #ffffff; border: none; padding: 2px; }")
+        self.canvas_hint.setVisible(False)
+        self.central_ws_lay.addWidget(self.canvas_hint)
+
+        body.addWidget(self.central_workspace, stretch=1)
+
+        # --- VB6 World-Clock panel: workspace ke UPAR float (right edge),
+        #     green date box + per-zone colored time labels (live VB6 jaisa).
+        #     Sirf canvas (module) view pe — dashboard overlap na ho.
+        self.right_sidebar = QFrame(self.central_workspace)
+        self.right_sidebar.setFixedWidth(150)
+        self.right_sidebar.setStyleSheet("QFrame { background: transparent; border: none; }")
+        right_lay = QVBoxLayout(self.right_sidebar)
+        right_lay.setContentsMargins(4, 4, 4, 4)
+        right_lay.setSpacing(3)
+
+        self.lbl_date = QLabel()
+        self.lbl_date.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.lbl_date.setStyleSheet("""
+            QLabel {
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                    stop:0 #00b400, stop:1 #007000);
+                color: #ffffff; font-family: 'Arial'; font-size: 12pt;
+                font-weight: bold; border: 1px solid #005500; padding: 4px 0;
+            }
+        """)
+        right_lay.addWidget(self.lbl_date)
+
+        self.clocks = {}
+        zones = [
+            ("India",     "#00e000"),
+            ("Canada",    "#ff4040"),
+            ("Italy",     "#ff4040"),
+            ("London",    "#4040ff"),
+            ("Japan",     "#00e000"),
+            ("Australia", "#ff4040"),
+        ]
+
+        for tz_name, tcol in zones:
+            lbl_name = QLabel(tz_name)
+            lbl_name.setStyleSheet("""
+                QLabel {
+                    background: #ffffff; color: #111111;
+                    font-family: 'Arial'; font-size: 10pt; font-weight: bold;
+                    border: 1px solid #888888; padding: 0 4px;
+                }
+            """)
+            right_lay.addWidget(lbl_name)
+
+            lbl_time = QLabel()
+            lbl_time.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            lbl_time.setStyleSheet(f"""
+                QLabel {{
+                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                        stop:0 #00a000, stop:1 #006000);
+                    color: {tcol}; font-family: 'Arial'; font-size: 11pt;
+                    font-weight: bold; border: 1px solid #005500; padding: 2px 0;
+                }}
+            """)
+            self.clocks[tz_name] = lbl_time
+            right_lay.addWidget(lbl_time)
+
+        right_lay.addStretch()
+        self._clocks_user_hidden = False
+        self.right_sidebar.setVisible(False)
+
+        # VB6 corner buttons: Reload + Exit (workspace bottom-right)
+        corner = QWidget(self.central_workspace)
+        corner_lay = QHBoxLayout(corner)
+        corner_lay.setContentsMargins(0, 0, 0, 0)
+        corner_lay.setSpacing(2)
+        btn_reload = QPushButton("Reload")
+        btn_reload.setCursor(Qt.CursorShape.PointingHandCursor)
+        btn_reload.setStyleSheet("""
+            QPushButton {
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                    stop:0 #f0e040, stop:1 #c0a800);
+                color: #000000; font-size: 8pt; font-weight: bold;
+                border: 1px solid #807000; padding: 2px 8px;
+            }
+            QPushButton:hover { background: #f0e870; }
+        """)
+        btn_reload.clicked.connect(self._reload_workspace)
+        corner_lay.addWidget(btn_reload)
+        btn_exit = QPushButton("Exit \u2307")
+        btn_exit.setCursor(Qt.CursorShape.PointingHandCursor)
+        btn_exit.setStyleSheet("""
+            QPushButton {
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                    stop:0 #e04040, stop:1 #a00000);
+                color: #ffffff; font-size: 8pt; font-weight: bold;
+                border: 1px solid #700000; padding: 2px 8px;
+            }
+            QPushButton:hover { background: #c03030; }
+        """)
+        btn_exit.clicked.connect(self.close)
+        corner_lay.addWidget(btn_exit)
+        self.corner_buttons = corner
+
         root.addLayout(body)
         self.setCentralWidget(central)
 
+        # ==============================================================
+        # 3. VB6 STATUS BAR: gray band — user, property, S/w Dt.,
+        #    CAPS/NUM + Hide Left/Right Menu + Full Screen
+        # ==============================================================
         sb = self.statusBar()
-        sb.addWidget(QLabel(f"  {user}  "))
-        sb.addWidget(QLabel(
-            f"Property Site : {comp['short'] or comp['name']}  "))
-        # LIVE clock bug fix: pehle static datetime tha, ab QTimer tick
+        sb.setSizeGripEnabled(False)
+        sb.setStyleSheet("""
+            QStatusBar {
+                background: #d4d0c8; color: #000000;
+                border-top: 1px solid #808080;
+                font-size: 9pt; font-family: 'Segoe UI';
+            }
+            QStatusBar QLabel {
+                background: #d4d0c8; color: #000000;
+                padding: 2px 8px; border: none;
+            }
+            QStatusBar QPushButton {
+                background: #d4d0c8; color: #000000;
+                border: 1px solid #808080; font-size: 8pt;
+                padding: 1px 8px;
+            }
+            QStatusBar QPushButton:hover { background: #e4e0d8; }
+            QStatusBar QPushButton:checked { background: #b8b4ac; font-weight: bold; }
+        """)
+        sb.addWidget(QLabel(f" \U0001F464 {user}"))
+        sb.addWidget(QLabel(f" Property Site : {comp['short'] or comp['name']} "))
+
         import datetime as _dt
-        self._clock = QLabel(f"S/w Dt.: {_dt.datetime.now():%d/%b/%Y %H:%M:%S}  ")
+        self._clock = QLabel()
         sb.addWidget(self._clock)
         self._clock_timer = QTimer(self)
         self._clock_timer.timeout.connect(self._tick_clock)
         self._clock_timer.start(1000)
-        from HMS_py.core.db import load_config, connect
-        try:
-            cfg = load_config()
-            _cn = connect(cfg)
-            from PyQt6.QtWidgets import QLabel as _L
-            _cur = _cn.cursor()
-            _cur.execute("SELECT @@SERVERNAME, DB_NAME()")
-            _srv, _dbn = _cur.fetchone()
-            _cn.close()
-            sb.addPermanentWidget(_L(f"DB: {_srv} / {_dbn}  "))
-        except Exception as e:
-            from PyQt6.QtWidgets import QLabel as _L
-            sb.addPermanentWidget(_L(f"DB: OFFLINE ({e})  "))
+        self._tick_clock()  # pehla tick turant (labels blank na dikhen)
 
-        # Keyboard navigation
+        # DB Connection Indicator
+        self.lblDb = QLabel(" DB: ... ")
+        sb.addPermanentWidget(self.lblDb)
+        self._refresh_db_status_label()
+
+        btn_caps = QPushButton("CAPS")
+        btn_caps.setCheckable(True)
+        btn_caps.setFlat(True)
+        sb.addPermanentWidget(btn_caps)
+
+        btn_num = QPushButton("NUM")
+        btn_num.setCheckable(True)
+        btn_num.setFlat(True)
+        sb.addPermanentWidget(btn_num)
+
+        btn_toggle_side = QPushButton("Hide Left Menu")
+        btn_toggle_side.setCursor(Qt.CursorShape.PointingHandCursor)
+        btn_toggle_side.clicked.connect(self._toggle_sidebar)
+        sb.addPermanentWidget(btn_toggle_side)
+
+        btn_toggle_clock = QPushButton("Hide Right Menu")
+        btn_toggle_clock.setCursor(Qt.CursorShape.PointingHandCursor)
+        btn_toggle_clock.clicked.connect(self._toggle_clocks)
+        sb.addPermanentWidget(btn_toggle_clock)
+
+        btn_fullscreen = QPushButton("Full Screen")
+        btn_fullscreen.setCursor(Qt.CursorShape.PointingHandCursor)
+        btn_fullscreen.clicked.connect(self._toggle_fullscreen)
+        sb.addPermanentWidget(btn_fullscreen)
+
+        QTimer.singleShot(0, self._place_overlays)
+        QTimer.singleShot(0, self._fit_tree)
+
+        # ==============================================================
+        # 4. KEYBOARD SHORTCUTS
+        # ==============================================================
         for i, b in enumerate(self._side_buttons[:9]):
-            QShortcut(QKeySequence(f"Alt+{i+1}"), self,
-                      activated=lambda bb=b: bb.click())
-        QShortcut(QKeySequence("Ctrl+R"), self,
-                  activated=lambda: self.registry["Reservation/Cancellation"](self))
-        QShortcut(QKeySequence("Ctrl+P"), self,
-                  activated=lambda: self.registry["Plan Master"](self))
+            QShortcut(QKeySequence(f"Alt+{i+1}"), self, activated=lambda bb=b: bb.click())
+
+        QShortcut(QKeySequence("Ctrl+N"), self, activated=lambda: self._handle_dashboard_action("Reservation"))
+        QShortcut(QKeySequence("Ctrl+F"), self, activated=lambda: self._safe_open("Guest Profile"))
+        QShortcut(QKeySequence("Ctrl+I"), self, activated=lambda: self._safe_open("Check In"))
+        QShortcut(QKeySequence("Ctrl+O"), self, activated=lambda: self._safe_open("Check Out"))
+        QShortcut(QKeySequence("Ctrl+R"), self, activated=lambda: self._safe_open("Room Status"))
+        QShortcut(QKeySequence("Ctrl+P"), self, activated=lambda: self._safe_open("Plan Master"))
+        QShortcut(QKeySequence("F5"), self, activated=self.fo_dashboard.refresh)
+
         for key, leaf in (("Ctrl+C", "Country Master"),
                           ("Ctrl+B", "State Master"),
                           ("Ctrl+H", "Charge Master"),
-                          ("Ctrl+U", "Unit Master"),
-                          ("Ctrl+I", "Item Master")):
-            QShortcut(QKeySequence(key), self,
-                      activated=lambda lf=leaf: self.registry[lf](self))
-        QShortcut(QKeySequence("Ctrl+F"), self,
-                  activated=lambda: self.registry["Guest Profile"](self))
-        QShortcut(QKeySequence("Ctrl+K"), self,
-                  activated=lambda: self.registry["Check In"](self))
+                          ("Ctrl+U", "Unit Master")):
+            if leaf in self.registry:
+                QShortcut(QKeySequence(key), self, activated=lambda lf=leaf: self.registry[lf](self))
+
         if self.registry.get("KOT Entry"):
-            QShortcut(QKeySequence("Ctrl+T"), self,
-                      activated=lambda: self.registry["KOT Entry"](self))
+            QShortcut(QKeySequence("Ctrl+T"), self, activated=lambda: self.registry["KOT Entry"](self))
         if self.registry.get("Night Audit Log"):
-            QShortcut(QKeySequence("Ctrl+N"), self,
-                      activated=lambda: self.registry["Night Audit Log"](self))
-        if self.registry.get("Indent"):
-            QShortcut(QKeySequence("Ctrl+Y"), self,
-                      activated=lambda: self.registry["Indent"](self))
-        if self.registry.get("Folio Log"):
-            QShortcut(QKeySequence("Ctrl+G"), self,
-                      activated=lambda: self.registry["Folio Log"](self))
-        if self.registry.get("Reservation Status Arrival"):
-            QShortcut(QKeySequence("Ctrl+J"), self,
-                      activated=lambda: self.registry["Reservation Status Arrival"](self))
-        QShortcut(QKeySequence("Ctrl+Shift+R"), self,
-                  activated=lambda: self.registry["Room Category"](self))
-        QShortcut(QKeySequence("Ctrl+Shift+M"), self,
-                  activated=lambda: self.registry["Room Master"](self))
-        QShortcut(QKeySequence("Ctrl+Shift+P"), self,
-                  activated=lambda: self.registry["Package Master"](self))
-        QShortcut(QKeySequence("Ctrl+Shift+S"), self,
-                  activated=lambda: self.registry["Season Master"](self))
-        QShortcut(QKeySequence("Ctrl+Shift+C"), self,
-                  activated=lambda: self.registry["Company Master"](self))
-        QShortcut(QKeySequence("Ctrl+Shift+U"), self,
-                  activated=lambda: self.registry["User Master"](self))
-        _safe = lambda key: (self.registry.get(key) or (lambda w: None))
-        QShortcut(QKeySequence("Ctrl+Shift+O"), self,
-                  activated=lambda: _safe("Check Out")(self))
-        QShortcut(QKeySequence("Ctrl+Shift+W"), self,
-                  activated=lambda: _safe("Room Status")(self))
-        QShortcut(QKeySequence("Ctrl+Shift+E"), self,
-                  activated=lambda: _safe("Expense Entry")(self))
-        QShortcut(QKeySequence("Ctrl+Shift+T"), self,
-                  activated=lambda: _safe("Tax Master")(self))
-        QShortcut(QKeySequence("Ctrl+Shift+L"), self,
-                  activated=lambda: _safe("Ledger Accounts")(self))
-        QShortcut(QKeySequence("Ctrl+Alt+T"), self,
-                  activated=lambda: _safe("Tally Export")(self))
-        # UI_UPDATE_PLAN Phase-1 shortcuts (Ctrl+Alt: koi conflict nahi):
-        QShortcut(QKeySequence("Ctrl+Alt+H"), self,
-                  activated=lambda: _safe("HR Payroll")(self))
-        QShortcut(QKeySequence("Ctrl+Alt+M"), self,
-                  activated=lambda: _safe("Member Billing")(self))
-        QShortcut(QKeySequence("Ctrl+Alt+B"), self,
-                  activated=lambda: _safe("Booking Operations")(self))
-        QShortcut(QKeySequence("Ctrl+Alt+F"), self,
-                  activated=lambda: _safe("Facility Billing")(self))
-        QShortcut(QKeySequence("Ctrl+Alt+G"), self,
-                  activated=lambda: _safe("Guest Services")(self))
-        QShortcut(QKeySequence("Ctrl+Alt+D"), self,
-                  activated=lambda: _safe("Hall Booking")(self))
-        QShortcut(QKeySequence("Ctrl+Alt+S"), self,
-                  activated=lambda: _safe("POS Sales")(self))
-        QShortcut(QKeySequence("Ctrl+Alt+K"), self,
-                  activated=lambda: _safe("POS Stock")(self))
-        QShortcut(QKeySequence("Ctrl+Alt+E"), self,
-                  activated=lambda: _safe("Call Type")(self))
+            QShortcut(QKeySequence("Ctrl+Shift+N"), self, activated=lambda: self.registry["Night Audit Log"](self))
+
+        # Default Active State: Front Office / Dashboard
+        if self._side_buttons:
+            for b in self._side_buttons:
+                if str(b.property("mod_target") or "").strip().lower() in self._DASHBOARD_MODULES:
+                    b.setChecked(True)
+                    break
+            self._load_module_menu("Front Office")
+
+    # ── helpers ──────────────────────────────────────────────────────
+    def _sidebar_btn_qss(self) -> str:
+        """Sidebar button QSS current palette tokens se (Appearance-
+        customizable: sidebar_top/bottom/text/border + derived hover/
+        checked). Refresh ke liye refresh_sidebar_style() use karo."""
+        p = palette()
+        top, mid, bot = (p["sidebar_top"],
+                         _theme._mix(p["sidebar_top"], p["sidebar_bottom"], 0.5),
+                         p["sidebar_bottom"])
+        return f"""
+            QPushButton[sidebar-btn="true"] {{
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                    stop:0 {top}, stop:0.5 {mid}, stop:1 {bot});
+                color: {p['sidebar_text']};
+                border: 1px solid {p['sidebar_border']};
+                border-radius: 0px;
+                font-size: 10pt;
+                font-weight: bold;
+                font-style: italic;
+                text-align: center;
+                padding: 6px 4px;
+            }}
+            QPushButton[sidebar-btn="true"]:hover {{
+                background: {p['sidebar_hover']};
+            }}
+            QPushButton[sidebar-btn="true"]:checked {{
+                background: {p['sidebar_checked']};
+                border: 2px solid {p['sidebar_border']};
+            }}
+        """
+
+    def refresh_sidebar_style(self):
+        """Appearance change ke baad sidebar QSS + section labels refresh.
+        (AppearanceDialog.appearanceChanged isse connect hota hai.)"""
+        p = palette()
+        qss = self._sidebar_btn_qss()
+        for b in self._side_buttons:
+            b.setStyleSheet(qss)
+        for lbl in self._side_section_labels:
+            lbl.setStyleSheet(f"""
+                QLabel {{
+                    background: {p['sidebar_bottom']};
+                    color: {p['sidebar_hover']};
+                    font-size: 7pt;
+                    font-weight: bold;
+                    letter-spacing: 2px;
+                    padding: 1px 6px;
+                    border: none;
+                }}
+            """)
+        self.sidebar.setStyleSheet("QFrame { background: #ffffff; border: none; }")
+
+    def _safe_open(self, leaf: str):
+        fn = self._reg_ci.get(leaf.strip().lower()) or self.registry.get(leaf)
+        if fn:
+            fn(self)
 
     def _tick_clock(self):
         import datetime as _dt
+        now = _dt.datetime.now()
         self._clock.setText(
-            f"S/w Dt.: {_dt.datetime.now():%d/%b/%Y %H:%M:%S}  ")
+            f"S/w Dt.:{now:%d/%b/%Y %I:%M:%S %p}  ")
 
-    def resizeEvent(self, ev):  # aurora backdrop ko central pe fill karo
+        if hasattr(self, "lbl_date"):
+            self.lbl_date.setText(f"{now:%d/%b/%Y}")
+
+        if hasattr(self, "clocks"):
+            utc_now = _dt.datetime.utcnow()
+            offsets = {
+                "India": _dt.timedelta(hours=5, minutes=30),
+                "Canada": _dt.timedelta(hours=-4),
+                "Italy": _dt.timedelta(hours=2),
+                "London": _dt.timedelta(hours=1),
+                "Japan": _dt.timedelta(hours=9),
+                "Australia": _dt.timedelta(hours=10),
+            }
+            for tz, lbl in self.clocks.items():
+                tz_time = utc_now + offsets.get(tz, _dt.timedelta(0))
+                lbl.setText(tz_time.strftime("%I:%M:%S %p"))
+
+    def _toggle_fullscreen(self):
+        if self.isFullScreen():
+            self.showNormal()
+        else:
+            self.showFullScreen()
+
+    def _refresh_db_status_label(self):
+        from HMS_py.core.db import load_config, connect
+        try:
+            cfg = load_config()
+            cn = connect(cfg)
+            cur = cn.cursor()
+            cur.execute("SELECT @@SERVERNAME, DB_NAME()")
+            srv, dbn = cur.fetchone()
+            cn.close()
+            self.lblDb.setText(f" DB: Connected ({srv} / {dbn}) ")
+            self.lblDb.setStyleSheet("color: #10b981; font-weight: bold;")
+        except Exception:
+            self.lblDb.setText(" DB: Disconnected ")
+            self.lblDb.setStyleSheet("color: #ef4444; font-weight: bold;")
+
+    def _toggle_sidebar(self):
+        # VB6 "Hide Left Menu": sidebar poora hide/show
+        self._sidebar_collapsed = not self._sidebar_collapsed
+        self.sidebar.setVisible(not self._sidebar_collapsed)
+
+    def _toggle_clocks(self):
+        self._clocks_user_hidden = not self._clocks_user_hidden
+        self._apply_clock_visibility()
+
+    def _apply_clock_visibility(self):
+        """Clocks panel sirf canvas view pe (dashboard overlap na ho)."""
+        self.right_sidebar.setVisible(
+            (not self._clocks_user_hidden) and self.canvas.isVisible())
+        self._place_overlays()
+
+    def _reload_workspace(self):
+        self._tick_clock()
+        self.fo_dashboard.refresh()
+
+    def _fit_tree(self):
+        """Hotel.bmp ko canvas size pe fit karo (VB6 MDI background)."""
+        if (not hasattr(self, "_tree_pix") or self._tree_pix.isNull()
+                or not hasattr(self, "canvas") or self.canvas.width() < 50):
+            return
+        pm = self._tree_pix.scaled(
+            self.canvas.size(),
+            Qt.AspectRatioMode.KeepAspectRatio,
+            Qt.TransformationMode.SmoothTransformation)
+        self.canvas.setPixmap(pm)
+
+    def _place_overlays(self):
+        """World-clock panel + Reload/Exit workspace pe float (VB6 jaisa)."""
+        ws = self.central_workspace
+        if hasattr(self, "right_sidebar") and self.right_sidebar.isVisible():
+            self.right_sidebar.adjustSize()
+            self.right_sidebar.move(
+                max(0, ws.width() - self.right_sidebar.width() - 8), 140)
+        if hasattr(self, "corner_buttons"):
+            self.corner_buttons.adjustSize()
+            self.corner_buttons.move(
+                max(0, ws.width() - self.corner_buttons.width() - 6),
+                max(0, ws.height() - self.corner_buttons.height() - 6))
+
+    def _on_sidebar_click(self, mod_target: str, btn: QPushButton):
+        """Generic sidebar dispatcher driven by MenuHelp data."""
+        for other in self._side_buttons:
+            if other is not btn:
+                other.setChecked(False)
+        btn.setChecked(True)
+
+        # 1. Pure action shortcuts (no menu rebuild)
+        if mod_target in self._DIRECT_OPENERS:
+            self._safe_open(self._DIRECT_OPENERS[mod_target])
+            return
+
+        low = str(mod_target).strip().lower()
+
+        # 2. Dashboard / Front Office home view
+        if low in self._DASHBOARD_MODULES:
+            self.fo_dashboard.setVisible(True)
+            self.canvas.setVisible(False)
+            self.canvas_hint.setVisible(False)
+            self._apply_clock_visibility()
+            self.fo_dashboard.refresh()
+            self._load_module_menu("Front Office")
+            return
+
+        # 3. Modules that auto-open their primary form + load menu
+        _auto_key = next((k for k in self._AUTO_OPEN
+                          if str(k).lower() == low), None)
+        if _auto_key is not None:
+            primary = self._AUTO_OPEN[_auto_key]
+            self._safe_open(primary)
+            self._load_module_menu(mod_target)
+            return
+
+        # 4. Generic module: load its menu from menuHelp, show canvas
+        self._load_module_menu(mod_target)
+
+    def _load_module_menu(self, mod_name: str):
+        mb = self.menuBar()
+        mb.clear()
+        p = palette()
+        sb_bot = p["sidebar_bottom"]  # VB6 menubar hover = sidebar teal
+        mb.setStyleSheet(f"""
+            QMenuBar {{
+                background: #d4d0c8; color: #000000;
+                font-size: 9pt; font-weight: normal; padding: 1px;
+                border-bottom: 1px solid #808080;
+            }}
+            QMenuBar::item {{
+                background: transparent; padding: 3px 10px; color: #000000;
+            }}
+            QMenuBar::item:selected {{ background: {sb_bot}; color: {p['sidebar_text']}; }}
+            QMenu {{
+                background: #d4d0c8; color: #000000;
+                border: 1px solid #808080; padding: 1px;
+            }}
+            QMenu::item {{ padding: 3px 24px; }}
+            QMenu::item:selected {{ background: {sb_bot}; color: {p['sidebar_text']}; }}
+            QMenu::item:disabled {{ color: #808080; }}
+            QMenu::separator {{
+                height: 1px; background: #808080; margin: 2px 4px;
+            }}
+        """)
+
+        groups = self._menus(mod_name, self.user)
+        for grp in groups:
+            mm = mb.addMenu(grp["name"])
+            for it in grp["items"]:
+                self._add_item(mm, it)
+
+        if str(mod_name).strip().lower() in self._DASHBOARD_MODULES:
+            self.fo_dashboard.setVisible(True)
+            self.canvas.setVisible(False)
+            self.canvas_hint.setVisible(False)
+        else:
+            self.fo_dashboard.setVisible(False)
+            self.canvas.setVisible(True)
+            self.canvas_hint.setVisible(True)
+            QTimer.singleShot(0, self._fit_tree)
+        self._apply_clock_visibility()
+
+        # Display original-case module name (sidebar button text se)
+        _pretty = next((b.text() for b in getattr(self, "_side_buttons", [])
+                        if str(b.property("mod_target") or "").strip().lower()
+                        == str(mod_name).strip().lower()), mod_name)
+        self.canvas_hint.setText(
+            f"{_pretty}  —  Select a form from the top menu bar")
+        self.setWindowTitle(
+            f"{self.comp['name']} {{ {self.comp['year']} }} - {_pretty}")
+        self._place_overlays()
+
+    def _handle_dashboard_action(self, mod_name: str):
+        if mod_name == "Reservation":
+            self._safe_open("Reservation/Cancellation")
+        else:
+            self._safe_open(mod_name)
+
+    def resizeEvent(self, ev):
         super().resizeEvent(ev)
         if hasattr(self, "aurora"):
             self.aurora.setGeometry(0, 0, self.centralWidget().width(),
                                     self.centralWidget().height())
+        if hasattr(self, "canvas"):
+            self._fit_tree()
+        self._place_overlays()
 
     def _toggle_theme(self):
         app = QApplication.instance()
         new_theme = toggle_theme(app)
-        self.theme_btn.setText("Light" if new_theme == "dark" else "Dark")
-        self.theme_btn.setChecked(new_theme == "dark")
+        if hasattr(self, "theme_btn"):
+            self.theme_btn.setText("Light" if new_theme == "dark" else "Dark")
+            self.theme_btn.setChecked(new_theme == "dark")
         self.aurora.refresh()
 
     def _open_appearance(self):
         """User-defined colors dialog (live preview + persist)."""
         dlg = AppearanceDialog(self)
         dlg.appearanceChanged.connect(self.aurora.refresh)
+        # Sidebar colors live-preview: har change pe teal QSS refresh
+        dlg.appearanceChanged.connect(self.refresh_sidebar_style)
         dlg.exec()
-        self.theme_btn.setText("Light" if current_theme() == "dark"
-                               else "Dark")
-        self.theme_btn.setChecked(current_theme() == "dark")
+        self.refresh_sidebar_style()  # cancel/restore ke baad bhi sync
+        if hasattr(self, "theme_btn"):
+            self.theme_btn.setText("Light" if current_theme() == "dark"
+                                   else "Dark")
+            self.theme_btn.setChecked(current_theme() == "dark")
         self.aurora.refresh()
 
     def _on_module(self, m: dict, btn: QPushButton):
-        # sidebar exclusive-check (VB6 jaisa highlight)
-        for other in self._side_buttons:
-            if other is not btn:
-                other.setChecked(False)
-        btn.setChecked(True)
-
-        mb = self.menuBar()
-        mb.clear()
-        for grp in self._menus(m["name"], self.user):
-            mm = mb.addMenu(grp["name"])
-            for it in grp["items"]:
-                self._add_item(mm, it)
-
-        self.canvas.setText(
-            f"{m['name']}\n\nSelect a form from the top menu bar\n"
-            f"(ported: Plan/City/Sundry/Narration/Venue/Department)")
-        self.setWindowTitle(
-            f"{self.comp['name']} {{ {self.comp['year']} }} - {m['name']}")
-        self.aurora.refresh()
+        # Compatibility wrapper for tests and external callers
+        self._on_sidebar_click(m["name"], btn)
 
     def _add_item(self, parent_menu, it: dict):
-        opener = self.registry.get(it["name"])
-        if it["children"]:
-            sub = parent_menu.addMenu(it["name"])
+        # Case-insensitive lookup: menuHelp captions normalized (lowercase)
+        # aate hain, registry keys original-case me — plain dict get() fail
+        # hota tha aur menuHelp-sourced leaves SAB disabled ho rahe the.
+        _cap = it["caption"] if "caption" in it else it["name"]
+        opener = self._reg_ci.get(str(_cap).strip().lower()) or self.registry.get(_cap)
+        if it.get("children"):
+            sub = parent_menu.addMenu(_cap)
             if opener:
-                # VB6 header bhi form tha (evidence: Utility -> 'Sundry
-                # Master' submenu-title; form SundryMast pe jaata tha).
-                # Qt me submenu-title clickable nahi, isliye form-open
-                # action submenu ke TOP pe (documented, minimal).
-                act = sub.addAction(it["name"])
+                act = sub.addAction(_cap)
                 act.triggered.connect(lambda _, fn=opener: fn(self))
                 sub.addSeparator()
             for ch in it["children"]:
                 self._add_item(sub, ch)
             return
-        act = parent_menu.addAction(it["name"])
+        act = parent_menu.addAction(_cap)
         if opener:
             act.triggered.connect(lambda _, fn=opener: fn(self))
         else:
             act.setEnabled(False)   # phase-wise judenga
 
     def set_canvas_text(self, text: str):
-        self.canvas.setText(text)
+        self.canvas_hint.setText(text)
 
 
 # ---------------------------------------------------------------- flow

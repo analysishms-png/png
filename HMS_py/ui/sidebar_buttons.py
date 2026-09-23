@@ -232,8 +232,6 @@ def build_qt_sidebar(parent, user: str = "SA", on_click=None):
     accent_soft = p.get('accent_soft', 'rgba(79,70,229,0.12)')
     text = p.get('text', '#1e293b')
     text_dim = p.get('text_dim', '#64748b')
-    border = p.get('border', 'rgba(148,163,184,0.3)')
-    surface = p.get('surface', 'rgba(255,255,255,0.7)')
 
     all_btns = build_all_buttons(user)
     buttons: list[QPushButton] = []
@@ -440,7 +438,6 @@ VB6_COLLAPSE_STYLE = """
 
 def get_vb6_sidebar_style(is_collapsed: bool = False) -> dict[str, str]:
     """Return VB6-style QSS strings for sidebar widgets."""
-    sidebar_w = 60 if is_collapsed else 170
     return {
         "sidebar": f"""
             QFrame {{
