@@ -5,8 +5,8 @@ VB6: *.frm captions + inline-SQL table evidence | Py: shell registry + core/ui s
 
 STATUS SUMMARY
 ------------------------------------------------------------------------------
-  DONE         149
-  PARTIAL      154
+  DONE         153
+  PARTIAL      150
   UI-ONLY      0
   BLOCKED-TBL  2
   MISSING      13
@@ -20,11 +20,7 @@ STATUS SUMMARY
 | VB6 form            | Caption                    | Python UI | Core | Wired | Tables (live) |
 |---------------------|----------------------------|-----------|------|-------|----------------------------------------|
 | fdNDAcPostChrg      | Posting Utility            | no        | Y    | -     | Enviro, ItemMast, PayCharge, Stock, mC |
-| fdPaymentCharge     | Post Charges & Payment     | no        | Y    | -     | DepartPay, Employee, Enviro, GUESTFOLI |
-| fdPostChrg          | Post Charges /Payments     | no        | Y    | -     | Enviro, GuestFolio, GuestProf, PAYCHAR |
 | fdPrintScreen       | Guest Charges Summary      | no        | Y    | -     | GUESTSTAT, GuestFolio, GuestProf, RevM |
-| FdReSetlement       | Post Charges/Payment       | no        | Y    | -     | BillDet, DepartPay, Employee, Enviro,  |
-| FdRevCheckOut       | Check Out Cancel           | no        | Y    | -     | EPABX_IN, Enviro, GUESTSTAT, GuestFoli |
 | FdRoomDisplay       | Room View                  | no        | Y    | -     | roommast                               |
 | fdRoomOcc           | Reservation Look Up Room W | no        | Y    | -     | FAEnviro, GuestFolio, RateList, RoomBl |
 | fdWalkInEntry       | Walk In / Check In Entry   | no        | Y    | -     | Booking, BookingPlanDetails, BussSourc |
@@ -242,6 +238,10 @@ STATUS SUMMARY
 | FdGrpdetCheckOut    | Room Check Out Entry       | YES       | Y    | Y     | EPABX_IN, Enviro, GUESTSTAT, GuestFoli |
 | FdLookUpRoom        | Look Up Room               | YES       | Y    | Y     | RoomBlockOut, RoomCat, RoomMast, RoomO |
 | FdLookUpRoomNo      | Display Rack               | YES       | Y    | Y     | DispColor, Dispcolor, ENVIRO, GuestFol |
+| fdPaymentCharge     | Post Charges & Payment     | YES       | Y    | Y     | DepartPay, Employee, Enviro, GUESTFOLI |
+| fdPostChrg          | Post Charges /Payments     | YES       | Y    | Y     | Enviro, GuestFolio, GuestProf, PAYCHAR |
+| FdReSetlement       | Post Charges/Payment       | YES       | Y    | Y     | BillDet, DepartPay, Employee, Enviro,  |
+| FdRevCheckOut       | Check Out Cancel           | YES       | Y    | Y     | EPABX_IN, Enviro, GUESTSTAT, GuestFoli |
 | fdRoomChange        | Room Change                | YES       | Y    | Y     | EPABX_IN, FixedCharge, GUESTSTAT, Gues |
 | Form1               | Form1                      | no        | -    | -     |                                        |
 |                     | note: Generic/scratch VB6 form |
@@ -383,20 +383,8 @@ STATUS SUMMARY
 - fdNDAcPostChrg (fdNDAcPostChrg.frm): 'Posting Utility'
     tables: Enviro, ItemMast, PayCharge, Stock, mCurStk (+2)
     ui=N core=Y
-- fdPaymentCharge (fdPaymentCharge.frm): 'Post Charges & Payment'
-    tables: DepartPay, Employee, Enviro, GUESTFOLIO, GUESTSTAT (+17)
-    ui=N core=Y
-- fdPostChrg (fdPostChrg.frm): 'Post Charges /Payments'
-    tables: Enviro, GuestFolio, GuestProf, PAYCHARGE, PayCharge (+7)
-    ui=N core=Y
 - fdPrintScreen (fdPrintScreen.frm): 'Guest Charges Summary'
     tables: GUESTSTAT, GuestFolio, GuestProf, RevMast, RoomCat (+2)
-    ui=N core=Y
-- FdReSetlement (FdReSetlement.frm): 'Post Charges/Payment'
-    tables: BillDet, DepartPay, Employee, Enviro, GUESTSTAT (+18)
-    ui=N core=Y
-- FdRevCheckOut (FdRevCheckOut.frm): 'Check Out Cancel'
-    tables: EPABX_IN, Enviro, GUESTSTAT, GuestFolio, GuestProf (+10)
     ui=N core=Y
 - FdRoomDisplay (FdRoomDisplay.frm): 'Room View'
     tables: roommast

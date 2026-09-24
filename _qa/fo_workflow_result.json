@@ -1,0 +1,79 @@
+{
+  "guest": "PYT WF-TEST 214529",
+  "steps": [
+    {
+      "step": "1 Guest master insert",
+      "ok": true,
+      "detail": "GuestProf KK007217"
+    },
+    {
+      "step": "2 Check-in create",
+      "ok": true,
+      "detail": "folio#464 room=101"
+    },
+    {
+      "step": "3 RoomOcc open row",
+      "ok": true,
+      "detail": "RoomOcc open, room=101"
+    },
+    {
+      "step": "4 Room charge 1000 + GST",
+      "ok": true,
+      "detail": "603 row(s); types=['']"
+    },
+    {
+      "step": "5 Payment (balance->0)",
+      "ok": true,
+      "detail": "paid 1100.00 -> balance 0"
+    },
+    {
+      "step": "6 Settle folio",
+      "ok": true,
+      "detail": "bill_no=331"
+    },
+    {
+      "step": "7 Check out",
+      "ok": true,
+      "detail": "ChkOutDate set; balance=0.0"
+    },
+    {
+      "step": "8 Reverse check out",
+      "ok": true,
+      "detail": "reopened; settle-rows cancelled=1"
+    },
+    {
+      "step": "9 Re-check out",
+      "ok": true,
+      "detail": {
+        "folio": 464,
+        "docid": "DKKCHK   2026     464",
+        "charges_dr": 1100.0,
+        "payments_cr": 1100.0,
+        "balance": 0.0,
+        "name": "PYT WF-TEST 214529",
+        "depdate": "2026-09-26"
+      }
+    },
+    {
+      "step": "10 Housekeeping probe",
+      "ok": true,
+      "detail": "RoomStat('101')='D'"
+    },
+    {
+      "step": "11 In-txn snapshot diff",
+      "ok": true,
+      "detail": "GuestProf+1 GuestFolio+1 RoomOcc+1 PayCharge+4 FOMBillDetails+1 FolioLog+6"
+    },
+    {
+      "step": "12 ROLLBACK",
+      "ok": true,
+      "detail": "cn.rollback() done"
+    },
+    {
+      "step": "13 Post-rollback residue check",
+      "ok": true,
+      "detail": "DB clean \u2014 zero residue (all tables back to before)"
+    }
+  ],
+  "ok": true
+}

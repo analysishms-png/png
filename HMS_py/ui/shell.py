@@ -724,6 +724,12 @@ def _form_registry() -> dict[str, callable]:
         from HMS_py.ui import fd_forms_ui as fdui
     except ImportError:
         fdui = None
+    # Wave 6 imports (posting/settlement — VB6 fdPostChrg/fdPaymentCharge/
+    # FdReSetlement/FdRevCheckOut)
+    try:
+        from HMS_py.ui import posting_forms_ui as postui
+    except ImportError:
+        postui = None
     # Wave 4 imports (new UI forms for 26+ core modules)
     try:
         from HMS_py.ui import booking_ops_ui as book_ui
@@ -1596,6 +1602,11 @@ def _form_registry() -> dict[str, callable]:
         "Room Check Out Entry (Detail)": (lambda w: fdui.open_group_detail_checkout(w, user=getattr(w, 'user', 'PYADMIN'))) if fdui else _coming_soon("Room Check Out Entry (Detail)"),
         "Look Up Room": (lambda w: fdui.open_lookup_room(w)) if fdui else _coming_soon("Look Up Room"),
         "Depart Sundry Setting": (lambda w: fdui.open_depart_sundry(w)) if fdui else _coming_soon("Depart Sundry Setting"),
+        # Wave 6: posting/settlement batch
+        "Post Charges /Payments": (lambda w: postui.open_post_chrg(w, user=getattr(w, 'user', 'PYADMIN'))) if postui else _coming_soon("Post Charges /Payments"),
+        "Post Charges & Payment": (lambda w: postui.open_payment_charge(w, user=getattr(w, 'user', 'PYADMIN'))) if postui else _coming_soon("Post Charges & Payment"),
+        "Post Charges/Payment": (lambda w: postui.open_re_settlement(w, user=getattr(w, 'user', 'PYADMIN'))) if postui else _coming_soon("Post Charges/Payment"),
+        "Check Out Cancel": (lambda w: postui.open_rev_checkout(w, user=getattr(w, 'user', 'PYADMIN'))) if postui else _coming_soon("Check Out Cancel"),
         "House Keeping Op.Stock Entry": (lambda w: pfui.open_location_opening_stock(w)) if pfui else _coming_soon("House Keeping Op.Stock Entry"),
         "Issue/Recd. Entry": (lambda w: pstock_ui.open_pos_stock(w)) if pstock_ui else _coming_soon("Issue/Recd. Entry"),
         "Gravy Item Entry": (lambda w: p2.open_item(w)) if p2 else _coming_soon("Gravy Item Entry"),
