@@ -3,7 +3,10 @@
 **Date:** 2026-09-24  
 **Project:** HMS_py  
 **Reference:** HMS.exe (VB6)  
-**Database:** MOONData2627
+**Database:** MOONData2627  
+**Last full run (post UI restyle):** `python -m pytest -q --tb=short --timeout=30` → **310 passed in 39.09s**  
+**Ruff (F821,E9,F601,F811,F841) on shell/sidebar/theme/glass:** clean  
+**Backup:** `HMS_py_BACKUP_20260924` (6434 files)
 
 ---
 
@@ -15,10 +18,36 @@
 | Module Testing | 16 | 16 | 0 | 🟢 ALL PASS |
 | OCR Verification | 16 | 16 | 0 | 🟢 ALL PASS |
 | Screenshot Test | 18 | 18 | 0 | 🟢 ALL PASS |
+| UI Smoke (sidebar parity) | 1 | 1 | 0 | 🟢 PASS |
 | Database Verify | 1 | 1 | 0 | 🟢 VERIFIED |
 | SQL Tracking | 1 | 1 | 0 | 🟢 VERIFIED |
 | Login Test | 1 | 1 | 0 | 🟢 VERIFIED |
-| **Total** | **363** | **363** | **0** | **🟢 ALL PASS** |
+| **Total** | **364** | **364** | **0** | **🟢 ALL PASS** |
+
+### Live Workflow Tests (2026-09-24, Wave 5-7) — PASS
+
+Single-transaction tests on MOONData2627 (`commit=False` end-to-end, `ROLLBACK`
+at end, fresh-connection residue check — zero DB mutation):
+
+| Test | Steps | Result | Evidence |
+|------|-------|--------|----------|
+| Single FO workflow (`_qa/fo_workflow_test.py`) | 13 | 🟢 PASS | guest → checkin → charge 1000+GST (1100) → payment → settle (bill 331) → checkout → reverse → re-checkout → RoomStat='D' |
+| Group FO workflow (`_qa/fo_group_workflow_test.py`) | 15 | 🟢 PASS | 3 guests → folios 464-466 on rooms 101/102/103 → charge 550 each → `group_checkout` 3/3 → reverse 3/3 → re-checkout 3/3 |
+
+Key rules verified live against DB behaviour:
+- GST on room charge: 5% CGST + 5% SGST (3 PayCharge rows)
+- Room allocation: distinct rooms enforced ('cannot allocate if occupied')
+- Housekeeping: RoomStat → 'D' (Dirty) after checkout
+- Settle: FOMBillDetails Status='SETTLE' + PayCharge Bill_No/SettleDate marks
+- Reverse: ChkOutDate cleared, settle-rows CANCELLED, marks reversed
+
+### UI Smoke (2026-09-24) — PASS
+- Canvas visible, FO dashboard hidden, menubar hidden
+- Clocks panel visible (`_canvas_view` flag)
+- No ACTIONS labels on sidebar; section headers hidden
+- EXTRAs checked with 👍; click Finance moves 👍
+- QSS: `#ffff00` checked + italic; canvas `#ffffcc`
+- Header `btn_sms_top` text == `SMS`
 
 ---
 

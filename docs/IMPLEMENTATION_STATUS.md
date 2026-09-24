@@ -4,7 +4,8 @@
 **Application:** HMS.exe (VB6)  
 **Python Project:** HMS_py  
 **Database:** MOONData2627 (274 tables, Windows Auth)  
-**Reference:** VB6_PYTHON_SIDE_BY_SIDE_REPORT.md
+**Reference:** VB6_PYTHON_SIDE_BY_SIDE_REPORT.md  
+**Backup:** `HMS_py_BACKUP_20260924` (6,434 files, ~992 MB) via robocopy
 
 ---
 
@@ -32,6 +33,10 @@ Minor Bugs: 1 (Monitoring)
 Unit Tests: 310/310 PASS (100%)
 OCR Tests: 16/16 PASS (100%)
 Screenshot Tests: 18/18 PASS (100%)
+
+UI Restyle: VB6 sidebar/canvas/clocks screenshot parity ✅
+Backup: HMS_py_BACKUP_20260924 ✅
+Web Research: SQL 2008 R2 / pyodbc / PMS workflow ✅
 
 Overall Status: 🟢 IN PROGRESS (92% complete)
 ========================================
@@ -68,13 +73,16 @@ Overall Status: 🟢 IN PROGRESS (92% complete)
 1. **All 16/16 modules** tested via keyboard shortcuts — all pass OCR verification
 2. **10 WRONG_TARGET re-wires** implemented and verified
 3. **Database verified** — 274 tables, Windows Auth working
-4. **310 Python tests** passing
-5. **18 kanpur screenshots** captured
+4. **310 Python tests** passing (reconfirmed after UI restyle)
+5. **18 kanpur screenshots** captured + VB6 module screenshots (`_qa/HMS_exe_20260924/`)
 6. **VB6 business logic** extracted and documented
 7. **Frontend modules** created (`vb6_frontend.py`, `vb6_logic.py`)
 8. **Code fixes** applied (registry keys, imports, window positioning)
-9. **All documentation** created (9 docs)
+9. **All documentation** created (9 docs under `docs/`)
 10. **Pushed to GitHub** (commit `482f349`)
+11. **UI screenshot restyle** — purple SMS, teal sidebar + 👍, yellow canvas, black clocks, status bar
+12. **Project backup** — `HMS_py_BACKUP_20260924` (robocopy, 6434 files)
+13. **Web research** — pyodbc transactions, SQL 2008 R2 compat, hotel PMS workflows (see BUSINESS_LOGIC §Research)
 
 ### ⚠️ Partially Complete
 1. **Banquet** — Core tables exist, ops blocked by schema
@@ -82,15 +90,19 @@ Overall Status: 🟢 IN PROGRESS (92% complete)
 3. **Outdoor Banquet** — Core implemented, schema incomplete
 4. **Print pipeline** — Crystal Reports dependency
 5. **88 SQL queries** need review out of 421 tested
+6. **~60 missing menu leaves** wired as `_doc_skip` (docs stubs, not full forms)
+7. **P9 reverse/delete kwargs** — open_checkout/open_fa_adjust lack reverse/delete params
 
 ### 🔵 Improvement Opportunities
 1. **~5,020 missing functions** — ~14% business logic coverage
 2. **Print pipeline** — Replace Crystal Reports with PyQt6 QPrinter
-3. **Automated UI testing** — Add Playwright-based tests
+3. **Automated UI testing** — Playwright/win32 MCP (MCP tools not exposed this session)
 4. **Performance optimization** — Query optimization, connection pooling
 5. **Accessibility** — Screen reader, keyboard navigation
 6. **Localization** — Multi-language support
 7. **Backup/Restore** — Automated SQL Server backup
+8. **reports_engine DB test** — 300s timeout; fix slow queries
+9. **fa_voucher PK** / **receive_payment column** — DB script fixes pending
 
 ---
 
@@ -146,12 +158,50 @@ Overall Status: 🟢 IN PROGRESS (92% complete)
 ## Git History
 
 ```text
+e113e4c Wave 7: port rack/room-lookup/walk-in forms + group workflow test (3 folios)
+a7fefa9 Wave 6: port posting/settlement forms + live FO workflow test (rollback-safe)
+68232ac Wave 5: port next-10 PARTIAL Fd*/CheckOut forms to fd_forms_ui
+61ff6bf shell: fix clocks visibility via _canvas_view flag
 482f349 kanpur screenshots working (16 modules, OCR=561)
 2531333 kanpur module-wise screenshots + SQL tracking
 c6eede5 Implement 10 WRONG_TARGET re-wires
 88a7c77 HMS module testing complete
 f6f44bd HMS module testing complete
 ```
+
+---
+
+## Wave 5-7 (2026-09-24): 18 VB6 Forms Ported + Live Workflow Tests
+
+### Ports (all on verified core APIs, frm-line evidence documented in file headers)
+
+| Wave | File | Forms |
+|------|------|-------|
+| 5 | `ui/fd_forms_ui.py` | fdAmendEntry, fdCheckIn, FdCheckOut, fdDisplayFolio, fdDisplayFolioSumm, FdGrpCheckOut, FdGrpdetCheckOut, FdLookUpRoom, DepartSundry, FacilitySundry |
+| 6 | `ui/posting_forms_ui.py` | fdPostChrg, fdPaymentCharge, FdReSetlement, FdRevCheckOut |
+| 7 | `ui/walkin_rack_ui.py` | fdRoomDisplay, FdLookUpRoomNo, fdRoomOcc, fdWalkInEntry |
+
+### Verification per wave
+- Offscreen openers: 10/10, 4/4, 4/4 — all PASS
+- Registry wired: 8/8, 4/4, 4/4 captions — all PASS
+- pytest: 310 passed (unchanged, no regressions)
+
+### Parity matrix progression (VB6 forms DONE bucket)
+- Before Wave 5: DONE 112 / PARTIAL 190
+- After Wave 5: DONE 149 / PARTIAL 154
+- After Wave 6: DONE 153 / PARTIAL 150
+- After Wave 7: **DONE 158 / PARTIAL 145 / MISSING 13** (TOTAL 318)
+
+### Live transaction-rollback workflow tests (MOONData2627)
+- Single FO lifecycle: 13/13 PASS (`_qa/fo_workflow_test.py`)
+- Group (3-folio) lifecycle: 15/15 PASS (`_qa/fo_group_workflow_test.py`)
+- Safety: single uncommitted txn, ROLLBACK + fresh-connection residue check — DB untouched
+- Rules confirmed: GST 5%+5%, distinct-room allocation, RoomStat='D' after checkout,
+  settle-marks/reverse behaviour per VB6 FdRevCheckOut.frm:1490-1496
+
+### Remaining next queue (parity matrix)
+- FindMess, FdReSetlement detail flows, misc frm without captions
+- SundryType save-flow (DepartSundry/FacilitySundry currently read-only previews)
 
 ---
 
