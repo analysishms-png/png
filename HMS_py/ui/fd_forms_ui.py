@@ -54,6 +54,7 @@ from PyQt6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDateEdit,
                              QTableWidgetItem, QVBoxLayout, QWidget)
 
 from HMS_py.core import checkin, checkout, folio, guest_folio, roomstatus
+from HMS_py.core import sundry_type
 from HMS_py.ui.theme import palette
 
 
@@ -594,14 +595,20 @@ class LookupRoomWindow(QMainWindow, _StatusBar):
 # SundryType INSERT ek alag sweep me — tables structure pending verify).
 # ────────────────────────────────────────────────────────────────
 class _SundryBase(QMainWindow, _StatusBar):
-    """SundryMast + RevMast preview (VB6 frm:1432 / frm:946,964)."""
+    """SundryType setting (VB6 DepartSundry/FacilitySundry save-flow).
+
+    Editable: SundryType entries add karne ka flow (VB6 frm:1810 22-col
+    INSERT, guard frm:2135 duplicate-count check) via core.sundry_type.
+    Grid: live SundryType rows (4-table JOIN display, frm:1442).
+    No DELETE in VB6 frms — evidence-based scope: add/view only.
+    """
     title = "Outlet Bill Sundry Setting"
-    facl_only = False  # True -> RevMast V_Type='FACL' (FacilitySundry)
+    kind = "depart"           # 'facility' -> V_Type='FACL'
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle(self.title)
-        self.resize(880, 520)
+        self.resize(940, 560)
         self._build()
         self._fill()
 
@@ -609,45 +616,98 @@ class _SundryBase(QMainWindow, _StatusBar):
         c = QWidget(); self.setCentralWidget(c)
         lay = QVBoxLayout(c)
         lay.addWidget(_title(self.title))
+        # add-entry form (VB6 grid-row save flow ka port)
+        form = QHBoxLayout()
+        form.addWidget(QLabel("Sundry"))
+        self.cmb_sundry = QComboBox()
+        form.addWidget(self.cmb_sundry, 1)
+        form.addWidget(QLabel("DispName"))
+        self.txt_disp = QLineEdit()
+        self.txt_disp.setPlaceholderText("display name (max 20)")
+        form.addWidget(self.txt_disp)
+        form.addWidget(QLabel("Rev"))
+        self.cmb_rev = QComboBox()
+        form.addWidget(self.cmb_rev)
+        b_add = QPushButton("Add")
+        b_add.clicked.connect(self._add)
+        form.addWidget(b_add)
+        b_ref = QPushButton("Refresh")
+        b_ref.clicked.connect(self._fill)
+        form.addWidget(b_ref)
+        b_exit = QPushButton("Exit")
+        b_exit.clicked.connect(self.close)
+        form.addWidget(b_exit)
+        lay.addLayout(form)
         self.grid = QTableWidget()
+        self.grid.setSelectionBehavior(
+            QTableWidget.SelectionBehavior.SelectRows)
         lay.addWidget(self.grid)
-        bar = QHBoxLayout()
-        for cap, fn in (("Refresh", self._fill), ("Exit", self.close)):
-            b = QPushButton(cap)
-            b.clicked.connect(fn)
-            bar.addWidget(b)
-        bar.addStretch(1)
-        lay.addLayout(bar)
+        self._fill_pickers()
 
-    def _fill(self):
+    def _fill_pickers(self):
         from HMS_py.core import db
         try:
-            sundry = db.query(
-                "SELECT RTRIM(Code), RTRIM(Name), RTRIM(Nature), RTRIM(SysYN) "
-                "FROM SundryMast WHERE (LogSite_Code = ? OR LogSite_Code = 'HO') "
-                "ORDER BY Name", (roomstatus.SITE_CODE,))
-            facl = ("AND V_Type = 'FACL'" if self.facl_only else "")
-            rev = db.query(
-                "SELECT RTRIM(Code), RTRIM(Name), RTRIM(DeskCode), RTRIM(Type) "
-                f"FROM RevMast WHERE (LogSite_Code = ? OR LogSite_Code = 'HO') "
-                f"{facl} ORDER BY Name", (roomstatus.SITE_CODE,))
+            self.cmb_sundry.clear()
+            for r in db.query(
+                    "SELECT RTRIM(Code), RTRIM(Name) FROM SundryMast WHERE "
+                    "(LogSite_Code = ? OR LogSite_Code = 'HO') ORDER BY Name",
+                    (roomstatus.SITE_CODE,)):
+                self.cmb_sundry.addItem(r[1], r[0])
+            self.cmb_rev.clear()
+            self.cmb_rev.addItem("", "")
+            facl = " AND V_Type = 'FACL'" if self.kind == "facility" else ""
+            for r in db.query(
+                    "SELECT RTRIM(Code), RTRIM(Name) FROM RevMast WHERE "
+                    "(LogSite_Code = ? OR LogSite_Code = 'HO')" + facl +
+                    " ORDER BY Name", (roomstatus.SITE_CODE,)):
+                self.cmb_rev.addItem(r[1], r[0])
+        except Exception as e:
+            self._say(f"picker load: {e}")
+
+    def _fill(self):
+        try:
+            rows = sundry_type.list_entries(self.kind)
             _fill_grid(self.grid,
-                       ["Sundry Code", "Sundry Name", "Nature", "Sys"],
-                       [list(r) for r in sundry])
-            self._say(f"Sundry {len(sundry)} row(s); RevMast {len(rev)} row(s)"
-                      + (" (FACL)" if self.facl_only else ""))
+                       ["V_Type", "AppDate", "Code", "Sundry", "SNo",
+                        "DispName", "Formula", "P/A", "Rev", "Sign",
+                        "Sys", "Post"],
+                       [[r["vtype"], r["appdate"], r["sundrycode"],
+                         r["sundry_name"], r["sno"], r["dispname"],
+                         r["calcformula"], r["peroramt"],
+                         r["rev_name"] or r["revcode"], r["calcsign"],
+                         r["sysyn"], r["postyn"]] for r in rows])
+            self._say(f"{len(rows)} SundryType row(s)")
+        except Exception as e:
+            _msgbox_err(self, e)
+
+    def _add(self):
+        code = self.cmb_sundry.currentData()
+        if not code:
+            QMessageBox.warning(self, "Add", "Sundry chuno.")
+            return
+        if QMessageBox.question(
+                self, "Add SundryType",
+                f"{self.cmb_sundry.currentText()} add karna hai?") != \
+                QMessageBox.StandardButton.Yes:
+            return
+        try:
+            sundry_type.add_entry(
+                self.kind, code, self.txt_disp.text().strip() or code,
+                revcode=self.cmb_rev.currentData() or "")
+            self._say(f"added {code}")
+            self._fill()
         except Exception as e:
             _msgbox_err(self, e)
 
 
 class DepartSundryWindow(_SundryBase):
     title = "Outlet Bill Sundry Setting"
-    facl_only = False
+    kind = "depart"
 
 
 class FacilitySundryWindow(_SundryBase):
     title = "Outlet Bill Sundry Setting"
-    facl_only = True
+    kind = "facility"
 
 
 # ────────────────────────────────────────────────────────────────

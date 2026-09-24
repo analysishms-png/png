@@ -230,9 +230,10 @@ class PaymentChargeWindow(QMainWindow, _StatusBar):
             _fill_grid(self.grid,
                        ["DocId", "VNo", "Date", "Guest", "Comments",
                         "Code", "Type", "Amount", "Folio"],
-                       [[r["docid"], r["vno"], _d(r["vdate"]), r["guest"],
-                         r["comments"], r["paycode"], r["paytype"],
-                         f"{r['amount']:.2f}", r["folio"]] for r in rows])
+                       [[r["docid"], r["vno"], _d(r["vdate"]),
+                         r["guestprof"], r["comments"], r["paycode"],
+                         r["paytype"], f"{r['amt']:.2f}", r["folio"]]
+                        for r in rows])
             self._say(f"{len(rows)} receipt(s)")
         except Exception as e:
             _msgbox_err(self, e)
