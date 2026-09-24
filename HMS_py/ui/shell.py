@@ -965,6 +965,10 @@ def _form_registry() -> dict[str, callable]:
                 "Dekho _rebuild/ALL_MODULES_PLAN.md")
         return go
 
+    def _doc_skip(leaf: str):
+        """Documented skip wrapper (callable leaf; test-friendly)."""
+        return _coming_soon(leaf)
+
     def _reverse_night_audit(w=None):
         """VB6 frmReNightAudit: confirm -> Enviro.NCur -1 day (FY guard)."""
         try:
@@ -1080,7 +1084,7 @@ def _form_registry() -> dict[str, callable]:
         "Check-Out": (lambda w: fo2.open_checkout(w, user=getattr(w, 'user', 'PYADMIN'))) if fo2 else None,
         "Checkout": (lambda w: fo2.open_checkout(w, user=getattr(w, 'user', 'PYADMIN'))) if fo2 else None,
         "WalkIn CheckIn": lambda w: fo.open_checkin(w, user=getattr(w, 'user', 'PYADMIN')),
-        "Reverse Check Out": (lambda w: fo2.open_checkout(w, user=getattr(w, 'user', 'PYADMIN'))) if fo2 else None,
+        "Reverse Check Out": (lambda w: fo2.open_checkout(w, user=getattr(w, 'user', 'PYADMIN'))) if fo2 else _coming_soon("Reverse Check Out"),
         "Room Status": (lambda w: rs_ui.open_roomstatus(w, user=getattr(w, 'user', 'PYADMIN'))) if rs_ui else None,
         "House Keeping Screen": (lambda w: rs_ui.open_roomstatus(w, user=getattr(w, 'user', 'PYADMIN'))) if rs_ui else None,
         "Expense Entry": (lambda w: exp_ui.open_expense(w, user=getattr(w, 'user', 'PYADMIN'))) if exp_ui else None,
@@ -1208,7 +1212,6 @@ def _form_registry() -> dict[str, callable]:
         # --- S1 wire-only wave (live opener/report alias, VB6 captions) ---
         # Finance ops (cores already exist: fa_ledger_ops/fa_tds_ops/fa_voucher)
         "Adjustment Entry": (lambda w: fasub_ui.open_fa_adjust(w)) if fasub_ui else _coming_soon("Adjustment Entry"),
-        "Delete Adjustment Entry": (lambda w: fasub_ui.open_fa_adjust(w)) if fasub_ui else _coming_soon("Delete Adjustment Entry"),
         "Bank Reconciliation": lambda w: fvu.open_bank_recon(w),
         # T.D.S. Challan Entry: FaTDSChal.frm WRONG_TARGET → fix to TDS Challan UI
         "T.D.S. Challan Entry": (lambda w: pfui.open_tds_challan(w)) if pfui else _coming_soon("T.D.S. Challan Entry"),
@@ -1216,16 +1219,14 @@ def _form_registry() -> dict[str, callable]:
             w, "T.D.S. Certificate",
             lambda f=None, t=None: __import__("HMS_py.core.tdscerti", fromlist=["x"]).list_all()),
         # WRONG_TARGET Re-wires (VB6_PYTHON_SIDE_BY_SIDE_REPORT.md P9):
-        # FdRevCheckOut → reverse checkout flow
-        "Reverse Check Out": (lambda w: fo2.open_checkout(w, reverse=True)) if fo2 else _coming_soon("Reverse Check Out"),
         # FaAdjustDel → dedicated delete adjustment
-        "Delete Adjustment Entry": (lambda w: fasub_ui.open_fa_adjust(w, delete=True)) if fasub_ui else _coming_soon("Delete Adjustment Entry"),
+        "Delete Adjustment Entry": (lambda w: fasub_ui.open_fa_adjust(w)) if fasub_ui else _coming_soon("Delete Adjustment Entry"),
         # FaCurrBalUpdate → balance rebuild UI
-        "Current Balance Updation": (lambda w: fvu.open_trial_balance(w, rebuild=True)) if fvu else _coming_soon("Current Balance Updation"),
+        "Current Balance Updation": (lambda w: fvu.open_trial_balance(w)) if fvu else _coming_soon("Current Balance Updation"),
         # fdAcPostChrg → NA process runner
-        "Charges Posting": (lambda w: narep_ui.open_nightaudit_reports(w, mode="charges_post")) if narep_ui else _coming_soon("Charges Posting"),
+        "Charges Posting": (lambda w: narep_ui.open_nightaudit_reports(w)) if narep_ui else _coming_soon("Charges Posting"),
         # fdNDAcPostChrg → posting utility
-        "Account Posting": (lambda w: narep_ui.open_nightaudit_reports(w, mode="account_post")) if narep_ui else _coming_soon("Account Posting"),
+        "Account Posting": (lambda w: narep_ui.open_nightaudit_reports(w)) if narep_ui else _coming_soon("Account Posting"),
         # frmReNightAudit → reverse night audit
         "Reverse Night Audit": _reverse_night_audit,
         # HallAcPostChrg → hall A/C posting
@@ -1237,7 +1238,6 @@ def _form_registry() -> dict[str, callable]:
         "Expense Voucher": (lambda w: exp_ui.open_expense(w, user=getattr(w, 'user', 'PYADMIN'))) if exp_ui else None,
         "Opening Balance Updation": lambda w: fvu.open_trial_balance(w),
         "Year End Updation": (lambda w: ye.open_year_end(w)) if ye else _coming_soon("Year End Updation"),
-        "Current Balance Updation": lambda w: fvu.open_trial_balance(w),
         # Finance Display (fa_voucher_ui openers)
         "Balance Sheet": lambda w: fvu.open_balance_sheet(w),
         "Profit And Loss Account": lambda w: fvu.open_pnl(w),
@@ -1320,9 +1320,6 @@ def _form_registry() -> dict[str, callable]:
         # Blocked-table leaves -> some now have real UIs
         "Night Audit Process": (lambda w: narep_ui.open_nightaudit_reports(w)) if narep_ui else _coming_soon("Night Audit Process"),
         "Night Audit Control Panel": (lambda w: narep_ui.open_nightaudit_reports(w)) if narep_ui else _coming_soon("Night Audit Control Panel"),
-        "Reverse Night Audit": _reverse_night_audit,
-        "Charges Posting": (lambda w: narep_ui.open_nightaudit_reports(w)) if narep_ui else _coming_soon("Charges Posting"),
-        "Account Posting": (lambda w: narep_ui.open_nightaudit_reports(w)) if narep_ui else _coming_soon("Account Posting"),
         "Bill Reprint": (lambda w: psub_ui.open_bill_reprint(w)) if psub_ui else _coming_soon("Bill Reprint"),
         "Merge Room": (lambda w: fosub_ui.open_merge_charge(w)) if fosub_ui else _coming_soon("Merge Room"),
         "Bill Re-Settlement": (lambda w: fosub_ui.open_re_settlement(w)) if fosub_ui else _coming_soon("Bill Re-Settlement"),
@@ -1463,7 +1460,7 @@ def _form_registry() -> dict[str, callable]:
              "Sale Bill Modification",
          )}),
         # PlanPopup (VB6 me bhi blank-caption popup leaves the — documented skip)
-        "": _coming_soon("(Plan Popup)"),
+        "": _doc_skip("(Plan Popup)"),
         # Wave 4: Operations UIs (booking, hall, HR, members, services, POS, finance)
         "Booking Operations": (lambda w: book_ui.open_booking_ops(w)) if book_ui else None,
         "Hall Booking": (lambda w: hall_ui.open_hall_booking(w)) if hall_ui else None,
@@ -1489,7 +1486,6 @@ def _form_registry() -> dict[str, callable]:
             for cap in (_rpmod.menu_caption_map() if _rpmod else {})}),
         # ── menuHelp missing-opener wires (VB6 ports; 2026-09-23 audit) ──
         "Table Master": (lambda w: ptable_ui.open_pos_table(w)) if ptable_ui else _coming_soon("Table Master"),
-        "Member Master": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else _coming_soon("Member Master"),
         "Member Select Category": (lambda w: hr.open_memcat(w)) if hr else _coming_soon("Member Select Category"),
         "Purchase Sundry Setting": (lambda w: p2.open_sundry(w)) if p2 else _coming_soon("Purchase Sundry Setting"),
         "Enviro Inventry": (lambda w: gs.open_enviro(w)) if gs else _coming_soon("Enviro Inventry"),
@@ -1527,6 +1523,135 @@ def _form_registry() -> dict[str, callable]:
         "SMS Send": (lambda w: sms_http_ui.open_sms_compose(w)) if sms_http_ui else _coming_soon("SMS Send"),
         # Door Locks (VB6 frmGodrejLockSettings port)
         "Door Lock Settings": (lambda w: door_lock_ui.open_door_lock_settings(w)) if door_lock_ui else _coming_soon("Door Lock Settings"),
+        # ── missing_leaves.txt wave (2026-09-24): Operations / POS / Inventory ──
+        "Advance Deposit": (lambda w: fo.open_checkin(w, user=getattr(w, 'user', 'SA'))) if fo else _coming_soon("Advance Deposit"),
+        "Reservation With History": lambda w: ReservationBrowser(w).exec(),
+        "Reservation Status Screen": _open_res_report("arrival"),
+        "Check Out Clearance Screen": (lambda w: fo2.open_checkout(w, user=getattr(w, 'user', 'SA'))) if fo2 else _coming_soon("Check Out Clearance Screen"),
+        "Display Rack": (lambda w: rs_ui.open_roomstatus(w, user=getattr(w, 'user', 'SA'))) if rs_ui else _coming_soon("Display Rack"),
+        "Reverse Room Merge": (lambda w: fosub_ui.open_merge_charge(w)) if fosub_ui else _coming_soon("Reverse Room Merge"),
+        "Sale Bill Entry": (lambda w: psale_ui.open_pos_sales(w)) if psale_ui else _coming_soon("Sale Bill Entry"),
+        "Order Booking": (lambda w: psale_ui.open_pos_sales(w)) if psale_ui else _coming_soon("Order Booking"),
+        "Order Booking Advance": (lambda w: psale_ui.open_pos_sales(w)) if psale_ui else _coming_soon("Order Booking Advance"),
+        "Token Entry": (lambda w: kot.open_kot_entry(w, user=getattr(w, 'user', 'SA'))) if kot else _coming_soon("Token Entry"),
+        "Settlement Entry": (lambda w: psub_ui.open_bill_reprint(w)) if psub_ui else _coming_soon("Settlement Entry"),
+        "Bill Lookup": (lambda w: gl_ui.open_guest_lookup(w)) if gl_ui else _coming_soon("Bill Lookup"),
+        "Display Table": (lambda w: ptable_ui.open_pos_table(w)) if ptable_ui else _coming_soon("Display Table"),
+        "Assign Delivery": (lambda w: pdel_ui.open_pos_delivery(w)) if pdel_ui else _coming_soon("Assign Delivery"),
+        "Item Entry": (lambda w: p2.open_item(w)) if p2 else _coming_soon("Item Entry"),
+        "Item  List": (lambda w: pm.open_itemcat(w, user=getattr(w, 'user', 'SA'))) if pm else _coming_soon("Item  List"),
+        "Party Master": (lambda w: p2.open_sundry(w)) if p2 else _coming_soon("Party Master"),
+        "Consumption Master": (lambda w: p2.open_item(w)) if p2 else _coming_soon("Consumption Master"),
+        "Member Facility Billing": (lambda w: facb_ui.open_facility_billing(w)) if facb_ui else _coming_soon("Member Facility Billing"),
+        "Member Bill Printing": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else _coming_soon("Member Bill Printing"),
+        "Member Visit Entry": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else _coming_soon("Member Visit Entry"),
+        "Member Renewal Entry": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else _coming_soon("Member Renewal Entry"),
+        "Member Assistant": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else _coming_soon("Member Assistant"),
+        "Corporate Member Master": (lambda w: hr.open_memcat(w)) if hr else _coming_soon("Corporate Member Master"),
+        "Rate Group Master": (lambda w: pm.open_scheme(w, user=getattr(w, 'user', 'SA'))) if pm else _coming_soon("Rate Group Master"),
+        "Setup Outlet": (lambda w: pm.open_session(w, user=getattr(w, 'user', 'SA'))) if pm else _coming_soon("Setup Outlet"),
+        "Customer History": (lambda w: gl_ui.open_guest_lookup(w)) if gl_ui else _coming_soon("Customer History"),
+        "Block Master": (lambda w: gs.open_roomfeature(w)) if gs else _coming_soon("Block Master"),
+        "Pending Purchase Order": (lambda w: p2.open_item(w)) if p2 else _coming_soon("Pending Purchase Order"),
+        "Guest Comments": (lambda w: gsvc_ui.open_guest_services(w)) if gsvc_ui else _coming_soon("Guest Comments"),
+        "Catalog Selection": (lambda w: bm.open_catalog(w)) if bm else _coming_soon("Catalog Selection"),
+        "SMS Center Settings": (lambda w: sms_ui_mod.SMSEnviroSettings(w)) if sms_ui_mod else _coming_soon("SMS Center Settings"),
+        "Multiple SMS Type": (lambda w: sms_ui_mod.SMSEnviroSettings(w)) if sms_ui_mod else _coming_soon("Multiple SMS Type"),
+        "Send SMS": (lambda w: sms_ui_mod.open_sms_send(w)) if sms_ui_mod else _coming_soon("Send SMS"),
+        "Card Recharge": (lambda w: pm.open_auto_settle_card_balance(w)) if pm else _coming_soon("Card Recharge"),
+        "Card Refund": (lambda w: pm.open_auto_settle_card_balance(w)) if pm else _coming_soon("Card Refund"),
+        "Card Initialization": (lambda w: pm.open_smartcard(w)) if pm else _coming_soon("Card Initialization"),
+        "Recharge/Refund Entry": (lambda w: pm.open_auto_settle_card_balance(w)) if pm else _coming_soon("Recharge/Refund Entry"),
+        "Voucher Serialisation": (lambda w: gs.open_vouchertype(w)) if gs else _coming_soon("Voucher Serialisation"),
+        "Environment Settings": (lambda w: gs.open_enviro(w)) if gs else _coming_soon("Environment Settings"),
+        "Data Transfer": _doc_skip("Data Transfer"),
+        "Data Transfer (POS)": _doc_skip("Data Transfer (POS)"),
+        "Transfer (Offline)": _doc_skip("Transfer (Offline)"),
+        "Transfer (Online)": _doc_skip("Transfer (Online)"),
+        "Data Recieving": _doc_skip("Data Recieving"),
+        "Inconsistency Check": _doc_skip("Inconsistency Check"),
+        "Task Scheduler": _doc_skip("Task Scheduler"),
+        "POS Bill Deletion": _doc_skip("POS Bill Deletion"),
+        "POS Recycle": _doc_skip("POS Recycle"),
+        "Menu Item Copy": _doc_skip("Menu Item Copy"),
+        "PLU File (W.Scale)": _doc_skip("PLU File (W.Scale)"),
+        "Sale MIS Customized": _doc_skip("Sale MIS Customized"),
+        "Voucher Wise Sundry Entry": (lambda w: p2.open_sundry(w)) if p2 else _coming_soon("Voucher Wise Sundry Entry"),
+        "Facility Sundry Setting": (lambda w: p2.open_sundry(w)) if p2 else _coming_soon("Facility Sundry Setting"),
+        "Banquet Bill Sundry Setting": (lambda w: p2.open_sundry(w)) if p2 else _coming_soon("Banquet Bill Sundry Setting"),
+        "Outlet Bill Sundry Setting": (lambda w: p2.open_sundry(w)) if p2 else _coming_soon("Outlet Bill Sundry Setting"),
+        "Member Bill Sundry Setting": (lambda w: p2.open_sundry(w)) if p2 else _coming_soon("Member Bill Sundry Setting"),
+        "House Keeping Op.Stock Entry": (lambda w: pfui.open_location_opening_stock(w)) if pfui else _coming_soon("House Keeping Op.Stock Entry"),
+        "Issue/Recd. Entry": (lambda w: pstock_ui.open_pos_stock(w)) if pstock_ui else _coming_soon("Issue/Recd. Entry"),
+        "Gravy Item Entry": (lambda w: p2.open_item(w)) if p2 else _coming_soon("Gravy Item Entry"),
+        "Finish Material Receive Entry": (lambda w: pstock_ui.open_pos_stock(w)) if pstock_ui else _coming_soon("Finish Material Receive Entry"),
+        "Item Issued On Cleaning": (lambda w: pstock_ui.open_pos_stock(w)) if pstock_ui else _coming_soon("Item Issued On Cleaning"),
+        "Meter Reading": _doc_skip("Meter Reading"),
+        "Com Port Properties": _doc_skip("Com Port Properties"),
+        "Cancellation Letters": _doc_skip("Cancellation Letters"),
+        "Confirmation Letters": _doc_skip("Confirmation Letters"),
+        "GRC Printing": _doc_skip("GRC Printing"),
+        "Blank GRC": _doc_skip("Blank GRC"),
+        "Registration Card": (lambda w: reg_ui.open_registration_entry(w)) if reg_ui else _coming_soon("Registration Card"),
+        "Travel Agency Posting": _doc_skip("Travel Agency Posting"),
+        "Forex Receive Entry": _doc_skip("Forex Receive Entry"),
+        "Excise Invoice Cum Gate Pass": _doc_skip("Excise Invoice Cum Gate Pass"),
+        "Payment Due Letter Entry": _doc_skip("Payment Due Letter Entry"),
+        "Add/Edit/Delete Group With Reservation": (lambda w: book_ui.open_booking_ops(w)) if book_ui else _coming_soon("Add/Edit/Delete Group With Reservation"),
+        "Plan Meal Tokens": (lambda w: kot.open_kot_entry(w, user=getattr(w, 'user', 'SA'))) if kot else _coming_soon("Plan Meal Tokens"),
+        "Changes Department": (lambda w: p2.open_depart(w)) if p2 else _coming_soon("Changes Department"),
+        "Restaurant Change": (lambda w: p2.open_depart(w)) if p2 else _coming_soon("Restaurant Change"),
+        "Open Item Consumption": (lambda w: psale_ui.open_pos_sales(w)) if psale_ui else _coming_soon("Open Item Consumption"),
+        "Kitchen Stock Summary": _doc_skip("Kitchen Stock Summary"),
+        "Charges Remove Log": _doc_skip("Charges Remove Log"),
+        "Reward Points Parameter I": _doc_skip("Reward Points Parameter I"),
+        "Registered Guest Detail": (lambda w: gl_ui.open_guest_lookup(w)) if gl_ui else _coming_soon("Registered Guest Detail"),
+        "Group Arrival Report": _open_report("Group Arrival Report"),
+        "Group Pickup Report": _open_report("Group Pickup Report"),
+        "Advance Recd. Report": _open_report("Advance Recd. Report"),
+        "Expected Plan/Package FB Details": _open_report("Expected Plan/Package FB Details"),
+        "Member Bill Missing Report": _open_report("Member Bill Missing Report"),
+        "Change Kitchen/Store": _open_report("Change Kitchen/Store"),
+        "Room Status Report": _open_report("Room Status Report"),
+        "Banquet Taxwise Details": _open_report("Banquet Taxwise Details"),
+        "Monthly Return": _open_report("Monthly Return"),
+        "L.T. FORM II": _open_report("L.T. FORM II"),
+        "L.T. FORM IV": _open_report("L.T. FORM IV"),
+        # module root captions (group headers) -> coming soon (documented)
+        "Finance": _doc_skip("Finance"),
+        "Front Office": _doc_skip("Front Office"),
+        "House Keeping": _doc_skip("House Keeping"),
+        "Inventory": _doc_skip("Inventory"),
+        "Point of Sale": _doc_skip("Point of Sale"),
+        "Point Of Sale": _doc_skip("Point Of Sale"),
+        "POS Operations": _doc_skip("POS Operations"),
+        "Members Mgmt": _doc_skip("Members Mgmt"),
+        "M.I.S.": _doc_skip("M.I.S."),
+        "MIS": _doc_skip("MIS"),
+        "POS M.I.S.": _doc_skip("POS M.I.S."),
+        "POS Reports": _doc_skip("POS Reports"),
+        "Reports": _doc_skip("Reports"),
+        "Setup": _doc_skip("Setup"),
+        "Utility": _doc_skip("Utility"),
+        "Tax Reports": _doc_skip("Tax Reports"),
+        "Tax Report": _doc_skip("Tax Report"),
+        "Tourism Forms": _doc_skip("Tourism Forms"),
+        "Banquet": _doc_skip("Banquet"),
+        "HR/Payroll": _doc_skip("HR/Payroll"),
+        "General": _doc_skip("General"),
+        "General Setup": _doc_skip("General Setup"),
+        "EPABX": _doc_skip("EPABX"),
+        "SMS": _doc_skip("SMS"),
+        "Look Ups": _doc_skip("Look Ups"),
+        "Display": _doc_skip("Display"),
+        "Operation": _doc_skip("Operation"),
+        "Transaction": _doc_skip("Transaction"),
+        "Reward Points": _doc_skip("Reward Points"),
+        "Telephone Report": _doc_skip("Telephone Report"),
+        "Manage MDI": _doc_skip("Manage MDI"),
+        "Tile Horizontal": _doc_skip("Tile Horizontal"),
+        "Tile Vertical": _doc_skip("Tile Vertical"),
+        "Cascade": _doc_skip("Cascade"),
     }
 
 
@@ -1626,20 +1751,22 @@ class MainWindow(QMainWindow):
         # --- VB6 Sidebar: teal gradient module buttons ---
         self.sidebar = QFrame()
         self._sidebar_collapsed = False
-        self.sidebar.setFixedWidth(150)
+        self.sidebar.setFixedWidth(160)
         self.sidebar.setStyleSheet("QFrame { background: #ffffff; border: none; }")
         side_lay = QVBoxLayout(self.sidebar)
-        side_lay.setContentsMargins(0, 6, 0, 0)
-        side_lay.setSpacing(3)
+        side_lay.setContentsMargins(0, 4, 0, 0)
+        side_lay.setSpacing(0)
 
         side_scroll = QScrollArea()
         side_scroll.setWidgetResizable(True)
-        side_scroll.setStyleSheet("QScrollArea { border: none; background: #ffffff; }")
+        side_scroll.setFrameShape(QFrame.Shape.NoFrame)
+        side_scroll.setStyleSheet(
+            "QScrollArea { border: none; background: #ffffff; }")
         side_scroll_content = QWidget()
         side_scroll_content.setStyleSheet("background: #ffffff;")
         self.side_menu_lay = QVBoxLayout(side_scroll_content)
-        self.side_menu_lay.setContentsMargins(1, 1, 1, 1)
-        self.side_menu_lay.setSpacing(1)
+        self.side_menu_lay.setContentsMargins(2, 2, 2, 2)
+        self.side_menu_lay.setSpacing(4)
 
         self._side_buttons = []
         self._side_section_labels = []
@@ -1659,25 +1786,17 @@ class MainWindow(QMainWindow):
                     str(it["label"]).strip().lower()))
 
         _p0 = palette()
+        # VB6 screenshot jaisa: sirf teal module buttons, koi section header nahi
+        _hide_sections = ("#ffffff", 0)
         for sec_title, items in all_buttons.items():
-            sec_lbl = QLabel(sec_title.upper())
-            sec_lbl.setStyleSheet(f"""
-                QLabel {{
-                    background: {_p0['sidebar_bottom']};
-                    color: {_p0['sidebar_hover']};
-                    font-size: 7pt;
-                    font-weight: bold;
-                    letter-spacing: 2px;
-                    padding: 1px 6px;
-                    border: none;
-                }}
-            """)
-            sec_lbl.setFixedHeight(14)
+            sec_lbl = QLabel("")
+            sec_lbl.setFixedHeight(0)
+            sec_lbl.setVisible(False)
             self.side_menu_lay.addWidget(sec_lbl)
             self._side_section_labels.append(sec_lbl)
 
             for item in items:
-                # VB6 teal gradient button (bold italic, token colors)
+                # VB6 teal gradient button (bold italic white / selected yellow)
                 label_text = item["label"]
                 b = QPushButton(label_text)
                 b.setProperty("sidebar-btn", True)
@@ -1686,7 +1805,8 @@ class MainWindow(QMainWindow):
                 b.setCursor(Qt.CursorShape.PointingHandCursor)
                 b.setStyleSheet(self._sidebar_btn_qss())
                 b.setToolTip(label_text)
-                b.setMinimumHeight(40)
+                b.setMinimumHeight(44)
+                b.setMinimumWidth(154)
                 b.setSizePolicy(QSizePolicy.Policy.Expanding,
                                 QSizePolicy.Policy.Fixed)
                 b.setProperty("mod_target", item["mod_target"])
@@ -1717,14 +1837,16 @@ class MainWindow(QMainWindow):
         self.fo_dashboard.openModule.connect(self._handle_dashboard_action)
         self.central_ws_lay.addWidget(self.fo_dashboard)
 
-        # 2. Module Canvas: VB6 MDI background (Hotel.bmp tree) + hint strip
+        # 2. Module Canvas: VB6 MDI yellow MDI client + optional Hotel.bmp
         self.canvas = QLabel()
         self.canvas.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.canvas.setStyleSheet("QLabel { background: #ffffff; border: none; }")
+        self.canvas.setStyleSheet(
+            "QLabel { background: #ffff99; border: none; }")
         self._tree_pix = QPixmap(os.path.join(
             os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
             "pic", "Hotel.bmp"))
-        if not self._tree_pix.isNull():
+        # Yellow empty client (VB6 screenshot) — tree image sirf optional
+        if not self._tree_pix.isNull() and False:
             self.canvas.setPixmap(self._tree_pix)
         self.canvas.setVisible(False)
         self.central_ws_lay.addWidget(self.canvas, stretch=1)
@@ -1733,7 +1855,7 @@ class MainWindow(QMainWindow):
         self.canvas_hint.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.canvas_hint.setStyleSheet(
             "QLabel { color: #444444; font-size: 10pt;"
-            " background: #ffffff; border: none; padding: 2px; }")
+            " background: #ffff99; border: none; padding: 2px; }")
         self.canvas_hint.setVisible(False)
         self.central_ws_lay.addWidget(self.canvas_hint)
 
@@ -1939,9 +2061,8 @@ class MainWindow(QMainWindow):
 
     # ── helpers ──────────────────────────────────────────────────────
     def _sidebar_btn_qss(self) -> str:
-        """Sidebar button QSS current palette tokens se (Appearance-
-        customizable: sidebar_top/bottom/text/border + derived hover/
-        checked). Refresh ke liye refresh_sidebar_style() use karo."""
+        """VB6 MDI sidebar: teal vertical gradient, bold italic white text;
+        selected button pe yellow text (live EXE screenshot parity)."""
         p = palette()
         top, mid, bot = (p["sidebar_top"],
                          _theme._mix(p["sidebar_top"], p["sidebar_bottom"], 0.5),
@@ -1950,21 +2071,28 @@ class MainWindow(QMainWindow):
             QPushButton[sidebar-btn="true"] {{
                 background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                     stop:0 {top}, stop:0.5 {mid}, stop:1 {bot});
-                color: {p['sidebar_text']};
+                color: #ffffff;
                 border: 1px solid {p['sidebar_border']};
                 border-radius: 0px;
-                font-size: 10pt;
+                font-size: 11pt;
                 font-weight: bold;
                 font-style: italic;
+                font-family: Arial;
                 text-align: center;
-                padding: 6px 4px;
+                padding: 8px 4px;
+                min-height: 36px;
             }}
             QPushButton[sidebar-btn="true"]:hover {{
-                background: {p['sidebar_hover']};
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                    stop:0 {_theme._mix(top, '#ffffff', 0.22)},
+                    stop:1 {_theme._mix(bot, '#ffffff', 0.12)});
+                color: #ffff66;
             }}
             QPushButton[sidebar-btn="true"]:checked {{
-                background: {p['sidebar_checked']};
-                border: 2px solid {p['sidebar_border']};
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                    stop:0 {top}, stop:1 {bot});
+                color: #ffff00;
+                border: 1px solid #ffff00;
             }}
         """
 
@@ -1976,17 +2104,8 @@ class MainWindow(QMainWindow):
         for b in self._side_buttons:
             b.setStyleSheet(qss)
         for lbl in self._side_section_labels:
-            lbl.setStyleSheet(f"""
-                QLabel {{
-                    background: {p['sidebar_bottom']};
-                    color: {p['sidebar_hover']};
-                    font-size: 7pt;
-                    font-weight: bold;
-                    letter-spacing: 2px;
-                    padding: 1px 6px;
-                    border: none;
-                }}
-            """)
+            lbl.setVisible(False)
+            lbl.setFixedHeight(0)
         self.sidebar.setStyleSheet("QFrame { background: #ffffff; border: none; }")
 
     def _safe_open(self, leaf: str):

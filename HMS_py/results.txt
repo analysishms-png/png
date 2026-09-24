@@ -1,0 +1,23 @@
+============================= test session starts =============================
+platform win32 -- Python 3.14.4, pytest-9.0.3, pluggy-1.6.0
+rootdir: C:\Users\LENOVO\Desktop\serialkey\PROJECT_REPAIR - Copy\HMS_py\HMS_py
+configfile: pytest.ini (WARNING: ignoring pytest config in pyproject.toml!)
+plugins: anyio-4.14.2, asyncio-1.4.0, cov-7.1.0, timeout-2.4.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 310 items
+
+tests\test_front_office.py ...........................                   [  8%]
+tests\test_ui_walkthroughs.py ....................                       [ 15%]
+tests\unit\test_bugfix_batch.py .................................        [ 25%]
+tests\unit\test_core_validation.py ..................................... [ 37%]
+....................................................................     [ 59%]
+tests\unit\test_door_lock.py ..................................          [ 70%]
+tests\unit\test_menu_help.py ..                                          [ 71%]
+tests\unit\test_menuhelp_dynamic.py ......                               [ 73%]
+tests\unit\test_menuhelp_user_rights.py ...                              [ 74%]
+tests\unit\test_missing_logic_core.py ..............                     [ 78%]
+tests\unit\test_sms_http.py ..........................................   [ 92%]
+tests\unit\test_user_permissions_ui.py ......                            [ 94%]
+tests\unit\test_year_end.py ..................                           [100%]
+
+======================= 310 passed in 72.49s (0:01:12) ========================

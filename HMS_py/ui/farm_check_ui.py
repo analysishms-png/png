@@ -8,7 +8,7 @@ from __future__ import annotations
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QFormLayout,
                               QLabel, QLineEdit, QComboBox, QTextEdit,
                               QPushButton, QGroupBox, QMessageBox, QDateEdit,
-                              QDoubleSpinBox, QSpinBox)
+                              QDoubleSpinBox, QSpinBox, QDialog, QApplication)
 from PyQt6.QtCore import Qt, QDate, pyqtSignal
 from PyQt6.QtGui import QFont
 
