@@ -21,11 +21,14 @@ from HMS_py.core import db
 
 
 def roots() -> list[dict]:
-    """flag=9 sidebar roots [{code, name, srno}]."""
-    return [{"code": r[0], "name": r[1], "srno": r[2]}
-            for r in db.query(
-                "SELECT code, name, srno FROM User_Module "
-                "WHERE flag='9' ORDER BY srno")]
+    """flag=9 sidebar roots [{code, name, srno}]. Offline DB par empty."""
+    try:
+        rows = db.query(
+            "SELECT code, name, srno FROM User_Module "
+            "WHERE flag='9' ORDER BY srno")
+    except Exception:
+        return []
+    return [{"code": r[0], "name": r[1], "srno": r[2]} for r in rows]
 
 
 def sidebar_modules() -> list[dict]:

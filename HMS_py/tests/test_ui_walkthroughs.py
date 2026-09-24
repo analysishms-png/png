@@ -299,6 +299,8 @@ class TestMainWindowFlow:
         }]
         monkeypatch.setattr(menu, "sidebar_modules",
                             lambda: list(fake_modules))
+        monkeypatch.setattr(menu, "roots",
+                            lambda: list(fake_modules))
         monkeypatch.setattr(menu, "menubar_for",
                             lambda name, user: [dict(g) for g in fake_menubar])
         monkeypatch.setattr(
