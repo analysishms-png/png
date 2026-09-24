@@ -1,0 +1,37 @@
+#!/bin/sh
+# Pre-commit guard (parallel-agent protection):
+#  1) every staged .py file must compile
+#  2) ui/shell.py must not be a stripped/simplified overwrite
+#     (the real shell has menuHelp menubar + CI registry + VB6 UI, ~2100+ lines)
+
+fail=0
+
+# --- 1) compile check on staged python files ---
+for f in $(git diff --cached --name-only --diff-filter=ACMR | grep '\.py$'); do
+  if [ -f "$f" ]; then
+    if ! python -m py_compile "$f" 2>/tmp/pyc_err; then
+      echo "PRE-COMMIT BLOCK: $f does not compile:"
+      cat /tmp/pyc_err
+      fail=1
+    fi
+  fi
+done
+
+# --- 2) shell.py overwrite guard ---
+if git diff --cached --name-only --diff-filter=ACMR | grep -qE '(^|/)HMS_py/ui/shell\.py$|^HMS_py/ui/shell\.py$|^ui/shell\.py$'; then
+  LINES=$(wc -l < ui/shell.py 2>/dev/null || wc -l < HMS_py/ui/shell.py 2>/dev/null)
+  if [ -n "$LINES" ] && [ "$LINES" -lt 1500 ]; then
+    echo "PRE-COMMIT BLOCK: ui/shell.py looks like a stripped overwrite ($LINES lines; real shell ~2100+)."
+    echo "  A parallel agent may have simplified it. Verify _form_registry/_reg_ci/menuHelp wiring."
+    echo "  If this is intentional, commit with --no-verify."
+    fail=1
+  fi
+  for pat in _form_registry _reg_ci menuHelp; do
+    if ! grep -q "$pat" ui/shell.py 2>/dev/null && ! grep -q "$pat" HMS_py/ui/shell.py 2>/dev/null; then
+      echo "PRE-COMMIT BLOCK: ui/shell.py missing '$pat' (likely stripped overwrite)."
+      fail=1
+    fi
+  done
+fi
+
+exit $fail

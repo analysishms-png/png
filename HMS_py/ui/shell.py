@@ -713,6 +713,12 @@ def _form_registry() -> dict[str, callable]:
         from HMS_py.ui import fa_voucher_ui as fvu
     except ImportError:
         fvu = None
+    # PARTIAL-bucket ports (VB6: FaTDSCat/FaGrEnt/FaSubGroup/FaGlobeNarr/
+    # DepOpStk/FaMagic/FaReports/DepartMast/FaChqClear/FaAdjustDel)
+    try:
+        from HMS_py.ui import partial_forms_ui as pfui
+    except ImportError:
+        pfui = None
     # Wave 4 imports (new UI forms for 26+ core modules)
     try:
         from HMS_py.ui import booking_ops_ui as book_ui
@@ -1091,14 +1097,14 @@ def _form_registry() -> dict[str, callable]:
         "Session Master": (lambda w: pm.open_session(w, user=getattr(w, "user", "SA"))) if pm else None,
         "Scheme Master":  (lambda w: pm.open_scheme(w, user=getattr(w, "user", "SA"))) if pm else None,
         "Delivery Boy":   (lambda w: pm.open_delboy(w, user=getattr(w, "user", "SA"))) if pm else None,
-        "Item List":      (lambda w: pm.open_itemcat(w, user=getattr(w, "user", "SA"))) if pm else None,
+"Item List":      (lambda w: pm.open_itemcat(w, user=getattr(w, "user", "SA"))) if pm else None,
         "Menu Category":  (lambda w: pm.open_itemcat(w, user=getattr(w, "user", "SA"))) if pm else None,
         # Wave 3: Banquet masters
         "Venue Features":    (lambda w: bm.open_venfeature(w)) if bm else None,
         "Catalog Master":    (lambda w: bm.open_catalog(w)) if bm else None,
         "Group Profile":     (lambda w: bm.open_groupprof(w)) if bm else None,
         # Wave 3: HR/Payroll masters
-        "Category  Master":  (lambda w: hr.open_empcat(w)) if hr else None,
+        "Category Master":  (lambda w: hr.open_empcat(w)) if hr else None,
         "Holiday Master":    (lambda w: hr.open_holiday(w)) if hr else None,
         "Employee Master":   (lambda w: hr.open_employee(w)) if hr else None,
         "Designation":       (lambda w: hr.open_desig(w)) if hr else None,
@@ -1177,7 +1183,7 @@ def _form_registry() -> dict[str, callable]:
         "Menu Group": (lambda w: pm.open_itemcat(w)) if pm else None,
         "Menu Item": (lambda w: pm.open_item(w)) if pm else None,
         "Item Category": (lambda w: pm.open_itemcat(w)) if pm else None,
-        "Item  List": (lambda w: pm.open_itemcat(w)) if pm else None,
+        "Item List": (lambda w: pm.open_itemcat(w)) if pm else None,
         "Location Master": (lambda w: gs.open_godown(w)) if gs else None,
         "Extension Master": (lambda w: epabx.open_extension(w)) if epabx else None,
         "Call Type Master": (lambda w: epabx.open_calltype(w)) if epabx else None,
@@ -1186,7 +1192,20 @@ def _form_registry() -> dict[str, callable]:
         # Naye modules (Scheme/HappyHours/TDS)
         "Happy Hours": (lambda w: stu.open_happyhours(w)) if stu else None,
         "Happy Hours [ Free Items ]": (lambda w: stu.open_happyhours(w)) if stu else None,
-        "T.D.S. Category": (lambda w: stu.open_tdscat(w)) if stu else None,
+        "T.D.S. Category": (lambda w: pfui.open_tds_category(w)) if pfui else (lambda w: stu.open_tdscat(w)) if stu else None,
+        # --- PARTIAL bucket top-10 (VB6-faithful UI ports, partial_forms_ui) ---
+        "T.D.S.Category Entry": (lambda w: pfui.open_tds_category(w)) if pfui else None,
+        "Group Accounts Entry": (lambda w: pfui.open_group_accounts(w)) if pfui else None,
+        "Ledger Accounts Entry": (lambda w: pfui.open_ledger_accounts(w)) if pfui else None,
+        "Global Narration": (lambda w: pfui.open_global_narration(w)) if pfui else None,
+        "Location wise Opening Stock": (lambda w: pfui.open_location_opening_stock(w)) if pfui else None,
+        "Location wise Opening Stock Entry": (lambda w: pfui.open_location_opening_stock(w)) if pfui else None,
+        "Magic": (lambda w: pfui.open_magic(w)) if pfui else None,
+        "Finance Reports": (lambda w: pfui.open_fa_reports(w)) if pfui else None,
+        "ReprtForm": (lambda w: pfui.open_fa_reports(w)) if pfui else None,
+        "Department Master": (lambda w: pfui.open_department_master(w)) if pfui else None,
+        "Cheque/DD Clearing Entry": (lambda w: pfui.open_cheque_dd_clearing(w)) if pfui else None,
+        "Adjustment Delete": (lambda w: pfui.open_adjustment_delete(w)) if pfui else None,
         # --- S1 wire-only wave (live opener/report alias, VB6 captions) ---
         # Finance ops (cores already exist: fa_ledger_ops/fa_tds_ops/fa_voucher)
         "Adjustment Entry": (lambda w: fasub_ui.open_fa_adjust(w)) if fasub_ui else _coming_soon("Adjustment Entry"),
@@ -1260,7 +1279,7 @@ def _form_registry() -> dict[str, callable]:
             "Daily DIET Report", "Not Delivered Order", "Group Wise Sale",
             "Denomination Detail", "Payment Receive Entry (POS)",
             "Collection Summary", "Open Item Sales", "KOT Change Report",
-            "Monthwise Sales", "ABC  Analysis", "Sale Summary",
+            "Monthwise Sales", "ABC Analysis", "Sale Summary",
             "Taxwise Details", "Group Pickup Report", "Group Arrival Report",
             "Arrival List", "23 Day Room Availability Forecast",
             "23 Day Room Type Availability Forecast", "Cover Analysis Report",
@@ -1300,7 +1319,7 @@ def _form_registry() -> dict[str, callable]:
         # Truly blocked (no DB tables)
         **({cap: _coming_soon(cap) for cap in (
             "Forex Receive Entry", "Display Rack", "Travel Agency Posting",
-            "Reverse Room Merge", "Blank GRC", "Add/Edit/Delete Group With Reservation ",
+            "Reverse Room Merge", "Blank GRC", "Add/Edit/Delete Group With Reservation",
             "Reservation With History",
             "Advance Deposit", "Confirmation Letters", "Cancellation Letters",
             "Reservation Status Screen", "Block Master", "Item Issued On Cleaning",
@@ -1328,7 +1347,7 @@ def _form_registry() -> dict[str, callable]:
              "SMS (API)", "SMS (Scheduled)", "SMS (Conditional)",
              "Transfer (Offline)", "Transfer (Online)",
               "Cascade", "Tile Horizontal", "Tile Vertical",
-             "Manage MDI", "Restaurant Change ",
+             "Manage MDI", "Restaurant Change",
              "Exit", "SMS Center Settings",
          )}),
         "Leave": (lambda w: payroll_ui.open_hr_payroll(w)) if payroll_ui else _coming_soon("Leave"),
@@ -1393,7 +1412,7 @@ def _form_registry() -> dict[str, callable]:
         "Pending M.R.": (lambda w: reqslip_ui.open_requisition_slip(w)) if reqslip_ui else _coming_soon("Pending M.R."),
         # --- S1 tail: blocked tables (click par documented VB6-style message) ---
         **({cap: _coming_soon(cap) for cap in (
-            "Party Master", "Item Entry ", "Consumption Master",
+            "Party Master", "Item Entry", "Consumption Master",
             "Purchase Sundry Setting", "Enviro Inventry",
             "Gravy Item Entry",
             "Finish Material Receive Entry", "Excise Invoice Cum Gate Pass",
@@ -1404,7 +1423,7 @@ def _form_registry() -> dict[str, callable]:
             "Data Transfer (POS)", "PLU File (W.Scale)", "POS Recycle",
             "Task Scheduler", "Voucher Serialisation",
             "Voucher Wise Sundry Entry", "Expected Plan/Package FB Details",
-            "Cashier  Report", "Attendence Report", "Item Wise Sales Report",
+            "Cashier Report", "Attendence Report", "Item Wise Sales Report",
             "Member Bill Missing Report",
             "Recharge/Refund Entry", "Cash Card Transaction Report",
             "Cash Card Collection Summary", "Card Transaction Report",
