@@ -1,0 +1,43 @@
+{
+  "total": 18,
+  "modules": [
+    "01_Finance",
+    "02_Main_Setup",
+    "03_Reservation",
+    "04_Front_Office",
+    "05_House_Keeping",
+    "06_Inventory",
+    "07_Point_Of_Sale",
+    "08_Banquet",
+    "09_Night_Audit",
+    "10_HR",
+    "11_EPABX",
+    "12_Messaging",
+    "13_Members_Mgmt",
+    "14_Outdoor_Banquet",
+    "15_Extras",
+    "16_Direct_Sale"
+  ],
+  "screenshots": [
+    "01_startup.png",
+    "02_after_login.png",
+    "03_Finance.png",
+    "04_Main_Setup.png",
+    "05_Reservation.png",
+    "06_Front_Office.png",
+    "07_House_Keeping.png",
+    "08_Inventory.png",
+    "09_Point_of_Sale.png",
+    "10_Banquet.png",
+    "11_Night_Audit.png",
+    "12_HR/Payroll.png",
+    "13_EPABX.png",
+    "14_Messaging.png",
+    "15_Members_Mgmt.png",
+    "16_Outdoor_Banquet.png",
+    "17_Extras.png",
+    "18_Direct_Sale.png",
+    "17_final_screen.png"
+  ],
+  "location": "HMS_py/_qa/"
+}

@@ -1,0 +1,7 @@
+{
+  "username": "KK",
+  "password": "kanpur",
+  "sql_username": "sa",
+  "sql_auth_method": "Windows Auth",
+  "note": "kanpur is VB6 application password, not SQL Server password"
+}

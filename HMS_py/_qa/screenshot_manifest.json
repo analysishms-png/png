@@ -1,0 +1,116 @@
+[
+  {
+    "step": 3,
+    "module": "01_Finance",
+    "key": "F",
+    "file": "03_01_Finance.png"
+  },
+  {
+    "step": 4,
+    "module": "02_Main_Setup",
+    "key": "M",
+    "file": "04_02_Main_Setup.png"
+  },
+  {
+    "step": 5,
+    "module": "03_Reservation",
+    "key": "R",
+    "file": "05_03_Reservation.png"
+  },
+  {
+    "step": 6,
+    "module": "04_Front_Office",
+    "key": "O",
+    "file": "06_04_Front_Office.png"
+  },
+  {
+    "step": 7,
+    "module": "05_House_Keeping",
+    "key": "K",
+    "file": "07_05_House_Keeping.png"
+  },
+  {
+    "step": 8,
+    "module": "06_Inventory",
+    "key": "I",
+    "file": "08_06_Inventory.png"
+  },
+  {
+    "step": 9,
+    "module": "07_Point_Of_Sale",
+    "key": "P",
+    "file": "09_07_Point_Of_Sale.png"
+  },
+  {
+    "step": 10,
+    "module": "08_Banquet",
+    "key": "B",
+    "file": "10_08_Banquet.png"
+  },
+  {
+    "step": 11,
+    "module": "09_Night_Audit",
+    "key": "A",
+    "file": "11_09_Night_Audit.png"
+  },
+  {
+    "step": 12,
+    "module": "10_HR",
+    "key": "H",
+    "file": "12_10_HR.png"
+  },
+  {
+    "step": 13,
+    "module": "11_EPABX",
+    "key": "X",
+    "file": "13_11_EPABX.png"
+  },
+  {
+    "step": 14,
+    "module": "12_Messaging",
+    "key": "N",
+    "file": "14_12_Messaging.png"
+  },
+  {
+    "step": 15,
+    "module": "13_Members_Mgmt",
+    "key": "T",
+    "file": "15_13_Members_Mgmt.png"
+  },
+  {
+    "step": 16,
+    "module": "14_Outdoor_Banquet",
+    "key": "U",
+    "file": "16_14_Outdoor_Banquet.png"
+  },
+  {
+    "step": 17,
+    "module": "15_Extras",
+    "key": "E",
+    "file": "17_15_Extras.png"
+  },
+  {
+    "step": 18,
+    "module": "16_Direct_Sale",
+    "key": "D",
+    "file": "18_16_Direct_Sale.png"
+  },
+  {
+    "step": 1,
+    "module": "startup",
+    "key": "-",
+    "file": "01_startup.png"
+  },
+  {
+    "step": 2,
+    "module": "after_login",
+    "key": "-",
+    "file": "02_after_login.png"
+  },
+  {
+    "step": 17,
+    "module": "final",
+    "key": "-",
+    "file": "17_final_screen.png"
+  }
+]

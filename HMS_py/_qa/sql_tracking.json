@@ -1,0 +1,25 @@
+{
+  "server": "Localhost",
+  "database": "MOONData2627",
+  "auth": "Windows Authentication (-E)",
+  "total_tables": 274,
+  "connection_test": "OK",
+  "key_tables_verified": [
+    "Company (1 row)",
+    "menuHelp (8475 rows)",
+    "User_Module (617 rows)",
+    "GuestProf (7215 rows)",
+    "RoomMast (86 rows)",
+    "Booking (19 rows)",
+    "Sale1 (5952 rows)",
+    "Stock (30369 rows)",
+    "ItemMast (3292 rows)",
+    "KOT (13907 rows)",
+    "PayCharge (13723 rows)",
+    "Ledger (18474 rows)",
+    "FolioLog (972 rows)",
+    "Indent (959 rows)",
+    "RoomOcc (11002 rows)"
+  ],
+  "note": "kanpur is VB6 login password, SQL Server uses Windows Auth"
+}
