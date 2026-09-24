@@ -24,9 +24,10 @@ from PyQt6.QtWidgets import (QApplication, QComboBox, QDateEdit, QDialog,
                              QMessageBox, QPushButton, QTableWidget,
                              QTableWidgetItem, QVBoxLayout, QWidget)
 
-from HMS_py.core import pos
+from HMS_py.core import db, pos
 from HMS_py.ui.base_master import make_delete_guard
 from HMS_py.ui import theme as _theme
+from HMS_py.ui import print_preview as _pp
 
 
 class KOTEntryForm(QDialog):
@@ -480,8 +481,10 @@ class KOTEntryForm(QDialog):
 
             QMessageBox.information(self, "Save",
                 f"KOT saved: {result['docid']} ({result.get('vno', result.get('lines_inserted', 0))} lines)")
-            self.set_state(False)
+            # saved DocId rakhho taaki Print/Void (Idle state) enabled rahe
             self.reload()
+            self.edit_docid = result["docid"]
+            self.set_state(False)
         except ValueError as e:
             QMessageBox.warning(self, "Save", str(e))
         except Exception as e:
@@ -507,8 +510,57 @@ class KOTEntryForm(QDialog):
         if not self.edit_docid:
             QMessageBox.information(self, "Print", "Pehe KOT select karein")
             return
-        QMessageBox.information(self, "Print", 
-            f"KOT Print for {self.edit_docid} - not implemented yet (VB6 uses Crystal Reports)")
+        docid = self.edit_docid
+        try:
+            lines = pos.kot_lines(docid)
+        except Exception as e:
+            QMessageBox.critical(self, "Print", f"DB error: {e}")
+            return
+        if not lines:
+            QMessageBox.information(
+                self, "Print",
+                f"KOT {docid} me data nahi mila (no data).")
+            return
+        header = {}
+        try:
+            rows = db.query(
+                "SELECT TOP 1 VDate, VNo, RestCode, Waiter FROM KOT "
+                "WHERE DocId = ? ORDER BY Sno", (docid,))
+            if rows:
+                header = {"vdate": rows[0][0], "vno": rows[0][1],
+                          "rest": rows[0][2] or "", "waiter": rows[0][3] or ""}
+        except Exception:
+            header = {}
+        _pp.preview_text(self._kot_text(docid, header, lines),
+                         f"KOT {docid}", self)
+
+    @staticmethod
+    def _kot_text(docid: str, header: dict, lines: list) -> str:
+        """Simple KOT text ticket (VB6 Crystal layout pending)."""
+        out = []
+        co = _pp.company_header()
+        if co:
+            out.append(co)
+            out.append("=" * 50)
+        out.append("KITCHEN ORDER TICKET (KOT)")
+        out.append(f"DocId : {docid}")
+        if header:
+            out.append(f"VNo   : {header.get('vno')}   "
+                       f"Date: {header.get('vdate')}")
+            out.append(f"Outlet: {header.get('rest')}   "
+                       f"Waiter: {header.get('waiter')}")
+        out.append("-" * 50)
+        rows = [[l.get("sno"), l.get("name"),
+                 f"{float(l.get('qty') or 0):g}", l.get("unit", ""),
+                 f"{float(l.get('amount') or 0):.2f}"] for l in lines]
+        out.append(_pp.grid_to_text(
+            ["SNo", "Item", "Qty", "Unit", "Amount"], rows))
+        total = sum(float(l.get("amount") or 0) for l in lines)
+        out.append("-" * 50)
+        out.append(f"{'TOTAL':>44}: {total:8.2f}")
+        out.append("")
+        out.append("NOTE: Simple text KOT (VB6 Crystal layout pending).")
+        return "\n".join(out)
 
     def _on_cancel(self):
         self.set_state(False)

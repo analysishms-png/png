@@ -240,6 +240,11 @@ class SMSCommAPI:
     def delete_email_forward(self, id_val, cn=None, commit=True): return delete_email_forward(id_val, cn, commit)
     def list_dbsms(self, cn=None, limit=500): return list_dbsms(cn, limit)
     def insert_dbsms(self, rec, cn=None, commit=True, site=SITE_CODE, user=USER): return insert_dbsms(rec, cn, commit, site, user)
+    def send_queued_sms(self, limit=50, timeout=10.0, cn=None, mark_sent=True):
+        """Dispatch pending DBSendSMS rows via HTTP (P11 MobWebAPI)."""
+        from HMS_py.core.sms_http import send_queued_sms
+        return send_queued_sms(limit=limit, timeout=timeout, cn=cn,
+                               mark_sent=mark_sent)
     def list_reward(self, cn=None, limit=500): return list_reward(cn, limit)
     def insert_reward(self, rec, cn=None, commit=True, site=SITE_CODE, user=USER): return insert_reward(rec, cn, commit, site, user)
     def list_delivery(self, cn=None, limit=500): return list_delivery(cn, limit)

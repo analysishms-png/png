@@ -27,6 +27,7 @@ from PyQt6.QtWidgets import (QApplication, QDialog, QHBoxLayout, QLabel,
 
 from HMS_py.core import checkout, expenseentry
 from HMS_py.ui import theme as _theme
+from HMS_py.ui import print_preview as _pp
 
 
 def _cell(val) -> QTableWidgetItem:
@@ -61,7 +62,7 @@ class CheckOutBrowser(QDialog):
     CHARGE_COLS = ["VType", "VNo", "PayCode", "Amount",
                    "Dr (Charge)", "Cr (Payment)", "Remarks"]
 
-    def __init__(self, parent=None, user: str = "SA"):
+    def __init__(self, parent=None, user: str = "SA", start_tab: int = 0):
         super().__init__(parent)
         self.user = user
         self.setWindowTitle("Check-Out Browser - HMS_py")
@@ -114,10 +115,14 @@ class CheckOutBrowser(QDialog):
         self.btnRefreshA = QPushButton("Refresh (F5)")
         self.btnRefreshA.setToolTip("Reload active folio list (F5)")
         self.btnRefreshA.setMinimumHeight(34)
+        self.btnPrintBill = QPushButton("Print Folio Bill")
+        self.btnPrintBill.setToolTip("Print charges/balance of selected folio")
+        self.btnPrintBill.setMinimumHeight(34)
         self.btnCloseA = QPushButton("Close")
         self.btnCloseA.setToolTip("Close this window (Esc)")
         self.btnCloseA.setMinimumHeight(34)
-        for b in (self.btnCheckOut, self.btnRefreshA, self.btnCloseA):
+        for b in (self.btnCheckOut, self.btnPrintBill, self.btnRefreshA,
+                  self.btnCloseA):
             btns_active.addWidget(b)
         lay_active.addLayout(btns_active)
         self.tabs.addTab(tab_active, "Active Check-Ins")
@@ -156,6 +161,7 @@ class CheckOutBrowser(QDialog):
 
         # ---- signal wiring ----
         self.btnCheckOut.clicked.connect(self._do_checkout)
+        self.btnPrintBill.clicked.connect(self._print_bill)
         self.btnRefreshA.clicked.connect(self.reload_active)
         self.btnCloseA.clicked.connect(self.reject)
         self.btnReverse.clicked.connect(self._do_reverse)
@@ -172,6 +178,8 @@ class CheckOutBrowser(QDialog):
 
         self.reload_active()
         self.reload_checkedout()
+        if start_tab:
+            self.tabs.setCurrentIndex(start_tab)
 
     # ---- data loaders ----
     def reload_active(self, keep_folio: int | None = None):
@@ -317,6 +325,55 @@ class CheckOutBrowser(QDialog):
         self.reload_active()
         self.reload_checkedout()
 
+    def _print_bill(self):
+        folio_no = self._selected_active_folio()
+        if not folio_no:
+            QMessageBox.information(
+                self, "Print", "Pehle folio select karo")
+            return
+        try:
+            bal = checkout.folio_balance(folio_no)
+            charges = expenseentry.list_folio_charges(folio_no)
+        except Exception as e:
+            QMessageBox.critical(self, "Print", str(e))
+            return
+        if not charges:
+            QMessageBox.information(
+                self, "Print",
+                f"Folio #{folio_no} me data nahi mila (no data).")
+            return
+        _pp.preview_text(self._bill_text(folio_no, bal, charges),
+                         f"Folio Bill #{folio_no}", self)
+
+    @staticmethod
+    def _bill_text(folio_no: int, bal: dict, charges: list) -> str:
+        """Simple folio bill text (VB6 Folio print layout pending)."""
+        out = []
+        co = _pp.company_header()
+        if co:
+            out.append(co)
+            out.append("=" * 62)
+        out.append("FOLIO BILL")
+        out.append(f"Folio #: {folio_no}")
+        out.append(f"Guest  : {bal.get('name', '')}")
+        out.append(f"Depart : {bal.get('depdate', '')}")
+        out.append("-" * 62)
+        rows = [[ch.get("vtype"), ch.get("vno"), ch.get("paycode"),
+                 f"{float(ch.get('amount') or 0):.2f}",
+                 f"{float(ch.get('amt_dr') or 0):.2f}",
+                 f"{float(ch.get('amt_cr') or 0):.2f}",
+                 ch.get("remarks", "")] for ch in charges]
+        out.append(_pp.grid_to_text(
+            ["VType", "VNo", "PayCode", "Amount", "Dr", "Cr", "Remarks"],
+            rows))
+        out.append("-" * 62)
+        out.append(f"{'Charges':>52}: {float(bal.get('charges_dr') or 0):9.2f}")
+        out.append(f"{'Payments':>52}: {float(bal.get('payments_cr') or 0):9.2f}")
+        out.append(f"{'Balance':>52}: {float(bal.get('balance') or 0):9.2f}")
+        out.append("")
+        out.append("NOTE: Simple text folio bill (VB6 layout pending).")
+        return "\n".join(out)
+
     def _do_reverse(self):
         folio = self._selected_co_folio()
         if not folio:
@@ -353,8 +410,8 @@ class CheckOutBrowser(QDialog):
         self.reload_checkedout()
 
 
-def open_checkout(parent=None, user: str = "SA"):
-    CheckOutBrowser(parent, user=user).exec()
+def open_checkout(parent=None, user: str = "SA", tab: int = 0):
+    CheckOutBrowser(parent, user=user, start_tab=tab).exec()
 
 
 def main() -> int:

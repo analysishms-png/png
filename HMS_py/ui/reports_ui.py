@@ -21,6 +21,7 @@ from PyQt6.QtWidgets import (QComboBox, QDateEdit, QDialog, QFileDialog,
                              QTableWidgetItem, QVBoxLayout)
 
 from HMS_py.core import reports as rp
+from HMS_py.ui import print_preview as _pp
 
 
 def _cell(val) -> QTableWidgetItem:
@@ -72,8 +73,12 @@ class ReportsCenter(QDialog):
         self.btnCsv = QPushButton("Export CSV")
         self.btnCsv.setToolTip("Export report results to CSV file")
         self.btnCsv.clicked.connect(self._csv)
+        self.btnPrint = QPushButton("Print")
+        self.btnPrint.setToolTip("Print current report grid (fixed-width text)")
+        self.btnPrint.clicked.connect(self._print_grid)
         btns.addWidget(self.btnRun)
         btns.addWidget(self.btnCsv)
+        btns.addWidget(self.btnPrint)
         btns.addStretch(1)
         root.addLayout(btns)
 
@@ -137,6 +142,26 @@ class ReportsCenter(QDialog):
             return
         self.lblStatus.setText(f"{n} rows -> {path}")
         QMessageBox.information(self, "Export", f"{n} rows exported")
+
+    def _print_grid(self):
+        if not self._cols or self.tbl.rowCount() == 0:
+            QMessageBox.information(self, "Print", "Pehle report chalao")
+            return
+        headers = list(self._cols)
+        rows = []
+        for r in range(self.tbl.rowCount()):
+            row = []
+            for c in range(len(headers)):
+                it = self.tbl.item(r, c)
+                row.append(it.text() if it else "")
+            rows.append(row)
+        title = self.cmbReport.currentText()
+        body = (f"{title}\n"
+                f"From: {self.dtFrom.date().toString('dd/MM/yyyy')}  "
+                f"To: {self.dtTo.date().toString('dd/MM/yyyy')}\n"
+                f"{self.lblStatus.text()}\n\n"
+                f"{_pp.grid_to_text(headers, rows)}")
+        _pp.preview_text(body, title, self)
 
 
 def open_reports(parent=None, module: str | None = None,

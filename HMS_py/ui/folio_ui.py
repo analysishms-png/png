@@ -21,6 +21,7 @@ from PyQt6.QtWidgets import (QComboBox, QDateEdit, QDialog, QFormLayout,
 
 from HMS_py.core import db, folio
 from HMS_py.ui import theme as _theme
+from HMS_py.ui import print_preview as _pp
 
 
 def _fill(table: QTableWidget, headers: list, rows: list):
@@ -79,7 +80,11 @@ class FolioBrowser(QWidget):
         self.btnPay = QPushButton("Receive Payment")
         self.btnPay.setToolTip("Receive payment against selected folio (Ctrl+R)")
         self.btnPay.clicked.connect(self._pay)
-        for b in (self.btnSettle, self.btnAmend, self.btnPay, self.btnLog):
+        self.btnPrint = QPushButton("Print Folio")
+        self.btnPrint.setToolTip("Print selected folio statement")
+        self.btnPrint.clicked.connect(self._print_folio)
+        for b in (self.btnSettle, self.btnAmend, self.btnPay, self.btnLog,
+                  self.btnPrint):
             bar.addWidget(b)
         bar.addStretch(1)
         v.addLayout(bar)
@@ -191,6 +196,62 @@ class FolioBrowser(QWidget):
         dlg = AmendDialog(folio_no, r[0].DepDate, self)
         if dlg.exec():
             self.reload()
+
+    def _print_folio(self):
+        rows = self.table.selectionModel().selectedRows() \
+            if self._view == "folios" else []
+        if not rows:
+            QMessageBox.information(self, "Print",
+                                    "Pehle folio select karo")
+            return
+        item = self.table.item(rows[0].row(), 0)
+        if not item or not item.text().strip():
+            return
+        try:
+            folio_no = int(item.text())
+        except ValueError:
+            QMessageBox.information(self, "Print", "Valid folio select karo")
+            return
+        guest_item = self.table.item(rows[0].row(), 1)
+        guest = guest_item.text() if guest_item else ""
+        try:
+            charges = folio.folio_charges(folio_no)
+            bal = folio.folio_balance(folio_no)
+        except Exception as e:
+            QMessageBox.critical(self, "Print", str(e))
+            return
+        if not charges:
+            QMessageBox.information(
+                self, "Print",
+                f"Folio #{folio_no} me koi charge nahi mila (no data).")
+            return
+        _pp.preview_text(self._folio_text(folio_no, guest, charges, bal),
+                         f"Folio #{folio_no}", self)
+
+    @staticmethod
+    def _folio_text(folio_no: int, guest: str, charges: list,
+                    bal: float) -> str:
+        """Simple folio statement text (VB6 DataReport layout pending)."""
+        out = []
+        co = _pp.company_header()
+        if co:
+            out.append(co)
+            out.append("=" * 58)
+        out.append("FOLIO STATEMENT")
+        out.append(f"Folio #: {folio_no}")
+        out.append(f"Guest  : {guest}")
+        out.append("-" * 58)
+        rows = [[c.get("sno"), c.get("paycode"), c.get("paytype"),
+                 str(c.get("vdate") or "")[:10], c.get("comments"),
+                 f"{float(c.get('dr') or 0):.2f}",
+                 f"{float(c.get('cr') or 0):.2f}"] for c in charges]
+        out.append(_pp.grid_to_text(
+            ["SNo", "PayCode", "Type", "Date", "Remarks", "Dr", "Cr"], rows))
+        out.append("-" * 58)
+        out.append(f"{'Balance (Dr-Cr)':>50}: {float(bal):8.2f}")
+        out.append("")
+        out.append("NOTE: Simple text folio (VB6 DataReport layout pending).")
+        return "\n".join(out)
 
 
 class ChargeDialog(QDialog):
