@@ -1,7 +1,0 @@
-Module: FrmDataRecieving
-Total SQL statements: 1
-================================================================================
-
--- SQL Statement 1 --
-  loc_128B579: MsgBox("BackUp process successfully completed.", &H40, "Backup...", var_CC, var_DC)
-

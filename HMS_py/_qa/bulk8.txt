@@ -1,3 +1,0 @@
-tree has widget BEFORE: False
-after 2nd reload, widget: False
-BULK_OK

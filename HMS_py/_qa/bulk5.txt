@@ -1,2 +1,0 @@
-mod0: Inventory grp0: Operations
-leaves under 'Operations': 6

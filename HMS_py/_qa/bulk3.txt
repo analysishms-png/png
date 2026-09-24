@@ -1,4 +1,0 @@
-before preset
-preset set
-direct walk n = 0
-BULK_OK

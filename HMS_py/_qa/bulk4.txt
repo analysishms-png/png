@@ -1,3 +1,0 @@
-bulk applied, status: Abhijit: 21 menuHelp rows
-leaves: 0
-BULK_OK

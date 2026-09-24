@@ -1,7 +1,0 @@
-Module: fdCheckIn
-Total SQL statements: 1
-================================================================================
-
--- SQL Statement 1 --
-  loc_F161AA: var_8C = "SELECT Booking.DocId AS CODE, GuestProf.Name, Booking.GuestProf, Booking.DocId AS ID, RoomCat.Name AS RoomType, RoomMast.Code AS RoomNo, Booking.ArrDate AS Arr_Date, Booking.NoDays AS tot_Days,Booking.NoOfRooms as NO_Rooms FROM ((Booking LEFT JOIN RoomCat ON (Booking.RoomType = RoomCat.Type) AND (Booking.RoomCat = RoomCat.Code)) LEFT JOIN RoomMast ON (Booking.RoomType = RoomMast.Type) AND (Booking.RoomNo = RoomMast.Code)) INNER JOIN GuestProf ON Booking.GuestProf = GuestProf.Code WHERE BOOKING.CANCEL='N' AND BOOKING.LOGSITE_CODE='" & MemVar_1F81078
-

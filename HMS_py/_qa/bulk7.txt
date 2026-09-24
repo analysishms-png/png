@@ -1,4 +1,0 @@
-leaf0: Indent data: {'cap': 'Indent', 'hidden': False, 'present': True}
-by_caption has: {'caption': 'Indent', 'param': 'A**P', 'flag': 'E', 'module': 'Purch', 'opt1': '16', 'opt2': '11', 'opt3': '12', 'opt4': '', 'code': 310}
-after re-run widget: <PyQt6.QtWidgets.QCheckBox object at 0x0000028A08E8FE30>
-BULK_OK

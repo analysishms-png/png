@@ -6,20 +6,32 @@ __pycache__/
 .venv/
 venv/
 *.egg
+.pytest_cache/
 
 # Binaries
 *.exe
 *.ocx
 *.rar
 *.zip
+*.7z
 
-# Temp
+# DB backups (local-disk only, GitHub par nahi jayenge)
+Backups/
+
+# Temp / runtime logs
 *.log
 *.tmp
-*.pyc
 ErrorLog.Log
+ErrorLog.txt
 pytest_output.txt
+*.out
+
+# MS Office / Access lock files
+~$*
+*.ldb
 
 # IDE
 .vscode/
 .idea/
+.DS_Store
+Thumbs.db

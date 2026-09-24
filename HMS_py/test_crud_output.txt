@@ -1,4 +1,0 @@
-Traceback (most recent call last):
-  File "C:\Users\LENOVO\Desktop\serialkey\PROJECT_REPAIR - Copy\HMS_py\HMS_py\tests\test_validation_crud.py", line 10, in <module>
-    from HMS_py.core import db, country, state, city, area, narr, unit
-ModuleNotFoundError: No module named 'HMS_py.core'

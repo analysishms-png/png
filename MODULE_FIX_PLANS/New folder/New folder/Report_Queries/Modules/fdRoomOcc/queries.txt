@@ -1,7 +1,0 @@
-Module: fdRoomOcc
-Total SQL statements: 1
-================================================================================
-
--- SQL Statement 1 --
-  loc_12ACBF5: unk_450B71.Execute "Select * From FAEnviro", var_B8, -1
-
