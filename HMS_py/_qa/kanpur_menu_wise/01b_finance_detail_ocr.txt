@@ -1,0 +1,52 @@
+al
+
+Windows PowerShell x + vy = o x
+F=] OC|Code review anddebugg X + v _ o x
+2.
+
+- HMS_py/HMS_py/ui/partial_forms_ui.py: open_adjustment_delete :1139
+
+- HMS_py/HMS_py/ui/posting_forms_ui.py: open_rev_checkout :437 (untracked, Wave-6)
+
+— HMS_py/HMS_py/ui/print_preview.py: preview_html :170 (unused), preview_text :163, print_html :96
+
+- HMS_py/HMS_py/ui/folio_ui.py: _print_folio :200, _folio_text :231 - FO invoice print target
+
+— HMS_py/HMS_py/ui/hall_booking_ui.py: open_hall_booking(parent=None) :313 (needs mode param or registry fix)
+
+- HMS_py/HMS_py/ui/pos_masters_ui.py: open_smartcard(parent=None, user="SA") :230
+
+— HMS_py/HMS_py/ui/members_masters.py, member_billing_ui.py: Members wiring targets
+
+—- HMS_py/HMS_py/core/fa_ledger_ops.py: ledgerRef Id PO fix
+
+- HMS_py/
+- HMS_py/
+test_re
+
+- HMS_py/
+- docs/:
+
+HMS_py/core/reports.py: menu_caption_map() L2739, VB6_CAPTION_ALIASES L2825, AS Balance P1 aliases
+HMS_py/tests/database/*.py: 9 standalone scripts (run individually, not via pytest):
+ports_engine, test_fa_voucher, test_receive_payment, test_inventory_registers, test_enviro,
+
+test_tally_export, test_room_pk_fixes, test_scheme_tds, test_main_setup_plan
+
+HMS_py/tests/unit/test_bugfix_batch.py L412-440: registry tests (regex bans direct _coming_soon)
+all 9 deliverables updated 2026-09-24 (MODULE_MAP, DATABASE_MAP, PYTHON_ARCHITECTURE, BUSINESS_LOGIC
+
+incl. Web Research Notes, UI_REFERENCE, EXE_VS_PYTHON, DEBUG_REPORT, TEST_REPORT, IMPLEMENTATION_STATUS)
+— HMS_py_BACKUP_20260924/: verified backup (sibling of HMS_py)
+— HMS_py/HMS_py/_qa/HMS_exe_20260924/: user_module_tree.txt (595 rows), missing_leaves.txt (319), module PNGs
+- FODER\MDIForm1.frm, FODER\HMS.bas: VB6 source evidence
+(85
+& Compaction - MiMo-V2.6-Flash Free - 1m 55s
+@ Build - MiMo-V2.6-Flash Free S
+y
+|
+Build auto - MiMo-V2.6-Flash Free OpenCode Zen Ro
+sane esc interrupt 93.4K (47%) ctrl+p commands
+Td = ENG 10:17 PM
+= Q @ & e | a 6 al aN 55% 34/50p/2026
+
