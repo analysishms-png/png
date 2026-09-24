@@ -227,16 +227,32 @@ def get_sidebar_sources(user: str = "SA") -> list[dict]:
 
 
 def get_module_tree(user: str = "SA") -> dict[str, list[dict]]:
-    """Get full module tree (menuHelp-driven) for a user.
+    """Get full module tree from User_Module (per-module wise).
 
-    Returns: {module_name: [leaf_rows...]}
+    Returns: {module_name: [{code, name, flag, srno, children...}]}
     """
-    return _mh.module_tree(user or "SA")
+    roots = _menu.roots()
+    tree: dict[str, list[dict]] = {}
+    for r in roots:
+        name = r.get("name", "")
+        if name and name.strip() not in ("-", "Windows", "Exit", "MDI"):
+            tree.setdefault(name, []).append({
+                "code": r.get("code"), "name": name,
+                "flag": "9", "srno": r.get("srno"),
+                "children": []})
+    return tree
 
 
 def get_all_modules(user: str = "SA") -> list[str]:
-    """Get ordered list of all module names for the user."""
-    return _mh.modules(user or "SA")
+    """Get ordered list of all module names from User_Module."""
+    roots = _menu.roots()
+    seen: list[str] = []
+    for r in roots:
+        name = r.get("name", "")
+        if name and name.strip() not in ("-", "Windows", "Exit", "MDI"):
+            if name not in seen:
+                seen.append(name)
+    return seen
 
 
 def build_qt_sidebar(parent, user: str = "SA", on_click=None):
@@ -244,9 +260,9 @@ def build_qt_sidebar(parent, user: str = "SA", on_click=None):
 
     Args:
         parent: QWidget parent
-        user: username (determines which menuHelp rows to show)
+        user: username (determines which User_Module rows to show)
         on_click: callback(module_name: str, button: QPushButton) or None
-                  If None, uses the default MainWindow._on_sidebar_click
+                   If None, uses the default MainWindow._on_sidebar_click
 
     Returns:
         (buttons: list[QPushButton], section_labels: list[QLabel])
@@ -365,10 +381,10 @@ def generate_sidebar_report(user: str = "SA") -> str:
         ap(f"    {s['name']:<25} code={s.get('code')} srno={s.get('srno')}")
     ap("")
 
-    ap("── MENUHELP PERMISSIONS ──")
+    ap("── USER_MODULE TREE ──")
     tree = get_module_tree(user)
     for mod_name, leaves in tree.items():
-        ap(f"  {mod_name}: {len(leaves)} leaves")
+        ap(f"  {mod_name}: {len(leaves)} entries")
     ap("")
     ap("=" * w)
     ap("END REPORT")

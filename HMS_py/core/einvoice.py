@@ -2,6 +2,12 @@
 
 Generates e-invoices with GST compliance for Indian tax requirements.
 Supports 5% CGST + 5% SGST = 10% total.
+
+Optional live dispatch: einvoice_send() posts JSON via
+core.http_client (VB6 MobWebAPI Proc_344_1) ONLY when caller passes
+a base_url + credentials (Gstin/aspid/password/AuthToken). Without a
+configured API contract it returns config_only and never hits the
+network — VB6 eInvoice.bas contract lives in the form, not in DB.
 """
 from __future__ import annotations
 
@@ -96,20 +102,107 @@ class EInvoiceGenerator:
         return {"valid": len(errors) == 0, "errors": errors}
 
     def submit_to_portal(self, invoice: dict) -> dict:
-        """Submit e-invoice to GST portal."""
+        """Submit e-invoice to GST portal (mock by default).
+
+        Non-mock path delegates to einvoice_send() — config-only
+        unless base_url + credentials were supplied.
+        """
         if self.mock:
             return {
                 "success": True, "irn": invoice["irn"],
                 "ack_number": f"ACK{datetime.now().strftime('%Y%m%d%H%M%S')}",
                 "mock": True, "message": "Mock submission successful",
             }
-        return {"success": False, "error": "Not in mock mode"}
+        return einvoice_send(invoice, api_key=self.api_key)
 
     def cancel_invoice(self, irn: str) -> dict:
         """Cancel a previously submitted e-invoice."""
         if self.mock:
             return {"success": True, "irn": irn, "mock": True}
         return {"success": False, "error": "Not in mock mode"}
+
+
+def einvoice_send(invoice: dict,
+                  *,
+                  base_url: str = "",
+                  api_key: str = "",
+                  gstin: str = "",
+                  asp_id: str = "",
+                  asp_pwd: str = "",
+                  auth_token: str = "",
+                  json_body: str = "",
+                  timeout: float = 10.0) -> dict:
+    """Optional HTTP POST of e-invoice JSON (VB6 eInvoice.bas / MobWebAPI).
+
+    Live contract (from VB6):
+      POST {base}Invoice?&aspid=...&password=...&Gstin=...
+           &User_Name=...&QrCodeSize=...&AuthToken=...
+      Content-Type: application/json; charset=utf-8
+
+    Config-only (default): when base_url is empty OR required
+    credentials (asp_id+asp_pwd or api_key) missing, returns
+    {"success": False, "config_only": True} WITHOUT any network call.
+    Live credentials must be supplied by caller (form / enviro) —
+    no hardcoded endpoint in this module.
+    """
+    from HMS_py.core.error_handling import log_error
+    from HMS_py.core.http_client import JSON_CONTENT_TYPE, http_post
+
+    if not json_body:
+        json_body = json.dumps(invoice, default=str)
+
+    base = (base_url or "").strip()
+    if not base:
+        return {
+            "success": False, "config_only": True,
+            "message": "eInvoice live API not configured "
+                       "(no base_url) — config-only, no HTTP sent",
+            "irn": invoice.get("irn", ""),
+        }
+    if not ((asp_id and asp_pwd) or api_key):
+        return {
+            "success": False, "config_only": True,
+            "message": "eInvoice credentials missing "
+                       "(aspid/password or api_key) — config-only",
+            "irn": invoice.get("irn", ""),
+        }
+
+    if not base.endswith("/") and not base.endswith("?"):
+        base = base + "/"
+    sep = "&" if "?" in base else "?"
+    qs = (
+        f"{sep}aspid={asp_id or api_key}"
+        f"&password={asp_pwd}"
+        f"&Gstin={gstin}"
+        f"&User_Name={invoice.get('site_code', '')}"
+        f"&QrCodeSize=0"
+        f"&AuthToken={auth_token}"
+    )
+    url = base + "Invoice" + qs
+    try:
+        status, body, _headers = http_post(
+            url, data=json_body,
+            headers={"Content-Type": JSON_CONTENT_TYPE},
+            timeout=timeout, procedure="einvoice.einvoice_send")
+    except Exception as exc:
+        log_error(exc, procedure="einvoice.einvoice_send", severity=30,
+                  extra=f"irn={invoice.get('irn', '')}")
+        return {"success": False, "error": str(exc),
+                "irn": invoice.get("irn", "")}
+
+    ok = 200 <= status < 300 and bool(body.strip())
+    result = {
+        "success": ok, "status": status,
+        "raw_response": body[:2000],
+        "irn": invoice.get("irn", ""),
+        "config_only": False,
+    }
+    if not ok:
+        result["error"] = ("Empty response" if not body.strip()
+                           else f"HTTP {status}")
+        log_error(f"einvoice HTTP {status}", procedure="einvoice.einvoice_send",
+                  severity=20, extra=body[:300])
+    return result
 
 
 def generate_einvoice_report(invoices: list[dict]) -> str:

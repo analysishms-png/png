@@ -2,6 +2,10 @@
 
 Ports VB6 MobWebAPI.bas and MemberSMS.frm. Provides HTTP-based
 SMS sending capabilities for guest notifications.
+
+Queue dispatch (send_queued_sms): VB6 SMSModule.bas Proc_233_6 —
+pending DBSendSMS rows (SendTF not TRUE/Y) posted via http_client
+when SMSEnviro.SmsURL is configured; empty URL => graceful skip.
 """
 from __future__ import annotations
 
@@ -9,6 +13,8 @@ import os
 import re
 from datetime import datetime
 from typing import Optional, List
+
+from HMS_py.core.error_handling import log_error
 
 # =============================================================
 # SMS Templates
@@ -307,6 +313,225 @@ def send_bulk_sms(phones: list[str], message: str) -> list[SMSResponse]:
     engine = SMSEngine(mock=True)
     msgs = [SMSMessage(recipient=p, message_text=message) for p in phones]
     return engine.send_bulk(msgs)
+
+
+# =============================================================
+# Queue dispatch (VB6 SMSModule.bas Proc_233_6 / MobWebAPI GET)
+# Tables (already in sms_*.py): DBSendSMS, SMSEnviro
+# =============================================================
+def build_sms_url(env: dict, phone: str, message: str) -> str:
+    """Concatenate SMSEnviro URL fragments + phone + message (VB6 style).
+
+    VB6 order: SmsURL, TUser, SmsCenterUserName, TPassword,
+    SmsCenterPassword, TFromSend, SmsDisplayName, TPhNo, phone,
+    TMessage, message, TExtra. T* fields are literal URL fragments
+    stored in SMSEnviro (e.g. "&user=", "&pwd=" ...).
+    """
+    def g(key: str) -> str:
+        return str(env.get(key) or "")
+
+    return (
+        g("smsurl")
+        + g("tuser")
+        + g("smscenterusername")
+        + g("tpassword")
+        + g("smscenterpassword")
+        + g("tfromsend")
+        + g("smsdisplayname")
+        + g("tphno")
+        + phone
+        + g("tmessage")
+        + message
+        + g("textra")
+    )
+
+
+def _pending_queue(limit: int = 50, cn=None) -> list[dict]:
+    """Pending DBSendSMS rows (SendTF not yet TRUE/Y)."""
+    from HMS_py.core import db
+    rows = db.query(
+        f"SELECT TOP {int(limit)} DocId, SNo, Mobile1, TxtMsg, MsgType "
+        "FROM DBSendSMS "
+        "WHERE ISNULL(SendTF,'') NOT IN ('TRUE','Y') "
+        "AND ISNULL(Mobile1,'') <> '' AND ISNULL(TxtMsg,'') <> '' "
+        "ORDER BY SNo",
+        (), cn=cn)
+    out = []
+    for r in rows:
+        try:
+            out.append({"docid": r.DocId or "", "sno": r.SNo or 0,
+                        "mobile1": (r.Mobile1 or "").strip(),
+                        "txtmsg": (r.TxtMsg or "").strip(),
+                        "msgtype": r.MsgType or ""})
+        except AttributeError:
+            out.append({"docid": str(r[0] or ""), "sno": r[1] or 0,
+                        "mobile1": str(r[2] or "").strip(),
+                        "txtmsg": str(r[3] or "").strip(),
+                        "msgtype": str(r[4] or "")})
+    return out
+
+
+def _apply_phone_prefix(phone: str, prefix: str) -> str:
+    phone = phone.strip()
+    if not phone:
+        return phone
+    prefix = (prefix or "").strip()
+    if prefix and not phone.startswith(prefix):
+        # avoid double-prefixing country codes
+        if not phone.startswith("+") and not phone.startswith(prefix):
+            return prefix + phone
+    return phone
+
+
+def send_queued_sms(limit: int = 50, timeout: float = 10.0,
+                    cn=None, mark_sent: bool = True) -> dict:
+    """Dispatch pending DBSendSMS rows over HTTP (MobWebAPI GET).
+
+    Reads SMSEnviro (SmsURL + T* fragments). If SmsURL empty ->
+    skip gracefully (no exception, status="no_url"). Success (HTTP 2xx
+    with non-empty body, VB6 WaitForResponse) marks SendTF='TRUE'
+    via sms_enviro.dbsendsms_update. All HTTP/DB errors go through
+    log_error.
+
+    Returns dict: status, sent, failed, skipped, results.
+    """
+    from HMS_py.core.http_client import http_get
+    from HMS_py.core.sms_enviro import smsenviro_get, dbsendsms_update
+
+    summary = {"status": "ok", "sent": 0, "failed": 0, "skipped": 0,
+               "results": []}
+
+    try:
+        env = smsenviro_get(cn=cn)
+    except Exception as exc:
+        log_error(exc, procedure="sms_http.send_queued_sms",
+                  severity=20, extra="smsenviro_get failed")
+        summary["status"] = "no_enviro"
+        summary["error"] = str(exc)
+        return summary
+
+    sms_url = (env.get("smsurl") or "").strip()
+    if not sms_url:
+        # Documented graceful skip: no gateway URL configured in SMSEnviro.
+        summary["status"] = "no_url"
+        summary["message"] = (
+            "SMSEnviro.SmsURL empty — SMS gateway not configured; "
+            "queue left untouched.")
+        return summary
+
+    try:
+        pending = _pending_queue(limit=limit, cn=cn)
+    except Exception as exc:
+        log_error(exc, procedure="sms_http.send_queued_sms",
+                  severity=30, extra="DBSendSMS pending read failed")
+        summary["status"] = "db_error"
+        summary["error"] = str(exc)
+        return summary
+
+    prefix = (env.get("smsphonenoprefix") or "").strip()
+    for row in pending:
+        phone = _apply_phone_prefix(row["mobile1"], prefix)
+        if not phone or len(phone) < 10:
+            summary["skipped"] += 1
+            summary["results"].append(
+                {"docid": row["docid"], "sno": row["sno"],
+                 "status": "bad_phone"})
+            continue
+        url = build_sms_url(env, phone, row["txtmsg"])
+        try:
+            status, body, _headers = http_get(url, timeout=timeout,
+                                              procedure="sms_http.send_queued_sms")
+        except Exception as exc:
+            # http_client already logged; count failure
+            summary["failed"] += 1
+            summary["results"].append(
+                {"docid": row["docid"], "sno": row["sno"],
+                 "status": "http_error", "error": str(exc)})
+            log_error(exc, procedure="sms_http.send_queued_sms",
+                      severity=30,
+                      extra=f"docid={row['docid']} sno={row['sno']}")
+            continue
+
+        ok = 200 <= status < 300 and bool(body.strip())
+        if ok:
+            summary["sent"] += 1
+            summary["results"].append(
+                {"docid": row["docid"], "sno": row["sno"],
+                 "status": "sent", "http": status})
+            if mark_sent:
+                try:
+                    now = datetime.now()
+                    dbsendsms_update(
+                        row["docid"], row["sno"],
+                        {"txt_msg": row["txtmsg"],
+                         "sms_dt": now.date(),
+                         "sms_tm": now.strftime("%H:%M:%S"),
+                         "send_tf": "TRUE",
+                         "delv_dt": now.date(),
+                         "delv_tm": now.strftime("%H:%M:%S")},
+                        cn=cn, commit=cn is None)
+                except Exception as exc:
+                    log_error(exc, procedure="sms_http.send_queued_sms",
+                              severity=30,
+                              extra=f"mark sent failed docid={row['docid']}")
+        else:
+            # VB6: empty response body -> "no response from server"
+            summary["failed"] += 1
+            summary["results"].append(
+                {"docid": row["docid"], "sno": row["sno"],
+                 "status": "no_response" if not body.strip() else "http_fail",
+                 "http": status})
+            log_error(
+                f"SMS dispatch failed HTTP {status} docid={row['docid']}",
+                procedure="sms_http.send_queued_sms", severity=20,
+                extra=body[:200])
+
+    if summary["failed"] and not summary["sent"]:
+        summary["status"] = "all_failed"
+    return summary
+
+
+def send_sms_via_http(phone: str, message: str, timeout: float = 10.0,
+                      cn=None) -> SMSResponse:
+    """Single ad-hoc SMS via SMSEnviro.SmsURL (MobWebAPI GET).
+
+    Falls back to mock response when SmsURL not configured.
+    """
+    from HMS_py.core.http_client import http_get
+    from HMS_py.core.sms_enviro import smsenviro_get
+
+    try:
+        env = smsenviro_get(cn=cn)
+    except Exception as exc:
+        log_error(exc, procedure="sms_http.send_sms_via_http",
+                  severity=20, extra="smsenviro_get failed")
+        return SMSResponse(success=False, error=f"SMSEnviro: {exc}")
+
+    if not (env.get("smsurl") or "").strip():
+        return SMSResponse(
+            success=False,
+            error="No SmsURL configured (SMSEnviro) — dispatch skipped")
+
+    if not validate_phone(phone):
+        return SMSResponse(success=False, error="Invalid phone")
+
+    prefix = (env.get("smsphonenoprefix") or "").strip()
+    url = build_sms_url(env, _apply_phone_prefix(phone, prefix), message)
+    try:
+        status, body, _headers = http_get(url, timeout=timeout,
+                                          procedure="sms_http.send_sms_via_http")
+    except Exception as exc:
+        return SMSResponse(success=False, error=str(exc) or "HTTP error")
+
+    ok = 200 <= status < 300 and bool(body.strip())
+    return SMSResponse(
+        success=ok,
+        message_id=f"HTTP{status}",
+        status_code=status,
+        error="" if ok else ("Empty response" if not body.strip()
+                             else f"HTTP {status}"),
+        raw_response=body[:500],
+    )
 
 
 if __name__ == "__main__":
