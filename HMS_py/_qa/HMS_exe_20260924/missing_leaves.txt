@@ -1,0 +1,405 @@
+## ?
+....
+
+## Advance Recd. Report
+Advance Recd.
+Advance Recd. Arrival
+Advance Recd. In-House
+Advance Recd. Report
+
+## Banquet
+Banquet
+Banquet Bill Sundry Setting
+Events
+
+## Cascade
+Cascade
+
+## Changes Department
+Changes Department
+
+## Data Transfer
+Data Transfer
+Transfer (Offline)
+Transfer (Online)
+
+## Display
+Display
+
+## EPABX
+Com Port Properties
+EPABX
+
+## Finance
+Finance
+Voucher Serialisation
+
+## Front Office
+Front Office
+
+## General
+General
+SMS Center Settings
+
+## General Setup
+General Setup
+
+## HR/Payroll
+Category  Master
+HR/Payroll
+
+## Inventory
+Consumption Master
+Inventory
+Item  List
+Item Entry
+Party Master
+
+## Kitchen Stock Summary
+Kitchen Stock Summary
+
+## Log
+Charges Remove Log
+
+## Look Ups
+Look Ups
+Pending Purchase Order
+
+## M.I.S.
+23 Day Room Availability Forecast
+23 Day Room Type Availability Forecast
+7-730 Days Forecast
+Company wise Analysis
+Company wise Nights
+Guest wise Analysis
+Guestwise Charges Detail
+M.I.S.
+Occupancy Display
+Package Forecast
+Revenue During the stay
+Room Occupancy
+Room Type Occupancy
+Room Wise Room Revenue
+
+## MIS
+Cashier Collection Summary
+Collection Summary
+Cover Analysis
+Cover Analysis Report
+MIS
+
+## Manage MDI
+Manage MDI
+
+## Members Mgmt
+Category wise Facility
+Category wise Revenue
+Corporate Member Master
+Environment Settings
+Member Age Wise Revenue
+Member Bill Sundry Setting
+Members Mgmt
+
+## Operation
+Catalog Selection
+Guest Comments
+Operation
+
+## Operations
+Add/Edit/Delete Group With Reservation
+Advance Deposit
+Blank GRC
+Cancellation Letters
+Check Out Clearance Screen
+Confirmation Letters
+Display Rack
+Excise Invoice Cum Gate Pass
+Facility Sundry Setting
+Finish Material Receive Entry
+Forex Receive Entry
+GRC Printing
+Gravy Item Entry
+House Keeping Op.Stock Entry
+Issue/Recd. Entry
+Item Issued On Cleaning
+Member Assistant
+Member Bill Printing
+Member Category Change (Conditional)
+Member Category Change Entry
+Member Facility Billing
+Member Renewal Entry
+Member Used Facility Entry
+Member Visit Entry
+Meter Reading
+Outstation Member Entry
+Payment Due Letter Entry
+Plan Meal Tokens
+Registration Card
+Reservation Status Screen
+Reservation With History
+Revenue Change Entry
+Reverse Room Merge
+Travel Agency Posting
+
+## POS M.I.S.
+ABC  Analysis
+Collection Summary
+Discount Summary
+Edited Bills
+KOT Change Report
+Monthwise Sales
+Open Item Sales
+POS M.I.S.
+Sale Summary
+Tax Invoice Detail
+Void Bills
+
+## POS Operations
+Assign Delivery
+Bill Lookup
+Display Table
+Order Booking
+Order Booking Advance
+POS Operations
+Sale Bill Entry
+Settlement Entry
+Token Entry
+
+## POS Reports
+Cover Analysis
+Customer Detail
+Daily DIET Report
+Deleted Unsettled Bill
+Delivery Status
+Denomination Detail
+Discount Register
+Group Wise Sale
+KOT Wise Details
+NC KOT Detail
+NC KOT Summary
+Not Delivered Order
+Order Detail Report
+POS Reports
+Pending KOT
+Sales Day Book
+Settlement Summary
+Stewardwise Sale
+Table wise Sale
+
+## Point of Sale
+Customer History
+Item List
+Open Item Consumption
+Outlet Bill Sundry Setting
+Point of Sale
+Rate Group Master
+Setup Outlet
+
+## Reports
+A/c Check List
+ABC Analysis
+Ageing Analysis (Creditors)
+Ageing Analysis (Debtors)
+Ageing Analysis for Creditors
+Ageing Analysis for Debtors
+Annexure
+Arrival & Departure List
+Arrival And Departure Register
+Attendence Report
+Bank Book
+Bill Change Report
+Bill Wise Outstanding Report For Debtors
+Budget Analysis
+Business Source Analysis
+Cancel Bill Details
+Cash Book
+Cash/Credit Purchase
+Cashier  Report
+Cashier Collection Summary
+Cashier Report
+Change Kitchen/Store
+Charge Payment Detail
+Check In Register
+Check Out Register
+Checked In Guest Detail
+Checkout Analysis
+Company Analysis
+Company Wise Sale Report
+Complaint Detail
+Daily Function Sheet
+Daily Report-II
+Daily Store Issue Reports
+Day Book
+Detailed Trial Ledger
+Excess Consumption Report
+Expected Check Out
+Expected Plan/Package FB Details
+FB Cost Statement
+FOCC Report
+FOM Sales Register
+Facility Bill Register
+Food Costing Report
+Form C
+Function Wise Item Detail
+Gratuity Report
+Guest Bill Details
+Guest Extra Charges
+Guest In House
+Guest Payments
+Guest Trail
+House Keeping Report
+Instant House Count
+Issue CheckList
+Issue Register
+Item Wise Sales Report
+Kitchen Stock Report I/R Basis
+Ledger
+Loan Register
+Loan/Advance Ledger
+Loan/Advance Summary
+Market Segment Analysis
+Member Bill Missing Report
+Member Birthday/Anniversary Details
+Member Ledger
+Member Mailing Labels
+Member Sales Register
+Member Tax Report
+Member Visit Detail
+Non Transaction Report
+Occupancy Report
+OutStanding Report
+Outstanding Report For Creditors
+Outstanding Report For Debtors
+PF Statement
+Party wise OutStanding
+Pay Slip
+Payment Due Letter Report
+Payments By Cashier
+Payroll Register
+Production Report I/R Basis
+Purchase Ledger
+Purchase Summary
+Reference Report
+Reports
+Restaurant Issue Report
+Revenue Analysis
+Room Change History
+Room Inventory
+Room Rent Audit Report
+Room Status Report
+Room Wise Plan Detail
+Roz Namcha
+Sales Report
+Settlement  Report
+Settlement Report
+Stock In Hand
+Stock Summary P/S Basis
+Store Issue Register
+Travel Agent Analysis
+
+## Reservation Status Report
+Arrival List
+Group Arrival Report
+Group Pickup Report
+
+## Restaurant Change
+Restaurant Change
+
+## Reward Points
+Registered Guest Detail
+Reports
+Reward Points
+Reward Points Parameter I
+
+## SMS
+SMS
+SMS (Conditional)
+
+## Send SMS
+Multiple SMS Type
+Send SMS
+
+## Setup
+Banquet Bill Sundry Setting
+Block Master
+Events
+Setup
+
+## Smart Card
+Card Collection Summary
+Card Initialization
+Card Re-Issue
+Card Recharge
+Card Refund
+Card Statement (FULL)
+Card Statement (MINI)
+Card Status Report
+Card Transaction Report
+Cash Card Collection Summary
+Cash Card Transaction Report
+Recharge/Refund Entry
+Reports
+User Collection
+
+## Tax Report
+Banquet Taxwise Details
+Tax Report
+Tax Summary
+
+## Tax Reports
+FOM Tax Detail
+Form III
+Form24 Annexure-A
+Tax Register
+Tax Report
+Tax Reports
+Tax Summary
+Tax Wise Charge Detail
+Taxwise Details
+UPVAT XXIV
+VAT Register
+VAT Register II
+VAT Register III
+
+## Telephone Report
+EPBAX Call Report
+Telephone Report
+
+## Tile Horizontal
+Tile Horizontal
+
+## Tile Vertical
+Tile Vertical
+
+## Tourism Forms
+Form  C
+Form -3 (Luxury Tax Register)
+L.T. FORM II
+L.T. FORM IV
+Luxury Tax Report
+Monthly Return
+Tourism Form 1
+Tourism Form 2
+Tourism Form 4
+Tourism Form 5
+Tourism Form 6
+Tourism Forms
+
+## Transaction
+Transaction
+
+## Utility
+Data Recieving
+Data Transfer
+Data Transfer (POS)
+Guest BirthDates/Anniversary
+Inconsistency Check
+Menu Item Copy
+PLU File (W.Scale)
+POS Bill Deletion
+POS Recycle
+Sale MIS Customized
+Task Scheduler
+Utility
+Voucher Wise Sundry Entry
+

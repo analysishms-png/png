@@ -1,0 +1,595 @@
+srno|code|name|flag|Module_Name
+----|----|----|----|-----------
+2|FAT|Transaction|1|Transaction
+3|fate|Voucher Entry|1|Transaction
+4|fate|Adjustment Entry|0|Transaction
+5|fate|Delete Adjustment Entry|1|Transaction
+6|fate|Bank Reconciliation|1|Transaction
+7|fate|T.D.S. Challan Entry|0|Transaction
+8|fate|T.D.S. Certificate Entry|1|Transaction
+9|faD|Display|1|Display
+10|FAREPORTD|Balance Sheet|1|Display
+11|FAREPORTD|Profit And Loss Account|1|Display
+12|FAREPORTD|Trial Balance (Group)|1|Display
+13|FAREPORTD|Trial Ledger|1|Display
+14|FAREPORTD|Cash Flow|1|Display
+15|FAREPORTD|Fund Flow|1|Display
+16|FAREPORTD|Cash And Bank Books|1|Display
+17|farp|Reports|1|Reports
+18|FAREPORT|Trial Balance|1|Reports
+19|FAREPORT|Day Book|1|Reports
+20|FAREPORT|Ledger|1|Reports
+21|FAREPORT|Interest Ledger|1|Reports
+22|FAREPORT|Cash Book|1|Reports
+23|FAREPORT|Bank Book|1|Reports
+24|FAREPORT|Journal Books|1|Reports
+25|FAREPORT|Annexure|1|Reports
+26|FAREPORT|Bank Register|1|Reports
+27|FAREPORT|Ageing Analysis for Debtors|1|Reports
+28|FAREPORT|Ageing Analysis for Creditors|1|Reports
+29|FAREPORT|Cheque Cleared Register|1|Reports
+30|FAREPORT|Cheque Not Cleared Register|1|Reports
+31|FAREPORT|Outstanding Report For Debtors|1|Reports
+32|FAREPORT|Outstanding Report For Creditors|1|Reports
+33|FAREPORT|Daily Transaction Summary|1|Reports
+34|FAREPORT|Non Transaction Report|1|Reports
+35|FAREPORT|Reference Report|1|Reports
+36|FAREPORT|Detailed Trial Ledger|1|Reports
+37|FAREPORT|A/c Check List|1|Reports
+38|FAREPORT|Bill Wise Outstanding Report For Debtors|1|Reports
+39|FAREPORT|Control Ledger|1|Reports
+40|FAREPORT|Roz Namcha|1|Reports
+42|GEN|General Setup|1|General Setup
+43|GENMas|Tax Master|1|General Setup
+44|GENMas|Tax Structure|0|General Setup
+45|GENMas|Payment Type|0|General Setup
+46|GENMas|Parameter|0|General Setup
+47|GENMas|Revenue Group Setting|0|General Setup
+48|GENMas|Printing Parameters|1|General Setup
+49|GENMas|Printing Setup|0|General Setup
+50|GENMas|Revenue Wise Budget Entry|0|General Setup
+51|FO|Front Office|1|Front Office
+52|Mas|Country Master|1|Front Office
+53|Mas|State Master|1|Front Office
+54|Mas|City Master|1|Front Office
+55|Mas|Market Segment|1|Front Office
+56|Mas|Business Source|0|Front Office
+57|Mas|Guest Status|0|Front Office
+58|Mas|Charge Master|0|Front Office
+59|Mas|Fixed Charge|0|Front Office
+60|Mas|Package Master|0|Front Office
+61|Mas|Plan Master|0|Front Office
+62|Mas|Season Master|0|Front Office
+63|Mas|Room Features|1|Front Office
+64|Mas|Room Category|0|Front Office
+65|Mas|Room Master|0|Front Office
+66|Mas|Company Master|0|Front Office
+67|Mas|Forex Master|0|Front Office
+68|Mas|Guest History|0|Front Office
+69|Mas|Group Profile|0|Front Office
+70|Mas|Room Display|1|Front Office
+71|Pos|Point of Sale|0|Point of Sale
+72|POSMas|Setup Outlet|1|Point of Sale
+73|POSMas|Outlet Bill Sundry Setting|0|Point of Sale
+74|POSMas|Server Master|0|Point of Sale
+75|POSMas|Table Master|0|Point of Sale
+76|POSMas|Item List|0|Point of Sale
+77|POSMas|Menu Group|0|Point of Sale
+78|POSMas|Menu Category|0|Point of Sale
+79|POSMas|Menu Item|0|Point of Sale
+80|POSMas|Menu Item Rate|0|Point of Sale
+81|POSMas|Rate Group Master|0|Point of Sale
+82|POSMas|Session Master|1|Point of Sale
+83|POSMas|Open Item Consumption|0|Point of Sale
+84|POSMas|Scheme Master|0|Point of Sale
+85|POSMas|Happy Hours|0|Point of Sale
+86|POSMas|Happy Hours [ Free Items ]|1|Point of Sale
+87|POSMas|Combo Pack|0|Point of Sale
+88|POSMas|NC Type|0|Point of Sale
+89|POSMas|Customer History|0|Point of Sale
+90|POSMas|Delivery Boy|0|Point of Sale
+91|Mem|Members Mgmt|0|Members Mgmt
+92|MemMas|Category Master|1|Members Mgmt
+93|MemMas|Member Master|0|Members Mgmt
+94|MemMas|Corporate Member Master|0|Members Mgmt
+95|MemMas|Revenue Master|0|Members Mgmt
+96|MemMas|Facility Master|0|Members Mgmt
+97|MemMas|Category wise Revenue|0|Members Mgmt
+98|MemMas|Category wise Facility|0|Members Mgmt
+99|MemMas|Member Bill Sundry Setting|0|Members Mgmt
+100|MemMas|Environment Settings|0|Members Mgmt
+101|MemMas|Member Age Wise Revenue|0|Members Mgmt
+102|HL|Banquet|0|Banquet
+103|HallM|Events|1|Banquet
+104|HallM|Venue Features|0|Banquet
+105|HallM|Venue Master|0|Banquet
+106|HallM|Menu Category|0|Banquet
+107|HallM|Item Group|0|Banquet
+108|HallM|Menu Item|0|Banquet
+109|HallM|Catalog Master|0|Banquet
+110|HallM|Banquet Bill Sundry Setting|0|Banquet
+111|CCenter|Inventory|0|Inventory
+112|CCenterMas|Party Master|1|Inventory
+113|CCenterMas|Department|0|Inventory
+114|CCenterMas|Item Group|0|Inventory
+115|CCenterMas|Item Category|0|Inventory
+116|CCenterMas|Item Entry|0|Inventory
+117|CCenterMas|Consumption Master|0|Inventory
+118|CCenterMas|Purchase Sundry Setting|1|Inventory
+119|CCenterMas|Location Master|0|Inventory
+120|CCenterMas|Opening Stock|1|Inventory
+121|CCenterMas|Item  List|0|Inventory
+122|CCenterMas|Shift Master|0|Inventory
+123|CCenterMas|Enviro Inventry|1|Inventory
+124|PR|HR/Payroll|0|HR/Payroll
+125|PRM|Designation Master|1|HR/Payroll
+126|PRM|Category  Master|0|HR/Payroll
+127|PRM|Holiday Master|0|HR/Payroll
+128|PRM|Employee Master|0|HR/Payroll
+129|Tel|EPABX|0|EPABX
+130|TelMaast|Com Port Properties|1|EPABX
+131|TelMaast|Call Type Master|1|EPABX
+132|TelMaast|Extension Master|0|EPABX
+133|TelMaast|Call Codes Master|0|EPABX
+134|TelMaast|Call Control Master|0|EPABX
+135|fae|Finance|1|Finance
+136|fame|Group Accounts|1|Finance
+137|fame|Ledger Accounts|0|Finance
+138|fame|Narration Master|0|Finance
+139|fame|T.D.S. Category|0|Finance
+140|fame|FA Environment|0|Finance
+141|fame|Voucher Environment|0|Finance
+142|fame|Opening Balance Updation|0|Finance
+143|fame|Year End Updation|1|Finance
+144|fame|Current Balance Updation|0|Finance
+145|fame|Country Master|0|Finance
+146|fame|State Master|1|Finance
+147|fame|City Master|1|Finance
+148|fame|Delete Message|1|Finance
+149|fame|Account Merging|0|Finance
+150|fame|Voucher Serialisation|0|Finance
+151|Util|Utility|0|Utility
+152|UTL|User Master|1|Utility
+153|UTL|Permissions|0|Utility
+154|UTL|Update Database Nulls|0|Utility
+155|UTL|Backup Data|1|Utility
+156|UTL|Account Merging|0|Utility
+157|UTL|Guest Parameters Setting|1|Utility
+158|UTL|Sundry Master|1|Utility
+159|UTL|Voucher Wise Sundry Entry|0|Utility
+160|UTL|Sale MIS Customized|1|Utility
+161|UTL|Guest BirthDates/Anniversary|1|Utility
+162|UTL|Inconsistency Check|1|Utility
+163|UTL|Year End Updation|0|Utility
+164|UTL|Data Transfer|0|Utility
+165|UTL|Data Recieving|1|Utility
+166|UTL|Menu Item Copy|1|Utility
+167|UTL|POS Bill Deletion|0|Utility
+168|UTL|Guest LookUp|0|Utility
+169|UTL|Country Master|0|Utility
+170|UTL|State Master|0|Utility
+171|UTL|City Master|0|Utility
+172|UTL|Company Master|0|Utility
+173|UTL|Department|0|Utility
+174|UTL|Ledger Accounts|0|Utility
+175|UTL|Data Transfer (POS)|0|Utility
+176|UTL|PLU File (W.Scale)|1|Utility
+177|UTL|User Permissions (Advanced)|1|Utility
+178|UTL|POS Recycle|1|Utility
+179|UTL|Unit Master|0|Utility
+180|UTL|Task Scheduler|0|Utility
+181|SCard|Smart Card|0|Smart Card
+182|SCRD|Registration Entry|1|Smart Card
+183|SCRD|Recharge/Refund Entry|0|Smart Card
+185|SCRD|Cash Card Transaction Report|0|Smart Card
+186|SCRD|Cash Card Collection Summary|0|Smart Card
+188|ReservationEnt|Operations|1|Operations
+189|ResOpEnt|Reservation/Cancellation|1|Operations
+190|ResOpEnt|Add/Edit/Delete Group With Reservation|0|Operations
+191|ResOpEnt|Look Up Room types|1|Operations
+192|ResOpEnt|Look Up Rooms|0|Operations
+193|ResOpEnt|Reservation With History|0|Operations
+194|ResOpEnt|Advance Deposit|0|Operations
+195|ResOpEnt|Confirmation Letters|0|Operations
+196|ResOpEnt|Cancellation Letters|0|Operations
+197|ResOpEnt|Registration Card|0|Operations
+198|ResOpEnt|Reservation Status Screen|0|Operations
+199|ReservationEnt|Reservation Status Report|0|Reservation Status Report
+200|ResStatusRpt|Reservation Status|1|Reservation Status Report
+201|ResStatusRpt|Reservation Status Arrival|1|Reservation Status Report
+202|ResStatusRpt|Reservation Status In-House|1|Reservation Status Report
+203|ResStatusRpt|Group Pickup Report|1|Reservation Status Report
+204|ResStatusRpt|Group Arrival Report|1|Reservation Status Report
+205|ResStatusRpt|Arrival List|1|Reservation Status Report
+206|ReservationEnt|Advance Recd. Report|1|Advance Recd. Report
+207|AdvRecdRpt|Advance Recd.|1|Advance Recd. Report
+208|AdvRecdRpt|Advance Recd. Arrival|1|Advance Recd. Report
+209|AdvRecdRpt|Advance Recd. In-House|1|Advance Recd. Report
+210|ReservationEnt|M.I.S.|1|M.I.S.
+211|ReservationMIS|7-730 Days Forecast|1|M.I.S.
+212|ReservationMIS|23 Day Room Availability Forecast|0|M.I.S.
+213|ReservationMIS|23 Day Room Type Availability Forecast|0|M.I.S.
+214|ReservationMIS|Package Forecast|0|M.I.S.
+216|FDO|Operations|1|Operations
+217|FDOMenu|WalkIn CheckIn|1|Operations
+218|FDOMenu|Room Status|0|Operations
+219|FDOMenu|Expense Entry|0|Operations
+220|FDOMenu|Forex Receive Entry|0|Operations
+221|FDOMenu|Display Rack|0|Operations
+222|FDOMenu|House Keeping Screen|0|Operations
+223|FDOMenu|Travel Agency Posting|1|Operations
+224|FDOMenu|Bill Reprint|1|Operations
+225|FDOMenu|Reverse Check Out|0|Operations
+226|FDOMenu|Merge Room|0|Operations
+227|FDOMenu|Bill Re-Settlement|0|Operations
+228|FDOMenu|Reverse Room Merge|0|Operations
+229|FDOMenu|Plan Meal Tokens|0|Operations
+230|FDOMenu|GRC Printing|0|Operations
+231|FDOMenu|Blank GRC|0|Operations
+232|FDOReports|Reports|1|Reports
+233|FDORep|Instant House Count|1|Reports
+234|FDORep|Room Inventory|1|Reports
+235|FDORep|Guest In House|1|Reports
+236|FDORep|House Keeping Report|1|Reports
+237|FDORep|Arrival & Departure List|1|Reports
+238|FDORep|Charge Payment Detail|1|Reports
+239|FDORep|Payments By Cashier|1|Reports
+240|FDORep|Cashier Report|1|Reports
+241|FDORep|Settlement Report|1|Reports
+242|FDORep|Cancel Bill Details|1|Reports
+243|FDORep|Room Change History|1|Reports
+244|FDORep|Arrival And Departure Register|1|Reports
+245|FDORep|FOM Sales Register|1|Reports
+246|FDORep|Room Wise Plan Detail|1|Reports
+247|FDORep|Expected Plan/Package FB Details|1|Reports
+248|FDORep|Occupancy Report|1|Reports
+249|FDORep|Bill Change Report|1|Reports
+250|FDORep|Check Out Register|1|Reports
+251|FDORep|Check In Register|1|Reports
+252|FDORep|Expected Check Out|1|Reports
+253|FDORep|Guest Bill Details|1|Reports
+254|FDORep|Guest Extra Charges|1|Reports
+255|FDORep|Checked In Guest Detail|1|Reports
+256|FDORep|Room Rent Audit Report|1|Reports
+257|FDORep|Sales Report|1|Reports
+258|FDORep|Guest Payments|1|Reports
+259|TFDOForms|Tourism Forms|1|Tourism Forms
+260|FDOForms|Form  C|1|Tourism Forms
+261|FDOForms|Tourism Form 1|0|Tourism Forms
+262|FDOForms|Tourism Form 2|0|Tourism Forms
+263|FDOForms|Tourism Form 5|0|Tourism Forms
+264|FDOForms|Form -3 (Luxury Tax Register)|0|Tourism Forms
+265|FDOForms|Tourism Form 6|1|Tourism Forms
+266|FDOForms|Tourism Form 4|0|Tourism Forms
+267|FDOForms|Luxury Tax Report|0|Tourism Forms
+268|FDOForms|Monthly Return|0|Tourism Forms
+269|FDOForms|L.T. FORM II|0|Tourism Forms
+270|FDOForms|L.T. FORM IV|0|Tourism Forms
+271|FDOMIS|M.I.S.|0|M.I.S.
+272|FDOMISRep|Occupancy Display|1|M.I.S.
+273|FDOMISRep|Guest wise Analysis|1|M.I.S.
+274|FDOMISRep|Company wise Analysis|1|M.I.S.
+275|FDOMISRep|Guestwise Charges Detail|1|M.I.S.
+276|FDOMISRep|Room Occupancy|1|M.I.S.
+277|FDOMISRep|Room Type Occupancy|1|M.I.S.
+278|FDOMISRep|Room Wise Room Revenue|1|M.I.S.
+279|FDOMISRep|Occupancy Analysis|1|M.I.S.
+280|FDOMISRep|Company wise Nights|1|M.I.S.
+281|FDOMISRep|Revenue During the stay|1|M.I.S.
+282|FDOTax|Tax Reports|1|Tax Reports
+283|FDOTaxr|FOM Tax Detail|1|Tax Reports
+284|FDOTaxr|Tax Wise Charge Detail|0|Tax Reports
+286|SetHK|Setup|1|Setup
+287|HouseSet|Block Master|1|Setup
+288|TransHK|Operations|0|Operations
+289|HouseEnt|Complaint Master|1|Operations
+290|HouseEnt|Complaint Clearance|0|Operations
+291|HouseEnt|Lost / Found Entry|0|Operations
+292|HouseEnt|Claim Entry|0|Operations
+293|HouseEnt|House Keeping Op.Stock Entry|0|Operations
+294|HouseEnt|Issue/Recd. Entry|1|Operations
+295|HouseEnt|House Keeping Screen|1|Operations
+296|HouseEnt|Item Issued On Cleaning|0|Operations
+297|HouseEnt|Check Out Clearance Screen|0|Operations
+298|HouseEnt|Room Block|0|Operations
+299|ReportsHK|Reports|1|Reports
+300|HouseREP|Issue Register|1|Reports
+301|HouseREP|Stock Register|1|Reports
+302|HouseREP|Stock Summary|1|Reports
+303|HouseREP|Room Status Report|1|Reports
+304|HouseREP|Complaint Detail|1|Reports
+305|HouseREP|House Keeping Report|1|Reports
+306|CHANGEHK|Changes Department|1|Changes Department
+308|Matop|Operations|1|Operations
+309|Purch|Gravy Item Entry|1|Operations
+310|Purch|Indent|1|Operations
+311|Purch|Purchase Order|0|Operations
+312|Purch|M.R. Entry|0|Operations
+313|Purch|Purchase Bill|0|Operations
+314|Purch|Requisition Slip|0|Operations
+315|Purch|Stock Issue on Requisition|0|Operations
+316|Purch|Kitchen Closing Stock|0|Operations
+317|Purch|Stock Transfer|0|Operations
+318|Purch|Finish Material Receive Entry|0|Operations
+319|Purch|Excise Invoice Cum Gate Pass|1|Operations
+320|MatLok|Look Ups|1|Look Ups
+321|MatStat|Pending Indent|1|Look Ups
+322|MatStat|Pending M.R.|0|Look Ups
+323|MatStat|Pending Purchase Order|0|Look Ups
+324|MatReports|Reports|1|Reports
+325|MatRep|Purchase Register|1|Reports
+326|MatRep|Purchase Summary|1|Reports
+327|MatRep|Cash/Credit Purchase|1|Reports
+328|MatRep|Stock Register|1|Reports
+329|MatRep|Stock Summary|1|Reports
+330|MatRep|Stock In Hand|1|Reports
+331|MatRep|Kitchen Stock Report I/R Basis|1|Reports
+332|MatRep|Excess Consumption Report|1|Reports
+333|MatRep|Restaurant Issue Report|1|Reports
+334|MatRep|Store Issue Register|1|Reports
+335|MatRep|Change Kitchen/Store|1|Reports
+336|MatRep|Daily Store Issue Reports|1|Reports
+337|MatRep|Purchase Ledger|1|Reports
+338|MatRep|Issue CheckList|1|Reports
+339|MatRep|Stock Summary P/S Basis|1|Reports
+340|MatRep|ABC Analysis|1|Reports
+341|MatRep|Production Report I/R Basis|1|Reports
+342|MatVat|Tax Reports|1|Tax Reports
+343|MatVatR|VAT Register|1|Tax Reports
+344|MatVatR|VAT Register II|0|Tax Reports
+345|MatVatR|VAT Register III|0|Tax Reports
+346|MatVatR|Form24 Annexure-A|0|Tax Reports
+347|MatVatR|Form III|0|Tax Reports
+348|MatVatR|UPVAT XXIV|0|Tax Reports
+350|Rest|Stock Register|1|Stock Register
+351|Rest|Stock Summary|1|Stock Summary
+352|Rest|Kitchen Stock Summary|1|Kitchen Stock Summary
+353|Rest|Restaurant Change|1|Restaurant Change
+354|Rest|POS Status|1|POS Status
+355|POSOperations|POS Operations|0|POS Operations
+356|POSEnt|KOT Entry|1|POS Operations
+357|POSEnt|Table Change Entry|0|POS Operations
+358|POSEnt|Sale Bill Entry|0|POS Operations
+359|POSEnt|Settlement Entry|0|POS Operations
+360|POSEnt|POS Bill Reprint|0|POS Operations
+361|POSEnt|Split Sale Bill|0|POS Operations
+362|POSEnt|Display Table|0|POS Operations
+363|POSEnt|Order Booking|0|POS Operations
+364|POSEnt|Bill Lookup|0|POS Operations
+365|POSEnt|Order Booking Advance|0|POS Operations
+366|POSEnt|KOT Transfer|0|POS Operations
+367|POSEnt|Token Entry|0|POS Operations
+368|POSEnt|Assign Delivery|1|POS Operations
+369|POSReports|POS Reports|1|POS Reports
+370|POSRep|Sales Register|1|POS Reports
+371|POSRep|Stewardwise Sale|1|POS Reports
+372|POSRep|Table wise Sale|1|POS Reports
+373|POSRep|Settlement Summary|1|POS Reports
+374|POSRep|KOT Wise Details|1|POS Reports
+375|POSRep|Discount Register|1|POS Reports
+376|POSRep|Cover Analysis|1|POS Reports
+377|POSRep|Pending KOT|1|POS Reports
+378|POSRep|Item wise Sale|1|POS Reports
+379|POSRep|Deleted Unsettled Bill|1|POS Reports
+380|POSRep|NC KOT Detail|1|POS Reports
+381|POSRep|Sales Day Book|1|POS Reports
+382|POSRep|Order Detail Report|1|POS Reports
+383|POSRep|NC KOT Summary|1|POS Reports
+384|POSRep|Daily DIET Report|1|POS Reports
+385|POSRep|Discount Register|1|POS Reports
+386|POSRep|Not Delivered Order|1|POS Reports
+387|POSRep|Group Wise Sale|1|POS Reports
+388|POSRep|Customer Detail|1|POS Reports
+389|POSRep|Delivery Status|1|POS Reports
+390|POSRep|Denomination Detail|1|POS Reports
+391|POSMIS|POS M.I.S.|1|POS M.I.S.
+392|MISREP|Collection Summary|1|POS M.I.S.
+393|MISREP|Open Item Sales|1|POS M.I.S.
+394|MISREP|Void Bills|1|POS M.I.S.
+395|MISREP|KOT Change Report|1|POS M.I.S.
+396|MISREP|Discount Summary|1|POS M.I.S.
+397|MISREP|Monthwise Sales|1|POS M.I.S.
+398|MISREP|ABC  Analysis|1|POS M.I.S.
+399|MISREP|Sale Summary|1|POS M.I.S.
+400|MISREP|Tax Invoice Detail|1|POS M.I.S.
+401|MISREP|Edited Bills|1|POS M.I.S.
+402|PosTax|Tax Reports|1|Tax Reports
+403|PosTaxRep|Tax Report|1|Tax Reports
+404|PosTaxRep|Tax Register|1|Tax Reports
+405|PosTaxRep|Taxwise Details|1|Tax Reports
+406|PosTaxRep|Tax Summary|1|Tax Reports
+408|BanqMas|Setup|1|Setup
+409|HallEnt|Events|1|Setup
+410|HallEnt|Venue Features|0|Setup
+411|HallEnt|Venue Master|0|Setup
+412|HallEnt|Menu Category|0|Setup
+413|HallEnt|Item Group|0|Setup
+414|HallEnt|Menu Item|0|Setup
+415|HallEnt|Catalog Master|0|Setup
+416|HallEnt|Banquet Bill Sundry Setting|0|Setup
+417|oper|Operation|0|Operation
+418|Hallop|Booking Inquiry|1|Operation
+419|Hallop|Banquet Booking|0|Operation
+420|Hallop|Catalog Selection|0|Operation
+421|Hallop|Chef Pre-Costing|0|Operation
+422|Hallop|Banquet Billing|0|Operation
+423|Hallop|Banquet Settlement|0|Operation
+424|Hallop|Venue Availability|1|Operation
+425|Hallop|Guest Comments|0|Operation
+426|Hallop|Banquet Estimate Billing|0|Operation
+427|Hallop|Banquet Booking Advance|0|Operation
+428|HallReport|Reports|1|Reports
+429|BanqRep|Sales Register|1|Reports
+430|BanqRep|OutStanding Report|1|Reports
+431|BanqRep|Party wise OutStanding|1|Reports
+432|BanqRep|Cashier  Report|1|Reports
+433|BanqRep|Booking Inquiry Detail|1|Reports
+434|BanqRep|Settlement  Report|1|Reports
+435|BanqRep|Daily Function Sheet|1|Reports
+436|BanqRep|Item Wise Sales Report|1|Reports
+437|BanqRep|Company Wise Sale Report|1|Reports
+438|BanqRep|Function Wise Item Detail|1|Reports
+439|HallMIS|MIS|1|MIS
+440|BanqRepMIS|Cover Analysis|1|MIS
+441|BanqRepMIS|Collection Summary|1|MIS
+442|HallTax|Tax Report|1|Tax Report
+443|HallTaxP|Tax Report|1|Tax Report
+444|HallTaxP|Tax Summary|1|Tax Report
+445|HallTaxP|Banquet Taxwise Details|0|Tax Report
+447|NightAudito|Operation|1|Operation
+448|NightAuditoR|Guest Audit Ledger|1|Operation
+449|NightAuditoR|Charges Posting|0|Operation
+450|NightAuditoR|Night Audit Process|0|Operation
+451|NightAuditoR|Account Posting|0|Operation
+452|NightAuditoR|Night Audit Control Panel|0|Operation
+453|NightAuditoR|Reverse Night Audit|1|Operation
+454|NightAuditR|Reports|1|Reports
+455|NightAuditRR|Daily Report|1|Reports
+456|NightAuditRR|Daily Report-II|0|Reports
+457|NightAuditRR|Revenue Analysis|0|Reports
+458|NightAuditRR|Guest Trail|1|Reports
+459|NightAuditRR|Checkout Analysis|0|Reports
+460|NightAuditRR|Occupancy Analysis|1|Reports
+461|NightAuditRR|Market Segment Analysis|0|Reports
+462|NightAuditRR|Business Source Analysis|0|Reports
+463|NightAuditRR|Company Analysis|0|Reports
+464|NightAuditRR|Travel Agent Analysis|0|Reports
+465|NightAuditRR|FOCC Report|1|Reports
+466|NightAuditRR|Food Costing Report|0|Reports
+467|NightAuditRR|FB Cost Statement|0|Reports
+468|NightAuditRR|Budget Analysis|0|Reports
+469|NightAuditRR|Ageing Analysis (Debtors)|1|Reports
+470|NightAuditRR|Ageing Analysis (Creditors)|0|Reports
+471|NightAuditL|Log|0|Log
+472|NightAuditLR|Night Audit Log|1|Log
+473|NightAuditLR|Charges Remove Log|0|Log
+475|PayO|Operations|1|Operations
+476|PayOpr|Leave|1|Operations
+477|PayOpr|Attendance|0|Operations
+478|PayOpr|Loan/Advance|1|Operations
+479|PayOpr|Over Time|0|Operations
+480|PayOpr|Leave Encashment|0|Operations
+481|PayOpr|Salary Creation|0|Operations
+482|PayR|Reports|1|Reports
+483|PayRep|Pay Slip|1|Reports
+484|PayRep|Payroll Register|1|Reports
+485|PayRep|Loan Register|1|Reports
+486|PayRep|Loan/Advance Summary|1|Reports
+487|PayRep|Loan/Advance Ledger|1|Reports
+488|PayRep|Attendence Report|1|Reports
+489|PayRep|Gratuity Report|1|Reports
+490|PayRep|PF Statement|1|Reports
+491|PayRep|Form C|1|Reports
+493|mnuTelMast|Telephone Call Entry|1|Telephone Call Entry
+494|mnuTelMast|Telephone Report|1|Telephone Report
+495|mnuTelRep|EPBAX Call Report|1|Telephone Report
+497|mnuMSG|InBox|1|InBox
+498|mnuMSG|OutBox|1|OutBox
+500|MembOpr|Operations|1|Operations
+501|MemOpr|Member Visit Entry|1|Operations
+502|MemOpr|Member Renewal Entry|0|Operations
+503|MemOpr|Member Used Facility Entry|0|Operations
+504|MemOpr|Member Facility Billing|0|Operations
+505|MemOpr|Member Bill Printing|0|Operations
+506|MemOpr|Member Assistant|0|Operations
+507|MemOpr|Outstation Member Entry|0|Operations
+508|MemOpr|Member Category Change Entry|0|Operations
+509|MemOpr|Payment Receive Entry|0|Operations
+510|MemOpr|Revenue Change Entry|0|Operations
+511|MemOpr|Payment Due Letter Entry|1|Operations
+512|MemOpr|Member Category Change (Conditional)|0|Operations
+513|MembRpt|Reports|1|Reports
+514|MemRpt|Member Visit Detail|1|Reports
+515|MemRpt|Member Mailing Labels|1|Reports
+516|MemRpt|Member Bill Missing Report|1|Reports
+517|MemRpt|Member Sales Register|1|Reports
+518|MemRpt|Member Ledger|1|Reports
+519|MemRpt|Member Tax Report|1|Reports
+520|MemRpt|Payment Due Letter Report|1|Reports
+521|MemRpt|Member Birthday/Anniversary Details|1|Reports
+523|SMSG|General|1|General
+524|SMSGEN|SMS Center Settings|1|General
+525|SMSGEN|SMS Environment Settings|0|General
+526|SMSSD|Send SMS|0|Send SMS
+527|SMSSEND|Multiple SMS Type|1|Send SMS
+529|MallOpr|Operations|1|Operations
+530|MallMgmt|Location-Master|1|Operations
+531|MallMgmt|Facility Master|0|Operations
+532|MallMgmt|Location Facilities|0|Operations
+533|MallMgmt|Party Locations|0|Operations
+534|MallMgmt|Meter Reading|0|Operations
+535|MallMgmt|Facility Billing|0|Operations
+536|MallMgmt|Facility Sundry Setting|0|Operations
+537|MallMgmtRpt|Reports|1|Reports
+538|MallRep|Facility Bill Register|1|Reports
+540|ODCMas|Setup|1|Setup
+541|OdcEnt1|Events|1|Setup
+542|OdcEnt1|Venue Features|1|Setup
+543|OdcEnt1|Venue Master|0|Setup
+544|OdcEnt1|Menu Category|0|Setup
+545|OdcEnt1|Item Group|0|Setup
+546|OdcEnt1|Menu Item|0|Setup
+547|OdcEnt1|Catalog Master|0|Setup
+548|OdcEnt1|Banquet Bill Sundry Setting|1|Setup
+549|OdcOPer|Operation|0|Operation
+550|OdcOP|Booking Inquiry|1|Operation
+551|OdcOP|Banquet Booking|0|Operation
+552|OdcOP|Catalog Selection|0|Operation
+553|OdcOP|Chef Pre-Costing|0|Operation
+554|OdcOP|Banquet Billing|0|Operation
+555|OdcOP|Banquet Settlement|0|Operation
+556|OdcOP|Venue Availability|0|Operation
+557|OdcOP|Guest Comments|0|Operation
+558|OdcOP|Banquet Estimate Billing|0|Operation
+559|OdcOP|Banquet Booking Advance|0|Operation
+560|OdcRepo|Reports|1|Reports
+561|OdcRep|Sales Register|1|Reports
+562|OdcRep|OutStanding Report|1|Reports
+563|OdcRep|Party wise OutStanding|1|Reports
+564|OdcRep|Cashier Collection Summary|1|Reports
+565|OdcRep|Booking Inquiry Detail|1|Reports
+566|OdcRep|Settlement  Report|1|Reports
+567|OdcRep|Daily Function Sheet|1|Reports
+568|OdcRep|Function Wise Item Detail|1|Reports
+569|OdcMisR|MIS|1|MIS
+570|OdcMis|Cover Analysis Report|1|MIS
+571|OdcMis|Cashier Collection Summary|1|MIS
+572|OdcTax|Tax Report|1|Tax Report
+573|OdcTaxR|Tax Report|1|Tax Report
+574|OdcTaxR|Tax Summary|1|Tax Report
+575|OdcTaxR|Banquet Taxwise Details|0|Tax Report
+577|EXTSCRD|Smart Card|1|Smart Card
+578|EXTSCOPR|Operations|1|Smart Card
+579|EXTSCOP|Card Initialization|1|Smart Card
+580|EXTSCOP|Card Registration|0|Smart Card
+581|EXTSCOP|Card Recharge|0|Smart Card
+582|EXTSCOP|Card Refund|0|Smart Card
+583|EXTSCOP|Card Re-Issue|0|Smart Card
+584|EXTSCOP|User Collection|0|Smart Card
+585|EXTSCREP|Reports|1|Smart Card
+586|EXTSCRP|Card Statement (MINI)|1|Smart Card
+587|EXTSCRP|Card Statement (FULL)|0|Smart Card
+588|EXTSCRP|Card Transaction Report|0|Smart Card
+589|EXTSCRP|Card Collection Summary|0|Smart Card
+590|EXTSCRP|Card Status Report|0|Smart Card
+591|EXTSMS|SMS|0|SMS
+592|SMSSETUP|Sstup|1|SMS
+593|EXTSMSSETUP|SMS (API)|1|SMS
+594|SMSOPR|Operations|0|SMS
+595|EXTSMSOPR|SMS (Scheduled)|1|SMS
+596|EXTSMSOPR|SMS (Conditional)|0|SMS
+597|EXTDTR|Data Transfer|0|Data Transfer
+598|DTRO|Transfer (Offline)|1|Data Transfer
+599|DTRON|Transfer (Online)|0|Data Transfer
+600|RW|Reward Points|0|Reward Points
+601|RWP|Guest Registration|1|Reward Points
+602|RWP|Reward Points Parameter I|0|Reward Points
+603|RWREP|Reports|1|Reward Points
+604|EXTRWREP|Registered Guest Detail|1|Reward Points
+606|dsale|Restaurant Change|1|Restaurant Change
+608|mnuWindowCascad|Cascade|1|Cascade
+609|mnuWindowTileHo|Tile Horizontal|1|Tile Horizontal
+610|mnuWindowTileVe|Tile Vertical|0|Tile Vertical
+614|PP|....|1|
+615|PP|....|1|
+617|smnuMdI|Manage MDI|1|Manage MDI

@@ -1,0 +1,84 @@
+{
+  "results": [
+    {
+      "module": "Finance",
+      "status": "FAIL"
+    },
+    {
+      "module": "Main Setup",
+      "status": "PASS",
+      "ocr_length": 882
+    },
+    {
+      "module": "Reservation",
+      "status": "PASS",
+      "ocr_length": 753
+    },
+    {
+      "module": "Front Office",
+      "status": "PASS",
+      "ocr_length": 753
+    },
+    {
+      "module": "House Keeping",
+      "status": "PASS",
+      "ocr_length": 753
+    },
+    {
+      "module": "Inventory",
+      "status": "PASS",
+      "ocr_length": 753
+    },
+    {
+      "module": "Point Of Sale",
+      "status": "PASS",
+      "ocr_length": 748
+    },
+    {
+      "module": "Banquet",
+      "status": "PASS",
+      "ocr_length": 779
+    },
+    {
+      "module": "Night Audit",
+      "status": "PASS",
+      "ocr_length": 779
+    },
+    {
+      "module": "HR",
+      "status": "PASS",
+      "ocr_length": 766
+    },
+    {
+      "module": "EPABX",
+      "status": "PASS",
+      "ocr_length": 79
+    },
+    {
+      "module": "Messaging",
+      "status": "PASS",
+      "ocr_length": 79
+    },
+    {
+      "module": "Members Mgmt",
+      "status": "PASS",
+      "ocr_length": 79
+    },
+    {
+      "module": "Outdoor Banquet",
+      "status": "PASS",
+      "ocr_length": 79
+    },
+    {
+      "module": "Extras",
+      "status": "PASS",
+      "ocr_length": 79
+    },
+    {
+      "module": "Direct Sale",
+      "status": "PASS",
+      "ocr_length": 79
+    }
+  ],
+  "total": 16
+}

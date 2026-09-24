@@ -1,0 +1,136 @@
+{
+  "database": "MOONData2627",
+  "total_tables": 274,
+  "results": [
+    {
+      "table": "Company",
+      "rows": "1",
+      "status": "OK"
+    },
+    {
+      "table": "menuHelp",
+      "rows": "8475",
+      "status": "OK"
+    },
+    {
+      "table": "User_Module",
+      "rows": "617",
+      "status": "OK"
+    },
+    {
+      "table": "GuestProf",
+      "rows": "7215",
+      "status": "OK"
+    },
+    {
+      "table": "RoomMast",
+      "rows": "86",
+      "status": "OK"
+    },
+    {
+      "table": "Booking",
+      "rows": "19",
+      "status": "OK"
+    },
+    {
+      "table": "Sale1",
+      "rows": "5952",
+      "status": "OK"
+    },
+    {
+      "table": "Stock",
+      "rows": "30369",
+      "status": "OK"
+    },
+    {
+      "table": "ItemMast",
+      "rows": "3292",
+      "status": "OK"
+    },
+    {
+      "table": "EmpCategory",
+      "rows": "4",
+      "status": "OK"
+    },
+    {
+      "table": "Employee",
+      "rows": "120",
+      "status": "OK"
+    },
+    {
+      "table": "RoomDet",
+      "rows": "0",
+      "status": "OK"
+    },
+    {
+      "table": "PayCharge",
+      "rows": "13723",
+      "status": "OK"
+    },
+    {
+      "table": "FolioLog",
+      "rows": "972",
+      "status": "OK"
+    },
+    {
+      "table": "KOT",
+      "rows": "13907",
+      "status": "OK"
+    },
+    {
+      "table": "Indent",
+      "rows": "959",
+      "status": "OK"
+    },
+    {
+      "table": "POrder",
+      "rows": "6",
+      "status": "OK"
+    },
+    {
+      "table": "CompanyProfile",
+      "rows": "0",
+      "status": "OK"
+    },
+    {
+      "table": "UserMast",
+      "rows": "68",
+      "status": "OK"
+    },
+    {
+      "table": "Site",
+      "rows": "0",
+      "status": "OK"
+    },
+    {
+      "table": "SubGroup",
+      "rows": "3110",
+      "status": "OK"
+    },
+    {
+      "table": "Ledger",
+      "rows": "18474",
+      "status": "OK"
+    },
+    {
+      "table": "TaxStru",
+      "rows": "56",
+      "status": "OK"
+    },
+    {
+      "table": "FixedCharge",
+      "rows": "1",
+      "status": "OK"
+    },
+    {
+      "table": "RoomRate",
+      "rows": "0",
+      "status": "OK"
+    },
+    {
+      "table": "RoomOcc",
+      "rows": "11002",
+      "status": "OK"
+    }
+  ]
+}

@@ -1,0 +1,994 @@
+VB6 <-> PYTHON PARITY MATRIX
+==============================================================================
+Generated: _qa/gen_parity_matrix.py (skill: vb6-python-parity)
+VB6: *.frm captions + inline-SQL table evidence | Py: shell registry + core/ui scan | DB: live-table probe
+
+STATUS SUMMARY
+------------------------------------------------------------------------------
+  DONE         112
+  PARTIAL      190
+  UI-ONLY      0
+  BLOCKED-TBL  2
+  MISSING      14
+  TOTAL        318
+
+
+==============================================================================
+## PARTIAL
+==============================================================================
+
+| VB6 form            | Caption                    | Python UI | Core | Wired | Tables (live) |
+|---------------------|----------------------------|-----------|------|-------|----------------------------------------|
+| DepartSundry        | Outlet Bill Sundry Setting | no        | Y    | -     | Depart, Enviro, RevMast, SundryMast, S |
+| FacilitySundry      | Outlet Bill Sundry Setting | no        | Y    | -     | Depart, Enviro, RevMast, SundryMast, S |
+| fdAmendEntry        | Amend Stay                 | no        | Y    | -     | City, Country, GUESTSTAT, GuestFolio,  |
+| fdCheckIn           | Look Up Reservation By Gue | no        | Y    | -     | GrpBookingDetails, GuestFolio, GuestPr |
+| FdCheckOut          | Room Check Out             | no        | Y    | -     | City, EPABX_IN, EmailSMSForward, Envir |
+| fdDisplayFolio      | Guest Ledger               | no        | Y    | -     | Depart, Enviro, GUESTSTAT, GuestFolio, |
+| fdDisplayFolioSumm  | Summerized Guest Ledger    | no        | Y    | -     | Enviro, GUESTSTAT, GuestFolio, GuestPr |
+| FdGrpCheckOut       | Room Check Out Entry       | no        | Y    | -     | Country, Depart, EPABX_IN, Employee, E |
+| FdGrpdetCheckOut    | Room Check Out Entry       | no        | Y    | -     | EPABX_IN, Enviro, GUESTSTAT, GuestFoli |
+| FdLookUpRoom        | Look Up Room               | no        | Y    | -     | RoomBlockOut, RoomCat, RoomMast, RoomO |
+| FdLookUpRoomNo      | Display Rack               | no        | Y    | -     | DispColor, Dispcolor, ENVIRO, GuestFol |
+| fdNDAcPostChrg      | Posting Utility            | no        | Y    | -     | Enviro, ItemMast, PayCharge, Stock, mC |
+| fdPaymentCharge     | Post Charges & Payment     | no        | Y    | -     | DepartPay, Employee, Enviro, GUESTFOLI |
+| fdPostChrg          | Post Charges /Payments     | no        | Y    | -     | Enviro, GuestFolio, GuestProf, PAYCHAR |
+| fdPrintScreen       | Guest Charges Summary      | no        | Y    | -     | GUESTSTAT, GuestFolio, GuestProf, RevM |
+| FdReSetlement       | Post Charges/Payment       | no        | Y    | -     | BillDet, DepartPay, Employee, Enviro,  |
+| FdRevCheckOut       | Check Out Cancel           | no        | Y    | -     | EPABX_IN, Enviro, GUESTSTAT, GuestFoli |
+| FdRoomDisplay       | Room View                  | no        | Y    | -     | roommast                               |
+| fdRoomOcc           | Reservation Look Up Room W | no        | Y    | -     | FAEnviro, GuestFolio, RateList, RoomBl |
+| fdWalkInEntry       | Walk In / Check In Entry   | no        | Y    | -     | Booking, BookingPlanDetails, BussSourc |
+| FindMess            | (blank)                    | no        | Y    | -     | GuestMessage                           |
+| frmAdvanceDepDialog | Advance Deposit            | no        | Y    | -     | Booking, City, Employee, Enviro, Group |
+| FrmBdayLookup       | Form1                      | no        | Y    | -     | GuestProf                              |
+| FrmBusinessSrc      | Business Source Master     | no        | Y    | -     | BussSource                             |
+| FrmChangeDepart     | Department Change Master   | no        | Y    | -     | Depart                                 |
+| FrmChangeKitch      | Kitchen Change Master      | no        | Y    | -     | Depart                                 |
+| FrmChangeRest       | Restaurant Change Master   | no        | Y    | -     | Depart                                 |
+| frmComboMast        | Combo Item Master          | no        | Y    | -     | ComboPackDetail, Depart, Item, ItemCat |
+| frmCompany          | User Information           | no        | Y    | -     | Booking, BussSource, COMPANY, Company, |
+| FrmComplaintMast    | Complain Master            | no        | Y    | -     | ComplaintCategory, ComplaintDetail, De |
+| FrmConsumMast       | Consumption Master         | no        | Y    | -     | BOM, Bom, Depart, ItemMast             |
+| FrmConsumMast9999   | Open Item Consumption Mast | no        | Y    | -     | BOM, Depart, ItemMast                  |
+| FrmDeliveredItemDetail | Not Delivered Item         | no        | Y    | -     | AssignDelivery, DeliveryBoy, Depart, P |
+| FrmDeliveryBoyMast  | Delivery Boy Master        | no        | Y    | -     | DeliveryBoy                            |
+| FrmDenomination     | Denomination Detail        | no        | Y    | -     | DenominationDetail, DenominationFormat |
+| frmEnviro           | Parameter Settings         | no        | Y    | -     | Acgroup, Enviro, Godownmast, ItemMast, |
+| FrmEventMast        | Event Type                 | no        | Y    | -     | FunctionType                           |
+| FrmExpense          | Misc.Payment / Received En | no        | Y    | -     | ENVIRO, ExpSheet, REVMAST, SubGroup, V |
+| FrmFacilityMast     | Form1                      | no        | Y    | -     | FacilityMast, SubGroup, Subgroup, TaxS |
+| frmFdLeaderRev      | Leader Revenue Allocation  | no        | Y    | -     | BussSource, GuestFolio, GuestProf, Mar |
+| frmFixedChargeMast  | Fixed Charge Master        | no        | Y    | -     | FixedCharge, PLAN1, RevMast, SubGroup, |
+| frmFomB             | FOM Bill Reprint           | no        | Y    | -     | City, Depart, Enviro, FOMBillDetails,  |
+| FrmFomBillDeletion  | Fom Bill Delection         | no        | Y    | -     | Depart, FomBillDetails, PayCharge, Pay |
+| FrmForeignExMast    | Foreign Exchange Master    | no        | Y    | -     | ForEx                                  |
+| FrmForExRec         | Forex Receive Entry        | no        | Y    | -     | ForEx, ForExTrans, Voucher_Prefix, Vou |
+| FrmGrcBlank         | Guest Registration  Card   | no        | Y    | -     | Booking, Enviro, Voucher_Prefix, Vouch |
+| FrmGuestAddObj      | Guest Address & Observatio | no        | Y    | -     | Member, Voucher_Prefix, Voucher_Type,  |
+| frmGuestComments    | Guest Comments             | no        | Y    | -     | BussSource, CITY, FunctionType, GuestC |
+| frmGuestInfo        | Guest Information          | no        | Y    | -     | GUESTPROF, GuestProf, LocationFacility |
+| frmGuestParamMast   | Guest Parameters Master    | no        | Y    | -     | GUESTPARAM, GuestParam                 |
+| FrmGuestStat        | Guest Status Master        | no        | Y    | -     | GuestStat, gueststat                   |
+| FrmGuestWakeUp      | Register Wake up Calls     | no        | Y    | -     | City, EPABX_IN, GuestFolio, GuestStat, |
+| FrmHallItemCatMast  | Category and Charge Master | no        | Y    | -     | ItemCatMast, PayCharge, RevMast, Revma |
+| FrmHouGuestMsg      | In House Guest Message     | no        | Y    | -     | City, GuestFolio, GuestMessage, GuestS |
+| FrmHouseStatus      | Property Status            | no        | Y    | -     | Depart, FunctionType, GuestFolio, Hall |
+| FrmInc              | Inconsistency Check        | no        | Y    | -     | ACGROUP, Depart, ENVIRO, FAENVIRO, God |
+| FrmItemCatMast      | Category/Charge Master     | no        | Y    | -     | Depart, ItemCatMast, PayCharge, RevMas |
+| FrmItemCatRaw       | Category/Charge Master     | no        | Y    | -     | Depart, Enviro, ItemCatMast, PayCharge |
+| FrmItemGroupMast    | Item Group Entry           | no        | Y    | -     | Depart, ItemGrp, itemgrp               |
+| FrmItemIssuedOnCleaning | Item Issued On Cleaning    | no        | Y    | -     | Depart, DepartWiseItemIssueList, Godow |
+| FrmItemMast         | Item Entry                 | no        | Y    | -     | Item, ItemMast, Itemmast               |
+| FrmItemMastRaw      | Item Entry (Raw)           | no        | Y    | -     | Depart, Item, ItemCatMast, ItemGrp, It |
+| FrmJobScheduler     | Task Scheduler             | no        | Y    | -     | JobSchedule                            |
+| FrmLostFound        | Lost && Found              | no        | Y    | -     | LostFoundDetail                        |
+| FrmMarketSeg        | Market Segment Master      | no        | Y    | -     | MarketSeg                              |
+| frmMenuItemCopy     | Menu Item Copy             | no        | Y    | -     | BOM, Depart, Item, ItemCatMast, ItemGr |
+| FrmMenuRate         | Item Rate Entry            | no        | Y    | -     | Depart, ItemCatMast, ItemGrp, ItemMast |
+| FrmMergeCharge      | Room Merge                 | no        | Y    | -     | GUESTSTAT, GuestFolio, GuestProf, Lead |
+| FrmMeterReading     | Meter Reading              | no        | Y    | -     | FMReading, FMReading1, FacilityMast, L |
+| FrmOPStock          | Opening Stock Entry        | no        | Y    | -     | Depart, GodownMast, ItemMast, Stock, V |
+| FrmPackageMast      | Package Defination Master  | no        | Y    | -     | FixedCharge, Plan1, PlanMast, PlanToke |
+| FrmParty            | Suppler Master             | no        | Y    | -     | AcGroup, CATEGORY, City, Ledger, SUBGR |
+| FrmPayTypeMast      | Payment Type Master        | no        | Y    | -     | CreditCardhistory, DepartPay, MenuHelp |
+| FrmPlanTokenMast    | Plan Token Master          | no        | Y    | -     | RevMast, TaxStru                       |
+| FrmPOSBillDeletion  | POS Bill Deletion Entry    | no        | Y    | -     | AssignDelivery, Depart, GuestReward, K |
+| FrmPOSBillModificationDatewise | POS Bill Deletion Entry    | no        | Y    | -     | Depart, Kot, PayCharge, Paycharge, Rev |
+| FrmPOSBillModificationItemGroupwise | POS Bill Modification (Ite | no        | Y    | -     | Depart, Kot, PayCharge, Paycharge, Rev |
+| FrmPOSRecycleData   | Recycle Outlet Data        | no        | Y    | -     | DEPART, Depart, KOT, POS_SBill, Paycha |
+| FrmPOSSaleDataTransfer | POS Bill Deletion Entry    | no        | Y    | -     | Depart, PayCharge, Sale1, Sale2, Stock |
+| frmPurEnviro        | Purchase Parameter         | no        | Y    | -     | Enviro, Godownmast, RevMast, SubGroup  |
+| FrmReceivePayment   | Misc.Payment / Received En | no        | Y    | -     | Depart, ENVIRO, ExpSheet, PayCharge, P |
+| FrmRevenueWiseBudget | Revenue Wise Budget        | no        | Y    | -     | BUDGETDETAILS, BudgetDetails, FixedCha |
+| frmRevGroup         | Revenue Group              | no        | Y    | -     | Revmast, revmast                       |
+| FrmRevMergeCharge   | Reverse Transfer Room      | no        | Y    | -     | GUESTSTAT, GuestFolio, GuestProf, PayC |
+| FrmRoomCatMast      | Room Category Master       | no        | Y    | -     | RateList, RevMast, RoomCat, enviro, ra |
+| FrmRoomFeatureMast  | Room Features Master       | no        | Y    | -     | RoomFeature                            |
+| FrmRoomMast         | Room  Master               | no        | Y    | -     | Depart, ROOMFEATURE, ROOMMAST1, RateLi |
+| FrmSerialiseVr      | Voucher Serialisation      | no        | Y    | -     | LEDGERM, Ledger, LedgerM, LedgerMMerge |
+| FrmSmsCenterSettings | SMS Center Settings        | no        | Y    | -     | EmailSMSForward, SMSEnviro             |
+| FrmSMSEnviro        | Parameter Setting          | no        | Y    | -     | Depart, EmailSMSForward, JobSchedule,  |
+| FrmSMSMultiType     | Common SMS                 | no        | Y    | -     | ACGROUP, City, DBSendSMS, Employee, Gu |
+| FrmTaxStruMast      | Tax Structure Master       | no        | Y    | -     | RevMast, TaxStru, Taxstru              |
+| FrmUnSettledBillsInfo | Unsettled Bill Details     | no        | Y    | -     | DEPART, Depart, PayCharge, RoomMast, V |
+| FrmUserPaymentCollection | User Payment Receive Entry | no        | Y    | -     | ENVIRO, MenuHelp, REVMAST, UserCollect |
+| frmWelcome          | <                          | YES       | Y    | -     | GuestProf                              |
+| hAdvanceDepDialog   | Settlement                 | no        | Y    | -     | CreditCardHistory, Depart, DepartPay,  |
+| hAdvanceDepDialogSecondry | Advance Deposite           | no        | Y    | -     | Employee, Enviro, GuestFolio, PAYCHARG |
+| HallAcPostChrg      | A/C Posting                | no        | Y    | -     | Enviro                                 |
+| HallAdvanceDepDialog | Advance Recived            | no        | Y    | -     | CreditCardHistory, Depart, DepartPay,  |
+| HallBill            | Hall Bill Entry            | no        | Y    | -     | Booking, City, DEPART, Depart, Employe |
+| HallBillEstimate    | Banquet Estimate Bill      | no        | Y    | -     | Booking, DEPART, Depart, Enviro, FAEnv |
+| HallEstimate        | Hall Estimate Entry        | no        | Y    | -     | Booking, DEPART, Depart, Enviro, FAEnv |
+| HallItemGroupMast   | Item Group Entry           | no        | Y    | -     | ItemGrp                                |
+| HallMenuCatalog     | Menu Catalog               | no        | Y    | -     | CatalogMast, Depart, Enviro, GroupCata |
+| HallMenuItemEntry   | Menu Item Entry            | no        | Y    | -     | Depart, Item, ItemCatMast, ItemGrp, It |
+| HallSundry          | Outlet Bill Sundry Setting | no        | Y    | -     | RevMast, SundryMast, SundryType, Sundr |
+| HKHouseOpStk        | House Keeping Op. Stock En | no        | Y    | -     | DEPART, Depart, ItemGrp, ItemMast, LAS |
+| HKIssRec            | Issue/Receive Entry        | no        | Y    | -     | Depart, GodownMast, ItemGrp, ItemMast, |
+| HKRoomOpStk         | Room Op.Stock Entry        | no        | Y    | -     | Depart, ItemGrp, ItemMast, LASTVOU, Ro |
+| HRoomCheckOutClearance | Check Out Clearance Screen | no        | Y    | -     | PayCharge, RoomBlockOut, RoomCheckOutS |
+| HWIHistory          | Walk In by Room History    | no        | Y    | -     | Booking, GuestFolio, GuestProf, PlanMa |
+| InHouseGuestFolio   | Inhouse Guest Folio        | no        | Y    | -     | Booking, City, EPABX_IN, EmailSMSForwa |
+| kClStk              | Kitchen Closing Stock Entr | no        | Y    | -     | DateLock, Depart, GODOWNMAST, GodownMa |
+| memAgeRevMast       | Member Category Wise Reven | no        | Y    | -     | Age, MemAgeRevWise, MemCatMast, Member |
+| MemAssistant        | Member Assistant           | no        | Y    | -     | AcGroup, CATEGORY, City, Country, Ledg |
+| MemberEnviro        | Parameter Setting          | no        | Y    | -     | MemEnviro                              |
+| MemberProposedMemInf | Propsed Member Information | no        | Y    | -     | MemCatMast, MemProposedMemInf, MemberF |
+| MemberShipRevenueMast | MemberShip Revenue Master  | no        | Y    | -     | MembershipRevMast, SubGroup, TaxStru   |
+| MemberSMS           | Generate SMS.csv           | no        | Y    | -     | Enviro                                 |
+| MemBillPrintingModule | Member Bill Printing       | no        | Y    | -     | MemBill, MemEnviro, Should             |
+| memCatChngCond      | Member Category Change (Co | no        | Y    | -     | Ledger, MemCatMast, SubGroup           |
+| memCatChngEntry     | Out-Station Member Entry   | no        | Y    | -     | MemBill, MemCatChngDetail, MemCatMast, |
+| memCategoryFacilities | Category wise Facility     | no        | Y    | -     | MemCatFacility, MemCatMast, MemFacilit |
+| MemCatMast          | Member Category Master     | no        | Y    | -     | MEmCatMast, MemCatMast, SubGroup       |
+| memCatRevMast       | Member Category Wise Reven | no        | Y    | -     | MemCatMast, MemCatRevWise, MembershipR |
+| MemFacilityBilling  | Member Facility Billing    | no        | Y    | -     | Depart, Ledger, MEMCATMAST, MemAgeRevW |
+| MemFacilityEntry    | Member Used Facility Entry | no        | Y    | -     | LocationFacility, LocationMast, MemCat |
+| memOutStationEntry  | Out-Station Member Entry   | no        | Y    | -     | Can, MemBill, MemCatMast, MemCatRevWis |
+| MemRenewalEntry     | Member Renewal             | no        | Y    | -     | MemCatMast, MemHistory, Subgroup       |
+| MemSelectCategory   | Select Member Category     | no        | Y    | -     | Depart, MemCatMast, MemSelectCategory  |
+| MemTagadaLetter     | Payment Due Letter Entry   | no        | Y    | -     | City, Ledger, MEMCATMAST, MemCatMast,  |
+| MemVisitEntry       | Member Visit Entry         | no        | Y    | -     | MemEnviro, MemVisitEntry, MemberFamily |
+| OutLetMast          | Outlet Master              | no        | Y    | -     | Depart, MenuHelp, OutletBarCodePartDet |
+| OutLetSundry        | Outlet Bill Sundry Setting | no        | Y    | -     | Depart, Enviro, RevMast, SundryMast, S |
+| pGIss               | Goods Issue Entry          | no        | Y    | -     | Acgroup, Enviro, GodownMast, HallBook, |
+| pMREntry            | Material Receive Entry     | no        | Y    | -     | City, Enviro, GIN, GodownMast, Godownm |
+| POSAdvanceDepDialog | Order Booking Advance      | no        | Y    | -     | Employee, Enviro, GuestProf, HallBook, |
+| POSBillReprint      | OutLet Bill Reprint        | no        | Y    | -     | Bill, City, DEPART, Depart, ENVIRO (+3 |
+| pPBill              | Purchase Bill Entry        | no        | Y    | -     | City, DEPART, Depart, Enviro, GIN (+30 |
+| PrAttend1           | Attendence                 | no        | Y    | -     | ATTENDENCE, Attend, DESIG, EMPLOYEE, S |
+| pReqSlip            | Requistion Slip Entry      | no        | Y    | -     | Acgroup, DateLock, Depart, Enviro, God |
+| PrLoan              | Advance/Loan               | no        | Y    | -     | Depart, Desig, EMPLOYEE, Employee, Env |
+| resBanq             | Reservation Look Up Room W | no        | Y    | -     | Booking, FAEnviro, GuestFolio, GuestPr |
+| resGroup            | Group Reservation          | no        | Y    | -     | Booking, BussSource, CITY, City, GROUP |
+| resRoomNo           | Reservation Look Up Room W | no        | Y    | -     | Booking, FAEnviro, GuestFolio, GuestPr |
+| resRoomType         | Room Category Wise Reserva | no        | Y    | -     | FAEnviro, GuestFolio, RateList, RoomBl |
+| rFaRepView          | Financ Report              | no        | Y    | -     | ACGROUP, AcGroup, Budget, City, FAENVI |
+| rFomRepView         | FomRepView                 | no        | Y    | -     | Arrival, BOM, BOOKING, Bill, BillDet ( |
+| rHallRepView        | HallRepView                | no        | Y    | -     | BookingDetail, Depart, FAEnviro, Funct |
+| rInventRepView      | ReportForm                 | no        | Y    | -     | City, Depart, Enviro, FAEnviro, Gin (+ |
+| rMemberRepView      | Member Report              | no        | Y    | -     | City, Country, Depart, FAEnviro, Ledge |
+| rPOSRepView         | Pos Report                 | no        | Y    | -     | AssignDelivery, BOM, DEPART, DeliveryB |
+| RrLookUpGuest       | New Reservation By Guest R | no        | Y    | -     | GuestProf, RoomCat                     |
+| rrsAdvanceDepDialog | Settlememt Entry           | no        | Y    | -     | AssignDelivery, DeliveryBoy, DepartPay |
+| rsAdvanceDepDialog  | Settlement                 | no        | Y    | -     | DepartPay, Employee, Enviro, GuestFoli |
+| RsAssignDelivery    | Member Category Wise Reven | no        | Y    | -     | AssignDelivery, DeliveryBoy, Depart, E |
+| RsBookingEntry      | Booking Entry              | no        | Y    | -     | ComboPackDetail, DEPART, Depart, Depar |
+| RsBookingEntryAdvance | Payment Entry              | no        | Y    | -     | PackingOrder                           |
+| RsGravyItemEntry    | Gravy Item Entry           | no        | Y    | -     | Depart, Item, ItemCatMast, ItemGrp, It |
+| RsKitchenMaterial   | Excise Invoice Cum Gate Pa | no        | Y    | -     | Depart, Enviro, GodownMast, ITEMRATE,  |
+| RsKOTEntry          | KOT                        | no        | Y    | -     | DEPART, Depart, Depart1, ENVIRO, Email |
+| RsMenuItemEntry     | Menu Item Entry            | no        | Y    | -     | BOM, Depart, Item, ItemCatMast, ItemGr |
+| RsPaymentReceice    | Payment Receive Entry (POS | no        | Y    | -     | Depart, Employee, Enviro, GuestFolio,  |
+| RsPOSDisplay        | Display Table              | no        | Y    | -     | Depart, DispColor, Dispcolor, Enviro,  |
+| RsPOSDisplayNew     | Table Status               | no        | Y    | -     | Depart, DispColor, Dispcolor, GuestPro |
+| RSSaleBill          | Sale Bill Entry            | no        | Y    | -     | CashRegData, City, DEPART, Depart, Dep |
+| RSSaleBill1         | Sale Bill Entry            | no        | Y    | -     | DEPART, Depart, Enviro, ITEMMAST, Item |
+| RSSaleBillDisplay   | Bill Look Up               | no        | Y    | -     | DEPART, Depart, ITEMMAST, ItemCatMast, |
+| RsSpecItemEntry     | Special Item Entry         | no        | Y    | -     | Depart, Item, ItemCatMast, ItemGrp, It |
+| RsStatusScreen      | POS Status Screen          | no        | Y    | -     | Depart, KOT, LocationMast, MemFacility |
+| RsStoreRecEntry     | Finish Material Receive En | no        | Y    | -     | Depart, Enviro, GodownMast, ITEMRATE,  |
+| RsTbChange          | Table Transfer             | no        | Y    | -     | Depart, KOT, Kot, RoomMast, WAITER (+1 |
+| RsTokenEntry        | Token Entry                | no        | Y    | -     | Depart, ENVIRO, Enviro, FreeItemDetail |
+| RsTouchDisplayTB    | Display Table              | no        | Y    | -     | Depart, DispColor, Dispcolor, Enviro,  |
+| rsTouchScreenAdvanceDepDialog | Settlement Entry           | no        | Y    | -     | DepartPay, Employee, Enviro, GuestFoli |
+| RsTouchScreenBookingEntry | Booking Entry              | no        | Y    | -     | DEPART, Depart, ItemCatMast, ItemGrp,  |
+| RSTouchScreenSaleBill | Sale Bill Entry            | no        | Y    | -     | BillData, Cash, CashRegData, DEPART, D |
+| RsTouchScreenSteward | Steward                    | no        | Y    | -     | KOT, MemCatMast, SubGroup, Waiter      |
+| SmartCardLostReIssue | Smart Lost/ReIssue Entry   | no        | Y    | -     | MemberFamily, SmartCardReIssueDetail,  |
+| SmartCardMast       | Smart Card Master          | no        | Y    | -     | Enviro, ItemMast, Purch1, Purch2, Smar |
+| SmartCardRecharge   | Smart Card Recharge Entry  | no        | Y    | -     | MemberFamily, SmartCardLedger, SmartCa |
+| SmartCardRefund     | Smart Card Refund Entry    | no        | Y    | -     | MemberFamily, SmartCardLedger, SmartCa |
+| SmartCardRegistration | Smart Card Registration En | no        | Y    | -     | City, Country, ENVIRO, GuestProf, MemC |
+| SundryVType         | Voucher Wise Sundry Entry  | no        | Y    | -     | Depart, SundryMast, SundryType, ViewSu |
+| TelCallCodeMast     | Call Code Master           | no        | Y    | -     | TelCallCode, TelCallType               |
+| TelCallEntry        | Call Code Master           | no        | Y    | -     | Depart, EPABX_OUT, RoomMast, TelExt    |
+| TelCallTypeMast     | Call Type Mast             | no        | Y    | -     | RevMast, SubGroup, Subgroup, TaxStru,  |
+| Transfer            | Data Transfer              | no        | Y    | -     | Company, Enviro, Table_SearchField, Tr |
+| TravelAgencyPost    | Travel Agency Posting      | no        | Y    | -     | Enviro, GuestProf, LEDGER, SUBGROUP, S |
+| UserPermission      | User Permissions           | no        | Y    | -     | Company, MenuHelp, UserMast, UserModul |
+
+
+==============================================================================
+## UI-ONLY
+==============================================================================
+
+| VB6 form            | Caption                    | Python UI | Core | Wired | Tables (live) |
+|---------------------|----------------------------|-----------|------|-------|----------------------------------------|
+
+
+==============================================================================
+## BLOCKED-TBL
+==============================================================================
+
+| VB6 form            | Caption                    | Python UI | Core | Wired | Tables (live) |
+|---------------------|----------------------------|-----------|------|-------|----------------------------------------|
+| frmGodrejLockSettings | Godrej Lock Settings       | no        | -    | -     | DoorLockEnviro                         |
+| FrmUploadProcess    | Upload Process             | no        | -    | -     | Table_GSTR2A                           |
+
+
+==============================================================================
+## DONE
+==============================================================================
+
+| VB6 form            | Caption                    | Python UI | Core | Wired | Tables (live) |
+|---------------------|----------------------------|-----------|------|-------|----------------------------------------|
+| AccountMerg         | Account Merging            | YES       | Y    | Y     | City, SubGroup                         |
+| BanqAvailability    | Venue Availability         | YES       | Y    | Y     | FAEnviro, VenueMast                    |
+| CateringBooking     | Catalog Selection          | YES       | Y    | Y     | BussSource, CATALOGMAST, Depart, Envir |
+| CompMast            | Company Master             | YES       | Y    | Y     | AcGroup, CATEGORY, City, Comp_Inclusiv |
+| DepartMast          | Department Master          | YES       | Y    | Y     | Depart, GodownMast, RevMast, Voucher_P |
+| DepOpStk            | Location wise Opening Stoc | YES       | Y    | Y     | DateLock, Depart, GodownMast, ItemMast |
+| DMTree              | Form1                      | no        | Y    | -     | UserModule1, menuHelp1                 |
+|                     | note: DMTree (ui/dmtree_ui.py) — menuHelp tree renderer |
+| EmptyInbox          | Inbox                      | YES       | Y    | Y     | Messaging, USERMAST                    |
+| FaAdjust            | Adjustment Entry           | YES       | Y    | Y     | ACGROUP, LEDGERAdj, LEDGERM, Ledger, L |
+| FaAdjustDel         | Adjustment Delete          | YES       | Y    | Y     | LEDGERADJ, SUBGROUP                    |
+| FaChqClear          | Cheque/DD Clearing Entry   | YES       | Y    | Y     | FAENVIRO, Ledger, SubGroup, VIEWLedger |
+| FaCityMast          | City Master                | YES       | Y    | Y     | City, Country, State, city             |
+| FaCountryMast       | Country Master             | YES       | Y    | Y     | Country, country                       |
+| FaCurrBalUpdate     | Current Balance Updation   | YES       | Y    | Y     | ACGROUPCURRBAL, Booking, BookingCancel |
+| FaEnvron            | Environment Setting        | YES       | Y    | Y     | ACGROUP, FAENVIRO, FaEnviro, LEDGER, L |
+| FaGlobeNarr         | {Press <Esc> For Cancel && | YES       | Y    | Y     | NarrMast                               |
+| FaGrEnt             | Group Accounts Entry       | YES       | Y    | Y     | ACGROUP, AcGroup, Acgroup, LEDGER, SUB |
+| FaMagic             | Magic                      | YES       | Y    | Y     | ACGROUP, FAENVIRO                      |
+| FaNarrMast          | Narration Master           | YES       | Y    | Y     | NarrMast                               |
+| FaReports           | ReprtForm                  | YES       | Y    | Y     | ACGROUP, AcGroup, Budget, City, FAENVI |
+| FaRepView           | Form1                      | YES       | -    | Y     |                                        |
+|                     | note: FaRepView window (ui/fa_voucher_ui.py) — wired via report captions |
+| FaStateMast         | State Master               | YES       | Y    | Y     | Country, State, state                  |
+| FaSubGroup          | Ledger Accounts Entry      | YES       | Y    | Y     | AcGroup, CATEGORY, City, Ledger, SUBGR |
+| FaTaxVoucher        | Expense Voucher            | YES       | Y    | Y     | City, DEPART, Depart, Enviro, GIN (+30 |
+| FaTDSCat            | T.D.S.Category Entry       | YES       | Y    | Y     | TDSCAT                                 |
+| FaTDSCertificate    | T.D.S.Certificate Entry    | YES       | Y    | Y     | City, PARTY_LIST, SubGroup, TDSCHAL, T |
+| FaTDSChal           | T.D.S.Challan Entry        | YES       | Y    | Y     | City, LEDGER, LEDGERTDS, SUBGROUP, Sub |
+| FaVrEnt             | Voucher Entry              | YES       | Y    | Y     | FAENVIRO, LEDGER, LEDGERADJ, LEDGERAdj |
+| FaVtype             | Define Voucher Type        | YES       | Y    | Y     | AcGroup, FaEnviro, SUBGROUP, SubGroup, |
+| fdAcPostChrg        | Night Audit Process        | YES       | Y    | Y     | Enviro, ItemMast, JobSchedule, JobSche |
+| fdRoomChange        | Room Change                | YES       | Y    | Y     | EPABX_IN, FixedCharge, GUESTSTAT, Gues |
+| Form1               | Form1                      | no        | -    | -     |                                        |
+|                     | note: Generic/scratch VB6 form |
+| FrmBookingInquiry   | Booking Inquiry            | YES       | Y    | Y     | Booking, BookingDetail, BookingInquiry |
+| FrmCalender         | Calender                   | YES       | -    | Y     |                                        |
+| FrmChargeMast       | Charge Master              | YES       | Y    | Y     | RevMast, SubGroup, Subgroup, TaxStru,  |
+| FrmClaimEntry       | Claim Entry                | YES       | Y    | Y     | Found, LostFoundDetail                 |
+| FrmComplaintClearing | Complaint Clearance        | YES       | Y    | Y     | ComplaintCategory, ComplaintDetail, Co |
+| FrmDataRecieving    | Data Recieving Window . .  | no        | -    | -     |                                        |
+|                     | note: Documented skip: Access-MDB transfer; tables absent (VB6 me bhi dead) |
+| frmFacilityBillAdv  | Facility Billing           | YES       | Y    | Y     | City, Depart, FMReading, FMReading1, F |
+| FrmItemGroupMastRaw | Item Group                 | YES       | Y    | Y     | Depart, ItemGrp                        |
+| FrmLocationFacilities | Location Facilities        | YES       | Y    | Y     | FacilityMast, LocationFacility, Locati |
+| FrmLocationMast     | Location Master            | YES       | -    | Y     | LocationMast                           |
+| frmLockGodrejSettings | Godrej Locks               | YES       | -    | Y     | DoorLockEnviro                         |
+| FrmMenuList         | Main Menu . . .            | no        | -    | -     |                                        |
+|                     | note: Dynamic sidebar (menuHelp tree) — VB6 'Main Menu' ka port |
+| frmmessageKey       | Key Massage                | YES       | -    | Y     |                                        |
+| frmMod_Print        | Printing Setup             | YES       | Y    | Y     | Depart, PRINTERSETUP, PrintMast, Print |
+| frmMod_Print1       | Printing Setup             | YES       | Y    | Y     | Depart, PRINTERSETUP, PrintMast, Print |
+| FrmNCType           | NC Type                    | YES       | Y    | Y     | NCTypeMast                             |
+| FrmPartyLocations   | Party Locations            | YES       | Y    | Y     | LocationMast, PartyLocation, SubGroup, |
+| frmPassword         | Authentication Window      | no        | -    | -     |                                        |
+|                     | note: LoginDialog (ui/shell.py) — VB6 authentication window |
+| FrmPlanPackMast     | Plan Defination Master     | YES       | Y    | Y     | FixedCharge, Plan1, PlanMast           |
+| frmPrintModule      | Printing Parameters        | YES       | Y    | Y     | Depart, PrintFormats, PrintMast, Print |
+| frmReNightAudit     | Reverse Night Audit        | YES       | Y    | Y     | enviro                                 |
+| FrmReservationStatus | Reservation Status         | YES       | Y    | Y     | Booking, GuestFolio, Paycharge, RoomCa |
+| frmSeasonMast       | Season Master              | YES       | Y    | Y     | SeasonMast, SeasonMast1                |
+| frmSessionMast      | Session Master             | YES       | Y    | Y     | SESSIONMAST, SessionMast, Time, sessio |
+| FrmStockTransfer    | Stock Transfer             | YES       | Y    | Y     | Depart, GodownMast, ITEMRATE, ItemMast |
+| frmTallyExport      | Tally Export               | YES       | Y    | Y     | AcGroup, Acgroup, City, Ledger, Ledger |
+| FrmTaxMast          | Tax Master                 | YES       | Y    | Y     | REVMAST, RevMast, SubGroup, Subgroup,  |
+| frmUnitMast         | Unit Master                | YES       | Y    | Y     | UnitMast                               |
+| FrmVenueMast        | Venue Master               | YES       | Y    | Y     | FEATUREMAST, FeatureMast, GodownMast,  |
+| FrmWaiterMast       | Server Master              | YES       | Y    | Y     | Depart, Waiter                         |
+| frmYearEnd          | Year End Updation          | YES       | Y    | Y     | Company, UserPermission, Voucher_Prefi |
+| Godown              | Location Master            | YES       | Y    | Y     | GODOWNMAST, GodownMast, Godownmast     |
+| GroupProfile        | Group Profile              | YES       | Y    | Y     | BussSource, CITY, City, GROUPPROF, Gro |
+| GuestProfile        | Guest Profile              | YES       | Y    | Y     | Booking, CITY, COUNTRY, City, Country  |
+| HallBooking         | Banquet Booking            | YES       | Y    | Y     | Booking, BookingDetail, BookingInquiry |
+| HallChefPreCosting  | Chef Pre-Costing           | YES       | Y    | Y     | CATALOGMAST, Depart, FunctionType, Fun |
+| HHouseKeeping       | House Keeping Screen       | YES       | Y    | Y     | RoomBlockOut, RoomMast, RoomOcc, roomm |
+| HKRoomBlock         | Room Block                 | YES       | Y    | Y     | BlockMast, Booking, FAEnviro, GuestFol |
+| Inbox               | Inbox                      | YES       | Y    | Y     | Messaging                              |
+| MemAutoSettleCardBalance | Auto Settle Card Balance   | YES       | Y    | Y     | Depart, MemCatMast, SmartCardRegistrat |
+| MembershipMast      | Member Master              | YES       | Y    | Y     | AcGroup, AreaMast, CATEGORY, City, Cou |
+| memFacilityMast     | Facility Master            | YES       | Y    | Y     | MemFacilityMast, RevMast, SubGroup, Ta |
+| MemPaymentReceive   | Payment Receive Entry      | YES       | Y    | Y     | LEDGERM, LEDGERTDS, Ledger, PrinterSet |
+| NewHappyHours       | Happy Hours [ Free Items ] | YES       | Y    | Y     | Depart, FreeItemDetail, ItemGrp, ItemM |
+| Outbox              | Intelligent Outbox         | YES       | Y    | Y     | Messaging, USERMAST                    |
+| pHappyHours         | Happy Hours                | YES       | Y    | Y     | Depart, HappyHours, HappyHoursHead, It |
+| PIndent             | Indent                     | YES       | Y    | Y     | Depart, GodownMast, INDENT, Indent, In |
+| pPOrder             | Purchase Order             | YES       | Y    | Y     | City, DateLock, Enviro, Indent, Indent |
+| prAttend            | Leave                      | YES       | Y    | Y     | Attend, Attendence, Depart, Desig, Emp |
+| PrCategoryMast      | Category Master            | YES       | Y    | Y     | EmpCategory                            |
+| PrDesigMast         | Designation Master         | YES       | Y    | Y     | Desig                                  |
+| PrEmployee          | Employee Master            | YES       | Y    | Y     | Attend, Attendence, DESIG, Depart, Des |
+| prHoliday           | HoliDay Master             | YES       | Y    | Y     | Attendence, Holiday, attendence, salar |
+| PrLeavench          | Leave Encashment           | YES       | Y    | Y     | Depart, Desig, EMPLOYEE, Employee, LEA |
+| prOverTime          | Over Time                  | YES       | Y    | Y     | Depart, Desig, Employee, OVERTIME, Ove |
+| prSalCreate         | Salary Creation            | YES       | Y    | Y     | Attend, Depart, Desig, EmpCategory, Em |
+| repTouchDate        | Select Report Date         | YES       | -    | Y     |                                        |
+| rRepHouse           | ReprtForm                  | YES       | Y    | Y     | ComplaintCategory, Depart, ItemMast, R |
+| rRepHousePreview    | ReprtForm                  | YES       | Y    | Y     | ComplaintCategory, Depart, FAEnviro, I |
+| rRepPayRoll         | ReprtForm                  | YES       | Y    | Y     | Desig, EMPCategory, EmpCategory, Emplo |
+| rRepReserv          | ReprtForm                  | YES       | Y    | Y     | Booking, BussSource, City, Country, EA |
+| rRepTel             | ReprtForm                  | YES       | Y    | Y     | EPABX_Data, TelExt                     |
+| rRepTelPreview      | ReprtForm                  | YES       | Y    | Y     | EPABX_DATA, FAEnviro, TelExt           |
+| RrRoomReservation   | Reservation/Cancellation   | YES       | Y    | Y     | Booking, BookingCancelDetails, Booking |
+| RsKitchenStk        | Stock Transfer             | YES       | Y    | Y     | Depart, Enviro, GodownMast, ITEMRATE,  |
+| RsKOTTransfer       | KOT Transfer               | YES       | Y    | Y     | Depart, GuestProf, KOT, Kot, ROOMOCC ( |
+| RsPOSCustInfo       | Customer Information       | YES       | Y    | Y     | City, GuestProf, enviro                |
+| RsSaleBillSplit     | Split Sale Bill            | YES       | Y    | Y     | CashRegData, DEPART, Depart, Enviro, I |
+| RsTableMast         | Table Master               | YES       | Y    | Y     | DEPART, Depart, RoomMast, roommast     |
+| RsTouchOrderPersonDetails | Customer Information       | YES       | -    | Y     |                                        |
+| RsTouchScreenFAFind | Frame1                     | YES       | -    | Y     |                                        |
+| RsTouchScreenKeyBoard | Touch Screen KeyBoard      | YES       | -    | Y     |                                        |
+| RsTouchScreenKOTEntry | KOT Entry                  | YES       | Y    | Y     | Depart, ENVIRO, Enviro, GuestProf, Ite |
+| RsTouchScreenTOKENEntry | KOT Entry                  | YES       | Y    | Y     | Depart, ENVIRO, Enviro, GuestProf, Ite |
+| salmarCompProfile   | Company Profile            | YES       | Y    | Y     | CompanyProfile                         |
+| SchemeMast          | Scheme Master              | YES       | Y    | Y     | SchemeItemDetail, SchemeMast, SchemeOu |
+| SundryMast          | Sundry Master              | YES       | Y    | Y     | SundryMast, Sundrymast                 |
+| TelCallControlMast  | Call Control Master        | YES       | Y    | Y     | TelCallControl, TelCallType, Time      |
+| TelExtensionMast    | Extension Master           | YES       | Y    | Y     | Depart, RoomMast, TelExt               |
+| UserMast            | User Master                | YES       | Y    | Y     | USERMAST, USER_MODULE, USER_module, Us |
+
+
+==============================================================================
+## MISSING
+==============================================================================
+
+| VB6 form            | Caption                    | Python UI | Core | Wired | Tables (live) |
+|---------------------|----------------------------|-----------|------|-------|----------------------------------------|
+| FAFind              | Help.?                     | no        | -    | -     |                                        |
+| frmBlockMast        | Block Master               | no        | -    | -     | BlockMast                              |
+| FrmChangeSite       | Login Site                 | no        | -    | -     |                                        |
+| FrmControlPanel     | Control Panel              | no        | -    | -     |                                        |
+| FrmImage            | Image                      | no        | -    | -     |                                        |
+| frmMessage          | User Information           | no        | -    | -     |                                        |
+| FrmMsgBox           | Message Box                | no        | -    | -     |                                        |
+| FrmNAMessageA       | User Information           | no        | -    | -     |                                        |
+| FrmNAMessageB       | User Information           | no        | -    | -     |                                        |
+| FrmNAMessageC       | User Information           | no        | -    | -     |                                        |
+| FrmVenueFeat        | VenueFeature               | no        | -    | -     | FeatureMast                            |
+| LockForm            | Form1                      | no        | -    | -     |                                        |
+| REPVIEW             | Form1                      | no        | -    | -     |                                        |
+| RewardPointParam1   | Reward Points Parameter I  | no        | -    | -     | RWParameter                            |
+
+==============================================================================
+## ACTION QUEUE (MISSING + PARTIAL, portable)
+==============================================================================
+
+- DepartSundry (DepartSundry.frm): 'Outlet Bill Sundry Setting'
+    tables: Depart, Enviro, RevMast, SundryMast, SundryType (+2)
+    ui=N core=Y
+- FacilitySundry (FacilitySundry.frm): 'Outlet Bill Sundry Setting'
+    tables: Depart, Enviro, RevMast, SundryMast, SundryType (+2)
+    ui=N core=Y
+- fdAmendEntry (fdAmendEntry.frm): 'Amend Stay'
+    tables: City, Country, GUESTSTAT, GuestFolio, GuestFolioAmend (+7)
+    ui=N core=Y
+- fdCheckIn (fdCheckIn.frm): 'Look Up Reservation By Guest Name'
+    tables: GrpBookingDetails, GuestFolio, GuestProf, RoomCat, RoomMast
+    ui=N core=Y
+- FdCheckOut (FdCheckOut.frm): 'Room Check Out'
+    tables: City, EPABX_IN, EmailSMSForward, Enviro, GUESTSTAT (+18)
+    ui=N core=Y
+- fdDisplayFolio (fdDisplayFolio.frm): 'Guest Ledger'
+    tables: Depart, Enviro, GUESTSTAT, GuestFolio, GuestProf (+9)
+    ui=N core=Y
+- fdDisplayFolioSumm (fdDisplayFolioSumm.frm): 'Summerized Guest Ledger'
+    tables: Enviro, GUESTSTAT, GuestFolio, GuestProf, PayCharge (+4)
+    ui=N core=Y
+- FdGrpCheckOut (FdGrpCheckOut.frm): 'Room Check Out Entry'
+    tables: Country, Depart, EPABX_IN, Employee, Enviro (+30)
+    ui=N core=Y
+- FdGrpdetCheckOut (FdGrpdetCheckOut.frm): 'Room Check Out Entry'
+    tables: EPABX_IN, Enviro, GUESTSTAT, GuestFolio, GuestProf (+14)
+    ui=N core=Y
+- FdLookUpRoom (FdLookUpRoom.frm): 'Look Up Room'
+    tables: RoomBlockOut, RoomCat, RoomMast, RoomOcc, roommast
+    ui=N core=Y
+- FdLookUpRoomNo (FdLookUpRoomNo.frm): 'Display Rack'
+    tables: DispColor, Dispcolor, ENVIRO, GuestFolio, GuestProf (+13)
+    ui=N core=Y
+- fdNDAcPostChrg (fdNDAcPostChrg.frm): 'Posting Utility'
+    tables: Enviro, ItemMast, PayCharge, Stock, mCurStk (+2)
+    ui=N core=Y
+- fdPaymentCharge (fdPaymentCharge.frm): 'Post Charges & Payment'
+    tables: DepartPay, Employee, Enviro, GUESTFOLIO, GUESTSTAT (+17)
+    ui=N core=Y
+- fdPostChrg (fdPostChrg.frm): 'Post Charges /Payments'
+    tables: Enviro, GuestFolio, GuestProf, PAYCHARGE, PayCharge (+7)
+    ui=N core=Y
+- fdPrintScreen (fdPrintScreen.frm): 'Guest Charges Summary'
+    tables: GUESTSTAT, GuestFolio, GuestProf, RevMast, RoomCat (+2)
+    ui=N core=Y
+- FdReSetlement (FdReSetlement.frm): 'Post Charges/Payment'
+    tables: BillDet, DepartPay, Employee, Enviro, GUESTSTAT (+18)
+    ui=N core=Y
+- FdRevCheckOut (FdRevCheckOut.frm): 'Check Out Cancel'
+    tables: EPABX_IN, Enviro, GUESTSTAT, GuestFolio, GuestProf (+10)
+    ui=N core=Y
+- FdRoomDisplay (FdRoomDisplay.frm): 'Room View'
+    tables: roommast
+    ui=N core=Y
+- fdRoomOcc (fdRoomOcc.frm): 'Reservation Look Up Room Wise'
+    tables: FAEnviro, GuestFolio, RateList, RoomBlockOut, RoomCat (+1)
+    ui=N core=Y
+- fdWalkInEntry (fdWalkInEntry.frm): 'Walk In / Check In Entry'
+    tables: Booking, BookingPlanDetails, BussSource, CITY, City (+60)
+    ui=N core=Y
+- FindMess (FindMess.frm): '(blank)'
+    tables: GuestMessage
+    ui=N core=Y
+- frmAdvanceDepDialog (frmAdvanceDepDialog.frm): 'Advance Deposit'
+    tables: Booking, City, Employee, Enviro, GroupProf (+15)
+    ui=N core=Y
+- FrmBdayLookup (FrmBdayLookup.frm): 'Form1'
+    tables: GuestProf
+    ui=N core=Y
+- FrmBusinessSrc (FrmBusinessSrc.frm): 'Business Source Master'
+    tables: BussSource
+    ui=N core=Y
+- FrmChangeDepart (FrmChangeDepart.frm): 'Department Change Master'
+    tables: Depart
+    ui=N core=Y
+- FrmChangeKitch (FrmChangeKitch.frm): 'Kitchen Change Master'
+    tables: Depart
+    ui=N core=Y
+- FrmChangeRest (FrmChangeRest.frm): 'Restaurant Change Master'
+    tables: Depart
+    ui=N core=Y
+- frmComboMast (frmComboMast.frm): 'Combo Item Master'
+    tables: ComboPackDetail, Depart, Item, ItemCatMast, ItemGrp (+8)
+    ui=N core=Y
+- frmCompany (frmCompany.frm): 'User Information'
+    tables: Booking, BussSource, COMPANY, Company, Depart (+50)
+    ui=N core=Y
+- FrmComplaintMast (FrmComplaintMast.frm): 'Complain Master'
+    tables: ComplaintCategory, ComplaintDetail, Depart
+    ui=N core=Y
+- FrmConsumMast (FrmConsumMast.frm): 'Consumption Master'
+    tables: BOM, Bom, Depart, ItemMast
+    ui=N core=Y
+- FrmConsumMast9999 (FrmConsumMast9999.frm): 'Open Item Consumption Master'
+    tables: BOM, Depart, ItemMast
+    ui=N core=Y
+- FrmDeliveredItemDetail (FrmDeliveredItemDetail.frm): 'Not Delivered Item'
+    tables: AssignDelivery, DeliveryBoy, Depart, PayCharge, Sale1
+    ui=N core=Y
+- FrmDeliveryBoyMast (FrmDeliveryBoyMast.frm): 'Delivery Boy Master'
+    tables: DeliveryBoy
+    ui=N core=Y
+- FrmDenomination (FrmDenomination.frm): 'Denomination Detail'
+    tables: DenominationDetail, DenominationFormat
+    ui=N core=Y
+- frmEnviro (frmEnviro.frm): 'Parameter Settings'
+    tables: Acgroup, Enviro, Godownmast, ItemMast, MenuHelp (+5)
+    ui=N core=Y
+- FrmEventMast (FrmEventMast.frm): 'Event Type'
+    tables: FunctionType
+    ui=N core=Y
+- FrmExpense (FrmExpense.frm): 'Misc.Payment / Received Entry'
+    tables: ENVIRO, ExpSheet, REVMAST, SubGroup, Voucher_Prefix (+2)
+    ui=N core=Y
+- FrmFacilityMast (FrmFacilityMast.frm): 'Form1'
+    tables: FacilityMast, SubGroup, Subgroup, TaxStru, Voucher_Prefix (+2)
+    ui=N core=Y
+- frmFdLeaderRev (frmFdLeaderRev.frm): 'Leader Revenue Allocation'
+    tables: BussSource, GuestFolio, GuestProf, MarketSeg, PlanMast (+7)
+    ui=N core=Y
+- frmFixedChargeMast (frmFixedChargeMast.frm): 'Fixed Charge Master'
+    tables: FixedCharge, PLAN1, RevMast, SubGroup, TaxStru (+1)
+    ui=N core=Y
+- frmFomB (frmFomB.frm): 'FOM Bill Reprint'
+    tables: City, Depart, Enviro, FOMBillDetails, FomBillChangeDetails (+25)
+    ui=N core=Y
+- FrmFomBillDeletion (FrmFomBillDeletion.frm): 'Fom Bill Delection'
+    tables: Depart, FomBillDetails, PayCharge, Paycharge, RevMast (+1)
+    ui=N core=Y
+- FrmForeignExMast (FrmForeignExMast.frm): 'Foreign Exchange Master'
+    tables: ForEx
+    ui=N core=Y
+- FrmForExRec (FrmForExRec.frm): 'Forex Receive Entry'
+    tables: ForEx, ForExTrans, Voucher_Prefix, Voucher_Type, enviro
+    ui=N core=Y
+- FrmGrcBlank (FrmGrcBlank.frm): 'Guest Registration  Card'
+    tables: Booking, Enviro, Voucher_Prefix, Voucher_Type
+    ui=N core=Y
+- FrmGuestAddObj (FrmGuestAddObj.frm): 'Guest Address & Observation'
+    tables: Member, Voucher_Prefix, Voucher_Type, Waiter
+    ui=N core=Y
+- frmGuestComments (frmGuestComments.frm): 'Guest Comments'
+    tables: BussSource, CITY, FunctionType, GuestComments, HallSale1 (+2)
+    ui=N core=Y
+- frmGuestInfo (frmGuestInfo.frm): 'Guest Information'
+    tables: GUESTPROF, GuestProf, LocationFacility, LocationMast, SmartCardRegistration
+    ui=N core=Y
+- frmGuestParamMast (frmGuestParamMast.frm): 'Guest Parameters Master'
+    tables: GUESTPARAM, GuestParam
+    ui=N core=Y
+- FrmGuestStat (FrmGuestStat.frm): 'Guest Status Master'
+    tables: GuestStat, gueststat
+    ui=N core=Y
+- FrmGuestWakeUp (FrmGuestWakeUp.frm): 'Register Wake up Calls'
+    tables: City, EPABX_IN, GuestFolio, GuestStat, GuestWakeUp (+6)
+    ui=N core=Y
+- FrmHallItemCatMast (FrmHallItemCatMast.frm): 'Category and Charge Master'
+    tables: ItemCatMast, PayCharge, RevMast, Revmast, TaxStru (+1)
+    ui=N core=Y
+- FrmHouGuestMsg (FrmHouGuestMsg.frm): 'In House Guest Message'
+    tables: City, GuestFolio, GuestMessage, GuestStat, RoomCat (+5)
+    ui=N core=Y
+- FrmHouseStatus (FrmHouseStatus.frm): 'Property Status'
+    tables: Depart, FunctionType, GuestFolio, HallBook, Kot (+12)
+    ui=N core=Y
+- FrmInc (FrmInc.frm): 'Inconsistency Check'
+    tables: ACGROUP, Depart, ENVIRO, FAENVIRO, GodownMast (+29)
+    ui=N core=Y
+- FrmItemCatMast (FrmItemCatMast.frm): 'Category/Charge Master'
+    tables: Depart, ItemCatMast, PayCharge, RevMast, Revmast (+3)
+    ui=N core=Y
+- FrmItemCatRaw (FrmItemCatRaw.frm): 'Category/Charge Master'
+    tables: Depart, Enviro, ItemCatMast, PayCharge, RevMast (+2)
+    ui=N core=Y
+- FrmItemGroupMast (FrmItemGroupMast.frm): 'Item Group Entry'
+    tables: Depart, ItemGrp, itemgrp
+    ui=N core=Y
+- FrmItemIssuedOnCleaning (FrmItemIssuedOnCleaning.frm): 'Item Issued On Cleaning'
+    tables: Depart, DepartWiseItemIssueList, GodownMast, ITEMRATE, ItemMast (+1)
+    ui=N core=Y
+- FrmItemMast (FrmItemMast.frm): 'Item Entry'
+    tables: Item, ItemMast, Itemmast
+    ui=N core=Y
+- FrmItemMastRaw (FrmItemMastRaw.frm): 'Item Entry (Raw)'
+    tables: Depart, Item, ItemCatMast, ItemGrp, ItemMast (+6)
+    ui=N core=Y
+- FrmJobScheduler (FrmJobScheduler.frm): 'Task Scheduler'
+    tables: JobSchedule
+    ui=N core=Y
+- FrmLostFound (FrmLostFound.frm): 'Lost && Found'
+    tables: LostFoundDetail
+    ui=N core=Y
+- FrmMarketSeg (FrmMarketSeg.frm): 'Market Segment Master'
+    tables: MarketSeg
+    ui=N core=Y
+- frmMenuItemCopy (frmMenuItemCopy.frm): 'Menu Item Copy'
+    tables: BOM, Depart, Item, ItemCatMast, ItemGrp (+5)
+    ui=N core=Y
+- FrmMenuRate (FrmMenuRate.frm): 'Item Rate Entry'
+    tables: Depart, ItemCatMast, ItemGrp, ItemMast, ItemRate (+2)
+    ui=N core=Y
+- FrmMergeCharge (FrmMergeCharge.frm): 'Room Merge'
+    tables: GUESTSTAT, GuestFolio, GuestProf, Leader, PayCharge (+4)
+    ui=N core=Y
+- FrmMeterReading (FrmMeterReading.frm): 'Meter Reading'
+    tables: FMReading, FMReading1, FacilityMast, LocationFacility, LocationMast (+1)
+    ui=N core=Y
+- FrmOPStock (FrmOPStock.frm): 'Opening Stock Entry'
+    tables: Depart, GodownMast, ItemMast, Stock, Voucher_Prefix (+1)
+    ui=N core=Y
+- FrmPackageMast (FrmPackageMast.frm): 'Package Defination Master'
+    tables: FixedCharge, Plan1, PlanMast, PlanTokenDetails, REVMAST (+5)
+    ui=N core=Y
+- FrmParty (FrmParty.frm): 'Suppler Master'
+    tables: AcGroup, CATEGORY, City, Ledger, SUBGROUP (+5)
+    ui=N core=Y
+- FrmPayTypeMast (FrmPayTypeMast.frm): 'Payment Type Master'
+    tables: CreditCardhistory, DepartPay, MenuHelp, REVMAST, SubGroup (+4)
+    ui=N core=Y
+- FrmPlanTokenMast (FrmPlanTokenMast.frm): 'Plan Token Master'
+    tables: RevMast, TaxStru
+    ui=N core=Y
+- FrmPOSBillDeletion (FrmPOSBillDeletion.frm): 'POS Bill Deletion Entry'
+    tables: AssignDelivery, Depart, GuestReward, Kot, PayCharge (+8)
+    ui=N core=Y
+- FrmPOSBillModificationDatewise (FrmPOSBillModificationDatewise.frm): 'POS Bill Deletion Entry'
+    tables: Depart, Kot, PayCharge, Paycharge, RevMast (+5)
+    ui=N core=Y
+- FrmPOSBillModificationItemGroupwise (FrmPOSBillModificationItemGroupwise.frm): 'POS Bill Modification (Item Group Wise)'
+    tables: Depart, Kot, PayCharge, Paycharge, RevMast (+5)
+    ui=N core=Y
+- FrmPOSRecycleData (FrmPOSRecycleData.frm): 'Recycle Outlet Data'
+    tables: DEPART, Depart, KOT, POS_SBill, Paycharge (+9)
+    ui=N core=Y
+- FrmPOSSaleDataTransfer (FrmPOSSaleDataTransfer.frm): 'POS Bill Deletion Entry'
+    tables: Depart, PayCharge, Sale1, Sale2, Stock (+2)
+    ui=N core=Y
+- frmPurEnviro (frmPurEnviro.frm): 'Purchase Parameter'
+    tables: Enviro, Godownmast, RevMast, SubGroup
+    ui=N core=Y
+- FrmReceivePayment (FrmReceivePayment.frm): 'Misc.Payment / Received Entry'
+    tables: Depart, ENVIRO, ExpSheet, PayCharge, Paycharge (+6)
+    ui=N core=Y
+- FrmRevenueWiseBudget (FrmRevenueWiseBudget.frm): 'Revenue Wise Budget'
+    tables: BUDGETDETAILS, BudgetDetails, FixedCharge, RevMast
+    ui=N core=Y
+- frmRevGroup (frmRevGroup.frm): 'Revenue Group'
+    tables: Revmast, revmast
+    ui=N core=Y
+- FrmRevMergeCharge (FrmRevMergeCharge.frm): 'Reverse Transfer Room'
+    tables: GUESTSTAT, GuestFolio, GuestProf, PayCharge, RoomCat (+3)
+    ui=N core=Y
+- FrmRoomCatMast (FrmRoomCatMast.frm): 'Room Category Master'
+    tables: RateList, RevMast, RoomCat, enviro, rateList (+1)
+    ui=N core=Y
+- FrmRoomFeatureMast (FrmRoomFeatureMast.frm): 'Room Features Master'
+    tables: RoomFeature
+    ui=N core=Y
+- FrmRoomMast (FrmRoomMast.frm): 'Room  Master'
+    tables: Depart, ROOMFEATURE, ROOMMAST1, RateList, RevMast (+8)
+    ui=N core=Y
+- FrmSerialiseVr (FrmSerialiseVr.frm): 'Voucher Serialisation'
+    tables: LEDGERM, Ledger, LedgerM, LedgerMMerge, LedgerMerge (+3)
+    ui=N core=Y
+- FrmSmsCenterSettings (FrmSmsCenterSettings.frm): 'SMS Center Settings'
+    tables: EmailSMSForward, SMSEnviro
+    ui=N core=Y
+- FrmSMSEnviro (FrmSMSEnviro.frm): 'Parameter Setting'
+    tables: Depart, EmailSMSForward, JobSchedule, JobScheduledDetail, SMSEnviro
+    ui=N core=Y
+- FrmSMSMultiType (FrmSMSMultiType.frm): 'Common SMS'
+    tables: ACGROUP, City, DBSendSMS, Employee, GuestProf (+7)
+    ui=N core=Y
+- FrmTaxStruMast (FrmTaxStruMast.frm): 'Tax Structure Master'
+    tables: RevMast, TaxStru, Taxstru
+    ui=N core=Y
+- FrmUnSettledBillsInfo (FrmUnSettledBillsInfo.frm): 'Unsettled Bill Details'
+    tables: DEPART, Depart, PayCharge, RoomMast, VOUCHER_TYPE (+2)
+    ui=N core=Y
+- FrmUserPaymentCollection (FrmUserPaymentCollection.frm): 'User Payment Receive Entry'
+    tables: ENVIRO, MenuHelp, REVMAST, UserCollection, UserMast (+3)
+    ui=N core=Y
+- frmWelcome (frmWelcome.frm): '<'
+    tables: GuestProf
+    ui=YES core=Y
+- hAdvanceDepDialog (hAdvanceDepDialog.frm): 'Settlement'
+    tables: CreditCardHistory, Depart, DepartPay, Employee, Enviro (+18)
+    ui=N core=Y
+- hAdvanceDepDialogSecondry (hAdvanceDepDialogSecondry.frm): 'Advance Deposite'
+    tables: Employee, Enviro, GuestFolio, PAYCHARGEH, REVMAST (+8)
+    ui=N core=Y
+- HallAcPostChrg (HallAcPostChrg.frm): 'A/C Posting'
+    tables: Enviro
+    ui=N core=Y
+- HallAdvanceDepDialog (HallAdvanceDepDialog.frm): 'Advance Recived'
+    tables: CreditCardHistory, Depart, DepartPay, Employee, Enviro (+19)
+    ui=N core=Y
+- HallBill (HallBill.frm): 'Hall Bill Entry'
+    tables: Booking, City, DEPART, Depart, Employee (+39)
+    ui=N core=Y
+- HallBillEstimate (HallBillEstimate.frm): 'Banquet Estimate Bill'
+    tables: Booking, DEPART, Depart, Enviro, FAEnviro (+27)
+    ui=N core=Y
+- HallEstimate (HallEstimate.frm): 'Hall Estimate Entry'
+    tables: Booking, DEPART, Depart, Enviro, FAEnviro (+24)
+    ui=N core=Y
+- HallItemGroupMast (HallItemGroupMast.frm): 'Item Group Entry'
+    tables: ItemGrp
+    ui=N core=Y
+- HallMenuCatalog (HallMenuCatalog.frm): 'Menu Catalog'
+    tables: CatalogMast, Depart, Enviro, GroupCatalog, ItemGrp (+1)
+    ui=N core=Y
+- HallMenuItemEntry (HallMenuItemEntry.frm): 'Menu Item Entry'
+    tables: Depart, Item, ItemCatMast, ItemGrp, ItemMast (+6)
+    ui=N core=Y
+- HallSundry (HallSundry.frm): 'Outlet Bill Sundry Setting'
+    tables: RevMast, SundryMast, SundryType, SundryTypeFix, Voucher_Type (+1)
+    ui=N core=Y
+- HKHouseOpStk (HKHouseOpStk.frm): 'House Keeping Op. Stock Entry'
+    tables: DEPART, Depart, ItemGrp, ItemMast, LASTVOU (+4)
+    ui=N core=Y
+- HKIssRec (HKIssRec.frm): 'Issue/Receive Entry'
+    tables: Depart, GodownMast, ItemGrp, ItemMast, LASTVOU (+6)
+    ui=N core=Y
+- HKRoomOpStk (HKRoomOpStk.frm): 'Room Op.Stock Entry'
+    tables: Depart, ItemGrp, ItemMast, LASTVOU, RoomMast (+6)
+    ui=N core=Y
+- HRoomCheckOutClearance (HRoomCheckOutClearance.frm): 'Check Out Clearance Screen'
+    tables: PayCharge, RoomBlockOut, RoomCheckOutStatus, RoomOcc, roommast (+1)
+    ui=N core=Y
+- HWIHistory (HWIHistory.frm): 'Walk In by Room History'
+    tables: Booking, GuestFolio, GuestProf, PlanMast, RoomCat (+2)
+    ui=N core=Y
+- InHouseGuestFolio (InHouseGuestFolio.frm): 'Inhouse Guest Folio'
+    tables: Booking, City, EPABX_IN, EmailSMSForward, Employee (+29)
+    ui=N core=Y
+- kClStk (kClStk.frm): 'Kitchen Closing Stock Entry'
+    tables: DateLock, Depart, GODOWNMAST, GodownMast, ITEMMAST (+9)
+    ui=N core=Y
+- memAgeRevMast (memAgeRevMast.frm): 'Member Category Wise Revenue'
+    tables: Age, MemAgeRevWise, MemCatMast, MembershipRevMast
+    ui=N core=Y
+- MemAssistant (MemAssistant.frm): 'Member Assistant'
+    tables: AcGroup, CATEGORY, City, Country, Ledger (+21)
+    ui=N core=Y
+- MemberEnviro (MemberEnviro.frm): 'Parameter Setting'
+    tables: MemEnviro
+    ui=N core=Y
+- MemberProposedMemInf (MemberProposedMemInf.frm): 'Propsed Member Information'
+    tables: MemCatMast, MemProposedMemInf, MemberFamily, SubGroup
+    ui=N core=Y
+- MemberShipRevenueMast (MemberShipRevenueMast.frm): 'MemberShip Revenue Master'
+    tables: MembershipRevMast, SubGroup, TaxStru
+    ui=N core=Y
+- MemberSMS (MemberSMS.frm): 'Generate SMS.csv'
+    tables: Enviro
+    ui=N core=Y
+- MemBillPrintingModule (MemBillPrintingModule.frm): 'Member Bill Printing'
+    tables: MemBill, MemEnviro, Should
+    ui=N core=Y
+- memCatChngCond (memCatChngCond.frm): 'Member Category Change (Conditional)'
+    tables: Ledger, MemCatMast, SubGroup
+    ui=N core=Y
+- memCatChngEntry (memCatChngEntry.frm): 'Out-Station Member Entry'
+    tables: MemBill, MemCatChngDetail, MemCatMast, MemCatRevWise, MemRevenueForPeriod (+2)
+    ui=N core=Y
+- memCategoryFacilities (memCategoryFacilities.frm): 'Category wise Facility'
+    tables: MemCatFacility, MemCatMast, MemFacilityMast, memFacilityMast
+    ui=N core=Y
+- MemCatMast (MemCatMast.frm): 'Member Category Master'
+    tables: MEmCatMast, MemCatMast, SubGroup
+    ui=N core=Y
+- memCatRevMast (memCatRevMast.frm): 'Member Category Wise Revenue'
+    tables: MemCatMast, MemCatRevWise, MembershipRevMast
+    ui=N core=Y
+- MemFacilityBilling (MemFacilityBilling.frm): 'Member Facility Billing'
+    tables: Depart, Ledger, MEMCATMAST, MemAgeRevWise, MemBill (+22)
+    ui=N core=Y
+- MemFacilityEntry (MemFacilityEntry.frm): 'Member Used Facility Entry'
+    tables: LocationFacility, LocationMast, MemCatFacility, MemFacilityBilling, MemFacilityMast (+2)
+    ui=N core=Y
+- memOutStationEntry (memOutStationEntry.frm): 'Out-Station Member Entry'
+    tables: Can, MemBill, MemCatMast, MemCatRevWise, MemOutStation (+4)
+    ui=N core=Y
+- MemRenewalEntry (MemRenewalEntry.frm): 'Member Renewal'
+    tables: MemCatMast, MemHistory, Subgroup
+    ui=N core=Y
+- MemSelectCategory (MemSelectCategory.frm): 'Select Member Category'
+    tables: Depart, MemCatMast, MemSelectCategory
+    ui=N core=Y
+- MemTagadaLetter (MemTagadaLetter.frm): 'Payment Due Letter Entry'
+    tables: City, Ledger, MEMCATMAST, MemCatMast, MemTagadaLetter (+4)
+    ui=N core=Y
+- MemVisitEntry (MemVisitEntry.frm): 'Member Visit Entry'
+    tables: MemEnviro, MemVisitEntry, MemberFamily, SmartCardRegistration
+    ui=N core=Y
+- OutLetMast (OutLetMast.frm): 'Outlet Master'
+    tables: Depart, MenuHelp, OutletBarCodePartDetail, RevMast, SchemeMast (+8)
+    ui=N core=Y
+- OutLetSundry (OutLetSundry.frm): 'Outlet Bill Sundry Setting'
+    tables: Depart, Enviro, RevMast, SundryMast, SundryType (+3)
+    ui=N core=Y
+- pGIss (pGIss.frm): 'Goods Issue Entry'
+    tables: Acgroup, Enviro, GodownMast, HallBook, Indent (+8)
+    ui=N core=Y
+- pMREntry (pMREntry.frm): 'Material Receive Entry'
+    tables: City, Enviro, GIN, GodownMast, Godownmast (+10)
+    ui=N core=Y
+- POSAdvanceDepDialog (POSAdvanceDepDialog.frm): 'Order Booking Advance'
+    tables: Employee, Enviro, GuestProf, HallBook, HallSale1 (+17)
+    ui=N core=Y
+- POSBillReprint (POSBillReprint.frm): 'OutLet Bill Reprint'
+    tables: Bill, City, DEPART, Depart, ENVIRO (+37)
+    ui=N core=Y
+- pPBill (pPBill.frm): 'Purchase Bill Entry'
+    tables: City, DEPART, Depart, Enviro, GIN (+30)
+    ui=N core=Y
+- PrAttend1 (PrAttend1.frm): 'Attendence'
+    tables: ATTENDENCE, Attend, DESIG, EMPLOYEE, Salary (+4)
+    ui=N core=Y
+- pReqSlip (pReqSlip.frm): 'Requistion Slip Entry'
+    tables: Acgroup, DateLock, Depart, Enviro, GodownMast (+10)
+    ui=N core=Y
+- PrLoan (PrLoan.frm): 'Advance/Loan'
+    tables: Depart, Desig, EMPLOYEE, Employee, Enviro (+9)
+    ui=N core=Y
+- resBanq (resBanq.frm): 'Reservation Look Up Room Wise'
+    tables: Booking, FAEnviro, GuestFolio, GuestProf, RateList (+3)
+    ui=N core=Y
+- resGroup (resGroup.frm): 'Group Reservation'
+    tables: Booking, BussSource, CITY, City, GROUPPROF (+8)
+    ui=N core=Y
+- resRoomNo (resRoomNo.frm): 'Reservation Look Up Room Wise'
+    tables: Booking, FAEnviro, GuestFolio, GuestProf, PayCharge (+5)
+    ui=N core=Y
+- resRoomType (resRoomType.frm): 'Room Category Wise Reservation Look Up'
+    tables: FAEnviro, GuestFolio, RateList, RoomBlockOut, RoomCat (+2)
+    ui=N core=Y
+- rFaRepView (rFaRepView.frm): 'Financ Report'
+    tables: ACGROUP, AcGroup, Budget, City, FAENVIRO (+14)
+    ui=N core=Y
+- rFomRepView (rFomRepView.frm): 'FomRepView'
+    tables: Arrival, BOM, BOOKING, Bill, BillDet (+119)
+    ui=N core=Y
+- rHallRepView (rHallRepView.frm): 'HallRepView'
+    tables: BookingDetail, Depart, FAEnviro, FunctionType, HallBook (+24)
+    ui=N core=Y
+- rInventRepView (rInventRepView.frm): 'ReportForm'
+    tables: City, Depart, Enviro, FAEnviro, Gin (+38)
+    ui=N core=Y
+- rMemberRepView (rMemberRepView.frm): 'Member Report'
+    tables: City, Country, Depart, FAEnviro, Ledger (+19)
+    ui=N core=Y
+- rPOSRepView (rPOSRepView.frm): 'Pos Report'
+    tables: AssignDelivery, BOM, DEPART, DeliveryBoy, Depart (+61)
+    ui=N core=Y
+- RrLookUpGuest (RrLookUpGuest.frm): 'New Reservation By Guest Reservation History'
+    tables: GuestProf, RoomCat
+    ui=N core=Y
+- rrsAdvanceDepDialog (rrsAdvanceDepDialog.frm): 'Settlememt Entry'
+    tables: AssignDelivery, DeliveryBoy, DepartPay, Employee, Enviro (+16)
+    ui=N core=Y
+- rsAdvanceDepDialog (rsAdvanceDepDialog.frm): 'Settlement'
+    tables: DepartPay, Employee, Enviro, GuestFolio, MemCatMast (+14)
+    ui=N core=Y
+- RsAssignDelivery (RsAssignDelivery.frm): 'Member Category Wise Revenue'
+    tables: AssignDelivery, DeliveryBoy, Depart, ENVIRO, Sale1 (+4)
+    ui=N core=Y
+- RsBookingEntry (RsBookingEntry.frm): 'Booking Entry'
+    tables: ComboPackDetail, DEPART, Depart, Depart1, ENVIRO (+25)
+    ui=N core=Y
+- RsBookingEntryAdvance (RsBookingEntryAdvance.frm): 'Payment Entry'
+    tables: PackingOrder
+    ui=N core=Y
+- RsGravyItemEntry (RsGravyItemEntry.frm): 'Gravy Item Entry'
+    tables: Depart, Item, ItemCatMast, ItemGrp, ItemMast (+5)
+    ui=N core=Y
+- RsKitchenMaterial (RsKitchenMaterial.frm): 'Excise Invoice Cum Gate Pass'
+    tables: Depart, Enviro, GodownMast, ITEMRATE, ItemMast (+11)
+    ui=N core=Y
+- RsKOTEntry (RsKOTEntry.frm): 'KOT'
+    tables: DEPART, Depart, Depart1, ENVIRO, EmailSMSForward (+38)
+    ui=N core=Y
+- RsMenuItemEntry (RsMenuItemEntry.frm): 'Menu Item Entry'
+    tables: BOM, Depart, Item, ItemCatMast, ItemGrp (+7)
+    ui=N core=Y
+- RsPaymentReceice (RsPaymentReceice.frm): 'Payment Receive Entry (POS)'
+    tables: Depart, Employee, Enviro, GuestFolio, LEDGERADJ (+14)
+    ui=N core=Y
+- RsPOSDisplay (RsPOSDisplay.frm): 'Display Table'
+    tables: Depart, DispColor, Dispcolor, Enviro, GuestProf (+12)
+    ui=N core=Y
+- RsPOSDisplayNew (RsPOSDisplayNew.frm): 'Table Status'
+    tables: Depart, DispColor, Dispcolor, GuestProf, KOT (+8)
+    ui=N core=Y
+- RSSaleBill (RSSaleBill.frm): 'Sale Bill Entry'
+    tables: CashRegData, City, DEPART, Depart, Depart1 (+88)
+    ui=N core=Y
+- RSSaleBill1 (RSSaleBill1.frm): 'Sale Bill Entry'
+    tables: DEPART, Depart, Enviro, ITEMMAST, ItemCatMast (+30)
+    ui=N core=Y
+- RSSaleBillDisplay (RSSaleBillDisplay.frm): 'Bill Look Up'
+    tables: DEPART, Depart, ITEMMAST, ItemCatMast, ItemMast (+21)
+    ui=N core=Y
+- RsSpecItemEntry (RsSpecItemEntry.frm): 'Special Item Entry'
+    tables: Depart, Item, ItemCatMast, ItemGrp, ItemMast (+2)
+    ui=N core=Y
+- RsStatusScreen (RsStatusScreen.frm): 'POS Status Screen'
+    tables: Depart, KOT, LocationMast, MemFacilityBilling, RoomMast (+2)
+    ui=N core=Y
+- RsStoreRecEntry (RsStoreRecEntry.frm): 'Finish Material Receive Entry'
+    tables: Depart, Enviro, GodownMast, ITEMRATE, ItemMast (+6)
+    ui=N core=Y
+- RsTbChange (RsTbChange.frm): 'Table Transfer'
+    tables: Depart, KOT, Kot, RoomMast, WAITER (+1)
+    ui=N core=Y
+- RsTokenEntry (RsTokenEntry.frm): 'Token Entry'
+    tables: Depart, ENVIRO, Enviro, FreeItemDetail, GuestProf (+26)
+    ui=N core=Y
+- RsTouchDisplayTB (RsTouchDisplayTB.frm): 'Display Table'
+    tables: Depart, DispColor, Dispcolor, Enviro, KOT (+10)
+    ui=N core=Y
+- rsTouchScreenAdvanceDepDialog (rsTouchScreenAdvanceDepDialog.frm): 'Settlement Entry'
+    tables: DepartPay, Employee, Enviro, GuestFolio, MemEnviro (+12)
+    ui=N core=Y
+- RsTouchScreenBookingEntry (RsTouchScreenBookingEntry.frm): 'Booking Entry'
+    tables: DEPART, Depart, ItemCatMast, ItemGrp, ItemMast (+8)
+    ui=N core=Y
+- RSTouchScreenSaleBill (RSTouchScreenSaleBill.frm): 'Sale Bill Entry'
+    tables: BillData, Cash, CashRegData, DEPART, Depart (+55)
+    ui=N core=Y
+- RsTouchScreenSteward (RsTouchScreenSteward.frm): 'Steward'
+    tables: KOT, MemCatMast, SubGroup, Waiter
+    ui=N core=Y
+- SmartCardLostReIssue (SmartCardLostReIssue.frm): 'Smart Lost/ReIssue Entry'
+    tables: MemberFamily, SmartCardReIssueDetail, SmartCardRegistration, Subgroup
+    ui=N core=Y
+- SmartCardMast (SmartCardMast.frm): 'Smart Card Master'
+    tables: Enviro, ItemMast, Purch1, Purch2, SmartCardMaster (+1)
+    ui=N core=Y
+- SmartCardRecharge (SmartCardRecharge.frm): 'Smart Card Recharge Entry'
+    tables: MemberFamily, SmartCardLedger, SmartCardRegistration, SmartCardTransaction, SubGroup (+1)
+    ui=N core=Y
+- SmartCardRefund (SmartCardRefund.frm): 'Smart Card Refund Entry'
+    tables: MemberFamily, SmartCardLedger, SmartCardRegistration, SubGroup, Subgroup
+    ui=N core=Y
+- SmartCardRegistration (SmartCardRegistration.frm): 'Smart Card Registration Entry'
+    tables: City, Country, ENVIRO, GuestProf, MemCatMast (+6)
+    ui=N core=Y
+- SundryVType (SundryVType.frm): 'Voucher Wise Sundry Entry'
+    tables: Depart, SundryMast, SundryType, ViewSubGroup, Voucher_Type (+1)
+    ui=N core=Y
+- TelCallCodeMast (TelCallCodeMast.frm): 'Call Code Master'
+    tables: TelCallCode, TelCallType
+    ui=N core=Y
+- TelCallEntry (TelCallEntry.frm): 'Call Code Master'
+    tables: Depart, EPABX_OUT, RoomMast, TelExt
+    ui=N core=Y
+- TelCallTypeMast (TelCallTypeMast.frm): 'Call Type Mast'
+    tables: RevMast, SubGroup, Subgroup, TaxStru, TelCallCode (+2)
+    ui=N core=Y
+- Transfer (Transfer.frm): 'Data Transfer'
+    tables: Company, Enviro, Table_SearchField, TransDel, TransIn (+3)
+    ui=N core=Y
+- TravelAgencyPost (TravelAgencyPost.frm): 'Travel Agency Posting'
+    tables: Enviro, GuestProf, LEDGER, SUBGROUP, SubGroup (+5)
+    ui=N core=Y
+- UserPermission (UserPermission.frm): 'User Permissions'
+    tables: Company, MenuHelp, UserMast, UserModule, UserPermission
+    ui=N core=Y
+- FAFind (FAFind.frm): 'Help.?'
+    tables: 
+    ui=N core=N
+- frmBlockMast (frmBlockMast.frm): 'Block Master'
+    tables: BlockMast
+    ui=N core=N
+- FrmChangeSite (FrmChangeSite.frm): 'Login Site'
+    tables: 
+    ui=N core=N
+- FrmControlPanel (FrmControlPanel.frm): 'Control Panel'
+    tables: 
+    ui=N core=N
+- FrmImage (FrmImage.frm): 'Image'
+    tables: 
+    ui=N core=N
+- frmMessage (frmMessage.frm): 'User Information'
+    tables: 
+    ui=N core=N
+- FrmMsgBox (FrmMsgBox.frm): 'Message Box'
+    tables: 
+    ui=N core=N
+- FrmNAMessageA (FrmNAMessageA.frm): 'User Information'
+    tables: 
+    ui=N core=N
+- FrmNAMessageB (FrmNAMessageB.frm): 'User Information'
+    tables: 
+    ui=N core=N
+- FrmNAMessageC (FrmNAMessageC.frm): 'User Information'
+    tables: 
+    ui=N core=N
+- FrmVenueFeat (FrmVenueFeat.frm): 'VenueFeature'
+    tables: FeatureMast
+    ui=N core=N
+- LockForm (LockForm.frm): 'Form1'
+    tables: 
+    ui=N core=N
+- REPVIEW (REPVIEW.frm): 'Form1'
+    tables: 
+    ui=N core=N
+- RewardPointParam1 (RewardPointParam1.frm): 'Reward Points Parameter I'
+    tables: RWParameter
+    ui=N core=N

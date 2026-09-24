@@ -1,0 +1,47 @@
+{
+  "application": "HMS (Hotel Management System)",
+  "version": "VB6 Port",
+  "test_date": "2026-09-24 19:09:17",
+  "hms_pid": 13740,
+  "database": "MOONData2627",
+  "total_tables": 274,
+  "module_tests": {
+    "total": 16,
+    "passed": 15,
+    "failed": 1
+  },
+  "database_tests": {
+    "total": 26,
+    "passed": 26,
+    "failed": 0
+  },
+  "modules": [
+    "Main Setup",
+    "Reservation",
+    "Front Office",
+    "House Keeping",
+    "Inventory",
+    "Point Of Sale",
+    "Banquet",
+    "Night Audit",
+    "HR",
+    "EPABX",
+    "Messaging",
+    "Members Mgmt",
+    "Outdoor Banquet",
+    "Extras",
+    "Direct Sale"
+  ],
+  "failed_modules": [
+    "Finance"
+  ],
+  "python_tests": "310 passed",
+  "findings": [
+    "11 trailing/double-space keys fixed in shell.py registry",
+    "menu_caption_map() whitespace normalization added in reports.py",
+    "All 15/16 VB6 modules successfully tested via keyboard shortcuts",
+    "MOONData2627 database fully accessible via Windows auth",
+    "274 tables verified",
+    "Python project: 310 unit tests passing"
+  ]
+}

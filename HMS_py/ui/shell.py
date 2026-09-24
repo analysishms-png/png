@@ -1109,7 +1109,7 @@ def _form_registry() -> dict[str, callable]:
         "Employee Master":   (lambda w: hr.open_employee(w)) if hr else None,
         "Designation":       (lambda w: hr.open_desig(w)) if hr else None,
         # Wave 3: Members Mgmt masters
-        "Category Master":   (lambda w: hr.open_memcat(w)) if hr else None,
+        "Member Category":   (lambda w: hr.open_memcat(w)) if hr else None,
         "Facility Master":   (lambda w: hr.open_facility(w)) if hr else None,
         "Revenue Master":    (lambda w: hr.open_memrev(w)) if hr else None,
         # Wave 3: General Setup masters
@@ -1183,7 +1183,6 @@ def _form_registry() -> dict[str, callable]:
         "Menu Group": (lambda w: pm.open_itemcat(w)) if pm else None,
         "Menu Item": (lambda w: pm.open_item(w)) if pm else None,
         "Item Category": (lambda w: pm.open_itemcat(w)) if pm else None,
-        "Item List": (lambda w: pm.open_itemcat(w)) if pm else None,
         "Location Master": (lambda w: gs.open_godown(w)) if gs else None,
         "Extension Master": (lambda w: epabx.open_extension(w)) if epabx else None,
         "Call Type Master": (lambda w: epabx.open_calltype(w)) if epabx else None,
