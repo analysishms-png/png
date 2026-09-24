@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Debug MainSetup comparison"""
 import sys, os, json
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath('.')), '..'))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 os.environ['QT_QPA_PLATFORM'] = 'offscreen'
 
 from HMS_py.core import menu_help as _mh
@@ -353,7 +353,7 @@ print(f"Total extra registry: {len(extra_reg)}")
 # Auto-open check
 print(f"\n--- _AUTO_OPEN ---")
 print(f"sidebar_buttons.AUTO_OPEN: {_sb.AUTO_OPEN}")
-print(f"MainWindow._AUTO_OPEN: {MainSetupWorkbench.__module__}")
+print(f"MainWindow._AUTO_OPEN: {dict(_sb.AUTO_OPEN)}")
 
 # Check specific key items
 print(f"\n--- KEY ITEM CHECKS ---")

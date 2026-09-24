@@ -1,225 +1,254 @@
 # VB6 ↔ Python Side-by-Side Comparison Report
 
-**Date:** 2026-09-23  
-**Method:** 5 parallel domain agents (FO, Finance, POS/Inventory, BAS modules, Reports/Misc)  
-**Sources:** `FODER\*.frm` (321), `FODER\*.bas` (32), `HMS.bas` vs `HMS_py\core\*.py` (92), `ui\*.py` (66)  
-**Priority rule:** DB-feasible + high business value first; BLOCKED tables documented, not invented.
+**Date:** 2026-09-24  
+**Method:** 3 parallel domain agents (Frontend/Forms, Database, BAS modules)  
+**Sources:** `FODER\*.frm` (321), `FODER\*.bas` (32) + root `HMS.bas` vs `HMS_py\core\*.py` (100), `HMS_py\ui\*.py` (82), `Report_Queries\*` (356), `moondata.sql` (274 CREATE TABLE), live DB Moondata2627  
+**Priority rule:** DB-feasible + high business value first; BLOCKED tables documented, never invented.
 
 ---
 
-## Summary
+## Executive Summary
 
-| Domain | Critical Gaps | High Gaps | Medium | Status |
-|--------|--------------|-----------|--------|--------|
-| Front Office | 5 P0 | 6 P1 | 2 P2 | Comparing |
-| Finance/FA | 5 Critical | 6 High | 4 Medium | Comparing |
-| POS/Inventory | 5 Critical | 4 High | 3 Medium | Comparing |
-| BAS Modules | 6 Critical | 5 High | 4 Medium | Comparing |
-| Reports/HR/Members/Banquet | 4 Critical | 5 High | 4 Medium | Comparing |
-| **TOTAL** | **25** | **26** | **19** | — |
+| Layer | VB6 | Python | Status |
+|-------|-----|--------|--------|
+| **Frontend forms** | 321 `.frm` | 82 UI modules | 110 FULL · 124 PARTIAL · 10 WRONG · 71 CS · 5 MISSING |
+| **Business logic** | 32 `.bas` (~5,860 funcs) | 100 core modules | ~290 PORTED · ~550 PARTIAL · ~5,020 MISSING (~14% fn coverage) |
+| **Database tables** | 329 referenced | 179 referenced | 174 BOTH · 155 VB6_ONLY · 5 PY_ONLY |
+| **Report queries** | 232 defs / 356 folders | 261 keys in reports.py | 230 name-matched · 333/421 live SQL PASS |
 
-**Already DONE (P6 wave):** Stock Transfer, Stock Issue/Receipt, Stock Register, Depart Master, eInvoice Config, Checkout Clearance screen.
+**Already DONE (prior waves):** Stock Transfer/Issue/Receipt/Register, Depart Master, eInvoice Config, Checkout Clearance, settle BillAmt, clearance wire, payment instruments, RoomOcc Type, DocId/CurrBal/LedgerLog, shell wiring (Year End, Permissions, HR, Banquet), BAS foundations (error_handling, validation, url_utils), reverse night audit, full POS sale save, GST TaxStru, LEDGERREF/TDS, NCat routing.
 
-**BLOCKED (DB tables missing — do NOT invent):** Banquet ops (HallBill/HallBill/CateringBook/EventMast), MemberModule (MembershipRevMast/SmartCard* 0 rows), Door Lock (btlock57L.DLL), Touch POS, SMS HTTP gateway, e-Invoice IRN generation (needs live API creds).
+**BLOCKED (do NOT invent):** Banquet ops tables, MemberModule 0-row tables, Door Lock DLL, Touch POS, SMS HTTP gateway live API, e-Invoice IRN, Crystal print pipeline.
 
 ---
 
-## 1. Front Office (FO)
+## 1. Frontend — VB6 Forms ↔ Python PyQt6 UI
 
-### P0 — Must Fix
+### Status Totals (320 parseable forms)
 
-| # | VB6 Evidence | Feature | Python Status | Implementation |
-|---|-------------|---------|---------------|----------------|
-| FO-1 | FdCheckOut.frm:1314,1722 | First Print Bill gate + stamp `PayCharge.Bill_No`/`SETTLEDATE` | `settle_folio` never stamps Bill_No | Add Bill_No/SETTLEDATE stamping in `folio.settle_folio` |
-| FO-2 | FdCheckOut.frm:3465-3482 | Checkout clearance hard-block (`Enviro.RoomCheckOutClearanceYN`) | `check_clearance()` defined but never called | Call in `do_checkout` when flag='Yes' |
-| FO-3 | fdPaymentCharge.frm:4467 | 35-col payment insert: CardNo, ChqNo, ChqDate, BatchNo, TxnNo, ExpDate, TipAmt, per-folio SNo | Missing all instrument cols; SNo=1 hardcoded | Fix `receive_payment`: instrument fields + SNo=MAX+1 |
-| FO-4 | fdAmendEntry.frm:968-1127 | Departure date guards + cascade `PlanDetails.NoofDays`, `RoomOcc.DepDate` | No validations; only GuestFolio.DepDate updated | Add guards + cascade updates |
-| FO-5 | FdCheckOut.frm settle flow | `settle_folio` BillAmt = actual bill (SUM AmtDr), not balance | BillAmt = bal (≈0 always) | BillAmt=SUM(AmtDr), SettAmt=settled |
+| Status | Count | Meaning |
+|--------|------:|---------|
+| **FULL** | **110** | Dedicated Python UI with comparable fields/actions |
+| **PARTIAL** | **124** | Shared/simplified screen vs rich VB6 form (or RO list only) |
+| **WRONG_TARGET** | **10** | Menu opens wrong form — priority re-wires |
+| **COMING_SOON** | **71** | DB-blocked or documented skip (mostly Members 19, FO 11) |
+| **MISSING** | **5** | Splash/demo/orphan artifacts only |
 
-### P1 — High Value
+### Per-Domain Breakdown
 
-| # | VB6 | Feature | Python Status |
-|---|-----|---------|---------------|
-| FO-6 | checkin.py:181-188 vs dashboard:168 | RoomOcc `Type='I'` on insert | Type omitted → guest name never shows |
-| FO-7 | fdWalkInEntry.frm:12668 | Walk-in grid validation (dates, tariff, rate codes, adults) | create_checkin hardcodes Adult=1, ChkInTime='10:00' |
-| FO-8 | FdRevCheckOut.frm:1482 | Reverse clears UserChkOutDate + group members | UserChkOutDate never touched; group not reopened |
-| FO-9 | fdAmendEntry:974 | dep < current/check-in blocked | No validation |
-| FO-10 | HKRoomBlock.frm:1221 | RoomBlockOut OOO insert | roomstatus only has Clean/Dirty |
-| FO-11 | front_office_dashboard:669 | Departures grid Room column | Shows city, not RoomNo |
-| FO-12 | front_office_dashboard:703 | Cancelled bookings in arrivals | Cancel filter only on one branch |
+| Domain | n | FULL | PARTIAL | WRONG | CS | MISS |
+|--------|--:|-----:|--------:|------:|---:|-----:|
+| Front Office | 50 | 9 | 29 | 1 | 11 | 0 |
+| Finance / FA | 39 | 20 | 10 | 3 | 6 | 0 |
+| POS / Restaurant | 31 | 7 | 18 | 0 | 6 | 0 |
+| Banquet / Hall | 22 | 6 | 11 | 1 | 4 | 0 |
+| Members / Club | 30 | 5 | 4 | 2 | 19 | 0 |
+| HR / Payroll | 12 | 10 | 1 | 0 | 1 | 0 |
+| Housekeeping | 8 | 1 | 3 | 0 | 4 | 0 |
+| EPABX / Comms | 14 | 8 | 4 | 0 | 2 | 0 |
+| Reports / NA | 30 | 1 | 23 | 3 | 2 | 1 |
+| System / Utility | 24 | 6 | 11 | 0 | 4 | 3 |
+| Setup / Masters | 33 | 24 | 3 | 0 | 5 | 1 |
+| Other | 27 | 13 | 7 | 0 | 7 | 0 |
+| **TOTAL** | **320** | **110** | **124** | **10** | **71** | **5** |
 
-### FO Logic Bugs
+### 10 WRONG_TARGET Re-wires (Priority)
 
-| Area | VB6 | Python | Fix |
-|------|-----|--------|-----|
-| Checkout composition | settle + RoomOcc close + Bill_No stamp in one flow | Split-brain: folio_ui._settle only settles; checkout_ui only checkout | Compose in single tx |
-| Clearance wiring | Hard block when pending | check_clearance never called | Wire into do_checkout |
-| RoomOcc Type | Occupancy via ChkOutDate IS NULL | dashboard joins Type='I', checkin omits Type | Standardize Type='I' on insert |
-| EPABX_IN | Optional audit | fo_ops.room_change unconditionally queries missing EPABX_IN | Feature-detect / optional |
-| settle mode | Enviro Strict/Standard | settle_folio always hard-blocks non-zero | Read Enviro mode |
-| Payment SNo | Per-folio sequence | SNo=1 hardcoded | MAX(SNo)+1 |
+| # | VB6 Form | Menu leaf currently opens | Should open |
+|---|----------|---------------------------|-------------|
+| 1 | FdRevCheckOut | open_checkout | reverse checkout flow |
+| 2 | FaAdjustDel | open_fa_adjust | dedicated delete (or confirm dual-use) |
+| 3 | FaCurrBalUpdate | open_trial_balance | balance rebuild UI |
+| 4 | FaTDSChal | open_voucher_entry | TDS challan UI |
+| 5 | fdAcPostChrg | open_nightaudit_reports | NA process runner |
+| 6 | fdNDAcPostChrg | open_nightaudit_reports | posting utility |
+| 7 | frmReNightAudit | reverse via reports menu | reverse_night_audit (core exists L489) |
+| 8 | HallAcPostChrg | open_hall_booking | hall A/C posting |
+| 9 | MembershipMast | open_member_billing | member master CRUD |
+| 10 | SmartCardRegistration | open_smartcard | registration entry |
 
----
+### Front Office Sample (50 forms → 9 FULL / 29 PARTIAL / 11 CS)
 
-## 2. Finance / FA
+| VB6 Form | Python UI | open_* | Status | Gap |
+|----------|-----------|--------|--------|-----|
+| FdCheckOut | checkout_ui.py | open_checkout | PARTIAL | settle/clearance/instruments (partially fixed) |
+| fdPaymentCharge | folio_ui.py | open_folio | PARTIAL | post-charges via folio RO |
+| fdWalkInEntry | frontoffice.py | open_checkin | PARTIAL | Adult/ChkInTime (fixed this session) |
+| FdLookUpRoom | fo_sub_forms_ui | open_room_lookup | FULL | — |
+| fdRoomChange | fo_sub_forms_ui | open_room_change | FULL | — |
+| GuestProfile | frontoffice.py | open_guestprof | PARTIAL | TB=77 vs shared screen |
+| frmAdvanceDepDialog | — | Advance Deposit | CS | tables absent |
+| FdRevCheckOut | checkout_ui | Check Out | WRONG | reverse not dedicated |
 
-### Critical
+### Setup/Masters Sample (33 forms → 24 FULL — strongest domain)
 
-| # | VB6 | Feature | Python Status |
-|---|-----|---------|---------------|
-| FA-1 | FaLib Proc_183_0 | CurrBal: delta in SUBGROUPCURRBAL + walk ACGROUP.MAINGRCODE ancestors → ACGROUPCURRBAL | `_update_currbal` writes non-existent `LedgerCurrBal` (try/except pass) |
-| FA-2 | FaVrEnt:13333 + FaLib Proc_183_15/16 | DocId = `"D"+Site(2)+V_Type(5)+Prefix(5)+V_No(8)` (21 chars) | `_make_docid` = `{vtype}{prefix}{vno:04d}` — incompatible |
-| FA-3 | FaVrEnt:14140-14146 | LedgerLog/LedgerMLog SeqNo=Max+1 row-copy | `_log_voucher` wrong schema → no audit |
-| FA-4 | FaVrEnt:14006,13957 | LEDGERREF pending + LEDGERADJ + AgRefNo on post | IMPLEMENTED — `fa_voucher._create_ledgerref` / `_write_ledgeradj` / Ledger AgRefNo insert (fa_voucher.py:150-165,297-338); LEDGERADJ cascade on delete (fa_voucher.py:477-486) |
-| FA-5 | FaVrEnt TDS frame | TDS calc ONAMT*TDS/100, LEDGERTDS row, auto contra-voucher | IMPLEMENTED — `fa_tds_ops.tds_amt` (fa_tds_ops.py:212-215); `fa_voucher._post_line_tds` posts TDS Vr.Type contra + LEDGERTDS (fa_voucher.py:341-400); narration-hack removed |
+CompMast, DepartMast, FrmRoomMast, FrmTaxStruMast, UserPermission, FrmWaiterMast, etc. all FULL with dedicated openers.
 
-### High
+### HR/Payroll (12 → 10 FULL)
 
-| # | VB6 | Feature | Python Status |
-|---|-----|---------|---------------|
-| FA-6 | FaVoucher.bas Proc_7_* | NCat-based voucher routing + privilege gate | IMPLEMENTED (routing) — `voucher_type.get_ncat`/`list_entry_types` (voucher_type.py:196-216); `fa_reports.route_voucher` NCat via Voucher_Type (fa_reports.py:808-835); UI combo loads DB (fa_voucher_ui.py:54-64). Privilege gate still open |
-| FA-7 | FaVoucher.bas Proc_7_2/7_4 | Voucher print (Crystal) | No print path |
-| FA-8 | FaVrEnt FindMove + FAFind | Find/navigate/edit voucher | IMPLEMENTED (core) — `get_voucher` / `find_voucher` / `edit_voucher` (fa_voucher.py:538-660); dedicated find/edit UI not added |
-| FA-9 | FaTDSChal.frm | TDS challan entry UI | core CRUD only, menu opens voucher entry |
-| FA-10 | FaTDSCertificate | Certificate gen from LEDGERTDS | `tds_detail()` AttributeError (missing fn) |
-| FA-11 | FaCurrBalUpdate | Full rebuild zero-then-recompute | Partial; menu opens trial balance viewer |
-| FA-12 | FaAdjust pending query | HAVING MAX(AmtCr) > SUM(Adj.cr) + over-adjust guard | IMPLEMENTED — `adj_pending` / `pending_adjustments` / over-adj guard in `ledgeradj_insert` (fa_ledger_ops.py:89-154); FaAdjustWindow surfaces ValueError (fa_sub_forms_ui.py:81-99) |
-| FA-13 | delete_voucher | Also delete TDSDocId contra LEDGER rows | Leaves orphan TDS voucher |
-| FA-14 | ContraSub per-line | Multi-line contra pairing | Only filled when len==2 |
+Attendance/Leave/Loan/Overtime/Salary all tabs in `hr_payroll_ui` — best-covered operations domain.
 
-### FA Logic Bugs
+### MISSING (5)
 
-| Area | VB6 | Python | Fix |
-|------|-----|--------|-----|
-| P&L sign | Revenue Cr−Dr | `_ledger_by_date_range` uses dr-cr for all natures | Apply L,R → cr−dr |
-| Cheque clear | Chq_No + Chq_Date + Clg_Date (3 cols) | Only Clg_Date / missing Chq_Date | Write all 3 |
-| Menu wiring | Distinct forms per leaf | Adj/Delete→voucher entry; TDSChal→voucher entry; Year End→trial bal; Permissions→UserMaster | Remap shell leaves |
-| Voucher types | Load from Voucher_Type NCat | Was hardcoded ["JV","HPOST","F_AO"] | IMPLEMENTED — `voucher_type.list_entry_types` + fa_voucher_ui.py:54-64 |
-| next_vno site | Filter Site+LogSite | Was site-blind | IMPLEMENTED — `next_vno` / `_prefix_for` Site_Code filters (fa_voucher.py:29-69) |
-| Prefix missing | Raise / manual method | Silent FY-string fallback | Raise if no row |
+`Form1`, `CsehDemoForm`, `FrmImage`, `frmWelcome` (splash/demo), `FrmFacilityMast` (orphan Form1).
 
 ---
 
-## 3. POS / Inventory
+## 2. Database — Tables / Columns / Queries / Connection
 
-### Critical
+### 2a. Table Inventory
 
-| # | VB6 | Feature | Python Status |
-|---|-----|---------|---------------|
-| PI-1 | inventory.stock_issue | Single-tx: Stock insert + Indent1 ClearYN | Split-conn: Stock rolled back, ClearYN committed → **data loss** |
-| PI-2 | RSSaleBill save | Sale1+Sale2+SunTran+PayCharge + Stock QtyIss + KOT close | Manual save: Sale1 header only |
-| PI-3 | FrmPOSBillDeletion | Reverse Sale2/SunTran/PayCharge/Stock/KOT | `DELETE Sale1` only → orphans |
-| PI-4 | pPBill.frm TaxStru | Slab GST CGST/SGST/IGST + service + roundoff | All hard-coded 0 |
-| PI-5 | PIndent.frm | Indent1 line grid | Header only; INDENT1API has no UI caller |
+| Category | Count |
+|----------|------:|
+| **BOTH** (VB6 + Python) | **174** |
+| **VB6_ONLY** | **155** (138 code/queries + 17 schema-only) |
+| **PY_ONLY** | **5** (cateringbooking, einvoice, epabxcalls, members, revenuegroup) |
+| moondata.sql CREATE TABLE | 274 |
+| Python unique table tokens | 179 |
+| VB6 union total | 329 |
 
-### High
+**Highest-value VB6_ONLY gaps:** `expsheet`, `paymentreceive`, `transin/transout/transundetail/transdel`, `splitsale1/2`, `splitstock`, `pos_sbill`, `travel1/2`, `plantokendetails`, `smartcardtransaction`, `doorlockenviro`, `epabx_out`, `messaging`, `usermenu/usermodule`, `salarylog`, `membill1/2`, full Mem* ops family, `view*` views, `table_gstr2a`.
 
-| # | VB6 | Feature | Python Status |
-|---|-----|---------|---------------|
-| PI-6 | requisition_slip_ui:152 | Department on Indent header | Selects `i1.Department` (missing col) → load always fails |
-| PI-7 | purchase totals | Taxable=total, NetAmt=total+tax | Taxable=total-tax (wrong), NetAmt=total |
-| PI-8 | Gin/POrder delete | Row-wise (DocId,Sno) match | Cartesian IN() cross-pair |
-| PI-9 | FrmOPStock | VType='STOP', site from ini, dup guard | VType='OPN', Site='001' hardcoded |
-| PI-10 | RsKOTEntry | KOTLog + Sno match update | LogSite='KK'; update WHERE Item; no KOTLog |
-| PI-11 | KOT transfer filters | Pending=Y, VOIDYN≠Y, NCKOT≠Y, RoomCat=REST | Only Pending=Y + DelFlag |
-| PI-12 | gin_create | IndentDocId/IndentSno on Purch2; party from args | Indent link never written; party from lines[0] |
-| PI-13 | pos_sub_forms_ui:65 | Reprint cols NetAmt, DelFlag | Wrong: NetAmount, VoidYN → empty grid |
-| PI-14 | purchase_register | PBPB from Purch1/Purch2 | Queries GIN (always MRCR) → empty |
-| PI-15 | requisition issue defaults | Godown from Indent, rate from ItemMast | godown="", rate=0 |
+### 2b. Column / Schema Mismatches (resolved vs open)
 
----
+| Area | Status |
+|------|--------|
+| QtyRec vs QtyRcp | **FIXED** (21 SQLs rewritten) |
+| PayCharge 35-col instruments | **PARTIAL** — folio.py full; fo_ops.py SNo=1 still |
+| SETTLEDATE/Bill_No stamp | **FIXED** |
+| RoomOcc Type='I' | **FIXED** |
+| Reverse UserChkOutDate | **FIXED** |
+| Amend PlanDetails cascade | **FIXED** |
+| FA DocId 21-char | **FIXED** |
+| SUBGROUPCURRBAL/ACGROUPCURRBAL | **FIXED** |
+| LedgerLog SeqNo | **IMPLEMENTED** |
+| Cheque 3-col clear | **COVERED** |
+| KOTLog audit | **IMPLEMENTED** |
+| POS reprint NetAmt/DelFlag | **FIXED** |
+| Purchase register PBPB | **PARTIAL** (GIN+POrder only) |
+| Banquet/Member report table names | **MISMATCH** (Members/EPABXCalls/CateringBooking absent) |
+| Opening stock STOP | re-verify |
 
-## 4. BAS Modules
+### 2c. Report Query Coverage
 
-### Entire .bas with NO Python equivalent
+| Metric | Covered | Missing/blocked |
+|--------|--------:|----------------:|
+| REPORTS_TXT defs (232) | **230** name-matched | 2 (index files) |
+| Report_Queries folders (356) | **285** table-overlap | **70** no overlap |
+| Live report SQL engine | **333 PASS** | **88 FAIL** |
+| Report domains hard-missing | — | **6** (print pipeline, messaging, reverse-NA UI, Touch POS, multi-site transfer, FAFind UI) |
+| Report domains blocked/unwired | — | **4** (Members ops, Banquet ops, EPABX calls, HR payroll wiring) |
 
-| .bas | Purpose | Severity |
-|------|---------|----------|
-| ModuleDoorLock + Module1 | Guest card encode via btlock57L.DLL | Critical (HW) |
-| MSendInput | Win32 SendInput automation | Low |
-| MobWebAPI | HTTP GET/POST (MSXML2) | Critical (SMS/eInv) |
-| eInvoice | NIC e-Invoice auth + IRN | Critical (config-only) |
-| mdlDataTransfer | Multi-site table sync | High |
-| ErrorHandlingModule | LogError → ErrorLog.txt, StandardErrorHandler | Critical (no logging!) |
-| modLog | Enter/Exit/Trace method logging | Medium |
-| SMSModule | HTTP SMS dispatch loop | Critical (queue only) |
-| ModuleAdd (CGZip) | ZIP backup/archive | Medium |
-| CodeModule | Garbled decompile | — |
-| Picture | Guest photo save | Low |
-| SperialFolderPath | CSIDL wrapper | Low |
-| Functions | URL percent-encoding | High (blocks SMS/eInv) |
+**reports.py split:** FO 70 · Finance 54 · POS 54 · Inventory 33 · Tax 29 · General 19 · NA 2.
 
-### Partial Ports — Missing Functions
+**70 no-overlap folders** are mostly: utility .bas, print/preview, messaging, NA reverse msgs, Touch POS, lock settings, config masters, unwired FO forms, Members facility.
 
-| .bas | Ported | Missing |
-|------|--------|---------|
-| ValidationModule | Per-master `_validate` | ValidateEmail/Phone/Date/Required central module |
-| DatabaseSecurityModule | db parameterized | SanitizeInput, ValidateSQL, Secure builders |
-| SMSModule + MobWebAPI | sms_enviro CRUD | HTTP send, connectivity, SmsURL invoke |
-| ModuleSmartCard | smartcard CRUD | Encode/decode ±0x1B cipher |
-| mdlNightAudit | run/post/reports | Reverse Night Audit fn |
-| MemberModule | member_billing CRUD | Bill calc procs; MemberSMS.frm |
-| POSBillPrint | rate lookup in pos_sales | 26 layout procs, reptmp TEXTFILE spool |
-| FaLib | fa_ledger_ops partial | Majority of 58 Proc_183_* |
-| FaVoucher | post/delete/next_vno | NCat dispatch + print |
-| Hotlib/MainLib | scattered helpers | Large tails untraceable |
-| GridPrint | CSV/PDF | C:\reptmp\TEXTFILE.TXT spool |
-| TmpTable | list[dict] replacement | Design-replaced OK |
-| JSON | stdlib json | Fully superseded |
-| HMS.bas | menu/reports registry | ~5433 event handlers, many still coming_soon |
+### 2d. Connection / Config
 
-### Critical Unported
+| Aspect | VB6 | Python |
+|--------|-----|--------|
+| Config | `Analysis.ini` `[HMS]` keys 1–10 | same file + `HMS_ANALYSIS_INI` env |
+| Live DB | root ini `KailashData2526` | package `Moondata2627` (wins) |
+| Driver | OLE DB SQLOLEDB/SQLNCLI | pyodbc SQL Native Client 10.0 → SQL Server |
+| Auth | SQL auth User/Password | Windows Trusted_Connection |
+| Secondary | DAO Company.mdb / Fadata.mdb | none (SQL Server only) |
+| Hardening | — | timeout, LOCK_TIMEOUT 5000, identifier whitelist, UPDLOCK next_vno |
 
-| BAS | Function | Why Critical |
-|-----|----------|--------------|
-| SMSModule | HTTP dispatch | SMS never delivered (queue only) |
-| MobWebAPI | GET/POST | No HTTP client in entire project |
-| eInvoice | auth + IRN | Statutory compliance gap |
-| ErrorHandlingModule | LogError | Silent failures, no ErrorLog.txt |
-| ModuleDoorLock | Write guest card | Check-in can't issue key cards |
-| ModuleSmartCard | ±0x1B encode | Card payloads unreadable |
-| Functions | URL encode | Blocks SMS/eInvoice |
-| POSBillPrint | Bill layout | All print buttons stubs |
-| ValidationModule | Email/Phone/Date | Bad data accepted |
-| mdlDataTransfer | Site sync | Multi-site broken |
-| mdlNightAudit | Reverse NA | Menu opens wrong dialog |
-| GridPrint | reptmp spool | DOS printing dead |
+### 2e. BLOCKED Census (live row probe)
+
+| Table family | Live | Status |
+|--------------|------|--------|
+| MembershipRevMast / SmartCard* | 0 rows | 🚫 MemberModule |
+| MemberFamily | 37 FK-only | ops dead |
+| HallBill / CateringBook / EventMast | absent | 🚫 Banquet (use HallBook*) |
+| TelCall / Reward / DoorLock / SMSLog / EInvoice etc. | absent | 🚫 SKIP (migration 001 not executed) |
+| EPABX_OUT / EPABXCalls / Members / RevenueGroup | absent | BLOCKED |
+| RoomBLockOut | empty | OOO blocked until seed |
+| Site / DeliveryBoy / GroupProf | empty | degraded |
+| eInvoiceEnviro | 1 row | ✅ FEASIBLE (done) |
+| Stock / RQI/RQR / Depart / FOMBillDetails | live | ✅ P6 done |
 
 ---
 
-## 5. Reports / HR / Members / Banquet / SmartCard / EPABX / Misc
+## 3. BAS Modules ↔ Python Core (function-level)
 
-| Domain | VB6 Form | Feature | Python Status | Severity |
-|--------|----------|---------|---------------|----------|
-| Reports | REPVIEW + viewers | Print/preview pipeline | Grid+CSV only, no QPrinter | High |
-| Reports | Per-domain viewers | Extra filters | Collapsed; caption mismatches → coming_soon | High |
-| HR | prAttend, prSalCreate, PrLoan, overtime, leave encash | Menu leaves all _coming_soon | hr_payroll_ui registered only as "HR Payroll" (not in mdi_menu) | **Critical** |
-| HR | PrLoan/PrLeavench | LEDGER postings | insert_loan writes Loan only | High |
-| Members | MembershipMast | Members/Subgroup CRUD | No core CRUD; menu opens MemBill instead | Critical |
-| Members | MemRenewalEntry | ValidFrom/Upto + MemHistory | coming_soon | High |
-| Members | MemVisitEntry | MemberVisits write | coming_soon | Medium |
-| Banquet | HallBill/Estimate/ChefCost/VenueAvail/Events | All banquet ops leaves | banquet_ops.py + pos_hall.py COMPLETE but **zero UI imports**; tables partially missing | Critical |
-| SmartCard | Registration/Recharge/Refund/Re-Issue | Ops screens | smartcard_ops.py COMPLETE, no UI; leaves coming_soon | Critical |
-| EPABX | TelCallEntry | Call entry + rate calc | Read-only TOP-200 list; epabxdata_insert unwired; EPABX_OUT/COUNTER absent | High |
-| Misc | frmYearEnd | Year-end carry-forward | year_end.py complete, **menu opens trial balance** | **Critical** |
-| Misc | UserPermission | Permission editor | user_permissions_ui.py exists, **never imported by shell**; Permissions→UserMasterForm | **High** |
-| Misc | FrmJobScheduler | Task scheduler | CRUD in sms_enviro, no UI | Medium |
+### Module Summary
 
-### Smaller gaps
-- Lost/Found: full CRUD in guest_services_ui tab 4, menu opens read-only list
-- Delete Message / InBox / OutBox: not ported (repurposed as SMS log)
+| .bas | #funcs | Ported | Partial | Missing | Python home |
+|------|-------:|-------:|--------:|--------:|-------------|
+| HMS.bas (menu/reports) | ~5433 handlers | menu registry | many leaves | ~5000 event tails | shell.py, menu.py, reports.py |
+| FaLib.bas | 58 Proc_183_* | ~15 | ~3 | **~40** | fa_ledger_ops.py, fa_voucher.py |
+| FaVoucher.bas | 8 | 5 | 0 | 3 (NCat print/dispatch partial) | fa_voucher.py, voucher_type.py |
+| POSBillPrint.bas | 26 | 3 | 0 | **23** | pos_sales.py rate lookup only |
+| SMSModule.bas | 19 | 6 | 0 | **13** | sms_enviro CRUD, sms_http partial |
+| MobWebAPI.bas | 3 | 0 | 0 | **3** | **no real HTTP client** |
+| mdlNightAudit.bas | 10 | 2 | 0 | 8* | nightaudit.py (*reverse NA now ported) |
+| MemberModule.bas | 5 | 2 | 0 | 3 | member_billing.py |
+| GridPrint.bas | 4 | 0 | 0 | **4** | NO_MODULE (CSV only) |
+| ErrorHandlingModule | ~12 | 2 | 0 | 10 | error_handling.py |
+| ValidationModule | ~8 | 2 | 0 | 6 | validation.py |
+| Functions.bas (URL) | 2 | 2 | 0 | 0 | url_utils.py ✅ |
+| DatabaseSecurityModule | ~6 | 2 | 0 | 4 | validation.sanitize/validate_sql |
+| modLog | 3 | 1 | 0 | 2 | error_handling.log_trace |
+| eInvoice.bas | auth+IRN | config | — | IRN live | einvoice.py config-only |
+| ModuleDoorLock | DLL encode | sim mode | — | HW | godrej_locks.py |
+| ModuleSmartCard | ±0x1B | CRUD | — | cipher | smartcard.py |
+| mdlDataTransfer | multi-site sync | 0 | — | all | none |
+| Hotlib/MainLib/TopBarLib | scattered | partial | — | tails | various |
+| JSON/TmpTable | superseded | ✅ stdlib/list | — | — | OK |
+
+**Overall function coverage est.: ~290 PORTED / ~550 PARTIAL / ~5,020 MISSING (~13.8%)** — dominated by HMS.bas event-handler tails and Crystal print layout procs.
+
+### Critical Missing (implement next)
+
+1. **MobWebAPI / real HTTP** — blocks SMS dispatch + eInvoice IRN  
+2. **POSBillPrint** — 23 layout procs; all print buttons still stubs  
+3. **GridPrint** — reptmp TEXTFILE spool / DOS printing  
+4. **SMSModule HTTP dispatch** — queue-only today  
+5. **FaLib ~40 Proc_183_*** — CurrBal chain partial; adj/report procs  
+6. **ErrorHandling remainders** — StandardErrorHandler GUI hook, severity routing  
+7. **Validation remainders** — SQL builders hardening  
+8. **mdlDataTransfer** — multi-site sync  
+9. **FAFind/FaRepView dedicated UI** — core find_voucher exists, no screen  
 
 ---
 
-## Implementation Priority (this session)
+## 4. Implementation Priority (next waves)
 
-1. **FO P0** — settle BillAmt, clearance wire, payment SNo+instruments, amend cascade, RoomOcc Type
-2. **Inventory critical** — stock_issue single-tx, sale1_delete cascade, purchase totals, requisition Dept col, KOT filters
-3. **Shell wiring** — HR payroll menu, year_end, user_permissions, banquet/smartcard leaves → existing cores
-4. **FA** — CurrBal Proc_183_0, DocId format, LedgerLog, P&L sign, tds_detail stub
-5. **BAS foundations** — ErrorHandlingModule (logging), ValidationModule (email/phone/date), Functions URL encode (enables future SMS)
-6. **Skill** — reusable comparison skill for future passes
+### P9 — Frontend re-wires (10 WRONG_TARGET)
+Reverse checkout, Delete Adjustment, CurrBal update, TDS Challan, NA process ×2, Reverse NA menu, Hall A/C, MembershipMast, SmartCard Registration.
+
+### P10 — Print pipeline
+POSBillPrint layouts → GridPrint spool → reports QPrinter/preview (replaces Crystal).
+
+### P11 — HTTP foundation
+MobWebAPI GET/POST (requests/urllib) → SMSModule dispatch → eInvoice IRN (config already live).
+
+### P12 — PARTIAL deepening (highest business value)
+- FO: FdCheckOut remaining, fdPaymentCharge post UI, GuestProfile 77-field form  
+- POS: RSSaleBill TB=52 full entry, bill modification  
+- Finance: FaSubGroup entry vs browser, FaVtype define  
+- Reports: 88 failing SQLs (Finance balance ~22, FO Vdate ~20, POS KOTNo misc)
+
+### P13 — FaLib depth
+Resolve ~40 Proc_183_* bodies; full adj/pending/report coverage.
+
+### P14 — DB migration review
+Execute/edit `001_missing_tables.sql` for genuinely needed tables only; fix Python-only wrong table names (Members→MembershipMast, EPABXCalls→EPABX_*).
 
 ---
 
-*Generated by 5-agent parallel comparison. Evidence line refs are live file:line.*
+## 5. Artifacts
+
+| Artifact | Path |
+|----------|------|
+| This report | `VB6_PYTHON_SIDE_BY_SIDE_REPORT.md` |
+| Skill | `~/.claude/skills/vb6-python-compare/` + `~/.config/opencode/skills/vb6-python-compare/` |
+| BAS foundations | `HMS_py\core\error_handling.py`, `validation.py`, `url_utils.py` |
+| Priority plan (DB census) | `MODULE_FIX_PLANS\REMAINING_PRIORITY_PLAN.md` |
+| Schema dump | `FODER\moondata.sql` (274 tables) |
+| Report queries | `MODULE_FIX_PLANS\...\Report_Queries\` (356 folders) |
+
+---
+
+*Generated by 3-agent parallel comparison (frontend / database / BAS). Evidence line refs are live file:line.*

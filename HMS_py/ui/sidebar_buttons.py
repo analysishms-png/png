@@ -354,7 +354,7 @@ def generate_sidebar_report(user: str = "SA") -> str:
     ap("── MODULES (User_Module per-module wise) ──")
     for i, m in enumerate(modules, 7):
         opt1 = m.get("opt1") or "?"
-        ap(f"  {m['shortcut'] or '?'.rjust(5)}. {m['icon']} {m['label']:<20} target={m['mod_target']:<30} srno={m.get('srno')}")
+        ap(f"  {m['shortcut'] or '?'}  {m['icon']} {m['label']:<20} target={m['mod_target']:<30} srno={m.get('srno')}")
     ap("")
 
     # User_Module data
