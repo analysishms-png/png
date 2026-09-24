@@ -1,0 +1,130 @@
+{
+  "Finance": {
+    "screenshot": "kanpur_02_Finance.png",
+    "ocr_text": "time.sleep(1.5)\n\nr = win32gui.GetWindowRect(main_hwnd)\n\nimg = ImageGrab.grab(bbox=(r[0], r[1], rf[2], r{[3])\nfname = os.path.join(qa_dir, 'kanpur_' + name.repli.\nimg.save(fname)\n\nocr_len = len(pytesse",
+    "size": [
+      797,
+      655
+    ]
+  },
+  "Main_Setup": {
+    "screenshot": "kanpur_03_Main_Setup.png",
+    "ocr_text": "time.sleep(1.5)\n\nr = win32gui.GetWindowRect(main_hwnd)\n\nimg = ImageGrab.grab(bbox=(r[0], r[1], rf[2], r{[3])\nfname = os.path.join(qa_dir, 'kanpur_' + name.repli.\nimg.save(fname)\n\nocr_len = len(pytesse",
+    "size": [
+      797,
+      655
+    ]
+  },
+  "Reservation": {
+    "screenshot": "kanpur_04_Reservation.png",
+    "ocr_text": "time.sleep(1.5)\n\nr = win32gui.GetWindowRect(main_hwnd)\n\nimg = ImageGrab.grab(bbox=(r[0], r[1], rf[2], r{[3])\nfname = os.path.join(qa_dir, 'kanpur_' + name.repli.\nimg.save(fname)\n\nocr_len = len(pytesse",
+    "size": [
+      797,
+      655
+    ]
+  },
+  "Front_Office": {
+    "screenshot": "kanpur_05_Front_Office.png",
+    "ocr_text": "time.sleep(1.5)\n\nr = win32gui.GetWindowRect(main_hwnd)\n\nimg = ImageGrab.grab(bbox=(r[0], r[1], rf[2], r{[3])\nfname = os.path.join(qa_dir, 'kanpur_' + name.repli.\nimg.save(fname)\n\nocr_len = len(pytesse",
+    "size": [
+      797,
+      655
+    ]
+  },
+  "House_Keeping": {
+    "screenshot": "kanpur_06_House_Keeping.png",
+    "ocr_text": "time.sleep(1.5)\n\nr = win32gui.GetWindowRect(main_hwnd)\n\nimg = ImageGrab.grab(bbox=(r[0], r[1], rf[2], r{[3])\nfname = os.path.join(qa_dir, 'kanpur_' + name.repli.\nimg.save(fname)\n\nocr_len = len(pytesse",
+    "size": [
+      797,
+      655
+    ]
+  },
+  "Inventory": {
+    "screenshot": "kanpur_07_Inventory.png",
+    "ocr_text": "time.sleep(1.5)\n\nr = win32gui.GetWindowRect(main_hwnd)\n\nimg = ImageGrab.grab(bbox=(r[0], r[1], rf[2], r{[3])\nfname = os.path.join(qa_dir, 'kanpur_' + name.repli.\nimg.save(fname)\n\nocr_len = len(pytesse",
+    "size": [
+      797,
+      655
+    ]
+  },
+  "Point_Of_Sale": {
+    "screenshot": "kanpur_08_Point_Of_Sale.png",
+    "ocr_text": "time.sleep(1.5)\n\nr = win32gui.GetWindowRect(main_hwnd)\n\nimg = ImageGrab.grab(bbox=(r[0], r[1], rf[2], r{[3])\nfname = os.path.join(qa_dir, 'kanpur_' + name.repli.\nimg.save(fname)\n\nocr_len = len(pytesse",
+    "size": [
+      797,
+      655
+    ]
+  },
+  "Banquet": {
+    "screenshot": "kanpur_09_Banquet.png",
+    "ocr_text": "time.sleep(1.5)\n\nr = win32gui.GetWindowRect(main_hwnd)\n\nimg = ImageGrab.grab(bbox=(r[0], r[1], rf[2], r{[3])\nfname = os.path.join(qa_dir, 'kanpur_' + name.repli.\nimg.save(fname)\n\nocr_len = len(pytesse",
+    "size": [
+      797,
+      655
+    ]
+  },
+  "Night_Audit": {
+    "screenshot": "kanpur_10_Night_Audit.png",
+    "ocr_text": "time.sleep(1.5)\n\nr = win32gui.GetWindowRect(main_hwnd)\n\nimg = ImageGrab.grab(bbox=(r[0], r[1], rf[2], r{[3])\nfname = os.path.join(qa_dir, 'kanpur_' + name.repli.\nimg.save(fname)\n\nocr_len = len(pytesse",
+    "size": [
+      797,
+      655
+    ]
+  },
+  "HR": {
+    "screenshot": "kanpur_11_HR.png",
+    "ocr_text": "time.sleep(1.5)\n\nr = win32gui.GetWindowRect(main_hwnd)\n\nimg = ImageGrab.grab(bbox=(r[0], r[1], rf[2], r{[3])\nfname = os.path.join(qa_dir, 'kanpur_' + name.repli.\nimg.save(fname)\n\nocr_len = len(pytesse",
+    "size": [
+      797,
+      655
+    ]
+  },
+  "EPABX": {
+    "screenshot": "kanpur_12_EPABX.png",
+    "ocr_text": "time.sleep(1.5)\n\nr = win32gui.GetWindowRect(main_hwnd)\n\nimg = ImageGrab.grab(bbox=(r[0], r[1], rf[2], r{[3])\nfname = os.path.join(qa_dir, 'kanpur_' + name.repli.\nimg.save(fname)\n\nocr_len = len(pytesse",
+    "size": [
+      797,
+      655
+    ]
+  },
+  "Messaging": {
+    "screenshot": "kanpur_13_Messaging.png",
+    "ocr_text": "time.sleep(1.5)\n\nr = win32gui.GetWindowRect(main_hwnd)\n\nimg = ImageGrab.grab(bbox=(r[0], r[1], rf[2], r{[3])\nfname = os.path.join(qa_dir, 'kanpur_' + name.repli.\nimg.save(fname)\n\nocr_len = len(pytesse",
+    "size": [
+      797,
+      655
+    ]
+  },
+  "Members_Mgmt": {
+    "screenshot": "kanpur_14_Members_Mgmt.png",
+    "ocr_text": "time.sleep(1.5)\n\nr = win32gui.GetWindowRect(main_hwnd)\n\nimg = ImageGrab.grab(bbox=(r[0], r[1], rf[2], r{[3])\nfname = os.path.join(qa_dir, 'kanpur_' + name.repli.\nimg.save(fname)\n\nocr_len = len(pytesse",
+    "size": [
+      797,
+      655
+    ]
+  },
+  "Outdoor_Banquet": {
+    "screenshot": "kanpur_15_Outdoor_Banquet.png",
+    "ocr_text": "time.sleep(1.5)\n\nr = win32gui.GetWindowRect(main_hwnd)\n\nimg = ImageGrab.grab(bbox=(r[0], r[1], rf[2], r{[3])\nfname = os.path.join(qa_dir, 'kanpur_' + name.repli.\nimg.save(fname)\n\nocr_len = len(pytesse",
+    "size": [
+      797,
+      655
+    ]
+  },
+  "Extras": {
+    "screenshot": "kanpur_16_Extras.png",
+    "ocr_text": "time.sleep(1.5)\n\nr = win32gui.GetWindowRect(main_hwnd)\n\nimg = ImageGrab.grab(bbox=(r[0], r[1], rf[2], r{[3])\nfname = os.path.join(qa_dir, 'kanpur_' + name.repli.\nimg.save(fname)\n\nocr_len = len(pytesse",
+    "size": [
+      797,
+      655
+    ]
+  },
+  "Direct_Sale": {
+    "screenshot": "kanpur_17_Direct_Sale.png",
+    "ocr_text": "time.sleep(1.5)\n\nr = win32gui.GetWindowRect(main_hwnd)\n\nimg = ImageGrab.grab(bbox=(r[0], r[1], rf[2], r{[3])\nfname = os.path.join(qa_dir, 'kanpur_' + name.repli.\nimg.save(fname)\n\nocr_len = len(pytesse",
+    "size": [
+      797,
+      655
+    ]
+  }
+}
