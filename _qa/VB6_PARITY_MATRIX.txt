@@ -5,8 +5,8 @@ VB6: *.frm captions + inline-SQL table evidence | Py: shell registry + core/ui s
 
 STATUS SUMMARY
 ------------------------------------------------------------------------------
-  DONE         153
-  PARTIAL      150
+  DONE         158
+  PARTIAL      145
   UI-ONLY      0
   BLOCKED-TBL  2
   MISSING      13
@@ -21,9 +21,6 @@ STATUS SUMMARY
 |---------------------|----------------------------|-----------|------|-------|----------------------------------------|
 | fdNDAcPostChrg      | Posting Utility            | no        | Y    | -     | Enviro, ItemMast, PayCharge, Stock, mC |
 | fdPrintScreen       | Guest Charges Summary      | no        | Y    | -     | GUESTSTAT, GuestFolio, GuestProf, RevM |
-| FdRoomDisplay       | Room View                  | no        | Y    | -     | roommast                               |
-| fdRoomOcc           | Reservation Look Up Room W | no        | Y    | -     | FAEnviro, GuestFolio, RateList, RoomBl |
-| fdWalkInEntry       | Walk In / Check In Entry   | no        | Y    | -     | Booking, BookingPlanDetails, BussSourc |
 | FindMess            | (blank)                    | no        | Y    | -     | GuestMessage                           |
 | FrmBdayLookup       | Form1                      | no        | Y    | -     | GuestProf                              |
 | FrmBusinessSrc      | Business Source Master     | no        | Y    | -     | BussSource                             |
@@ -131,9 +128,7 @@ STATUS SUMMARY
 | PrAttend1           | Attendence                 | no        | Y    | -     | ATTENDENCE, Attend, DESIG, EMPLOYEE, S |
 | pReqSlip            | Requistion Slip Entry      | no        | Y    | -     | Acgroup, DateLock, Depart, Enviro, God |
 | PrLoan              | Advance/Loan               | no        | Y    | -     | Depart, Desig, EMPLOYEE, Employee, Env |
-| resBanq             | Reservation Look Up Room W | no        | Y    | -     | Booking, FAEnviro, GuestFolio, GuestPr |
 | resGroup            | Group Reservation          | no        | Y    | -     | Booking, BussSource, CITY, City, GROUP |
-| resRoomNo           | Reservation Look Up Room W | no        | Y    | -     | Booking, FAEnviro, GuestFolio, GuestPr |
 | resRoomType         | Room Category Wise Reserva | no        | Y    | -     | FAEnviro, GuestFolio, RateList, RoomBl |
 | rFaRepView          | Financ Report              | no        | Y    | -     | ACGROUP, AcGroup, Budget, City, FAENVI |
 | rFomRepView         | FomRepView                 | no        | Y    | -     | Arrival, BOM, BOOKING, Bill, BillDet ( |
@@ -243,6 +238,9 @@ STATUS SUMMARY
 | FdReSetlement       | Post Charges/Payment       | YES       | Y    | Y     | BillDet, DepartPay, Employee, Enviro,  |
 | FdRevCheckOut       | Check Out Cancel           | YES       | Y    | Y     | EPABX_IN, Enviro, GUESTSTAT, GuestFoli |
 | fdRoomChange        | Room Change                | YES       | Y    | Y     | EPABX_IN, FixedCharge, GUESTSTAT, Gues |
+| FdRoomDisplay       | Room View                  | YES       | Y    | Y     | roommast                               |
+| fdRoomOcc           | Reservation Look Up Room W | YES       | Y    | Y     | FAEnviro, GuestFolio, RateList, RoomBl |
+| fdWalkInEntry       | Walk In / Check In Entry   | YES       | Y    | Y     | Booking, BookingPlanDetails, BussSourc |
 | Form1               | Form1                      | no        | -    | -     |                                        |
 |                     | note: Generic/scratch VB6 form |
 | frmAdvanceDepDialog | Advance Deposit            | YES       | Y    | Y     | Booking, City, Employee, Enviro, Group |
@@ -321,6 +319,8 @@ STATUS SUMMARY
 | prOverTime          | Over Time                  | YES       | Y    | Y     | Depart, Desig, Employee, OVERTIME, Ove |
 | prSalCreate         | Salary Creation            | YES       | Y    | Y     | Attend, Depart, Desig, EmpCategory, Em |
 | repTouchDate        | Select Report Date         | YES       | -    | Y     |                                        |
+| resBanq             | Reservation Look Up Room W | YES       | Y    | Y     | Booking, FAEnviro, GuestFolio, GuestPr |
+| resRoomNo           | Reservation Look Up Room W | YES       | Y    | Y     | Booking, FAEnviro, GuestFolio, GuestPr |
 | rRepHouse           | ReprtForm                  | YES       | Y    | Y     | ComplaintCategory, Depart, ItemMast, R |
 | rRepHousePreview    | ReprtForm                  | YES       | Y    | Y     | ComplaintCategory, Depart, FAEnviro, I |
 | rRepPayRoll         | ReprtForm                  | YES       | Y    | Y     | Desig, EMPCategory, EmpCategory, Emplo |
@@ -385,15 +385,6 @@ STATUS SUMMARY
     ui=N core=Y
 - fdPrintScreen (fdPrintScreen.frm): 'Guest Charges Summary'
     tables: GUESTSTAT, GuestFolio, GuestProf, RevMast, RoomCat (+2)
-    ui=N core=Y
-- FdRoomDisplay (FdRoomDisplay.frm): 'Room View'
-    tables: roommast
-    ui=N core=Y
-- fdRoomOcc (fdRoomOcc.frm): 'Reservation Look Up Room Wise'
-    tables: FAEnviro, GuestFolio, RateList, RoomBlockOut, RoomCat (+1)
-    ui=N core=Y
-- fdWalkInEntry (fdWalkInEntry.frm): 'Walk In / Check In Entry'
-    tables: Booking, BookingPlanDetails, BussSource, CITY, City (+60)
     ui=N core=Y
 - FindMess (FindMess.frm): '(blank)'
     tables: GuestMessage
@@ -716,14 +707,8 @@ STATUS SUMMARY
 - PrLoan (PrLoan.frm): 'Advance/Loan'
     tables: Depart, Desig, EMPLOYEE, Employee, Enviro (+9)
     ui=N core=Y
-- resBanq (resBanq.frm): 'Reservation Look Up Room Wise'
-    tables: Booking, FAEnviro, GuestFolio, GuestProf, RateList (+3)
-    ui=N core=Y
 - resGroup (resGroup.frm): 'Group Reservation'
     tables: Booking, BussSource, CITY, City, GROUPPROF (+8)
-    ui=N core=Y
-- resRoomNo (resRoomNo.frm): 'Reservation Look Up Room Wise'
-    tables: Booking, FAEnviro, GuestFolio, GuestProf, PayCharge (+5)
     ui=N core=Y
 - resRoomType (resRoomType.frm): 'Room Category Wise Reservation Look Up'
     tables: FAEnviro, GuestFolio, RateList, RoomBlockOut, RoomCat (+2)

@@ -730,6 +730,12 @@ def _form_registry() -> dict[str, callable]:
         from HMS_py.ui import posting_forms_ui as postui
     except ImportError:
         postui = None
+    # Wave 7 imports (rack/room-lookup/walk-in — VB6 fdRoomDisplay/
+    # FdLookUpRoomNo/fdRoomOcc/fdWalkInEntry)
+    try:
+        from HMS_py.ui import walkin_rack_ui as wrui
+    except ImportError:
+        wrui = None
     # Wave 4 imports (new UI forms for 26+ core modules)
     try:
         from HMS_py.ui import booking_ops_ui as book_ui
@@ -1607,6 +1613,11 @@ def _form_registry() -> dict[str, callable]:
         "Post Charges & Payment": (lambda w: postui.open_payment_charge(w, user=getattr(w, 'user', 'PYADMIN'))) if postui else _coming_soon("Post Charges & Payment"),
         "Post Charges/Payment": (lambda w: postui.open_re_settlement(w, user=getattr(w, 'user', 'PYADMIN'))) if postui else _coming_soon("Post Charges/Payment"),
         "Check Out Cancel": (lambda w: postui.open_rev_checkout(w, user=getattr(w, 'user', 'PYADMIN'))) if postui else _coming_soon("Check Out Cancel"),
+        # Wave 7: rack/room-lookup/walk-in batch
+        "Room View": (lambda w: wrui.open_room_view(w)) if wrui else _coming_soon("Room View"),
+        "Display Rack": (lambda w: wrui.open_display_rack(w)) if wrui else _coming_soon("Display Rack"),
+        "Reservation Look Up Room Wise": (lambda w: wrui.open_roomocc_lookup(w)) if wrui else _coming_soon("Reservation Look Up Room Wise"),
+        "Walk In / Check In Entry": (lambda w: wrui.open_walkin_entry(w, user=getattr(w, 'user', 'PYADMIN'))) if wrui else _coming_soon("Walk In / Check In Entry"),
         "House Keeping Op.Stock Entry": (lambda w: pfui.open_location_opening_stock(w)) if pfui else _coming_soon("House Keeping Op.Stock Entry"),
         "Issue/Recd. Entry": (lambda w: pstock_ui.open_pos_stock(w)) if pstock_ui else _coming_soon("Issue/Recd. Entry"),
         "Gravy Item Entry": (lambda w: p2.open_item(w)) if p2 else _coming_soon("Gravy Item Entry"),

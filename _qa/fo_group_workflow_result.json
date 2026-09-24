@@ -1,0 +1,91 @@
+{
+  "guest": "PYT GRP-TEST 215441",
+  "folios": [
+    464,
+    465,
+    466
+  ],
+  "rooms": [
+    "101",
+    "102",
+    "103"
+  ],
+  "steps": [
+    {
+      "step": "1.1 Guest master G1",
+      "ok": true,
+      "detail": "G1: KK007217"
+    },
+    {
+      "step": "2.1 Check-in G1",
+      "ok": true,
+      "detail": "folio#464 room=101"
+    },
+    {
+      "step": "1.2 Guest master G2",
+      "ok": true,
+      "detail": "G2: KK007218"
+    },
+    {
+      "step": "2.2 Check-in G2",
+      "ok": true,
+      "detail": "folio#465 room=102"
+    },
+    {
+      "step": "1.3 Guest master G3",
+      "ok": true,
+      "detail": "G3: KK007219"
+    },
+    {
+      "step": "2.3 Check-in G3",
+      "ok": true,
+      "detail": "folio#466 room=103"
+    },
+    {
+      "step": "3. Distinct-room allocation rule",
+      "ok": true,
+      "detail": "rooms=['101', '102', '103'] (all distinct)"
+    },
+    {
+      "step": "4. Charge 500+GST each",
+      "ok": true,
+      "detail": "balances=[550.0, 550.0, 550.0]"
+    },
+    {
+      "step": "5. GROUP checkout (checkin.group_checkout)",
+      "ok": true,
+      "detail": "settled=3/3"
+    },
+    {
+      "step": "6. Group verify (ChkOut+SETTLE rows)",
+      "ok": true,
+      "detail": "all ChkOutDate set; settle rows=3"
+    },
+    {
+      "step": "7. Reverse all check-outs",
+      "ok": true,
+      "detail": "reopened 3/3"
+    },
+    {
+      "step": "8. GROUP re-checkout",
+      "ok": true,
+      "detail": "settled=3/3 (2nd pass)"
+    },
+    {
+      "step": "9. In-txn snapshot diff",
+      "ok": true,
+      "detail": "GuestProf+3 GuestFolio+3 RoomOcc+3 PayCharge+9 FOMBillDetails+6 FolioLog+21"
+    },
+    {
+      "step": "10. ROLLBACK",
+      "ok": true,
+      "detail": "cn.rollback() done"
+    },
+    {
+      "step": "11. Post-rollback residue check",
+      "ok": true,
+      "detail": "DB clean \u2014 zero residue"
+    }
+  ],
+  "ok": true
+}
