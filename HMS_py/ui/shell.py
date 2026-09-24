@@ -1861,6 +1861,7 @@ class MainWindow(QMainWindow):
 
         # 2. Module Canvas: VB6 MDI yellow MDI client (Hotel.bmp nahi —
         #    screenshot me plain pale-yellow client hai)
+        self._canvas_view = True
         self.canvas = QLabel()
         self.canvas.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.canvas.setStyleSheet(
@@ -2200,9 +2201,10 @@ class MainWindow(QMainWindow):
         self._apply_clock_visibility()
 
     def _apply_clock_visibility(self):
-        """Clocks panel sirf canvas view pe (dashboard overlap na ho)."""
+        """Clocks panel sirf canvas view pe (dashboard overlap na ho).
+        isVisible() parent-hidden pe False deta hai — _canvas_view flag use."""
         self.right_sidebar.setVisible(
-            (not self._clocks_user_hidden) and self.canvas.isVisible())
+            (not self._clocks_user_hidden) and self._canvas_view)
         self._place_overlays()
 
     def _reload_workspace(self):
@@ -2249,6 +2251,7 @@ class MainWindow(QMainWindow):
 
         # 2. Dashboard / Front Office home view
         if low in self._DASHBOARD_MODULES:
+            self._canvas_view = False
             self.fo_dashboard.setVisible(True)
             self.canvas.setVisible(False)
             self.canvas_hint.setVisible(False)
@@ -2269,6 +2272,7 @@ class MainWindow(QMainWindow):
         # 4. Generic module: load its menu from menuHelp, show canvas
         # Screenshot: menubar hidden — sirf canvas + clocks dikhte hain
         self.menuBar().setVisible(False)
+        self._canvas_view = True
         self.fo_dashboard.setVisible(False)
         self.canvas.setVisible(True)
         self.canvas_hint.setVisible(False)
@@ -2309,12 +2313,14 @@ class MainWindow(QMainWindow):
                 self._add_item(mm, it)
 
         if str(mod_name).strip().lower() in self._DASHBOARD_MODULES:
+            self._canvas_view = False
             self.fo_dashboard.setVisible(True)
             self.canvas.setVisible(False)
             self.canvas_hint.setVisible(False)
             self.menuBar().setVisible(True)
         else:
             # Screenshot: plain yellow client — hint text nahi, menubar nahi
+            self._canvas_view = True
             self.fo_dashboard.setVisible(False)
             self.canvas.setVisible(True)
             self.canvas_hint.setVisible(False)
