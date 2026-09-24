@@ -28,22 +28,28 @@
 
 ## Main Dashboard / Sidebar
 
-### VB6 HMS.exe
-- Left sidebar with module icons
-- Top menubar with dropdown menus
-- Status bar at bottom
-- Clock/time display
-- Module names from `User_Module` table (flag='9')
+**Updated:** 2026-09-24 (VB6 screenshot parity restyle)
+
+### VB6 HMS.exe (live screenshot)
+- Top-left purple **SMS** button (client area me blue title nahi — title sirf window bar)
+- Left sidebar: teal vertical-gradient module buttons, **bold italic white** text, full width
+- Selected button: **yellow text (#ffff00)** + 👍 icon (e.g. EXTRAs)
+- No section headers (no ACTIONS/MODULES labels)
+- Pale-yellow MDI client canvas (`#ffffcc`), plain (Hotel.bmp optional/off)
+- Right floating clocks panel: black bg, green date box, zone rows with magenta separators; India name yellow; Reload + Exit inside panel; ~1/3 height se float
+- Menu bar hidden on module view (screenshot parity)
+- Status bar: SA · Property Site · S/w Dt · CAPS · NUM · Hide Left Menu · Hide Right Menu · Full Screen
+- Module names from `menuHelp` L1 nodes (VB6 MDIForm1: Opt1<>0, Opt2=Opt3=Opt4=0, Flag='N'); User_Module (flag='9') fallback; Analysis.ini key 9 order
 - Keyboard shortcuts: Alt+key
 
 ### Python Implementation
-- `ui/sidebar_buttons.py` — Generates sidebar from `menu.roots()`
-- `core/menu.py` — `roots()` queries `User_Module WHERE flag='9'`
-- `ui/shell.py` — Main window with sidebar + status bar
+- `ui/shell.py` — header SMS button (`btn_sms_top` → `sms_ui.open_sms_send`), `_sidebar_btn_qss()` teal gradient + checked yellow, `_canvas_view` flag, `_fit_tree` no-op (plain yellow), `_open_sms_center`
+- `ui/sidebar_buttons.py` — `build_all_buttons` → MODULES from menuHelp L1 nodes via `mh.sidebar_sources()` (VB6 MDIForm1 logic, 2026-09-24); User_Module flag='9' legacy roots gap-merge fallback; ACTIONS skip
+- `ui/theme.py` / `ui/glass.py` — `_VB6_SIDEBAR` tokens (`#2b8c9d` → `#0d4f60`)
+- `ui/shell.py` status bar — SA / Property Site / S/w Dt / CAPS / NUM / Hide Left/Right / Full Screen
 - Same 16 modules, same Alt+key shortcuts
-- `mdi_menu.json` — MDI menu structure
 
-### Status: 🟢 MATCH
+### Status: 🟢 MATCH (screenshot parity 2026-09-24)
 
 ---
 
