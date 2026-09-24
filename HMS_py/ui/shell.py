@@ -1727,18 +1727,35 @@ class MainWindow(QMainWindow):
         self.aurora.lower()
 
         # ==============================================================
-        # 1. VB6 HEADER: white band, centered blue company title
+        # 1. VB6 HEADER: purple SMS button top-left (blue title sirf
+        #    window title bar me — client area me nahi)
         # ==============================================================
         header = QFrame()
         header.setStyleSheet("QFrame { background: #ffffff; border: none; }")
         header_lay = QHBoxLayout(header)
-        header_lay.setContentsMargins(8, 4, 8, 0)
-        self.lblTitle = QLabel(f"{comp['name']} {{ {comp['year']} }}")
-        self.lblTitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.lblTitle.setStyleSheet(
-            "color: #0020c0; font-family: 'Arial'; font-size: 17pt;"
-            "font-weight: bold; background: transparent; border: none;")
-        header_lay.addWidget(self.lblTitle)
+        header_lay.setContentsMargins(4, 4, 4, 4)
+        header_lay.setSpacing(6)
+        self.btn_sms_top = QPushButton("SMS")
+        self.btn_sms_top.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.btn_sms_top.setFixedSize(200, 44)
+        self.btn_sms_top.setStyleSheet("""
+            QPushButton {
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                    stop:0 #7b1fa2, stop:1 #4a148c);
+                color: #ffffff; font-family: Arial; font-size: 16pt;
+                font-weight: bold; font-style: italic;
+                border: 1px solid #38006b; border-radius: 0px;
+                text-align: center;
+            }
+            QPushButton:hover {
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                    stop:0 #9c27b0, stop:1 #6a1b9a);
+            }
+            QPushButton:pressed { background: #38006b; }
+        """)
+        self.btn_sms_top.clicked.connect(self._open_sms_center)
+        header_lay.addWidget(self.btn_sms_top)
+        header_lay.addStretch()
         root.addWidget(header)
 
         # ==============================================================
@@ -1795,6 +1812,11 @@ class MainWindow(QMainWindow):
             self.side_menu_lay.addWidget(sec_lbl)
             self._side_section_labels.append(sec_lbl)
 
+            # VB6 screenshot: sirf teal MODULE buttons — ACTIONS shortcuts
+            # sidebar me nahi (dashboard actions ke liye canvas hota hai)
+            if sec_title.upper() == "ACTIONS":
+                continue
+
             for item in items:
                 # VB6 teal gradient button (bold italic white / selected yellow)
                 label_text = item["label"]
@@ -1837,25 +1859,21 @@ class MainWindow(QMainWindow):
         self.fo_dashboard.openModule.connect(self._handle_dashboard_action)
         self.central_ws_lay.addWidget(self.fo_dashboard)
 
-        # 2. Module Canvas: VB6 MDI yellow MDI client + optional Hotel.bmp
+        # 2. Module Canvas: VB6 MDI yellow MDI client (Hotel.bmp nahi —
+        #    screenshot me plain pale-yellow client hai)
         self.canvas = QLabel()
         self.canvas.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.canvas.setStyleSheet(
-            "QLabel { background: #ffff99; border: none; }")
-        self._tree_pix = QPixmap(os.path.join(
-            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-            "pic", "Hotel.bmp"))
-        # Yellow empty client (VB6 screenshot) — tree image sirf optional
-        if not self._tree_pix.isNull() and False:
-            self.canvas.setPixmap(self._tree_pix)
-        self.canvas.setVisible(False)
+            "QLabel { background: #ffffcc; border: none; }")
+        self._tree_pix = QPixmap()
+        self.canvas.setVisible(True)
         self.central_ws_lay.addWidget(self.canvas, stretch=1)
 
         self.canvas_hint = QLabel("")
         self.canvas_hint.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.canvas_hint.setStyleSheet(
             "QLabel { color: #444444; font-size: 10pt;"
-            " background: #ffff99; border: none; padding: 2px; }")
+            " background: #ffffcc; border: none; padding: 2px; }")
         self.canvas_hint.setVisible(False)
         self.central_ws_lay.addWidget(self.canvas_hint)
 
@@ -1865,42 +1883,45 @@ class MainWindow(QMainWindow):
         #     green date box + per-zone colored time labels (live VB6 jaisa).
         #     Sirf canvas (module) view pe — dashboard overlap na ho.
         self.right_sidebar = QFrame(self.central_workspace)
-        self.right_sidebar.setFixedWidth(150)
-        self.right_sidebar.setStyleSheet("QFrame { background: transparent; border: none; }")
+        self.right_sidebar.setFixedWidth(170)
+        self.right_sidebar.setStyleSheet(
+            "QFrame { background: #000000; border: 1px solid #ff00ff; }")
         right_lay = QVBoxLayout(self.right_sidebar)
-        right_lay.setContentsMargins(4, 4, 4, 4)
-        right_lay.setSpacing(3)
+        right_lay.setContentsMargins(2, 2, 2, 2)
+        right_lay.setSpacing(2)
 
         self.lbl_date = QLabel()
         self.lbl_date.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lbl_date.setStyleSheet("""
             QLabel {
                 background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                    stop:0 #00b400, stop:1 #007000);
+                    stop:0 #00c800, stop:1 #006400);
                 color: #ffffff; font-family: 'Arial'; font-size: 12pt;
-                font-weight: bold; border: 1px solid #005500; padding: 4px 0;
+                font-weight: bold; border: 1px solid #00ff00; padding: 4px 0;
             }
         """)
         right_lay.addWidget(self.lbl_date)
 
         self.clocks = {}
+        # zone: (time text color, name text color) — screenshot parity
         zones = [
-            ("India",     "#00e000"),
-            ("Canada",    "#ff4040"),
-            ("Italy",     "#ff4040"),
-            ("London",    "#4040ff"),
-            ("Japan",     "#00e000"),
-            ("Australia", "#ff4040"),
+            ("India",     "#00ff00", "#ffff00"),
+            ("Canada",    "#ff4040", "#ffffff"),
+            ("Italy",     "#ff4040", "#ffffff"),
+            ("London",    "#4040ff", "#ffffff"),
+            ("Japan",     "#00ff00", "#ffffff"),
+            ("Australia", "#ff4040", "#ffffff"),
         ]
 
-        for tz_name, tcol in zones:
+        for tz_name, tcol, ncol in zones:
             lbl_name = QLabel(tz_name)
-            lbl_name.setStyleSheet("""
-                QLabel {
-                    background: #ffffff; color: #111111;
-                    font-family: 'Arial'; font-size: 10pt; font-weight: bold;
-                    border: 1px solid #888888; padding: 0 4px;
-                }
+            lbl_name.setStyleSheet(f"""
+                QLabel {{
+                    background: #000000; color: {ncol};
+                    font-family: 'Arial'; font-size: 11pt; font-weight: bold;
+                    border: none; border-bottom: 1px solid #ff00ff;
+                    padding: 2px 4px;
+                }}
             """)
             right_lay.addWidget(lbl_name)
 
@@ -1910,49 +1931,50 @@ class MainWindow(QMainWindow):
                 QLabel {{
                     background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                         stop:0 #00a000, stop:1 #006000);
-                    color: {tcol}; font-family: 'Arial'; font-size: 11pt;
-                    font-weight: bold; border: 1px solid #005500; padding: 2px 0;
+                    color: {tcol}; font-family: 'Arial'; font-size: 12pt;
+                    font-weight: bold; border: none;
+                    border-bottom: 1px solid #ff00ff; padding: 2px 0;
                 }}
             """)
             self.clocks[tz_name] = lbl_time
             right_lay.addWidget(lbl_time)
 
-        right_lay.addStretch()
-        self._clocks_user_hidden = False
-        self.right_sidebar.setVisible(False)
-
-        # VB6 corner buttons: Reload + Exit (workspace bottom-right)
-        corner = QWidget(self.central_workspace)
-        corner_lay = QHBoxLayout(corner)
-        corner_lay.setContentsMargins(0, 0, 0, 0)
-        corner_lay.setSpacing(2)
+        # Reload + Exit — screenshot: clocks panel ke neeche (right edge)
+        row_re = QHBoxLayout()
+        row_re.setSpacing(2)
         btn_reload = QPushButton("Reload")
         btn_reload.setCursor(Qt.CursorShape.PointingHandCursor)
         btn_reload.setStyleSheet("""
             QPushButton {
                 background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                     stop:0 #f0e040, stop:1 #c0a800);
-                color: #000000; font-size: 8pt; font-weight: bold;
-                border: 1px solid #807000; padding: 2px 8px;
+                color: #000000; font-size: 9pt; font-weight: bold;
+                border: 1px solid #807000; padding: 3px 4px;
             }
             QPushButton:hover { background: #f0e870; }
         """)
         btn_reload.clicked.connect(self._reload_workspace)
-        corner_lay.addWidget(btn_reload)
+        row_re.addWidget(btn_reload, stretch=1)
         btn_exit = QPushButton("Exit \u2307")
         btn_exit.setCursor(Qt.CursorShape.PointingHandCursor)
         btn_exit.setStyleSheet("""
             QPushButton {
                 background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                     stop:0 #e04040, stop:1 #a00000);
-                color: #ffffff; font-size: 8pt; font-weight: bold;
-                border: 1px solid #700000; padding: 2px 8px;
+                color: #ffffff; font-size: 9pt; font-weight: bold;
+                border: 1px solid #700000; padding: 3px 4px;
             }
             QPushButton:hover { background: #c03030; }
         """)
         btn_exit.clicked.connect(self.close)
-        corner_lay.addWidget(btn_exit)
-        self.corner_buttons = corner
+        row_re.addWidget(btn_exit)
+        right_lay.addLayout(row_re)
+
+        right_lay.addStretch()
+        self._clocks_user_hidden = False
+        # Screenshot: clocks hamesha canvas ke saath dikhte hain
+        self.right_sidebar.setVisible(True)
+        self.corner_buttons = self.right_sidebar
 
         root.addLayout(body)
         self.setCentralWidget(central)
@@ -2051,13 +2073,25 @@ class MainWindow(QMainWindow):
         if self.registry.get("Night Audit Log"):
             QShortcut(QKeySequence("Ctrl+Shift+N"), self, activated=lambda: self.registry["Night Audit Log"](self))
 
-        # Default Active State: Front Office / Dashboard
+        # Default Active State: yellow canvas + EXTRAs checked (VB6 shot)
+        self.menuBar().setVisible(False)
+        self.fo_dashboard.setVisible(False)
+        self.canvas.setVisible(True)
+        self.canvas_hint.setVisible(False)
+        self._apply_clock_visibility()
+        _default_btn = None
         if self._side_buttons:
             for b in self._side_buttons:
-                if str(b.property("mod_target") or "").strip().lower() in self._DASHBOARD_MODULES:
-                    b.setChecked(True)
+                if str(b.property("mod_target") or "").strip().lower() == "extras":
+                    _default_btn = b
                     break
-            self._load_module_menu("Front Office")
+            if _default_btn is None:
+                _default_btn = self._side_buttons[-1]
+            _default_btn.setChecked(True)
+            _lbl = _default_btn.property("mod_target") or _default_btn.text()
+            _default_btn.setText(f"{_lbl} \U0001F44D")
+        # Screenshot: top me sirf SMS button — dynamic menubar hidden
+        self._tick_clock()
 
     # ── helpers ──────────────────────────────────────────────────────
     def _sidebar_btn_qss(self) -> str:
@@ -2099,7 +2133,6 @@ class MainWindow(QMainWindow):
     def refresh_sidebar_style(self):
         """Appearance change ke baad sidebar QSS + section labels refresh.
         (AppearanceDialog.appearanceChanged isse connect hota hai.)"""
-        p = palette()
         qss = self._sidebar_btn_qss()
         for b in self._side_buttons:
             b.setStyleSheet(qss)
@@ -2177,35 +2210,35 @@ class MainWindow(QMainWindow):
         self.fo_dashboard.refresh()
 
     def _fit_tree(self):
-        """Hotel.bmp ko canvas size pe fit karo (VB6 MDI background)."""
-        if (not hasattr(self, "_tree_pix") or self._tree_pix.isNull()
-                or not hasattr(self, "canvas") or self.canvas.width() < 50):
-            return
-        pm = self._tree_pix.scaled(
-            self.canvas.size(),
-            Qt.AspectRatioMode.KeepAspectRatio,
-            Qt.TransformationMode.SmoothTransformation)
-        self.canvas.setPixmap(pm)
+        """VB6 MDI: plain yellow client — pixmap fit nahi (screenshot parity)."""
+        return
+
+    def _open_sms_center(self):
+        """Header purple SMS button — VB6 top SMS menu."""
+        try:
+            from HMS_py.ui import sms_ui as _sms
+            _sms.open_sms_send(self)
+        except Exception:
+            QMessageBox.information(self, "SMS", "SMS UI unavailable")
 
     def _place_overlays(self):
-        """World-clock panel + Reload/Exit workspace pe float (VB6 jaisa)."""
+        """World-clock panel: right edge, ~1/3 se neeche (VB6 screenshot)."""
         ws = self.central_workspace
         if hasattr(self, "right_sidebar") and self.right_sidebar.isVisible():
             self.right_sidebar.adjustSize()
             self.right_sidebar.move(
-                max(0, ws.width() - self.right_sidebar.width() - 8), 140)
-        if hasattr(self, "corner_buttons"):
-            self.corner_buttons.adjustSize()
-            self.corner_buttons.move(
-                max(0, ws.width() - self.corner_buttons.width() - 6),
-                max(0, ws.height() - self.corner_buttons.height() - 6))
+                max(0, ws.width() - self.right_sidebar.width() - 4),
+                max(0, ws.height() // 3))
 
     def _on_sidebar_click(self, mod_target: str, btn: QPushButton):
         """Generic sidebar dispatcher driven by MenuHelp data."""
         for other in self._side_buttons:
-            if other is not btn:
-                other.setChecked(False)
+            other.setChecked(other is btn)
+            base = other.property("mod_target") or other.text().replace(" \U0001F44D", "")
+            other.setText(f"{base} \U0001F44D" if other.isChecked() else str(base))
         btn.setChecked(True)
+        _base = btn.property("mod_target") or btn.text().replace(" \U0001F44D", "")
+        btn.setText(f"{_base} \U0001F44D")
 
         # 1. Pure action shortcuts (no menu rebuild)
         if mod_target in self._DIRECT_OPENERS:
@@ -2234,6 +2267,12 @@ class MainWindow(QMainWindow):
             return
 
         # 4. Generic module: load its menu from menuHelp, show canvas
+        # Screenshot: menubar hidden — sirf canvas + clocks dikhte hain
+        self.menuBar().setVisible(False)
+        self.fo_dashboard.setVisible(False)
+        self.canvas.setVisible(True)
+        self.canvas_hint.setVisible(False)
+        self._apply_clock_visibility()
         self._load_module_menu(mod_target)
 
     def _load_module_menu(self, mod_name: str):
@@ -2273,15 +2312,19 @@ class MainWindow(QMainWindow):
             self.fo_dashboard.setVisible(True)
             self.canvas.setVisible(False)
             self.canvas_hint.setVisible(False)
+            self.menuBar().setVisible(True)
         else:
+            # Screenshot: plain yellow client — hint text nahi, menubar nahi
             self.fo_dashboard.setVisible(False)
             self.canvas.setVisible(True)
-            self.canvas_hint.setVisible(True)
+            self.canvas_hint.setVisible(False)
+            self.menuBar().setVisible(False)
             QTimer.singleShot(0, self._fit_tree)
         self._apply_clock_visibility()
 
         # Display original-case module name (sidebar button text se)
-        _pretty = next((b.text() for b in getattr(self, "_side_buttons", [])
+        _pretty = next((b.text().replace(" \U0001F44D", "")
+                        for b in getattr(self, "_side_buttons", [])
                         if str(b.property("mod_target") or "").strip().lower()
                         == str(mod_name).strip().lower()), mod_name)
         self.canvas_hint.setText(
