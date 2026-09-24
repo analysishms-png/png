@@ -1210,12 +1210,30 @@ def _form_registry() -> dict[str, callable]:
         "Adjustment Entry": (lambda w: fasub_ui.open_fa_adjust(w)) if fasub_ui else _coming_soon("Adjustment Entry"),
         "Delete Adjustment Entry": (lambda w: fasub_ui.open_fa_adjust(w)) if fasub_ui else _coming_soon("Delete Adjustment Entry"),
         "Bank Reconciliation": lambda w: fvu.open_bank_recon(w),
-        # T.D.S. Challan Entry: FaTDSChal.frm UI not ported yet (core CRUD
-        # fa_tds_ops only) — keep voucher-entry fallback, documented skip.
-        "T.D.S. Challan Entry": lambda w: fvu.open_voucher_entry(w),
+        # T.D.S. Challan Entry: FaTDSChal.frm WRONG_TARGET → fix to TDS Challan UI
+        "T.D.S. Challan Entry": (lambda w: pfui.open_tds_challan(w)) if pfui else _coming_soon("T.D.S. Challan Entry"),
         "T.D.S. Certificate Entry": lambda w: _open_fv_list(
             w, "T.D.S. Certificate",
             lambda f=None, t=None: __import__("HMS_py.core.tdscerti", fromlist=["x"]).list_all()),
+        # WRONG_TARGET Re-wires (VB6_PYTHON_SIDE_BY_SIDE_REPORT.md P9):
+        # FdRevCheckOut → reverse checkout flow
+        "Reverse Check Out": (lambda w: fo2.open_checkout(w, reverse=True)) if fo2 else _coming_soon("Reverse Check Out"),
+        # FaAdjustDel → dedicated delete adjustment
+        "Delete Adjustment Entry": (lambda w: fasub_ui.open_fa_adjust(w, delete=True)) if fasub_ui else _coming_soon("Delete Adjustment Entry"),
+        # FaCurrBalUpdate → balance rebuild UI
+        "Current Balance Updation": (lambda w: fvu.open_trial_balance(w, rebuild=True)) if fvu else _coming_soon("Current Balance Updation"),
+        # fdAcPostChrg → NA process runner
+        "Charges Posting": (lambda w: narep_ui.open_nightaudit_reports(w, mode="charges_post")) if narep_ui else _coming_soon("Charges Posting"),
+        # fdNDAcPostChrg → posting utility
+        "Account Posting": (lambda w: narep_ui.open_nightaudit_reports(w, mode="account_post")) if narep_ui else _coming_soon("Account Posting"),
+        # frmReNightAudit → reverse night audit
+        "Reverse Night Audit": _reverse_night_audit,
+        # HallAcPostChrg → hall A/C posting
+        "Hall Charges Posting": (lambda w: hall_ui.open_hall_booking(w, mode="charges_post")) if hall_ui else _coming_soon("Hall Charges Posting"),
+        # MembershipMast → member master CRUD
+        "Member Master": (lambda w: memb_ui.open_member_billing(w, mode="crud")) if memb_ui else _coming_soon("Member Master"),
+        # SmartCardRegistration → registration entry
+        "Smart Card Registration": (lambda w: pm.open_smartcard(w, mode="register")) if pm else _coming_soon("Smart Card Registration"),
         "Expense Voucher": (lambda w: exp_ui.open_expense(w, user=getattr(w, 'user', 'PYADMIN'))) if exp_ui else None,
         "Opening Balance Updation": lambda w: fvu.open_trial_balance(w),
         "Year End Updation": (lambda w: ye.open_year_end(w)) if ye else _coming_soon("Year End Updation"),
