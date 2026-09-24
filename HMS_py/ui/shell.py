@@ -719,6 +719,11 @@ def _form_registry() -> dict[str, callable]:
         from HMS_py.ui import partial_forms_ui as pfui
     except ImportError:
         pfui = None
+    # Wave 5 imports (Fd*/CheckOut batch — VB6 fdAmendEntry/FdCheckOut/etc.)
+    try:
+        from HMS_py.ui import fd_forms_ui as fdui
+    except ImportError:
+        fdui = None
     # Wave 4 imports (new UI forms for 26+ core modules)
     try:
         from HMS_py.ui import booking_ops_ui as book_ui
@@ -1581,6 +1586,16 @@ def _form_registry() -> dict[str, callable]:
         "Banquet Bill Sundry Setting": (lambda w: p2.open_sundry(w)) if p2 else _coming_soon("Banquet Bill Sundry Setting"),
         "Outlet Bill Sundry Setting": (lambda w: p2.open_sundry(w)) if p2 else _coming_soon("Outlet Bill Sundry Setting"),
         "Member Bill Sundry Setting": (lambda w: p2.open_sundry(w)) if p2 else _coming_soon("Member Bill Sundry Setting"),
+        # Wave 5: Fd*/CheckOut batch (VB6 FdCheckOut/fdAmendEntry/...)
+        "Amend Stay": (lambda w: fdui.open_amend_stay(w)) if fdui else _coming_soon("Amend Stay"),
+        "Look Up Reservation By Guest Name": (lambda w: fdui.open_lookup_reservation(w)) if fdui else _coming_soon("Look Up Reservation By Guest Name"),
+        "Room Check Out": (lambda w: fdui.open_room_checkout(w, user=getattr(w, 'user', 'PYADMIN'))) if fdui else _coming_soon("Room Check Out"),
+        "Guest Ledger": (lambda w: fdui.open_guest_ledger(w)) if fdui else _coming_soon("Guest Ledger"),
+        "Summerized Guest Ledger": (lambda w: fdui.open_guest_ledger_summ(w)) if fdui else _coming_soon("Summerized Guest Ledger"),
+        "Room Check Out Entry": (lambda w: fdui.open_group_checkout(w, user=getattr(w, 'user', 'PYADMIN'))) if fdui else _coming_soon("Room Check Out Entry"),
+        "Room Check Out Entry (Detail)": (lambda w: fdui.open_group_detail_checkout(w, user=getattr(w, 'user', 'PYADMIN'))) if fdui else _coming_soon("Room Check Out Entry (Detail)"),
+        "Look Up Room": (lambda w: fdui.open_lookup_room(w)) if fdui else _coming_soon("Look Up Room"),
+        "Depart Sundry Setting": (lambda w: fdui.open_depart_sundry(w)) if fdui else _coming_soon("Depart Sundry Setting"),
         "House Keeping Op.Stock Entry": (lambda w: pfui.open_location_opening_stock(w)) if pfui else _coming_soon("House Keeping Op.Stock Entry"),
         "Issue/Recd. Entry": (lambda w: pstock_ui.open_pos_stock(w)) if pstock_ui else _coming_soon("Issue/Recd. Entry"),
         "Gravy Item Entry": (lambda w: p2.open_item(w)) if p2 else _coming_soon("Gravy Item Entry"),
