@@ -153,7 +153,7 @@ def _log_night_audit(date_from, date_to, start_dt, end_dt, user, cn=None, commit
 # Room Charge Posting (VB6 Proc_96_14 daily bill-wise)
 # ============================================================
 
-def get_inhouse_rooms(vdate, vprefix: str = "2026", cn=None) -> list[dict]:
+def get_inhouse_rooms(vdate, vprefix: str = VYEAR, cn=None) -> list[dict]:
     """Get occupied rooms for a date (RoomOcc ChkOutDate IS NULL, ChkInDate <= date).
     Returns list of {folio, docid, roomno, roomrate, guest_name, comp_flag, mfolio}
     """
@@ -177,7 +177,7 @@ def get_inhouse_rooms(vdate, vprefix: str = "2026", cn=None) -> list[dict]:
     return out
 
 
-def post_room_charges_for_date(vdate, vprefix: str = "2026",
+def post_room_charges_for_date(vdate, vprefix: str = VYEAR,
                                 user: str = USER, cn=None, commit: bool = True) -> dict:
     """Post room charges for all in-house guests on a date.
     VB6 Proc_96_14 pattern: For each in-house room, if not already posted
@@ -324,7 +324,7 @@ def _get_voucher_prefix(vtype: str, vdate, cn=None) -> tuple[str, int]:
     return rows[0][0] or str(vdate.year), int(rows[0][1] or 1)
 
 
-def post_pos_revenue_for_date(vdate, vprefix: str = "2026",
+def post_pos_revenue_for_date(vdate, vprefix: str = VYEAR,
                                user: str = USER, cn=None, commit: bool = True) -> dict:
     """Post POS revenue (SunTran) to PayCharge as Vtype='PPOS'.
     VB6 Proc_96_14: Groups by RevCode/RestCode, creates PPOS entries.
@@ -385,7 +385,7 @@ def post_pos_revenue_for_date(vdate, vprefix: str = "2026",
 
 def run_night_audit(date_from, date_to=None, user: str = USER,
                     cn=None, commit: bool = True,
-                    vprefix: str = "2026") -> dict:
+                    vprefix: str = VYEAR) -> dict:
     """Run full Night Audit for a date range (VB6 fdNDAcPostChrg pattern).
     
     Steps:
