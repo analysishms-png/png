@@ -1,9 +1,10 @@
-"""Dynamic Sidebar UI Buttons — built from menuHelp data (CV6 MDIForm1 logic).
+"""Dynamic Sidebar UI Buttons — built from User_Module per-module wise (VB6 MDIForm1 logic).
 
 DATA FLOW (VB6 → Python):
-  menuHelp table ──→ sidebar_sources(username) ──→ build_sidebar_buttons()
-  Analysis.ini key 9 ──→ module display order
-  Opt1=module, Opt2=group, Opt3=item, Opt4=sub-item (VB6 MDI tree)
+   User_Module table (flag='9') ──→ menu.roots() ──→ build_sidebar_buttons()
+   Analysis.ini key 9 ──→ module display order
+   menuHelp table ──→ user-specific permissions (restricted users)
+   Opt1=module, Opt2=group, Opt3=item, Opt4=sub-item (VB6 MDI tree)
 
 Each button is a dict: {icon, label, mod_target, action, shortcut}
   - icon: emoji/char for sidebar display
@@ -12,7 +13,8 @@ Each button is a dict: {icon, label, mod_target, action, shortcut}
   - action: callable or None (for direct openers)
   - shortcut: Alt+1..9 for first 9 module buttons
 
-CV6 Logic mapping:
+VB6 Logic mapping:
+  - User_Module flag='9' → sidebar root (L1 node)
   - Flag='N' + Opt1<>0 + O2=O3=O4=0 → sidebar root (L1 node)
   - Flag='E' → entry form leaf
   - Flag='R' → report leaf
@@ -26,6 +28,7 @@ import os
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from HMS_py.core import menu as _menu
 from HMS_py.core import menu_help as _mh
 from HMS_py.ui import theme as _theme
 
@@ -152,19 +155,31 @@ def _build_action_buttons() -> list[dict]:
 
 
 def _build_module_buttons(user: str = "SA") -> list[dict]:
-    """Build MODULES section buttons from menuHelp sidebar_sources().
+    """Build MODULES section buttons from User_Module per-module wise.
 
-    Dynamic data: menuHelp table → sidebar_sources() → L1 nodes
+    Primary source: User_Module table (flag='9') via menu.roots()
+    User-specific permissions: menuHelp table for restricted users.
     Analysis.ini key 9 defines the display order.
-    Restricted users only see their own menuHelp modules.
     """
-    _side = _mh.sidebar_sources(user or "SA")
     _DASHBOARD_NORM = "dashboard"
+    _user = user or "SA"
+
+    # Get roots from User_Module (per-module wise)
+    roots = _menu.roots()
+    # Filter out non-sidebar items
+    all_roots = [r for r in roots
+                 if str(r.get("name", "")).strip() not in ("-", "Windows", "Exit", "MDI", "PlanPopup")]
+
+    # For restricted users, filter by menuHelp permissions
+    if not _mh.full_access(_user):
+        allowed_captions = set(_mh.by_caption(_user).keys())
+        all_roots = [r for r in all_roots
+                     if _mh._norm_caption(r.get("name", "")).lower() in allowed_captions]
 
     buttons = []
     idx = 7  # Action buttons use Alt+1..6, modules start at Alt+7
-    for s in _side:
-        name = s["name"]
+    for r in all_roots:
+        name = r.get("name", "")
         if _norm_caption(name) == _DASHBOARD_NORM:
             continue  # Dashboard is in ACTIONS section
         btn = {
@@ -174,9 +189,9 @@ def _build_module_buttons(user: str = "SA") -> list[dict]:
             "action": None,
             "shortcut": f"Alt+{idx}" if idx <= 15 else None,
             "type": "module",
-            "opt1": s.get("opt1"),
-            "code": s.get("code"),
-            "srno": s.get("srno"),
+            "opt1": None,
+            "code": r.get("code"),
+            "srno": r.get("srno"),
         }
         idx += 1
         buttons.append(btn)
@@ -194,8 +209,21 @@ def build_all_buttons(user: str = "SA") -> dict[str, list[dict]]:
 
 
 def get_sidebar_sources(user: str = "SA") -> list[dict]:
-    """Get raw sidebar module sources from menuHelp (for debugging/reporting)."""
-    return _mh.sidebar_sources(user or "SA")
+    """Get raw sidebar module sources from User_Module (per-module wise).
+
+    Primary: User_Module table (flag='9')
+    Fallback for restricted users: menuHelp table
+    """
+    _user = user or "SA"
+    roots = _menu.roots()
+    filtered = [r for r in roots
+                if str(r.get("name", "")).strip() not in ("-", "Windows", "Exit", "MDI", "PlanPopup")]
+    if not _mh.full_access(_user):
+        allowed_captions = set(_mh.by_caption(_user).keys())
+        filtered = [r for r in filtered
+                     if _mh._norm_caption(r.get("name", "")).lower() in allowed_captions]
+    return [{"name": r.get("name", ""), "code": r.get("code"),
+             "srno": r.get("srno"), "opt1": None} for r in filtered]
 
 
 def get_module_tree(user: str = "SA") -> dict[str, list[dict]]:
@@ -303,14 +331,14 @@ def build_qt_sidebar(parent, user: str = "SA", on_click=None):
 def generate_sidebar_report(user: str = "SA") -> str:
     """Generate a text report of all sidebar buttons and their data.
 
-    Useful for debugging and verifying menuHelp data.
+    Data source: User_Module table (per-module wise) + menuHelp permissions.
     """
     lines = []
     ap = lines.append
     w = 70
     ap("=" * w)
     ap("HMS SIDEBAR BUTTONS — DYNAMIC REPORT")
-    ap(f"User: {user}  |  Generated: menuHelp + Analysis.ini key 9")
+    ap(f"User: {user}  |  Generated: User_Module (flag='9') + Analysis.ini key 9")
     ap("=" * w)
     ap("")
 
@@ -323,30 +351,24 @@ def generate_sidebar_report(user: str = "SA") -> str:
 
     # MODULES section
     modules = _build_module_buttons(user)
-    ap("── MODULES (menuHelp dynamic) ──")
+    ap("── MODULES (User_Module per-module wise) ──")
     for i, m in enumerate(modules, 7):
         opt1 = m.get("opt1") or "?"
-        ap(f"  {m['shortcut'] or '?'.rjust(5)}. {m['icon']} {m['label']:<20} target={m['mod_target']:<30} Opt1={opt1}")
+        ap(f"  {m['shortcut'] or '?'.rjust(5)}. {m['icon']} {m['label']:<20} target={m['mod_target']:<30} srno={m.get('srno')}")
     ap("")
 
-    # Full menuHelp data
-    ap("── MENUHELP RAW DATA ──")
+    # User_Module data
+    ap("── USER_MODULE RAW DATA ──")
     sources = get_sidebar_sources(user)
-    ap(f"  sidebar_sources count: {len(sources)}")
+    ap(f"  User_Module count: {len(sources)}")
     for s in sources:
-        ap(f"    {s['name']:<25} opt1={s.get('opt1')} code={s.get('code')} srno={s.get('srno')}")
+        ap(f"    {s['name']:<25} code={s.get('code')} srno={s.get('srno')}")
     ap("")
 
-    ap("── USER MODULE TREE ──")
+    ap("── MENUHELP PERMISSIONS ──")
     tree = get_module_tree(user)
     for mod_name, leaves in tree.items():
         ap(f"  {mod_name}: {len(leaves)} leaves")
-    ap("")
-
-    ap("── ALL MODULES ──")
-    all_mod = get_all_modules(user)
-    for m in all_mod:
-        ap(f"  • {m}")
     ap("")
     ap("=" * w)
     ap("END REPORT")
