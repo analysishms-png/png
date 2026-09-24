@@ -19,6 +19,7 @@ from __future__ import annotations
 import datetime
 import csv
 import os
+import re
 
 from HMS_py.core import db
 
@@ -2827,11 +2828,11 @@ def menu_caption_map() -> dict:
     out = {}
     for r in REPORTS:
         for cap in r.get("menu", []):
-            out[cap] = r["key"]
+            out[re.sub(r"\s+", " ", cap).strip()] = r["key"]
     live = by_key()
     for cap, key in VB6_CAPTION_ALIASES.items():
         if key in live:
-            out[cap] = key
+            out[re.sub(r"\s+", " ", cap).strip()] = key
     return out
 
 
