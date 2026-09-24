@@ -64,6 +64,14 @@ class RegistrationEntryWindow(QDialog):
         self.txt_room.setPlaceholderText("Leave blank for auto room assign")
         self.txt_bookdocid = QLineEdit()
         self.txt_bookdocid.setPlaceholderText("BookingDocId (optional)")
+        self.txt_adult = QLineEdit("1")
+        self.txt_adult.setPlaceholderText("Adult count (default 1)")
+        self.txt_child = QLineEdit("0")
+        self.txt_child.setPlaceholderText("Children count (default 0)")
+        self.txt_ratecode = QLineEdit()
+        self.txt_ratecode.setPlaceholderText("RateCode (optional)")
+        self.txt_chkin = QLineEdit(datetime.datetime.now().strftime("%H:%M"))
+        self.txt_chkin.setPlaceholderText("Check-In time HH:MM")
 
         fl.addRow("Guest Name *:", self.txt_name)
         fl.addRow("GuestProf Code:", self.txt_guestprof)
@@ -72,6 +80,10 @@ class RegistrationEntryWindow(QDialog):
         fl.addRow("Departure:", self.dt_dep)
         fl.addRow("Room No:", self.txt_room)
         fl.addRow("BookingDocId:", self.txt_bookdocid)
+        fl.addRow("Adult:", self.txt_adult)
+        fl.addRow("Children:", self.txt_child)
+        fl.addRow("RateCode:", self.txt_ratecode)
+        fl.addRow("ChkInTime:", self.txt_chkin)
         root.addWidget(form)
 
         btn_lay = QHBoxLayout()
@@ -143,11 +155,21 @@ class RegistrationEntryWindow(QDialog):
                 gcode = guestprof.next_code()
                 guestprof.insert({"code": gcode, "name": name,
                                   "city": self.txt_city.text().strip()})
+            try:
+                n_adult = int(self.txt_adult.text().strip() or "1")
+                n_child = int(self.txt_child.text().strip() or "0")
+            except ValueError:
+                QMessageBox.warning(self, "Input",
+                                    "Adult/Children integer hone chahiye")
+                return
             folio = checkin.create_checkin(
                 gcode, name, arr_date, dep_date,
                 city=self.txt_city.text().strip(),
                 roomno=self.txt_room.text().strip(),
-                bookingdocid=self.txt_bookdocid.text().strip())
+                bookingdocid=self.txt_bookdocid.text().strip(),
+                adult=n_adult, children=n_child,
+                ratecode=self.txt_ratecode.text().strip(),
+                chkintime=self.txt_chkin.text().strip())
             QMessageBox.information(
                 self, "Saved",
                 f"Check-In #{folio} created.\n"

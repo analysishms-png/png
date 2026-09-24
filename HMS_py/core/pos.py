@@ -370,28 +370,74 @@ def create_kot(lines: list[dict], outlet: str, vdate, waiter: str = "", user: st
 
 
 def update_kot(docid: str, lines: list[dict], user: str = "SA", cn=None) -> dict:
-    """Update existing KOT lines; safe if no table active."""
+    """Update existing KOT lines by Sno (not Item) + audit into KOTLog.
+
+    PI-10: VB6 RsKOTEntry updates WHERE DocId AND Sno (duplicate Item
+    safe) and inserts an audit row into KOTLog on every edit.
+    Shared connection: KOT update + KOTLog insert commit together.
+    """
     if not lines:
         raise ValueError("At least one KOT line required")
     if not _table_exists("KOT", cn=cn):
         return {"docid": docid, "lines_updated": 0, "skipped": True}
-    for line in lines:
-        item_code = str(line.get("item") or "").strip()
-        if not item_code:
-            continue
-        qty = float(line.get("qty") or 0)
-        rate = float(line.get("rate") or 0)
-        amount = float(line.get("amount") or (qty * rate))
-        try:
-            db.execute(
-                "UPDATE KOT SET Qty = ?, Rate = ?, Amount = ?, U_Name = ?, U_AE = 'E', U_EntDt = getdate() WHERE DocId = ? AND Item = ?",
-                (qty, rate, amount, user, docid, item_code),
-                cn=cn,
-                commit=True,
-            )
-        except Exception:
-            continue
-    return {"docid": docid, "lines_updated": len(lines)}
+    has_kotlog = _table_exists("KOTLog", cn=cn)
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        # Fetch header for KOTLog context
+        hdr_rows = _safe_query(
+            "SELECT VNo, VDate, VType, VPrefix, RestCode, RoomCat, "
+            "RoomType, RoomNo, VTime, Pending, NCKOT "
+            "FROM KOT WHERE DocId = ?",
+            (docid,), cn=cn)
+        hdr = hdr_rows[0] if hdr_rows else None
+        updated = 0
+        for line in lines:
+            item_code = str(line.get("item") or "").strip()
+            sno = int(line.get("sno") or 0)
+            if not item_code or sno <= 0:
+                continue
+            qty = float(line.get("qty") or 0)
+            rate = float(line.get("rate") or 0)
+            amount = float(line.get("amount") or (qty * rate))
+            try:
+                n = db.execute(
+                    "UPDATE KOT SET Qty = ?, Rate = ?, Amount = ?, "
+                    "U_Name = ?, U_AE = 'E', U_EntDt = getdate() "
+                    "WHERE DocId = ? AND Sno = ?",
+                    (qty, rate, amount, user, docid, sno),
+                    cn=cn, commit=False)
+                if n:
+                    updated += 1
+                if has_kotlog and hdr is not None:
+                    db.execute(
+                        "INSERT INTO KOTLog (DocId, Sno, VType, Vtime, VNo, "
+                        "Site_Code, VPrefix, VDate, RestCode, RoomCat, "
+                        "RoomType, RoomNo, Item, Qty, Rate, Amount, VoidYN, "
+                        "Waiter, Pending, NCKOT, Reasons, LogSite_Code, "
+                        "U_Name, U_EntDt, U_AE, DelFlag) "
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
+                        "?, 'N', '', ?, ?, '', ?, ?, getdate(), 'E', 'N')",
+                        (docid, sno, hdr[2] or "", hdr[8] or "",
+                         int(hdr[0] or 0), SITE_CODE, hdr[3] or "",
+                         hdr[1], hdr[4] or "", hdr[5] or "", hdr[6] or "",
+                         hdr[7] or "", item_code, qty, rate, amount,
+                         hdr[9] or "", hdr[10] or "", SITE_CODE, user),
+                        cn=cn, commit=False)
+            except Exception:
+                continue
+        cn.commit()
+    except Exception:
+        if own:
+            try:
+                cn.rollback()
+            except Exception:
+                pass
+        raise
+    finally:
+        if own:
+            cn.close()
+    return {"docid": docid, "lines_updated": updated}
 
 
 def void_kot(docid: str, user: str = "SA", cn=None) -> dict:

@@ -26,12 +26,18 @@ USER = db.get_user()
 
 
 # ---------------------------------------------------------------- numbering
-def _prefix_for(vtype: str, vdate) -> tuple[str, str]:
-    """(Prefix, FY-window) for V_Type at vdate from Voucher_Prefix."""
+def _prefix_for(vtype: str, vdate, cn=None) -> tuple[str, str]:
+    """(Prefix, FY-window) for V_Type at vdate from Voucher_Prefix (site-filtered)."""
     rows = db.query(
         "SELECT TOP 1 Prefix FROM Voucher_Prefix WHERE V_Type = ? "
-        "AND ? BETWEEN Date_From AND Date_To ORDER BY Date_From DESC",
-        (vtype, vdate), cn=None)
+        "AND ? BETWEEN Date_From AND Date_To AND Site_Code = ? "
+        "ORDER BY Date_From DESC",
+        (vtype, vdate, SITE_CODE), cn=cn)
+    if not rows:
+        rows = db.query(
+            "SELECT TOP 1 Prefix FROM Voucher_Prefix WHERE V_Type = ? "
+            "AND ? BETWEEN Date_From AND Date_To ORDER BY Date_From DESC",
+            (vtype, vdate), cn=cn)
     if not rows:
         # FY fallback: '2025' pattern
         fy = vdate.year if vdate.month >= 4 else vdate.year - 1
@@ -41,21 +47,24 @@ def _prefix_for(vtype: str, vdate) -> tuple[str, str]:
 
 def next_vno(vtype: str, vdate, cn=None) -> int:
     """Next V_No: MAX(LedgerM.V_No)+1 else MAX(Ledger.V_No)+1 else
-    Voucher_Prefix.Start_Srl_No+1 (VB6 numbering parity)."""
-    prefix, _ = _prefix_for(vtype, vdate)
+    Voucher_Prefix.Start_Srl_No+1 (VB6 numbering parity, site-filtered)."""
+    prefix, _ = _prefix_for(vtype, vdate, cn=cn)
     rows = db.query(
         "SELECT ISNULL(MAX(V_No), 0) FROM LedgerM WHERE V_Type = ? "
-        "AND v_Prefix = ?", (vtype, prefix), cn=cn)
+        "AND v_Prefix = ? AND Site_Code = ?",
+        (vtype, prefix, SITE_CODE), cn=cn)
     mx = (rows[0][0] if rows else 0) or 0
     if not mx:
         rows = db.query(
             "SELECT ISNULL(MAX(V_No), 0) FROM Ledger WHERE V_Type = ? "
-            "AND v_Prefix = ?", (vtype, prefix), cn=cn)
+            "AND v_Prefix = ? AND Site_Code = ?",
+            (vtype, prefix, SITE_CODE), cn=cn)
         mx = (rows[0][0] if rows else 0) or 0
     if not mx:
         rows = db.query(
             "SELECT ISNULL(Start_Srl_No, 0) FROM Voucher_Prefix "
-            "WHERE V_Type = ? AND Prefix = ?", (vtype, prefix), cn=cn)
+            "WHERE V_Type = ? AND Prefix = ? AND Site_Code = ?",
+            (vtype, prefix, SITE_CODE), cn=cn)
         mx = (rows[0][0] if rows else 0) or 0
     return int(mx) + 1
 
@@ -75,9 +84,12 @@ def post_voucher(lines: list[dict], vdate, narration: str = "",
     VB6 patterns: CurrBal update, LedgerRef tracking, LedgerLog audit,
     ContraSub auto-fill, cheque date validation.
 
-    lines: [{'subcode','amt_dr','amt_cr','narration'?}, ...]
+    lines: [{'subcode','amt_dr','amt_cr','narration'?,
+             'agrefno'?'agref_type'?,'due_date'?,
+             'adjustments'?=[{'docid2','v_sno2','cr','subcode'?,'agrefno'?}],
+             'tds'?={'tdscode','tds_drcode','onamt','tds_pct'?,...}}, ...]
     Guard: har line ka SubCode live Subgroup me ho; total DR == total CR.
-    Returns {'docid','vno','dr','cr'}.
+    Returns {'docid','vno','dr','cr', 'tds_docids'?}.
     """
     if not lines or len(lines) < 2:
         raise ValueError("Voucher me kam se kam 2 lines hone chahiye")
@@ -115,7 +127,7 @@ def post_voucher(lines: list[dict], vdate, narration: str = "",
     own = cn is None
     cn = cn or db.connect()
     try:
-        prefix, _ = _prefix_for(vtype, vdate)
+        prefix, _ = _prefix_for(vtype, vdate, cn=cn)
         vno = next_vno(vtype, vdate, cn=cn)
         docid = _make_docid(vtype, prefix, vno)
         cur = cn.cursor()
@@ -135,18 +147,25 @@ def post_voucher(lines: list[dict], vdate, narration: str = "",
                 "INSERT INTO Ledger (DocId, V_SNo, V_Type, V_No, v_Prefix, "
                 "Site_Code, V_Date, SubCode, AmtDr, AmtCr, ContraSub, "
                 "Narration, Chq_No, Chq_Date, Clg_Date, GroupCode, "
-                "GroupNature, U_Name, U_EntDt, U_AE, LogSite_Code) "
+                "GroupNature, AgRefNo, U_Name, U_EntDt, U_AE, LogSite_Code) "
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, "
-                "?, ?, ?, getdate(), 'A', ?)",
+                "?, ?, ?, ?, getdate(), 'A', ?)",
                 (docid, sno, vtype, vno, prefix, SITE_CODE, vdate, sc,
                  float(l.get("amt_dr") or 0), float(l.get("amt_cr") or 0),
                  contra_sub, l.get("narration", "") or narration,
-                 chq_no or "", chq_date, gc, gn, user, SITE_CODE))
+                 chq_no or "", chq_date, gc, gn,
+                 (l.get("agrefno") or "").strip(),
+                 user, SITE_CODE))
             # VB6 CurrBal update: running balance per SubGroup
             _update_currbal(cn, sc, float(l.get("amt_dr") or 0),
                             float(l.get("amt_cr") or 0), vdate=vdate)
-            # VB6 LedgerRef: copy to reference tables if TDS/bill-wise
-            _create_ledgerref(cn, docid, sno, sc, l)
+            # VB6 LedgerRef: har line ka pending Dr/Cr reference row (FA-4)
+            _create_ledgerref(cn, docid, sno, sc, l, vdate=vdate)
+        # FA-4: LEDGERADJ delete+reinsert (VB6 FaVrEnt loc_1B35E71)
+        _write_ledgeradj(cn, docid, lines, user=user)
+        # FA-5: TDS calc + LEDGERTDS + auto TDS contra-voucher
+        tds_docids = _post_line_tds(cn, docid, prefix, vdate, lines,
+                                    user=user)
         # VB6 LedgerLog: audit trail
         _log_voucher(cn, docid, "A", user)
         # VB6: UPDATE Voucher_Prefix SET Start_Srl_No = V_No (number consumed)
@@ -168,7 +187,10 @@ def post_voucher(lines: list[dict], vdate, narration: str = "",
             pass
         if commit:
             cn.commit()
-        return {"docid": docid, "vno": vno, "dr": tot_dr, "cr": tot_cr}
+        res = {"docid": docid, "vno": vno, "dr": tot_dr, "cr": tot_cr}
+        if tds_docids:
+            res["tds_docids"] = tds_docids
+        return res
     except Exception:
         try:
             cn.rollback()
@@ -270,21 +292,99 @@ def _update_currbal(cn, subcode: str, dr: float, cr: float, vdate=None):
         gc = parent
 
 
-def _create_ledgerref(cn, docid: str, sno: int, subcode: str, line: dict):
-    """VB6 LedgerRef: bill-wise adjustment / TDS reference tracking.
-    If narration contains 'TDS' or 'BillRef', create reference entry."""
-    narration = (line.get("narration") or "").strip().upper()
-    if "TDS" in narration:
-        try:
-            cn.execute(
-                "INSERT INTO LEDGERTDS (DocId, V_SNo, Site_Code, SubCode, "
-                "TdsAmt, U_EntDt, U_AE, LogSite_Code) "
-                "VALUES (?, ?, ?, ?, ?, getdate(), 'A', ?)",
-                (docid, sno, SITE_CODE, subcode,
-                 float(line.get("amt_dr") or line.get("amt_cr") or 0),
-                 SITE_CODE))
-        except Exception:
-            pass
+def _create_ledgerref(cn, docid: str, sno: int, subcode: str, line: dict,
+                      vdate=None):
+    """FA-4: LEDGERREF row per voucher line (VB6 FaVrEnt LedgerRef grid).
+    Dr/Cr + DueDate + AgRefNo + AgRefType + V_Date copied to reference table."""
+    from HMS_py.core import fa_ledger_ops as flo
+    flo.ledgerref_insert({
+        "docid": docid, "v_sno": sno,
+        "dr": float(line.get("amt_dr") or 0),
+        "cr": float(line.get("amt_cr") or 0),
+        "subcode": subcode,
+        "due_date": line.get("due_date"),
+        "agrefno": (line.get("agrefno") or "").strip(),
+        "agref_type": (line.get("agref_type") or "").strip(),
+        "v_date": vdate,
+    }, cn=cn, commit=False)
+
+
+def _write_ledgeradj(cn, docid: str, lines: list[dict], user: str = USER):
+    """FA-4: delete existing adj for this DocId1/DocId2 then re-insert
+    (VB6 FaVrEnt loc_1B35E71 pattern)."""
+    from HMS_py.core import fa_ledger_ops as flo
+    db.execute(
+        "DELETE FROM LEDGERADJ WHERE DocId1 = ? OR DocId2 = ?",
+        (docid, docid), cn=cn, commit=False)
+    pairs: list[dict] = []
+    for sno, l in enumerate(lines, start=1):
+        for a in (l.get("adjustments") or []):
+            rec = {
+                "docid1": (a.get("docid1") or docid).strip(),
+                "v_sno1": int(a.get("v_sno1") or sno),
+                "docid2": (a.get("docid2") or "").strip(),
+                "v_sno2": int(a.get("v_sno2") or 0),
+                "cr": float(a.get("cr") or 0),
+                "subcode": (a.get("subcode") or l["subcode"]).strip(),
+                "name": a.get("name", ""),
+                "agrefno": (a.get("agrefno") or
+                            l.get("agrefno") or "").strip(),
+            }
+            if rec["docid2"] and rec["cr"] > 0:
+                pairs.append(rec)
+    for rec in pairs:
+        flo.ledgeradj_insert(rec, cn=cn, commit=False)
+
+
+def _post_line_tds(cn, docid: str, prefix: str, vdate, lines: list[dict],
+                   user: str = USER) -> list[str]:
+    """FA-5: per-line TDS — TDSAMT=ONAMT*TDS/100, auto TDS contra-voucher,
+    LEDGERTDS insert (VB6 FaVrEnt loc_F0875D). Returns linked TDSDocIds."""
+    from HMS_py.core import fa_ledger_ops as flo
+    from HMS_py.core import fa_tds_ops as fto
+    linked: list[str] = []
+    tds_vtype = None
+    for sno, l in enumerate(lines, start=1):
+        t = l.get("tds")
+        if not t:
+            continue
+        tdscode = (t.get("tdscode") or t.get("TDSCode") or "").strip()
+        tds_drcode = (t.get("tds_drcode") or t.get("TDSDrCode") or "").strip()
+        if not tdscode or not tds_drcode:
+            raise ValueError("TDS me TDSCode aur TDSDrCode zaroori hain")
+        onamt = float(t.get("onamt") or l.get("amt_dr") or
+                      l.get("amt_cr") or 0)
+        tds_pct = float(t.get("tds") if t.get("tds") is not None
+                        else t.get("tds_pct") or 0)
+        tds_amt = float(t.get("tdsamt") or 0) or fto.tds_amt(onamt, tds_pct)
+        if tds_amt <= 0:
+            continue
+        if tds_vtype is None:
+            tds_vtype = (t.get("vtype") or "TDS").strip()
+            vt = db.query(
+                "SELECT 1 FROM Voucher_Type WHERE V_Type = ?",
+                (tds_vtype,), cn=cn)
+            if not vt:
+                raise ValueError("There Must be a TDS Vr.Type")
+        # auto contra: DR deductee (TDSDrCode), CR TDS payable (TDSCode)
+        tres = post_voucher(
+            [{"subcode": tds_drcode, "amt_dr": tds_amt,
+              "narration": t.get("narration") or "TDS deduct"},
+             {"subcode": tdscode, "amt_cr": tds_amt,
+              "narration": t.get("narration") or "TDS deduct"}],
+            vdate, narration=t.get("narration") or "TDS auto",
+            vtype=tds_vtype, user=user, cn=cn, commit=False)
+        linked.append(tres["docid"])
+        flo.ledgertds_insert({
+            "docid": docid, "v_sno": sno,
+            "v_prefix": prefix, "v_date": vdate,
+            "tdscode": tdscode, "tdsdrcode": tds_drcode,
+            "tdsyn": t.get("tdsyn", "Y"),
+            "onamt": onamt, "tds": tds_pct, "tdsamt": tds_amt,
+            "tdspost": t.get("tdspost", ""),
+            "tds_docid": tres["docid"], "tds_v_sno": 1,
+        }, cn=cn, commit=False)
+    return linked
 
 
 def _log_voucher(cn, docid: str, flag: str, user: str):
@@ -374,6 +474,13 @@ def delete_voucher(docid: str, cn=None, commit: bool = True,
                        (docid,), cn=cn, commit=False)
         except Exception:
             pass
+        # FA-4/FA-8: LEDGERADJ cascade (VB6 FaVrEnt: DocId1 OR DocId2)
+        try:
+            db.execute(
+                "DELETE FROM LEDGERADJ WHERE DocId1 = ? OR DocId2 = ?",
+                (docid, docid), cn=cn, commit=False)
+        except Exception:
+            pass
         # Reverse CurrBal for each SubCode (VB6 Proc_183_0 delta reverse)
         for r in rows:
             sc = (r.SubCode or "").strip()
@@ -395,6 +502,9 @@ def delete_voucher(docid: str, cn=None, commit: bool = True,
                            (td,), cn=cn, commit=False)
                 db.execute("DELETE FROM LEDGERTDS WHERE DocId = ?",
                            (td,), cn=cn, commit=False)
+                db.execute(
+                    "DELETE FROM LEDGERADJ WHERE DocId1 = ? OR DocId2 = ?",
+                    (td, td), cn=cn, commit=False)
                 _log_voucher(cn, td, "D", user)
                 db.execute("DELETE FROM Ledger WHERE DocId = ?",
                            (td,), cn=cn, commit=False)
@@ -412,6 +522,127 @@ def delete_voucher(docid: str, cn=None, commit: bool = True,
         if commit:
             cn.commit()
         return n
+    except Exception:
+        if own:
+            try:
+                cn.rollback()
+            except Exception:
+                pass
+        raise
+    finally:
+        if own:
+            cn.close()
+
+
+def get_voucher(docid: str, cn=None) -> dict | None:
+    """FA-8: header + lines for edit/display (LedgerM preferred, Ledger fallback)."""
+    hm = db.query(
+        "SELECT DocId, V_Type, v_Prefix, V_No, V_Date, Narration "
+        "FROM LedgerM WHERE DocId = ?", (docid,), cn=cn)
+    if hm:
+        h = hm[0]
+        hdr = {"docid": h[0], "vtype": h[1] or "", "v_prefix": h[2] or "",
+               "vno": int(h[3] or 0), "vdate": h[4],
+               "narration": (h[5] or "").strip()}
+    else:
+        rows = db.query(
+            "SELECT TOP 1 DocId, V_Type, v_Prefix, V_No, V_Date, Narration "
+            "FROM Ledger WHERE DocId = ? ORDER BY V_SNo",
+            (docid,), cn=cn)
+        if not rows:
+            return None
+        h = rows[0]
+        hdr = {"docid": h[0], "vtype": h[1] or "", "v_prefix": h[2] or "",
+               "vno": int(h[3] or 0), "vdate": h[4],
+               "narration": (h[5] or "").strip()}
+    lrows = db.query(
+        "SELECT V_SNo, SubCode, AmtDr, AmtCr, Narration, Chq_No, Chq_Date, "
+        "AgRefNo FROM Ledger WHERE DocId = ? ORDER BY V_SNo",
+        (docid,), cn=cn)
+    lines = []
+    chq_no, chq_date = "", None
+    for r in lrows:
+        if not chq_no and (r[5] or "").strip():
+            chq_no = r[5] or ""
+            chq_date = r[6]
+        lines.append({"sno": int(r[0] or 0), "subcode": (r[1] or "").strip(),
+                      "amt_dr": float(r[2] or 0), "amt_cr": float(r[3] or 0),
+                      "narration": (r[4] or "").strip(),
+                      "agrefno": (r[7] or "").strip()})
+    hdr["lines"] = lines
+    hdr["chq_no"] = chq_no
+    hdr["chq_date"] = chq_date
+    hdr["dr"] = sum(x["amt_dr"] for x in lines)
+    hdr["cr"] = sum(x["amt_cr"] for x in lines)
+    return hdr
+
+
+def find_voucher(vtype: str | None = None, vno: int | None = None,
+                 d_from=None, d_to=None, narration: str | None = None,
+                 docid: str | None = None, cn=None) -> list[dict]:
+    """FA-8: search vouchers (type/no/date/narration/docid)."""
+    sql = ("SELECT DocId, V_Type, v_Prefix, V_No, V_Date, "
+           "MAX(Narration) AS Narration, SUM(AmtDr), SUM(AmtCr) "
+           "FROM Ledger WHERE 1 = 1")
+    params: list = []
+    if docid:
+        sql += " AND DocId = ?"
+        params.append(docid)
+    if vtype:
+        sql += " AND V_Type = ?"
+        params.append(vtype)
+    if vno is not None:
+        sql += " AND V_No = ?"
+        params.append(int(vno))
+    if d_from is not None:
+        sql += " AND V_Date >= ?"
+        params.append(d_from)
+    if d_to is not None:
+        sql += " AND V_Date <= ?"
+        params.append(d_to)
+    if narration:
+        sql += " AND Narration LIKE ?"
+        params.append(f"%{narration}%")
+    sql += (" GROUP BY DocId, V_Type, v_Prefix, V_No, V_Date "
+            "ORDER BY V_Date DESC, DocId")
+    rows = db.query(sql, tuple(params), cn=cn)
+    return [{"docid": r[0], "vtype": r[1] or "", "v_prefix": r[2] or "",
+             "vno": int(r[3] or 0), "vdate": r[4],
+             "narration": (r[5] or "").strip(),
+             "dr": float(r[6] or 0), "cr": float(r[7] or 0)}
+            for r in rows]
+
+
+def edit_voucher(docid: str, lines: list[dict], vdate=None,
+                 narration: str | None = None, vtype: str | None = None,
+                 user: str = USER, chq_no: str | None = None,
+                 chq_date=None, cn=None, commit: bool = True) -> dict:
+    """FA-8: edit = load + delete + repost on one connection (VB6 FaVrEnt)."""
+    if not lines or len(lines) < 2:
+        raise ValueError("Voucher me kam se kam 2 lines hone chahiye")
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        old = get_voucher(docid, cn=cn)
+        if not old:
+            raise ValueError(f"Voucher '{docid}' nahi mila")
+        vtype = vtype or old["vtype"]
+        vdate = vdate or old["vdate"]
+        if narration is None:
+            narration = old.get("narration", "")
+        if chq_no is None:
+            chq_no = old.get("chq_no", "")
+        if chq_date is None:
+            chq_date = old.get("chq_date")
+        delete_voucher(docid, cn=cn, commit=False, user=user)
+        res = post_voucher(lines, vdate, narration=narration or "",
+                           vtype=vtype, user=user,
+                           chq_no=chq_no or "", chq_date=chq_date,
+                           cn=cn, commit=False)
+        if commit:
+            cn.commit()
+        res["replaces"] = docid
+        return res
     except Exception:
         if own:
             try:

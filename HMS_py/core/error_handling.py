@@ -40,6 +40,21 @@ def log_error(exc: BaseException | str, *,
         pass
 
 
+def log_trace(context: str, msg: str) -> None:
+    """Append one TRACE line to ErrorLog.txt (VB6 modLog Enter/Exit/Trace).
+
+    Lightweight, no GUI, no retention logic — callers pass e.g.
+    log_trace("modLog", "Enter NightAuditoR_Click"). Best-effort write.
+    """
+    ts = _dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    line = f"{ts} [TRACE] {context or '-'} :: {msg}"
+    try:
+        with open(_log_path(), "a", encoding="utf-8") as fh:
+            fh.write(line + "\n")
+    except OSError:
+        pass
+
+
 def standard_error_handler(exc: BaseException, *,
                            user: str = "", form: str = "",
                            procedure: str = "") -> str:

@@ -70,20 +70,20 @@
 | FA-1 | FaLib Proc_183_0 | CurrBal: delta in SUBGROUPCURRBAL + walk ACGROUP.MAINGRCODE ancestors → ACGROUPCURRBAL | `_update_currbal` writes non-existent `LedgerCurrBal` (try/except pass) |
 | FA-2 | FaVrEnt:13333 + FaLib Proc_183_15/16 | DocId = `"D"+Site(2)+V_Type(5)+Prefix(5)+V_No(8)` (21 chars) | `_make_docid` = `{vtype}{prefix}{vno:04d}` — incompatible |
 | FA-3 | FaVrEnt:14140-14146 | LedgerLog/LedgerMLog SeqNo=Max+1 row-copy | `_log_voucher` wrong schema → no audit |
-| FA-4 | FaVrEnt:14006,13957 | LEDGERREF pending + LEDGERADJ + AgRefNo on post | Never written by post_voucher |
-| FA-5 | FaVrEnt TDS frame | TDS calc ONAMT*TDS/100, LEDGERTDS row, auto contra-voucher | Absent; narration-"TDS" hack wrong cols |
+| FA-4 | FaVrEnt:14006,13957 | LEDGERREF pending + LEDGERADJ + AgRefNo on post | IMPLEMENTED — `fa_voucher._create_ledgerref` / `_write_ledgeradj` / Ledger AgRefNo insert (fa_voucher.py:150-165,297-338); LEDGERADJ cascade on delete (fa_voucher.py:477-486) |
+| FA-5 | FaVrEnt TDS frame | TDS calc ONAMT*TDS/100, LEDGERTDS row, auto contra-voucher | IMPLEMENTED — `fa_tds_ops.tds_amt` (fa_tds_ops.py:212-215); `fa_voucher._post_line_tds` posts TDS Vr.Type contra + LEDGERTDS (fa_voucher.py:341-400); narration-hack removed |
 
 ### High
 
 | # | VB6 | Feature | Python Status |
 |---|-----|---------|---------------|
-| FA-6 | FaVoucher.bas Proc_7_* | NCat-based voucher routing + privilege gate | fa_reports.route_voucher name heuristic |
+| FA-6 | FaVoucher.bas Proc_7_* | NCat-based voucher routing + privilege gate | IMPLEMENTED (routing) — `voucher_type.get_ncat`/`list_entry_types` (voucher_type.py:196-216); `fa_reports.route_voucher` NCat via Voucher_Type (fa_reports.py:808-835); UI combo loads DB (fa_voucher_ui.py:54-64). Privilege gate still open |
 | FA-7 | FaVoucher.bas Proc_7_2/7_4 | Voucher print (Crystal) | No print path |
-| FA-8 | FaVrEnt FindMove + FAFind | Find/navigate/edit voucher | No edit_voucher, no find UI |
+| FA-8 | FaVrEnt FindMove + FAFind | Find/navigate/edit voucher | IMPLEMENTED (core) — `get_voucher` / `find_voucher` / `edit_voucher` (fa_voucher.py:538-660); dedicated find/edit UI not added |
 | FA-9 | FaTDSChal.frm | TDS challan entry UI | core CRUD only, menu opens voucher entry |
 | FA-10 | FaTDSCertificate | Certificate gen from LEDGERTDS | `tds_detail()` AttributeError (missing fn) |
 | FA-11 | FaCurrBalUpdate | Full rebuild zero-then-recompute | Partial; menu opens trial balance viewer |
-| FA-12 | FaAdjust pending query | HAVING MAX(AmtCr) > SUM(Adj.cr) + over-adjust guard | Blind manual insert |
+| FA-12 | FaAdjust pending query | HAVING MAX(AmtCr) > SUM(Adj.cr) + over-adjust guard | IMPLEMENTED — `adj_pending` / `pending_adjustments` / over-adj guard in `ledgeradj_insert` (fa_ledger_ops.py:89-154); FaAdjustWindow surfaces ValueError (fa_sub_forms_ui.py:81-99) |
 | FA-13 | delete_voucher | Also delete TDSDocId contra LEDGER rows | Leaves orphan TDS voucher |
 | FA-14 | ContraSub per-line | Multi-line contra pairing | Only filled when len==2 |
 
@@ -94,8 +94,8 @@
 | P&L sign | Revenue Cr−Dr | `_ledger_by_date_range` uses dr-cr for all natures | Apply L,R → cr−dr |
 | Cheque clear | Chq_No + Chq_Date + Clg_Date (3 cols) | Only Clg_Date / missing Chq_Date | Write all 3 |
 | Menu wiring | Distinct forms per leaf | Adj/Delete→voucher entry; TDSChal→voucher entry; Year End→trial bal; Permissions→UserMaster | Remap shell leaves |
-| Voucher types | Load from Voucher_Type NCat | Hardcoded ["JV","HPOST","F_AO"] | Load from DB |
-| next_vno site | Filter Site+LogSite | Ignores site | Add site filters |
+| Voucher types | Load from Voucher_Type NCat | Was hardcoded ["JV","HPOST","F_AO"] | IMPLEMENTED — `voucher_type.list_entry_types` + fa_voucher_ui.py:54-64 |
+| next_vno site | Filter Site+LogSite | Was site-blind | IMPLEMENTED — `next_vno` / `_prefix_for` Site_Code filters (fa_voucher.py:29-69) |
 | Prefix missing | Raise / manual method | Silent FY-string fallback | Raise if no row |
 
 ---

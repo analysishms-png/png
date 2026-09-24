@@ -116,7 +116,9 @@ def create_checkin(guestprof: str, name: str, arr_date, dep_date,
                    city: str = "", bookingdocid: str = "",
                    roomno: str = "", user: str = USER, cn=None,
                    commit: bool = True,
-                   site: str = SITE_CODE, vprefix: str = "2026") -> int:
+                   site: str = SITE_CODE, vprefix: str = "2026",
+                   adult: int | None = None, children: int | None = None,
+                   ratecode: str = "", chkintime: str = "") -> int:
     """Naya check-in (VB6 CHK doc-engine): DocId + FolioNo + FolioLog 'A'
     + RoomOcc row (P4-c MISSING-LOGIC FIX).
 
@@ -127,6 +129,10 @@ def create_checkin(guestprof: str, name: str, arr_date, dep_date,
     dikhta hi nahi. roomno optional: blank -> pehla free 'RO' room
     (RoomMast.Type='RO' jo open RoomOcc me na ho).
 
+    FO-7: adult/children/ratecode/chkintime RoomOcc me jaate hain
+    (VB6 fdWalkInEntry Adult/Children/ChkInTime cols). Defaults:
+    Adult=1, Children=0, ChkInTime=abhi ka HH:MM (hardcode nahi).
+
     PYT-guard caller-side (UI sirf PYT* naam likhta hai; production
     check-ins VB6 EXE se hi)."""
     name = (name or "").strip()
@@ -134,6 +140,11 @@ def create_checkin(guestprof: str, name: str, arr_date, dep_date,
         raise ValueError("Guest Name zaroori hai")
     if arr_date > dep_date:
         raise ValueError("Arrival > Departure nahi ho sakta")
+    n_adult = int(adult) if adult is not None else 1
+    n_child = int(children) if children is not None else 0
+    if n_adult < 0 or n_child < 0:
+        raise ValueError("Adult/Children negative nahi ho sakte")
+    t_in = (chkintime or "").strip() or datetime.datetime.now().strftime("%H:%M")
     folio = next_folio(cn=cn, vprefix=vprefix)
     docid = make_docid(site, vprefix, folio)
     nodays = max((dep_date - arr_date).days, 1)
@@ -179,16 +190,18 @@ def create_checkin(guestprof: str, name: str, arr_date, dep_date,
         # --- P4-c: RoomOcc row (fdRoomChange:3639 pattern, core cols;
         # SNo=1 per folio). Vtype discrimination via GuestFolio.Vtype='CHK'.
         # RoomOcc.Type='I' = in-house (dashboard rack/report joins).
-        # Adult=1, Children=0 defaults.
+        # FO-7: Adult/Children/RateCode/ChkInTime caller se (defaults
+        # 1/0/''/abhi) - hardcode nahi.
         db.execute(
             "INSERT INTO RoomOcc (DocId, SNo, FolioNo, Vtype, Site_Code, "
-            "Vprefix, GuestProf, RoomNo, ChkInDate, ChkInTime, Adult, "
-            "Children, DepDate, DepTime, Type, U_Name, U_EntDt, U_AE, "
-            "LogSite_Code) "
-            "VALUES (?, 1, ?, 'CHK', ?, ?, ?, ?, ?, '10:00', 1, 0, ?, "
+            "Vprefix, GuestProf, RoomNo, RateCode, ChkInDate, ChkInTime, "
+            "Adult, Children, DepDate, DepTime, Type, U_Name, U_EntDt, "
+            "U_AE, LogSite_Code) "
+            "VALUES (?, 1, ?, 'CHK', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
             "'10:00', 'I', ?, getdate(), 'A', ?)",
             (docid, folio, site, vprefix, guestprof, roomno,
-             arr_date, dep_date, user, site), cn=cn, commit=False)
+             (ratecode or "").strip(), arr_date, t_in, n_adult, n_child,
+             dep_date, user, site), cn=cn, commit=False)
         _log(docid, "A", user, cn, site)
         if commit:
             cn.commit()
@@ -336,6 +349,9 @@ def group_checkin(guests: list[dict], user: str = USER, cn=None,
                 city=g.get("city", ""),
                 bookingdocid=g.get("bookingdocid", ""),
                 roomno=g.get("roomno", ""),
+                adult=g.get("adult"), children=g.get("children"),
+                ratecode=g.get("ratecode", ""),
+                chkintime=g.get("chkintime", ""),
                 user=user, cn=cn, commit=False,
                 site=site, vprefix=vprefix)
             folios.append(f)

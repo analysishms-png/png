@@ -70,12 +70,34 @@ def folio_balance(folio: int, cn=None, vprefix: str = VPREFIX) -> float:
     return float(rows[0][0] or 0.0)
 
 
+def _get_settle_mode(cn=None) -> str:
+    """Enviro.Checkout padho: 'Strict' = settle pe non-zero block,
+    'Standard' = non-zero allow (VB6 settle-mode semantics).
+
+    Unreadable/missing/empty -> 'Strict' (hard-block; safe default).
+    Evidence: live Enviro.Checkout='Standard'; moondata.sql default ''."""
+    try:
+        rows = db.query(
+            "SELECT [Checkout] FROM Enviro WHERE LogSite_Code = ? OR "
+            "LogSite_Code = 'HO'", (SITE_CODE,), cn=cn)
+    except db.pyodbc.Error as e:
+        if "207" in str(e) or "Invalid column name" in str(e):
+            return "Strict"
+        raise
+    if not rows or rows[0][0] in (None, ""):
+        return "Strict"
+    return str(rows[0][0]).strip() or "Strict"
+
+
 def settle_folio(folio: int, user: str = USER, cn=None, commit: bool = True,
                  site: str = SITE_CODE, vprefix: str = VPREFIX,
                  sett_mode: str = "Cash") -> int:
     """Check-out settle (VB6 FOMBillDetails INSERT pattern):
     Bill_No = MAX+1, Status='SETTLE', FolioNoDocid = GuestFolio.DocId.
-    VB6 rule: balance MUST be zero before settle (Strict mode)."""
+
+    Settle mode (FO gap): Enviro.Checkout='Strict' -> balance MUST be
+    zero; 'Standard' -> non-zero allow. Unreadable/empty -> Strict
+    (hard-block; _get_settle_mode default)."""
     rows = db.query(
         "SELECT DocId, Name FROM GuestFolio WHERE Site_Code = ? AND "
         "Vprefix = ? AND FolioNo = ?", (site, vprefix, folio), cn=cn)
@@ -89,11 +111,13 @@ def settle_folio(folio: int, user: str = USER, cn=None, commit: bool = True,
         "Status = 'SETTLE'", (rows[0][0],), cn=cn)
     if already:
         raise ValueError(f"Folio #{folio} pehle se settled hai")
-    # VB6 rule: balance must be zero before settlement
+    # Settle mode: Strict blocks non-zero; Standard allows (VB6 rule)
+    mode = _get_settle_mode(cn=cn)
     bal = folio_balance(folio, cn=cn, vprefix=vprefix)
-    if abs(bal) > 0.005:
+    if mode != "Standard" and abs(bal) > 0.005:
         raise ValueError(
-            f"Folio #{folio} balance {bal:.2f} hai (zero hona chahiye)")
+            f"Folio #{folio} balance {bal:.2f} hai "
+            f"(settle mode '{mode}' zero balance require karta hai)")
     own = cn is None
     cn = cn or db.connect()
     try:

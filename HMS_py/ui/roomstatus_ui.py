@@ -126,18 +126,17 @@ class RoomStatusForm(QDialog):
         self.btnMaint.setStyleSheet(
             f"background:{s['neutral']}; color:{s['on_neutral']};"
             "font-weight:bold; padding:6px; border:none; border-radius:6px;")
-        # P4-c: Maintenance/Out-of-Order VB6 me RoomBLockOut table se tha
-        # (frm:883) - live table 0 rows, block-out UI P4-d me. Evidence:
-        # core update_hk_status sirf Clean/Dirty (RoomStat varchar(1)).
-        self.btnMaint.setEnabled(False)
+        # FO-10: RoomBLockOut live (59 rows) - block/unblock enabled
+        self.btnMaint.setEnabled(True)
         self.btnMaint.setToolTip(
-            "RoomBLockOut block-out P4-d me (live table empty)")
+            "RoomBLockOut Type='M' block (VB6 HKRoomBlock pattern)")
         self.btnOOO = QPushButton("Mark OUT OF ORDER")
         self.btnOOO.setStyleSheet(
             f"background:{s['danger']}; color:{s['on_danger']};"
             "font-weight:bold; padding:6px; border:none; border-radius:6px;")
-        self.btnOOO.setEnabled(False)
-        self.btnOOO.setToolTip("RoomBLockOut block-out P4-d me")
+        self.btnOOO.setEnabled(True)
+        self.btnOOO.setToolTip(
+            "RoomBLockOut Type='O' block (VB6 HHouseKeeping pattern)")
         self.btnRefresh = QPushButton("Refresh (F5)")
         self.btnClose = QPushButton("Close")
         for b in (self.btnVacant, self.btnDirty, self.btnMaint,
@@ -239,19 +238,80 @@ class RoomStatusForm(QDialog):
         curr = self.tbl.item(r, 4).text() if self.tbl.item(r, 4) else ""
         folio = self.tbl.item(r, 5).text() if self.tbl.item(r, 5) else ""
 
-        # Occupied/Vacant room ko Dirty mark karna VB6 rule hai; aur
-        # Maintenance/OOO abhi disable hain (RoomBLockOut P4-d me).
-        if new_status not in ("Vacant", "Dirty"):
-            QMessageBox.information(
-                self, "HK Update",
-                f"'{new_status}' abhi supported nahi "
-                "(RoomBLockOut P4-d me aayega)")
-            return
-        if new_status == "Vacant" and folio:
+        # Occupied room: sirf Dirty allowed (VB6 rule)
+        if folio and new_status != "Dirty":
             QMessageBox.warning(
                 self, "HK Update",
                 f"Room {roomno} occupied hai (Folio #{folio}).\n"
-                "Check-Out ke baad hi Vacant mark ho sakta hai.")
+                "Check-Out ke baad hi status change ho sakta hai.")
+            return
+
+        # FO-10: Maintenance / Out of Order -> RoomBLockOut block/unblock
+        if new_status in ("Maintenance", "Out of Order"):
+            btype = "M" if new_status == "Maintenance" else "O"
+            if curr in ("Maintenance", "Out of Order"):
+                # already blocked -> unblock
+                if QMessageBox.question(
+                        self, "Unblock Room",
+                        f"Room {roomno} ka '{curr}' block hatayein?") != \
+                        QMessageBox.StandardButton.Yes:
+                    return
+                try:
+                    roomstatus.unblock_room(
+                        roomno, block_type=btype, user=self.user)
+                except ValueError as e:
+                    QMessageBox.warning(self, "Unblock", str(e))
+                    return
+                except Exception as e:
+                    QMessageBox.critical(self, "Unblock", f"DB error: {e}")
+                    return
+                self.reload()
+                return
+            reason = ""
+            if btype == "O":
+                from PyQt6.QtWidgets import QInputDialog
+                reason, ok = QInputDialog.getText(
+                    self, "Out of Order",
+                    f"Room {roomno} OOO reason (required):")
+                if not ok or not (reason or "").strip():
+                    return
+            if QMessageBox.question(
+                    self, "Block Room",
+                    f"Room {roomno}: '{curr}' -> '{new_status}'?") != \
+                    QMessageBox.StandardButton.Yes:
+                return
+            try:
+                roomstatus.block_out(
+                    roomno, block_type=btype, reason=reason,
+                    user=self.user)
+            except ValueError as e:
+                QMessageBox.warning(self, "Block", str(e))
+                return
+            except Exception as e:
+                QMessageBox.critical(self, "Block", f"DB error: {e}")
+                return
+            self.reload()
+            return
+
+        if new_status == "Vacant" and curr in ("Maintenance", "Out of Order"):
+            # Vacant = unblock all types
+            if QMessageBox.question(
+                    self, "HK Status Update",
+                    f"Room {roomno}: unblock + Vacant mark karein?") != \
+                    QMessageBox.StandardButton.Yes:
+                return
+            try:
+                roomstatus.unblock_room(roomno, block_type="",
+                                        user=self.user)
+                roomstatus.update_hk_status(roomno, "Vacant",
+                                            user=self.user)
+            except ValueError as e:
+                QMessageBox.warning(self, "HK Update", str(e))
+                return
+            except Exception as e:
+                QMessageBox.critical(self, "HK Update", f"DB error: {e}")
+                return
+            self.reload()
             return
 
         if QMessageBox.question(

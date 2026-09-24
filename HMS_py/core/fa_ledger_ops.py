@@ -86,8 +86,64 @@ def ledgeradj_get(docid1: str, sno1: int, docid2: str, sno2: int,
     return _map_ledgeradj(rows[0]) if rows else None
 
 
+def adj_pending(docid: str, sno: int, cn=None) -> float:
+    """FA-12: remaining adjustable amount on a Ledger line
+    (VB6 FaAdjust loc_1487A1A: AmtCr - SUM(LEDGERADJ.cr))."""
+    rows = db.query(
+        "SELECT l.AmtCr, l.AmtDr, ISNULL((SELECT SUM(a.Cr) "
+        "FROM LEDGERADJ a WHERE (a.DocId2 = l.DocId AND a.V_SNo2 = l.V_SNo) "
+        "OR (a.DocId1 = l.DocId AND a.V_SNo1 = l.V_SNo)), 0) "
+        "FROM Ledger l WHERE l.DocId = ? AND l.V_SNo = ?",
+        (docid, sno), cn=cn)
+    if not rows:
+        raise ValueError(f"Ledger line '{docid}' SNo {sno} nahi mila")
+    cr = float(rows[0][0] or 0)
+    dr = float(rows[0][1] or 0)
+    adjd = float(rows[0][2] or 0)
+    base = cr if cr > 0 else dr
+    return max(0.0, round(base - adjd, 2))
+
+
+def pending_adjustments(subcode: str | None = None, d_from=None, d_to=None,
+                        cn=None) -> list[dict]:
+    """FA-12: bills with AmtCr > 0 and pending adj (VB6 FaAdjust HAVING parity)."""
+    sql = (
+        "SELECT DocId, V_SNo, V_Date, SubCode, Name, AmtCr, AgRefNo, "
+        "Pending FROM ( "
+        "SELECT l.DocId, l.V_SNo, l.V_Date, l.SubCode, s.Name, "
+        "l.AmtCr, l.AgRefNo, "
+        "l.AmtCr - ISNULL((SELECT SUM(a.Cr) FROM LEDGERADJ a "
+        "WHERE a.DocId2 = l.DocId AND a.V_SNo2 = l.V_SNo), 0) AS Pending "
+        "FROM Ledger l LEFT JOIN SubGroup s ON s.SubCode = l.SubCode "
+        "WHERE l.AmtCr > 0 AND (l.LogSite_Code = ? OR "
+        "ISNULL(l.LogSite_Code, '') = '' OR l.LogSite_Code = 'HO')")
+    params: list = [SITE_CODE]
+    if subcode:
+        sql += " AND RTRIM(l.SubCode) = ?"
+        params.append(subcode)
+    if d_from is not None:
+        sql += " AND l.V_Date >= ?"
+        params.append(d_from)
+    if d_to is not None:
+        sql += " AND l.V_Date <= ?"
+        params.append(d_to)
+    sql += ") p WHERE p.Pending > 0.005 ORDER BY p.V_Date, p.DocId"
+    rows = db.query(sql, tuple(params), cn=cn)
+    return [{"docid": r[0], "v_sno": int(r[1] or 0), "vdate": r[2],
+             "subcode": (r[3] or "").strip(), "name": (r[4] or "").strip(),
+             "amt_cr": float(r[5] or 0), "agrefno": (r[6] or "").strip(),
+             "pending": float(r[7] or 0)} for r in rows]
+
+
 def ledgeradj_insert(rec: dict, cn=None, commit: bool = True) -> int:
     _validate_ledgeradj(rec)
+    amt = float(rec.get("cr") or 0)
+    if amt <= 0:
+        raise ValueError("Adjustment amount zero nahi ho sakta")
+    # FA-12: over-adjust guard (VB6 FaAdjust loc_14877F5)
+    pending = adj_pending(rec["docid2"], int(rec["v_sno2"]), cn=cn)
+    if amt > pending + 0.005:
+        raise ValueError("* Amount Already Adjusted *")
     return db.execute(
         "INSERT INTO LEDGERADJ (DocId1, V_SNo1, DocId2, V_SNo2, Cr, "
         "SubCode, Name, AgRefNo, U_Name, U_EntDt, U_AE, Site_Code, LogSite_Code) "

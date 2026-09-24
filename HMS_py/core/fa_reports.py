@@ -806,14 +806,27 @@ def bank_reconciliation(subcode: str, date_to=None, cn=None) -> dict:
 # 11. Voucher Type Routing (VB6: FaVrEnt Auto-routing)
 # ============================================================
 def route_voucher(subcode: str, cn=None) -> str:
-    """VB6 auto-routing: determine voucher type based on account group."""
+    """FA-6: NCat-based routing via Voucher_Type (VB6 FaVoucher Proc_7).
+    Name heuristic fallback jab Voucher_Type NCat na mile."""
     rows = db.query(
         "SELECT SG.GroupName FROM SubGroup S "
         "JOIN AcGroup SG ON SG.GroupCode = S.GroupCode "
-        "WHERE S.SubCode = ?", (subcode,), cn=cn)
-    if not rows:
-        return "JV"
-    name = (rows[0][0] or "").upper()
-    if "CASH" in name or "BANK" in name:
-        return "RV"
+        "WHERE RTRIM(S.SubCode) = ?", (subcode,), cn=cn)
+    name = (rows[0][0] if rows else "" or "").upper()
+    # NCat preference from live Voucher_Type (CNT/JV/PMT/RCT, VB6 branch)
+    want: list[str] = []
+    if "CASH" in name:
+        want = ["RCT", "PMT"]
+    elif "BANK" in name:
+        want = ["RCT", "PMT"]
+    elif "CASH" in (subcode or "").upper():
+        want = ["RCT", "PMT"]
+    else:
+        want = ["JV"]
+    for ncat in want:
+        r = db.query(
+            "SELECT TOP 1 V_Type FROM Voucher_Type WHERE NCat = ? "
+            "ORDER BY V_Type", (ncat,), cn=cn)
+        if r and (r[0][0] or "").strip():
+            return (r[0][0] or "").strip()
     return "JV"

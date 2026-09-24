@@ -23,9 +23,11 @@ from typing import Optional
 
 from HMS_py.core import db
 from HMS_py.core import folio as folio_mod
+from datetime import datetime as _dt
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
 USER = db.get_user()
+VYEAR = str(_dt.now().year)
 VTYPE_RC = "RC"
 VTYPE_PPOS = "PPOS"
 PAY_CODE_RC = "KKRMCH"
@@ -482,6 +484,49 @@ def run_night_audit(date_from, date_to=None, user: str = USER,
 # Read-only functions (existing)
 # ============================================================
 
+# ============================================================
+# Reverse Night Audit (VB6 frmReNightAudit.frm:318-340)
+# ============================================================
+
+def reverse_night_audit(user: str = USER, cn=None,
+                        commit: bool = True) -> dict:
+    """VB6 reverse night audit: sirf Enviro.NCur -1 day.
+
+    Evidence (frmReNightAudit.frm:331-336):
+      If Format(NCur, 'dd/MMM') <> '01/Apr' Then
+        Update Enviro Set NCur = DateAdd('D', -1, NCur) Where LogSite_Code=...
+      Else 'Reverse Night Audit Not Go Beyond F/A Year..'
+    PayCharge delete VB6 me NAHI hota - sirf business-date rollback.
+
+    Returns {from_date, to_date}. Raises ValueError on FY-start guard."""
+    rows = db.query(
+        "SELECT [NCur] FROM Enviro WHERE LogSite_Code = ? OR "
+        "LogSite_Code = 'HO'", (SITE_CODE,), cn=cn)
+    if not rows:
+        raise ValueError("Enviro NCur nahi mila")
+    ncur = rows[0][0]
+    if ncur is None:
+        raise ValueError("Enviro NCur NULL hai (reverse possible nahi)")
+    ncur_d = ncur.date() if isinstance(ncur, datetime.datetime) else ncur
+    # VB6 guard: 01/Apr = FY start - usse pehle reverse nahi
+    if ncur_d.month == 4 and ncur_d.day == 1:
+        raise ValueError("Reverse Night Audit Not Go Beyond F/A Year..")
+    new_d = ncur_d - datetime.timedelta(days=1)
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        db.execute(
+            "UPDATE Enviro SET [NCur] = ?, U_Name = ?, "
+            "U_EntDt = getdate(), U_AE = 'E' WHERE LogSite_Code = ?",
+            (new_d, user, SITE_CODE), cn=cn, commit=False)
+        if commit:
+            cn.commit()
+        return {"from_date": ncur_d, "to_date": new_d, "user": user}
+    finally:
+        if own:
+            cn.close()
+
+
 def na_log(cn=None, top: int = 100) -> list:
     rows = db.query(
         f"SELECT TOP {int(top)} Id, DateChngFrom, DateChngTo, "
@@ -493,7 +538,7 @@ def na_log(cn=None, top: int = 100) -> list:
              "user": r.U_Name or "", "ae": r.U_AE or ""} for r in rows]
 
 
-def occupancy(cn=None, vprefix: str = "2026", top: int = 30) -> list:
+def occupancy(cn=None, vprefix: str = VYEAR, top: int = 30) -> list:
     rooms = db.query(
         "SELECT COUNT(*) FROM RoomMast WHERE Site_Code = ?", (SITE_CODE,), cn=cn)[0][0]
     rows = db.query(
@@ -507,7 +552,7 @@ def occupancy(cn=None, vprefix: str = "2026", top: int = 30) -> list:
             for r in rows]
 
 
-def revenue_summary(cn=None, vprefix: str = "2026", top: int = 30) -> list:
+def revenue_summary(cn=None, vprefix: str = VYEAR, top: int = 30) -> list:
     rows = db.query(
         f"SELECT TOP {int(top)} Vdate, "
         "SUM(AmtDr) AS Dr, SUM(AmtCr) AS Cr, COUNT(*) AS Lines "
@@ -518,7 +563,7 @@ def revenue_summary(cn=None, vprefix: str = "2026", top: int = 30) -> list:
              "lines": r.Lines or 0} for r in rows]
 
 
-def room_revenue(cn=None, vprefix: str = "2026", top: int = 30) -> list:
+def room_revenue(cn=None, vprefix: str = VYEAR, top: int = 30) -> list:
     rows = db.query(
         f"SELECT TOP {int(top)} Vdate, SUM(AmtDr - AmtCr) AS RoomRev "
         "FROM PayCharge WHERE Site_Code = ? AND VPrefix = ? AND "

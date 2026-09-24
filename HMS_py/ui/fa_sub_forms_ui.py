@@ -91,6 +91,8 @@ class FaAdjustWindow(QMainWindow):
             })
             QMessageBox.information(self, "Saved", "Adjustment saved!")
             self._load_data()
+        except ValueError as e:
+            QMessageBox.warning(self, "Adjustment", str(e))
         except Exception as e:
             QMessageBox.critical(self, "Error", str(e))
 

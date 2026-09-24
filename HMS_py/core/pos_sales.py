@@ -538,3 +538,129 @@ class _PayChargeAPI:
     def delete(docid, cn=None, commit=True): return paycharge_delete(docid, cn, commit)
 
 PayChargeAPI = _PayChargeAPI()
+
+
+# ============================================================
+# Full sale save (PI-2): Sale1 + Sale2 + SunTran + PayCharge
+#                     + Stock QtyIss + KOT close (VB6 RSSaleBill)
+# ============================================================
+def sale_bill_full_save(header: dict,
+                        sale2_lines: list[dict] | None = None,
+                        suntran_lines: list[dict] | None = None,
+                        paycharge_lines: list[dict] | None = None,
+                        stock_lines: list[dict] | None = None,
+                        close_kot_docids: list[str] | None = None,
+                        cn=None, commit: bool = True) -> dict:
+    """Atomic multi-table POS bill save (VB6 RSSaleBill 'Save').
+
+    Writes on ONE shared connection:
+      1. Sale1 header
+      2. Sale2 tax-lines (DocId+Sno)
+      3. SunTran sundry lines
+      4. PayCharge payment lines
+      5. Stock rows (QtyIss) for item consumption
+      6. UPDATE KOT: Pending='N', ContraDocId=<sale DocId> (bill close)
+
+    header keys: docid, vtype, vno, vdate, restcode, custname, total,
+    taxable, tax, netamt, cgst, sgst, igst, servicecharge, roundoff, ...
+    stock_lines: [{item, qty, rate, amount, unit, godown, sno}]
+    close_kot_docids: KOT DocIds to settle against this bill.
+    Returns {"docid", "sale2", "suntran", "paycharge", "stock", "kot_closed"}.
+    """
+    _validate_sale1(header)
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        sale1_insert(header, cn=cn, commit=False)
+        docid = header["docid"]
+        n_s2 = n_sun = n_pay = n_stk = 0
+        for i, rec in enumerate(sale2_lines or [], 1):
+            r = dict(rec)
+            r.setdefault("docid", docid)
+            r.setdefault("sno", i)
+            r.setdefault("vtype", header.get("vtype", ""))
+            r.setdefault("vno", header.get("vno") or 0)
+            r.setdefault("vprefix", header.get("vprefix", ""))
+            r.setdefault("vdate", header.get("vdate"))
+            r.setdefault("restcode", header.get("restcode", ""))
+            sale2_insert(r, cn=cn, commit=False)
+            n_s2 += 1
+        for i, rec in enumerate(suntran_lines or [], 1):
+            r = dict(rec)
+            r.setdefault("docid", docid)
+            r.setdefault("sno", i)
+            r.setdefault("vtype", header.get("vtype", ""))
+            r.setdefault("vno", header.get("vno") or 0)
+            r.setdefault("vdate", header.get("vdate"))
+            r.setdefault("restcode", header.get("restcode", ""))
+            suntran_insert(r, cn=cn, commit=False)
+            n_sun += 1
+        for i, rec in enumerate(paycharge_lines or [], 1):
+            r = dict(rec)
+            r.setdefault("docid", docid)
+            r.setdefault("sno", i)
+            r.setdefault("vtype", header.get("vtype", ""))
+            r.setdefault("vno", header.get("vno") or 0)
+            r.setdefault("vprefix", header.get("vprefix", ""))
+            r.setdefault("vdate", header.get("vdate"))
+            r.setdefault("restcode", header.get("restcode", ""))
+            paycharge_insert(r, cn=cn, commit=False)
+            n_pay += 1
+        for i, rec in enumerate(stock_lines or [], 1):
+            sno = int(rec.get("sno") or i)
+            qty = abs(float(rec.get("qty") or 0))
+            rate = float(rec.get("rate") or 0)
+            amount = float(rec.get("amount") or 0) or qty * rate
+            db.execute(
+                "INSERT INTO Stock (DocId, Sno, Vtype, VNo, Site_Code, "
+                "VPrefix, VDate, VTime, Item, QtyIss, QtyRec, Unit, Rate, "
+                "Amount, GodownCode, RestCode, U_Name, U_EntDt, U_AE, "
+                "LogSite_Code, DelFlag) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, '00:00', ?, ?, 0, ?, ?, ?, "
+                "?, ?, ?, getdate(), 'A', ?, 'N')",
+                (docid, sno, header.get("vtype", ""),
+                 int(header.get("vno") or 0), SITE_CODE,
+                 header.get("vprefix", ""), header.get("vdate"),
+                 rec.get("item", ""), qty, rec.get("unit", ""),
+                 rate, amount, rec.get("godown", ""),
+                 header.get("restcode", ""), USER, SITE_CODE),
+                cn=cn, commit=False)
+            n_stk += 1
+        n_kot = 0
+        for kid in (close_kot_docids or []):
+            if not kid:
+                continue
+            n_kot += db.execute(
+                "UPDATE KOT SET Pending = 'N', ContraDocId = ?, "
+                "U_Name = ?, U_AE = 'E', U_EntDt = getdate() "
+                "WHERE DocId = ? AND ISNULL(VoidYN, 'N') <> 'Y'",
+                (docid, USER, kid), cn=cn, commit=False)
+        if commit:
+            cn.commit()
+        return {"docid": docid, "sale2": n_s2, "suntran": n_sun,
+                "paycharge": n_pay, "stock": n_stk, "kot_closed": n_kot}
+    except Exception:
+        if own:
+            try:
+                cn.rollback()
+            except Exception:
+                pass
+        raise
+    finally:
+        if own:
+            try:
+                cn.close()
+            except Exception:
+                pass
+
+
+class _SaleBillAPI:
+    @staticmethod
+    def full_save(header, sale2_lines=None, suntran_lines=None,
+                  paycharge_lines=None, stock_lines=None,
+                  close_kot_docids=None, cn=None, commit=True):
+        return sale_bill_full_save(
+            header, sale2_lines, suntran_lines, paycharge_lines,
+            stock_lines, close_kot_docids, cn, commit)
+
+SaleBillAPI = _SaleBillAPI()

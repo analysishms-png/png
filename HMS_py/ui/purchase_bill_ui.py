@@ -36,9 +36,11 @@ class PurchaseBillWindow(QMainWindow):
         layout.addWidget(hdr)
         lines_grp = QGroupBox("Bill Lines")
         lines_lay = QVBoxLayout(lines_grp)
-        self.table = QTableWidget(); self.table.setColumnCount(7)
+        self.table = QTableWidget(); self.table.setColumnCount(9)
         self.table.setHorizontalHeaderLabels(
-            ["SNo", "Item Code", "Item Name", "Qty", "Rate", "Tax%", "Amount"])
+            ["SNo", "Item Code", "Item Name", "Qty", "Rate", "Tax%", "Amount",
+             "", "TaxStru"])
+        self.table.setColumnHidden(7, True)
         self.table.setAlternatingRowColors(True)
         lines_lay.addWidget(self.table)
         btn_lay = QHBoxLayout()
@@ -70,7 +72,7 @@ class PurchaseBillWindow(QMainWindow):
 
     def _add_line(self):
         r = self.table.rowCount(); self.table.insertRow(r)
-        for c, v in enumerate([str(r+1), "", "", "0", "0", "0", "0"]):
+        for c, v in enumerate([str(r+1), "", "", "0", "0", "0", "0", "", ""]):
             it = QTableWidgetItem(v)
             it.setForeground(QColor(palette()["text"]))
             self.table.setItem(r, c, it)
@@ -93,9 +95,21 @@ class PurchaseBillWindow(QMainWindow):
             except ValueError:
                 QMessageBox.warning(self, "Error", "Row %d: Invalid" % (r+1)); return
             amount = qty * rate
-            tax_amt = amount * tax_per / 100
+            # PI-4: TaxStru slab GST when structure code given (col 8)
+            tax_stru = ""
+            if self.table.columnCount() > 8 and self.table.item(r, 8):
+                tax_stru = self.table.item(r, 8).text().strip()
+            if tax_stru:
+                from HMS_py.core import taxstru as _ts
+                calc = _ts.calculate(tax_stru, amount)
+                tax_per = (round(calc["total_tax"] / amount * 100, 2)
+                           if amount else 0)
+                tax_amt = calc["total_tax"]
+            else:
+                tax_amt = amount * tax_per / 100
             lines.append({"item": item, "qty": qty, "rate": rate, "unit": "",
-                          "amount": amount, "tax_per": tax_per, "tax_amt": tax_amt,
+                          "amount": amount, "tax_per": tax_per,
+                          "tax_amt": tax_amt, "tax_stru": tax_stru,
                           "disc_per": 0, "disc_amt": 0})
         if not lines:
             QMessageBox.warning(self, "Empty", "Koi lines nahi"); return

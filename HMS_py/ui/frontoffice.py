@@ -134,12 +134,24 @@ class CheckInBrowser(QDialog):
         ed_city.setPlaceholderText("City code (e.g. KK0002)")
         ed_book = QLineEdit("")
         ed_book.setPlaceholderText("BookingDocId (optional, Reservation se)")
+        ed_adult = QLineEdit("1")
+        ed_adult.setPlaceholderText("Adult count (default 1)")
+        ed_child = QLineEdit("0")
+        ed_child.setPlaceholderText("Children count (default 0)")
+        ed_rate = QLineEdit("")
+        ed_rate.setPlaceholderText("RateCode (optional)")
+        ed_chkin = QLineEdit(datetime.datetime.now().strftime("%H:%M"))
+        ed_chkin.setPlaceholderText("Check-In time HH:MM")
         form.addRow("Guest Name (PYT*)", ed_name)
         form.addRow("GuestProf Code", ed_code)
         form.addRow("Arrival", de_arr)
         form.addRow("Departure", de_dep)
         form.addRow("City", ed_city)
         form.addRow("BookingDocId", ed_book)
+        form.addRow("Adult", ed_adult)
+        form.addRow("Children", ed_child)
+        form.addRow("RateCode", ed_rate)
+        form.addRow("ChkInTime", ed_chkin)
         lay = QVBoxLayout(dlg)
         lay.addLayout(form)
         brow = QHBoxLayout()
@@ -158,10 +170,20 @@ class CheckInBrowser(QDialog):
                 gcode = guestprof.next_code()
                 guestprof.insert({"code": gcode, "name": ed_name.text(),
                                   "city": ed_city.text().strip()})
+            try:
+                n_adult = int(ed_adult.text().strip() or "1")
+                n_child = int(ed_child.text().strip() or "0")
+            except ValueError:
+                QMessageBox.warning(self, "New Check-In",
+                                    "Adult/Children integer hone chahiye")
+                return
             folio = checkin.create_checkin(
                 gcode, ed_name.text(), de_arr.date().toPyDate(),
                 de_dep.date().toPyDate(), city=ed_city.text().strip(),
-                bookingdocid=ed_book.text().strip(), user=self.user)
+                bookingdocid=ed_book.text().strip(), user=self.user,
+                adult=n_adult, children=n_child,
+                ratecode=ed_rate.text().strip(),
+                chkintime=ed_chkin.text().strip())
         except ValueError as e:
             QMessageBox.warning(self, "New Check-In", str(e))
             return

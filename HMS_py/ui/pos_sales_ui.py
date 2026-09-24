@@ -14,7 +14,7 @@ from PyQt6.QtWidgets import (QApplication, QDialog, QVBoxLayout, QHBoxLayout,
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor
 
-from HMS_py.core.pos_sales import Sale1API
+from HMS_py.core.pos_sales import Sale1API, SaleBillAPI
 from HMS_py.ui import theme as _theme
 
 
@@ -151,16 +151,25 @@ class PosSalesDialog(QDialog):
         if not docid:
             QMessageBox.information(self, "Info", "Enter DocId for new sale.")
             return
+        try:
+            netamt = float(self.txt_netamt.text() or 0)
+        except ValueError:
+            netamt = 0.0
         rec = {
             "docid": docid,
             "vtype": "SAL",
             "vdate": self.txt_vdate.text(),
             "restcode": self.txt_restcode.text(),
             "custname": self.txt_custname.text(),
-            "netamt": self.txt_netamt.text(),
+            "total": netamt,
+            "taxable": netamt,
+            "tax": 0.0,
+            "netamt": netamt,
         }
         try:
-            Sale1API.insert(rec)
+            # PI-2: full-save (Sale1 only for bare header entry;
+            # sale2/suntran/paycharge/stock/kot optional)
+            SaleBillAPI.full_save(rec)
             self._refresh()
         except Exception as e:
             QMessageBox.warning(self, "Error", str(e))

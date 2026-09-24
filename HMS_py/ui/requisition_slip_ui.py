@@ -50,10 +50,10 @@ class RequisitionSlipWindow(QMainWindow):
         grp = QGroupBox("Pending Requisition Lines")
         glay = QVBoxLayout(grp)
         self.table = QTableWidget()
-        self.table.setColumnCount(8)
+        self.table.setColumnCount(10)
         self.table.setHorizontalHeaderLabels(
             ["Indent DocId", "Sno", "Date", "Dept", "Item", "Req Qty",
-             "Unit", "Issue Qty"])
+             "Unit", "Godown", "Rate", "Issue Qty"])
         self.table.horizontalHeader().setStretchLastSection(True)
         self.table.setAlternatingRowColors(True)
         self.table.setSelectionBehavior(
@@ -90,7 +90,7 @@ class RequisitionSlipWindow(QMainWindow):
         for row in rows:
             r = self.table.rowCount()
             self.table.insertRow(r)
-            docid, sno, vdate, dept, item, qty, unit = row
+            docid, sno, vdate, dept, item, qty, unit, godown, rate = row
             self.table.setItem(r, 0, _cell(docid))
             self.table.setItem(r, 1, _cell(sno))
             self.table.setItem(r, 2, _cell(vdate))
@@ -98,13 +98,14 @@ class RequisitionSlipWindow(QMainWindow):
             self.table.setItem(r, 4, _cell(item))
             self.table.setItem(r, 5, _cell(qty))
             self.table.setItem(r, 6, _cell(unit))
-            self.table.setItem(r, 7, _cell("", editable=True))
+            self.table.setItem(r, 7, _cell(godown))
+            self.table.setItem(r, 8, _cell(rate))
+            self.table.setItem(r, 9, _cell("", editable=True))
 
     def _do_issue(self):
-        godown = ""
         lines = []
         for r in range(self.table.rowCount()):
-            issue_item = self.table.item(r, 7)
+            issue_item = self.table.item(r, 9)
             raw = issue_item.text().strip() if issue_item else ""
             if not raw:
                 continue
@@ -123,15 +124,22 @@ class RequisitionSlipWindow(QMainWindow):
             item_code = item_item.text().strip() if item_item else ""
             docid_item = self.table.item(r, 0)
             sno_item = self.table.item(r, 1)
+            godown_item = self.table.item(r, 7)
+            rate_item = self.table.item(r, 8)
+            godown = godown_item.text().strip() if godown_item else ""
+            try:
+                rate = float(rate_item.text() or 0) if rate_item else 0.0
+            except ValueError:
+                rate = 0.0
             lines.append({
                 "item": item_code,
                 "godown": godown,
                 "qty": qty,
                 "unit": self.table.item(r, 6).text() if self.table.item(r, 6) else "",
-                "rate": 0,
-                "amount": 0,
+                "rate": rate,
+                "amount": qty * rate,
                 "indent_docid": docid_item.text() if docid_item else "",
-                "indent_sno": sno_item.text() if sno_item else "0",
+                "indent_sno": int(sno_item.text()) if sno_item else 0,
             })
         if not lines:
             QMessageBox.warning(
@@ -150,16 +158,29 @@ class RequisitionSlipWindow(QMainWindow):
 
 
 def db_pending_lines() -> list:
-    """Indent1 lines jinka ClearYN='' hai (pending requisitions)."""
+    """Indent1 lines jinka ClearYN='' hai (pending requisitions).
+
+    PI-15: also return Indent.Godown + ItemMast rate default
+    (VB6 pGIss: CASE LPurRate<=0 THEN PurchRate ELSE LPurRate).
+    """
     from HMS_py.core import db
     rows = db.query(
         "SELECT TOP 200 i1.DocId, i1.Sno, i1.VDate, i.Department, "
-        "i1.Item, i1.Qty, i1.Unit "
-        "FROM Indent1 i1 INNER JOIN Indent i ON i.DocId = i1.DocId "
+        "i1.Item, i1.Qty, i1.Unit, "
+        "ISNULL(i.Godown, '') AS IndentGodown, "
+        "CASE WHEN MAX(im.LPurRate) <= 0 OR MAX(im.LPurRate) IS NULL "
+        "THEN ISNULL(MAX(im.PurchRate), 0) ELSE MAX(im.LPurRate) END "
+        "AS ItemRate "
+        "FROM Indent1 i1 "
+        "INNER JOIN Indent i ON i.DocId = i1.DocId "
+        "LEFT JOIN ItemMast im ON im.Code = i1.Item "
         "WHERE RTRIM(ISNULL(i1.ClearYN, '')) = '' "
+        "GROUP BY i1.DocId, i1.Sno, i1.VDate, i.Department, "
+        "i1.Item, i1.Qty, i1.Unit, i.Godown "
         "ORDER BY i1.DocId, i1.Sno")
     return [
-        (r[0], r[1], r[2], r[3] or "", r[4], float(r[5] or 0), r[6] or "")
+        (r[0], r[1], r[2], r[3] or "", r[4], float(r[5] or 0), r[6] or "",
+         r[7] or "", float(r[8] or 0))
         for r in rows
     ]
 

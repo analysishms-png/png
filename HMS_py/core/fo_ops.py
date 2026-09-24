@@ -229,24 +229,37 @@ def room_change(docid: str, new_room: str, reason: str = "",
                  pl.PlanCode, docid, pl.NetPackageAmount, pl.Logsite_Code,
                  pl.DiscAmt, pl.PlanAppDate), cn=cn, commit=False)
         # --- 8. EPABX_IN audit (VB6 loc_18AD546 pattern) ---
-        eid = db.query("SELECT COALESCE(MAX(ID), 0) + 1 FROM EPABX_IN",
-                       cn=cn)
-        id1 = int((eid[0][0] or 1) if eid else 1)
-        db.execute(
-            "INSERT INTO EPABX_IN (ID, V_TYPE, ROOM_NO, ROOM_NO_NEW, "
-            "GUEST_NAME) VALUES (?, 'CHKOT', ?, ?, ?)",
-            (id1, old_room, new_room, guest_name), cn=cn, commit=False)
-        eid2 = db.query("SELECT COALESCE(MAX(ID), 0) + 1 FROM EPABX_IN",
-                        cn=cn)
-        id2 = int((eid2[0][0] or 1) if eid2 else 1)
-        db.execute(
-            "INSERT INTO EPABX_IN (ID, V_TYPE, ROOM_NO, ROOM_NO_NEW, "
-            "GUEST_NAME) VALUES (?, 'CHKIN', ?, ?, ?)",
-            (id2, new_room, old_room, guest_name), cn=cn, commit=False)
+        # OPTIONAL (live DB me EPABX_IN nahi hai - epabx_ops.py docs).
+        # Feature-detect: MAX(ID) query 208 (Invalid object name) pe
+        # audit skip; room_change ke 7 core steps phir bhi commit.
+        epabx_n = 0
+        try:
+            eid = db.query("SELECT COALESCE(MAX(ID), 0) + 1 FROM EPABX_IN",
+                           cn=cn)
+            id1 = int((eid[0][0] or 1) if eid else 1)
+            db.execute(
+                "INSERT INTO EPABX_IN (ID, V_TYPE, ROOM_NO, ROOM_NO_NEW, "
+                "GUEST_NAME) VALUES (?, 'CHKOT', ?, ?, ?)",
+                (id1, old_room, new_room, guest_name), cn=cn, commit=False)
+            eid2 = db.query("SELECT COALESCE(MAX(ID), 0) + 1 FROM EPABX_IN",
+                            cn=cn)
+            id2 = int((eid2[0][0] or 1) if eid2 else 1)
+            db.execute(
+                "INSERT INTO EPABX_IN (ID, V_TYPE, ROOM_NO, ROOM_NO_NEW, "
+                "GUEST_NAME) VALUES (?, 'CHKIN', ?, ?, ?)",
+                (id2, new_room, old_room, guest_name), cn=cn, commit=False)
+            epabx_n = 2
+        except db.pyodbc.Error as e:
+            msg = str(e)
+            if "208" in msg or "Invalid object name" in msg:
+                epabx_n = 0
+            else:
+                raise
         if commit:
             cn.commit()
         return {"new_sno": new_sno, "folio": folio, "old_room": old_room,
-                "new_room": new_room, "affected": 7 + 2}
+                "new_room": new_room, "affected": 7 + epabx_n,
+                "epabx_audited": bool(epabx_n)}
     finally:
         if own:
             cn.close()

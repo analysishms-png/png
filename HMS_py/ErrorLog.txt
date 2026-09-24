@@ -1,0 +1,3 @@
+2026-09-24 05:54:43 [TRACE] unit :: Enter/Exit smoke
+2026-09-24 06:20:26 [ERROR] user=- form=shell proc=sys.excepthook :: Traceback (most recent call last): |   File "<string>", line 5, in <module> |     from HMS_py.core.mdi_menu import mdi_menu | ModuleNotFoundError: No module named 'HMS_py.core.mdi_menu'
+2026-09-24 06:33:32 [ERROR] user=- form=shell proc=sys.excepthook :: Traceback (most recent call last): |   File "<string>", line 4, in <module> |     from HMS_py.ui.shell import _form_registry, _AUTO_OPEN, _DIRECT_OPENERS | ImportError: cannot import name '_AUTO_OPEN' from 'HMS_py.ui.shell' (C:\Users\LENOVO\Desktop\serialkey\PROJECT_REPAIR - Copy\HMS_py\HMS_py\ui\shell.py)

@@ -212,12 +212,44 @@ def purchase_bill_create(party_code: str, vdate, lines: list[dict],
     own = cn is None
     cn = cn or db.connect()
     try:
+        from HMS_py.core import taxstru as _ts
         vno = db.next_vno("Purch1", vtype, vprefix, site=SITE_CODE, cn=cn)
         docid = ("D" + SITE_CODE + vtype.ljust(6) + vprefix.ljust(4)
                  + str(vno).rjust(8))[:21]
-        total = float(sum(float(l.get("amount") or 0) for l in lines))
-        tax = float(sum(float(l.get("tax_amt") or 0) for l in lines))
-        net = total + tax
+        # PI-4: TaxStru slab GST (CGST/SGST/IGST) + service + roundoff
+        # instead of hard-coded 0. Lines may carry explicit tax_amt;
+        # if tax_stru_code present and tax_amt blank, compute from TaxStru.
+        header_cgst = header_sgst = header_igst = header_service = 0.0
+        total = 0.0
+        tax = 0.0
+        for i, line in enumerate(lines, 1):
+            amt = float(line.get("amount") or 0)
+            total += amt
+            tax_stru_code = (line.get("tax_stru") or "").strip()
+            explicit_tax = float(line.get("tax_amt") or 0)
+            if tax_stru_code:
+                calc = _ts.calculate(tax_stru_code, amt, cn=cn)
+                if not explicit_tax:
+                    line["tax_per"] = line.get("tax_per") or (
+                        round(calc["total_tax"] / amt * 100, 2) if amt else 0)
+                    line["tax_amt"] = calc["total_tax"]
+                    explicit_tax = calc["total_tax"]
+                tax += explicit_tax
+                # Header split always from TaxStru structure
+                header_cgst += calc["cgst"]
+                header_sgst += calc["sgst"]
+                header_igst += calc["igst"]
+                header_service += calc["service"]
+            else:
+                tax += explicit_tax
+                header_cgst += explicit_tax / 2
+                header_sgst += explicit_tax / 2
+        # VB6 PI-7 rule: Taxable = total (gross), NetAmt = total + tax + roundoff
+        taxable = total
+        net_raw = total + tax
+        roundoff = round(net_raw) - net_raw
+        roundoff = round(roundoff, 2)
+        net = round(net_raw + roundoff, 2)
         db.execute(
             "INSERT INTO Purch1 (DocId, VNo, Vdate, VType, Vprefix, Site_Code, "
             "RestCode, Party, Total, DiscPer, DiscAmt, NonTaxable, Taxable, "
@@ -225,11 +257,13 @@ def purchase_bill_create(party_code: str, vdate, lines: list[dict],
             "U_Name, U_EntDt, U_AE, DelFlag, PartyBillNo, PartyBillDt, "
             "CashParty, TinNo, Remark, InvoiceType, InvoiceNo, "
             "CGST, SGST, IGST, Payable, BillImagePath) "
-            "VALUES (?, ?, ?, ?, ?, ?, '', ?, ?, 0, 0, 0, ?, ?, 0, 0, 0, 0, ?, "
-            "?, getdate(), 'A', 'N', '', NULL, '', '', ?, '', 0, 0, 0, 0, 0, '')",
+            "VALUES (?, ?, ?, ?, ?, ?, '', ?, ?, 0, 0, 0, ?, ?, ?, 0, 0, ?, ?, "
+            "?, getdate(), 'A', 'N', '', NULL, '', '', ?, '', ?, ?, ?, ?, '')",
             (docid, vno, vdate, vtype, vprefix, SITE_CODE,
-             party_code.strip(), total, total, tax, net, user,
-             remark or ""),
+             party_code.strip(), total, taxable, tax,
+             float(header_service), roundoff, net, user,
+             remark or "", float(header_cgst), float(header_sgst),
+             float(header_igst), net),
             cn=cn, commit=False)
         for i, line in enumerate(lines, 1):
             amt = float(line.get("amount") or 0)
@@ -242,7 +276,7 @@ def purchase_bill_create(party_code: str, vdate, lines: list[dict],
                 "Specification, DelFlag, Taxstru, AcCode, LogSite_Code) "
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, "
                 "?, 'N', ?, '', 0, '00:00', ?, getdate(), 'A', ?, '', 0, 0, "
-                "0, 0, '', 'N', '', '', ?)",
+                "0, 0, '', 'N', ?, '', ?)",
                 (docid, i, vtype, vno, SITE_CODE, vprefix, vdate,
                  party_code.strip(), line.get("item", ""),
                  float(line.get("qty") or 0), line.get("unit", ""),
@@ -251,7 +285,8 @@ def purchase_bill_create(party_code: str, vdate, lines: list[dict],
                  float(line.get("tax_amt") or 0),
                  float(line.get("disc_per") or 0),
                  float(line.get("disc_amt") or 0),
-                 line.get("remarks", ""), user, amt, SITE_CODE),
+                 line.get("remarks", ""), user, amt,
+                 (line.get("tax_stru") or "").strip(), SITE_CODE),
                 cn=cn, commit=False)
         # VB6 FaTaxVoucher/pPBill: Stock row per Purch2 line (ContraDocId link)
         for i, line in enumerate(lines, 1):

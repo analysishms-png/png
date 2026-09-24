@@ -52,7 +52,15 @@ class VoucherEntryDialog(QDialog):
                                    datetime.date.today().month,
                                    datetime.date.today().day))
         self.cmbVType = QComboBox()
-        self.cmbVType.addItems(["JV", "HPOST", "F_AO"])
+        vtypes = ["JV", "HPOST", "F_AO"]
+        try:
+            from HMS_py.core import voucher_type as vt
+            loaded = [x["vtype"] for x in vt.list_entry_types() if x["vtype"]]
+            if loaded:
+                vtypes = loaded
+        except Exception:
+            pass
+        self.cmbVType.addItems(vtypes)
         self.edNarr = QLineEdit()
         self.edNarr.setPlaceholderText("Enter voucher narration...")
         form.addRow("Voucher Date:", self.dtVdate)

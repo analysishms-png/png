@@ -271,3 +271,95 @@ def get_structures_summary(cn=None) -> list[dict]:
     rows = db.query(
         "SELECT DISTINCT Code, Name FROM TaxStru ORDER BY Code", cn=cn)
     return [{"code": r[0], "name": (r[1] or "").strip()} for r in rows]
+
+
+# ============================================================
+# Tax calculation (VB6 pPBill Proc tax engine - PI-4)
+# ============================================================
+def calculate(tax_stru_code: str, base_amount: float,
+              cn=None) -> dict:
+    """Compute taxes for one TaxStru structure on a taxable base.
+
+    VB6 pPBill: loads TaxStru lines (Sno order), applies each Rate
+    according to Nature:
+      - 'On Base Amt'      : base * rate%
+      - 'On Running Total' : (base + prev_taxes) * rate%
+      - 'On Prev. Tax Amt' : sum(prev tax amounts) * rate%
+    CondApp/Limit/Limit1: slab guard (apply only if amount in range).
+    Splits CGST/SGST/IGST when TaxCode is one of those; otherwise
+    accumulates into 'other'. Returns dict with per-code breakdown.
+    """
+    base = float(base_amount or 0)
+    rows = list_by_code(tax_stru_code, cn=cn)
+    if not rows:
+        return {"total_tax": 0.0, "cgst": 0.0, "sgst": 0.0,
+                "igst": 0.0, "service": 0.0, "other": 0.0,
+                "lines": [], "roundoff": 0.0, "net": base}
+
+    running = base
+    prev_tax_sum = 0.0
+    lines_out = []
+    cgst = sgst = igst = service = other = 0.0
+
+    for row in rows:
+        rate = float(row.get("rate") or 0)
+        nature = (row.get("nature") or "On Base Amt").strip()
+        taxcode = (row.get("taxcode") or "").strip().upper()
+        condapp = (row.get("condapp") or "").strip()
+        limit = float(row.get("limit") or 0)
+        limit1 = float(row.get("limit1") or 0)
+
+        # Slab condition on current base (CondApp semantics)
+        if condapp in ("<", "<=", ">", ">=", "=", "Between") and limit:
+            ok = True
+            if condapp == "<":
+                ok = base < limit
+            elif condapp == "<=":
+                ok = base <= limit
+            elif condapp == ">":
+                ok = base > limit
+            elif condapp == ">=":
+                ok = base >= limit
+            elif condapp == "=":
+                ok = abs(base - limit) < 0.005
+            elif condapp == "Between":
+                ok = limit <= base <= (limit1 or limit)
+            if not ok:
+                lines_out.append({"taxcode": taxcode, "rate": rate,
+                                  "amount": 0.0, "skipped": True})
+                continue
+
+        if nature.startswith("On Running"):
+            amt = running * rate / 100.0
+        elif nature.startswith("On Prev"):
+            amt = prev_tax_sum * rate / 100.0
+        else:  # On Base Amt (default)
+            amt = base * rate / 100.0
+
+        amt = round(amt, 2)
+        running += amt
+        prev_tax_sum += amt
+        if taxcode == "CGST":
+            cgst += amt
+        elif taxcode == "SGST":
+            sgst += amt
+        elif taxcode == "IGST":
+            igst += amt
+        elif taxcode in ("SERVICE", "SCHRG", "SERVICECHARGE"):
+            service += amt
+        else:
+            other += amt
+        lines_out.append({"taxcode": taxcode, "rate": rate,
+                          "amount": amt, "nature": nature,
+                          "skipped": False})
+
+    total = round(cgst + sgst + igst + service + other, 2)
+    # VB6 pPBill: NetAmt = total + tax, RoundOff to nearest rupee
+    net_before_ro = round(base + total, 2)
+    roundoff = round(net_before_ro) - net_before_ro
+    roundoff = round(roundoff, 2)
+    return {"total_tax": total, "cgst": round(cgst, 2),
+            "sgst": round(sgst, 2), "igst": round(igst, 2),
+            "service": round(service, 2), "other": round(other, 2),
+            "lines": lines_out, "roundoff": roundoff,
+            "net": round(net_before_ro + roundoff, 2)}

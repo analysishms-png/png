@@ -71,3 +71,37 @@ def validate_all(*checks: tuple[bool, str]) -> tuple[bool, str]:
         if not ok:
             return False, msg
     return True, ""
+
+
+# ---------------------------------------------------------------------------
+# DatabaseSecurityModule.bas port: SanitizeInput / ValidateSQL
+# ---------------------------------------------------------------------------
+_SQL_INJECTION_PATTERNS: tuple[str, ...] = (
+    "';DROP", "DELETE", "INSERT", "UPDATE", "UNION", "SELECT",
+    "EXEC", "EXECUTE", "ALTER", "CREATE", "TRUNCATE", "--", "/*", "*/",
+)
+
+
+def sanitize_input(value: Any) -> str:
+    """VB6 SanitizeInput: keep printable ASCII, escape/danger-strip SQL chars."""
+    if value is None:
+        return ""
+    s = str(value)
+    out = "".join(ch for ch in s if " " <= ch <= "~")
+    out = out.replace("'", "''")
+    out = out.replace(";", "")
+    out = out.replace("--", "")
+    out = out.replace("/*", "")
+    out = out.replace("*/", "")
+    return out
+
+
+def validate_sql(sql: Any) -> bool:
+    """VB6 ValidateSQL: False when the string hits known injection patterns."""
+    upper = str(sql or "").upper()
+    for pattern in _SQL_INJECTION_PATTERNS:
+        if pattern in upper:
+            return False
+    if "OR 1=1" in upper or "AND 1=1" in upper:
+        return False
+    return True

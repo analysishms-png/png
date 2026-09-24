@@ -191,3 +191,24 @@ def get_categories(cn=None) -> list[dict]:
     rows = db.query(
         "SELECT Category, NCat FROM VoucherCat ORDER BY Category", cn=cn)
     return [{"category": r[0], "ncat": r[1]} for r in rows]
+
+
+def get_ncat(vtype: str, cn=None) -> str:
+    """FA-6: NCat for a V_Type (VB6 FaVoucher Proc_7 SELECT NCAT)."""
+    rows = db.query(
+        "SELECT NCat FROM Voucher_Type WHERE V_Type = ?", (vtype,), cn=cn)
+    return ((rows[0][0] if rows else "") or "").strip()
+
+
+def list_entry_types(cn=None) -> list[dict]:
+    """FA entry Voucher_Type rows (Category='FA' + legacy HPOST/F_AO)."""
+    rows = db.query(
+        "SELECT V_Type, NCat, Category, Description, SortNo "
+        "FROM Voucher_Type "
+        "WHERE Category = 'FA' OR V_Type IN ('HPOST', 'F_AO') "
+        "ORDER BY SortNo, V_Type", cn=cn)
+    return [{"vtype": (r[0] or "").strip(),
+             "ncat": ((r[1] or "").strip()),
+             "category": ((r[2] or "").strip()),
+             "desc": (r[3] or "").strip(),
+             "sortno": r[4] or 0} for r in rows]

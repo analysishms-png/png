@@ -123,6 +123,30 @@ class IndentForm(QDialog):
         self.tbl.cellDoubleClicked.connect(self._on_edit)
         root.addWidget(self.tbl)
 
+        # PI-5: Indent1 line grid (VB6 PIndent FGrid pattern)
+        lines_grp = QWidget()
+        lines_lay = QVBoxLayout(lines_grp)
+        lines_lay.setContentsMargins(0, 0, 0, 0)
+        lines_lay.addWidget(QLabel("Indent Lines (Indent1)"))
+        self.grid = QTableWidget(0, 5)
+        self.grid.setHorizontalHeaderLabels(
+            ["SNo", "Item Code", "Qty", "Unit", "Rate"])
+        self.grid.horizontalHeader().setStretchLastSection(True)
+        self.grid.setAlternatingRowColors(True)
+        lines_lay.addWidget(self.grid)
+        line_btns = QHBoxLayout()
+        self.btn_add_line = QPushButton("Add Line (+)")
+        self.btn_add_line.setToolTip("Add an indent line")
+        self.btn_del_line = QPushButton("Remove Line (-)")
+        self.btn_del_line.setToolTip("Remove selected indent line")
+        line_btns.addWidget(self.btn_add_line)
+        line_btns.addWidget(self.btn_del_line)
+        line_btns.addStretch()
+        lines_lay.addLayout(line_btns)
+        root.addWidget(lines_grp)
+        self.btn_add_line.clicked.connect(self._add_line)
+        self.btn_del_line.clicked.connect(self._del_line)
+
         # Status
         self.lbl_state = QLabel("State: Idle | New: Ctrl+N | Edit: Ctrl+E | Save: Ctrl+S")
         self.lbl_state.setStyleSheet(f"color:{_theme.palette()['text']}; padding:4px; background:{_theme.palette()['glass_tint']};")
@@ -186,6 +210,9 @@ class IndentForm(QDialog):
         self.cb_godown.setEnabled(enabled)
         self.ed_remarks.setEnabled(enabled)
         self.cb_clear.setEnabled(enabled)
+        self.grid.setEnabled(enabled)
+        self.btn_add_line.setEnabled(enabled)
+        self.btn_del_line.setEnabled(enabled)
 
         self.btn_new.setEnabled(not enabled)
         self.btn_edit.setEnabled(not enabled)
@@ -195,6 +222,57 @@ class IndentForm(QDialog):
         self.state = "Add" if enabled and self.edit_docid is None else ("Edit" if enabled else "Idle")
         self.lbl_state.setText(f"State: {self.state}")
 
+    def _add_line(self):
+        r = self.grid.rowCount()
+        self.grid.insertRow(r)
+        for c, v in enumerate([str(r + 1), "", "0", "", "0"]):
+            it = QTableWidgetItem(str(v))
+            it.setFlags(it.flags() | Qt.ItemFlag.ItemIsEditable)
+            it.setForeground(QColor(_theme.palette()["text"]))
+            self.grid.setItem(r, c, it)
+
+    def _del_line(self):
+        r = self.grid.currentRow()
+        if r >= 0:
+            self.grid.removeRow(r)
+            for i in range(self.grid.rowCount()):
+                self.grid.setItem(i, 0, _dark_item(str(i + 1)))
+
+    def _collect_lines(self) -> list[dict]:
+        lines = []
+        for r in range(self.grid.rowCount()):
+            item_it = self.grid.item(r, 1)
+            item = item_it.text().strip() if item_it else ""
+            if not item:
+                continue
+            try:
+                qty = float(self.grid.item(r, 2).text() or 0) if self.grid.item(r, 2) else 0
+                rate = float(self.grid.item(r, 4).text() or 0) if self.grid.item(r, 4) else 0
+            except ValueError:
+                raise ValueError(f"Line row {r + 1}: Qty/Rate invalid")
+            unit_it = self.grid.item(r, 3)
+            unit = unit_it.text().strip() if unit_it else ""
+            lines.append({"item": item, "qty": qty, "unit": unit,
+                          "rate": rate, "amount": qty * rate})
+        return lines
+
+    def _load_lines(self, docid: str):
+        self.grid.setRowCount(0)
+        from HMS_py.core import purchase as purch
+        try:
+            rows = purch.indent1_lines(docid)
+        except Exception:
+            rows = []
+        for i, row in enumerate(rows):
+            self.grid.insertRow(i)
+            vals = [str(row.get("sno") or i + 1), row.get("item", ""),
+                    str(row.get("qty") or 0), row.get("unit", ""),
+                    str(row.get("rate") or 0)]
+            for c, v in enumerate(vals):
+                it = QTableWidgetItem(str(v))
+                it.setForeground(QColor(_theme.palette()["text"]))
+                self.grid.setItem(i, c, it)
+
     def _on_new(self):
         self.edit_docid = None
         self.cb_dept.setCurrentIndex(0)
@@ -202,6 +280,7 @@ class IndentForm(QDialog):
         self.cb_godown.setCurrentIndex(0)
         self.ed_remarks.clear()
         self.cb_clear.setCurrentIndex(0)
+        self.grid.setRowCount(0)
         self.set_state(True)
 
     def _on_edit(self):
@@ -219,6 +298,7 @@ class IndentForm(QDialog):
         self.cb_godown.setCurrentText(f"{rec['godown']} - ...")
         self.ed_remarks.setText(rec["remarks"])
         self.cb_clear.setCurrentText(rec["clear"] or "N")
+        self._load_lines(docid)
         self.set_state(True)
 
     def _on_save(self):
@@ -230,18 +310,40 @@ class IndentForm(QDialog):
         vdate = self.de_vdate.date().toPyDate()
         remarks = self.ed_remarks.text().strip()
         clear = self.cb_clear.currentText()
+        godown = self.cb_godown.currentData() or ""
+        try:
+            lines = self._collect_lines()
+        except ValueError as e:
+            QMessageBox.warning(self, "Save", str(e))
+            return
 
         try:
+            from HMS_py.core import purchase as purch
             if self.state == "Add":
-                inv.indent_create(self.cb_dept.currentText().split(" - ")[0], vdate,
-                                  self.cb_godown.currentText().split(" - ")[0],
-                                  remarks=remarks, user="PYADMIN")
+                result = inv.indent_create(dept, vdate, godown,
+                                           remarks=remarks, user="PYADMIN")
+                docid = result["docid"]
+                vno = result.get("vno", 0)
             else:
-                inv.indent_update(self.edit_docid,
-                                  self.cb_dept.currentText().split(" - ")[0],
-                                  vdate, self.cb_godown.currentText().split(" - ")[0],
-                                  remarks=remarks, clear=clear, user="PYADMIN")
-            QMessageBox.information(self, "Save", "Indent saved")
+                docid = self.edit_docid
+                inv.indent_update(docid, dept, vdate, godown,
+                                  remarks=remarks, clear=clear,
+                                  user="PYADMIN")
+                existing = inv.indent_get(docid) or {}
+                vno = existing.get("vno", 0)
+            # PI-5: save Indent1 lines via INDENT1API (shared path)
+            if lines:
+                purch.INDENT1API.delete_all(docid)
+                for i, line in enumerate(lines, 1):
+                    rec = dict(line)
+                    rec.update({"docid": docid, "sno": i,
+                                "vtype": "RQ", "vno": vno,
+                                "vdate": vdate, "vprefix": "2026",
+                                "clear_yn": clear if clear == "Y" else ""})
+                    purch.INDENT1API.insert(rec)
+            QMessageBox.information(
+                self, "Save",
+                f"Indent saved! ({len(lines)} lines) DocId: {docid}")
             self.set_state(False)
             self.reload()
         except Exception as e:

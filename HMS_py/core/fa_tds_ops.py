@@ -208,6 +208,12 @@ def tdschal1_delete_all(docid: str, cn=None, commit: bool = True) -> int:
         cn=cn, commit=commit)
 
 
+def tds_amt(onamt: float, tds_pct: float) -> float:
+    """FA-5 VB6 FaVrEnt loc_F0875D: (ONAMT * TDS) / 100, Format '0' (integer rupees)."""
+    v = float(onamt or 0) * float(tds_pct or 0) / 100.0
+    return float(int(v + 0.5) if v >= 0 else int(v - 0.5))
+
+
 def tds_detail(subcode: str, d_from=None, d_to=None, cn=None) -> list[dict]:
     """Party-wise TDS lines (VB6 FaTDSCertificate: LEDGERTDS by TDSDrCode).
     Returns dicts with 'tds_amt' (UI FaTDSCertificate sum key)."""

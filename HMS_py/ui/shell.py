@@ -103,14 +103,31 @@ def _qt_msg_handler(msg_type, context, message):
     if "Cannot find font" in message:
         return
     # pass everything else through to default handler
-    if msg_type == QtMsgType.QtCriticalMsg:
-        raise RuntimeError(message)
-    elif msg_type == QtMsgType.QtFatalMsg:
+    if msg_type == QtMsgType.QtCriticalMsg or msg_type == QtMsgType.QtFatalMsg:
+        try:
+            from HMS_py.core import error_handling as _errh
+            _errh.log_error(
+                message, form="Qt", procedure="qInstallMessageHandler",
+                severity=40 if msg_type == QtMsgType.QtFatalMsg else 30)
+        except Exception:
+            pass
         raise RuntimeError(message)
 
 qInstallMessageHandler(_qt_msg_handler)
 
-from HMS_py.core import auth, company, menu
+from HMS_py.core import auth, company, menu, error_handling as _errh
+
+
+def _global_excepthook(exc_type, exc, tb):
+    """Uncaught exceptions -> ErrorLog.txt (VB6 LogError wiring)."""
+    try:
+        _errh.log_error(exc, form="shell", procedure="sys.excepthook")
+    except Exception:
+        pass
+    sys.__excepthook__(exc_type, exc, tb)
+
+
+sys.excepthook = _global_excepthook
 
 # VB6-look shared styles ab theme engine (HMS_py.ui.theme) se aate hain.
 # User Appearance dialog se colors define kar sakta hai (glassmorphism).
@@ -942,6 +959,37 @@ def _form_registry() -> dict[str, callable]:
                 "Dekho _rebuild/ALL_MODULES_PLAN.md")
         return go
 
+    def _reverse_night_audit(w=None):
+        """VB6 frmReNightAudit: confirm -> Enviro.NCur -1 day (FY guard)."""
+        try:
+            from HMS_py.core import nightaudit as _na
+        except ImportError:
+            QMessageBox.warning(w, "Reverse Night Audit",
+                                "nightaudit module load nahi hua")
+            return
+        msg = ("This Process is very critical\n"
+               "Make sure that all the billings are stopped and no "
+               "transactions have been made during Night Audit process.\n\n"
+               "Continue with Reverse Night Audit Process?")
+        if QMessageBox.question(
+                w, "Reverse Night Audit", msg,
+                QMessageBox.StandardButton.Yes |
+                QMessageBox.StandardButton.No) != \
+                QMessageBox.StandardButton.Yes:
+            return
+        try:
+            res = _na.reverse_night_audit(
+                user=getattr(w, "user", "PYADMIN"))
+        except ValueError as e:
+            QMessageBox.warning(w, "Reverse Night Audit", str(e))
+            return
+        except Exception as e:
+            QMessageBox.critical(w, "Reverse Night Audit", f"DB error: {e}")
+            return
+        QMessageBox.information(
+            w, "Reverse Night Audit",
+            f"NCur rolled back:\n{res['from_date']} -> {res['to_date']}")
+
     def _open_res_report(mode: str = "arrival"):
         def go(w=None):
             from HMS_py.core import reports
@@ -1141,9 +1189,11 @@ def _form_registry() -> dict[str, callable]:
         "T.D.S. Category": (lambda w: stu.open_tdscat(w)) if stu else None,
         # --- S1 wire-only wave (live opener/report alias, VB6 captions) ---
         # Finance ops (cores already exist: fa_ledger_ops/fa_tds_ops/fa_voucher)
-        "Adjustment Entry": lambda w: fvu.open_voucher_entry(w),
-        "Delete Adjustment Entry": lambda w: fvu.open_voucher_entry(w),
+        "Adjustment Entry": (lambda w: fasub_ui.open_fa_adjust(w)) if fasub_ui else _coming_soon("Adjustment Entry"),
+        "Delete Adjustment Entry": (lambda w: fasub_ui.open_fa_adjust(w)) if fasub_ui else _coming_soon("Delete Adjustment Entry"),
         "Bank Reconciliation": lambda w: fvu.open_bank_recon(w),
+        # T.D.S. Challan Entry: FaTDSChal.frm UI not ported yet (core CRUD
+        # fa_tds_ops only) — keep voucher-entry fallback, documented skip.
         "T.D.S. Challan Entry": lambda w: fvu.open_voucher_entry(w),
         "T.D.S. Certificate Entry": lambda w: _open_fv_list(
             w, "T.D.S. Certificate",
@@ -1185,8 +1235,8 @@ def _form_registry() -> dict[str, callable]:
                 "SELECT Code, FDate, ClaimedBy, ContactNo, DeliveredBy, DDate, Status FROM LostFoundDetail WHERE ClaimedBy <> '' ORDER BY Code DESC")),
         "Room Block": lambda w: _open_fv_list(
             w, "Room Block",
-            lambda f=None, t=None: __import__("HMS_py.core.db", fromlist=["x"]).query(
-                "SELECT * FROM RoomBlockOut WHERE 1=0")),
+            lambda f=None, t=None: __import__("HMS_py.core.roomstatus",
+                                              fromlist=["x"]).list_blocks()),
         # Reservation (BookingInquiry live hai)
         "Booking Inquiry": lambda w: _open_fv_list(
             w, "Booking Inquiry",
@@ -1217,12 +1267,12 @@ def _form_registry() -> dict[str, callable]:
             "OutStanding Report", "Party wise OutStanding",
             "Bill Wise Outstanding Report For Debtors",
             "Excess Consumption Report", "Restaurant Issue Report",
-            "Stock Summary P/S Basis", "ABC Analysis",
-            "Production Report I/R Basis", "Issue CheckList",
-            "Stock Summary ", "Stock Register ", "Stock In Hand ",
-            "Kitchen Stock Report I/R Basis", "Change Kitchen/Store",
-            "Form24 Annexure-A", "UPVAT XXIV", "Room Status Report",
-            "Settlement  Report", "Banquet Taxwise Details", "Taxwise Details (Banquet)",
+             "Stock Summary P/S Basis", "ABC Analysis",
+             "Production Report I/R Basis", "Issue CheckList",
+             "Stock Summary", "Stock Register", "Stock In Hand",
+             "Kitchen Stock Report I/R Basis", "Change Kitchen/Store",
+             "Form24 Annexure-A", "UPVAT XXIV", "Room Status Report",
+             "Settlement Report", "Banquet Taxwise Details", "Taxwise Details (Banquet)",
             "Charge Payment Detail", "Room Wise Plan Detail",
             "Bill Change Report", "Guest Extra Charges", "Sales Report",
             "Guest Payments", "FOM Tax Detail", "Tax Wise Charge Detail",
@@ -1234,7 +1284,7 @@ def _form_registry() -> dict[str, callable]:
         # Blocked-table leaves -> some now have real UIs
         "Night Audit Process": (lambda w: narep_ui.open_nightaudit_reports(w)) if narep_ui else _coming_soon("Night Audit Process"),
         "Night Audit Control Panel": (lambda w: narep_ui.open_nightaudit_reports(w)) if narep_ui else _coming_soon("Night Audit Control Panel"),
-        "Reverse Night Audit": (lambda w: narep_ui.open_nightaudit_reports(w)) if narep_ui else _coming_soon("Reverse Night Audit"),
+        "Reverse Night Audit": _reverse_night_audit,
         "Charges Posting": (lambda w: narep_ui.open_nightaudit_reports(w)) if narep_ui else _coming_soon("Charges Posting"),
         "Account Posting": (lambda w: narep_ui.open_nightaudit_reports(w)) if narep_ui else _coming_soon("Account Posting"),
         "Bill Reprint": (lambda w: psub_ui.open_bill_reprint(w)) if psub_ui else _coming_soon("Bill Reprint"),
@@ -1276,10 +1326,11 @@ def _form_registry() -> dict[str, callable]:
              "Card Initialization", "Card Recharge",
             "Card Refund", "Card Re-Issue", "User Collection",
              "SMS (API)", "SMS (Scheduled)", "SMS (Conditional)",
-"Transfer (Offline)", "Transfer (Online)",
-             "Cascade", "Tile Horizontal", "Tile Vertical",
-            "Manage MDI", "Restaurant Change ",
-        )}),
+             "Transfer (Offline)", "Transfer (Online)",
+              "Cascade", "Tile Horizontal", "Tile Vertical",
+             "Manage MDI", "Restaurant Change ",
+             "Exit", "SMS Center Settings",
+         )}),
         "Leave": (lambda w: payroll_ui.open_hr_payroll(w)) if payroll_ui else _coming_soon("Leave"),
         "Attendance": (lambda w: payroll_ui.open_hr_payroll(w)) if payroll_ui else _coming_soon("Attendance"),
         "Loan/Advance": (lambda w: payroll_ui.open_hr_payroll(w)) if payroll_ui else _coming_soon("Loan/Advance"),
@@ -1300,7 +1351,8 @@ def _form_registry() -> dict[str, callable]:
             lambda f=None, t=None: __import__("HMS_py.core.db", fromlist=["x"]).query(
                 "SELECT TOP 300 ir.ItemCode, im.Name, ir.RestCode, ir.Rate, ir.MRP "
                 "FROM ItemRate ir LEFT JOIN ItemMast im ON im.Code = ir.ItemCode "
-                "ORDER BY ir.ItemCode")),        "Telephone Call Entry": lambda w: _open_fv_list(
+                "ORDER BY ir.ItemCode")),
+        "Telephone Call Entry": lambda w: _open_fv_list(
             w, "Telephone Call Entry",
             lambda f=None, t=None: __import__("HMS_py.core.db", fromlist=["x"]).query(
                 "SELECT TOP 200 ID, V_TYPE, PNT_NO, Extension, RoomNo, "
@@ -1350,7 +1402,7 @@ def _form_registry() -> dict[str, callable]:
             "Inconsistency Check", "Menu Item Copy", "POS Bill Deletion",
             "Data Transfer", "Data Recieving",
             "Data Transfer (POS)", "PLU File (W.Scale)", "POS Recycle",
-            "Task Scheduler", "Voucher Serialisation", "Delete Message",
+            "Task Scheduler", "Voucher Serialisation",
             "Voucher Wise Sundry Entry", "Expected Plan/Package FB Details",
             "Cashier  Report", "Attendence Report", "Item Wise Sales Report",
             "Member Bill Missing Report",
@@ -1367,10 +1419,13 @@ def _form_registry() -> dict[str, callable]:
             "House Keeping Op.Stock Entry", "Facility Sundry Setting",
              "Meter Reading", "Com Port Properties",
              "SMS Environment Settings",
-             "Multiple SMS Type", "InBox", "OutBox",
+             "Multiple SMS Type",
             "Reward Points Parameter I",
-            "Guest Registration", "-",
-        )}),
+             "Guest Registration", "-",
+             "Ageing Analysis for Debtors",
+             "Ageing Analysis for Creditors",
+             "Sale Bill Modification",
+         )}),
         # PlanPopup (VB6 me bhi blank-caption popup leaves the — documented skip)
         "": _coming_soon("(Plan Popup)"),
         # Wave 4: Operations UIs (booking, hall, HR, members, services, POS, finance)
@@ -1404,8 +1459,10 @@ def _form_registry() -> dict[str, callable]:
         "Enviro Inventry": (lambda w: gs.open_enviro(w)) if gs else _coming_soon("Enviro Inventry"),
         "Auto Settle Card Balance": (lambda w: pm.open_auto_settle_card_balance(w)) if pm else _coming_soon("Auto Settle Card Balance"),
         "User Permissions (Advanced)": (lambda w: perm_ui.open_user_permissions(w, user=getattr(w, 'user', 'PYADMIN'))) if perm_ui else _coming_soon("User Permissions (Advanced)"),
-        "InBox": (lambda w: sms_ui_mod.open_sms_history(w)) if sms_ui_mod else None,
-        "OutBox": (lambda w: sms_ui_mod.open_sms_history(w)) if sms_ui_mod else None,
+        # Delete Message / InBox / OutBox: repurposed as SMS log (VB6 MsgCenter)
+        "Delete Message": (lambda w: sms_ui_mod.open_sms_history(w)) if sms_ui_mod else _coming_soon("Delete Message"),
+        "InBox": (lambda w: _open_sms_log(w, "inbox")),
+        "OutBox": (lambda w: _open_sms_log(w, "outbox")),
         # parity-matrix ports (VB6 MISSING bucket, 2026-09-24)
         "Company Profile": (lambda w: cprof_ui.open_company_profile(w)) if cprof_ui else _coming_soon("Company Profile"),
         "Calender": (lambda w: _pick_date_dialog(w, "Calender")),
@@ -1424,14 +1481,45 @@ def _form_registry() -> dict[str, callable]:
         # Reports Center (REPORTS_TXT / mdi leaves — read-only engine)
         **({cap: _open_report(cap)
             for cap in (_rpmod.menu_caption_map() if _rpmod else {})}),
+        # Year-End Processing (VB6 frmYearEnd.frm port)
+        "Year End Processing": (lambda w: year_end_ui.year_end_process(w)) if year_end_ui else _coming_soon("Year End Processing"),
+        # Year-End Report
+        "Year End Report": (lambda w: year_end_ui.get_year_end_report()) if year_end_ui else _coming_soon("Year End Report"),
+        # E-Invoice/GST (VB6 eInvoice.bas port)
+        "E-Invoice Generate": (lambda w: einvoice_ui.generate_einvoice(w)) if einvoice_ui else _coming_soon("E-Invoice Generate"),
+        # SMS HTTP (VB6 MobWebAPI.bas port)
+        "SMS Send": (lambda w: sms_http_ui.open_sms_compose(w)) if sms_http_ui else _coming_soon("SMS Send"),
+        # Door Locks (VB6 frmGodrejLockSettings port)
+        "Door Lock Settings": (lambda w: door_lock_ui.open_door_lock_settings(w)) if door_lock_ui else _coming_soon("Door Lock Settings"),
     }
 
 
-# Try to import e-invoice UI module
+# Year-End UI module import
 try:
-    from HMS_py.ui import einvoice_ui as einv_ui
+    from HMS_py.ui import year_end_ui
 except ImportError:
-    einv_ui = None
+    year_end_ui = None
+
+
+# E-Invoice UI module import
+try:
+    from HMS_py.ui import einvoice_ui
+except ImportError:
+    einvoice_ui = None
+
+
+# SMS HTTP module import
+try:
+    from HMS_py.ui import sms_http_ui
+except ImportError:
+    sms_http_ui = None
+
+
+# Door Lock UI module import
+try:
+    from HMS_py.ui import door_lock_ui
+except ImportError:
+    door_lock_ui = None
 
 
 class MainWindow(QMainWindow):
