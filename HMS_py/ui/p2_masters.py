@@ -9,14 +9,17 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))))
 
-from PyQt6.QtWidgets import (QApplication, QHBoxLayout, QMainWindow,
-                             QPushButton, QVBoxLayout, QWidget)
+from PyQt6.QtGui import QKeySequence, QShortcut
+from PyQt6.QtWidgets import (QApplication, QDialog, QDialogButtonBox,
+                             QFormLayout, QGroupBox, QHBoxLayout, QHeaderView,
+                             QMainWindow, QMessageBox, QPushButton, QTableWidget,
+                             QTableWidgetItem, QVBoxLayout, QWidget)
 
 from HMS_py.core import (acgroup, area, city, country, depart, fixcharge,
                          item, narr, state, sundry, unit, venue)
 # New Main Setup masters (P2-complete)
 from HMS_py.core import (roomcategory, roommaster, packagemaster,
-                         seasonmaster, companymaster, usermaster)
+                         seasonmaster, companymaster, usermaster, ratelist)
 from HMS_py.ui.base_master import (BaseMasterForm, Field, MasterConfig,
                                    make_delete_guard)
 
@@ -310,6 +313,117 @@ def open_unit(parent=None):
 # ---- Main Setup COMPLETE (P2-complete): Room Cat/Master, Package,
 #      Season, Company Master, User Master ----
 
+class RoomCategoryMasterForm(BaseMasterForm):
+    """Room Category master + VB6 CmdRate parity: Rate editor button.
+
+    VB6 FrmRoomCatMast me CmdRate click par RateList grid khulta hai
+    (category-wise Single/Double/Multiple + Rate1..5/RateW/RateM).
+    """
+
+    def __init__(self, cfg: MasterConfig, parent=None):
+        super().__init__(cfg, parent)
+        self.btnRate = QPushButton("  Rate (Ctrl+R)")
+        self.btnRate.setMinimumHeight(34)
+        self.btnRate.setToolTip("Category Rate List (VB6 CmdRate)")
+        # Exit button se pehle insert (VB6 button order)
+        lay = self.btnExit.parentWidget().layout()
+        lay.insertWidget(lay.indexOf(self.btnExit), self.btnRate)
+        self.btnRate.clicked.connect(self._on_rate)
+        QShortcut(QKeySequence("Ctrl+R"), self, activated=self._on_rate)
+
+    def _on_rate(self):
+        row = self.tbl.currentRow()
+        cat = None
+        if row >= 0:
+            cat = (self.tbl.item(row, 0).text() or "").strip()
+        if not cat:
+            QMessageBox.information(self, "Rate List",
+                                    "Pehle category select karo (grid row).")
+            return
+        open_ratelist_editor(cat, self)
+
+
+def build_ratelist_editor(roomcat: str, parent=None):
+    """VB6 CmdRate grid build (exec nahi karta - test/smoke friendly)."""
+    dlg = QDialog(parent)
+    dlg.setWindowTitle(f"Rate List - Category {roomcat}")
+    dlg.resize(720, 440)
+    root = QVBoxLayout(dlg)
+    grp = QGroupBox("Rates (OccType wise; Rate1..Rate5 + Weekday/Monthly)")
+    fl = QVBoxLayout(grp)
+    tbl = QTableWidget(0, 9)
+    tbl.setHorizontalHeaderLabels(
+        ["RoomNo", "OccType", "Rate1", "Rate2", "Rate3", "Rate4",
+         "Rate5", "RateW", "RateM"])
+    tbl.horizontalHeader().setStretchLastSection(True)
+    fl.addWidget(tbl)
+    root.addWidget(grp)
+
+    def _reload():
+        rows = ratelist.list_for_category(roomcat)
+        tbl.setRowCount(0)
+        for r in rows:
+            i = tbl.rowCount()
+            tbl.insertRow(i)
+            vals = [r["roomno"], r["occtype"], r["rate1"], r["rate2"],
+                    r["rate3"], r["rate4"], r["rate5"], r["ratew"],
+                    r["ratem"]]
+            for c, v in enumerate(vals):
+                tbl.setItem(i, c, QTableWidgetItem("" if v is None
+                                                   else str(v)))
+
+    def _add_row():
+        i = tbl.rowCount()
+        tbl.insertRow(i)
+        for c, v in enumerate(["*****", "Single", 0, 0, 0, 0, 0, 0, 0]):
+            tbl.setItem(i, c, QTableWidgetItem(str(v)))
+
+    def _del_row():
+        r = tbl.currentRow()
+        if r >= 0:
+            tbl.removeRow(r)
+
+    def _save():
+        rows = []
+        for i in range(tbl.rowCount()):
+            def _v(c):
+                it = tbl.item(i, c)
+                return it.text().strip() if it else ""
+            rows.append({
+                "roomcat": roomcat,
+                "roomno": _v(0) or ratelist.DEFAULT_ROOMNO,
+                "occtype": _v(1),
+                "rate1": _v(2), "rate2": _v(3), "rate3": _v(4),
+                "rate4": _v(5), "rate5": _v(6), "ratew": _v(7),
+                "ratem": _v(8),
+            })
+        try:
+            n = ratelist.save_category_rates(rows, roomcat=roomcat)
+            QMessageBox.information(dlg, "Rate List",
+                                    f"{n} rate rows save ho gayi (delete->insert).")
+            _reload()
+        except Exception as e:
+            QMessageBox.warning(dlg, "Rate List", f"Save fail: {e}")
+
+    btns = QDialogButtonBox()
+    b_add = btns.addButton("+ Row", QDialogButtonBox.ButtonRole.ActionRole)
+    b_del = btns.addButton("- Row", QDialogButtonBox.ButtonRole.ActionRole)
+    b_save = btns.addButton(QDialogButtonBox.StandardButton.Save)
+    b_close = btns.addButton(QDialogButtonBox.StandardButton.Close)
+    b_add.clicked.connect(_add_row)
+    b_del.clicked.connect(_del_row)
+    b_save.clicked.connect(_save)
+    b_close.clicked.connect(dlg.accept)
+    root.addWidget(btns)
+    _reload()
+    return dlg
+
+
+def open_ratelist_editor(roomcat: str, parent=None):
+    """VB6 CmdRate grid modal: category ke RateList rows edit + save."""
+    build_ratelist_editor(roomcat, parent).exec()
+
+
 def roomcategory_config() -> MasterConfig:
     return MasterConfig(
         title="Room Category Master - HMS_py",
@@ -421,7 +535,7 @@ def companymaster_config() -> MasterConfig:
 
 
 def open_roomcategory(parent=None):
-    _open_dialog(roomcategory_config, parent)
+    RoomCategoryMasterForm(roomcategory_config(), parent).exec()
 
 
 def open_roommaster(parent=None):
@@ -433,7 +547,8 @@ def open_packagemaster(parent=None):
 
 
 def open_seasonmaster(parent=None):
-    _open_dialog(seasonmaster_config, parent)
+    from HMS_py.ui.seasonmaster_ui import open_seasonmaster as opener
+    return opener(parent)
 
 
 def open_companymaster(parent=None):

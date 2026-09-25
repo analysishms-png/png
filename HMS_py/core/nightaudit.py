@@ -15,7 +15,15 @@ EVIDENCE (live + VB6 decompiled):
 - RoomChrgPostingType in Enviro: 'Daily' = per room, else summary
 - RoomChrgDueAc in Enviro: GL account for room charge posting
 
-PYT-guard: Production NA runs from VB6 EXE; Python implements logic for testing/automation."""
+PYT-guard: Production NA runs from VB6 EXE; Python implements logic for testing/automation.
+
+Laravel parity (analysishms-master CompanyController@submitnightaudit):
+- uncharged_rooms(): in-house (Type IS NULL) folios jinke liye is date ka RC
+  PayCharge exist nahi karta -> hard stop ("Please Charge Posting For Rooms").
+- cancel_tentative_no_shows(): fomparameter.tentativedays expiry par tentative
+  bookings cancel (Cancel='Y', U_Name='NOSHOW').
+Live DB: RoomOcc/GuestFolio/Booking tables live; Complimentary filter
+GuestFolio.Comp='' sab rows (dead filter here, still faithful)."""
 from __future__ import annotations
 
 import datetime
@@ -152,6 +160,66 @@ def _log_night_audit(date_from, date_to, start_dt, end_dt, user, cn=None, commit
 # ============================================================
 # Room Charge Posting (VB6 Proc_96_14 daily bill-wise)
 # ============================================================
+
+def uncharged_rooms(vdate, vprefix: str = VYEAR, cn=None) -> list[dict]:
+    """Laravel parity (submitnightaudit 'Please Charge Posting For Rooms'):
+    in-house rooms (RoomOcc.Type IS NULL, ChkOutDate IS NULL, ChkInDate <= vdate)
+    jinke liye us date ka RC charge PayCharge me nahi hai.
+    Returns: [{docid, folio, roomno, mfolio}] — khali list = NA allowed.
+    """
+    rows = db.query(
+        "SELECT RO.DocId, RO.FolioNo, RTRIM(RO.RoomNo), ISNULL(GF.MFOlioNO, 0) "
+        "FROM RoomOcc RO LEFT JOIN GuestFolio GF ON GF.DocId = RO.DocId "
+        "WHERE RO.ChkOutDate IS NULL AND RO.Type IS NULL "
+        "AND RO.ChkInDate IS NOT NULL AND RO.ChkInDate <= ? "
+        "AND RO.Site_Code = ? AND RO.Vprefix = ? "
+        "AND NOT EXISTS (SELECT 1 FROM PayCharge PC WHERE PC.Vtype = ? "
+        "AND PC.Vdate = ? AND PC.FolioNo = RO.FolioNo "
+        "AND PC.Site_Code = RO.Site_Code)",
+        (vdate, SITE_CODE, vprefix, VTYPE_RC, vdate), cn=cn)
+    return [{"docid": r[0] or "", "folio": r[1] or 0,
+             "roomno": (r[2] or "").strip(), "mfolio": r[3] or 0}
+            for r in rows]
+
+
+def cancel_tentative_no_shows(na_date, user: str = USER, cn=None,
+                              commit: bool = True) -> list[int]:
+    """Laravel parity (fomparameter()->tentativedays): tentative bookings
+    jinki expiry (U_EntDt + TentativeDays) aaj (na_date) hai -> auto-cancel.
+    Booking.Cancel='Y', CancelUName='NOSHOW', ResStatus='No Show'
+    (Laravel: U_Name='NOSHOW' pattern; VB6 ResStatus flow).
+    Returns: cancelled booking docids.
+    """
+    # TentativeDays Enviro setting (live: koi dedicated FOM param table nahi;
+    # Laravel fomparameter() == Enviro/FomParam — live DB me Enviro hi hai)
+    try:
+        from HMS_py.core import enviro
+        days = int(enviro.get_setting("TentativeDays", 0, cn=cn) or 0)
+    except Exception:
+        days = 0
+    if days <= 0:
+        return []
+    rows = db.query(
+        "SELECT DocId, CONVERT(date, U_EntDt) FROM Booking "
+        "WHERE Cancel = 'N' AND ResStatus = 'Tentative' AND Site_Code = ?",
+        (SITE_CODE,), cn=cn)
+    to_cancel = []
+    for docid, ent_dt in rows:
+        if ent_dt is None:
+            continue
+        expiry = ent_dt + datetime.timedelta(days=days)
+        if expiry == na_date or expiry < na_date:
+            to_cancel.append(docid)
+    for docid in to_cancel:
+        db.execute(
+            "UPDATE Booking SET Cancel = 'Y', CancelDate = ?, "
+            "CancelUName = 'NOSHOW', ResStatus = 'No Show', "
+            "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' WHERE DocId = ?",
+            (na_date, user, docid), cn=cn, commit=False)
+    if to_cancel and commit:
+        cn.commit()
+    return to_cancel
+
 
 def get_inhouse_rooms(vdate, vprefix: str = VYEAR, cn=None) -> list[dict]:
     """Get occupied rooms for a date (RoomOcc ChkOutDate IS NULL, ChkInDate <= date).
@@ -415,7 +483,22 @@ def run_night_audit(date_from, date_to=None, user: str = USER,
         while current <= date_to:
             # Pre-checks
             flags = get_night_audit_flags(cn=cn)
-            
+
+            # Laravel parity: tentative expiry -> auto NOSHOW cancel
+            try:
+                cancel_tentative_no_shows(current, user, cn=cn, commit=False)
+            except Exception as e:
+                errors.append(f"{current}: no-show cancel fail: {e}")
+
+            # Laravel parity: uncharged rooms -> hard stop (RC missing)
+            uncharged = uncharged_rooms(current, vprefix, cn=cn)
+            if uncharged:
+                rooms = ", ".join(u["roomno"] for u in uncharged[:10])
+                errors.append(
+                    f"{current}: Please Charge Posting For Rooms: {rooms}")
+                current += datetime.timedelta(days=1)
+                continue
+
             # Check pending KOTs
             if flags.get("kot_at_na") == "Yes":
                 has_pending, outlets = check_pending_kots(current, cn=cn)

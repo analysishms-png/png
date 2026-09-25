@@ -338,7 +338,9 @@ class TestMainWindowFlow:
                        win._side_buttons[0])
         _qapp().processEvents()
         assert win.menuBar().actions(), "menubar khali na ho"
-        assert "Main Setup" in win.windowTitle()
+        # Case-insensitive: title "- main setup" (sidebar pretty text) bhi
+        # ho sakta hai — VB6-faithful lowercase captions ke saath (B028).
+        assert "main setup" in win.windowTitle().lower()
 
     def test_theme_toggle_flips_mode(self, main_window):
         from HMS_py.ui import theme

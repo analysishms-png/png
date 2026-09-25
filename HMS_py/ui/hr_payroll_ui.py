@@ -219,13 +219,16 @@ class HrPayrollDialog(QDialog):
         self._set_form_enabled(self._sal_fields, False)
 
     # ── ATTENDANCE TAB ──────────────────────────────────────
+    # VB6 prAttend parity: DAILY attendance (Attend table: V_Date,
+    # Emp_Code, FirstShift, SecondShift — P/A/H shift codes).
     def _build_attendance_tab(self):
         tab = QWidget()
         v = QVBoxLayout(tab)
 
-        self.att_table = QTableWidget(0, 5)
+        self.att_table = QTableWidget(0, 6)
         self.att_table.setHorizontalHeaderLabels(
-            ["Emp_Code", "Date", "InTime", "OutTime", "Status"]
+            ["Emp_Code", "Date", "FirstShift", "SecondShift", "Name",
+             "Department"]
         )
         self.att_table.setAlternatingRowColors(True)
         self.att_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
@@ -236,29 +239,25 @@ class HrPayrollDialog(QDialog):
 
         form = QFormLayout()
         self.att_emp = QLineEdit()
-        self.att_emp.setMaxLength(10)
-        self.att_emp.setPlaceholderText("e.g. EMP001")
+        self.att_emp.setMaxLength(12)
+        self.att_emp.setPlaceholderText("e.g. KK000212")
         self.att_date = QLineEdit()
         self.att_date.setMaxLength(12)
         self.att_date.setPlaceholderText("YYYY-MM-DD")
-        self.att_in = QLineEdit()
-        self.att_in.setMaxLength(8)
-        self.att_in.setPlaceholderText("HH:MM")
-        self.att_out = QLineEdit()
-        self.att_out.setMaxLength(8)
-        self.att_out.setPlaceholderText("HH:MM")
-        self.att_status = QLineEdit()
-        self.att_status.setMaxLength(10)
-        self.att_status.setPlaceholderText("e.g. Present")
+        self.att_first = QLineEdit()
+        self.att_first.setMaxLength(1)
+        self.att_first.setPlaceholderText("P/A/H/W")
+        self.att_second = QLineEdit()
+        self.att_second.setMaxLength(1)
+        self.att_second.setPlaceholderText("P/A/H/W")
         form.addRow("Emp_Code:", self.att_emp)
         form.addRow("Date:", self.att_date)
-        form.addRow("InTime:", self.att_in)
-        form.addRow("OutTime:", self.att_out)
-        form.addRow("Status:", self.att_status)
+        form.addRow("FirstShift:", self.att_first)
+        form.addRow("SecondShift:", self.att_second)
         v.addLayout(form)
 
-        self._att_fields = [self.att_emp, self.att_date, self.att_in,
-                            self.att_out, self.att_status]
+        self._att_fields = [self.att_emp, self.att_date, self.att_first,
+                            self.att_second]
 
         btn_new = self._make_btn("New", self._att_new)
         btn_edit = self._make_btn("Edit", self._att_edit)
@@ -273,7 +272,7 @@ class HrPayrollDialog(QDialog):
 
     def _att_refresh(self):
         try:
-            rows = hr_payroll.list_attendence()
+            rows = hr_payroll.list_attendance()
         except Exception as e:
             QMessageBox.critical(self, "Error", str(e))
             return
@@ -282,14 +281,12 @@ class HrPayrollDialog(QDialog):
             return
         self.att_table.setRowCount(len(rows))
         for i, r in enumerate(rows):
-            attn = str(r.get("attn_str", "") if isinstance(r, dict)
-                       else (r[2] if len(r) > 2 else "")) or "-"
-            parts = attn.split("-")
-            vals = [r.get("emp_code", "") if isinstance(r, dict) else r[1],
-                    str(r.get("mth_year", "") if isinstance(r, dict) else r[0]),
-                    parts[0] if len(parts) > 0 else "",
-                    parts[1] if len(parts) > 1 else "",
-                    parts[2] if len(parts) > 2 else ""]
+            vals = [str(r.get("emp_code", "") or ""),
+                    str(r.get("v_date", "") or "")[:10],
+                    str(r.get("firstshift", "") or "") or "-",
+                    str(r.get("secondshift", "") or "") or "-",
+                    str(r.get("emp_name", "") or ""),
+                    str(r.get("department", "") or "")]
             for j, val in enumerate(vals):
                 self.att_table.setItem(i, j, self._dark_item(val))
 
@@ -301,9 +298,8 @@ class HrPayrollDialog(QDialog):
         self.current_row = row
         self.att_emp.setText(self.att_table.item(row, 0).text())
         self.att_date.setText(self.att_table.item(row, 1).text())
-        self.att_in.setText(self.att_table.item(row, 2).text())
-        self.att_out.setText(self.att_table.item(row, 3).text())
-        self.att_status.setText(self.att_table.item(row, 4).text())
+        self.att_first.setText(self.att_table.item(row, 2).text())
+        self.att_second.setText(self.att_table.item(row, 3).text())
 
     def _att_new(self):
         self.current_mode = "new"
@@ -328,7 +324,7 @@ class HrPayrollDialog(QDialog):
         reply = QMessageBox.question(self, "Confirm", f"Delete attendance for {emp} on {dt}?")
         if reply == QMessageBox.StandardButton.Yes:
             try:
-                hr_payroll.delete_attendence(emp, dt)
+                hr_payroll.delete_attendance(emp, dt)
                 self._att_refresh()
                 self._clear_form(self._att_fields)
                 self.current_row = -1
@@ -342,16 +338,16 @@ class HrPayrollDialog(QDialog):
             QMessageBox.warning(self, "Warning", "Emp_Code and Date required.")
             return
         rec = {
-            "emp_code": emp,
-            "intime": self.att_in.text().strip(),
-            "outtime": self.att_out.text().strip(),
-            "status": self.att_status.text().strip(),
+            "firstshift": self.att_first.text().strip(),
+            "secondshift": self.att_second.text().strip(),
         }
         try:
             if self.current_mode == "new":
-                hr_payroll.insert_attendence(rec)
+                hr_payroll.insert_attendance(emp, dt,
+                                             rec["firstshift"],
+                                             rec["secondshift"])
             elif self.current_mode == "edit":
-                hr_payroll.update_attendence(emp, dt, rec)
+                hr_payroll.update_attendance(emp, dt, rec)
             self._att_refresh()
             self._clear_form(self._att_fields)
             self.current_mode = None
