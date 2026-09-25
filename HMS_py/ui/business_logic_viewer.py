@@ -11,8 +11,17 @@ from typing import Optional, List, Dict, Any
 from dataclasses import dataclass, field
 from pathlib import Path
 
+# PyQt6 imports (before UI classes)
+from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout,
+                               QLabel, QFrame, QTabWidget, QTableWidget,
+                               QTableWidgetItem, QTextEdit, QHeaderView,
+                               QSizePolicy)
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QFont
+from HMS_py.ui.theme_v2 import DESIGN_TOKENS, CARD_STYLES
+
 # Path to business logic files
-BL_DIR = Path(__file__).resolve().parent.parent.parent / "_qa" / "kanpur_business_logic"
+BL_DIR = Path(__file__).resolve().parent.parent / "_qa" / "kanpur_business_logic"
 
 
 @dataclass
@@ -156,18 +165,17 @@ class BusinessLogicManager:
                 continue
             
             # Parse based on section
-            if section == "files" and stripped.startswith("  "):
+            if section == "files" and line.startswith("  "):
                 # VB6 file entry
-                fname = stripped.split(" - ")[0].strip() if " - " in stripped else stripped.split("(")[0].strip()
                 result.vb6_files.append(stripped)
             elif section == "rules":
                 rule = BusinessRule.from_line(line)
                 if rule:
                     result.business_rules.append(rule)
-            elif section == "tables" and stripped.startswith("  "):
-                # Table names listed
+            elif section == "tables" and line.startswith("  "):
+                # Table names listed (comma-separated)
                 for t in stripped.split(","):
-                    t = t.strip()
+                    t = t.strip().rstrip(",")
                     if t and not t.startswith("#"):
                         result.database_tables.append(t)
             elif section == "sql":
@@ -606,12 +614,6 @@ class BusinessLogicDashboard(QWidget):
                 background-color: {DESIGN_TOKENS['bg_dark']};
             }}
         """)
-
-
-# Import at module level to avoid circular imports
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QFrame, QTabWidget, QTableWidget, QTableWidgetItem, QTextEdit, QHeaderView, QSizePolicy
-from PyQt6.QtCore import Qt, QFont
-from HMS_py.ui.theme_v2 import DESIGN_TOKENS, CARD_STYLES
 
 
 def create_business_logic_ui(manager: BusinessLogicManager, module_name: str) -> QWidget:
