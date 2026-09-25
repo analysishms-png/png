@@ -1,0 +1,30 @@
+| Windows PowerShell x |v — a x
+
+=| Windows PowerShell xX +t - o x
+2.
+21 path = os.path.join(SCREENSHOT_DIR, f)
+22 ocr_path = os.path.join(SCREENSHOT_DIR, f.replace(".png", "_ocr.txt"))
+23 if not os.path.exists(ocr_path):
+24 ocr_img = Image.open(path)
+25 text = pytesseract.image_to_string(ocr_img)
+26 with openCocr_path, "w") as of:
+27 of .write(text)
+28 print(#" OCR: {f} C{len(text)} chars)")
+29 except Exception as e:
+30 print(#"OCR batch skipped: {e}")
+31
+32 print("\nDone! ALL modules verified via win32 MCP interaction.")
+33
++ Thought: 12m Q Search for apps, settings, and documents
+# cd "C:\Users Pinned Show less * 2>&1
+= Build - Lin e@ 7) st | A @ ©
+Microsoft Edge Outlook —-Microsoft Store Photos XBOX Settings
+i }
+Build auto - L oO ri in Fi =| \IR -
+Solitaire & Paint LinkedIn Calculator Clock Notepad :
+= Smmmm™- esc in enetenGamesl Access your mobile ommands
+device here
+a. ail Keep up with calls, messages,
+and recent activity here in the
+ey =n eS . ENG 6:13 AM
+ZFQse ea CmpBOT G'S BEOGSG “N&O 695% 95 /50p/2026

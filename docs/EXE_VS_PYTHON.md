@@ -3,7 +3,8 @@
 **Date:** 2026-09-24  
 **Reference:** HMS.exe (VB6)  
 **Python:** HMS_py  
-**Method:** 3 parallel domain agents (Frontend/Forms, Database, BAS modules)
+**Method:** 3 parallel domain agents (Frontend/Forms, Database, BAS modules) + live UI screenshot parity  
+**UI layer (2026-09-24):** 🟢 MATCH — sidebar/SMS/canvas/clocks/status bar restyled to VB6 screenshot
 
 ---
 
@@ -11,6 +12,7 @@
 
 | Layer | VB6 | Python | Status |
 |-------|-----|--------|--------|
+| **Shell UI (sidebar/clocks/status)** | Screenshot | PyQt6 restyle | 🟢 MATCH 2026-09-24 |
 | **Frontend forms** | 321 `.frm` | 82 UI modules | 110 FULL · 124 PARTIAL · 10 WRONG · 71 CS · 5 MISSING |
 | **Business logic** | 32 `.bas` (~5,860 funcs) | 100 core modules | ~290 PORTED · ~550 PARTIAL · ~5,020 MISSING (~14% fn coverage) |
 | **Database tables** | 329 referenced | 179 referenced | 174 BOTH · 155 VB6_ONLY · 5 PY_ONLY |

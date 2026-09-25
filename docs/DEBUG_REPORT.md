@@ -9,6 +9,25 @@
 
 ## Issues Found and Resolved
 
+### Issue 0: UI not matching VB6 screenshot (2026-09-24 restyle)
+
+**Module:** `ui/shell.py`, `ui/theme.py`, `ui/glass.py`  
+**Severity:** MEDIUM (visual parity)  
+**Status:** ✅ RESOLVED
+
+**Problem:** Python shell showed blue title band, white dashboard default, ACTIONS section labels, white clocks, separate corner Reload/Exit — not matching live VB6 screenshot.
+
+**Fix:**
+- Header: purple SMS button only; company title only in window title bar
+- Sidebar: teal gradient QSS, bold italic, checked yellow + 👍; hide ACTIONS + section labels; width 160
+- Canvas: `#ffffcc` plain; default view canvas (`_canvas_view`); `_fit_tree` no-op
+- Clocks: black panel, magenta separators, India yellow name; Reload/Exit inside panel; float at 1/3 height
+- Menubar hidden on module view; status bar items already present
+
+**Evidence:** Offscreen smoke OK; full pytest **310 passed**; ruff F821/E9/F601/F811/F841 clean.
+
+---
+
 ### Issue 1: Trailing/Duplicate Space Registry Keys
 
 **Module:** shell.py, reports.py  

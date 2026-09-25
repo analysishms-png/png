@@ -410,7 +410,11 @@ class CheckOutBrowser(QDialog):
         self.reload_checkedout()
 
 
-def open_checkout(parent=None, user: str = "SA", tab: int = 0):
+def open_checkout(parent=None, user: str = "SA", tab: int = 0,
+                  reverse: bool = False):
+    # P9: VB6 reverse check-out = Checked-Out Folios tab (btnReverse)
+    if reverse:
+        tab = 1
     CheckOutBrowser(parent, user=user, start_tab=tab).exec()
 
 

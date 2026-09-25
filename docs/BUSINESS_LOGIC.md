@@ -7,6 +7,38 @@
 
 ---
 
+## Web Research Notes (2026-09-24)
+
+Research inputs used to guide implementation (do **not** replace EXE-confirmed rules):
+
+### pyodbc / SQL Server transactions
+- Default `autocommit=False`: commit/rollback at **connection** level; try/except/finally with `commit()` on success, `rollback()` or close on failure
+- Parameterized queries (`?`) for all inserts/updates — no string-concat SQL
+- Connection pooling: avoid double-pooling if app also pools
+- Sources: pyodbc wiki, Stack Overflow pyodbc transactions, Certbolt pyODBC deep-dive
+
+### SQL Server 2008 R2 compatibility
+- Compat levels only 80/90/100 — **no** 2012+ features:
+  - `TRY_CONVERT` / `TRY_CAST` → `CASE` + `CONVERT` or XML `.value()` trick
+  - `STRING_AGG` → `FOR XML PATH('')` + `STUFF`
+  - `FORMAT` → `CONVERT(varchar, date, style)` style codes
+  - `MERGE`, `DATEFROMPARTS`, `EOMONTH`, `IIF`, `CHOOSE` → avoid or polyfill
+  - Pagination: `ROW_NUMBER() OVER (...)` not `OFFSET/FETCH`
+- Sources: Stack Overflow TRY_CONVERT 2008, SQLPerformance string aggregation, MS Learn STRING_AGG (2017+)
+
+### Hotel PMS workflow (industry reference only)
+- Canonical loop: Reservation → Room assign → Check-in → In-house → Check-out → Housekeeping Dirty → Clean → Ready
+- Checkout posts room nights to folio; balance = charges − payments before settle
+- Room status language: Clean / Dirty / Occupied / Maintenance (align with EXE RoomStatus values — EXE is source of truth)
+- Checkout often auto-creates housekeeping task (confirm against RoomOcc/FolioLog before implementing)
+- Sources: Oracle OPERA “What is PMS”, HotelRunner checkout SOP, StayOps/ZimmerStack workflow pages
+
+### PyQt6 desktop
+- Model-View optional; this project uses QWidget forms + pyodbc (not QSqlTableModel) to match existing architecture
+- Offscreen: `QT_QPA_PLATFORM=offscreen` for automated smoke tests
+
+---
+
 ## Business Rules
 
 ### Reservation Rules

@@ -1101,7 +1101,7 @@ def _form_registry() -> dict[str, callable]:
         "Check-Out": (lambda w: fo2.open_checkout(w, user=getattr(w, 'user', 'PYADMIN'))) if fo2 else None,
         "Checkout": (lambda w: fo2.open_checkout(w, user=getattr(w, 'user', 'PYADMIN'))) if fo2 else None,
         "WalkIn CheckIn": lambda w: fo.open_checkin(w, user=getattr(w, 'user', 'PYADMIN')),
-        "Reverse Check Out": (lambda w: fo2.open_checkout(w, user=getattr(w, 'user', 'PYADMIN'))) if fo2 else _coming_soon("Reverse Check Out"),
+        "Reverse Check Out": (lambda w: fo2.open_checkout(w, user=getattr(w, 'user', 'PYADMIN'), reverse=True)) if fo2 else _coming_soon("Reverse Check Out"),
         "Room Status": (lambda w: rs_ui.open_roomstatus(w, user=getattr(w, 'user', 'PYADMIN'))) if rs_ui else None,
         "House Keeping Screen": (lambda w: rs_ui.open_roomstatus(w, user=getattr(w, 'user', 'PYADMIN'))) if rs_ui else None,
         "Expense Entry": (lambda w: exp_ui.open_expense(w, user=getattr(w, 'user', 'PYADMIN'))) if exp_ui else None,
@@ -1126,6 +1126,9 @@ def _form_registry() -> dict[str, callable]:
         "Group Profile":     (lambda w: bm.open_groupprof(w)) if bm else None,
         # Wave 3: HR/Payroll masters
         "Category Master":  (lambda w: hr.open_empcat(w)) if hr else None,
+        # VB6 double-space caption alias (mdi "Category  Master" — workbench
+        # HR & Members group bhi isi exact key se lookup karta hai)
+        "Category  Master": (lambda w: hr.open_empcat(w)) if hr else None,
         "Holiday Master":    (lambda w: hr.open_holiday(w)) if hr else None,
         "Employee Master":   (lambda w: hr.open_employee(w)) if hr else None,
         "Designation":       (lambda w: hr.open_desig(w)) if hr else None,
@@ -1237,7 +1240,7 @@ def _form_registry() -> dict[str, callable]:
             lambda f=None, t=None: __import__("HMS_py.core.tdscerti", fromlist=["x"]).list_all()),
         # WRONG_TARGET Re-wires (VB6_PYTHON_SIDE_BY_SIDE_REPORT.md P9):
         # FaAdjustDel → dedicated delete adjustment
-        "Delete Adjustment Entry": (lambda w: fasub_ui.open_fa_adjust(w)) if fasub_ui else _coming_soon("Delete Adjustment Entry"),
+        "Delete Adjustment Entry": (lambda w: fasub_ui.open_fa_adjust(w, delete=True)) if fasub_ui else _coming_soon("Delete Adjustment Entry"),
         # FaCurrBalUpdate → balance rebuild UI
         "Current Balance Updation": (lambda w: fvu.open_trial_balance(w)) if fvu else _coming_soon("Current Balance Updation"),
         # fdAcPostChrg → NA process runner
@@ -1246,12 +1249,11 @@ def _form_registry() -> dict[str, callable]:
         "Account Posting": (lambda w: narep_ui.open_nightaudit_reports(w)) if narep_ui else _coming_soon("Account Posting"),
         # frmReNightAudit → reverse night audit
         "Reverse Night Audit": _reverse_night_audit,
-        # HallAcPostChrg → hall A/C posting
-        "Hall Charges Posting": (lambda w: hall_ui.open_hall_booking(w, mode="charges_post")) if hall_ui else _coming_soon("Hall Charges Posting"),
-        # MembershipMast → member master CRUD
-        "Member Master": (lambda w: memb_ui.open_member_billing(w, mode="crud")) if memb_ui else _coming_soon("Member Master"),
-        # SmartCardRegistration → registration entry
-        "Smart Card Registration": (lambda w: pm.open_smartcard(w, mode="register")) if pm else _coming_soon("Smart Card Registration"),
+        # HallAcPostChrg → hall A/C posting (open_hall_booking me koi mode
+        # param nahi — mode= TypeError deta tha; P0 fix)
+        "Hall Charges Posting": (lambda w: hall_ui.open_hall_booking(w)) if hall_ui else _coming_soon("Hall Charges Posting"),
+        # SmartCardRegistration → registration entry (mode param nahi hai)
+        "Smart Card Registration": (lambda w: pm.open_smartcard(w)) if pm else _coming_soon("Smart Card Registration"),
         "Expense Voucher": (lambda w: exp_ui.open_expense(w, user=getattr(w, 'user', 'PYADMIN'))) if exp_ui else None,
         "Opening Balance Updation": lambda w: fvu.open_trial_balance(w),
         "Year End Updation": (lambda w: ye.open_year_end(w)) if ye else _coming_soon("Year End Updation"),
@@ -1334,6 +1336,10 @@ def _form_registry() -> dict[str, callable]:
             "L.T. FORM II", "L.T. FORM IV", "Room Occupancy",
             "Attendance Report", "Form C",
         ) if _rpmod}),
+        # VB6 double-space mdi captions (Banquet/Odc Reports) — exact-key
+        # aliases taaki _reg_ci lookup miss na ho (missing_leaves.txt)
+        "Cashier  Report": _open_report("Cashier  Report"),
+        "Settlement  Report": _open_report("Settlement  Report"),
         # Blocked-table leaves -> some now have real UIs
         "Night Audit Process": (lambda w: narep_ui.open_nightaudit_reports(w)) if narep_ui else _coming_soon("Night Audit Process"),
         "Night Audit Control Panel": (lambda w: narep_ui.open_nightaudit_reports(w)) if narep_ui else _coming_soon("Night Audit Control Panel"),
@@ -1421,7 +1427,7 @@ def _form_registry() -> dict[str, callable]:
                 "SELECT LcCode, AppDate, FcCode, UnitRate, DueOn FROM LocationFacility ORDER BY LcCode")),
         # Finance sub-forms (VB6 fate_Click)
         "Ledger Adjustment": (lambda w: fasub_ui.open_fa_adjust(w)) if fasub_ui else _coming_soon("Ledger Adjustment"),
-        "Adjustment Deletion": (lambda w: fasub_ui.open_fa_adjust(w)) if fasub_ui else _coming_soon("Adjustment Deletion"),
+        "Adjustment Deletion": (lambda w: fasub_ui.open_fa_adjust(w, delete=True)) if fasub_ui else _coming_soon("Adjustment Deletion"),
         "Cheque Clearing": (lambda w: fasub_ui.open_fa_chq_clear(w)) if fasub_ui else _coming_soon("Cheque Clearing"),
         "TDS Certificate": (lambda w: fasub_ui.open_fa_tds_cert(w)) if fasub_ui else _coming_soon("TDS Certificate"),
         # Guest & Registration forms (GuestProf/GuestFolio tables exist)
@@ -1545,7 +1551,8 @@ def _form_registry() -> dict[str, callable]:
         "Reservation With History": lambda w: ReservationBrowser(w).exec(),
         "Reservation Status Screen": _open_res_report("arrival"),
         "Check Out Clearance Screen": (lambda w: fo2.open_checkout(w, user=getattr(w, 'user', 'SA'))) if fo2 else _coming_soon("Check Out Clearance Screen"),
-        "Display Rack": (lambda w: rs_ui.open_roomstatus(w, user=getattr(w, 'user', 'SA'))) if rs_ui else _coming_soon("Display Rack"),
+        # "Display Rack" ka sahi opener Wave-7 wrui.open_display_rack hai
+        # (neeche) — yahan ka rs_ui duplicate entry F601 tha, hataya.
         "Reverse Room Merge": (lambda w: fosub_ui.open_merge_charge(w)) if fosub_ui else _coming_soon("Reverse Room Merge"),
         "Sale Bill Entry": (lambda w: psale_ui.open_pos_sales(w)) if psale_ui else _coming_soon("Sale Bill Entry"),
         "Order Booking": (lambda w: psale_ui.open_pos_sales(w)) if psale_ui else _coming_soon("Order Booking"),
@@ -1671,7 +1678,8 @@ def _form_registry() -> dict[str, callable]:
         "Setup": _doc_skip("Setup"),
         "Utility": _doc_skip("Utility"),
         "Tax Reports": _doc_skip("Tax Reports"),
-        "Tax Report": _doc_skip("Tax Report"),
+        # "Tax Report" ab _doc_skip nahi — reports engine key "TaxReport"
+        # live hai (menu_caption_map spread isse pehle wire kar chuka hai)
         "Tourism Forms": _doc_skip("Tourism Forms"),
         "Banquet": _doc_skip("Banquet"),
         "HR/Payroll": _doc_skip("HR/Payroll"),

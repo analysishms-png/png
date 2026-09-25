@@ -212,7 +212,11 @@ class FaTDSCertificateWindow(QMainWindow):
             QMessageBox.critical(self, "Error", str(e))
 
 
-def open_fa_adjust(parent=None):
+def open_fa_adjust(parent=None, delete: bool = False):
+    # P9: FaAdjustDel / Adjustment Deletion -> dedicated delete screen
+    if delete:
+        from HMS_py.ui.partial_forms_ui import open_adjustment_delete
+        return open_adjustment_delete(parent)
     w = FaAdjustWindow(parent); w.show(); return w
 
 def open_fa_chq_clear(parent=None):

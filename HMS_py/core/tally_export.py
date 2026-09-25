@@ -123,7 +123,10 @@ def fetch_vouchers(date_from, date_to, cn=None) -> list:
         "FROM Ledger L LEFT JOIN LedgerM LM ON L.Docid = LM.Docid "
         "LEFT JOIN Acgroup Grp ON L.groupcode = Grp.groupcode "
         "WHERE L.V_Date BETWEEN ? AND ? "
-        "AND L.v_type NOT LIKE '_ao' "
+        # P12b: '_ao' ka '_' SQL LIKE me wildcard hai — '_ao' sirf 3-char
+        # types ko chhuta tha, F_AO (4-char) kabhi skip nahi hota tha.
+        # Brackets se literal underscore: F_AO + future *_AO sab skip.
+        "AND L.v_type NOT LIKE '%[_]AO' "
         "ORDER BY L.V_Date, V_No",
         (date_from, date_to), cn=cn)
 

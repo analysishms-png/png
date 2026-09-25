@@ -178,11 +178,13 @@ def delete_charge(docid: str, cn=None, commit: bool = True,
     own = cn is None
     cn_use = cn or db.connect()
     try:
-        # VB6 pattern: copy to PayChargeLog before delete (audit trail)
+        # VB6 pattern: copy to PayChargeLog before delete (audit trail).
+        # P12b: VB6-exact `Select *` copy — `SELECT *, getdate(), ?` (63
+        # values) 61-column table pe column-count error deta tha (21S01).
         db.execute(
-            "INSERT INTO PayChargeLog SELECT *, getdate(), ? "
-            "FROM PayCharge WHERE DocId = ?",
-            (USER, docid), cn=cn_use, commit=False)
+            "INSERT INTO PayChargeLog SELECT * FROM PayCharge "
+            "WHERE DocId = ?",
+            (docid,), cn=cn_use, commit=False)
         n = db.execute(
             "DELETE FROM PayCharge WHERE DocId = ?", (docid,),
             cn=cn_use, commit=False)

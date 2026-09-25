@@ -952,7 +952,7 @@ REPORTS: list[dict] = [
             "menu": ["Ageing Analysis (Creditors)"],
             "cols": ["SubCode", "Account", "Balance", "LastTxn", "Bucket"],
             "sql": (
-                "SELECT TOP ({L}) l.SubCode,ISNULL(MAX(s.Name),'?'),SUM(l.AmtCr)-SUM(l.AmtDr),MAX(l.V_Date),CASE WHEN DATEDIFF(day,MAX(l.V_Date),GETDATE())<=30 THEN '0-30' WHEN DATEDIFF(day,MAX(l.V_Date),GETDATE())<=60 THEN '31-60' WHEN DATEDIFF(day,MAX(l.V_Date),GETDATE())<=90 THEN '61-90' ELSE '>90' END FROM Ledger l LEFT JOIN Subgroup s ON s.SubCode=l.SubCode GROUP BY l.SubCode HAVING SUM(l.AmtCr)-SUM(l.AmtDr)>0 ORDER BY Balance DESC"
+                "SELECT TOP ({L}) l.SubCode,ISNULL(MAX(s.Name),'?'),SUM(l.AmtCr)-SUM(l.AmtDr) AS Balance,MAX(l.V_Date),CASE WHEN DATEDIFF(day,MAX(l.V_Date),GETDATE())<=30 THEN '0-30' WHEN DATEDIFF(day,MAX(l.V_Date),GETDATE())<=60 THEN '31-60' WHEN DATEDIFF(day,MAX(l.V_Date),GETDATE())<=90 THEN '61-90' ELSE '>90' END FROM Ledger l LEFT JOIN Subgroup s ON s.SubCode=l.SubCode GROUP BY l.SubCode HAVING SUM(l.AmtCr)-SUM(l.AmtDr)>0 ORDER BY Balance DESC"
             ),
         },
         {
@@ -962,7 +962,7 @@ REPORTS: list[dict] = [
             "menu": ["Ageing Analysis for Debtors"],
             "cols": ["SubCode", "Account", "Balance", "LastTxn", "Bucket"],
             "sql": (
-                "SELECT TOP ({L}) l.SubCode,ISNULL(MAX(s.Name),'?'),SUM(l.AmtDr)-SUM(l.AmtCr),MAX(l.V_Date),CASE WHEN DATEDIFF(day,MAX(l.V_Date),GETDATE())<=30 THEN '0-30' WHEN DATEDIFF(day,MAX(l.V_Date),GETDATE())<=60 THEN '31-60' WHEN DATEDIFF(day,MAX(l.V_Date),GETDATE())<=90 THEN '61-90' ELSE '>90' END FROM Ledger l LEFT JOIN Subgroup s ON s.SubCode=l.SubCode GROUP BY l.SubCode HAVING SUM(l.AmtDr)-SUM(l.AmtCr)>0 ORDER BY Balance DESC"
+                "SELECT TOP ({L}) l.SubCode,ISNULL(MAX(s.Name),'?'),SUM(l.AmtDr)-SUM(l.AmtCr) AS Balance,MAX(l.V_Date),CASE WHEN DATEDIFF(day,MAX(l.V_Date),GETDATE())<=30 THEN '0-30' WHEN DATEDIFF(day,MAX(l.V_Date),GETDATE())<=60 THEN '31-60' WHEN DATEDIFF(day,MAX(l.V_Date),GETDATE())<=90 THEN '61-90' ELSE '>90' END FROM Ledger l LEFT JOIN Subgroup s ON s.SubCode=l.SubCode GROUP BY l.SubCode HAVING SUM(l.AmtDr)-SUM(l.AmtCr)>0 ORDER BY Balance DESC"
             ),
         },
         {
@@ -972,7 +972,7 @@ REPORTS: list[dict] = [
             "menu": ["Ageing Analysis for Creditors"],
             "cols": ["SubCode", "Account", "Balance", "Bucket"],
             "sql": (
-                "SELECT TOP ({L}) l.SubCode,ISNULL(MAX(s.Name),'?'),SUM(l.AmtCr)-SUM(l.AmtDr),CASE WHEN DATEDIFF(day,MAX(l.V_Date),GETDATE())<=30 THEN '0-30' WHEN DATEDIFF(day,MAX(l.V_Date),GETDATE())<=60 THEN '31-60' WHEN DATEDIFF(day,MAX(l.V_Date),GETDATE())<=90 THEN '61-90' ELSE '>90' END FROM Ledger l LEFT JOIN Subgroup s ON s.SubCode=l.SubCode GROUP BY l.SubCode HAVING SUM(l.AmtCr)-SUM(l.AmtDr)>0 ORDER BY Balance DESC"
+                "SELECT TOP ({L}) l.SubCode,ISNULL(MAX(s.Name),'?'),SUM(l.AmtCr)-SUM(l.AmtDr) AS Balance,CASE WHEN DATEDIFF(day,MAX(l.V_Date),GETDATE())<=30 THEN '0-30' WHEN DATEDIFF(day,MAX(l.V_Date),GETDATE())<=60 THEN '31-60' WHEN DATEDIFF(day,MAX(l.V_Date),GETDATE())<=90 THEN '61-90' ELSE '>90' END FROM Ledger l LEFT JOIN Subgroup s ON s.SubCode=l.SubCode GROUP BY l.SubCode HAVING SUM(l.AmtCr)-SUM(l.AmtDr)>0 ORDER BY Balance DESC"
             ),
         },
         {
@@ -982,7 +982,7 @@ REPORTS: list[dict] = [
             "menu": ["Aging Report for Debtors"],
             "cols": ["SubCode", "Account", "Balance", "Bucket"],
             "sql": (
-                "SELECT TOP ({L}) l.SubCode,ISNULL(MAX(s.Name),'?'),SUM(l.AmtDr)-SUM(l.AmtCr),CASE WHEN DATEDIFF(day,MAX(l.V_Date),GETDATE())<=30 THEN '0-30' WHEN DATEDIFF(day,MAX(l.V_Date),GETDATE())<=60 THEN '31-60' WHEN DATEDIFF(day,MAX(l.V_Date),GETDATE())<=90 THEN '61-90' ELSE '>90' END FROM Ledger l LEFT JOIN Subgroup s ON s.SubCode=l.SubCode GROUP BY l.SubCode HAVING SUM(l.AmtDr)-SUM(l.AmtCr)>0 ORDER BY Balance DESC"
+                "SELECT TOP ({L}) l.SubCode,ISNULL(MAX(s.Name),'?'),SUM(l.AmtDr)-SUM(l.AmtCr) AS Balance,CASE WHEN DATEDIFF(day,MAX(l.V_Date),GETDATE())<=30 THEN '0-30' WHEN DATEDIFF(day,MAX(l.V_Date),GETDATE())<=60 THEN '31-60' WHEN DATEDIFF(day,MAX(l.V_Date),GETDATE())<=90 THEN '61-90' ELSE '>90' END FROM Ledger l LEFT JOIN Subgroup s ON s.SubCode=l.SubCode GROUP BY l.SubCode HAVING SUM(l.AmtDr)-SUM(l.AmtCr)>0 ORDER BY Balance DESC"
             ),
         },
         {
@@ -1085,7 +1085,7 @@ REPORTS: list[dict] = [
             "menu": ["Detailed Trial Ledger"],
             "cols": ["SubCode", "Account", "Debit", "Credit", "Balance"],
             "sql": (
-                "SELECT TOP ({L}) l.SubCode,ISNULL(s.Name,'?'),SUM(l.AmtDr),SUM(l.AmtCr),SUM(l.AmtDr)-SUM(l.AmtCr) FROM Ledger l LEFT JOIN Subgroup s ON s.SubCode=l.SubCode WHERE l.V_Date BETWEEN ? AND ? GROUP BY l.SubCode,s.Name ORDER BY Balance DESC"
+                "SELECT TOP ({L}) l.SubCode,ISNULL(s.Name,'?'),SUM(l.AmtDr),SUM(l.AmtCr),SUM(l.AmtDr)-SUM(l.AmtCr) AS Balance FROM Ledger l LEFT JOIN Subgroup s ON s.SubCode=l.SubCode WHERE l.V_Date BETWEEN ? AND ? GROUP BY l.SubCode,s.Name ORDER BY Balance DESC"
             ),
         },
         {
@@ -1407,7 +1407,7 @@ REPORTS: list[dict] = [
             "menu": ["Outstanding Report For Debtors"],
             "cols": ["SubCode", "Account", "Debit", "Credit", "Balance"],
             "sql": (
-                "SELECT TOP ({L}) l.SubCode,ISNULL(s.Name,'?'),SUM(l.AmtDr),SUM(l.AmtCr),SUM(l.AmtDr)-SUM(l.AmtCr) FROM Ledger l LEFT JOIN Subgroup s ON s.SubCode=l.SubCode GROUP BY l.SubCode,s.Name HAVING SUM(l.AmtDr)-SUM(l.AmtCr)>0 ORDER BY Balance DESC"
+                "SELECT TOP ({L}) l.SubCode,ISNULL(s.Name,'?'),SUM(l.AmtDr),SUM(l.AmtCr),SUM(l.AmtDr)-SUM(l.AmtCr) AS Balance FROM Ledger l LEFT JOIN Subgroup s ON s.SubCode=l.SubCode GROUP BY l.SubCode,s.Name HAVING SUM(l.AmtDr)-SUM(l.AmtCr)>0 ORDER BY Balance DESC"
             ),
         },
         {
@@ -1417,7 +1417,7 @@ REPORTS: list[dict] = [
             "menu": ["Outstanding Report For Creditors"],
             "cols": ["SubCode", "Account", "Debit", "Credit", "Balance"],
             "sql": (
-                "SELECT TOP ({L}) l.SubCode,ISNULL(s.Name,'?'),SUM(l.AmtDr),SUM(l.AmtCr),SUM(l.AmtCr)-SUM(l.AmtDr) FROM Ledger l LEFT JOIN Subgroup s ON s.SubCode=l.SubCode GROUP BY l.SubCode,s.Name HAVING SUM(l.AmtCr)-SUM(l.AmtDr)>0 ORDER BY Balance DESC"
+                "SELECT TOP ({L}) l.SubCode,ISNULL(s.Name,'?'),SUM(l.AmtDr),SUM(l.AmtCr),SUM(l.AmtCr)-SUM(l.AmtDr) AS Balance FROM Ledger l LEFT JOIN Subgroup s ON s.SubCode=l.SubCode GROUP BY l.SubCode,s.Name HAVING SUM(l.AmtCr)-SUM(l.AmtDr)>0 ORDER BY Balance DESC"
             ),
         },
         {

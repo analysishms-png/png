@@ -164,7 +164,7 @@ def ledgeradj_delete(docid1: str, sno1: int, docid2: str, sno2: int,
 
 # ============================================================
 # LEDGERREF - Ledger Reference Tracking (bill-wise ageing)
-# PK: Id (identity)
+# PK: Id (NOT identity in live DB — insert me MAX(Id)+1 explicit)
 # ============================================================
 def _map_ledgerref(r) -> dict:
     try:
@@ -234,17 +234,29 @@ def ledgerref_search(subcode: str, cn=None, limit: int = 200) -> list[dict]:
 
 def ledgerref_insert(rec: dict, cn=None, commit: bool = True) -> int:
     _validate_ledgerref(rec)
-    return db.execute(
-        "INSERT INTO LEDGERREF (DocId, V_SNo, Dr, Cr, SubCode, "
-        "U_Name, U_EntDt, U_AE, DueDate, AgRefNo, AgRefType, V_Date, "
-        "Site_Code, LogSite_Code) "
-        "VALUES (?, ?, ?, ?, ?, ?, getdate(), 'A', ?, ?, ?, ?, ?, ?)",
-        (rec["docid"], rec.get("v_sno", 0), float(rec.get("dr") or 0),
-         float(rec.get("cr") or 0), rec["subcode"], USER,
-         rec.get("due_date"), rec.get("agrefno", ""),
-         rec.get("agref_type", ""), rec.get("v_date"),
-         SITE_CODE, SITE_CODE),
-        cn=cn, commit=commit)
+    # P12b: ledgerRef.Id NOT NULL PK hai PAR identity nahi (comment
+    # "identity" galat tha) — bina Id insert = PK/NULL violation.
+    # VB6 pattern: MAX(Id)+1 explicitly lo (single-user desktop safe).
+    own = cn is None
+    cn_use = cn or db.connect()
+    try:
+        next_id = int(db.query(
+            "SELECT ISNULL(MAX(Id), 0) + 1 FROM LEDGERREF", cn=cn_use)[0][0])
+        return db.execute(
+            "INSERT INTO LEDGERREF (Id, DocId, V_SNo, Dr, Cr, SubCode, "
+            "U_Name, U_EntDt, U_AE, DueDate, AgRefNo, AgRefType, V_Date, "
+            "Site_Code, LogSite_Code) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, getdate(), 'A', ?, ?, ?, ?, ?, ?)",
+            (next_id, rec["docid"], rec.get("v_sno", 0),
+             float(rec.get("dr") or 0),
+             float(rec.get("cr") or 0), rec["subcode"], USER,
+             rec.get("due_date"), rec.get("agrefno", ""),
+             rec.get("agref_type", ""), rec.get("v_date"),
+             SITE_CODE, SITE_CODE),
+            cn=cn_use, commit=commit)
+    finally:
+        if own:
+            cn_use.close()
 
 
 def ledgerref_delete(id: int, cn=None, commit: bool = True) -> int:

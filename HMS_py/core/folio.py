@@ -521,16 +521,20 @@ def _create_contra(ref_docid: str, amount: float, site: str,
 
 def log_before_delete(docid: str, cn=None, user: str = USER,
                       site: str = SITE_CODE) -> bool:
-    """VB6 pattern: copy PayCharge to PayChargeLog before delete (audit trail)."""
+    """VB6 pattern: copy PayCharge to PayChargeLog before delete (audit trail).
+    P12b: VB6 SQL = plain `Select * from PayCharge WHERE DOCID=...` —
+    PayChargeLog ke 61 columns PayCharge ke barabar hain; port me jo
+    `SELECT *, getdate(), ?` (63 values) tha wo hamesha column-count
+    error deta tha. user param API-compat ke liye rakha (VB6 copy me
+    stamp nahi hota)."""
     rows = db.query(
         "SELECT 1 FROM PayCharge WHERE DocId = ? AND Site_Code = ?",
         (docid, site), cn=cn)
     if not rows:
         return False
     db.execute(
-        "INSERT INTO PayChargeLog SELECT *, getdate(), ? "
-        "FROM PayCharge WHERE DocId = ?",
-        (user, docid), cn=cn, commit=True)
+        "INSERT INTO PayChargeLog SELECT * FROM PayCharge WHERE DocId = ?",
+        (docid,), cn=cn, commit=True)
     return True
 
 
@@ -566,11 +570,10 @@ def delete_payment(vno: int, user: str = USER, cn=None, commit: bool = True,
     own = cn is None
     cn = cn or db.connect()
     try:
-        # VB6 pattern: log before delete
+        # VB6 pattern: log before delete (P12b: VB6-exact Select * copy)
         db.execute(
-            "INSERT INTO PayChargeLog SELECT *, getdate(), ? "
-            "FROM PayCharge WHERE DocId = ?",
-            (user, rows[0][0]), cn=cn, commit=False)
+            "INSERT INTO PayChargeLog SELECT * FROM PayCharge WHERE DocId = ?",
+            (rows[0][0],), cn=cn, commit=False)
         n = db.execute(
             "DELETE FROM PayCharge WHERE DocId = ?",
             (rows[0][0],), cn=cn, commit=False)
@@ -674,11 +677,11 @@ def reset_tokens(folio: int, user: str = USER, cn=None,
     own = cn is None
     cn = cn or db.connect()
     try:
-        # Log before delete (audit trail)
+        # Log before delete (audit trail) — P12b: VB6-exact Select * copy
         db.execute(
-            "INSERT INTO PayChargeLog SELECT *, getdate(), ? "
-            "FROM PayCharge WHERE FolioNoDocid = ?",
-            (user, rec["docid"]), cn=cn, commit=False)
+            "INSERT INTO PayChargeLog SELECT * FROM PayCharge "
+            "WHERE FolioNoDocid = ?",
+            (rec["docid"],), cn=cn, commit=False)
         # Delete all charges for this folio
         db.execute(
             "DELETE FROM PayCharge WHERE FolioNoDocid = ?",
