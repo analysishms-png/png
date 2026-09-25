@@ -2286,36 +2286,36 @@ REPORTS: list[dict] = [
         },
         {
             "key": "GSTR2(3)",
-            "title": "GSTR2(3) - Import",
+            "title": "GSTR2(3) - Inward Supply (Imports)",
             "module": "Tax",
             "menu": ["GSTR2(3)"],
-            "cols": ["Item", "Taxable", "TaxAmt"],
+            "cols": ["GSTIN", "Supplier", "Vouchers", "Taxable", "TaxAmt", "NetAmt"],
             "sql": (
-                "SELECT TOP ({L}) ISNULL(Item,''),SUM(BaseValue),SUM(TaxAmt) FROM Sale2 WHERE Vdate BETWEEN ? AND ? GROUP BY Item ORDER BY SUM(TaxAmt) DESC"
+                "SELECT TOP ({L}) ISNULL(s.GSTIN,''), ISNULL(s.Name,'?'), COUNT(DISTINCT p.DocId), SUM(ISNULL(p.Taxable,0)), SUM(ISNULL(p.Tax,0)), SUM(ISNULL(p.NetAmt,0)) FROM Purch1 p LEFT JOIN Subgroup s ON s.SubCode = p.Party WHERE p.Vdate BETWEEN ? AND ? AND ISNULL(RTRIM(p.DelFlag),'') <> 'Y' GROUP BY ISNULL(s.GSTIN,''), ISNULL(s.Name,'?') ORDER BY SUM(ISNULL(p.Tax,0)) DESC"
             ),
-            "note": "GSTR2 import of goods",
+            "note": "GSTR2 table 3: inward taxable supplies (Purch1×Subgroup.GSTIN; VB6 GSTR2 form purchase-side). Sale2.Item live table me nahi hai isliye Purch1 header-level.",
         },
         {
             "key": "GSTR2(4A)",
-            "title": "GSTR2(4A) - Inward Supply",
+            "title": "GSTR2(4A) - Inward Supply (Eligible ITC)",
             "module": "Tax",
             "menu": ["GSTR2(4A)"],
-            "cols": ["Item", "Taxable", "TaxAmt"],
+            "cols": ["GSTIN", "Supplier", "Taxable", "TaxAmt"],
             "sql": (
-                "SELECT TOP ({L}) ISNULL(Item,''),SUM(BaseValue),SUM(TaxAmt) FROM Sale2 WHERE Vdate BETWEEN ? AND ? GROUP BY Item ORDER BY SUM(TaxAmt) DESC"
+                "SELECT TOP ({L}) ISNULL(s.GSTIN,''), ISNULL(s.Name,'?'), SUM(ISNULL(d.Amount,0)), SUM(ISNULL(d.TaxAmt,0)) FROM Purch2 d JOIN Purch1 p ON p.DocId = d.DocId LEFT JOIN Subgroup s ON s.SubCode = p.Party WHERE d.Vdate BETWEEN ? AND ? AND ISNULL(RTRIM(d.VoidYN),'') NOT IN ('Y') AND ISNULL(d.TaxAmt,0) > 0 GROUP BY ISNULL(s.GSTIN,''), ISNULL(s.Name,'?') ORDER BY SUM(ISNULL(d.TaxAmt,0)) DESC"
             ),
-            "note": "GSTR2 inward supply",
+            "note": "GSTR2 table 4A: ITC-eligible inward supply detail (Purch2 item-tax rows, VoidYN=0, TaxAmt>0).",
         },
         {
             "key": "GSTR2(4B)",
-            "title": "GSTR2(4B) - Inward Supply Reversal",
+            "title": "GSTR2(4B) - Inward Supply (ITC Reversal)",
             "module": "Tax",
             "menu": ["GSTR2(4B)"],
-            "cols": ["Item", "Taxable", "TaxAmt"],
+            "cols": ["GSTIN", "Supplier", "Taxable", "TaxAmt"],
             "sql": (
-                "SELECT TOP ({L}) ISNULL(Item,''),SUM(BaseValue),SUM(TaxAmt) FROM Sale2 WHERE Vdate BETWEEN ? AND ? GROUP BY Item ORDER BY SUM(TaxAmt) DESC"
+                "SELECT TOP ({L}) ISNULL(s.GSTIN,''), ISNULL(s.Name,'?'), SUM(ISNULL(d.Amount,0)), SUM(ISNULL(d.TaxAmt,0)) FROM Purch2 d JOIN Purch1 p ON p.DocId = d.DocId LEFT JOIN Subgroup s ON s.SubCode = p.Party WHERE d.Vdate BETWEEN ? AND ? AND ISNULL(RTRIM(d.VoidYN),'') = 'Y' GROUP BY ISNULL(s.GSTIN,''), ISNULL(s.Name,'?') ORDER BY SUM(ISNULL(d.TaxAmt,0)) DESC"
             ),
-            "note": "GSTR2 inward supply reversal",
+            "note": "GSTR2 table 4B: ITC reversal = voided/cancelled inward rows (Purch2 VoidYN<>0). Live DB me 0-row normal hai — reversal entries tabhi bante hain jab void purchase ho.",
         },
         {
             "key": "LuxuryTaxRegister",
