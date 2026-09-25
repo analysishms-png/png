@@ -187,16 +187,16 @@ Legend: 🟢 implemented+evidence · 🟡 partial (simplified/lib) · 🔴 missi
 ### 🟡 Simplified (chal raha hai par VB6 se halka)
 1. Ageing = last-txn bucket (VB6 clg-date based tha) — code note me documented
 2. KOT station-transfer → table-change se approximate
-3. HR net-salary validation, leave-balance calc missing
+3. HR net-salary validation, ~~leave-balance calc missing~~ ✅ Wave A (e1a09c9)
 4. Members renewal/visit sab ek hi billing UI par route
-5. TDS rate calc VB6-form-side tha; core me sirf storage
-6. Booking-level duplicate-conflict partial (checkin overlap check strong hai)
+5. ~~TDS rate calc VB6-form-side tha; core me sirf storage~~ ✅ Wave A: `tds_calculate`
+6. ~~Booking-level duplicate-conflict partial~~ ✅ Wave A: `check_room_conflict` + insert guard
 
 ### 🔴 Missing (backend bhi nahi)
 1. Check-in PIN (4-digit) + Govt ID mandatory validation
 2. Availability Forecast (7-730 din)
 3. Confirmation/Cancellation letters (registry me `_doc_skip`)
-4. Bank Reconciliation, Fund Flow, Cash Flow reports
+4. ~~Bank Reconciliation, Fund Flow, Cash Flow reports~~ ✅ Wave B (a7b235d)
 5. POS bill split (POSSaleSplit)
 6. Stock transfer (location-to-location)
 7. Chef pre-costing (banquet)
@@ -223,9 +223,11 @@ Legend: 🟢 implemented+evidence · 🟡 partial (simplified/lib) · 🔴 missi
 
 **Total: ~67/92 backend rules verified (73%), missing bucket ~16, simplified ~9, blocked ~1**
 
+**Update (2026-09-25, Wave A+B ke baad):** missing bucket 16 → 13 (TDS calc, booking conflict, leave balance, Bank Recon, Fund Flow, Cash Flow implement ho chuke). backend rules verified ~73/92 (79%).
+
 ## Recommended next waves (priority order)
-1. **W-A (quick wins):** TDS rate calc helper + booking conflict check + leave-balance calc — chhote, pure-core
-2. **W-B (reports):** Bank Reconciliation, Fund Flow, Cash Flow — reports.py pattern me 3 naye keys
+1. ~~**W-A (quick wins):** TDS rate calc helper + booking conflict check + leave-balance calc~~ ✅ DONE (e1a09c9): `fa_tds_ops.tds_calculate/tds_categories`, `booking.check_room_conflict` + insert-guard, `hr_payroll.leave_balance` — 11 unit tests
+2. ~~**W-B (reports):** Bank Reconciliation, Fund Flow, Cash Flow — reports.py pattern me 3 naye keys~~ ✅ DONE (a7b235d): `bank_reconciliation` (Ledger×Subgroup.Nature='Bank' + Clg status), `fund_flow` (nature-wise Cr/Dr), `cash_flow` (date-spine running balance) — 8 unit tests
 3. **W-C (compliance):** GSTR-2 variants + e-invoice report ko NA menu me surface
 4. **W-D (FO parity):** deposit auto-calc rate-plan se + PIN/ID fields (Enviro flag ke saath optional)
 5. **W-E:** POS bill split + stock transfer (naye DocId flows)
