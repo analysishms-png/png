@@ -1,0 +1,10 @@
+Module: FrmUploadProcess
+Total SQL statements: 2
+================================================================================
+
+-- SQL Statement 1 --
+  loc_13E271D:     Proc_6_16_EA44E0(var_104, CVar(var_C8.Item("SupplierGSTIN")), "Delete From Table_GSTR2A Where SupplierGSTIN=", var_268)
+
+-- SQL Statement 2 --
+  loc_13E2825:     var_F4 = "Insert into Table_GSTR2A (SupplierGSTIN,SupplierName,InvoiceNo,InvoiceType,InvoiceDate,InvoiceValue,PlaceOfSupply,ReverseCharge,TaxRate,TaxableValue,IGST,CGST,SGST,Cess,ReturnStatus) Values ("
+

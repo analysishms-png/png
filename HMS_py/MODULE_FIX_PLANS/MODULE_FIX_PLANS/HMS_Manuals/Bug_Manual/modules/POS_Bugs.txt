@@ -1,0 +1,68 @@
+================================================================================
+   ANALYSIS HMS - POINT OF SALE MODULE : BUG REPORT (TESTER FORMAT)
+================================================================================
+Property: Demo Property | Report Date: 21-Sep-2026 | Round: 1 + 2 (Demo entries)
+Method: Manual UI testing on live app - demo entries, empty submits, duplicates,
+        report fetches. Source code sirf root-cause confirm karne ke liye dekha.
+================================================================================
+
+TOTAL BUGS: 3
+
+--------------------------------------------------------------------------------
+[POS-01] KOT Entry page poora CRASH - order lena ruka hua hai
+Severity : CRITICAL
+Screen   : POS > KOT Entry (/kotentry)
+
+Steps:
+1. POS > KOT Entry kholo
+
+Expected: KOT/order entry form khule.
+
+Actual (BUG): Page crash: 'Undefined variable $restcodes' - poora debug page (stack trace, file path Kot.php:192, PHP version, code) user ko dikhta hai.
+
+Impact: Is configuration me order entry IMPOSSIBLE. Revenue loss. Sath me internal server details expose - security risk bhi.
+
+Evidence: screenshots/POS_kot_crash.png
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+[POS-02] Outlet Setup ke required dropdowns load-par invalid
+Severity : MEDIUM
+Screen   : POS > Setup Outlet
+
+Steps:
+1. Setup Outlet kholo, Outlet Nature/KOT dekho
+
+Expected: Clean form.
+
+Actual (BUG): Outlet Nature, KOT fields load-par hi invalid state me (cross-module pattern).
+
+Impact: UX confusion.
+
+Evidence: screenshots/POS_outlet_empty.png
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+[POS-03] Table Master duplicate message 'Code' bolta hai, check naam/code dono par hona chahiye
+Severity : LOW
+Screen   : POS > Table Master
+
+Steps:
+1. Table banao (Code T99, Name 'QA DEMO TABLE')
+2. Wahi Code + naya Name se dobara save karo
+
+Expected: Dono duplicate cases (code aur name) ke clear alag messages.
+
+Actual (BUG): Same Code par sahi block hota hai lekin message 'Table Master Code already exists' - agar user ne Name duplicate kiya ho to kya hota hai ye bhi verify karna chahiye (is test me code-duplicate hi hua).
+
+Impact: Minor - message clarity.
+Demo entry: T99 / QA DEMO TABLE (create OK + duplicate block OK)
+--------------------------------------------------------------------------------
+
+================================================================================
+  JO SAHI KAAM KAR RAHA HAIN (VERIFIED)
+================================================================================
+  [OK] Table Master - create OK ('Table Master Inserted successfully!') + duplicate block OK
+  [OK] Setup Outlet - required validation sahi
+
+================================================================================
+END OF POINT OF SALE BUG REPORT
+================================================================================

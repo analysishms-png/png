@@ -1,0 +1,35 @@
+================================================================================
+   ANALYSIS HMS - MAINTENANCE MODULE : BUG REPORT (TESTER FORMAT)
+================================================================================
+Property: Demo Property | Report Date: 21-Sep-2026 | Round: 1 + 2 (Demo entries)
+Method: Manual UI testing on live app - demo entries, empty submits, duplicates,
+        report fetches. Source code sirf root-cause confirm karne ke liye dekha.
+================================================================================
+
+TOTAL BUGS: 1
+
+--------------------------------------------------------------------------------
+[MNT-01] Master form me sirf Name+Active - koi category/priority/location fields nahi
+Severity : LOW
+Screen   : Maintenance > Maintenance Master
+
+Steps:
+1. Maintenance Master kholo
+
+Expected: Maintenance item ke saath category/priority jaisi fields useful hoti.
+
+Actual (BUG): Sirf Name + Active Y/N hai. (Simple rakha gaya hai shayad - product team se confirm karna chahiye.)
+
+Impact: Feature-gap lag sakta hai, bug nahi.
+
+Evidence: screenshots/MNT_master_empty.png (validation 'Please fill in this field' sahi chalti hai)
+--------------------------------------------------------------------------------
+
+================================================================================
+  JO SAHI KAAM KAR RAHA HAIN (VERIFIED)
+================================================================================
+  [OK] Maintenance Master - required validation sahi (browser tooltip 'Please fill in this field.')
+
+================================================================================
+END OF MAINTENANCE BUG REPORT
+================================================================================

@@ -1,0 +1,345 @@
+{
+ "module": "MALL MANAGEMENT MODULE",
+ "subtitle": "Masters · Operations · Appendix",
+ "property": "Property: Demo Property",
+ "version": "Training Manual for Mall/Facility Staff",
+ "header": "Analysis HMS — Mall Management Module Training Manual",
+ "footerText": "Analysis HMS Mall Management Training Manual | Demo Property",
+ "output": "HMS_Manuals/MallManagement/MallManagement_Module_Training_Manual_English.docx",
+ "imageRoot": ".",
+ "theme": {
+  "color": "F9A825",
+  "dark": "F57F17",
+  "light": "FFF8E1"
+ },
+ "sections": [
+  {
+   "title": "1. Introduction & Module Overview",
+   "intro": "The Mall Management module manages the shops and tenants of the hotel's attached mall/commercial complex — lease agreements, monthly utility billing (electricity/water meter reading), service charges.\n\nMALL FLOW: Register shops (Shop Master) → Lease agreement (tenant, rent, deposit, terms) → Daily meter reading (electricity/water) → Monthly bill generation (rent + utilities + service charges) → Collection tracking.",
+   "subsections": [
+    {
+     "title": "Module Sections Overview",
+     "table": {
+      "headers": [
+       "Section",
+       "Purpose",
+       "Key Screens"
+      ],
+      "rows": [
+       [
+        "MASTER (Main Setup)",
+        "Shops & leases",
+        "Shop Master, Charge Master, Unit Type, Lease Agreement, Facility Sundry, Tenant Location"
+       ],
+       [
+        "OPERATION",
+        "Monthly billing cycle",
+        "Service Bill Entry, Daily Meter Reading"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Key Benefits",
+     "bullets": [
+      "Shop-wise tenant ledger — rent, deposit, dues",
+      "Meter reading based utility billing — no disputes",
+      "Lease renewal reminders via agreement expiry",
+      "Facility charges (CAM) automatic billing"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "2. Master Module — Shops & Leases",
+   "subsections": [
+    {
+     "title": "2.1 Shop Master",
+     "navPath": "Main Setup ▶ Mall Management ▶ Shop Master",
+     "screenshot": "HMS_Manuals/MallManagement/screenshots/02_Master/01_Shop_Master.png",
+     "paragraph": "Register all mall shops/shop units — shop no., floor, area (sqft), type. The lease agreement attaches to this shop. Facility charges (CAM) are defined in the Charge Master, shop units in Unit Type, tenant mapping in Tenant Location.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Shop No./Name",
+        "Unit identifier"
+       ],
+       [
+        "Floor/Zone",
+        "Where is it?"
+       ],
+       [
+        "Area (sqft)",
+        "Charge calculation base"
+       ],
+       [
+        "Meter Nos.",
+        "Electricity/water meter mapping"
+       ],
+       [
+        "Charge Master",
+        "CAM/service charge heads"
+       ],
+       [
+        "Unit Type",
+        "Shop/food court/kiosk types"
+       ],
+       [
+        "Tenant Location",
+        "Tenant's shop mapping"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "2.2 Lease Agreement Entry",
+     "navPath": "Main Setup ▶ Mall Management ▶ Lease Agreement",
+     "screenshot": "HMS_Manuals/MallManagement/screenshots/02_Master/02_Lease_Agreement.png",
+     "paragraph": "Tenant's lease record — agreement no., tenant details, monthly rent, escalation %, security deposit, lease start/end dates, CAM charges. Renewal follow-up on expiry.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Shop + Tenant",
+        "Which shop, which tenant"
+       ],
+       [
+        "Monthly Rent",
+        "Base rent + escalation terms"
+       ],
+       [
+        "Deposit",
+        "Security amount"
+       ],
+       [
+        "Lease Period",
+        "Start to end date"
+       ],
+       [
+        "Charges",
+        "CAM/maintenance + utility billing rules"
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "3. Operations Module",
+   "subsections": [
+    {
+     "title": "3.1 Daily Meter Reading",
+     "navPath": "Mall Management ▶ Operation ▶ Daily Meter Reading",
+     "screenshot": "HMS_Manuals/MallManagement/screenshots/01_Operations/02_Daily_Meter_Reading.png",
+     "paragraph": "By entering the reading of electricity/water meters of every shop daily/monthly — consumption units are calculated from the previous reading. Billing is based on these readings.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Shop/Meter",
+        "Which meter"
+       ],
+       [
+        "Previous/Current Reading",
+        "Consumption auto-calculate"
+       ],
+       [
+        "Units + Rate",
+        "How many units, at what rate"
+       ],
+       [
+        "Date",
+        "Reading date"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.2 Service Bill Entry",
+     "navPath": "Mall Management ▶ Operation ▶ Service Bill Entry",
+     "screenshot": "HMS_Manuals/MallManagement/screenshots/01_Operations/01_Service_Bill_Entry.png",
+     "paragraph": "Tenant's monthly bill — rent + meter consumption + CAM/service charges + GST. Bill is printed, posted in tenant ledger. Payment is settled upon receipt.",
+     "steps": [
+      "By selecting Shop/tenant — load lease details",
+      "Add meter consumption (from readings)",
+      "Rent + CAM + sundry charges verify",
+      "GST apply — Save & Print bill",
+      "When payment is received, make the settlement entry"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "4. Complete Screens Gallery — Mall Management (All Captured Screens)",
+   "intro": "This gallery shows SAARI captured screens of the Mall Management module which is not covered in detail in the main sections. For revision after training — Every screen the trainee has seen before, there is a place for complete reference.",
+   "subsections": [
+    {
+     "title": "G.01 02_Master — 03 Charge Master",
+     "screenshot": "HMS_Manuals/MallManagement/screenshots/02_Master/03_Charge_Master.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.02 02_Master — 04 Unit Type",
+     "screenshot": "HMS_Manuals/MallManagement/screenshots/02_Master/04_Unit_Type.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.03 02_Master — 05 Tenant Location",
+     "screenshot": "HMS_Manuals/MallManagement/screenshots/02_Master/05_Tenant_Location.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.04 00_Login — 01 Login Page",
+     "screenshot": "HMS_Manuals/MallManagement/screenshots/00_Login/01_Login_Page.png",
+     "para": "Screen captured from the live system — part of the complete reference gallery."
+    }
+   ]
+  },
+  {
+   "title": "5. Appendix",
+   "subsections": [
+    {
+     "title": "Mall Staff Monthly Cycle",
+     "table": {
+      "headers": [
+       "When",
+       "Task",
+       "Screen"
+      ],
+      "rows": [
+       [
+        "Daily/Weekly",
+        "Enter meter readings",
+        "Daily Meter Reading"
+       ],
+       [
+        "Month start",
+        "By generating SB tenants bill",
+        "Service Bill Entry"
+       ],
+       [
+        "Month start",
+        "Rent/lease renewals due check",
+        "Lease Agreement"
+       ],
+       [
+        "As received",
+        "Record payments",
+        "Service Bill Entry (settle)"
+       ],
+       [
+        "Monthly",
+        "Defaulters list nikalo — follow-up",
+        "Tenant ledgers"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Common Scenarios (Training Q&A)",
+     "table": {
+      "headers": [
+       "Scenario",
+       "what to do"
+      ],
+      "rows": [
+       [
+        "New tenant came",
+        "Shop will already exist in the Shop Master — create the Lease Agreement entry"
+       ],
+       [
+        "Meter gave wrong reading",
+        "Reading edit/correct entry (with permission)"
+       ],
+       [
+        "Rent is rising (escalation)",
+        "Escalation % in the Lease Agreement — applies automatically or revise manually"
+       ],
+       [
+        "The tenant is keeping the shop empty.",
+        "Lease terminate + deposit refund entry + final bill"
+       ],
+       [
+        "GST should be required separately in the bill (shop type wise)",
+        "Correct tax code mapping in Charge Master"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Troubleshooting",
+     "table": {
+      "headers": [
+       "Issue",
+       "Cause",
+       "Solution"
+      ],
+      "rows": [
+       [
+        "There are 0 meter units in the bill.",
+        "Reading missing",
+        "Complete the Daily Meter Reading first."
+       ],
+       [
+        "Shop is not visible in the bill",
+        "Lease inactive/expired",
+        "Verify the Lease Agreement dates"
+       ],
+       [
+        "Consumption negative",
+        "Meter rollover/galat entry",
+        "Correct the reading"
+       ],
+       [
+        "Deposit has not been adjusted",
+        "Manual adjustment needed",
+        "Add the deposit adjustment line to the final bill"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Contact & Support",
+     "table": {
+      "headers": [
+       "Contact",
+       "Details"
+      ],
+      "rows": [
+       [
+        "Website",
+        "https://analysishms.com"
+       ],
+       [
+        "Support Email",
+        "support@analysishms.com"
+       ],
+       [
+        "Phone",
+        "+91 9161380170"
+       ],
+       [
+        "Training Login",
+        "Use your assigned User ID and Password"
+       ],
+       [
+        "Software Version",
+        "Analysis HMS "
+       ]
+      ]
+     }
+    }
+   ]
+  }
+ ]
+}

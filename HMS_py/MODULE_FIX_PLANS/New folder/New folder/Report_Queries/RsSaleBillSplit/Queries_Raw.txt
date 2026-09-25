@@ -1,0 +1,538 @@
+Module: RsSaleBillSplit
+Total SQL statements: 178
+================================================================================
+
+-- SQL Statement 1 --
+  loc_144AD70: unk_58588B.Execute "Select * from PrinterSetup where RestCode='" & global_60 & "'", var_A4, -1
+
+-- SQL Statement 2 --
+  loc_144AF32: unk_5857F0.Execute "Select RateInclTax from depart where code='" & global_60 & "'", var_A4, -1
+
+-- SQL Statement 3 --
+  loc_144AFDF: unk_5857F0.Execute "Select KOtYn from depart where Code='" & global_60 & "'", var_A4, -1
+
+-- SQL Statement 4 --
+  loc_144B059: unk_5857F0.Execute "Select AutoSplit from depart where Code='" & global_60 & "'", var_A4, -1
+
+-- SQL Statement 5 --
+  loc_144B0C8: unk_5857F0.Execute "Select ShortName,Code from Depart Where Code='" & global_60 & "'", var_A4, -1
+
+-- SQL Statement 6 --
+  loc_144B1C2: Me.Open "SELECT CODE ,ShortName as NAME,Name as Restaurant FROM Depart Where OutletYN='Y' ORDER BY NAME", CVar(MemVar_1F81044), 3
+
+-- SQL Statement 7 --
+  loc_144B22A: unk_5857F0.Execute "Select Name From Depart Where Code ='" & global_60 & "'", var_A4, -1
+
+-- SQL Statement 8 --
+  loc_144B2CF: var_E4 = "Select 'B'+ShortName From Depart Where Code='" & global_60
+
+-- SQL Statement 9 --
+  loc_144B2DF: unk_5857F0.Execute "Select Name From Depart Where Code ='" & global_60 & "'" & "'", var_134, -1
+
+-- SQL Statement 10 --
+  loc_144B31A: var_A8 = "Select S.DocId as SearchCode,S.DocID From Sale1 S INNER JOIN VOUCHER_TYPE V ON S.VTYPE=V.V_TYPE WHERE S.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 11 --
+  loc_144B3B4: var_A8 = "Select I.Code,I.Name as Name,IC.RoundOff,I.RateEdit,I.Kitchen,I.Unit,IG.Name as ItemGroup,DispCode,IC.taxStru,D.Name as OutLetName,D.Code as OutLetCode,I.DiscApp,I.SChrgApp,I.RateIncTax From ((ItemMast I INNER join ItemGrp IG on I.ItemGroup=IG.Code) INNER Join Depart D On D.Code=I.RestCode) INNER join ItemCatMast IC on IC.Code=I.ItemCatCode Where (I.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 12 --
+  loc_144B42B: Call 0.Method_arg_50 ("Select Name From Depart Where Code ='" & global_60 & "'", "SELECT COUNT(*) FROM LASTVOU WHERE LOGSITE_CODE='" & MemVar_1F81078 & "' AND ENAME='", var_A4, -1, var_94, var_CC, 0, var_EC)
+
+-- SQL Statement 13 --
+  loc_144B452: unk_5857F0.Execute var_B8 & "Select Name From Depart Where Code ='" & global_60 & "'" & "' AND UNAME='" & MemVar_1F810C8 & "'", var_94, New
+
+-- SQL Statement 14 --
+  loc_144B4E4:   Call 0.Method_arg_50 ("Select Name From Depart Where Code ='" & global_60 & "'", "SELECT DOCID FROM LASTVOU WHERE LOGSITE_CODE='" & MemVar_1F81078 & "' AND ENAME='", var_A4, -1, var_94, var_CC, 0)
+
+-- SQL Statement 15 --
+  loc_144B50B:   unk_5857F0.Execute var_EC & "Select Name From Depart Where Code ='" & global_60 & "'" & "' AND UNAME='" & MemVar_1F810C8 & "'", var_B8, "SearchCode='"
+
+-- SQL Statement 16 --
+  loc_105FD12: var_B0 = "Select 'B'+ShortName From Depart Where Code='" & global_60
+
+-- SQL Statement 17 --
+  loc_105FD59: unk_5857F0.Execute CStr(var_11C), "Select V_Type As Code,Description As Name,NCat From Voucher_Type WHERE V_Type='", var_140
+
+-- SQL Statement 18 --
+  loc_105FE59: unk_5857F0.Execute "Select Count(*) From SundryType WHERE V_Type='" & global_144 & "'", var_C4, -1
+
+-- SQL Statement 19 --
+  loc_16FC928:       Call 0.Method_Txt_Validate0 (CInt(2), var_A4, var_A8, "Select Count(*) From Sale1 Where DocID='", "Vr. No Can Not Be 0", -1)
+
+-- SQL Statement 20 --
+  loc_16FCF70:             var_A8 = "Select * ,I.NAME AS ITEMNAME,I.UNIT,I.RateEdit,IR.Rate as IRate,I.SChrgApp,IC.TaxPer,IC.RoundOff,IC.Code as TaxCode,I.DiscApp as IDiscApp,I.Kitchen,D.Code as DepartCode,D.ShortName as DepartName From (((KOT K  LEFT JOIN ITEMMAST I ON K.ITEM=I.CODE And I.RestCode=K.ItemRestCode)Left join ItemCatMast IC on IC.Code=I.ItemCatCode)Left Join ItemRate IR on IR.RestCode=K.RestCode and IR.ItemCode=K.Item WHERE K.RestCode='" & global_60
+
+-- SQL Statement 21 --
+  loc_16FCFF4:             var_D8 = "Select * ,I.NAME AS ITEMNAME,DispCode,I.UNIT,IC.RoundOff,IC.Code as TaxCode,I.DiscApp as IDiscApp,IC.taxStru,I.Kitchen,D.Code as DepartCode,D.ShortName as DepartName From ((KOT K  LEFT JOIN ITEMMAST I ON K.ITEM=I.CODE And I.RestCode=K.ItemRestCode)Left join ItemCatMast IC on IC.Code=I.ItemCatCode)Left Join Depart D On D.Code=I.RestCode WHERE k.VDate<="
+
+-- SQL Statement 22 --
+  loc_16FD97C:               var_A8 = Proc_6_37_E618F4(CVar(Me.Fields.Item("TaxStru")), "Select * from taxStru where code='", var_E8, -1, var_11C, var_244)
+
+-- SQL Statement 23 --
+  loc_12A92B5:     unk_5857F0.Execute CStr("DELETE FROM PAYCHARGE WHERE dOCID='" & Me.Fields.Item("SearchCode").Value & "'"), var_11C, -1
+
+-- SQL Statement 24 --
+  loc_12A9416:   unk_5857F0.Execute CStr("Update Stock set delflag='D' where docid='" & Me.Fields.Item("SearchCode").Value & "'"), var_11C, -1
+
+-- SQL Statement 25 --
+  loc_12A94AA:   var_11C = "Update Sale1 set delflag='D',Remark='" & Left(Trim(var_9C), &H19) & "',U_name='" 
+
+-- SQL Statement 26 --
+  loc_12A9558:   unk_5857F0.Execute CStr("Update Sale2 set delflag='D' where docid='" & Me.Fields.Item("SearchCode").Value & "'"), var_11C, -1
+
+-- SQL Statement 27 --
+  loc_12A95BC:   var_FC = "Update SunTran set delflag='D' where docid='" & Me.Fields.Item("SearchCode").Value & "'" 
+
+-- SQL Statement 28 --
+  loc_FAB21A: var_10C = "Select  S.Docid as SearchCode,Cast(S.VNo as Varchar(11)) as VNo ,Cast(S.VDate as VarChar(11)) as VDate,s.RoomNo as TableNo " & "From (Sale1 S INNER JOIN  Voucher_Type V On S.VType= V.V_Type) "
+
+-- SQL Statement 29 --
+  loc_FAB286: var_120 = "Select 'B'+ShortName From Depart Where Code='" & global_60
+
+-- SQL Statement 30 --
+  loc_17BFC73: Call 0.Method_TopCtrl1_UnknownEvent_160 (CInt(2), var_98, var_9C, "DELETE FROM SplitBillDetail WHERE DocId='")
+
+-- SQL Statement 31 --
+  loc_17BFED5:   var_A0 = "Insert Into SplitBillDetail (DocId,VNo,VDate,VTime,RestCode,TableNo,Sno,SNo1,ItemName,OQty,Rate,BillQty,BillCat,Site_Code,U_Name,U_EntDt,U_AE,DelFlag,LOGSITE_CODE) Values " & "('"
+
+-- SQL Statement 32 --
+  loc_17C030E:     var_A0 = "Insert Into SplitBillDetail (DocId,VNo,VDate,VTime,RestCode,TableNo,Sno,SNo1,ItemName,OQty,Rate,BillQty,BillCat,Site_Code,U_Name,U_EntDt,U_AE,DelFlag,LOGSITE_CODE) Values " & "('"
+
+-- SQL Statement 33 --
+  loc_17C075E:     var_A0 = "Insert Into SplitBillDetail (DocId,VNo,VDate,VTime,RestCode,TableNo,Sno,SNo1,ItemName,OQty,Rate,BillQty,BillCat,Site_Code,U_Name,U_EntDt,U_AE,DelFlag,LOGSITE_CODE) Values " & "('"
+
+-- SQL Statement 34 --
+  loc_17C0BAE:     var_A0 = "Insert Into SplitBillDetail (DocId,VNo,VDate,VTime,RestCode,TableNo,Sno,SNo1,ItemName,OQty,Rate,BillQty,BillCat,Site_Code,U_Name,U_EntDt,U_AE,DelFlag,LOGSITE_CODE) Values " & "('"
+
+-- SQL Statement 35 --
+  loc_17C0DEE: Call 0.Method_TopCtrl1_UnknownEvent_160 (CInt(2), var_98, var_9C, "DELETE FROM SplitSunTran WHERE DocId='")
+
+-- SQL Statement 36 --
+  loc_17C0FE7:     var_A0 = "Insert Into SplitSunTran (DocId,RestCode,VDate,Sno,Amount,SunCode,DispName,BaseAmount,BillCat,Site_Code,U_Name,U_EntDt,U_AE,DelFlag,LOGSITE_CODE) Values " & "('"
+
+-- SQL Statement 37 --
+  loc_17C12FC:     var_A0 = "Insert Into SplitSunTran (DocId,RestCode,VDate,Sno,Amount,SunCode,DispName,BaseAmount,BillCat,Site_Code,U_Name,U_EntDt,U_AE,DelFlag,LOGSITE_CODE) Values " & "('"
+
+-- SQL Statement 38 --
+  loc_17C1628:     var_A0 = "Insert Into SplitSunTran (DocId,RestCode,VDate,Sno,Amount,SunCode,DispName,BaseAmount,BillCat,Site_Code,U_Name,U_EntDt,U_AE,DelFlag,LOGSITE_CODE) Values " & "('"
+
+-- SQL Statement 39 --
+  loc_17C1954:     var_A0 = "Insert Into SplitSunTran (DocId,RestCode,VDate,Sno,Amount,SunCode,DispName,BaseAmount,BillCat,Site_Code,U_Name,U_EntDt,U_AE,DelFlag,LOGSITE_CODE) Values " & "('"
+
+-- SQL Statement 40 --
+  loc_1B5EFE5:   Proc_6_16_EA44E0(var_180, var_170, "Select RoomPayType From enviro WHERE LOGSITE_CODE=", var_1C0, -1, var_14C)
+
+-- SQL Statement 41 --
+  loc_1B5F0C8:   Proc_6_16_EA44E0(var_180, MemVar_1F81078, "Select CashPayType From enviro WHERE LOGSITE_CODE=", var_1C0)
+
+-- SQL Statement 42 --
+  loc_1B5F3F2:   Call 0.Method_Proc_162_80_1B63C680 (var_92, var_150, var_158, "Select IsNull(Max(Nature),'') from SundryType Where SundryCode='", var_180, -1)
+
+-- SQL Statement 43 --
+  loc_1B5F9C8:   var_158 = "Select NCUR from enviro where LOGsite_code='" & MemVar_1F81078
+
+-- SQL Statement 44 --
+  loc_1B5FA47:   Call 0.Method_Proc_162_80_1B63C680 (CInt(2), var_150, var_158, "Select Count(*) From Sale1 Where DocID='", var_180, -1, var_154)
+
+-- SQL Statement 45 --
+  loc_1B5FBBB: unk_5857F0.Execute "Select Waiter From CashRegData where DocID='" & CStr(Me.FGrid.TextMatrix)) & "' And SNO =" & CStr(var_208), var_1C0, -1
+
+-- SQL Statement 46 --
+  loc_1B60079: Call 0.Method_Proc_162_80_1B63C680 (CInt(2), var_150, var_158, "Delete From Stock Where DocID='")
+
+-- SQL Statement 47 --
+  loc_1B600D8: Call 0.Method_Proc_162_80_1B63C680 (CInt(2), var_150, var_158, "Delete From Sale1 Where DocID='")
+
+-- SQL Statement 48 --
+  loc_1B60137: Call 0.Method_Proc_162_80_1B63C680 (CInt(2), var_150, var_158, "Delete From Sale2 Where DocID='")
+
+-- SQL Statement 49 --
+  loc_1B60196: Call 0.Method_Proc_162_80_1B63C680 (CInt(2), var_150, var_158, "Delete From SunTran Where DocID='")
+
+-- SQL Statement 50 --
+  loc_1B6042E:   var_200 = "Insert Into Sale1(Docid,VNo,VDate,VTime,VType,VPrefix,Site_Code,RestCode,RoomCat,RoomType,RoomNo,GuarAtt,Total,DiscPer,DiscAmt,NonTaxable,Taxable,Tax,ServiceCharge,AddAmt,DedAmt,RoundOff,NetAmt,KOTNO,U_Name,U_EntDt,U_AE,VTime,Waiter,DelFlag) Values (" & "'"
+
+-- SQL Statement 51 --
+  loc_1B60959:   var_200 = "Insert Into Sale1(Docid,VNo,VDate,VType,VPrefix,Site_Code,RestCode,RoomCat,RoomType,RoomNo,GuarAtt,Total,DiscPer,DiscAmt,NonTaxable,Taxable,Tax,ServiceCharge,AddAmt,DedAmt,RoundOff,NetAmt,KOTNO,U_Name,U_EntDt,U_AE,VTime,Waiter,DelFlag) Values (" & "'"
+
+-- SQL Statement 52 --
+  loc_1B611FC:     var_200 = "Insert Into Stock(DocId,SNo,VType,VPrefix,Site_Code,VNo,VDate,RestCode,RoomCat,RoomType,RoomNo,Item,DiscApp,RoundOff,UNIT,QtyIss,Rate,ItemRate,Amount,TaxPer,TaxAmt,DiscPer,DiscAmt,Total,U_Name,U_EntDt,U_AE,DepartCode,GodownCode,KOTDocId,KotSno,DelFlag) Values (" & "'"
+
+-- SQL Statement 53 --
+  loc_1B6167F:       var_29C = "Update CashRegData Set ContraDocId='" & var_158 & "',ContraSno=" & CStr(Val(CStr(Me.FGrid.TextMatrix)))) & " where docid='"
+
+-- SQL Statement 54 --
+  loc_1B619B2:     var_200 = "Insert Into Sale2(DocId,SNo,SNo1,VType,VPrefix,Site_Code,VNo,VDate,RestCode,TaxCode,BaseValue,TaxPer,TaxAmt,U_Name,U_EntDt,U_AE,DelFlag) Values (" & "'"
+
+-- SQL Statement 55 --
+  loc_1B61E2A:     var_200 = "Insert Into SunTran (DocId,Sno,Vtype,VNo,Vdate,SunCode,Limit,DispName,ROff,CalcFormula,SValue,Amount,BaseAmount,U_Name,U_EntDt,U_AE,SunAppDate,RevCode,RestCode,DelFlag,SiteCode) Values ('" & var_150.Text
+
+-- SQL Statement 56 --
+  loc_1B62197:       var_1E0 = CVar("Update CashRegData Set Pending='N',U_Name1='" & MemVar_1F810C8 & "',U_EntDt1=") & var_180 & ",U_AE1='E' where docid='" 
+
+-- SQL Statement 57 --
+  loc_1B6222A:   unk_5857F0.Execute "SELECT SHORTNAME FROM DEPART WHERE CODE='" & global_60 & "'", var_180, -1
+
+-- SQL Statement 58 --
+  loc_1B624EC:   var_158 = "Insert Into PayCharge (DocId,SNo,Vtype,VNo,Site_Code,VPrefix,Vdate,VTIME, " & "GuestProf,EmpCode,Comments,PayCode,PayType,BillAmount,AmtCr,TipAmt,RoomCat,"
+
+-- SQL Statement 59 --
+  loc_1B62758:   unk_5857F0.Execute "SELECT * FROM REVMAST WHERE CODE='" & MemVar_1F81078 & "TOUT" & "'", var_180, -1
+
+-- SQL Statement 60 --
+  loc_1B627C8:     var_1A0 = "Select * from taxstru where Code='" & var_150.Value 
+
+-- SQL Statement 61 --
+  loc_1B62869:   Call 0.Method_Proc_162_80_1B63C680 (CInt(&HA), var_150, var_158, "Select GuestProf,Docid from GuestFolio where FolioNo=", var_180, -1)
+
+-- SQL Statement 62 --
+  loc_1B62B90:   var_158 = "Insert Into PayCharge (DocId,SNo,Vtype,VNo,Site_Code,VPrefix,Vdate,VTIME, " & "GuestProf,EmpCode,Comments,PayCode,PayType,BillAmount,AmtDr,TipAmt,RoomCat,"
+
+-- SQL Statement 63 --
+  loc_1B634F3:     var_158 = "Insert Into PayCharge (DocId,SNo,Vtype,VNo,Site_Code,VPrefix,Vdate, " & "GuestProf,EmpCode,Comments,PayCode,PayType,BillAmount,AmtCr,TipAmt,RoomCat,"
+
+-- SQL Statement 64 --
+  loc_1B63759:   var_158 = "Select VT.Number_Method,VP.V_Type,VP.Date_From,VP.Prefix,VP.Start_Srl_No From Voucher_Type VT Inner Join Voucher_Prefix VP on (VT.V_Type=VP.V_Type AND VT.SITE_CODE=VP.SITE_CODE AND VP.LOGSITE_CODE=VP.LOGSITE_CODE) Where (VP.SITE_CODE='" & MemVar_1F81070
+
+-- SQL Statement 65 --
+  loc_1B638CA:     var_29C = "Update Voucher_Prefix Set Start_Srl_No=" & var_200 & " Where (SITE_CODE='" & MemVar_1F81070 & "' AND LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 66 --
+  loc_1B63978:   var_158 = "SELECT COUNT(*) FROM LASTVOU WHERE UNAME='" & MemVar_1F810C8
+
+-- SQL Statement 67 --
+  loc_1B63A0D:     Call 0.Method_Proc_162_80_1B63C680 (CInt(2), var_150, var_158, "UPDATE LASTVOU  SET DOCID='")
+
+-- SQL Statement 68 --
+  loc_1B63AA0:     Call 0.Method_arg_50 (var_200, "INSERT INTO LASTVOU (UNAME,ENAME,DOCID,Site_Code,U_EntDt,U_AE,LogSite_Code) VALUES ('" & MemVar_1F810C8 & "','", var_2CC)
+
+-- SQL Statement 69 --
+  loc_15DFCFD:   var_128 = "Select Sale1.* ,W.Name as WaiterName From Sale1 left join waiter W on sale1.waiter=w.code Where Sale1.DocID='" & Me.Fields.Item("SearchCode").Value 
+
+-- SQL Statement 70 --
+  loc_15DFD25:   var_128 = CVar("Select MAX(S.SNO)AS SRNO,MAX(S.TAXPER) AS TAXPER,MAX(S.RATE) AS RATE,SUM(S.QTYISS) AS QTY,SUM(S.AMOUNT) AS AMT,MAX(I.NAME) AS ITEMNAME,KOT.VDATE,MAX(KOT.VNO) AS KOTNO,MAX(i.dispcode) as ICode From (Stock S LEFT JOIN ITEMMAST I ON I.CODE=S.ITEM And I.RestCode=S.ItemRestCode) Left Join KOT on (KOT.Docid=S.KOTDOCId AND KOT.SNO=S.KOTSNO) " & " Where S.DocID='") 'String
+
+-- SQL Statement 71 --
+  loc_15DFDF3:   var_148 = CVar("Select st.sno,st.SunCode,st.dispname,St.AMOUNT From Suntran St " & " Where St.DocID='") & var_108 
+
+-- SQL Statement 72 --
+  loc_16AE64A:   unk_5857F0.Execute "Select * from Depart Where Code='" & global_60 & "'", var_10C, -1
+
+-- SQL Statement 73 --
+  loc_16AE697:   var_134 = "Select Sale1.* ,W.Name as WaiterName From Sale1 left join waiter W on sale1.waiter=w.code Where Sale1.DocID='" & Me.Fields.Item("SearchCode").Value 
+
+-- SQL Statement 74 --
+  loc_16AE6BF:   var_134 = CVar("Select MAX(S.SNO)AS SRNO,MAX(S.TAXPER) AS TAXPER,MAX(S.RATE) AS RATE,SUM(S.QTYISS) AS QTY,SUM(S.AMOUNT) AS AMT,MAX(I.NAME) AS ITEMNAME From Stock S LEFT JOIN ITEMMAST I ON I.CODE=S.ITEM And I.RestCode=S.ItemRestCode " & " Where S.DocID='") 'String
+
+-- SQL Statement 75 --
+  loc_16AE752:   var_164 = CVar("Select st.sno,st.SunCode,st.dispname,St.AMOUNT From Suntran St " & " Where St.DocID='") & var_10C & "' order by sno " 
+
+-- SQL Statement 76 --
+  loc_18026F2:   unk_5857F0.Execute "Select * from Depart Where Code='" & global_60 & "'", var_11C, -1
+
+-- SQL Statement 77 --
+  loc_180273F:   var_144 = "Select Sale1.* ,W.Name as WaiterName From Sale1 left join waiter W on sale1.waiter=w.code Where Sale1.DocID='" & Me.Fields.Item("SearchCode").Value 
+
+-- SQL Statement 78 --
+  loc_1802767:   var_144 = CVar("Select MAX(S.SNO)AS SRNO,MAX(S.TAXPER) AS TAXPER,MAX(S.RATE) AS RATE,SUM(S.QTYISS) AS QTY,SUM(S.AMOUNT) AS AMT,MAX(I.NAME) AS ITEMNAME From Stock S LEFT JOIN ITEMMAST I ON I.CODE=S.ITEM And I.RestCode=S.ItemRestCode " & " Where S.DocID='") 'String
+
+-- SQL Statement 79 --
+  loc_18027F1:   var_164 = CVar("Select st.sno,st.SunCode,st.dispname,St.AMOUNT From Suntran St " & " Where St.DocID='") & Me.Fields.Item("SearchCode").Value 
+
+-- SQL Statement 80 --
+  loc_180281B:   var_144 = CVar("SELECT Distinct(I.Kitchen) AS Kitchen,D.Name AS Department FROM (ItemMast I INNER JOIN Stock S ON I.Code=S.Item And I.RestCode=S.ItemRestCode) " & " INNER JOIN Depart D ON I.Kitchen=D.Code WHERE S.DocID='") 'String
+
+-- SQL Statement 81 --
+  loc_1803C7D:       unk_5857F0.Execute "SELECT Slogan1 FROM Depart WHERE Code='" & global_60 & "'", var_11C, -1
+
+-- SQL Statement 82 --
+  loc_1803D7A:       unk_5857F0.Execute "SELECT Slogan2 FROM Depart WHERE Code='" & global_60 & "'", var_11C, -1
+
+-- SQL Statement 83 --
+  loc_1803EE7:       unk_5857F0.Execute "SELECT TOKENPrint FROM Depart where Code ='" & global_60 & "'", var_11C, -1
+
+-- SQL Statement 84 --
+  loc_1803F93:           var_174 = (Chr(&HF) + CVar("SELECT TOKENPrint FROM Depart where Code ='" & global_60 & "'"))
+
+-- SQL Statement 85 --
+  loc_1803FF0:             var_144 = CVar("Select MAX(S.Rate) AS Rate,SUM(S.QtyIss) AS QTY,SUM(S.Amount) AS AMT,MAX(I.Name) AS ItemName From Stock S LEFT JOIN ITEMMAST I ON I.CODE=S.ITEM And I.RestCode=S.ItemRestCode " & " Where S.DocID='") 'String
+
+-- SQL Statement 86 --
+  loc_15DAC1D:   var_10C = "Select * from Depart Where Code='" & global_60 & "'"
+
+-- SQL Statement 87 --
+  loc_15DAC73:   var_144 = "Select Sale1.* ,W.Name as WaiterName From Sale1 left join waiter W on sale1.waiter=w.code Where Sale1.DocID='" & Me.Fields.Item("SearchCode").Value 
+
+-- SQL Statement 88 --
+  loc_15DAC9B:   var_144 = CVar("Select MAX(S.SNO)AS SRNO,MAX(S.TAXPER) AS TAXPER,MAX(S.RATE) AS RATE,SUM(S.QTYISS) AS QTY,SUM(S.AMOUNT) AS AMT,MAX(I.NAME) AS ITEMNAME From Stock S LEFT JOIN ITEMMAST I ON I.CODE=S.ITEM And I.RestCode=S.ItemRestCode " & " Where S.DocID='") 'String
+
+-- SQL Statement 89 --
+  loc_15DAD25:   var_164 = CVar("Select st.sno,st.SunCode,st.dispname,St.AMOUNT From Suntran St " & " Where St.DocID='") & Me.Fields.Item("SearchCode").Value 
+
+-- SQL Statement 90 --
+  loc_15DAD4F:   var_144 = CVar("SELECT Distinct(I.Kitchen) AS Kitchen,D.Name AS Department FROM (ItemMast I INNER JOIN Stock S ON I.Code=S.Item And I.RestCode=S.ItemRestCode) " & " INNER JOIN Depart D ON I.Kitchen=D.Code WHERE S.DocID='") 'String
+
+-- SQL Statement 91 --
+  loc_15DBB35:     unk_5857F0.Execute "SELECT Slogan1 FROM Depart WHERE Code='" & global_60 & "'", var_11C, -1
+
+-- SQL Statement 92 --
+  loc_15DBC1A:     unk_5857F0.Execute "SELECT Slogan2 FROM Depart WHERE Code='" & global_60 & "'", var_11C, -1
+
+-- SQL Statement 93 --
+  loc_17F519A:   unk_5857F0.Execute "Select * from Depart Where Code='" & global_60 & "'", var_11C, -1
+
+-- SQL Statement 94 --
+  loc_17F51E7:   var_144 = "Select Sale1.* ,W.Name as WaiterName From Sale1 left join waiter W on sale1.waiter=w.code Where Sale1.DocID='" & Me.Fields.Item("SearchCode").Value 
+
+-- SQL Statement 95 --
+  loc_17F520F:   var_144 = CVar("Select MAX(S.SNO)AS SRNO,MAX(S.TAXPER) AS TAXPER,MAX(S.RATE) AS RATE,SUM(S.QTYISS) AS QTY,SUM(S.AMOUNT) AS AMT,MAX(I.NAME) AS ITEMNAME From Stock S LEFT JOIN ITEMMAST I ON I.CODE=S.ITEM And I.RestCode=S.ItemRestCode " & " Where S.DocID='") 'String
+
+-- SQL Statement 96 --
+  loc_17F5299:   var_164 = CVar("Select st.sno,st.SunCode,st.dispname,St.AMOUNT From Suntran St " & " Where St.DocID='") & Me.Fields.Item("SearchCode").Value 
+
+-- SQL Statement 97 --
+  loc_17F52C3:   var_144 = CVar("SELECT Distinct(I.Kitchen) AS Kitchen,D.Name AS Department FROM (ItemMast I INNER JOIN Stock S ON I.Code=S.Item And I.RestCode=S.ItemRestCode) " & " INNER JOIN Depart D ON I.Kitchen=D.Code WHERE S.DocID='") 'String
+
+-- SQL Statement 98 --
+  loc_17F546D:     unk_5857F0.Execute "SELECT TOKENPrint FROM Depart where Code='" & global_60 & "'", var_11C, -1
+
+-- SQL Statement 99 --
+  loc_17F54F2:           var_144 = CVar("Select MAX(S.Rate) AS Rate,SUM(S.QtyIss) AS QTY,SUM(S.Amount) AS AMT,MAX(I.Name) AS ItemName From Stock S LEFT JOIN ITEMMAST I ON I.CODE=S.ITEM And I.RestCode=S.ItemRestCode " & " Where S.DocID='") 'String
+
+-- SQL Statement 100 --
+  loc_17F6F3F:     unk_5857F0.Execute "SELECT Slogan1 FROM Depart WHERE Code='" & global_60 & "'", var_11C, -1
+
+-- SQL Statement 101 --
+  loc_17F703C:     unk_5857F0.Execute "SELECT Slogan2 FROM Depart WHERE Code='" & global_60 & "'", var_11C, -1
+
+-- SQL Statement 102 --
+  loc_171FE8A:   unk_5857F0.Execute "Select * from Depart where code='" & global_60 & "'", var_110, -1
+
+-- SQL Statement 103 --
+  loc_171FED7:   var_138 = "Select Sale1.* ,W.Name as WaiterName From Sale1 left join waiter W on sale1.waiter=w.code Where Sale1.DocID='" & Me.Fields.Item("SearchCode").Value 
+
+-- SQL Statement 104 --
+  loc_171FF55:       var_138 = CVar("Select kot.vdate as kdate,MAX(S.SNO)AS SRNO,MAX(S.TAXPER) AS TAXPER,MAX(S.RATE) AS RATE,SUM(S.QTYISS) AS QTY,SUM(S.AMOUNT) AS AMT,MAX(I.NAME) AS ITEMNAME,KOT.VDATE,MAX(KOT.VNO) AS KOTNO,MAX(i.dispcode) as ICode From (Stock S LEFT JOIN ITEMMAST I ON I.CODE=S.ITEM And I.RestCode=S.ItemRestCode) Left Join KOT on (KOT.Docid=S.KOTDOCId AND KOT.SNO=S.KOTSNO) " & " Where S.DocID='") 'String
+
+-- SQL Statement 105 --
+  loc_171FFF6:       var_138 = CVar("Select kot.vdate as kdate,MAX(S.SNO)AS SRNO,MAX(S.TAXPER) AS TAXPER,MAX(S.RATE) AS RATE,SUM(S.QTYISS) AS QTY,SUM(S.AMOUNT) AS AMT,MAX(I.NAME) AS ITEMNAME,KOT.VDATE,MAX(KOT.VNO) AS KOTNO,MAX(i.dispcode) as ICode From (Stock S LEFT JOIN ITEMMAST I ON I.CODE=S.ITEM And I.RestCode=S.ItemRestCode) Left Join KOT on (KOT.Docid=S.KOTDOCId AND KOT.SNO=S.KOTSNO) " & " Where S.DocID='") 'String
+
+-- SQL Statement 106 --
+  loc_172008C:   var_168 = CVar("Select st.sno,st.SunCode,st.dispname,St.AMOUNT From Suntran St " & " Where St.DocID='") & var_110 & "' order by sno " 
+
+-- SQL Statement 107 --
+  loc_1720180:   unk_5857F0.Execute "Select * from enviro where LogSite_Code='" & MemVar_1F81078 & "'", var_110, -1
+
+-- SQL Statement 108 --
+  loc_1720201:       var_168 = (Chr(&HF) + CVar("Select st.sno,st.SunCode,st.dispname,St.AMOUNT From Suntran St " & " Where St.DocID='") & Chr(&HF))
+
+-- SQL Statement 109 --
+  loc_1B2D9C9:   var_EC = "Select S.* From Sale1 S Where S.Docid='" & Me.Fields.Item("DocID").Value 
+
+-- SQL Statement 110 --
+  loc_1B2DAE1:   unk_5857F0.Execute "Select NCAT From Voucher_Type Where V_Type='" & CStr(var_CC) & "'", var_CC, -1
+
+-- SQL Statement 111 --
+  loc_1B2DD2E:     var_EC = "Select Name From RoomMast Where [Type]='HL' AND RoomCat='HALL' And Code='" & var_138.Fields.Item("RoomNo").Value 
+
+-- SQL Statement 112 --
+  loc_1B2DFBE:   var_14C = Val("Select NCAT From Voucher_Type Where V_Type='" & CStr(var_138.Fields.Item("VTIME").Value) & "'")
+
+-- SQL Statement 113 --
+  loc_1B2DFEA:   unk_5857F0.Execute "Select Name From SessionMast WHERE " & CStr(var_14C) & " BETWEEN FromTime AND ToTime", var_EC, -1
+
+-- SQL Statement 114 --
+  loc_1B2E0D5:   unk_5857F0.Execute CStr("Select S.* From SunTran S Where S.DocId='" & Me.Fields.Item("SearchCode").Value & "' Order By SNo"), var_130, -1
+
+-- SQL Statement 115 --
+  loc_1B2E60B:   Call 0.Method_Proc_162_89_1B324740 (CInt(2), var_BC, var_110, "Select Sum(AmtCr) as Amount,Sum(TipAmt) as TipAmt From PayCharge Where DocID='")
+
+-- SQL Statement 116 --
+  loc_1B2E62C:   unk_5857F0.Execute "Select NCAT From Voucher_Type Where V_Type='" & CStr(var_CC) & "'" & "' And PayType='Cash'", var_134, var_134
+
+-- SQL Statement 117 --
+  loc_1B2E816:   var_DC = "Select S.*,I.Name as ItemName,DispCode,S.DiscApp as DApp,S.RoundOff as ROff,IC.TAxStru as TaxCode,RateEdit,K.DociD as KOTDocID ,K.SNo as KOTSno,D.Code as DepartCode,D.ShortName as DepartName From (((Stock S Left Join KOT K on K.ContraDocId=S.DocId and K.ContraSNo=S.SNo)Left Join ItemMast I On S.Item=I.Code And I.RestCode=S.ItemRestCode)Left join  ItemCatMast IC on IC.Code=I.ItemCatCode)Left Join Depart D on D.Code=I.RestCode Where S.DocId='"
+
+-- SQL Statement 118 --
+  loc_1B2F3F8:       Call 0.Method_Proc_162_89_1B324740 (CInt(2), var_BC, var_110, "SELECT Count(*) FROM SplitBillDetail WHERE DocId='", var_CC, -1, var_134)
+
+-- SQL Statement 119 --
+  loc_1B2F514:         var_1A8 = "SELECT BillQty FROM SplitBillDetail WHERE DocId='" & var_110 & "' AND Sno=" & CStr(var_8E) & " AND BillCat=" & CStr(&H1D)
+
+-- SQL Statement 120 --
+  loc_1B2F5D8:       Call 0.Method_Proc_162_89_1B324740 (CInt(2), var_BC, var_110, "SELECT Count(*) FROM SplitBillDetail WHERE DocId='", var_CC, -1, var_134)
+
+-- SQL Statement 121 --
+  loc_1B2F6F4:         var_1A8 = "SELECT BillQty FROM SplitBillDetail WHERE DocId='" & var_110 & "' AND Sno=" & CStr(var_8E) & " AND BillCat=" & CStr(&H1E)
+
+-- SQL Statement 122 --
+  loc_1B2F7B8:       Call 0.Method_Proc_162_89_1B324740 (CInt(2), var_BC, var_110, "SELECT Count(*) FROM SplitBillDetail WHERE DocId='", var_CC, -1, var_134)
+
+-- SQL Statement 123 --
+  loc_1B2F8D4:         var_1A8 = "SELECT BillQty FROM SplitBillDetail WHERE DocId='" & var_110 & "' AND Sno=" & CStr(var_8E) & " AND BillCat=" & CStr(&H1F)
+
+-- SQL Statement 124 --
+  loc_1B2FB16:   var_EC = CVar("SELECT S.SNo1, S.Sno, S.TaxCode, RM.Name, S.BaseValue, S.TaxPer, S.TaxAmt,RM.Sundry " & " FROM Sale2 AS S LEFT JOIN RevMast AS RM ON S.TaxCode = RM.Code Where S.DocId='") 'String
+
+-- SQL Statement 125 --
+  loc_1B3007D:   unk_5857F0.Execute CStr("Select S.* From SunTran S Where S.DocId='" & Me.Fields.Item("SearchCode").Value & "' Order By SNo"), var_130, -1
+
+-- SQL Statement 126 --
+  loc_1B30333:         Call 0.Method_Proc_162_89_1B324740 (CInt("Select S.* From SunTran S Where S.DocId='" & Me.Fields.Item("SearchCode").Value), var_13C)
+
+-- SQL Statement 127 --
+  loc_1B304F1:         Call 0.Method_Proc_162_89_1B324740 (CInt("Select S.* From SunTran S Where S.DocId='" & Me.Fields.Item("SearchCode").Value), var_13C)
+
+-- SQL Statement 128 --
+  loc_1B307B4:         Call 0.Method_Proc_162_89_1B324740 (CInt("Select S.* From SunTran S Where S.DocId='" & Me.Fields.Item("SearchCode").Value), var_13C)
+
+-- SQL Statement 129 --
+  loc_1B30972:         Call 0.Method_Proc_162_89_1B324740 (CInt("Select S.* From SunTran S Where S.DocId='" & Me.Fields.Item("SearchCode").Value), var_13C)
+
+-- SQL Statement 130 --
+  loc_1B30C35:         Call 0.Method_Proc_162_89_1B324740 (CInt("Select S.* From SunTran S Where S.DocId='" & Me.Fields.Item("SearchCode").Value), var_13C)
+
+-- SQL Statement 131 --
+  loc_1B30DF3:         Call 0.Method_Proc_162_89_1B324740 (CInt("Select S.* From SunTran S Where S.DocId='" & Me.Fields.Item("SearchCode").Value), var_13C)
+
+-- SQL Statement 132 --
+  loc_1B316F1:       var_210 = "SELECT Count(*) FROM SplitSunTran WHERE DocId='" & var_BC.Text & "' AND BillCat=" & CStr(&H1D) & " AND SNo=" & CStr(var_14C)
+
+-- SQL Statement 133 --
+  loc_1B319F7:         var_210 = "SELECT Amount FROM SplitSunTran WHERE DocId='" & var_110 & "' AND BillCat=" & CStr(&H1D) & " AND SNo=" & CStr(Val(CStr(var_88.Fields.Item("SNo").Value)))
+
+-- SQL Statement 134 --
+  loc_1B31B5E:         var_210 = "SELECT BaseAmount FROM SplitSunTran WHERE DocId='" & var_110 & "' AND BillCat=" & CStr(&H1D) & " AND SNo=" & CStr(Val(CStr(var_88.Fields.Item("SNo").Value)))
+
+-- SQL Statement 135 --
+  loc_1B31CC5:         var_210 = "SELECT Amount FROM SplitSunTran WHERE DocId='" & var_110 & "' AND BillCat=" & CStr(&H1E) & " AND SNo=" & CStr(Val(CStr(var_88.Fields.Item("SNo").Value)))
+
+-- SQL Statement 136 --
+  loc_1B31E2C:         var_210 = "SELECT BaseAmount FROM SplitSunTran WHERE DocId='" & var_110 & "' AND BillCat=" & CStr(&H1E) & " AND SNo=" & CStr(Val(CStr(var_88.Fields.Item("SNo").Value)))
+
+-- SQL Statement 137 --
+  loc_1B31F93:         var_210 = "SELECT Amount FROM SplitSunTran WHERE DocId='" & var_110 & "' AND BillCat=" & CStr(&H1F) & " AND SNo=" & CStr(Val(CStr(var_88.Fields.Item("SNo").Value)))
+
+-- SQL Statement 138 --
+  loc_1B320FA:         var_210 = "SELECT BaseAmount FROM SplitSunTran WHERE DocId='" & var_110 & "' AND BillCat=" & CStr(&H1F) & " AND SNo=" & CStr(var_14C)
+
+-- SQL Statement 139 --
+  loc_1102DA2:   Call 0.Method_Proc_162_90_110306C0 (CInt(2), var_B4, var_B0, "Select Count(*) From Sale1 Where DocID='", var_AC, -1)
+
+-- SQL Statement 140 --
+  loc_10DF977: var_94 = "Select VT.Number_Method,VP.V_Type,VP.Date_From,VP.Prefix,VP.Start_Srl_No From Voucher_Type VT Inner Join Voucher_Prefix VP on (VT.V_Type=VP.V_Type AND VT.SITE_CODE=VP.SITE_CODE AND VP.LOGSITE_CODE=VP.LOGSITE_CODE) Where (VP.SITE_CODE='" & MemVar_1F81070
+
+-- SQL Statement 141 --
+  loc_10AE3A5:   unk_5857F0.Execute "Select Distinct DocId,V_Type,V_No From Sale1 Where DocID='" & arg_10 & "'", var_C0, -1
+
+-- SQL Statement 142 --
+  loc_1144D60:     var_94 = "Select T.Code,T.Name As Name From RoomMast T where T.Type in('HL') And Code In (Select RoomNo From KOT Where RestCode='" & global_60
+
+-- SQL Statement 143 --
+  loc_1144DA2:     Me.Open "Select T.Code,T.Name As Name From RoomMast T where T.Type in('HL') Order by T.Code", CVar(MemVar_1F81044), 3
+
+-- SQL Statement 144 --
+  loc_1144EDC:       var_D0 = "Select T.Code,T.Code As Name From RoomMast T where T.Type in('TB')  And RestCode='" & global_60 & "' And Code In (Select RoomNo From KOT Where RestCode='"
+
+-- SQL Statement 145 --
+  loc_1144F43:       var_A4 = CVar("Select T.Code,T.Code As Name From RoomMast T where T.Type in('TB')  And RestCode='" & global_60 & "' " & var_88) 'String
+
+-- SQL Statement 146 --
+  loc_1145013:         var_94 = "Select RC.FolioNo AS Code,RC.ROOMNO As Name,RC.RoomCat From ROOMOCC RC where RC.ROOMType in('RO') AND RC.CHKOUTDATE IS NULL And ROOMNO In (Select RoomNo From KOT Where RestCode='" & global_60
+
+-- SQL Statement 147 --
+  loc_1145049:         var_B4 = "Select RC.FolioNo AS Code,RC.ROOMNO As Name,RC.RoomCat From ROOMOCC RC where RC.ROOMType in('RO') AND RC.CHKOUTDATE IS NULL Order by RC.ROOMNO"
+
+-- SQL Statement 148 --
+  loc_17DF837:   var_AC = "Select 'B'+ShortName From Depart Where Code='" & global_60
+
+-- SQL Statement 149 --
+  loc_17DF89A:   var_134 = "Select 'B'+ShortName From Depart Where Code='" & global_60
+
+-- SQL Statement 150 --
+  loc_17DF901:   unk_5857F0.Execute CStr("Select * From SundryType WHERE V_Type='" & var_1D4 & "  Order by AppDate Desc) Order by SNO"), var_228, -1
+
+-- SQL Statement 151 --
+  loc_17DF9A9:     var_AC = "Select 'B'+ShortName From Depart Where Code='" & global_60
+
+-- SQL Statement 152 --
+  loc_17DFA0C:     var_134 = "Select 'B'+ShortName From Depart Where Code='" & global_60
+
+-- SQL Statement 153 --
+  loc_17DFA73:     unk_5857F0.Execute CStr("Select * From SundryType WHERE V_Type='" & var_1D4 & "  Order by AppDate Desc) Order by SNO"), var_228, -1
+
+-- SQL Statement 154 --
+  loc_1697B91:   Call 0.Method_Proc_162_101_16993380 (var_92, var_BC, var_C0, "Select IsNull(Max(Nature),'') from SundryMast where Code='", var_F8, -1)
+
+-- SQL Statement 155 --
+  loc_1697C05:   unk_5857F0.Execute "Select IsNull(Max(Nature),'') from SundryMast where Code='" & MemVar_1F81078 & "ST'", var_130, -1
+
+-- SQL Statement 156 --
+  loc_1697E3E:               var_130 = "Select * from guestfolio where foliono=" & Me.Fields.Item("Code").Value 
+
+-- SQL Statement 157 --
+  loc_16990E1:     unk_5857F0.Execute "SELECT RoundOffType FROM RoundOffSetting WHERE ModuleName='Sale Bill'", var_F8, -1
+
+-- SQL Statement 158 --
+  loc_19CAAA4:     var_C4 = "Select IsNull(Max(Nature),'') from SundryMast where Logsite_code='" & MemVar_1F81078
+
+-- SQL Statement 159 --
+  loc_19CAB52:     var_198 = "Select IsNull(Max(Nature),'') from SundryMast where LOGSITE_CODE='" & MemVar_1F81078 & "' AND Code='" & MemVar_1F81078 & "ST'"
+
+-- SQL Statement 160 --
+  loc_19CAD17:       var_C4 = "Select IsNull(Max(Nature),'') from SundryMast where Logsite_code='" & MemVar_1F81078
+
+-- SQL Statement 161 --
+  loc_19CADC5:       var_198 = "Select IsNull(Max(Nature),'') from SundryMast where LOGSITE_CODE='" & MemVar_1F81078 & "' AND Code='" & MemVar_1F81078 & "ST'"
+
+-- SQL Statement 162 --
+  loc_19CAFA7:         Call 0.Method_Proc_162_102_19CDACC0 (var_92, var_C0, var_C8, CVar("Select IsNull(Max(Nature),'') from SundryMast where Logsite_code='" & MemVar_1F81078 & "' and Code='"), var_154, -1)
+
+-- SQL Statement 163 --
+  loc_19CB038:         var_198 = "Select IsNull(Max(Nature),'') from SundryMast where LOGSITE_CODE='" & MemVar_1F81078 & "' AND Code='" & MemVar_1F81078 & "ST'"
+
+-- SQL Statement 164 --
+  loc_19CD271:       unk_5857F0.Execute "SELECT RoundOffType FROM RoundOffSetting WHERE ModuleName='Sale Bill'", var_E4, -1
+
+-- SQL Statement 165 --
+  loc_19CD55F:         unk_5857F0.Execute "SELECT RoundOffType FROM RoundOffSetting WHERE ModuleName='Sale Bill'", var_E4, -1
+
+-- SQL Statement 166 --
+  loc_19CD84D:           unk_5857F0.Execute "SELECT RoundOffType FROM RoundOffSetting WHERE ModuleName='Sale Bill'", var_E4, -1
+
+-- SQL Statement 167 --
+  loc_1280FF6: unk_5857F0.Execute "Select R.HEADER1,R.HEADER2,R.COMPANYTITLE From DEPART R  Where R.CODE='" & global_60 & "'", var_D4, -1
+
+-- SQL Statement 168 --
+  loc_182DEBC: unk_5857F0.Execute "Select DeskCode AS RestCode from Revmast where taxstru='" & arg_C & "'", var_108, -1
+
+-- SQL Statement 169 --
+  loc_182DEEB: var_E4 = "SELECT TS.Code,TS.Limit, TS.TaxCode, RM.Name,RM.Sundry, TS.Rate,RoundOff,TS.CONDAPP,TS.NATURE FROM TaxStru AS TS LEFT JOIN RevMast AS RM ON TS.TaxCode = RM.Code Where TS.Code='" & arg_C
+
+-- SQL Statement 170 --
+  loc_182DFBD:   Call 0.Method_Proc_162_107_18303400 (CInt(&HA), var_114, "Select * from RoomOcc where chkoutdate is NULL and foliono=", var_1B4, -1, var_1B8)
+
+-- SQL Statement 171 --
+  loc_182E429:                   var_E4 = "Select RevCode as Code from SundryType where v_type in (Select V_Type from Voucher_Type where Restcode='" & global_60
+
+-- SQL Statement 172 --
+  loc_182EB33:                 var_E4 = "Select RevCode as Code from SundryType where v_type in (Select V_Type from Voucher_Type where Restcode='" & global_60
+
+-- SQL Statement 173 --
+  loc_182F1B7:                 var_E4 = "Select RevCode as Code from SundryType where v_type in (Select V_Type from Voucher_Type where Restcode='" & global_60
+
+-- SQL Statement 174 --
+  loc_182F7FD:                 var_E4 = "Select RevCode as Code from SundryType where v_type in (Select V_Type from Voucher_Type where Restcode='" & global_60
+
+-- SQL Statement 175 --
+  loc_182FEC2:                   var_E4 = "Select RevCode as Code from SundryType where v_type in (Select V_Type from Voucher_Type where Restcode='" & global_60
+
+-- SQL Statement 176 --
+  loc_F1C055: Proc_6_6_F208E4(var_B4, arg_10, CVar("Select Rate,Appdate From ItemRate Where ItemCode='" & arg_C & "' And AppDate <="))
+
+-- SQL Statement 177 --
+  loc_130A1E4:   var_118 = "SELECT TS.Code, TS.TaxCode, RM.Name, TS.Rate,RoundOff FROM TaxStru AS TS LEFT JOIN RevMast AS RM ON TS.TaxCode = RM.Code Where TS.Code='" & CStr(Me.FGrid.TextMatrix))
+
+-- SQL Statement 178 --
+  loc_137565F: var_AC = "Select R.NAME,R.HEADER1,R.HEADER2,R.HEADER3,R.HEADER4,R.COMPANYTITLE,R.OUTLETTITLE From DEPART R  Where R.CODE='" & arg_18 & "'"
+

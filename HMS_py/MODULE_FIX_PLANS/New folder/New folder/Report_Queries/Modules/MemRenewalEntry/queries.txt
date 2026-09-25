@@ -1,0 +1,19 @@
+Module: MemRenewalEntry
+Total SQL statements: 5
+================================================================================
+
+-- SQL Statement 1 --
+  loc_117E983:       unk_438EC7.Execute "SELECT Code,Name FROM MemCatMast Where Corporate='Y'", var_C8, -1
+
+-- SQL Statement 2 --
+  loc_117E9EE:       unk_438EC7.Execute "SELECT Code,Name FROM MemCatMast Where Corporate='N'", var_C8, -1
+
+-- SQL Statement 3 --
+  loc_121FF50:   var_90 = "SELECT '' as a, S.Name As Name , MCat.Name As Type , Convert(varchar,S.ValidFrom,103) as ValidFrom ,Convert(varchar,S.ValidateUpto,103) As ValidUntil " & " , Convert(varchar,MHis.RenewalDate ,103) As RenewalDate, S.Subcode as Code  FROM Subgroup S join MemCatMast MCat on S.Companytype = MCat.Code "
+
+-- SQL Statement 4 --
+  loc_12200D6:     var_110 = "UPDATE Subgroup SET ValidFrom='" & var_90 & "', Validateupto='" & var_CC.Text & "' WHERE SubCode='" & CStr(var_104.TextMatrix))
+
+-- SQL Statement 5 --
+  loc_12201FF:     var_9C = "INSERT INTO MemHistory(Code,ValidFrom,ValidUntil,RenewalDate,U_Name,U_EntDt,U_AE,LOGSITE_CODE,SITE_CODE) VALUES ('" & CStr(var_C4)
+

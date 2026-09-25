@@ -1,0 +1,52 @@
+================================================================================
+   ANALYSIS HMS - INVENTORY MODULE : BUG REPORT (TESTER FORMAT)
+================================================================================
+Property: Demo Property | Report Date: 21-Sep-2026 | Round: 1 + 2 (Demo entries)
+Method: Manual UI testing on live app - demo entries, empty submits, duplicates,
+        report fetches. Source code sirf root-cause confirm karne ke liye dekha.
+================================================================================
+
+TOTAL BUGS: 2
+
+--------------------------------------------------------------------------------
+[INV-01] Opening Stock me Department dropdown load-par invalid
+Severity : MEDIUM
+Screen   : Inventory > Opening Stock
+
+Steps:
+1. Opening Stock kholo, Department dekho
+
+Expected: Clean form.
+
+Actual (BUG): Department field load-par invalid/underlined (cross-module pattern).
+
+Impact: UX confusion.
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+[INV-02] HK godown me negative stock already hai (HK report se linked)
+Severity : MEDIUM
+Screen   : Inventory context - HK Stock Report cross-check
+
+Steps:
+1. HK Stock Report dekho (Coffee -52 etc.)
+
+Expected: Inventory me kisi item ka balance negative na ho.
+
+Actual (BUG): HK godown items negative me hain - Inventory module ka godown-wise view bhi check karna chahiye ki wahan bhi yahi dikhe ya chhup raha hai.
+
+Impact: Stock integrity - valuation galat.
+
+Evidence: screenshots/hks_data.png (HK report se)
+--------------------------------------------------------------------------------
+
+================================================================================
+  JO SAHI KAAM KAR RAHA HAIN (VERIFIED)
+================================================================================
+  [OK] Stock Summary - 01-21 Sep fetch OK, 8 items, totals sahi (Op 158328 / Rec 1325 / Iss 8065 / Bal 151588)
+  [OK] Item Group page load OK
+  [OK] Requisition Slip page load OK
+
+================================================================================
+END OF INVENTORY BUG REPORT
+================================================================================

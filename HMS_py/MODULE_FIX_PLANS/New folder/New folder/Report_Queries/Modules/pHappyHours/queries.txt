@@ -1,0 +1,73 @@
+Module: pHappyHours
+Total SQL statements: 23
+================================================================================
+
+-- SQL Statement 1 --
+  loc_15D875D:   var_F4 = "Select HappyHours.* From HappyHours Where ItemCode In (Select Code From ItemMast " & var_9C & " AND (LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 2 --
+  loc_15D8A09:       var_F4 = "Select ItemCode From HappyHours Where ItemCode In (Select Code From ItemMast " & var_9C & " AND (LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 3 --
+  loc_15D8B8F:       var_F0 = "Select DispCode,Code As ItemCode,Name As ItemName,ItemCatCode,ItemGroup From ItemMast " & var_9C & " And Code Not In ("
+
+-- SQL Statement 4 --
+  loc_15D8C05:   var_EC = "Select DispCode,Code As ItemCode,Name As ItemName,ItemCatCode,ItemGroup From ItemMast " & var_9C
+
+-- SQL Statement 5 --
+  loc_15D8C71:   Call 0.Method_Cmd_Click0 (CInt(0), var_E4, var_EC, "Select ItemCode,Rate,AppDate From ItemRate Where RestCode='", var_D0)
+
+-- SQL Statement 6 --
+  loc_110E94C:   var_114 = "Delete From HappyHours Where schemeCode = '" & Me.Fields.Item("Code").Value & "' AND   (LOGSITE_CODE='" & CVar(MemVar_1F81078) 
+
+-- SQL Statement 7 --
+  loc_110E9CB:   var_F4 = "Delete from HappyHoursHead WHERE schemeCode ='" & Me.Fields.Item("Code").Value & "' AND (LOGSITE_CODE='" 
+
+-- SQL Statement 8 --
+  loc_F12C5E: MemVar_1F810E4 = "SELECT HP.SchemeCode as SearchCode, Convert(Varchar(11),HP.AppDate,103) As StartDate, Convert(Varchar(11),HP.EndDate,103) As EndDate,  Depart.Name as DeptName, ItemCatMast.Name as CatName , ItemGrp.Name as GrpName, HP.DiscountType AS DiscountType , HP.DiscountValue AS DiscountValue  , HP.FromTime AS FromTime ,HP.ToTime AS ToTime FROM HappyHoursHead HP LEFT JOIN Depart on HP.RestCode = Depart.Code LEFT JOIN ItemCatMast on HP.ItemCat = ItemCatMast.Code LEFT JOIN ItemGrp on HP.ItemGroup = ItemGrp.Code "
+
+-- SQL Statement 9 --
+  loc_1233E9F: var_B0 = CVar("Select Code,Name From Depart Where (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO') and OutletYN='Y' Order By Name") 'String
+
+-- SQL Statement 10 --
+  loc_1233F2C: Me.Open CVar("Select Code,Name,RestCode From ItemCatMast where (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO')"), CVar(MemVar_1F81044), 2
+
+-- SQL Statement 11 --
+  loc_1233FA5: var_B0 = CVar("Select Code,Name,RestCode From ItemGrp where (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO') Order by Name") 'String
+
+-- SQL Statement 12 --
+  loc_123401A: var_98 = "SELECT HP.SchemeCode as Code,Depart.Code As DeptCode, Depart.Name as DeptName, ItemCatMast.Code as CatCode , ItemCatMast.Name as CatName , ItemGrp.Code as GrpCode, ItemGrp.Name as GrpName, HP.AppDate As AppDate, HP.EndDate As EndDate, HP.DiscountType AS DiscountType , HP.DiscountValue AS DiscountValue  , HP.FromTime AS FromTime ,HP.ToTime AS ToTime, HP.Site_Code , HP.LogSite_Code FROM HappyHoursHead HP LEFT JOIN Depart on HP.RestCode = Depart.Code LEFT JOIN ItemCatMast on HP.ItemCat = ItemCatMast.Code LEFT JOIN ItemGrp on HP.ItemGroup = ItemGrp.Code "
+
+-- SQL Statement 13 --
+  loc_15B3B08:   var_E4 = "Select IM.DispCode,IM.Code As ItemCode,IM.Name As ItemName, IM.ItemCatCode , IM.ItemGroup, HP.DiscountType,HP.DiscountValue,HP.Active From ItemMast IM Left outer join HappyHours HP on IM.Code = HP.ItemCode And IM.RestCode=HP.RestCode WHERE HP.SchemeCode='"
+
+-- SQL Statement 14 --
+  loc_15B3BDE:   var_104 = "Select ItemCode,Rate,AppDate From ItemRate Where RestCode='" & Me.Fields.Item("DeptCode").Value & "' AND (LOGSITE_CODE='" 
+
+-- SQL Statement 15 --
+  loc_178978C:     var_C8 = "Select IsNull(Max(CAST(SUBSTRING(SchemeCode,3,4) AS INT)),1)+1 AS MyCode From HappyHours Where SITE_CODE='" & MemVar_1F81070
+
+-- SQL Statement 16 --
+  loc_1789A71:     var_C8 = "Insert into HappyHoursHead(SchemeCode,ItemCat,ItemGroup,RestCode,AppDate,EndDate,FromTime,ToTime,U_Name,U_AE,Site_Code,LogSite_Code,DiscountType,DiscountValue,U_EntDt) " & " Values ('"
+
+-- SQL Statement 17 --
+  loc_1789E12:       var_10C = "UPDATE HappyHoursHead SET ItemCat ='" & var_D0.Tag & "', ItemGroup='"
+
+-- SQL Statement 18 --
+  loc_178A296:           var_110 = "Update HappyHours Set DiscountValue=" & CStr(var_48C) & ",DiscountType='"
+
+-- SQL Statement 19 --
+  loc_178A615:           var_E8 = "Update HappyHours Set DiscountValue=" & CStr(var_48C)
+
+-- SQL Statement 20 --
+  loc_178A8E5:       var_108 = CVar("Select count(*) From HappyHours Where ItemCode='" & CStr(var_B4) & "' And RestCode='" & var_E8 & "' And AppDate=") 'String
+
+-- SQL Statement 21 --
+  loc_178AC16:             var_114 = "Update HappyHours Set DiscountValue=" & CStr(var_118.Text) & ",DiscountType='" & var_10C
+
+-- SQL Statement 22 --
+  loc_178AF4F:             var_188 = CVar("Update HappyHours Set DiscountValue=" & CStr(var_12C.Text) & ", Active='") & var_108 & "', Site_Code='" & CVar(MemVar_1F81070) 
+
+-- SQL Statement 23 --
+  loc_178B257:         var_C8 = "Insert Into HappyHours(SchemeCode,ItemCode,RestCode,DiscountValue,AppDate,Site_Code,U_Name,U_EntDt,U_AE,LOGSITE_CODE,DiscountType,FromTime,ToTime,Active)" & " Values('"
+

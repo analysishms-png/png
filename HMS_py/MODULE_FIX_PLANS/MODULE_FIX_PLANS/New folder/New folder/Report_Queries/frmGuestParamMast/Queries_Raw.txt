@@ -1,0 +1,13 @@
+Module: frmGuestParamMast
+Total SQL statements: 3
+================================================================================
+
+-- SQL Statement 1 --
+  loc_12E79FA: unk_441630.Execute "SELECT * FROM GUESTPARAM ", var_A8, -1
+
+-- SQL Statement 2 --
+  loc_131B2E2: var_90 = "delete from GuestParam WHERE SITE_CODE='" & MemVar_1F81070
+
+-- SQL Statement 3 --
+  loc_131B656: var_120 = "insert into GuestParam(T1Field1,T1Field2,T1Field3,T1Field4,T1Field5,T1Field6,T1Field7,T1Field8,T2Field1,T2Field2,T2Field3,T2Field4,T2Field5,T2Field6,T2Field7,T2Field8,Site_Code,U_EntDt,U_AE,lOGSITE_CODE) values ('"
+

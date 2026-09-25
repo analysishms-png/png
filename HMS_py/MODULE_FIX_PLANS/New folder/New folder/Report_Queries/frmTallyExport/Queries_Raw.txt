@@ -1,0 +1,40 @@
+Module: frmTallyExport
+Total SQL statements: 12
+================================================================================
+
+-- SQL Statement 1 --
+  loc_175D032: var_E8 = "Select Distinct Grp.GroupName,Grp1.GroupName As UnderGroupName,Cast(Grp.MainGrCode As Numeric) As nMainGrCode From Acgroup Grp Left Join AcGroup Grp1 On Grp1.MainGrCode=substring(Grp.MainGrCode,1,len(Grp.MainGrCode)-3) WHERE (Grp.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 2 --
+  loc_175D071: var_E8 = "Select M.*, G.Groupname, S.Name as Statename, G.Sysgroup From Subgroup M Left Join AcGroup G On M.GroupCode=G.GroupCode Left Join City C On M.Citycode=C.Citycode Left Join State S On C.Statecode=S.code where (M.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 3 --
+  loc_175E029: var_EC = "Select Distinct L.Docid, cast(ltrim(L.V_No) as Integer) as V_No, LM.Narration, L.V_Date, Case when L.V_Type like 'MT then 'Payment' when L.V_Type like 'PV then 'Payment' when L.V_Type like 'CT then 'Receipt' when L.V_Type like 'RV then 'Receipt' when L.V_Type like 'NT then 'Contra' when L.V_Type like 'N then 'Credit Note' when L.V_Type like 'N then 'Debit Note' when L.V_Type like 'BPB then 'Purchase' when L.V_Type like 'RPB then 'Purchase' when L.V_Type like 'BPC then 'Purchase' when L.V_Type like 'RPC then 'Purchase' else 'Journal' end as VouchType,cast(year(L.V_Date) as Varchar) + case when len(month(L.V_Date)) <=1 then '0' + cast(month(L.V_Date) as Varchar) else cast(month(L.V_Date) as Varchar) end + case when len(day(L.V_Date)) <=1 then '0' + cast(day(L.V_Date) as Varchar) else cast(day(L.V_Date) as Varchar) end as mDate " & " ,(Select Top 1 M.name from Subgroup M Left Join Ledger L1 On L1.Subcode=M.Subcode where L1.Docid=L.Docid) as Party from Ledger L Left Join LedgerM LM on L.Docid=LM.Docid Left Join Acgroup Grp On L.groupcode=Grp.groupcode where L.V_Date between '"
+
+-- SQL Statement 4 --
+  loc_175E2C2:   var_130 = "<VOUCHER REMOTEID=""" & var_A0 & """ VCHKEY="""" VCHTYPE=""" & Proc_6_37_E618F4(CVar(var_90.Fields.Item("Vouchtype")), 1) & """ ACTION=""Create"" OBJVIEW=""Accounting Voucher View"">"
+
+-- SQL Statement 5 --
+  loc_175E61C:   var_E4 = "Select L.*, m.Name, LM.Narration as NarrationNew, 0 as Amt, 1 As Lvl from Ledger L Left Join Subgroup M On L.Subcode=M.Subcode Left Join LedgerM LM on L.Docid=LM.Docid Left Join Acgroup Grp On L.groupcode=Grp.Groupcode where L.Docid='"
+
+-- SQL Statement 6 --
+  loc_175EBFB:   Call 0.Method_btnStart_Click0 (1, var_10C, "Update Ledger set TImp_Dt='", var_160)
+
+-- SQL Statement 7 --
+  loc_100908F: unk_46A24A.Execute "Select max(TImp_Dt) as TImp_Dt from Ledger where Logsite_code='" & MemVar_1F81078 & "'", var_C8, -1
+
+-- SQL Statement 8 --
+  loc_1804AF2: var_10C = "Select Distinct Grp.groupname,(select GroupName from AcGroup where MainGrCode=substring(Grp.MainGrCode,1,len(Grp.MainGrCode)-3))  as UnderGroupName From Acgroup Grp WHERE (LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 9 --
+  loc_1804B31: var_10C = "Select M.*, G.Groupname, S.Name as Statename, G.Sysgroup From Subgroup M Left Join AcGroup G On M.GroupCode=G.GroupCode Left Join City C On M.Citycode=C.Citycode Left Join State S On C.Statecode=S.code where (M.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 10 --
+  loc_1805AE9: var_110 = "Select 1 as mType, P.FolioNoDocid as Docid, cast(ltrim(max(P.Bill_No)) as Integer) as VNo, 'Agnst. Guest Bill No. ' + ltrim(max(P.Bill_No)) as Narration, max(P.SettleDate) as VDate, 'Sales' as VouchType, cast(year(max(P.SettleDate)) as Varchar) + case when len(month(max(P.SettleDate))) <=1 then '0' + cast(month(max(P.SettleDate)) as Varchar) else cast(month(max(P.SettleDate)) as Varchar) end + case when len(day(max(P.SettleDate))) <=1 then '0' + cast(day(max(P.SettleDate)) as Varchar) else cast(day(max(P.SettleDate)) as Varchar) end as mDate, '" & Proc_6_37_E618F4(var_B8)
+
+-- SQL Statement 11 --
+  loc_180639A:     var_10C = Proc_6_37_E618F4(CVar(var_E8.Item("DocID")), "Select L.Name as Acledname,L.SubCode as Acledcode,O.Comments, O.AmtDr, O.AmtCr, 0 as Amt from PayCharge O Left Join RevMast R On O.PayCode=R.Code INNER JOIN SubGroup L ON R.AcCode=L.SubCode where O.FolioNoDocid='", var_1C4)
+
+-- SQL Statement 12 --
+  loc_1806BDB:   Call 0.Method_Proc_331_9_1806D740 (1, var_130, "Update Ledger set TImp_Dt='", var_184)
+

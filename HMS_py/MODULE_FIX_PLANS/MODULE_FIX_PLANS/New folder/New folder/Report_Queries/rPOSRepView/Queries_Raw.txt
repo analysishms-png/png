@@ -1,0 +1,697 @@
+Module: rPOSRepView
+Total SQL statements: 231
+================================================================================
+
+-- SQL Statement 1 --
+  loc_1DF7F5F: unk_5A8FBB.Execute "Select * From FAEnviro", var_A8, -1
+
+-- SQL Statement 2 --
+  loc_E9346C: Me.Open "Select Site_Code AS Code,Site_Desc AS NAME From Site Order by Site_Desc", CVar(MemVar_1F81044), 0
+
+-- SQL Statement 3 --
+  loc_1B11D0D: var_334 = "SELECT Depart.Name as DepartName, S.Vdate, S.VNo, S.NetAmt, S.Taxable, S.NonTaxable, S.RestCode, S.RoundOff, S.DedAmt, S.AddAmt, S.ServiceCharge, S.DiscAmt,S.DelFlag,S.Total FROM Sale1 AS S LEFT JOIN Depart ON S.RestCode = Depart.Code Where S.DelFlag='N' and S.LogSite_Code='" & Proc_6_44_EA72C4(CStr(var_248), 2, var_248, var_288, 1, 0)
+
+-- SQL Statement 4 --
+  loc_1B11D68: var_32C = "SELECT DISTINCT  SundryMast.Name, SundryMast.code,S.TaxPer FROM (Sale2 AS S INNER JOIN RevMast ON S.TaxCode = RevMast.Code) INNER JOIN SundryMast ON RevMast.Sundry = SundryMast.Code where S.DELFLAG<>'D' " & var_90
+
+-- SQL Statement 5 --
+  loc_1B12632:         Proc_6_38_E75F08(var_258, CVar(var_94.Fields.Item("TaxPer")), "Select Sum(BaseValue) as BaseValue,sum(TaxAmt) as TaxAmt,TaxPer from Sale2 where Sale2.TaxPer=", var_430, -1)
+
+-- SQL Statement 6 --
+  loc_1B1F9B6: var_200 = "SELECT Depart.Name as DepartName, S.Vdate, S.VNo, S.NetAmt, S.Taxable, S.NonTaxable, S.RestCode, S.RoundOff, S.DedAmt,s.AddAmt , s.Servicecharge, s.DiscAmt, s.Tax As TaxAmt, s.CGST, s.SGST, s.DelFlag, s.Total"
+
+-- SQL Statement 7 --
+  loc_1B1F9D9: var_348 = "SELECT DISTINCT RevMast.Name, RevMast.code,S.TaxPer FROM (Sale2 AS S INNER JOIN RevMast ON S.TaxCode = RevMast.Code) where S.DELFLAG<>'D' " & var_90
+
+-- SQL Statement 8 --
+  loc_15AD69B: var_278 = "select max(Revmast.name) as TaxName,Revmast.code,TaxPer,sum(TaxAmt) as TaxAmt,sum(BaseValue) as TaxableAmt,sale2.restcode,max(Depart.Name) as RestName  from (sale2 left join revmast on revmast.code=sale2.Taxcode) left join depart on depart.code=Sale2.RestCode where " & var_90
+
+-- SQL Statement 9 --
+  loc_15ADF59:   var_278 = "Select Sum(TaxableAmt) TaxableAmt From (select Max(BaseValue) as TaxableAmt,sale2.restcode,max(Depart.Name) as RestName  from (sale2 left join revmast on revmast.code=sale2.Taxcode) left join depart on depart.code=Sale2.RestCode where " & var_90
+
+-- SQL Statement 10 --
+  loc_1A58038: var_2CC = "SELECT Depart.Name as DepartName,SB.Name As Company,SB.GSTIN, S.Vdate, S.Docid,S.VNo, S.NetAmt, S.Taxable, S.NonTaxable, S.RestCode, S.RoundOff, S.DedAmt, S.AddAmt, S.ServiceCharge, S.DiscAmt,S.DelFlag FROM Sale1 AS S LEFT JOIN Depart ON S.RestCode = Depart.Code LEFT JOIN Subgroup SB ON S.Party = SB.SubCode Where S.LogSite_Code='" & Proc_6_44_EA72C4(CStr(Me.LoginSite), 2, Me.LoginSite, var_220, 1, 0)
+
+-- SQL Statement 11 --
+  loc_1A5808C: var_1A0 = "Select Distinct S.SNO, SM.Name, SM.Code From SunTran S Left Join SundryMast SM On S.SunCode=SM.Code Where S.DELFLAG='N' And Nature In ('CGST','SGST','Sale Tax','Service Tax','Luxury Tax') AND s.restcode in ("
+
+-- SQL Statement 12 --
+  loc_1A587F1:         var_2C4 = Proc_6_37_E618F4(CVar(var_1E0.Recordset15.Fields.Item(var_1A0)), "Select Sum(DiscAmt) from Stock Where Docid='", var_1F0, -1, var_2F4, 1)
+
+-- SQL Statement 13 --
+  loc_1A58A0D:         var_2C4 = Proc_6_37_E618F4(CVar(var_8C.Fields.Item("DocID")), "Select Sum(DiscAmt) from Stock Where Docid='", var_1F0, -1)
+
+-- SQL Statement 14 --
+  loc_1A58E84:         var_240 = "Select sum(Amount) as TaxAmt from SunTran where SunCode='" & var_94.Fields.Item("Code").Value & "' and Docid='" & var_8C.Fields.Item("DocID").Value 
+
+-- SQL Statement 15 --
+  loc_16EE704:     var_1FC = "Select SCR.Code,SCR.CardType,SCR.CardNo,SCR.Name,Convert(Varchar(11),SCL.Vdate,103) As Vdate,SCL.VType,SCL.VNo,SCL.Narration,SCL.AmtCr,SCL.AmtDr,SCL.U_Name,SCL.U_EntDt From " & "SmartCardLedger SCL Inner Join SmartCardRegistration SCR On SCL.Code=SCR.Code Where SCR.CardType='Member' And SCL.LogSite_Code='"
+
+-- SQL Statement 16 --
+  loc_16EE78D:     var_1FC = "Select SCR.Code,SCR.CardType,SCR.CardNo,SCR.Name,Convert(Varchar(11),SCL.Vdate,103) As Vdate,SCL.VType,SCL.VNo,SCL.Narration,SCL.AmtCr,SCL.AmtDr,SCL.U_Name,SCL.U_EntDt From " & "SmartCardLedger SCL Inner Join SmartCardRegistration SCR On SCL.Code=SCR.Code Where SCR.CardType='Member' And SCL.LogSite_Code='"
+
+-- SQL Statement 17 --
+  loc_16EE816:   var_1FC = "Select SCR.Code,SCR.CardType,SCR.CardNo,SCR.Name,Convert(Varchar(11),SCL.Vdate,103) As Vdate,SCL.VType,SCL.VNo,SCL.Narration,SCL.AmtCr,SCL.AmtDr,SCL.U_Name,SCL.U_EntDt From " & "SmartCardLedger SCL Inner Join SmartCardRegistration SCR On SCL.Code=SCR.Code Where SCR.CardType='Cash Card' And SCL.LogSite_Code='"
+
+-- SQL Statement 18 --
+  loc_179B72E:   var_214 = "Select SCR.Code,SCR.CardType,SCR.CardNo,SCR.Name,Convert(Varchar(11),SCL.Vdate,103) As Vdate,SCL.VType,SCL.VNo,SCL.Narration,SCL.AmtCr,SCL.AmtDr,SCL.U_Name,SCL.U_EntDt From " & "SmartCardLedger SCL Inner Join SmartCardRegistration SCR On SCL.Code=SCR.Code Where SCL.VType In ('RCARD') And SCL.LogSite_Code='"
+
+-- SQL Statement 19 --
+  loc_179B798:   var_20C = "Select SCL.VDATE,SCL.U_NAME,SCL.AmtCr,SCL.AmtDr,UC.Deposit from " & "(Select VDATE,U_NAME,Sum(AmtCr) As AmtCr, Sum(AmtDr) As AmtDr From SmartCardLedger "
+
+-- SQL Statement 20 --
+  loc_1583B75: var_100 = "SELECT CardType,CardNo,Name,Addr,Phone,CashAmt,SecurityAmt,IssDate,ValidUpto,BlockedYN,CurrBal,SecurBal,LastTransAmt,LastTransDate,Remark,SerialNo FROM SmartCardRegistration Where LogSite_Code='" & Proc_6_44_EA72C4(CStr(Me.LoginSite), 2)
+
+-- SQL Statement 21 --
+  loc_1A4614F: var_2F8 = "SELECT Depart.Name as DepartName,s.Vdate, sum(S.NetAmt) as NetAmt, sum(S.Taxable) as Taxable, sum(S.NonTaxable) as NonTaxable, max(S.RestCode) as RestCode, Sum(S.RoundOff) as RoundOff, sum(S.DedAmt) as DedAmt, sum(S.AddAmt) as AddAmt, Sum(S.ServiceCharge) as ServiceCharge, Sum(S.DiscAmt) as DiscAmt, Sum(S.CGST) as CGST, Sum(S.SGST) as SGST, Sum(S.ServiceTax) as ServiceTax FROM Sale1 AS S LEFT JOIN Depart ON S.RestCode = Depart.Code Where S.DELFLAG<>'D' AND S.LogSite_Code='" & Proc_6_44_EA72C4(CStr(Me.LoginSite), 2, Me.LoginSite, var_24C, 1, 0)
+
+-- SQL Statement 22 --
+  loc_1A461A3: var_1CC = "Select Distinct S.SNO, SM.Name, SM.Code From SunTran S Left Join SundryMast SM On S.SunCode=SM.Code Where S.DELFLAG='N' And Nature In ('Sale Tax','Luxury Tax') AND s.restcode in ("
+
+-- SQL Statement 23 --
+  loc_1A46EC4:         Proc_6_6_F208E4(var_26C, CVar(var_8C.Fields.Item("VDate")), "Select sum(Amount) as TaxAmt from SunTran where SunCode='" & var_94.Fields.Item("Code").Value & "' and Vdate=", var_350, -1)
+
+-- SQL Statement 24 --
+  loc_1CAC620: unk_5A8FBB.Execute "Select ServiceTaxOnServiceChargeYN from enviro WHERE LOGSITE_CODE='" & MemVar_1F81078 & "'", var_33C, -1
+
+-- SQL Statement 25 --
+  loc_1CAC913: var_2EC = "SELECT Depart.Name as DepartName, S.Vdate, Min(S.VNo) MinBillNo, Max(S.VNo) MaxBillNo, Sum(S.NetAmt) As NetAmt, Sum(S.Taxable) As Taxable, Sum(S.NonTaxable) As NonTaxable, Sum(IsNull(ST.NonTaxableDisc,0)) As NonTaxableDisc, Max(S.RestCode) As RestCode, Sum(S.RoundOff) As RoundOff, Sum(S.DedAmt) As DedAmt, Sum(S.AddAmt) As AddAmt, Sum(S.ServiceCharge) As ServiceCharge, Sum(S.DiscAmt) As DiscAmt, Sum(S.Tax) As TaxAmt, Sum(S.Total) As GoodsAmt"
+
+-- SQL Statement 26 --
+  loc_1CAC944:   var_318 = "SELECT DISTINCT RevMast.Name, RevMast.code,S.TaxPer FROM (Sale2 AS S INNER JOIN RevMast ON S.TaxCode = RevMast.Code Left Join SundryMast On RevMast.Sundry=SundryMast.Code) where SundryMast.Nature<>'Service Tax' And S.DELFLAG<>'D' " & var_90
+
+-- SQL Statement 27 --
+  loc_1CAC986:   var_318 = "SELECT DISTINCT RevMast.Name, RevMast.code,S.TaxPer FROM (Sale2 AS S INNER JOIN RevMast ON S.TaxCode = RevMast.Code Left Join SundryMast On RevMast.Sundry=SundryMast.Code) where S.DELFLAG<>'D' " & var_90
+
+-- SQL Statement 28 --
+  loc_1CAD02D:   var_318 = "Select Distinct SM.Name, SM.Code From SunTran S Left Join SundryMast SM On S.SunCode=SM.Code Where S.DELFLAG='N' And Nature In ('Addition','Advance','Deduction','Service Charge','Sale Tax','Service Tax','Luxury Tax') " & var_90
+
+-- SQL Statement 29 --
+  loc_1CAD081:   var_318 = "Select Distinct SM.Name, SM.Code From SunTran S Left Join SundryMast SM On S.SunCode=SM.Code Where S.DELFLAG='N' And Nature In ('Addition','Advance','Deduction','Service Charge','Sale Tax','Service Tax','Luxury Tax') " & var_90
+
+-- SQL Statement 30 --
+  loc_1CAEC3F:         var_358 = "Select sum(Amount) as SunAmt from SunTran where DELFLAG<>'D' And SunCode='" & var_98.Fields.Item("Code").Value 
+
+-- SQL Statement 31 --
+  loc_1937024:   var_140 = " SELECT   MAX(g.Name) AS Name, MAX(s.Name) AS Company, MAX(p.RoomNo) AS Room , Max(p.restcode) as Code " & " FROM   PayCharge p INNER JOIN GuestFolio g ON p.FolioNoDocid = g.DocId LEFT OUTER JOIN "
+
+-- SQL Statement 32 --
+  loc_193708B:   var_140 = " SELECT  p.docid As Docid,  g.Name AS Name, s.Name AS Company, p.RoomNo AS Room , p.restcode as Code " & " FROM   PayCharge p INNER JOIN GuestFolio g ON p.FolioNoDocid = g.DocId LEFT OUTER JOIN "
+
+-- SQL Statement 33 --
+  loc_19372FC:       var_1A8 = Proc_6_37_E618F4(CVar(var_8C.Fields.Item(var_EC)), "SELECT DocId FROM ( " & var_B4 & " ) DERIVEDTBL WHERE Name ='", var_194, -1)
+
+-- SQL Statement 34 --
+  loc_1937307:       var_1B0 = var_24C & "SELECT DocId FROM ( " & var_B4 & " SubGroup s ON g.Company = s.SubCode WHERE p.PayType = 'Room' " & var_90 & "' AND Room='"
+
+-- SQL Statement 35 --
+  loc_19374EE:           var_140 = " SELECT  ig.Name AS Name, SUM(s.qtyIss) AS COUNT FROM Stock s INNER JOIN  itemMast im ON s.item = im.code And S.ItemRestCode=Im.RestCode INNER JOIN" & " itemgrp ig ON im.itemgroup = ig.code "
+
+-- SQL Statement 36 --
+  loc_19375C6:           var_164 = "SELECT Name FROM ItemGrp WHERE restCode='"
+
+-- SQL Statement 37 --
+  loc_193792E:   var_140 = " SELECT   MAX(p.Comments) AS Name, MAX(s.Name) AS Company,  Max(p.restcode) as Code " & " FROM   PayCharge p LEFT OUTER JOIN Subgroup s ON p.CompCode = s.SubCode WHERE (p.PayType ='Company') "
+
+-- SQL Statement 38 --
+  loc_1937971:   var_140 = " SELECT  p.docid as Docid, p.Comments AS Name, s.Name AS Company,  p.restcode as Code " & " FROM   PayCharge p LEFT OUTER JOIN Subgroup s ON p.CompCode = s.SubCode "
+
+-- SQL Statement 39 --
+  loc_1937B67:       var_1A8 = Proc_6_37_E618F4(CVar(var_A4.Fields.Item(var_EC)), "SELECT DocId FROM (" & var_B4 & ") DERIVEDTBL WHERE Name ='", var_194, -1)
+
+-- SQL Statement 40 --
+  loc_1937B9D:       var_224 = Proc_6_37_E618F4(CVar(var_A4.Fields.Item("Company")), var_24C & "SELECT DocId FROM (" & var_B4 & " WHERE (p.PayType <> 'Room') " & var_90 & "' AND (Company='")
+
+-- SQL Statement 41 --
+  loc_1937D59:           var_140 = " SELECT  ig.Name AS Name, SUM(s.qtyIss) AS COUNT FROM Stock s INNER JOIN  itemMast im ON s.item = im.code And S.ItemRestCode=Im.RestCode INNER JOIN" & " itemgrp ig ON im.itemgroup = ig.code "
+
+-- SQL Statement 42 --
+  loc_1937E31:           var_164 = "SELECT Name FROM ItemGrp WHERE restCode='"
+
+-- SQL Statement 43 --
+  loc_1938199:   var_140 = " SELECT  p.docId as Docid ,Name=CASE P.paytype WHEN 'Cash' THEN  S.Remark WHEN 'Credit Card' THEN P.CardHolder ELSE P.Comments END,  p.restcode as Code ,p.paytype as Cmp " & " FROM   PayCharge p join Sale1 s on p.docId = s.docid "
+
+-- SQL Statement 44 --
+  loc_19384AC:           var_140 = " SELECT  ig.Name AS Name, SUM(s.qtyIss) AS COUNT FROM Stock s INNER JOIN  itemMast im ON s.item = im.code And S.ItemRestCode=Im.RestCode INNER JOIN" & " itemgrp ig ON im.itemgroup = ig.code "
+
+-- SQL Statement 45 --
+  loc_19385B1:           var_164 = "SELECT Name FROM ItemGrp WHERE restCode='"
+
+-- SQL Statement 46 --
+  loc_1938919:   var_140 = " SELECT  s.docId as Docid , s.vtype AS vtype ,  p.docid as Code  " & " FROM   Sale1 s LEFT OUTER JOIN  PayCharge p ON s.DocId = p.DocId"
+
+-- SQL Statement 47 --
+  loc_1938BE8:             var_140 = " SELECT  ig.Name AS Name, SUM(s.qtyIss) AS COUNT " & " FROM Stock s INNER JOIN  itemMast im ON s.item = im.code And S.ItemRestCode=Im.RestCode INNER JOIN"
+
+-- SQL Statement 48 --
+  loc_1938CF8:             var_164 = "SELECT Name FROM ItemGrp WHERE restCode='"
+
+-- SQL Statement 49 --
+  loc_1939137:       var_164 = "SELECT Name FROM ItemGrp WHERE restCode='"
+
+-- SQL Statement 50 --
+  loc_19395AA:       var_164 = "SELECT Name FROM ItemGrp WHERE restCode='"
+
+-- SQL Statement 51 --
+  loc_1CDE267: var_42C = "SELECT s.u_name as UserName,S.TokenNo,S.DELFLAG,S.VType,S.VTime,V.Description VDesc,S.DocId,s.Vdate,St.VDate as Vdate1,s.VNo,St.SNo,s.RoomNo AS TABLENo,s.RoomType,S.Total as GoodsAmt,S.DiscAmt,s.NonTaxable,s.Taxable,s.Tax,s.ServiceCharge,s.CGST,s.SGST,S.ServiceTax,S.AddAmt,S.DedAmt,s.RoundOff,s.NetAmt,S.Remark,S.DiscRemark,St.QtyIss,St.rate,St.Amount,I.Name as ItemName,D.Name as OutletName,D.CODE AS DepartCode,IsNull(D.MultiBill,'') MultiBill,IsNull(SG.Name,'') As Company FROM (((((SAle1 S Inner Join Stock St On S.DocId=St.DocId) LEFT Join KOT K On St.KOTDocId=K.DOCID And St.KOTSno=K.Sno) Inner Join Voucher_Type V On (S.VType=V.V_Type And S.LogSite_Code=V.LogSite_Code)) Inner Join DEPART D On S.RESTCODE=D.Code) Inner JOIN ItemMast AS I ON (St.Item=I.Code And St.ItemRestCode=I.RestCode)) Left Join Subgroup SG On SG.SubCode=S.Party " & var_114
+
+-- SQL Statement 52 --
+  loc_1CDE2A6: var_42C = "SELECT RM.PayType,IsNull(Sum(AmtCr),0)-IsNull(Sum(AmtDr),0) as BalAmt From (PayCharge S Left Join RevMast RM ON S.PayCode=RM.Code) " & var_11C
+
+-- SQL Statement 53 --
+  loc_1CDE2EC: var_434 = "Select Distinct SM.Name, SM.Code From SunTran S Left Join SundryMast SM On S.SunCode=SM.Code " & var_11C & " And S.DELFLAG='N' And Nature In ('Addition','Advance','Deduction','Discount','Service Charge','Sale Tax','CGST','SGST','IGST','Service Tax','Luxury Tax') And S.SunCode Not In (SELECT DISTINCT RevMast.Sundry FROM (Sale2 AS S INNER JOIN RevMast ON S.TaxCode = RevMast.Code Left Join SundryMast On RevMast.Sundry=SundryMast.Code) "
+
+-- SQL Statement 54 --
+  loc_1CDF887:           var_42C = Proc_6_37_E618F4(CVar(var_D4.Recordset15.Fields.Item(var_94)), "Select IsNull(Sum(Amount),0)-IsNull(Sum(DiscAmt),0) from Stock Where DocId='", var_104, -1, var_4D0)
+
+-- SQL Statement 55 --
+  loc_1CDF9AD:           var_42C = Proc_6_37_E618F4(var_D4, "Select IsNull(Sum(Amount),0)-IsNull(Sum(DiscAmt),0) from Stock Where DocId='", var_104)
+
+-- SQL Statement 56 --
+  loc_1CDFAE2:           var_434 = -1 & Proc_6_37_E618F4(var_D4, "Select IsNull(Sum(Amount),0) from Stock Where DocId='", var_104)
+
+-- SQL Statement 57 --
+  loc_1CDFC08:           var_434 = -1 & Proc_6_37_E618F4(var_D4, "Select IsNull(Sum(Amount),0) from Stock Where DocId='", var_104)
+
+-- SQL Statement 58 --
+  loc_1CE0163:           var_104 = "Select * from PayCharge where docid='" & var_D4.Recordset15.Fields.Item("DocID").Value.Recordset15.Fields.Item("DocID").Value & var_B4 
+
+-- SQL Statement 59 --
+  loc_1CE13C7:           var_3A8 = "Select sum(Amount) as TaxAmt from SunTran where SunCode='" & var_200.Fields.Item("Code").Value & "' and Docid='" & var_110.Fields.Item("DocID").Value 
+
+-- SQL Statement 60 --
+  loc_1E6FE9D: var_5D4 = "SELECT Depart.Name as DepartName,s.u_name as UserName,S.TokenNo,S.DELFLAG,S.VType,S.VTime,V.Description VDesc,S.DocId,S.Vdate,St.VDate as Vdate1,S.VNo,St.SNo,s.RoomNo AS TABLENo,s.RoomType,S.Total as GoodsAmt,S.DiscAmt," & "s.NonTaxable,s.Taxable,s.Tax,s.ServiceCharge,S.ServiceTax,S.AddAmt,S.DedAmt,s.RoundOff,S.NetAmt,S.Remark,"
+
+-- SQL Statement 61 --
+  loc_1E6FED8: var_5D4 = "SELECT DISTINCT RevMast.Name,RevMast.code,RevMast.Sundry,S.TaxPer FROM ((Sale2 AS S INNER JOIN RevMast ON S.TaxCode = RevMast.Code) Inner Join Voucher_Type V On (S.VType=V.V_Type And S.LogSite_Code=V.LogSite_Code)) " & var_94
+
+-- SQL Statement 62 --
+  loc_1E70502: var_5D4 = "SELECT RM.PayType,IsNull(Sum(AmtCr),0)-IsNull(Sum(AmtDr),0) as BalAmt From (PayCharge S Left Join RevMast RM ON S.PayCode=RM.Code) " & var_A0
+
+-- SQL Statement 63 --
+  loc_1E70548: var_5DC = "Select Distinct SM.Name, SM.Code From SunTran S Left Join SundryMast SM On S.SunCode=SM.Code " & var_A0 & " And S.DELFLAG='N' And Nature In ('Addition','Advance','Deduction','Discount','Service Charge','Sale Tax','Service Tax','Luxury Tax') And S.SunCode Not In (SELECT DISTINCT RevMast.Sundry FROM (Sale2 AS S INNER JOIN RevMast ON S.TaxCode = RevMast.Code Left Join SundryMast On RevMast.Sundry=SundryMast.Code) "
+
+-- SQL Statement 64 --
+  loc_1E71B35:         var_5D4 = Proc_6_37_E618F4(CVar(var_4F0.Recordset15.Fields.Item(var_4B0)), "Select IsNull(Sum(Amount),0)-IsNull(Sum(DiscAmt),0) from Stock Where DocId='", var_510, -1, var_6B8)
+
+-- SQL Statement 65 --
+  loc_1E71C5B:         var_5D4 = Proc_6_37_E618F4(var_4F0, "Select IsNull(Sum(Amount),0)-IsNull(Sum(DiscAmt),0) from Stock Where DocId='", var_510)
+
+-- SQL Statement 66 --
+  loc_1E71D90:         var_5DC = -1 & Proc_6_37_E618F4(var_4F0, "Select IsNull(Sum(Amount),0) from Stock Where DocId='", var_510)
+
+-- SQL Statement 67 --
+  loc_1E71EB6:         var_5DC = -1 & Proc_6_37_E618F4(var_4F0, "Select IsNull(Sum(Amount),0) from Stock Where DocId='", var_510)
+
+-- SQL Statement 68 --
+  loc_1E73993:         var_510 = "Select * from PayCharge where docid='" & var_4F0.Recordset15.Fields.Item("DocID").Value.Recordset15.Fields.Item("DocID").Value & var_4D0 
+
+-- SQL Statement 69 --
+  loc_1E74874:         var_550 = "Select sum(Amount) as TaxAmt from SunTran where SunCode='" & var_164.Fields.Item("Code").Value & "' and Docid='" & var_90.Fields.Item("DocID").Value 
+
+-- SQL Statement 70 --
+  loc_1E78971: var_5D4 = "SELECT DISTINCT RevMast.Name, RevMast.code,S.TaxPer FROM ((Sale2 AS S INNER JOIN RevMast ON S.TaxCode = RevMast.Code) Inner Join Voucher_Type V On (S.VType=V.V_Type And S.LogSite_Code=V.LogSite_Code)) " & var_94
+
+-- SQL Statement 71 --
+  loc_19D43B5: var_284 = "SELECT S.DELFLAG,S.DocId,S.SeqNo,s.Vdate,St.VDate as Vdate1,s.VNo,St.SNo,s.RoomNo AS TABLENo,s.RoomType,S.Total as GoodsAmt,S.DiscAmt,s.NonTaxable,s.Taxable,s.Tax,s.ServiceCharge,S.AddAmt,S.DedAmt,s.RoundOff,s.NetAmt,St.QtyIss,St.rate,St.Amount,I.Name as ItemName,D.Name as OutletName,D.CODE AS DepartCode,S.U_Name FROM (((((SAle1Log S Inner Join StockLog St On S.DocId=St.DocId And S.SeqNo=St.SeqNo) LEFT Join KOT K On St.KOTDocId=K.DOCID And St.KOTSno=K.Sno) Inner Join Voucher_Type V On (S.VType=V.V_Type And S.Site_Code=V.Site_Code)) Inner Join DEPART D On S.RESTCODE=D.Code) Inner JOIN ItemMast AS I ON (St.Item=I.Code And St.RestCode=I.RestCode)) " & var_98
+
+-- SQL Statement 72 --
+  loc_19D51AD:           var_284 = Proc_6_37_E618F4(CVar(var_1A0.Recordset15.Fields.Item(var_160)), "Select Sum(DiscAmt) from StockLog Where Docid='", var_1C0, -1, var_2BC, 1)
+
+-- SQL Statement 73 --
+  loc_19D530F:           var_28C = -1 & Proc_6_37_E618F4(CVar(var_94.Fields.Item("DocID")), "Select Sum(DiscAmt) from StockLog Where Docid='", var_1C0)
+
+-- SQL Statement 74 --
+  loc_19D57B7:           var_284 = Proc_6_37_E618F4(CVar(var_1A0.Recordset15.Fields.Item(var_160)), "Select * from PayChargeLog where docid='", var_1C0, -1)
+
+-- SQL Statement 75 --
+  loc_19D57BB:           var_28C = var_2BC & Proc_6_37_E618F4(CVar(var_94.Fields.Item("DocID")), "Select Sum(DiscAmt) from StockLog Where Docid='", var_1C0)
+
+-- SQL Statement 76 --
+  loc_1636863: var_1E4 = "SELECT S.VTYPE,S.VNO,S.VDATE,S.VTIME,W.Name AS WAITER,S.ROOMNO AS TABLENO ,S.NETAMT as NetSale,S.RESTCODE,D.NAME AS DEPARTNAME,S.Remark,S.U_name FROM (((Sale1 S LEFT JOIN DEPART AS D ON S.RestCode = D.Code) LEFT JOIN Waiter W ON S.Waiter = W.Code) LEFT JOIN ROOMMAST RM ON (S.RestCode=RM.RestCode) AND (S.RoomNo=RM.Code)) Where S.LogSite_Code='" & Proc_6_44_EA72C4(CStr(Me.LoginSite), 2, Me.LoginSite, var_B8)
+
+-- SQL Statement 77 --
+  loc_15B714C: var_1D0 = "SELECT K.DocId,K.Vdate,K.Vtime,K.VNo,W.NAME AS WAITER,K.RoomNo AS TABLENo,K.RoomType,I.NAME AS PRODUCT,K.Qty,K.VOIDYN,K.U_Name,K.RESTCODE,D.NAME AS DEPARTNAME FROM ((((KOT AS K INNER JOIN wAITER AS W ON K.Waiter = W.Code) INNER JOIN ItemMast AS I ON (K.Item = I.Code And K.RestCode=I.RestCode)) INNER JOIN DEPART AS D ON K.RestCode = D.Code) iNNER JOIN VOUCHER_TYPE AS V ON (K.Vtype = V.V_Type AND K.SITE_CODE=V.SITE_CODE)) " & var_9C
+
+-- SQL Statement 78 --
+  loc_16B1EB8: var_E8 = "SELECT I.Code As Item,Max(I.ItemGroup) as ItemGroup FROM ((((SAle1 S Inner Join Stock St On S.DocId=St.DocId) LEFT Join KOT K On St.KOTDocId=K.DOCID And St.KOTSno=K.Sno) Inner Join Voucher_Type V On (S.VType=V.V_Type And S.Site_Code=V.Site_Code)) Inner JOIN ItemMast AS I ON (St.Item=I.Code And St.RestCode=I.RestCode))" & var_A8
+
+-- SQL Statement 79 --
+  loc_16B1F00: var_E8 = "SELECT Sum(St.QtyIss) As Qty,Max(St.rate) As ItemRate,Sum(St.Amount) As TotCost,Max(I.Name) as ItemName,I.Code As Item FROM ((((SAle1 S Inner Join Stock St On S.DocId=St.DocId) LEFT Join KOT K On St.KOTDocId=K.DOCID And St.KOTSno=K.Sno) Inner Join Voucher_Type V On (S.VType=V.V_Type And S.Site_Code=V.Site_Code)) Inner JOIN ItemMast AS I ON (St.Item=I.Code And St.RestCode=I.RestCode))" & var_A8
+
+-- SQL Statement 80 --
+  loc_16B1F4E: var_E8 = "Select Sum(TotCost) from (SELECT Sum(St.Amount) As TotCost FROM ((((SAle1 S Inner Join Stock St On S.DocId=St.DocId) LEFT Join KOT K On St.KOTDocId=K.DOCID And St.KOTSno=K.Sno) Inner Join Voucher_Type V On (S.VType=V.V_Type And S.Site_Code=V.Site_Code)) Inner JOIN ItemMast AS I ON (St.Item=I.Code And St.RestCode=I.RestCode))" & var_A8
+
+-- SQL Statement 81 --
+  loc_1AB430C:   var_334 = "SELECT 1 AS TT,'' AS DOCID,'' AS SNO,''  AS UNAME,S.Vdate,sum(S.NetAmt) as NetAmt,    S.DelFlag,0                     AS BALAMT,0           AS TipAmt1,'' AS PayCode, S.RESTCODE,MAX(D.NAME) AS DEPARTNAME,''              AS PType,0 AdvAmt FROM (Sale1 S Left Join DEPART D On S.RESTCODE=D.Code)                                                  where S.LogSite_Code='" & Proc_6_44_EA72C4(CStr(Me.LoginSite), 2, Me.LoginSite, 1, 2)
+
+-- SQL Statement 82 --
+  loc_1AB4328:   var_354 = var_334 & "'  AND S.DELFLAG='D' " & var_9C & " Group by S.RESTCODE,S.Vdate,S.DELFLAG Union " & "SELECT 2 AS TT,    S.DOCID,   PC.SNO,''  AS UNAME,PC.Vdate,sum(S.NetAmt) as NetAmt,'' AS DelFlag,0                     AS BALAMT,0           AS TipAmt1,'' AS PayCode, S.RESTCODE,MAX(D.NAME) AS DEPARTNAME,''              AS PType,0 AdvAmt FROM (Sale1 S LEFT JOIN PAYCHARGE PC ON S.DOCID=PC.DOCID)      Left Join DEPART D On S.RESTCODE=D.Code  where PC.LogSite_Code='"
+
+-- SQL Statement 83 --
+  loc_1AB434E:   var_374 = var_368 & "SELECT 3 AS TT,'' AS DOCID,'' AS SNO,''  AS UNAME,PC.Vdate,0             AS NetAmt,'' AS DELFLAG,IsNull(Sum(AmtCr),0)-IsNull(Sum(AmtDr),0) as BalAmt,Sum(TipAmt) As TipAmt1,      PayCode,PC.RESTCODE,MAX(D.NAME) AS DEPARTNAME,Max(RM.PayType) AS PType,0 AdvAmt From (PayCharge PC Left Join RevMast RM ON PC.PayCode=RM.Code) Left Join DEPART D On PC.RESTCODE=D.Code where PC.LogSite_Code='"
+
+-- SQL Statement 84 --
+  loc_1AB4469:     var_334 = "SELECT 1 AS TT,'' AS DOCID,'' AS SNO,S.U_Name  AS UNAME,S.Vdate,sum(S.NetAmt) as NetAmt,    S.DelFlag,0                     AS BALAMT,0           AS TipAmt1,'' AS PayCode, S.RESTCODE,MAX(D.NAME) AS DEPARTNAME,''              AS PType,0 AdvAmt FROM (Sale1 S Left Join DEPART D On S.RESTCODE=D.Code)                                                  where S.LogSite_Code='" & Proc_6_44_EA72C4(CStr(Me.LoginSite), 2, Me.LoginSite, 1, 2)
+
+-- SQL Statement 85 --
+  loc_1AB4485:     var_354 = var_334 & "'  AND S.DELFLAG='D' " & var_9C & " Group by S.U_Name,S.RESTCODE,S.Vdate,S.DELFLAG Union " & "SELECT 2 AS TT,    S.DOCID,   PC.SNO,S.U_Name  AS UNAME,PC.Vdate,sum(S.NetAmt) as NetAmt,'' AS DelFlag,0                     AS BALAMT,0           AS TipAmt1,'' AS PayCode, S.RESTCODE,MAX(D.NAME) AS DEPARTNAME,''              AS PType,0 AdvAmt FROM (Sale1 S LEFT JOIN PAYCHARGE PC ON S.DOCID=PC.DOCID)      Left Join DEPART D On S.RESTCODE=D.Code  where PC.LogSite_Code='"
+
+-- SQL Statement 86 --
+  loc_1AB44AB:     var_374 = var_368 & "SELECT 3 AS TT,'' AS DOCID,'' AS SNO,PC.U_Name AS UNAME,PC.Vdate,0             AS NetAmt,'' AS DELFLAG,IsNull(Sum(AmtCr),0)-IsNull(Sum(AmtDr),0) as BalAmt,Sum(TipAmt) As TipAmt1,      PayCode,PC.RESTCODE,MAX(D.NAME) AS DEPARTNAME,Max(RM.PayType) AS PType,0 AdvAmt From (PayCharge PC Left Join RevMast RM ON PC.PayCode=RM.Code) Left Join DEPART D On PC.RESTCODE=D.Code where PC.LogSite_Code='"
+
+-- SQL Statement 87 --
+  loc_1AB4680:       var_334 = "SELECT 1 AS TT,'' AS DOCID,'' AS SNO,S.U_Name  AS UNAME,'01/Jan/1900' As Vdate,sum(S.NetAmt) as NetAmt,    S.DelFlag,0                     AS BALAMT,0           AS TipAmt1,'' AS PayCode, S.RESTCODE,MAX(D.NAME) AS DEPARTNAME,''              AS PType,Sum(IsNull(Q.Amount,0)) AdvAmt FROM (Sale1 S Left Join DEPART D On S.RESTCODE=D.Code) Left Join (Select DocId,Amount from Suntran Where SunCode='" & Proc_6_44_EA72C4(CStr(Me.LoginSite), 2, Me.LoginSite, 1, 2)
+
+-- SQL Statement 88 --
+  loc_1AB46CC:       var_380 = var_368 & "'  AND S.DELFLAG='D' " & var_9C & " Group by S.U_Name,S.RESTCODE,S.DELFLAG Union " & "SELECT 2 AS TT,    S.DOCID,   PC.SNO,S.U_Name  AS UNAME,'01/Jan/1900' As Vdate,sum(S.NetAmt) as NetAmt,'' AS DelFlag,0                     AS BALAMT,0           AS TipAmt1,'' AS PayCode, S.RESTCODE,MAX(D.NAME) AS DEPARTNAME,''              AS PType,Sum(IsNull(Q.Amount,0)) AdvAmt FROM (Sale1 S LEFT JOIN PAYCHARGE PC ON S.DOCID=PC.DOCID)      Left Join DEPART D On S.RESTCODE=D.Code  Left Join (Select DocId,Amount from Suntran Where SunCode='"
+
+-- SQL Statement 89 --
+  loc_1AB4722:       var_3D0 = var_3B8 & "' AND S.DELFLAG<>'D' " & var_A0 & " Group by S.U_Name,S.RESTCODE,S.DOCID,PC.SNO HAVING PC.SNO=1 Union " & "SELECT 3 AS TT,'' AS DOCID,'' AS SNO,PC.U_Name AS UNAME,'01/Jan/1900' As Vdate,0             AS NetAmt,'' AS DELFLAG,IsNull(Sum(AmtCr),0)-IsNull(Sum(AmtDr),0) as BalAmt,Sum(TipAmt) As TipAmt1,      PayCode,PC.RESTCODE,MAX(D.NAME) AS DEPARTNAME,Max(RM.PayType) AS PType,0 AdvAmt From (PayCharge PC Left Join RevMast RM ON PC.PayCode=RM.Code) Left Join DEPART D On PC.RESTCODE=D.Code where PC.LogSite_Code='"
+
+-- SQL Statement 90 --
+  loc_1AB4748:       var_3F0 = var_3E4 & "SELECT 4 AS TT,'' AS DOCID,'' AS SNO,PC.U_Name AS UNAME,'01/Jan/1900' As Vdate,0             AS NetAmt,'' AS DELFLAG,IsNull(Sum(AmtCr),0)-IsNull(Sum(AmtDr),0) as BalAmt,Sum(TipAmt) As TipAmt1,      PayCode,PC.RESTCODE,'PAYMENT RECEIVE' AS DEPARTNAME,Max(RM.PayType) AS PType,0 AdvAmt From (PayCharge PC Left Join RevMast RM ON PC.PayCode=RM.Code) Left Join DEPART D On PC.RESTCODE=D.Code where PC.LogSite_Code='"
+
+-- SQL Statement 91 --
+  loc_1AB476E:       var_410 = var_404 & "SELECT 5 AS TT,'' AS DOCID,'' AS SNO,PC.U_Name AS UNAME,'01/Jan/1900' As Vdate,0             AS NetAmt,'' AS DELFLAG,IsNull(Sum(AmtCr),0)-IsNull(Sum(AmtDr),0) as BalAmt,Sum(TipAmt) As TipAmt1,      PayCode,PC.RESTCODE,'ORDER ADVANCE' AS DEPARTNAME,Max(RM.PayType) AS PType,0 AdvAmt From (PayCharge PC Left Join RevMast RM ON PC.PayCode=RM.Code) Left Join DEPART D On PC.RESTCODE=D.Code where PC.LogSite_Code='"
+
+-- SQL Statement 92 --
+  loc_1AB48B6:       var_334 = "SELECT 1 AS TT,'' AS DOCID,'' AS SNO,S.U_Name  AS UNAME,'01/Jan/1900' As Vdate,sum(S.NetAmt) as NetAmt,    S.DelFlag,0                     AS BALAMT,0           AS TipAmt1,'' AS PayCode, S.RESTCODE,MAX(D.NAME) AS DEPARTNAME,''              AS PType,0 AdvAmt FROM (Sale1 S Left Join DEPART D On S.RESTCODE=D.Code)                                                  where S.LogSite_Code='" & Proc_6_44_EA72C4(CStr(Me.LoginSite), 2, Me.LoginSite, var_340)
+
+-- SQL Statement 93 --
+  loc_1AB48D2:       var_354 = var_334 & "'  AND S.DELFLAG='D' " & var_9C & " Group by S.U_Name,S.RESTCODE,S.DELFLAG Union " & "SELECT 2 AS TT,    S.DOCID,   PC.SNO,S.U_Name  AS UNAME,'01/Jan/1900' As Vdate,sum(S.NetAmt) as NetAmt,'' AS DelFlag,0                     AS BALAMT,0           AS TipAmt1,'' AS PayCode, S.RESTCODE,MAX(D.NAME) AS DEPARTNAME,''              AS PType,0 AdvAmt FROM (Sale1 S LEFT JOIN PAYCHARGE PC ON S.DOCID=PC.DOCID)      Left Join DEPART D On S.RESTCODE=D.Code  where PC.LogSite_Code='"
+
+-- SQL Statement 94 --
+  loc_1AB48F8:       var_374 = var_368 & "SELECT 3 AS TT,'' AS DOCID,'' AS SNO,PC.U_Name AS UNAME,'01/Jan/1900' As Vdate,0             AS NetAmt,'' AS DELFLAG,IsNull(Sum(AmtCr),0)-IsNull(Sum(AmtDr),0) as BalAmt,Sum(TipAmt) As TipAmt1,      PayCode,PC.RESTCODE,MAX(D.NAME) AS DEPARTNAME,Max(RM.PayType) AS PType,0 AdvAmt From (PayCharge PC Left Join RevMast RM ON PC.PayCode=RM.Code) Left Join DEPART D On PC.RESTCODE=D.Code where PC.LogSite_Code='"
+
+-- SQL Statement 95 --
+  loc_1AB497E: var_32C = "Select Depart.Name As OutletName,IsNull(Sum(R.deposit),0) Deposit,Abs(IsNull(Sum(R.Refund),0)) Refund,0 AS ADVANCE,RevMast.Name From " & "(Select Q.RestCode,Case When Q.PayType='D' Then Sum(Q.AmtCr) End Deposit,Case When Q.PayType='R' Then Sum(Q.AmtCr) End Refund,Q.PayCode From "
+
+-- SQL Statement 96 --
+  loc_1B55203: var_2CC = "SELECT S.DOCID,MAX(PC.VDATE) AS VDATE,MAX(PC.VTYPE) AS VTYPE,MAX(PC.VNO) AS VNO,''             AS DelFlag,Max(S.NetAmt) AS NetAmt,sum(PC.AmtCr)-sum(PC.AmtDr) as NetSale,Sum(TipAmt) As TipAmt1,MAX(PC.PAYCODE) AS PAYCODE,Max(PC.PayType) AS PType,S.RESTCODE,MAX(D.NAME) AS DEPARTNAME,MAX(PC.AU_NAME) AS UNAME,MAX(PC.Comments) AS COMMENT,IsNull(MAX(SG.Name),'') BCompany,IsNull(MAX(SG.GSTIN),'') BGSTIN,IsNull(MAX(SG1.Name),'') SCompany,IsNull(MAX(SG1.GSTIN),'') SGSTIN FROM (SAle1 S LEFT Join PayCharge PC On S.DocId=PC.Docid) Left Join DEPART D On S.RESTCODE=D.Code LEFT JOIN SubGroup SG On S.Party=SG.SubCode LEFT JOIN SubGroup SG1 On PC.CompCode=SG1.SubCode Where S.LogSite_Code='" & Proc_6_44_EA72C4(CStr(Me.LoginSite), 2, Me.LoginSite, 0, var_180, var_178, var_170, var_168)
+
+-- SQL Statement 97 --
+  loc_1B5523E: var_308 = var_2FC & "SELECT S.DOCID,MAX(S.VDATE) AS VDATE,MAX(S.VTYPE) AS VTYPE,MAX(S.VNO) AS VNO,''             AS DelFlag,Max(S.NetAmt) AS NetAmt,sum(PC.AmtCr)-sum(PC.AmtDr) as NetSale,Sum(TipAmt) As TipAmt1,MAX(PC.PAYCODE) AS PAYCODE,'UnSettled'     AS PType,S.RESTCODE,MAX(D.NAME) AS DEPARTNAME,MAX(PC.AU_NAME) AS UNAME,'***** UnSettled' AS COMMENT,'' BCompany,'' BGSTIN,'' SCompany,'' SGSTIN FROM (SAle1 S LEFT Join PayCharge PC On S.DocId=PC.Docid) Left Join DEPART D On S.RESTCODE=D.Code  Where S.LogSite_Code='"
+
+-- SQL Statement 98 --
+  loc_1B5527C: var_340 = var_334 & "SELECT S.DOCID,MAX(S.VDATE)  AS VDATE,MAX(S.VTYPE)  AS VTYPE,MAX(S.VNO)  AS VNO,MAX(S.DelFlag) AS DelFlag,0             AS NetAmt,Max(S.NetAmt)               as NetSale,0           As TipAmt1,''              AS PAYCODE,''              AS PType,S.RESTCODE,MAX(D.NAME) AS DEPARTNAME,MAX(S.AU_NAME) AS UNAME,'***** Deleted'  AS COMMENT,'' BCompany,'' BGSTIN,'' SCompany,'' SGSTIN FROM  SAle1 S Left Join DEPART D On S.RESTCODE=D.Code                                              Where S.LogSite_Code='"
+
+-- SQL Statement 99 --
+  loc_1B55320: var_2C4 = "Select Depart.Name As OutletName,IsNull(Sum(R.deposit),0) Deposit,Abs(IsNull(Sum(R.Refund),0)) Refund,RevMast.Name From " & "(Select Q.RestCode,Case When Q.PayType='D' Then Sum(Q.AmtCr) End Deposit,Case When Q.PayType='R' Then Sum(Q.AmtCr) End Refund,Q.PayCode From "
+
+-- SQL Statement 100 --
+  loc_1B5681D:                   var_1B0 = "Select PayCharge.Docid,SubGroup.Name from Paycharge Left join Subgroup on PayCharge.CompCode=Subgroup.Subcode where docid='"
+
+-- SQL Statement 101 --
+  loc_1B56BA9:                     var_1B0 = "Select PayCharge.Docid,SubGroup.Name from Paycharge Left join Subgroup on PayCharge.CompCode=Subgroup.Subcode where docid='"
+
+-- SQL Statement 102 --
+  loc_1B5779F:                                 var_200 = "Select * from Paycharge where docid='" & var_90.Fields.Item("DocID").Value & "' and PayCode='" 
+
+-- SQL Statement 103 --
+  loc_1840C25: var_29C = "SELECT S.VDATE,Sum(S.Amount) as NetAmt,Sum(S.DiscAmt) AS DiscAmt,S.RESTCODE,MAX(D.NAME) AS DEPARTNAME,IC.CatType FROM (((Stock S LEFT JOIN DEPART AS D ON S.RestCode=D.Code) Left Join ItemMast I On S.Item=I.Code And S.RestCode=I.RestCode) Left join ItemCatMast IC on IC.Code=I.ItemCatCode) Where S.DelFlag<>'D' and S.LogSite_Code='" & Proc_6_44_EA72C4(CStr(Me.LoginSite), 2, Me.LoginSite, var_170)
+
+-- SQL Statement 104 --
+  loc_1641D2F: var_204 = "SELECT S.VDATE AS VDATE, S.VTYPE AS VTYPE, S.VNO AS VNO, S.QtyIss AS Quantity, S.RATE AS RATE, S.Amount AS Amount, S.DiscPer as DiscPer, S.DiscAmt AS DiscAmt,S.RESTCODE, I.NAME AS ITEMNAME, D.NAME AS DEPARTNAME FROM ((Stock S LEFT JOIN DEPART AS D ON S.RestCode=D.Code) Left Join ItemMast I On S.Item=I.Code And S.RestCode=I.RestCode) Where S.DelFlag<>'D' and S.LogSite_Code='" & Proc_6_44_EA72C4(CStr(Me.LoginSite), 2, Me.LoginSite, var_D8)
+
+-- SQL Statement 105 --
+  loc_163C259: var_204 = "SELECT S1.DocID As DocId,S1.VDATE AS VDATE,S1.VTYPE AS VTYPE,S1.VNO AS VNO,S1.Total AS Amount, S1.DiscPer as DiscPer,S1.DiscAmt AS DiscAmt,S1.RESTCODE As RestCode,D.NAME AS DEPARTNAME,S1.Party as PartyCode,Sub.name as PartyName,case when isnull(Sub.name,'')='' then S1.Remark else Sub.name end as Remark FROM ((Sale1 S1 LEFT JOIN DEPART D ON S1.RestCode=D.Code) Left Join Subgroup Sub on S1.Party=Sub.Subcode) Where S1.DelFlag<>'D' and S1.LogSite_Code='" & Proc_6_44_EA72C4(CStr(Me.LoginSite), 2, Me.LoginSite, var_D8)
+
+-- SQL Statement 106 --
+  loc_19E41FC: var_2D4 = "SELECT 1 AS TT,S1.VDATE,S1.VTIME,Sum(S.AMOUNT-S.DISCAMT) as tNetAmt,MAX(S1.GuarAtt) AS tCOVER,0 as netamt,0 as cover,S1.RESTCODE,MAX(D.NAME) AS DEPARTNAME,'' AS CatType,S1.VNO FROM ((((Sale1 S1 INNER Join Stock S ON S1.DOCID=S.DOCID) INNER JOIN DEPART AS D ON S1.RestCode = D.Code)  INNER Join ItemMast I On S.Item=I.Code And S.RestCode=I.RestCode) INNER join ItemCatMast IC on IC.Code=I.ItemCatCode) Where S1.LogSite_Code='" & Proc_6_44_EA72C4(CStr(Me.LoginSite), 2, Me.LoginSite, var_1A8)
+
+-- SQL Statement 107 --
+  loc_19E4218: var_2F4 = 1 & CStr(Me.FGrid.TextMatrix) & " To : " & "'" & var_A0 & " Group By S1.RESTCODE,S1.VDATE,S1.VTIME,S1.VNO Union " & "SELECT 2 AS TT,S1.VDATE,S1.VTIME,0 AS TNETAMT,0 as tcover,Sum(S.AMOUNT-S.DISCAMT) as NetAmt,MAX(S1.GuarAtt) AS COVER,S1.RESTCODE,MAX(D.NAME) AS DEPARTNAME,IC.CatType,S1.VNO  FROM ((((Sale1 S1 INNER Join Stock S ON S1.DOCID=S.DOCID) INNER JOIN DEPART AS D ON S1.RestCode = D.Code) INNER Join ItemMast I On S.Item=I.Code And S.RestCode=I.RestCode) INNER join ItemCatMast IC on IC.Code=I.ItemCatCode) Where S1.LOGSITE_CODE='"
+
+-- SQL Statement 108 --
+  loc_19E466E:       unk_5A8FBB.Execute "Select Name from SessionMast Where " & CStr(var_35C) & " Between FromTime and ToTime Order By Name", var_1E8, -1
+
+-- SQL Statement 109 --
+  loc_18CEDDF: var_20C = "SELECT S.DOCID,MAX(S.VType) AS VTYPE,MAX(S.VNo) AS VNO,MAX(S.Vdate) AS VDATE,S.Item,Max(IM.Name) AS ItemName,MAX(IC.NAME) AS ItemCatName,Max(RM.Name) AS  RevName,MAX(K.VNo) AS KOTNO,MAX(K.NCKOT) AS NCKOT,sum(S.QtyIss) AS Qty,MAX(S.RATE) AS SRATE,SUM(S.AMOUNT) AS AMT,S.RESTCODE,MAX(D.NAME) AS DEPARTNAME,IC.RevCode FROM ((((((STOCK S LEFT JOIN DEPART  D ON S.RestCode = D.Code) Left Join ItemMast IM ON S.Item = IM.Code And S.RestCode=IM.RestCode) Left Join ItemCatMast IC ON IM.ItemCatCode = IC.Code) Left Join RevMast RM ON IC.RevCode = RM.Code) LEFT JOIN VOUCHER_TYPE V ON (S.VTYPE=V.V_TYPE And S.Site_Code=V.Site_Code)) Left Join KOT K on (K.ContraDocId=S.DocId) and (K.ContraSNo=S.SNo)) Where isnull(S.delflag,'')<>'D' and S.LogSite_Code='" & Proc_6_44_EA72C4(CStr(Me.LoginSite), 2, Me.LoginSite, var_E0)
+
+-- SQL Statement 110 --
+  loc_1AC46B0:       var_21C = "SELECT max(ItemCatMast.taxp) AS taxp,max(S.DocId) AS DOC,max(I.DispCode) AS iTEMCODE,max(I.CommodityCode) AS HSNCODE,LTrim(RTrim(max(I.Name))) AS ITEMNAME,LTrim(max(I.Unit)) AS UNIT,sum(sk.qtyIss) AS QTY,0 as NcQty,sum(sk.amount) AS VALUE1,sum(sk.DiscAmt) As DISC,sum(sk.amount-sk.DiscAmt) AS VALUE2,LTrim(RTrim(IG.NAME)) AS ITEMGROUP,s.restcode,max(D.name) as DepartCode  FROM ((((((Sale1 S  Inner Join stock sk On S.docid=sk.docid) Inner Join ItemMast I On Sk.ITEM=I.CODE And Sk.ItemRestCode=I.RestCode) Inner Join ItemGrp IG On i.ITEMGroup=IG.CODE)  INNER JOIN ItemCatMast ON ItemCatMast.Code =i.itemcatcode) Inner Join DEPART D On S.RESTCODE=D.Code) Inner Join Voucher_Type V On (S.VType = V.V_Type And S.LogSite_Code=V.LogSite_Code)) " & var_94
+
+-- SQL Statement 111 --
+  loc_1AC46F2:       var_21C = "SELECT max(q.taxp) AS taxp,max(Q.Doc) AS DOC,max(Q.DispCode) AS iTEMCODE,max(Q.CommodityCode) AS HSNCODE,Q.Item,Max(Q.ItemName) AS ITEMNAME,max(Q.Unit) AS UNIT,sum(Q.QTY) AS QTY,sum(q.Ncqty) as NcQty,sum(Q.VALUE1) AS VALUE1,sum(Q.DISC) As DISC,sum(Q.VALUE2) AS VALUE2,Q.ITEMGROUP AS ITEMGROUP,Q.restcode As RestCode,max(Q.DepartCode) as DepartCode From (" & "SELECT ItemCatMast.taxp AS taxp,S.DocId AS DOC,I.DispCode,I.CommodityCode,Sk.Item,LTrim(RTrim(I.Name)) AS ITEMNAME,LTrim(I.Unit) AS UNIT,sk.qtyIss AS QTY,0 as Ncqty,sk.amount AS VALUE1,sk.DiscAmt As DISC,sk.amount-sk.DiscAmt AS VALUE2,LTrim(RTrim(IG.NAME)) AS ITEMGROUP,S.restcode,D.name as DepartCode  FROM ((((((Sale1 S  Inner Join stock sk On S.docid=sk.docid) Inner Join ItemMast I On Sk.ITEM=I.CODE And Sk.ItemRestCode=I.RestCode) Inner Join ItemGrp IG On i.ITEMGroup=IG.CODE)INNER JOIN ItemCatMast ON ItemCatMast.Code =i.itemcatcode)  Inner Join DEPART D On S.RESTCODE=D.Code) Inner Join Voucher_Type V On (S.VType = V.V_Type And S.LogSite_Code=V.LogSite_Code)) "
+
+-- SQL Statement 112 --
+  loc_1AC478C:         var_21C = "SELECT max(ItemCatMast.taxp) AS taxp,max(S.DocId) AS DOC,max(I.DispCode) AS iTEMCODE,max(I.CommodityCode) AS HSNCODE,LTrim(RTrim(max(I.Name))) AS ITEMNAME,LTrim(max(I.Unit)) AS UNIT,sum(sk.qtyIss) AS QTY,0 as NcQty,sum(sk.qtyIss)*sk.ItemRate AS VALUE1,sum(sk.DiscAmt) As DISC,sum(sk.amount-sk.DiscAmt) AS VALUE2,LTrim(RTrim(IG.NAME)) AS ITEMGROUP,s.restcode,max(D.name) as DepartCode  FROM ((((((Sale1 S  Inner Join stock sk On S.docid=sk.docid) Inner Join ItemMast I On Sk.ITEM=I.CODE And Sk.ItemRestCode=I.RestCode) Inner Join ItemGrp IG On i.ITEMGroup=IG.CODE)  INNER JOIN ItemCatMast ON ItemCatMast.Code =i.itemcatcode) Inner Join DEPART D On S.RESTCODE=D.Code) Inner Join Voucher_Type V On (S.VType = V.V_Type And S.LogSite_Code=V.LogSite_Code)) " & var_94
+
+-- SQL Statement 113 --
+  loc_1AC47CE:         var_21C = "SELECT max(q.taxp) AS taxp,max(Q.Doc) AS DOC,max(Q.DispCode) AS iTEMCODE,max(Q.CommodityCode) AS HSNCODE,Q.Item,Max(Q.ItemName) AS ITEMNAME,max(Q.Unit) AS UNIT,sum(Q.QTY) AS QTY,sum(q.Ncqty) as NcQty,sum(Q.VALUE1) AS VALUE1,sum(Q.DISC) As DISC,sum(Q.VALUE2) AS VALUE2,Q.ITEMGROUP AS ITEMGROUP,Q.restcode As RestCode,max(Q.DepartCode) as DepartCode From (" & "SELECT ItemCatMast.taxp AS taxp,S.DocId AS DOC,I.DispCode,I.CommodityCode,Sk.Item,LTrim(RTrim(I.Name)) AS ITEMNAME,LTrim(I.Unit) AS UNIT,sk.qtyIss AS QTY,0 as NcQty,sk.qtyIss*sk.ItemRate AS VALUE1,sk.DiscAmt As DISC,sk.amount-sk.DiscAmt AS VALUE2,LTrim(RTrim(IG.NAME)) AS ITEMGROUP,S.restcode,D.name as DepartCode  FROM ((((((Sale1 S  Inner Join stock sk On S.docid=sk.docid) Inner Join ItemMast I On Sk.ITEM=I.CODE And Sk.ItemRestCode=I.RestCode) Inner Join ItemGrp IG On i.ITEMGroup=IG.CODE) INNER JOIN ItemCatMast ON ItemCatMast.Code =i.itemcatcode)Inner Join DEPART D On S.RESTCODE=D.Code) Inner Join Voucher_Type V On (S.VType = V.V_Type And S.LogSite_Code=V.LogSite_Code)) "
+
+-- SQL Statement 114 --
+  loc_1AC4868:           var_21C = "SELECT max(ItemCatMast.taxp) AS taxp, max(S.DocId) AS DOC,max(I.DispCode) AS iTEMCODE,max(I.CommodityCode) AS HSNCODE,LTrim(RTrim(max(I.Name))) AS ITEMNAME,LTrim(max(I.Unit)) AS UNIT,sum(sk.qtyIss) AS QTY,0 as NcQty,sum(sk.amount) AS VALUE1,sum(sk.DiscAmt) As DISC,sum(sk.amount-sk.DiscAmt) AS VALUE2,S.VType+' - '+Max(V.Description) AS ITEMGROUP,s.restcode,max(D.name) as DepartCode  FROM ((((((Sale1 S  Inner Join stock sk On S.docid=sk.docid) Inner Join ItemMast I On Sk.ITEM=I.CODE And Sk.ItemRestCode=I.RestCode) Inner Join ItemGrp IG On i.ITEMGroup=IG.CODE)   INNER JOIN ItemCatMast ON ItemCatMast.Code =i.itemcatcode) Inner Join DEPART D On S.RESTCODE=D.Code) Inner Join Voucher_Type V On (S.VType = V.V_Type And S.LogSite_Code=V.LogSite_Code)) " & var_94
+
+-- SQL Statement 115 --
+  loc_1AC48AA:           var_21C = "SELECT max(q.taxp) AS taxp,max(Q.Doc) AS DOC,max(Q.DispCode) AS iTEMCODE,max(Q.CommodityCode) AS HSNCODE,Q.Item,Max(Q.ItemName) AS ITEMNAME,max(Q.Unit) AS UNIT,sum(Q.QTY) AS QTY,sum(q.Ncqty) as NcQty,sum(Q.VALUE1) AS VALUE1,sum(Q.DISC) As DISC,sum(Q.VALUE2) AS VALUE2,Q.ITEMGROUP AS ITEMGROUP,Q.restcode As RestCode,max(Q.DepartCode) as DepartCode From (" & "SELECT ItemCatMast.taxp AS taxp,S.DocId AS DOC,I.DispCode,I.CommodityCode,Sk.Item,LTrim(RTrim(I.Name)) AS ITEMNAME,LTrim(I.Unit) AS UNIT,sk.qtyIss AS QTY,0 as NcQty,sk.amount AS VALUE1,sk.DiscAmt As DISC,sk.amount-sk.DiscAmt AS VALUE2,S.VType+' - '+V.Description AS ITEMGROUP,S.restcode,D.name as DepartCode  FROM ((((((Sale1 S  Inner Join stock sk On S.docid=sk.docid) Inner Join ItemMast I On Sk.ITEM=I.CODE And Sk.ItemRestCode=I.RestCode) Inner Join ItemGrp IG On i.ITEMGroup=IG.CODE) INNER JOIN ItemCatMast ON ItemCatMast.Code =i.itemcatcode) Inner Join DEPART D On S.RESTCODE=D.Code) Inner Join Voucher_Type V On (S.VType = V.V_Type And S.LogSite_Code=V.LogSite_Code)) "
+
+-- SQL Statement 116 --
+  loc_1AC4944:             var_21C = "SELECT max(ItemCatMast.taxp) AS taxp,max(S.DocId) AS DOC,max(I.DispCode) AS iTEMCODE,max(I.CommodityCode) AS HSNCODE,LTrim(RTrim(max(I.Name))) AS ITEMNAME,LTrim(max(I.Unit)) AS UNIT,sum(sk.qtyIss) AS QTY,0 as NcQty,sum(sk.qtyIss)*sk.ItemRate AS VALUE1,sum(sk.DiscAmt) As DISC,sum(sk.amount-sk.DiscAmt) AS VALUE2,S.VType+' - '+Max(V.Description) AS ITEMGROUP,s.restcode,max(D.name) as DepartCode  FROM ((((((Sale1 S  Inner Join stock sk On S.docid=sk.docid) Inner Join ItemMast I On Sk.ITEM=I.CODE And Sk.ItemRestCode=I.RestCode) Inner Join ItemGrp IG On i.ITEMGroup=IG.CODE)  INNER JOIN ItemCatMast ON ItemCatMast.Code =i.itemcatcode)  Inner Join DEPART D On S.RESTCODE=D.Code) Inner Join Voucher_Type V On (S.VType = V.V_Type And S.LogSite_Code=V.LogSite_Code)) " & var_94
+
+-- SQL Statement 117 --
+  loc_1AC4986:             var_21C = "SELECT max(q.taxp) AS taxp,max(Q.Doc) AS DOC,max(Q.DispCode) AS iTEMCODE,max(Q.CommodityCode) AS HSNCODE,Q.Item,Max(Q.ItemName) AS ITEMNAME,max(Q.Unit) AS UNIT,sum(Q.QTY) AS QTY,sum(q.Ncqty) as NcQty,sum(Q.VALUE1) AS VALUE1,sum(Q.DISC) As DISC,sum(Q.VALUE2) AS VALUE2,Q.ITEMGROUP AS ITEMGROUP,Q.restcode As RestCode,max(Q.DepartCode) as DepartCode From (" & "SELECT ItemCatMast.taxp AS taxp,S.DocId AS DOC,I.DispCode,I.CommodityCode,Sk.Item,LTrim(RTrim(I.Name)) AS ITEMNAME,LTrim(I.Unit) AS UNIT,sk.qtyIss AS QTY,0 as NcQty,sk.qtyIss*sk.ItemRate AS VALUE1,sk.DiscAmt As DISC,sk.amount-sk.DiscAmt AS VALUE2,S.VType+' - '+V.Description AS ITEMGROUP,S.restcode,D.name as DepartCode  FROM ((((((Sale1 S  Inner Join stock sk On S.docid=sk.docid) Inner Join ItemMast I On Sk.ITEM=I.CODE And Sk.ItemRestCode=I.RestCode) Inner Join ItemGrp IG On i.ITEMGroup=IG.CODE) INNER JOIN ItemCatMast ON ItemCatMast.Code =i.itemcatcode) Inner Join DEPART D On S.RESTCODE=D.Code) Inner Join Voucher_Type V On (S.VType = V.V_Type And S.LogSite_Code=V.LogSite_Code)) "
+
+-- SQL Statement 118 --
+  loc_1AC668F:       var_21C = "SELECT max(ItemCatMast.taxp) AS taxp,max(S.DocId) AS DOC,max(I.DispCode) AS iTEMCODE,max(I.CommodityCode) AS HSNCODE,LTrim(RTrim(I.Name)) AS ITEMNAME,LTrim(max(I.Unit)) AS UNIT,sum(sk.qtyIss) AS QTY,sum(sk.amount) AS VALUE1,sum(sk.DiscAmt) As DISC,sum(sk.amount-sk.DiscAmt) AS VALUE2,LTrim(RTrim(Max(IG.NAME))) AS ITEMGROUP,Max(S.restcode) RestCode,max(D.name) as DepartCode ,sum(sk.qtyIss) AS QTY,0 as NcQty FROM ((((((Sale1 S  Inner Join stock sk On S.docid=sk.docid) Inner Join ItemMast I On Sk.ITEM=I.CODE And Sk.ItemRestCode=I.RestCode) Inner Join ItemGrp IG On i.ITEMGroup=IG.CODE) Inner Join DEPART D On S.RESTCODE=D.Code)    INNER JOIN ItemCatMast ON ItemCatMast.Code =i.itemcatcode ) Inner Join Voucher_Type V On (S.VType = V.V_Type And S.LogSite_Code=V.LogSite_Code)) " & var_94
+
+-- SQL Statement 119 --
+  loc_1AC66D1:       var_21C = "SELECT max(q.taxp) AS taxp,max(Q.Doc) AS DOC,max(Q.DispCode) AS iTEMCODE,max(Q.CommodityCode) AS HSNCODE,Q.ItemName AS ITEMNAME,max(Q.Unit) AS UNIT,sum(Q.QTY) AS QTY,SUM(Q.NCQTY) AS NCQTY,sum(Q.VALUE1) AS VALUE1,sum(Q.DISC) As DISC,sum(Q.VALUE2) AS VALUE2,Max(Q.ITEMGROUP) AS ITEMGROUP,Max(Q.restcode) RestCode,max(Q.DepartCode) as DepartCode From (" & "SELECT ItemCatMast.taxp AS taxp,S.DocId AS DOC,I.DispCode,I.CommodityCode,LTrim(RTrim(I.Name)) AS ITEMNAME,LTrim(I.Unit) AS UNIT,sk.qtyIss AS QTY,0 AS NCQTY,sk.amount AS VALUE1,sk.DiscAmt As DISC,sk.amount-sk.DiscAmt AS VALUE2,LTrim(RTrim(IG.NAME)) AS ITEMGROUP,S.restcode,D.name as DepartCode  FROM ((((((Sale1 S  Inner Join stock sk On S.docid=sk.docid) Inner Join ItemMast I On Sk.ITEM=I.CODE And Sk.ItemRestCode=I.RestCode) Inner Join ItemGrp IG On i.ITEMGroup=IG.CODE)   INNER JOIN ItemCatMast ON ItemCatMast.Code =i.itemcatcode) Inner Join DEPART D On S.RESTCODE=D.Code) Inner Join Voucher_Type V On (S.VType = V.V_Type And S.LogSite_Code=V.LogSite_Code)) "
+
+-- SQL Statement 120 --
+  loc_1AC676B:         var_21C = "SELECT 0 as NcQty,max(ItemCatMast.taxp) AS taxp, max(S.DocId) AS DOC,max(I.DispCode) AS iTEMCODE,max(I.CommodityCode) AS HSNCODE,LTrim(RTrim(I.Name)) AS ITEMNAME,LTrim(max(I.Unit)) AS UNIT,sum(sk.qtyIss) AS QTY,sum(sk.qtyIss)*sk.ItemRate AS VALUE1,sum(sk.DiscAmt) As DISC,sum(sk.amount-sk.DiscAmt) AS VALUE2,LTrim(RTrim(Max(IG.NAME))) AS ITEMGROUP,Max(S.restcode) RestCode,max(D.name) as DepartCode  FROM ((((((Sale1 S  Inner Join stock sk On S.docid=sk.docid) Inner Join ItemMast I On Sk.ITEM=I.CODE And Sk.ItemRestCode=I.RestCode) Inner Join ItemGrp IG On i.ITEMGroup=IG.CODE)   INNER JOIN ItemCatMast ON ItemCatMast.Code =i.itemcatcode) Inner Join DEPART D On S.RESTCODE=D.Code) Inner Join Voucher_Type V On (S.VType = V.V_Type And S.LogSite_Code=V.LogSite_Code)) " & var_94
+
+-- SQL Statement 121 --
+  loc_1AC67AD:         var_21C = "SELECT max(q.taxp) AS taxp,max(Q.Doc) AS DOC,max(Q.DispCode) AS iTEMCODE,max(Q.CommodityCode) AS HSNCODE,Q.ItemName AS ITEMNAME,max(Q.Unit) AS UNIT,sum(Q.QTY) AS QTY,sum(Q.NCQTY) AS NCQTY,sum(Q.VALUE1) AS VALUE1,sum(Q.DISC) As DISC,sum(Q.VALUE2) AS VALUE2,Max(Q.ITEMGROUP) AS ITEMGROUP,Max(Q.restcode) RestCode,max(Q.DepartCode) as DepartCode From (" & "SELECT ItemCatMast.taxp AS taxp,S.DocId AS DOC,I.DispCode,I.CommodityCode,LTrim(RTrim(I.Name)) AS ITEMNAME,LTrim(I.Unit) AS UNIT,sk.qtyIss AS QTY,0 AS NCQTY,sk.qtyIss*sk.ItemRate AS VALUE1,sk.DiscAmt As DISC,sk.amount-sk.DiscAmt AS VALUE2,LTrim(RTrim(IG.NAME)) AS ITEMGROUP,S.restcode,D.name as DepartCode  FROM ((((((Sale1 S  Inner Join stock sk On S.docid=sk.docid) Inner Join ItemMast I On Sk.ITEM=I.CODE And Sk.ItemRestCode=I.RestCode) Inner Join ItemGrp IG On i.ITEMGroup=IG.CODE)  INNER JOIN ItemCatMast ON ItemCatMast.Code =i.itemcatcode)Inner Join DEPART D On S.RESTCODE=D.Code) Inner Join Voucher_Type V On (S.VType = V.V_Type And S.LogSite_Code=V.LogSite_Code)) "
+
+-- SQL Statement 122 --
+  loc_1C6402E: var_330 = "SELECT max(S.DocId) AS DOC,max(I.Code) As ItemCode,max(I.Name) AS ITEMNAME,max(I.Unit) AS Unit,sum(SK.QtyIss) AS QTY,Max(SK.Rate) As Rate,Case When sum(SK.TaxAmt)=0 then sum(SK.Amount) End AS NonTaxable,Case When sum(SK.Taxamt)<>0 then sum(SK.Amount) End As Taxable,sum(SK.Taxamt) As Taxamt,sum(SK.DiscAmt) AS DiscAmt,(IG.NAME) AS ITEMGROUP,S.RestCode,max(D.Name) as DepartCode"
+
+-- SQL Statement 123 --
+  loc_1C64051: var_3F8 = "SELECT DISTINCT RevMast.Name, RevMast.code,S.TaxPer FROM (Sale2 AS S INNER JOIN RevMast ON S.TaxCode = RevMast.Code) Inner Join Voucher_Type V On (S.VType = V.V_Type And S.Site_Code=V.Site_Code) " & var_12C
+
+-- SQL Statement 124 --
+  loc_1B1AF50: var_1F0 = "SELECT max(S.DocId) AS DOC,max(IG.Code) As GRPCode,max(I.Name) AS ITEMNAME,sum(SK.QtyIss) AS QTY,Max(SK.Rate) As Rate, sum(Case When SK.TaxAmt=0 then SK.Amount End) AS NonTaxable, sum(Case When SK.TaxAmt<>0 then SK.Amount End) AS Taxable,sum(SK.TaxAmt) As Taxamt,sum(SK.DiscAmt) AS DiscAmt,(IG.NAME) AS ITEMGROUP,S.restcode,max(D.Name) as DepartCode"
+
+-- SQL Statement 125 --
+  loc_1B1AF73: var_338 = "SELECT DISTINCT RevMast.Name, RevMast.code,S.TaxPer FROM (Sale2 AS S INNER JOIN RevMast ON S.TaxCode = RevMast.Code) Inner Join Voucher_Type V On (S.VType = V.V_Type And S.Site_Code=V.Site_Code) " & var_9C
+
+-- SQL Statement 126 --
+  loc_14B730C: Me.Connection15.Execute "Select S.Code RegId,S.Issdate,S.Name,S.Addr,S.Phone,S.RewardSale,S.RewardPoint,S.RedeemPoint,G.SchemeCode from SmartCardRegistration S Left Join (Select RegId,MAX(SchemeCode) SchemeCode From GuestReward Where IsNull(SchemeCode,'')<>'' Group By RegId) G On G.RegId=S.Code Order By Cast(S.Code as Numeric)", var_C8, -1
+
+-- SQL Statement 127 --
+  loc_14B73C0:   var_D0 = Proc_6_37_E618F4(CVar(var_88.Fields.Item("SchemeCode")), "Select * from RWParameter where Code='", var_E0, -1)
+
+-- SQL Statement 128 --
+  loc_1288023: var_F4 = "Select GP.MobileNo,GP.Name,GP.Add1,GP.Add2,GP.BirthDate,GP.Anniversary,S.VDate,S.Vtype,S.VNo BillNo,S.NetAmt+S.Advance BillAmt,S.DiscPer,S.DiscAmt,D.Code DepartCode,D.Name DepartName From Sale1 S Left Join Depart D On S.RestCode=D.Code Left Join GuestReward GR On S.DocId=GR.DocId Left Join GuestProf GP On GR.CustCode=GP.Code Inner Join Voucher_Type V On (S.VType = V.V_Type And S.Site_Code=V.Site_Code) Where V.Ncat in ('RSBIL') And S.DelFlag<>'D' And IsNull(GP.MobileNo,'')<>''" & var_90
+
+-- SQL Statement 129 --
+  loc_152BB7D: var_1D8 = "Select S.Docid,S.VNo,S.Vdate,AD.Ddate,DB.Name DeliBoy,S.NetAmt,BillStatus = Case When ISNULL(AD.DeliBoy,'')='' Then 'Pending' Else 'Assigned' End,AD.Remark,AD.U_Name,D.Name as OutletName,D.Code as OutletCode From Sale1 S " & "Left Join DEPART AS D ON S.RestCode = D.Code Left Join AssignDelivery AD On S.DocId = AD.DocId Left Join DeliveryBoy DB On AD.DeliBoy=DB.Code Where S.DELFLAG ='N' And S.LOGSITE_CODE='"
+
+-- SQL Statement 130 --
+  loc_17DB47B: var_1DC = "SELECT KL.VTYPE,KL.VNO,KL.VDATE,KL.VTIME,KL.DelFlag,KL.U_NAME AS USER1,KL.Reasons,K.RoomNo AS TABLE1,KL.RoomNo AS TABLE2,KL.QTY AS LQTY,KL.RATE AS LRATE,KL.AMOUNT AS LAMT,KL.RESTCODE,WF.Name AS FWaiter,WL.Name AS LWaiter,K.QTY AS FQTY,K.RATE AS FRATE,K.AMOUNT AS FAMT,IFin.NAME AS FITEM,IL.NAME AS LITEM,D.NAME AS DEPARTNAME FROM ((((((KOTLOG KL LEFT JOIN KOT K ON (KL.DOCID=K.DOCID) AND (KL.SNO=K.SNO)) LEFT JOIN DEPART AS D ON KL.RestCode = D.Code) LEFT JOIN Waiter WF ON KL.Waiter=WF.Code) LEFT JOIN Waiter WL ON K.Waiter=WL.Code) LEFT JOIN ITEMMAST IFin ON K.Item = IFin.Code And K.ItemRestCode=IFin.RestCode) LEFT JOIN ITEMMAST IL ON KL.Item = IL.Code And KL.ItemRestCode=IL.RestCode) Where KL.LogSite_Code='" & Proc_6_44_EA72C4(CStr(Me.LoginSite), 2, Me.LoginSite, var_B0)
+
+-- SQL Statement 131 --
+  loc_17D2DF3: var_1F0 = "SELECT K.ROOMNO,K.VNO AS KOTNO,K.VDATE,K.VTIME,K.RESTCODE,K.QTY,K.RATE,K.U_Name,K.Remarks,S.VNO AS BILLNO,D.NAME AS DEPARTNAME,I.NAME AS ITEMNAME, case K.voidyn when 'N' then 'No' when 'Y' then 'Yes' else '' end as VoidYN,W.Name WAITER,K.Reasons,KL.VTime EditTime FROM ((KOT K Left Join SALE1 S on K.ContraDocId=S.DocId) LEFT JOIN DEPART AS D ON K.RestCode = D.Code) Left Join (Select DocId,Max(VTime) VTime From KOTLog Group By DocId) KL on KL.DocId=K.DocId LEFT JOIN ITEMMAST I ON K.ITEM=I.CODE And K.ItemRestCode=I.RestCode Left Join Waiter W On K.Waiter=W.Code Where K.LogSite_Code='" & Proc_6_44_EA72C4(CStr(Me.LoginSite), 2, Me.LoginSite, var_E4, var_C4, var_E4)
+
+-- SQL Statement 132 --
+  loc_17D3843:           unk_5A8FBB.Execute "Select Name from SessionMast Where '" & var_AC & "' Between FromTime and ToTime Order By Name", var_104, -1
+
+-- SQL Statement 133 --
+  loc_17D3890:             unk_5A8FBB.Execute "Select Name from SessionMast Where CAST(" & var_AC & " AS Numeric) Between FromTime and ToTime Order By Name", var_104, -1
+
+-- SQL Statement 134 --
+  loc_15E65F7: var_1C4 = "Select D.Name As DepartName,P.DocId,P.Vno As BillNo,P.Vdate As BillDate,P.VTime As BillTime,SG.Name As PartyName,SG.GSTIN,P.Comments,Substring(S.BookDocId,14,8) As OrderNo,IsNull(P1.PayType,'') As PayType,P1.Vdate PaidDate,P.AmtCr As BillAmt,IsNull(L.PaidAmt,0) As PaidAmt,(P.AmtCr-IsNull(L.PaidAmt,0)) As BalAmt,P.U_Name,P.RestCode from Sale1 S Inner Join PayCharge P On S.DocId=P.DocId " & "Left Join SubGroup SG On SG.SubCode=P.CompCode Left Join Depart D On D.Code=P.RestCode Left Join (Select DocId1,DocId2,SubCode,SUM(Cr) As PaidAmt from LedgerAdj Group By DocId1,DocId2,SubCode) L On L.DocId2=P.DocId And L.SubCode=P.CompCode Left Join Paycharge P1 On P1.DocId=L.DocId1 Where (P.LogSite_Code='"
+
+-- SQL Statement 135 --
+  loc_18820D8: unk_5A8FBB.Execute "Select NCKOTPercentage from enviro WHERE LOGSITE_CODE='" & MemVar_1F81078 & "'", var_EC, -1
+
+-- SQL Statement 136 --
+  loc_1882414:   var_20C = "SELECT K.VNO AS KOTNO,K.VDATE,K.VTIME,K.NCType,K.RESTCODE,K.ROOMNO,K.QTY,K.RATE,K.Amount,S.VNO AS BILLNO,D.NAME AS DEPARTNAME,I.NAME AS ITEMNAME,K.Reasons AS Reason,K.U_Name,K.VoidYN AS VOidYN FROM ((KOT K Left Join SALE1 S on K.ContraDocId=S.DocId) LEFT JOIN DEPART AS D ON K.RestCode = D.Code) LEFT JOIN ITEMMAST I ON K.ITEM=I.CODE And K.ItemRestCode=I.RestCode Where K.VType='N'+D.ShortName AND K.LogSite_Code='" & Proc_6_44_EA72C4(CStr(Me.LoginSite), 2, Me.LoginSite, 1, var_DC)
+
+-- SQL Statement 137 --
+  loc_1882494:   var_20C = "SELECT '' AS KOTNO,K.VDATE,'' as VTIME,K.NCType,K.RESTCODE,'' as ROOMNO,'' as QTY,'' as RATE,sum(K.Amount) as Amount ,'' as BILLNO,max(D.NAME) AS DEPARTNAME,'' AS ITEMNAME,'' AS Reason,'' AS VOidYN FROM ((KOT K Left Join SALE1 S on K.ContraDocId=S.DocId) LEFT JOIN DEPART AS D ON K.RestCode = D.Code) LEFT JOIN ITEMMAST I ON K.ITEM=I.CODE And K.ItemRestCode=I.RestCode Where K.VType='N'+D.ShortName AND K.LogSite_Code='" & Proc_6_44_EA72C4(CStr(Me.LoginSite), 2, Me.LoginSite, var_F0)
+
+-- SQL Statement 138 --
+  loc_1882C62:           var_20C = "Select Name from SessionMast Where " & 1 & CStr(Me.FGrid.TextMatrix) & " To : " & "'" & " Between FromTime and ToTime Order By Name"
+
+-- SQL Statement 139 --
+  loc_16D64CC: unk_5A8FBB.Execute "Select NCKOTPercentage from enviro WHERE LOGSITE_CODE='" & MemVar_1F81078 & "'", var_EC, -1
+
+-- SQL Statement 140 --
+  loc_16D6870: var_20C = "SELECT '' AS KOTNO,'' as VDATE,'' as VTIME,K.NCType,K.RESTCODE,'' as QTY,'' as RATE,sum(K.Amount) as Amount ,'' as BILLNO,max(D.NAME) AS DEPARTNAME,'' AS ITEMNAME,'' AS Reason,'' AS VOidYN FROM ((KOT K Left Join SALE1 S on K.ContraDocId=S.DocId) LEFT JOIN DEPART AS D ON K.RestCode = D.Code) LEFT JOIN ITEMMAST I ON K.ITEM=I.CODE And K.RestCode=I.RestCode Where K.VType='N'+D.ShortName AND K.LogSite_Code='" & Proc_6_44_EA72C4(CStr(Me.LoginSite), 2, Me.LoginSite, Me.LoginSite)
+
+-- SQL Statement 141 --
+  loc_1934310: var_264 = "SELECT K.Waiter AS CODE,MAX(S.VDATE) AS VDATE,MAX(S.VTYPE) AS VTYPE,MAX(S.VNO) AS VNO,MAX(S.VTIME) AS STIME,MAX(K.VNO) AS KOTNO,MAX(K.VTIME) AS KTIME,max(W.Name) AS WAITER,MAX(S.GuarAtt) AS GuarAtt1,sum(STOCK.AMOUNT-STOCK.DISCAMT) AS NetSale,S.RESTCODE,MAX(D.NAME) AS DEPARTNAME,MAX(PC.TIPAMT)/(Select Count(Distinct Vno) From KOT Where ContraDocid=STOCK.DocID) AS TAMT,Max(STOCK.TaxAmt) As TaxAmt FROM ((((STOCK LEFT JOIN Sale1 S ON STOCK.DOCID=S.DOCID LEFT JOIN DEPART AS D ON S.RestCode = D.Code))LEFT JOIN KOT K ON K.CONTRADOCID=STOCK.DOCID AND K.CONTRASNO=STOCK.SNO) LEFT JOIN Waiter W ON K.Waiter = W.Code) LEFT JOIN PAYCHARGE PC ON S.DOCID=PC.DOCID Where pc.roomcat='REST' and " & var_9C
+
+-- SQL Statement 142 --
+  loc_1535D44: var_1D8 = "SELECT S.VDATE,S.ROOMNO AS TABLENO ,Sum(S.NETAMT) as NetSale,S.RESTCODE,MAX(D.NAME) AS DEPARTNAME,SUM(S.GuarAtt) AS TotCVRS,COUNT(VNO) AS TOTCHK FROM ((Sale1 S LEFT JOIN ROOMMAST RM ON (S.RestCode = RM.RestCode) AND (S.RoomNo = RM.Code)) LEFT JOIN DEPART AS D ON S.RestCode = D.Code) " & " Where S.LogSite_Code='"
+
+-- SQL Statement 143 --
+  loc_1A6A739: var_1A4 = "SELECT S.Item,MAX(I.Name) As ItemName,S.Item,SUM(S.QtyIss) AS IssQty,MAX(I.LPurRate) AS LPRATE FROM (STOCK S Left Join ItemMast I On S.Item=I.Code And S.RestCode=I.RestCode) Left Join Voucher_Type VT ON (VT.V_Type=S.VType And S.Site_Code=VT.Site_Code)) WHERE S.VDate<"
+
+-- SQL Statement 144 --
+  loc_1A6AC23: var_1A4 = "SELECT S.Item,I.NAME AS FinItem,S.QtyIss AS SBillQty,B.RawItem,IR.NAME AS RawItemName,B.FinQty,B.RawQty,IR.Type AS Type,IR.LPurRate AS LPRATE FROM (((STOCK S LEFT JOIN ITEMMAST I On S.Item=I.Code And S.RestCode=I.RestCode) Left Join Voucher_Type VT ON (VT.V_Type=S.VType And S.Site_Code=VT.Site_Code)) LEFT JOIN BOM B ON S.ITEM=B.FinItem And S.RestCode=B.RestCode) LEFT JOIN ITEMMAST IR ON IR.CODE=B.RAWITEM  And (IR.ItemType='Store' Or IR.GravyItem='Yes') WHERE S.VDate<"
+
+-- SQL Statement 145 --
+  loc_1A6B239: var_1A4 = "SELECT IR.Code as Item,IR.NAME AS FinItem,S.QtyIss AS SBillQty,B.RawItem AS RawItemCode,IR1.NAME AS RawItemName,B1.FinQty AS FinishQty,B1.RawQty AS RawQty,IR1.Type AS IType,IR1.LPurRate AS LPRATE From (((((STOCK S LEFT JOIN ITEMMAST I On S.Item=I.Code And S.RestCode=I.RestCode) Left Join Voucher_Type VT ON (VT.V_Type=S.VType And S.Site_Code=VT.Site_Code)) LEFT JOIN BOM B ON S.ITEM=B.FinItem And S.RestCode=B.RestCode) LEFT JOIN ITEMMAST IR ON IR.CODE=B.RAWITEM And (IR.ItemType='Store' Or IR.GravyItem='Yes')) LEFT JOIN BOM B1 ON B.RAWITEM=B1.FinItem And B.RestCode=B1.RestCode) LEFT JOIN ITEMMAST IR1 ON IR1.CODE=B1.RAWITEM  And (IR1.ItemType='Store' Or IR1.GravyItem='Yes') WHERE S.VDate<"
+
+-- SQL Statement 146 --
+  loc_1A6B84F: var_1A4 = "SELECT MAX(I.Name) As IName,S.Item,SUM(S.QtyRec) AS Rec,SUM(S.QtyIss) AS Iss,MAX(I.LPurRate) AS LPRATE FROM ((STOCK S Left Join ItemMast I On S.Item=I.Code And S.RestCode=I.RestCode) Left Join Voucher_Type VT ON (VT.V_Type=S.VType And S.Site_Code=VT.Site_Code)) WHERE S.VDate Between "
+
+-- SQL Statement 147 --
+  loc_1A6BDF6: var_1A4 = "SELECT S.Item,MAX(I.Name) As ItemName,S.Item,SUM(S.QtyIss) AS IssQty,MAX(I.LPurRate) AS LPRATE FROM (STOCK S Left Join ItemMast I On S.Item=I.Code And S.RestCode=I.RestCode) Left Join Voucher_Type VT ON (VT.V_Type=S.VType And S.Site_Code=VT.Site_Code))  WHERE S.VDate Between "
+
+-- SQL Statement 148 --
+  loc_1A6C31F: var_1A4 = "SELECT S.Item,I.NAME AS FinItem,S.QtyIss AS SBillQty,B.RawItem,IR.NAME AS RawItemName,B.FinQty,B.RawQty,IR.Type AS Type,IR.LPurRate AS LPRATE FROM (((STOCK S LEFT JOIN ITEMMAST I On S.Item=I.Code And S.RestCode=I.RestCode) Left Join Voucher_Type VT ON (VT.V_Type=S.VType And S.Site_Code=VT.Site_Code)) LEFT JOIN BOM B ON S.ITEM=B.FinItem And S.RestCode=B.RestCode) LEFT JOIN ITEMMAST IR ON IR.CODE=B.RAWITEM  And (IR.ItemType='Store' Or IR.GravyItem='Yes') WHERE S.VDate Between "
+
+-- SQL Statement 149 --
+  loc_1A6C96D: var_1A4 = "SELECT IR.Code as Item,IR.NAME AS FinItem,S.QtyIss AS SBillQty,B.RawItem AS RawItemCode,IR1.NAME AS RawItemName,B1.FinQty AS FinishQty,B1.RawQty AS RawQty,IR1.Type AS IType,IR1.LPurRate AS LPRATE From (((((STOCK S LEFT JOIN ITEMMAST I On S.Item=I.Code And S.RestCode=I.RestCode) Left Join Voucher_Type VT ON (VT.V_Type=S.VType And S.Site_Code=VT.Site_Code)) LEFT JOIN BOM B ON S.ITEM=B.FinItem And S.RestCode=B.RestCode) LEFT JOIN ITEMMAST IR ON IR.CODE=B.RAWITEM And (IR.ItemType='Store' Or IR.GravyItem='Yes')) LEFT JOIN BOM B1 ON B.RAWITEM=B1.FinItem And B.RestCode=B1.RestCode) LEFT JOIN ITEMMAST IR1 ON IR1.CODE=B1.RAWITEM And (IR1.ItemType='Store' Or IR1.GravyItem='Yes') WHERE S.VDate Between "
+
+-- SQL Statement 150 --
+  loc_1A6CFBB: var_1A4 = "SELECT MAX(I.Name) As IName,S.Item,SUM(S.QtyRec) AS Rec,SUM(S.QtyIss) AS Iss,MAX(I.LPurRate) AS LPRATE FROM ((STOCK S Left Join ItemMast I On S.Item=I.Code And S.RestCode=I.RestCode) Left Join Voucher_Type VT ON (VT.V_Type=S.VType And S.Site_Code=VT.Site_Code)) WHERE S.VDate Between "
+
+-- SQL Statement 151 --
+  loc_168E4C4: Proc_6_6_F208E4(var_130, Me.FGrid, 1, var_D0, "SELECT Max(S.DOCID)as Doc,", var_348, -1)
+
+-- SQL Statement 152 --
+  loc_168E52A: var_298 = "SELECT Max(S.DOCID)as Doc,(S.VDATE) AS DATE1,(S.VNo) as VrNo,max(s.VType)as Type,max(I.NAME) AS ItemName,'' as Particular,Sum(S.QTYRec) AS RECDQTY,Sum(S.QTYIss) AS ISSQTY ,max(s.Rate) as Rate1  FROM ((((STOCK S LEFT JOIN ItemMast I on I.Code=S.Item And I.ItemType='Store')LEFT JOIN ItemCatMast IC on IC.Code=I.ItemcatCode)LEFT JOIN Depart D ON D.Code=S.RestCode)LEFT JOIN VOUCHER_TYPE V ON (V.V_TYPE=S.VTYPE And S.Site_Code=V.Site_Code))"
+
+-- SQL Statement 153 --
+  loc_1572210: var_128 = "SELECT IG.NAME AS ITEMGRP,max(S.ITEM) AS ITEMCODE,(I.NAME) AS ItemName,(SUM(S.QTYRec)-SUM(S.QTYIss)) as Opbal,0 AS RECDQTY,0 AS ISSQTY,SUM(((S.QTYRec)-(S.QTYIss))*S.RATE) AS VAL FROM ((((STOCK S LEFT JOIN Itemmast I ON I.CODE=S.Item And I.ItemType='Store')LEFT JOIN ITEMGRP IG ON IG.CODE=I.ITEMGROUP)LEFT JOIN ItemCatMast IC on IC.Code=I.ItemcatCode)LEFT JOIN Depart D ON D.Code=S.RestCode)LEFT JOIN VOUCHER_TYPE V ON (S.VTYPE=V.V_TYPE And S.Site_Code=V.Site_Code)) where V.NcAT in ('RSBIL','KSISS','KSREC','KMREC','KMISS') and S.VDATE <"
+
+-- SQL Statement 154 --
+  loc_1572266: var_198 = "SELECT IG.NAME AS ITEMGRP,max(S.ITEM) AS ITEMCODE,(I.NAME) AS ItemName,0 as Opbal,SUM(S.QTYRec) AS RECDQTY,SUM(S.QTYIss) AS ISSQTY,SUM(S.AMOUNT) AS VAL FROM (((((STOCK S LEFT JOIN ItemMast I on I.Code=S.Item And I.ItemType='Store')LEFT JOIN ITEMGRP IG ON IG.CODE=I.ITEMGROUP)LEFT JOIN ItemCatMast IC on IC.Code=I.ItemcatCode)LEFT JOIN Depart D ON D.Code=S.RestCode)LEFT JOIN VOUCHER_TYPE V ON (V.V_TYPE=S.VTYPE And S.Site_Code=V.Site_Code))"
+
+-- SQL Statement 155 --
+  loc_16561AE:   var_1DC = "SELECT S.VNo,S.VDATE,S.ROOMNO ,(S.NETAMT) ,S.GuarAtt,W.Name as Steward,D.Name as OutletName,D.Code as OutletCode,S.Remark,S.U_Name FROM ((Sale1 S LEFT JOIN ROOMMAST RM ON (S.RestCode = RM.RestCode) AND (S.RoomNo = RM.Code)) LEFT JOIN DEPART AS D ON S.RestCode = D.Code)LEFT JOIN Waiter AS W ON S.Waiter = W.Code " & " Where S.LogSite_Code='"
+
+-- SQL Statement 156 --
+  loc_1656234:   var_1DC = "SELECT S.VNo,S.VDATE,S.ROOMNO ,(S.NETAMT) ,S.GuarAtt,W.Name as Steward,D.Name as OutletName,D.Code as OutletCode,S.Remark,S.U_Name  FROM ((Sale1 S LEFT JOIN ROOMMAST RM ON (S.RestCode = RM.RestCode) AND (S.RoomNo = RM.Code)) LEFT JOIN DEPART AS D ON S.RestCode = D.Code)LEFT JOIN Waiter AS W ON S.Waiter = W.Code " & " Where S.LogSite_Code='"
+
+-- SQL Statement 157 --
+  loc_16562BD:   var_1DC = "SELECT S.VNo,S.VDATE,S.ROOMNO ,(S.NETAMT) ,S.GuarAtt,W.Name as Steward,D.Name as OutletName,D.Code as OutletCode,S.Remark,S.U_Name FROM ((Sale1 S LEFT JOIN ROOMMAST RM ON (S.RestCode = RM.RestCode) AND (S.RoomNo = RM.Code)) LEFT JOIN DEPART AS D ON S.RestCode = D.Code)LEFT JOIN Waiter AS W ON S.Waiter = W.Code " & " Where S.LogSite_Code='"
+
+-- SQL Statement 158 --
+  loc_18A56BF:   Me.Connection15.Execute CStr("Select Distinct CatType FROM ItemCatMast WHERE Flag='Category' AND RestCode In (" & Me.GridString1 & ")"), var_130, -1
+
+-- SQL Statement 159 --
+  loc_18A5712:   Me.Connection15.Execute CStr("Select Distinct CatType FROM ItemCatMast WHERE Flag='Category' AND RestCode In (" & Me.GridString1 & ")"), var_130, -1
+
+-- SQL Statement 160 --
+  loc_18A5A50:   var_134 = "SELECT max(S1.VDate) AS BillDate,Max(S1.VTime) AS BillTime, " & "Max(S1.VNo) AS BillNo, Max(S1.Total) As BillAmount, Max(S1.DiscAmt) AS Discount, Max(S1.RoundOff) AS RoundOff, Max(S1.RoundOff), "
+
+-- SQL Statement 161 --
+  loc_18A5ACA:     var_134 = "SELECT max(S1.VDate) AS BillDate,Max(S1.VTime) AS BillTime, " & "Max(S1.VNo) AS BillNo, Max(S1.Total) As BillAmount, Max(S1.DiscAmt) AS Discount, Max(S1.Tax) AS TaxAmt, Max(S1.CGST) AS CGST, Max(S1.SGST) AS SGST, Max(S1.IGST) AS IGST, Max(S1.RoundOff) AS RoundOff, Max(S1.RoundOff), "
+
+-- SQL Statement 162 --
+  loc_18A5CAF:       unk_5A8FBB.Execute CStr("SELECT Name FROM Depart WHERE Code='" & var_138.Item("RestCode").Value & "'"), var_130, -1
+
+-- SQL Statement 163 --
+  loc_18A5FD7:     var_134 = "SELECT Max(S1.VNo) AS BillNo,Sum((S.AMOUNT)-S.DISCAMT) " & "AS NetAmt,Sum(S.DiscAmt) AS Discount,Sum(S.TaxAmt) AS TaxAmt,S1.RESTCODE,MAX(D.NAME) AS DEPARTNAME,IC.CatType AS CatType "
+
+-- SQL Statement 164 --
+  loc_1624B2D:           var_BC = "SELECT ''  AS Code, RC.RoomNo AS Name,GuestProf.Name as Guest, PlanName = Case  When isnull(PlanMast.Name,'')='' then 'Europian Plan' else PlanMast.Name end FROM (ROOMOCC AS RC LEFT JOIN GuestProf ON (RC.GuestProf = GuestProf.Code and RC.LogSite_Code=GuestProf.LogSite_Code)) LEFT JOIN PlanMast ON RC.PlanCode = PlanMast.Code where (RC.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 165 --
+  loc_1624D28:               var_BC = "Select '' As O,Name As [Item Group],Code From ItemGrp Where Logsite_Code='" & global_88
+
+-- SQL Statement 166 --
+  loc_1625035:                 var_BC = "Select '' As Opt,Name As Company,SubCode As Code from subGroup Where nature In ('Customer') and ActiveYN=1 and LogSite_Code='" & global_88
+
+-- SQL Statement 167 --
+  loc_12779F2:   MsgBox(CVar("Select " & CStr(var_C8)), &H40, var_16C, var_17C, var_18C)
+
+-- SQL Statement 168 --
+  loc_1AE1493: unk_5A8FBB.Execute "Select * From Enviro Where Logsite_Code='" & global_88 & "'", var_C4, -1
+
+-- SQL Statement 169 --
+  loc_1AE14F8:   var_A4 = "Select distinct OutletCode from menuHelp where username='" & MemVar_1F810C8 & "' And IsNull(OutletCode,'')<>'' And CompCode='"
+
+-- SQL Statement 170 --
+  loc_1AE1518:   var_98 = "Select Code from Depart where OutletYN='Y'"
+
+-- SQL Statement 171 --
+  loc_1AE1837:   var_88 = "Select '' as Opt,Name As Outlet,Code As Code From Depart Where Logsite_Code='" & global_88 & "' and RestType in ('Outlet', 'Room Service', 'Banquet')AND POS IN ('Y')Order By Name"
+
+-- SQL Statement 172 --
+  loc_1AE18A2:   var_A0 = "Select Distinct '' as Opt,Name As Tax,Code As Code From Sale2 S2 Inner Join RevMast R On S2.TaxCode=R.Code Where S2.Logsite_Code='" & global_88
+
+-- SQL Statement 173 --
+  loc_1AE192B:   var_A0 = "Select Distinct '' As O,I.Name As Item,I.Code As Code From itemMast I Inner Join Depart D On I.RestCode=D.Code WHERE I.Logsite_Code='" & global_88
+
+-- SQL Statement 174 --
+  loc_1AE19D6:   var_A0 = "Select '' As Opt,Name As Company,SubCode As Code from subGroup Where nature In ('Customer') and ActiveYN=1 and LogSite_Code='" & global_88
+
+-- SQL Statement 175 --
+  loc_1AE1CCD:     var_88 = "Select '' as Opt,Name As Outlet,Code As Code From Depart Where Logsite_Code='" & global_88 & "' and RestType in ('Outlet', 'Room Service', 'Banquet')AND POS IN ('Y')Order By Name"
+
+-- SQL Statement 176 --
+  loc_1AE1EC4:       var_88 = "Select '' As Opt,Name As Outlet,Code As Code From Depart Where Logsite_Code='" & global_88 & "' and RestType in('Outlet', 'Room Service', 'Banquet')AND POS IN('Y')Order By Name"
+
+-- SQL Statement 177 --
+  loc_1AE20C9:         var_88 = "Select '' As Opt,Name As Outlet,Code As Code From Depart Where Logsite_Code='" & global_88 & "' and RestType in('Outlet', 'Room Service', 'Banquet')AND POS IN('Y')Order By Name"
+
+-- SQL Statement 178 --
+  loc_1AE22C0:           var_A4 = "Select '' As Opt,Name As Outlet,Code As Code From Depart Where Logsite_Code='" & global_88 & "' and Code In ("
+
+-- SQL Statement 179 --
+  loc_1AE24CB:             var_88 = "Select '' As Opt,Name As Outlet,Code As Code From Depart Where Logsite_Code='" & global_88 & "' and RestType in('Outlet', 'Room Service', 'Banquet') AND POS IN('Y') Order By Name"
+
+-- SQL Statement 180 --
+  loc_1AE24E8:             var_A0 = "Select Distinct '' As O,I.Name As Item,I.Code As Code From itemMast I Inner Join Depart D On I.RestCode=D.Code WHERE I.Logsite_Code='" & global_88
+
+-- SQL Statement 181 --
+  loc_1AE26E6:               var_88 = "Select '' As Opt,Name As Outlet,Code As Code From Depart Where Logsite_Code='" & global_88 & "' and RestType in('Outlet', 'Room Service', 'Banquet') AND POS IN('Y') Order By Name"
+
+-- SQL Statement 182 --
+  loc_1AE2703:               var_A0 = "Select '' As Opt,Name As PartyName,SubCode As Code from subGroup Where CompanyType in ('Corporate') and ActiveYN=1 and LogSite_Code='" & global_88
+
+-- SQL Statement 183 --
+  loc_1AE2901:                 var_88 = "Select '' As Opt,Name As Outlet,Code As Code From Depart Where Logsite_Code='" & global_88 & "' and RestType in('Outlet', 'Room Service', 'Banquet')AND POS IN('Y')Order By Name"
+
+-- SQL Statement 184 --
+  loc_1AE2922:                 Call Proc_244_126_120A460(2, "Select '' As Opt,NCType As NCType,NCType As Code From NCTypeMast")
+
+-- SQL Statement 185 --
+  loc_1AE2A5D:                   var_88 = "Select '' As Opt,Name As Outlet,Code As Code From Depart Where Logsite_Code='" & global_88 & "' and RestType in('Outlet', 'Room Service', 'Banquet')AND POS IN('Y')Order By Name"
+
+-- SQL Statement 186 --
+  loc_1AE2A7E:                   Call Proc_244_126_120A460(2, "Select '' As Opt,NCType As NCType,NCType As Code From NCTypeMast")
+
+-- SQL Statement 187 --
+  loc_1AE2C19:                     var_88 = "Select '' As Opt,Name As Outlet,Code As Code From Depart Where Logsite_Code='" & global_88 & "' and RestType in('Outlet')AND POS IN('Y')Order By Name"
+
+-- SQL Statement 188 --
+  loc_1AE2D5F:                       var_A4 = "Select '' As Opt,Name As Outlet,Code From Depart Where Site_Code='" & MemVar_1F81070 & "' AND RestType in('Outlet', 'Room Service', 'Banquet') AND POS IN('Y') And Code In ("
+
+-- SQL Statement 189 --
+  loc_1AE2DD3:                         var_A0 = "SELECT Distinct '' As O,U_Name As Name,U_Name As Code FROM PayCharge WHERE RestCode In (Select Code From Depart Where RestType In ('Outlet','Room Service') And Logsite_Code='" & global_88
+
+-- SQL Statement 190 --
+  loc_1AE2E00:                         var_164 = var_A0 & "') And Logsite_Code='" & global_88 & "' And Restcode In (" & var_98 & ") Union " & "SELECT Distinct '' As O,U_Name As Name,U_Name As Code From Sale1 Where Logsite_Code='"
+
+-- SQL Statement 191 --
+  loc_1AE2E46:                         var_A0 = "SELECT Distinct '' As O,U_Name As Name,U_Name As Code FROM PayCharge WHERE RestCode In (Select Code From Depart Where RestType In ('Outlet','Room Service') And Logsite_Code='" & global_88
+
+-- SQL Statement 192 --
+  loc_1AE3142:                         var_88 = "Select '' as Opt,Name As Outlet,Code As Code From Depart  Where Logsite_Code='" & global_88 & "' and RestType in('Outlet', 'Room Service', 'Banquet')AND KOTYN IN('Y')Order By Name"
+
+-- SQL Statement 193 --
+  loc_1AE33F9:                           var_88 = "Select '' As Opt,Name As Outlet,Code As Code From Depart Where Logsite_Code='" & global_88 & "' and RestType in('Outlet', 'Room Service', 'Banquet')AND POS IN('Y')Order By Name"
+
+-- SQL Statement 194 --
+  loc_1AE3416:                           var_A0 = "Select '' as O,IG.Name As ItemGroup,IG.Code As Code From ItemGrp IG Left Join Depart D On IG.RestCode=D.Code WHERE IG.Logsite_Code='" & global_88
+
+-- SQL Statement 195 --
+  loc_1AE343A:                           var_A0 = "Select Distinct '' As O,I.Name As Item,I.Code As Code From itemMast I Inner Join Depart D On I.RestCode=D.Code WHERE I.Logsite_Code='" & global_88
+
+-- SQL Statement 196 --
+  loc_1AE35D8:                             var_88 = "Select '' As Opt,Name As Outlet,Code As Code From Depart Where Logsite_Code='" & global_88 & "' and RestType in('Outlet', 'Room Service', 'Banquet')AND POS IN('Y')Order By Name"
+
+-- SQL Statement 197 --
+  loc_1AE3702:                               var_A0 = "Select '' As Opt,Name As Outlet,Code As Code From Depart Where Logsite_Code='" & global_88
+
+-- SQL Statement 198 --
+  loc_1AE38F9:                                 var_A0 = "Select '' As Opt,Name As Outlet,Code As Code From Depart Where Logsite_Code='" & global_88
+
+-- SQL Statement 199 --
+  loc_1AE3AFB:                                   var_A0 = "Select '' As Opt,Name As Outlet,Code As Code From Depart Where Logsite_Code='" & global_88
+
+-- SQL Statement 200 --
+  loc_1AE3B1F:                                   var_A0 = "Select '' As O,Name As Item,Code As Code From itemMast WHERE Logsite_Code='" & global_88
+
+-- SQL Statement 201 --
+  loc_1AE3D16:                                     var_A0 = "Select '' As Opt,Name As Department,Code From Depart Where Logsite_Code='" & global_88
+
+-- SQL Statement 202 --
+  loc_1AE3F0D:                                       var_A0 = "Select '' As Opt,Name As Department,Code From Depart Where Logsite_Code='" & global_88
+
+-- SQL Statement 203 --
+  loc_1AE4104:                                         var_A0 = "Select '' As Opt,Name As Department,Code From Depart Where Logsite_Code='" & global_88
+
+-- SQL Statement 204 --
+  loc_1AE42FB:                                           var_A0 = "Select '' as Opt,Name As Outlet,Code As Code From Depart Where Logsite_Code='" & global_88
+
+-- SQL Statement 205 --
+  loc_1AE4511:                                             var_A0 = "Select '' as Opt,Name ,Code As Code From Depart Where Logsite_Code='" & global_88
+
+-- SQL Statement 206 --
+  loc_1AE457D:                                             Call Proc_244_126_120A460(1, "SELECT ''  AS Code,NCTYPE from NCtypemast")
+
+-- SQL Statement 207 --
+  loc_1AE4589:                                             var_A0 = "SELECT ''  AS Code, RC.RoomNo AS Name,GuestProf.Name as Guest, PlanName = Case  When isnull(PlanMast.Name,'')='' then 'Europian Plan' else PlanMast.Name end FROM (ROOMOCC AS RC LEFT JOIN GuestProf ON (RC.GuestProf = GuestProf.Code and RC.LogSite_Code=GuestProf.LogSite_Code)) LEFT JOIN PlanMast ON RC.PlanCode = PlanMast.Code where (RC.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 208 --
+  loc_1AE47F1:                                                 var_A0 = "Select '' As Opt,Name As Outlet,Code As Code From Depart Where Logsite_Code='" & global_88
+
+-- SQL Statement 209 --
+  loc_1AE4815:                                                 var_A0 = "Select '' as O,IG.Name As ItemGroup,IG.Code As Code From ItemGrp IG Left Join Depart D On IG.RestCode=D.Code WHERE IG.Logsite_Code='" & global_88
+
+-- SQL Statement 210 --
+  loc_1AE4B17:                                                   var_A0 = "Select '' As Opt,Name,Code From Depart Where Logsite_Code='" & global_88
+
+-- SQL Statement 211 --
+  loc_1AE4B99:                                                     var_A0 = "Select '' As O,Name As [Item Group],Code From ItemGrp Where Logsite_Code='" & global_88
+
+-- SQL Statement 212 --
+  loc_1AE4C03:                                                     var_A0 = "Select '' As O,Name As [Item Group],Code From ItemGrp Where Logsite_Code='" & global_88
+
+-- SQL Statement 213 --
+  loc_1AE4E35:                                                     var_A0 = "Select '' As O,Name As Member,SubCode as Code From SubGroup Where (LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 214 --
+  loc_1AE5230:                                                           var_A0 = "Select '' As Opt,Name As Outlet,Code As Code From Depart Where Logsite_Code='" & global_88
+
+-- SQL Statement 215 --
+  loc_1AE52BC:                                                             var_A0 = "Select '' As Opt,Name As Department,Code From Depart Where Logsite_Code='" & global_88
+
+-- SQL Statement 216 --
+  loc_1AE5638:                                                                 var_A0 = "Select '' As Opt,Name As Department,Code From Depart Where Logsite_Code='" & global_88
+
+-- SQL Statement 217 --
+  loc_1AE56AA:                                                                 var_A0 = "Select '' As Opt,Name As Deli_Boy,Code From DeliveryBoy Where Logsite_Code='" & global_88
+
+-- SQL Statement 218 --
+  loc_17FDFCF: var_1B4 = "SELECT Code,Name,FlagType,ShortName,DESKCODE FROM RevMast Where FlagAMR='Header' AND CODE NOT IN ('" & MemVar_1F81070 & "MK','"
+
+-- SQL Statement 219 --
+  loc_17FE161:     unk_5A8FBB.Execute "SELECT DISTINCT CATTYPE AS NAME FROM ITEMCATMAST WHERE (REVCODE IS NOT NULL AND REVCODE<>'') AND (CATTYPE<>'' AND CATTYPE IS NOT NULL) Order By CATTYPE ", var_190, -1
+
+-- SQL Statement 220 --
+  loc_17FE1B3:         var_1FC = "SELECT SUM(AMTDR-AmtCr) AS PAYT From PayCharge LEFT JOIN ITEMCATMAST ON ITEMCATMAST.REVCODE=PAYCHARGE.PAYCODE Where VDate="
+
+-- SQL Statement 221 --
+  loc_17FE330:         var_1FC = "SELECT SUM(AMTDR-AmtCr) AS PAYY From PayCharge Where VDate = "
+
+-- SQL Statement 222 --
+  loc_17FE43C:         var_1FC = "SELECT SUM(AMTDR-AmtCr) AS PAYLWC FROM PayCharge Where VDate = "
+
+-- SQL Statement 223 --
+  loc_17FE90B:             var_180 = "SELECT SUM(AMTDR-AmtCr) AS PAYM FROM PayCharge Where VDate between "
+
+-- SQL Statement 224 --
+  loc_1663943: var_138 = "SELECT Distinct P.DocId, P.VDate, P.VTime, P.DDate, P.DTime, case when ISNULL(P.NCBOOKING,'')<>'Y' then P.CustName else P.CustName + '(NC Booking)' end As CustName, P.VNo, S.VDate As BillDate, P.TokenNo, P.NetAmt As OrderVal, P.AdvAmt As OrderAdv,P.U_Name As OrderUser,S.VNO AS BillNo,S.NetAmt As BillAmt,S.Advance As BillAdv,S.U_Name As BillUser,P.RestCode FROM PackingOrder P Inner JOIN (SELECT * FROM PackingOrderDetail Where " & var_A0
+
+-- SQL Statement 225 --
+  loc_11673ED:     var_12C = "SELECT Name FROM ItemGrp WHERE restCode='"
+
+-- SQL Statement 226 --
+  loc_F48BA8: var_F4 = CVar("SELECT Distinct I.Code,I.Name,I.Unit,I.ItemGroup,I.DISPCODE,UnitMast.PriceType,IG.Type,ItemRate.Rate as SaleRate ,IC.Name As ItemCategory,Disc= CASE I.DiscApp WHEN 'Y' THEN 'Yes' ELSE 'No' END,REdit=CASE I.RateEdit WHEN 'Y' THEN 'Yes' ELSE 'No' END,I.U_Name,IG.Name as ItemGrpName,T.Name TaxStru,Convert(Varchar(11),ItemRate.AppDate,106) As AppDate,I.NType,SChrApp=CASE I.SChrgApp WHEN 'Y' THEN 'Yes' ELSE 'No' END," & " REdit=CASE I.RateEdit WHEN 'Y' THEN 'Yes' ELSE 'No' END,RateIncTax=CASE I.RateIncTax WHEN 'Y' THEN 'Yes' ELSE 'No' END, K.Name as KitchenName,I.ActiveYN FROM ((ItemMast I  Left join ItemGrp IG on IG.Code=I.ItemGroup) Left Join ItemCatMast IC on I.ItemCatCode=IC.Code) Left Join ItemRate on I.Code=ItemRate.ItemCode And I.RestCode=ItemRate.RestCode Left Join UnitMast On UnitMast.Name=I.Unit left Join TaxStru T On IC.TaxStru=T.Code Left Join Depart K on K.Code=I.Kitchen  Inner Join (Select Max(ItemCode) As mItem,Max(AppDate) As MaxDate from itemrate Where AppDate<=") 'String
+
+-- SQL Statement 227 --
+  loc_1197736: var_90 = "SELECT Distinct RevMast.Name FROM Sale2 LEFT JOIN RevMast ON Sale2.TaxCode = RevMast.Code where sale2.restcode in (" & arg_10
+
+-- SQL Statement 228 --
+  loc_11FD33E: var_90 = "SELECT Distinct RevMast.Name FROM Sale2 LEFT JOIN RevMast ON Sale2.TaxCode = RevMast.Code where sale2.restcode in (" & arg_10
+
+-- SQL Statement 229 --
+  loc_11FCE2A: var_90 = "SELECT Distinct RevMast.Name FROM Sale2 iNNER JOIN RevMast ON Sale2.TaxCode = RevMast.Code where sale2.restcode in (" & arg_10
+
+-- SQL Statement 230 --
+  loc_1314482: var_90 = "SELECT Distinct RevMast.Name FROM Sale2 iNNER JOIN RevMast ON Sale2.TaxCode = RevMast.Code where sale2.restcode in (" & arg_10
+
+-- SQL Statement 231 --
+  loc_FCF214: var_AC = "SELECT MAX(I.Name) As FinishItem,S.FinItem,S.FinQty,MAX(IR.Name) As RItemName,S.RawItem,MAX(IR.Type) AS Type,SUM(S.RawQty) AS SemiQty FROM ((BOM S Left Join ItemMast I On S.FinItem=I.Code And S.RestCode=I.RestCode) Left Join ItemMast IR On S.RawItem=IR.Code And (IR.ItemType='Store' Or IR.GravyItem='Yes')) Where FinItem='" & arg_C
+

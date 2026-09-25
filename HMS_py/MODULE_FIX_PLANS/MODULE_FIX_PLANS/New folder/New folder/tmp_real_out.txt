@@ -1,0 +1,1109 @@
+========== DB TRANSFER START : [KrishnaPalaceData2627] -> [KPTransferTest] ==========
+STEP 1 : Database [KPTransferTest] CREATE ho gayi (collation: Latin1_General_CI_AI).
+ 
+STEP 2+3 : STRUCTURE + DATA TRANSFER (283 tables)
+   STRUCT CREATED : ACGROUP
+   TRANSFERRED : 31 rows  ->  ACGROUP
+   PK ADDED     : ACGROUP
+   STRUCT CREATED : AcgroupcurrBal
+   TRANSFERRED : 1070 rows  ->  AcgroupcurrBal
+   PK ADDED     : AcgroupcurrBal
+   STRUCT CREATED : AreaMast
+   TRANSFERRED : 0 rows  ->  AreaMast
+   PK ADDED     : AreaMast
+   STRUCT CREATED : AssignDelivery
+   TRANSFERRED : 0 rows  ->  AssignDelivery
+   PK ADDED     : AssignDelivery
+   STRUCT CREATED : Attend
+   TRANSFERRED : 85 rows  ->  Attend
+   PK ADDED     : Attend
+   STRUCT CREATED : Attendence
+   TRANSFERRED : 0 rows  ->  Attendence
+   PK ADDED     : Attendence
+   STRUCT CREATED : BlockMast
+   TRANSFERRED : 0 rows  ->  BlockMast
+   PK ADDED     : BlockMast
+   STRUCT CREATED : BOM
+   TRANSFERRED : 0 rows  ->  BOM
+   PK ADDED     : BOM
+   STRUCT CREATED : Booking
+   TRANSFERRED : 3 rows  ->  Booking
+   PK ADDED     : Booking
+   STRUCT CREATED : BookingCancelDetails
+   TRANSFERRED : 0 rows  ->  BookingCancelDetails
+   STRUCT CREATED : BookingDetail
+   TRANSFERRED : 0 rows  ->  BookingDetail
+   PK ADDED     : BookingDetail
+   STRUCT CREATED : BookingInquiry
+   TRANSFERRED : 0 rows  ->  BookingInquiry
+   PK ADDED     : BookingInquiry
+   STRUCT CREATED : BookingLog
+   TRANSFERRED : 3 rows  ->  BookingLog
+   STRUCT CREATED : BookingMore
+   TRANSFERRED : 0 rows  ->  BookingMore
+   PK ADDED     : BookingMore
+   STRUCT CREATED : BookingPlanDetails
+   TRANSFERRED : 0 rows  ->  BookingPlanDetails
+   PK ADDED     : BookingPlanDetails
+   STRUCT CREATED : Budget
+   TRANSFERRED : 0 rows  ->  Budget
+   PK ADDED     : Budget
+   STRUCT CREATED : BudgetDetails
+   TRANSFERRED : 0 rows  ->  BudgetDetails
+   PK ADDED     : BudgetDetails
+   STRUCT CREATED : BussSource
+   TRANSFERRED : 4 rows  ->  BussSource
+   PK ADDED     : BussSource
+   STRUCT CREATED : CatalogMast
+   TRANSFERRED : 0 rows  ->  CatalogMast
+   PK ADDED     : CatalogMast
+   STRUCT CREATED : Category
+   TRANSFERRED : 0 rows  ->  Category
+   PK ADDED     : Category
+   STRUCT CREATED : City
+   TRANSFERRED : 269 rows  ->  City
+   PK ADDED     : City
+   STRUCT CREATED : ComboPackDetail
+   TRANSFERRED : 0 rows  ->  ComboPackDetail
+   STRUCT CREATED : ComboPackHead
+   TRANSFERRED : 0 rows  ->  ComboPackHead
+   PK ADDED     : ComboPackHead
+   STRUCT CREATED : Comp_Inclusive
+   TRANSFERRED : 0 rows  ->  Comp_Inclusive
+   PK ADDED     : Comp_Inclusive
+   STRUCT CREATED : Comp_PlanDet
+   TRANSFERRED : 156 rows  ->  Comp_PlanDet
+   STRUCT CREATED : Company
+   TRANSFERRED : 1 rows  ->  Company
+   STRUCT CREATED : CompanyProfile
+   TRANSFERRED : 0 rows  ->  CompanyProfile
+   PK ADDED     : CompanyProfile
+   STRUCT CREATED : ComplaintCategory
+   TRANSFERRED : 0 rows  ->  ComplaintCategory
+   PK ADDED     : ComplaintCategory
+   STRUCT CREATED : ComplaintDetail
+   TRANSFERRED : 0 rows  ->  ComplaintDetail
+   PK ADDED     : ComplaintDetail
+   STRUCT CREATED : Country
+   TRANSFERRED : 4 rows  ->  Country
+   PK ADDED     : Country
+   STRUCT CREATED : CreditCardHistory
+   TRANSFERRED : 0 rows  ->  CreditCardHistory
+   PK ADDED     : CreditCardHistory
+   STRUCT CREATED : DATELOCK
+   TRANSFERRED : 0 rows  ->  DATELOCK
+   PK ADDED     : DATELOCK
+   STRUCT CREATED : DBSendSMS
+   TRANSFERRED : 0 rows  ->  DBSendSMS
+   STRUCT CREATED : DeliveryBoy
+   TRANSFERRED : 0 rows  ->  DeliveryBoy
+   PK ADDED     : DeliveryBoy
+   STRUCT CREATED : DenominationDetail
+   TRANSFERRED : 0 rows  ->  DenominationDetail
+   PK ADDED     : DenominationDetail
+   STRUCT CREATED : DenominationFormat
+   TRANSFERRED : 0 rows  ->  DenominationFormat
+   PK ADDED     : DenominationFormat
+   STRUCT CREATED : Depart
+   TRANSFERRED : 7 rows  ->  Depart
+   PK ADDED     : Depart
+   STRUCT CREATED : Depart1
+   TRANSFERRED : 0 rows  ->  Depart1
+   PK ADDED     : Depart1
+   STRUCT CREATED : DepartPay
+   TRANSFERRED : 24 rows  ->  DepartPay
+   PK ADDED     : DepartPay
+   STRUCT CREATED : DepartRWScheme
+   TRANSFERRED : 0 rows  ->  DepartRWScheme
+   PK ADDED     : DepartRWScheme
+   STRUCT CREATED : Desig
+   TRANSFERRED : 13 rows  ->  Desig
+   PK ADDED     : Desig
+   STRUCT CREATED : DispColor
+   TRANSFERRED : 3 rows  ->  DispColor
+   PK ADDED     : DispColor
+   STRUCT CREATED : eInvoiceBill1
+   TRANSFERRED : 0 rows  ->  eInvoiceBill1
+   PK ADDED     : eInvoiceBill1
+   STRUCT CREATED : eInvoiceBill2
+   TRANSFERRED : 0 rows  ->  eInvoiceBill2
+   PK ADDED     : eInvoiceBill2
+   STRUCT CREATED : eInvoiceEnviro
+   TRANSFERRED : 0 rows  ->  eInvoiceEnviro
+   PK ADDED     : eInvoiceEnviro
+   STRUCT CREATED : eInvoiceToken
+   TRANSFERRED : 0 rows  ->  eInvoiceToken
+   STRUCT CREATED : EmailSMSForward
+   TRANSFERRED : 0 rows  ->  EmailSMSForward
+   PK ADDED     : EmailSMSForward
+   STRUCT CREATED : EmpCategory
+   TRANSFERRED : 1 rows  ->  EmpCategory
+   PK ADDED     : EmpCategory
+   STRUCT CREATED : Employee
+   TRANSFERRED : 18 rows  ->  Employee
+   PK ADDED     : Employee
+   STRUCT CREATED : Enviro
+   TRANSFERRED : 1 rows  ->  Enviro
+   PK ADDED     : Enviro
+   STRUCT CREATED : EPABX_Data
+   TRANSFERRED : 0 rows  ->  EPABX_Data
+   PK ADDED     : EPABX_Data
+   STRUCT CREATED : ExpSheet
+   TRANSFERRED : 0 rows  ->  ExpSheet
+   PK ADDED     : ExpSheet
+   STRUCT CREATED : FacilityBill
+   TRANSFERRED : 0 rows  ->  FacilityBill
+   PK ADDED     : FacilityBill
+   STRUCT CREATED : FacilityBill1
+   TRANSFERRED : 0 rows  ->  FacilityBill1
+   PK ADDED     : FacilityBill1
+   STRUCT CREATED : FacilityBill2
+   TRANSFERRED : 0 rows  ->  FacilityBill2
+   PK ADDED     : FacilityBill2
+   STRUCT CREATED : FacilityMast
+   TRANSFERRED : 0 rows  ->  FacilityMast
+   PK ADDED     : FacilityMast
+   STRUCT CREATED : FaEnviro
+   TRANSFERRED : 2 rows  ->  FaEnviro
+   STRUCT CREATED : FeatureMast
+   TRANSFERRED : 0 rows  ->  FeatureMast
+   PK ADDED     : FeatureMast
+   STRUCT CREATED : FeedBackMast
+   TRANSFERRED : 0 rows  ->  FeedBackMast
+   STRUCT CREATED : FixedCharge
+   TRANSFERRED : 0 rows  ->  FixedCharge
+   PK ADDED     : FixedCharge
+   STRUCT CREATED : FolioLog
+   TRANSFERRED : 793 rows  ->  FolioLog
+   STRUCT CREATED : FOMBillChangeDetails
+   TRANSFERRED : 10 rows  ->  FOMBillChangeDetails
+   STRUCT CREATED : FOMBillDetails
+   TRANSFERRED : 250 rows  ->  FOMBillDetails
+   STRUCT CREATED : ForEx
+   TRANSFERRED : 0 rows  ->  ForEx
+   PK ADDED     : ForEx
+   STRUCT CREATED : ForExTrans
+   TRANSFERRED : 0 rows  ->  ForExTrans
+   PK ADDED     : ForExTrans
+   STRUCT CREATED : FreeItemDetail
+   TRANSFERRED : 0 rows  ->  FreeItemDetail
+   PK ADDED     : FreeItemDetail
+   STRUCT CREATED : FunctionType
+   TRANSFERRED : 0 rows  ->  FunctionType
+   PK ADDED     : FunctionType
+   STRUCT CREATED : GIN
+   TRANSFERRED : 0 rows  ->  GIN
+   PK ADDED     : GIN
+   STRUCT CREATED : GodownMast
+   TRANSFERRED : 5 rows  ->  GodownMast
+   PK ADDED     : GodownMast
+   STRUCT CREATED : GroupCatalog
+   TRANSFERRED : 0 rows  ->  GroupCatalog
+   STRUCT CREATED : GroupFolioMore
+   TRANSFERRED : 0 rows  ->  GroupFolioMore
+   PK ADDED     : GroupFolioMore
+   STRUCT CREATED : GroupProf
+   TRANSFERRED : 0 rows  ->  GroupProf
+   PK ADDED     : GroupProf
+   STRUCT CREATED : GrpBookingDetails
+   TRANSFERRED : 7 rows  ->  GrpBookingDetails
+   PK ADDED     : GrpBookingDetails
+   STRUCT CREATED : GuestComments
+   TRANSFERRED : 0 rows  ->  GuestComments
+   PK ADDED     : GuestComments
+   STRUCT CREATED : GuestFeedBack
+   TRANSFERRED : 0 rows  ->  GuestFeedBack
+   STRUCT CREATED : GuestFolio
+   TRANSFERRED : 499 rows  ->  GuestFolio
+   PK ADDED     : GuestFolio
+   STRUCT CREATED : GuestFolioAmend
+   TRANSFERRED : 124 rows  ->  GuestFolioAmend
+   PK ADDED     : GuestFolioAmend
+   STRUCT CREATED : GuestFolioProfDetail
+   TRANSFERRED : 234 rows  ->  GuestFolioProfDetail
+   PK ADDED     : GuestFolioProfDetail
+   STRUCT CREATED : GuestMessage
+   TRANSFERRED : 0 rows  ->  GuestMessage
+   PK ADDED     : GuestMessage
+   STRUCT CREATED : GuestParam
+   TRANSFERRED : 0 rows  ->  GuestParam
+   STRUCT CREATED : GuestProf
+   TRANSFERRED : 429 rows  ->  GuestProf
+   PK ADDED     : GuestProf
+   STRUCT CREATED : GuestProfFor
+   TRANSFERRED : 2 rows  ->  GuestProfFor
+   PK ADDED     : GuestProfFor
+   STRUCT CREATED : GuestProfVeh
+   TRANSFERRED : 0 rows  ->  GuestProfVeh
+   PK ADDED     : GuestProfVeh
+   STRUCT CREATED : GuestReward
+   TRANSFERRED : 2 rows  ->  GuestReward
+   PK ADDED     : GuestReward
+   STRUCT CREATED : GuestStat
+   TRANSFERRED : 4 rows  ->  GuestStat
+   PK ADDED     : GuestStat
+   STRUCT CREATED : GuestWakeup
+   TRANSFERRED : 0 rows  ->  GuestWakeup
+   PK ADDED     : GuestWakeup
+   STRUCT CREATED : HallBook
+   TRANSFERRED : 0 rows  ->  HallBook
+   PK ADDED     : HallBook
+   STRUCT CREATED : HallBook1
+   TRANSFERRED : 0 rows  ->  HallBook1
+   PK ADDED     : HallBook1
+   STRUCT CREATED : HallPreCosting
+   TRANSFERRED : 0 rows  ->  HallPreCosting
+   PK ADDED     : HallPreCosting
+   STRUCT CREATED : HallSale1
+   TRANSFERRED : 0 rows  ->  HallSale1
+   PK ADDED     : HallSale1
+   STRUCT CREATED : HallSale1Est
+   TRANSFERRED : 0 rows  ->  HallSale1Est
+   PK ADDED     : HallSale1Est
+   STRUCT CREATED : HallSale2
+   TRANSFERRED : 0 rows  ->  HallSale2
+   PK ADDED     : HallSale2
+   STRUCT CREATED : HallStock
+   TRANSFERRED : 0 rows  ->  HallStock
+   PK ADDED     : HallStock
+   STRUCT CREATED : HallStockEst
+   TRANSFERRED : 0 rows  ->  HallStockEst
+   PK ADDED     : HallStockEst
+   STRUCT CREATED : HappyHours
+   TRANSFERRED : 0 rows  ->  HappyHours
+   STRUCT CREATED : HappyHoursHead
+   TRANSFERRED : 0 rows  ->  HappyHoursHead
+   PK ADDED     : HappyHoursHead
+   STRUCT CREATED : Help
+   TRANSFERRED : 0 rows  ->  Help
+   PK ADDED     : Help
+   STRUCT CREATED : Holiday
+   TRANSFERRED : 0 rows  ->  Holiday
+   PK ADDED     : Holiday
+   STRUCT CREATED : Indent
+   TRANSFERRED : 0 rows  ->  Indent
+   PK ADDED     : Indent
+   STRUCT CREATED : Indent1
+   TRANSFERRED : 0 rows  ->  Indent1
+   PK ADDED     : Indent1
+   STRUCT CREATED : inout
+   TRANSFERRED : 0 rows  ->  inout
+   STRUCT CREATED : Item
+   TRANSFERRED : 566 rows  ->  Item
+   PK ADDED     : Item
+   STRUCT CREATED : ItemCatMast
+   TRANSFERRED : 42 rows  ->  ItemCatMast
+   PK ADDED     : ItemCatMast
+   STRUCT CREATED : ItemGrp
+   TRANSFERRED : 45 rows  ->  ItemGrp
+   PK ADDED     : ItemGrp
+   STRUCT CREATED : ItemMast
+   TRANSFERRED : 589 rows  ->  ItemMast
+   PK ADDED     : ItemMast
+   STRUCT CREATED : ItemRate
+   TRANSFERRED : 494 rows  ->  ItemRate
+   PK ADDED     : ItemRate
+   STRUCT CREATED : JobSchedule
+   TRANSFERRED : 0 rows  ->  JobSchedule
+   PK ADDED     : JobSchedule
+   STRUCT CREATED : JobScheduledDetail
+   TRANSFERRED : 0 rows  ->  JobScheduledDetail
+   PK ADDED     : JobScheduledDetail
+   STRUCT CREATED : KClStk
+   TRANSFERRED : 0 rows  ->  KClStk
+   PK ADDED     : KClStk
+   STRUCT CREATED : KOT
+   TRANSFERRED : 10290 rows  ->  KOT
+   PK ADDED     : KOT
+   STRUCT CREATED : KOTLog
+   TRANSFERRED : 394 rows  ->  KOTLog
+   STRUCT CREATED : LastVou
+   TRANSFERRED : 12 rows  ->  LastVou
+   PK ADDED     : LastVou
+   STRUCT CREATED : LastVoucher
+   TRANSFERRED : 1 rows  ->  LastVoucher
+   PK ADDED     : LastVoucher
+   STRUCT CREATED : LeaderRev
+   TRANSFERRED : 0 rows  ->  LeaderRev
+   PK ADDED     : LeaderRev
+   STRUCT CREATED : Leave_Ench
+   TRANSFERRED : 0 rows  ->  Leave_Ench
+   PK ADDED     : Leave_Ench
+   STRUCT CREATED : Ledger
+   TRANSFERRED : 11952 rows  ->  Ledger
+   PK ADDED     : Ledger
+   STRUCT CREATED : ledgerAdj
+   TRANSFERRED : 0 rows  ->  ledgerAdj
+   PK ADDED     : ledgerAdj
+   STRUCT CREATED : LedgerLog
+   TRANSFERRED : 2 rows  ->  LedgerLog
+   PK ADDED     : LedgerLog
+   STRUCT CREATED : LedgerM
+   TRANSFERRED : 6 rows  ->  LedgerM
+   PK ADDED     : LedgerM
+   STRUCT CREATED : LedgerMerge
+   TRANSFERRED : 0 rows  ->  LedgerMerge
+   PK ADDED     : LedgerMerge
+   STRUCT CREATED : LedgerMLog
+   TRANSFERRED : 1 rows  ->  LedgerMLog
+   PK ADDED     : LedgerMLog
+   STRUCT CREATED : LedgerMMerge
+   TRANSFERRED : 0 rows  ->  LedgerMMerge
+   PK ADDED     : LedgerMMerge
+   STRUCT CREATED : ledgerRef
+   TRANSFERRED : 0 rows  ->  ledgerRef
+   PK ADDED     : ledgerRef
+   STRUCT CREATED : LedgerTDS
+   TRANSFERRED : 0 rows  ->  LedgerTDS
+   PK ADDED     : LedgerTDS
+   STRUCT CREATED : Loan
+   TRANSFERRED : 0 rows  ->  Loan
+   PK ADDED     : Loan
+   STRUCT CREATED : LocationFacility
+   TRANSFERRED : 0 rows  ->  LocationFacility
+   STRUCT CREATED : LostFoundDetail
+   TRANSFERRED : 0 rows  ->  LostFoundDetail
+   PK ADDED     : LostFoundDetail
+   STRUCT CREATED : MarketSeg
+   TRANSFERRED : 4 rows  ->  MarketSeg
+   PK ADDED     : MarketSeg
+   STRUCT CREATED : mCurStk
+   TRANSFERRED : 0 rows  ->  mCurStk
+   PK ADDED     : mCurStk
+   STRUCT CREATED : MemAddRWA
+   TRANSFERRED : 0 rows  ->  MemAddRWA
+   PK ADDED     : MemAddRWA
+   STRUCT CREATED : MemberFamily
+   TRANSFERRED : 0 rows  ->  MemberFamily
+   PK ADDED     : MemberFamily
+   STRUCT CREATED : MembershipRevMast
+   TRANSFERRED : 0 rows  ->  MembershipRevMast
+   PK ADDED     : MembershipRevMast
+   STRUCT CREATED : MemBill
+   TRANSFERRED : 0 rows  ->  MemBill
+   PK ADDED     : MemBill
+   STRUCT CREATED : MemBill1
+   TRANSFERRED : 0 rows  ->  MemBill1
+   STRUCT CREATED : MemCatChngDetail
+   TRANSFERRED : 0 rows  ->  MemCatChngDetail
+   PK ADDED     : MemCatChngDetail
+   STRUCT CREATED : MemCatFacility
+   TRANSFERRED : 0 rows  ->  MemCatFacility
+   PK ADDED     : MemCatFacility
+   STRUCT CREATED : MemCatMast
+   TRANSFERRED : 0 rows  ->  MemCatMast
+   PK ADDED     : MemCatMast
+   STRUCT CREATED : MemCatRevWise
+   TRANSFERRED : 0 rows  ->  MemCatRevWise
+   PK ADDED     : MemCatRevWise
+   STRUCT CREATED : MemEnviro
+   TRANSFERRED : 1 rows  ->  MemEnviro
+   PK ADDED     : MemEnviro
+   STRUCT CREATED : MemFacilityBilling
+   TRANSFERRED : 0 rows  ->  MemFacilityBilling
+   PK ADDED     : MemFacilityBilling
+   STRUCT CREATED : MemFacilityMast
+   TRANSFERRED : 0 rows  ->  MemFacilityMast
+   PK ADDED     : MemFacilityMast
+   STRUCT CREATED : MemOutStation
+   TRANSFERRED : 0 rows  ->  MemOutStation
+   PK ADDED     : MemOutStation
+   STRUCT CREATED : MemProposedMemInf
+   TRANSFERRED : 0 rows  ->  MemProposedMemInf
+   PK ADDED     : MemProposedMemInf
+   STRUCT CREATED : MemRevenueForPeriod
+   TRANSFERRED : 0 rows  ->  MemRevenueForPeriod
+   PK ADDED     : MemRevenueForPeriod
+   STRUCT CREATED : MemRevWise
+   TRANSFERRED : 0 rows  ->  MemRevWise
+   PK ADDED     : MemRevWise
+   STRUCT CREATED : MemTagadaLetter
+   TRANSFERRED : 0 rows  ->  MemTagadaLetter
+   PK ADDED     : MemTagadaLetter
+   STRUCT CREATED : MemVisitEntry
+   TRANSFERRED : 0 rows  ->  MemVisitEntry
+   STRUCT CREATED : menuHelp
+   TRANSFERRED : 1494 rows  ->  menuHelp
+   PK ADDED     : menuHelp
+   STRUCT CREATED : menuHelp1
+   TRANSFERRED : 629 rows  ->  menuHelp1
+   STRUCT CREATED : messaging
+   TRANSFERRED : 0 rows  ->  messaging
+   PK ADDED     : messaging
+   STRUCT CREATED : NarrMast
+   TRANSFERRED : 0 rows  ->  NarrMast
+   PK ADDED     : NarrMast
+   STRUCT CREATED : NCTypeMast
+   TRANSFERRED : 5 rows  ->  NCTypeMast
+   STRUCT CREATED : NightAuditLog
+   TRANSFERRED : 178 rows  ->  NightAuditLog
+   STRUCT CREATED : OrderAdvanceDetail
+   TRANSFERRED : 0 rows  ->  OrderAdvanceDetail
+   PK ADDED     : OrderAdvanceDetail
+   STRUCT CREATED : OrderPersonDetails
+   TRANSFERRED : 0 rows  ->  OrderPersonDetails
+   STRUCT CREATED : OutletBarCodePartDetail
+   TRANSFERRED : 0 rows  ->  OutletBarCodePartDetail
+   PK ADDED     : OutletBarCodePartDetail
+   STRUCT CREATED : OverTime
+   TRANSFERRED : 0 rows  ->  OverTime
+   PK ADDED     : OverTime
+   STRUCT CREATED : PackingOrder
+   TRANSFERRED : 0 rows  ->  PackingOrder
+   PK ADDED     : PackingOrder
+   STRUCT CREATED : PackingOrderDetail
+   TRANSFERRED : 0 rows  ->  PackingOrderDetail
+   PK ADDED     : PackingOrderDetail
+   STRUCT CREATED : PackingOrderDetail1
+   TRANSFERRED : 0 rows  ->  PackingOrderDetail1
+   PK ADDED     : PackingOrderDetail1
+   STRUCT CREATED : PackingOrderDetail2
+   TRANSFERRED : 0 rows  ->  PackingOrderDetail2
+   PK ADDED     : PackingOrderDetail2
+   STRUCT CREATED : PayCharge
+   TRANSFERRED : 11300 rows  ->  PayCharge
+   PK ADDED     : PayCharge
+   STRUCT CREATED : PayChargeH
+   TRANSFERRED : 0 rows  ->  PayChargeH
+   PK ADDED     : PayChargeH
+   STRUCT CREATED : PayChargeLog
+   TRANSFERRED : 569 rows  ->  PayChargeLog
+   PK ADDED     : PayChargeLog
+   STRUCT CREATED : PDALOG
+   TRANSFERRED : 0 rows  ->  PDALOG
+   STRUCT CREATED : Plan1
+   TRANSFERRED : 0 rows  ->  Plan1
+   PK ADDED     : Plan1
+   STRUCT CREATED : PlanDetails
+   TRANSFERRED : 0 rows  ->  PlanDetails
+   PK ADDED     : PlanDetails
+   STRUCT CREATED : PlanMast
+   TRANSFERRED : 3 rows  ->  PlanMast
+   PK ADDED     : PlanMast
+   STRUCT CREATED : PlanTokenDetails
+   TRANSFERRED : 0 rows  ->  PlanTokenDetails
+   PK ADDED     : PlanTokenDetails
+   STRUCT CREATED : POrder
+   TRANSFERRED : 0 rows  ->  POrder
+   PK ADDED     : POrder
+   STRUCT CREATED : POrder1
+   TRANSFERRED : 0 rows  ->  POrder1
+   PK ADDED     : POrder1
+   STRUCT CREATED : POS_SBill
+   TRANSFERRED : 0 rows  ->  POS_SBill
+   PK ADDED     : POS_SBill
+   STRUCT CREATED : ProfileImages
+   TRANSFERRED : 0 rows  ->  ProfileImages
+   PK ADDED     : ProfileImages
+   STRUCT CREATED : Purch1
+   TRANSFERRED : 0 rows  ->  Purch1
+   PK ADDED     : Purch1
+   STRUCT CREATED : Purch2
+   TRANSFERRED : 0 rows  ->  Purch2
+   PK ADDED     : Purch2
+   STRUCT CREATED : RateList
+   TRANSFERRED : 34 rows  ->  RateList
+   PK ADDED     : RateList
+   STRUCT CREATED : RawConsumption
+   TRANSFERRED : 0 rows  ->  RawConsumption
+   PK ADDED     : RawConsumption
+   STRUCT CREATED : RevMast
+   TRANSFERRED : 78 rows  ->  RevMast
+   PK ADDED     : RevMast
+   STRUCT CREATED : RoomBlockOut
+   TRANSFERRED : 0 rows  ->  RoomBlockOut
+   PK ADDED     : RoomBlockOut
+   STRUCT CREATED : RoomCat
+   TRANSFERRED : 3 rows  ->  RoomCat
+   PK ADDED     : RoomCat
+   STRUCT CREATED : RoomCheckOutStatus
+   TRANSFERRED : 0 rows  ->  RoomCheckOutStatus
+   PK ADDED     : RoomCheckOutStatus
+   STRUCT CREATED : RoomDet
+   TRANSFERRED : 0 rows  ->  RoomDet
+   STRUCT CREATED : RoomDiscount
+   TRANSFERRED : 312 rows  ->  RoomDiscount
+   STRUCT CREATED : RoomFeature
+   TRANSFERRED : 0 rows  ->  RoomFeature
+   PK ADDED     : RoomFeature
+   STRUCT CREATED : RoomMast
+   TRANSFERRED : 39 rows  ->  RoomMast
+   PK ADDED     : RoomMast
+   STRUCT CREATED : RoomMast1
+   TRANSFERRED : 0 rows  ->  RoomMast1
+   PK ADDED     : RoomMast1
+   STRUCT CREATED : RoomOcc
+   TRANSFERRED : 502 rows  ->  RoomOcc
+   PK ADDED     : RoomOcc
+   STRUCT CREATED : RoomRate
+   TRANSFERRED : 0 rows  ->  RoomRate
+   PK ADDED     : RoomRate
+   STRUCT CREATED : RoundOffSetting
+   TRANSFERRED : 3 rows  ->  RoundOffSetting
+   PK ADDED     : RoundOffSetting
+   STRUCT CREATED : RWParameter
+   TRANSFERRED : 0 rows  ->  RWParameter
+   PK ADDED     : RWParameter
+   STRUCT CREATED : Salary
+   TRANSFERRED : 18 rows  ->  Salary
+   PK ADDED     : Salary
+   STRUCT CREATED : SalaryLog
+   TRANSFERRED : 0 rows  ->  SalaryLog
+   PK ADDED     : SalaryLog
+   STRUCT CREATED : Sale1
+   TRANSFERRED : 2632 rows  ->  Sale1
+   PK ADDED     : Sale1
+   STRUCT CREATED : Sale1Log
+   TRANSFERRED : 42 rows  ->  Sale1Log
+   PK ADDED     : Sale1Log
+   STRUCT CREATED : Sale2
+   TRANSFERRED : 19602 rows  ->  Sale2
+   PK ADDED     : Sale2
+   STRUCT CREATED : Sale2Log
+   TRANSFERRED : 538 rows  ->  Sale2Log
+   PK ADDED     : Sale2Log
+   STRUCT CREATED : SaleMIS
+   TRANSFERRED : 0 rows  ->  SaleMIS
+   PK ADDED     : SaleMIS
+   STRUCT CREATED : SchemeItemDetail
+   TRANSFERRED : 0 rows  ->  SchemeItemDetail
+   PK ADDED     : SchemeItemDetail
+   STRUCT CREATED : SchemeMast
+   TRANSFERRED : 0 rows  ->  SchemeMast
+   PK ADDED     : SchemeMast
+   STRUCT CREATED : SchemeOutletDiscount
+   TRANSFERRED : 0 rows  ->  SchemeOutletDiscount
+   PK ADDED     : SchemeOutletDiscount
+   STRUCT CREATED : SeasonMast
+   TRANSFERRED : 0 rows  ->  SeasonMast
+   PK ADDED     : SeasonMast
+   STRUCT CREATED : SeasonMast1
+   TRANSFERRED : 0 rows  ->  SeasonMast1
+   PK ADDED     : SeasonMast1
+   STRUCT CREATED : SessionMast
+   TRANSFERRED : 4 rows  ->  SessionMast
+   PK ADDED     : SessionMast
+   STRUCT CREATED : ShiftMast
+   TRANSFERRED : 0 rows  ->  ShiftMast
+   PK ADDED     : ShiftMast
+   STRUCT CREATED : Site
+   TRANSFERRED : 0 rows  ->  Site
+   PK ADDED     : Site
+   STRUCT CREATED : SmartCardLedger
+   TRANSFERRED : 0 rows  ->  SmartCardLedger
+   PK ADDED     : SmartCardLedger
+   STRUCT CREATED : SmartCardMaster
+   TRANSFERRED : 0 rows  ->  SmartCardMaster
+   PK ADDED     : SmartCardMaster
+   STRUCT CREATED : SmartCardRegistration
+   TRANSFERRED : 0 rows  ->  SmartCardRegistration
+   PK ADDED     : SmartCardRegistration
+   STRUCT CREATED : SmartCardReIssueDetail
+   TRANSFERRED : 0 rows  ->  SmartCardReIssueDetail
+   PK ADDED     : SmartCardReIssueDetail
+   STRUCT CREATED : SMSEnviro
+   TRANSFERRED : 0 rows  ->  SMSEnviro
+   PK ADDED     : SMSEnviro
+   STRUCT CREATED : SplitBillDetail
+   TRANSFERRED : 0 rows  ->  SplitBillDetail
+   PK ADDED     : SplitBillDetail
+   STRUCT CREATED : SplitedSunTran
+   TRANSFERRED : 0 rows  ->  SplitedSunTran
+   PK ADDED     : SplitedSunTran
+   STRUCT CREATED : SplitSale1
+   TRANSFERRED : 0 rows  ->  SplitSale1
+   PK ADDED     : SplitSale1
+   STRUCT CREATED : SplitSale2
+   TRANSFERRED : 0 rows  ->  SplitSale2
+   PK ADDED     : SplitSale2
+   STRUCT CREATED : SplitStock
+   TRANSFERRED : 0 rows  ->  SplitStock
+   PK ADDED     : SplitStock
+   STRUCT CREATED : SplitStock1
+   TRANSFERRED : 0 rows  ->  SplitStock1
+   PK ADDED     : SplitStock1
+   STRUCT CREATED : SplitSunTran
+   TRANSFERRED : 0 rows  ->  SplitSunTran
+   PK ADDED     : SplitSunTran
+   STRUCT CREATED : State
+   TRANSFERRED : 44 rows  ->  State
+   PK ADDED     : State
+   STRUCT CREATED : Stock
+   TRANSFERRED : 10206 rows  ->  Stock
+   PK ADDED     : Stock
+   STRUCT CREATED : Stock1
+   TRANSFERRED : 0 rows  ->  Stock1
+   PK ADDED     : Stock1
+   STRUCT CREATED : StockLog
+   TRANSFERRED : 269 rows  ->  StockLog
+   PK ADDED     : StockLog
+   STRUCT CREATED : SubGroup
+   TRANSFERRED : 110 rows  ->  SubGroup
+   PK ADDED     : SubGroup
+   STRUCT CREATED : SubGroupCurrBal
+   TRANSFERRED : 1415 rows  ->  SubGroupCurrBal
+   PK ADDED     : SubGroupCurrBal
+   STRUCT CREATED : SubGroupLog
+   TRANSFERRED : 0 rows  ->  SubGroupLog
+   PK ADDED     : SubGroupLog
+   STRUCT CREATED : SubGroupRate
+   TRANSFERRED : 0 rows  ->  SubGroupRate
+   PK ADDED     : SubGroupRate
+   STRUCT CREATED : SubGroupType
+   TRANSFERRED : 0 rows  ->  SubGroupType
+   PK ADDED     : SubGroupType
+   STRUCT CREATED : SundryMast
+   TRANSFERRED : 18 rows  ->  SundryMast
+   PK ADDED     : SundryMast
+   STRUCT CREATED : SundryType
+   TRANSFERRED : 28 rows  ->  SundryType
+   PK ADDED     : SundryType
+   STRUCT CREATED : SundryTypeFix
+   TRANSFERRED : 9 rows  ->  SundryTypeFix
+   PK ADDED     : SundryTypeFix
+   STRUCT CREATED : SunTran
+   TRANSFERRED : 15792 rows  ->  SunTran
+   PK ADDED     : SunTran
+   STRUCT CREATED : SunTranEst
+   TRANSFERRED : 0 rows  ->  SunTranEst
+   PK ADDED     : SunTranEst
+   STRUCT CREATED : SunTranFacility
+   TRANSFERRED : 0 rows  ->  SunTranFacility
+   PK ADDED     : SunTranFacility
+   STRUCT CREATED : SunTranH
+   TRANSFERRED : 0 rows  ->  SunTranH
+   PK ADDED     : SunTranH
+   STRUCT CREATED : SunTranHEst
+   TRANSFERRED : 0 rows  ->  SunTranHEst
+   PK ADDED     : SunTranHEst
+   STRUCT CREATED : SunTranLog
+   TRANSFERRED : 252 rows  ->  SunTranLog
+   PK ADDED     : SunTranLog
+   STRUCT CREATED : TaxStru
+   TRANSFERRED : 23 rows  ->  TaxStru
+   PK ADDED     : TaxStru
+   STRUCT CREATED : tbl_ApiEventCode
+   TRANSFERRED : 0 rows  ->  tbl_ApiEventCode
+   PK ADDED     : tbl_ApiEventCode
+   STRUCT CREATED : tbl_ClientReportMIS
+   TRANSFERRED : 0 rows  ->  tbl_ClientReportMIS
+   PK ADDED     : tbl_ClientReportMIS
+   STRUCT CREATED : tbl_Config
+   TRANSFERRED : 0 rows  ->  tbl_Config
+   PK ADDED     : tbl_Config
+   STRUCT CREATED : tbl_EventExc
+   TRANSFERRED : 0 rows  ->  tbl_EventExc
+   PK ADDED     : tbl_EventExc
+   STRUCT CREATED : tbl_EventPrameter
+   TRANSFERRED : 0 rows  ->  tbl_EventPrameter
+   PK ADDED     : tbl_EventPrameter
+   STRUCT CREATED : tbl_GetBooking
+   TRANSFERRED : 0 rows  ->  tbl_GetBooking
+   PK ADDED     : tbl_GetBooking
+   STRUCT CREATED : tbl_GetRoomMst
+   TRANSFERRED : 0 rows  ->  tbl_GetRoomMst
+   PK ADDED     : tbl_GetRoomMst
+   STRUCT CREATED : tbl_UserMaster
+   TRANSFERRED : 0 rows  ->  tbl_UserMaster
+   PK ADDED     : tbl_UserMaster
+   STRUCT CREATED : TDSCat
+   TRANSFERRED : 0 rows  ->  TDSCat
+   PK ADDED     : TDSCat
+   STRUCT CREATED : TDSCerti
+   TRANSFERRED : 0 rows  ->  TDSCerti
+   PK ADDED     : TDSCerti
+   STRUCT CREATED : TDSChal
+   TRANSFERRED : 0 rows  ->  TDSChal
+   PK ADDED     : TDSChal
+   STRUCT CREATED : TDSChal1
+   TRANSFERRED : 0 rows  ->  TDSChal1
+   PK ADDED     : TDSChal1
+   STRUCT CREATED : TelCallCode
+   TRANSFERRED : 0 rows  ->  TelCallCode
+   PK ADDED     : TelCallCode
+   STRUCT CREATED : TelCallType
+   TRANSFERRED : 0 rows  ->  TelCallType
+   PK ADDED     : TelCallType
+   STRUCT CREATED : TelExt
+   TRANSFERRED : 0 rows  ->  TelExt
+   PK ADDED     : TelExt
+   STRUCT CREATED : Temp_Sbill
+   TRANSFERRED : 0 rows  ->  Temp_Sbill
+   STRUCT CREATED : TempPosDel
+   TRANSFERRED : 0 rows  ->  TempPosDel
+   STRUCT CREATED : TOKEN
+   TRANSFERRED : 0 rows  ->  TOKEN
+   PK ADDED     : TOKEN
+   STRUCT CREATED : TradeInfo_bTwin
+   TRANSFERRED : 0 rows  ->  TradeInfo_bTwin
+   PK ADDED     : TradeInfo_bTwin
+   STRUCT CREATED : TranLog
+   TRANSFERRED : 0 rows  ->  TranLog
+   STRUCT CREATED : TransDel
+   TRANSFERRED : 0 rows  ->  TransDel
+   STRUCT CREATED : TransIn
+   TRANSFERRED : 0 rows  ->  TransIn
+   STRUCT CREATED : TransOut
+   TRANSFERRED : 0 rows  ->  TransOut
+   STRUCT CREATED : TranSunDetail
+   TRANSFERRED : 0 rows  ->  TranSunDetail
+   PK ADDED     : TranSunDetail
+   STRUCT CREATED : TranTaxDetail
+   TRANSFERRED : 0 rows  ->  TranTaxDetail
+   PK ADDED     : TranTaxDetail
+   STRUCT CREATED : Travel1
+   TRANSFERRED : 0 rows  ->  Travel1
+   PK ADDED     : Travel1
+   STRUCT CREATED : Travel2
+   TRANSFERRED : 0 rows  ->  Travel2
+   PK ADDED     : Travel2
+   STRUCT CREATED : UnitMast
+   TRANSFERRED : 18 rows  ->  UnitMast
+   PK ADDED     : UnitMast
+   STRUCT CREATED : User_Module
+   TRANSFERRED : 629 rows  ->  User_Module
+   STRUCT CREATED : User1
+   TRANSFERRED : 629 rows  ->  User1
+   STRUCT CREATED : User2
+   TRANSFERRED : 11 rows  ->  User2
+   STRUCT CREATED : UserCollection
+   TRANSFERRED : 0 rows  ->  UserCollection
+   PK ADDED     : UserCollection
+   STRUCT CREATED : UserMast
+   TRANSFERRED : 8 rows  ->  UserMast
+   PK ADDED     : UserMast
+   STRUCT CREATED : UserModule
+   TRANSFERRED : 370 rows  ->  UserModule
+   PK ADDED     : UserModule
+   STRUCT CREATED : UserModule1
+   TRANSFERRED : 629 rows  ->  UserModule1
+   STRUCT CREATED : UserPermission
+   TRANSFERRED : 9 rows  ->  UserPermission
+   PK ADDED     : UserPermission
+   STRUCT CREATED : VenueCapacity
+   TRANSFERRED : 0 rows  ->  VenueCapacity
+   PK ADDED     : VenueCapacity
+   STRUCT CREATED : VenueFeatures
+   TRANSFERRED : 0 rows  ->  VenueFeatures
+   PK ADDED     : VenueFeatures
+   STRUCT CREATED : VenueMast
+   TRANSFERRED : 0 rows  ->  VenueMast
+   PK ADDED     : VenueMast
+   STRUCT CREATED : VenueMast1
+   TRANSFERRED : 0 rows  ->  VenueMast1
+   PK ADDED     : VenueMast1
+   STRUCT CREATED : VenueOCC
+   TRANSFERRED : 0 rows  ->  VenueOCC
+   PK ADDED     : VenueOCC
+   STRUCT CREATED : Voucher_Exclude
+   TRANSFERRED : 0 rows  ->  Voucher_Exclude
+   PK ADDED     : Voucher_Exclude
+   STRUCT CREATED : Voucher_Include
+   TRANSFERRED : 0 rows  ->  Voucher_Include
+   PK ADDED     : Voucher_Include
+   STRUCT CREATED : Voucher_Prefix
+   TRANSFERRED : 102 rows  ->  Voucher_Prefix
+   PK ADDED     : Voucher_Prefix
+   STRUCT CREATED : Voucher_Type
+   TRANSFERRED : 102 rows  ->  Voucher_Type
+   PK ADDED     : Voucher_Type
+   STRUCT CREATED : VoucherCat
+   TRANSFERRED : 78 rows  ->  VoucherCat
+   PK ADDED     : VoucherCat
+   STRUCT CREATED : Waiter
+   TRANSFERRED : 11 rows  ->  Waiter
+   PK ADDED     : Waiter
+ 
+STEP 3B : FOREIGN KEYS
+Msg 451, Level 16, State 1, Server DESKTOP-6GGQU0K, Line 2
+Cannot resolve collation conflict for column 2 in SELECT statement.
+FK SUMMARY : 0 created, 0 failed, 0 skipped/exists
+ 
+STEP 4 : VERIFY (row counts : Source vs Destination)
+TableName                                                                                                                        SrcCnt               DstCnt               Status  
+-------------------------------------------------------------------------------------------------------------------------------- -------------------- -------------------- --------
+ACGROUP                                                                                                                                            31                   31 OK      
+AcgroupcurrBal                                                                                                                                   1070                 1070 OK      
+AreaMast                                                                                                                                            0                    0 OK      
+AssignDelivery                                                                                                                                      0                    0 OK      
+Attend                                                                                                                                             85                   85 OK      
+Attendence                                                                                                                                          0                    0 OK      
+BlockMast                                                                                                                                           0                    0 OK      
+BOM                                                                                                                                                 0                    0 OK      
+Booking                                                                                                                                             3                    3 OK      
+BookingCancelDetails                                                                                                                                0                    0 OK      
+BookingDetail                                                                                                                                       0                    0 OK      
+BookingInquiry                                                                                                                                      0                    0 OK      
+BookingLog                                                                                                                                          3                    3 OK      
+BookingMore                                                                                                                                         0                    0 OK      
+BookingPlanDetails                                                                                                                                  0                    0 OK      
+Budget                                                                                                                                              0                    0 OK      
+BudgetDetails                                                                                                                                       0                    0 OK      
+BussSource                                                                                                                                          4                    4 OK      
+CatalogMast                                                                                                                                         0                    0 OK      
+Category                                                                                                                                            0                    0 OK      
+City                                                                                                                                              269                  269 OK      
+ComboPackDetail                                                                                                                                     0                    0 OK      
+ComboPackHead                                                                                                                                       0                    0 OK      
+Comp_Inclusive                                                                                                                                      0                    0 OK      
+Comp_PlanDet                                                                                                                                      156                  156 OK      
+Company                                                                                                                                             1                    1 OK      
+CompanyProfile                                                                                                                                      0                    0 OK      
+ComplaintCategory                                                                                                                                   0                    0 OK      
+ComplaintDetail                                                                                                                                     0                    0 OK      
+Country                                                                                                                                             4                    4 OK      
+CreditCardHistory                                                                                                                                   0                    0 OK      
+DATELOCK                                                                                                                                            0                    0 OK      
+DBSendSMS                                                                                                                                           0                    0 OK      
+DeliveryBoy                                                                                                                                         0                    0 OK      
+DenominationDetail                                                                                                                                  0                    0 OK      
+DenominationFormat                                                                                                                                  0                    0 OK      
+Depart                                                                                                                                              7                    7 OK      
+Depart1                                                                                                                                             0                    0 OK      
+DepartPay                                                                                                                                          24                   24 OK      
+DepartRWScheme                                                                                                                                      0                    0 OK      
+Desig                                                                                                                                              13                   13 OK      
+DispColor                                                                                                                                           3                    3 OK      
+eInvoiceBill1                                                                                                                                       0                    0 OK      
+eInvoiceBill2                                                                                                                                       0                    0 OK      
+eInvoiceEnviro                                                                                                                                      0                    0 OK      
+eInvoiceToken                                                                                                                                       0                    0 OK      
+EmailSMSForward                                                                                                                                     0                    0 OK      
+EmpCategory                                                                                                                                         1                    1 OK      
+Employee                                                                                                                                           18                   18 OK      
+Enviro                                                                                                                                              1                    1 OK      
+EPABX_Data                                                                                                                                          0                    0 OK      
+ExpSheet                                                                                                                                            0                    0 OK      
+FacilityBill                                                                                                                                        0                    0 OK      
+FacilityBill1                                                                                                                                       0                    0 OK      
+FacilityBill2                                                                                                                                       0                    0 OK      
+FacilityMast                                                                                                                                        0                    0 OK      
+FaEnviro                                                                                                                                            2                    2 OK      
+FeatureMast                                                                                                                                         0                    0 OK      
+FeedBackMast                                                                                                                                        0                    0 OK      
+FixedCharge                                                                                                                                         0                    0 OK      
+FolioLog                                                                                                                                          793                  793 OK      
+FOMBillChangeDetails                                                                                                                               10                   10 OK      
+FOMBillDetails                                                                                                                                    250                  250 OK      
+ForEx                                                                                                                                               0                    0 OK      
+ForExTrans                                                                                                                                          0                    0 OK      
+FreeItemDetail                                                                                                                                      0                    0 OK      
+FunctionType                                                                                                                                        0                    0 OK      
+GIN                                                                                                                                                 0                    0 OK      
+GodownMast                                                                                                                                          5                    5 OK      
+GroupCatalog                                                                                                                                        0                    0 OK      
+GroupFolioMore                                                                                                                                      0                    0 OK      
+GroupProf                                                                                                                                           0                    0 OK      
+GrpBookingDetails                                                                                                                                   7                    7 OK      
+GuestComments                                                                                                                                       0                    0 OK      
+GuestFeedBack                                                                                                                                       0                    0 OK      
+GuestFolio                                                                                                                                        499                  499 OK      
+GuestFolioAmend                                                                                                                                   124                  124 OK      
+GuestFolioProfDetail                                                                                                                              234                  234 OK      
+GuestMessage                                                                                                                                        0                    0 OK      
+GuestParam                                                                                                                                          0                    0 OK      
+GuestProf                                                                                                                                         429                  429 OK      
+GuestProfFor                                                                                                                                        2                    2 OK      
+GuestProfVeh                                                                                                                                        0                    0 OK      
+GuestReward                                                                                                                                         2                    2 OK      
+GuestStat                                                                                                                                           4                    4 OK      
+GuestWakeup                                                                                                                                         0                    0 OK      
+HallBook                                                                                                                                            0                    0 OK      
+HallBook1                                                                                                                                           0                    0 OK      
+HallPreCosting                                                                                                                                      0                    0 OK      
+HallSale1                                                                                                                                           0                    0 OK      
+HallSale1Est                                                                                                                                        0                    0 OK      
+HallSale2                                                                                                                                           0                    0 OK      
+HallStock                                                                                                                                           0                    0 OK      
+HallStockEst                                                                                                                                        0                    0 OK      
+HappyHours                                                                                                                                          0                    0 OK      
+HappyHoursHead                                                                                                                                      0                    0 OK      
+Help                                                                                                                                                0                    0 OK      
+Holiday                                                                                                                                             0                    0 OK      
+Indent                                                                                                                                              0                    0 OK      
+Indent1                                                                                                                                             0                    0 OK      
+inout                                                                                                                                               0                    0 OK      
+Item                                                                                                                                              566                  566 OK      
+ItemCatMast                                                                                                                                        42                   42 OK      
+ItemGrp                                                                                                                                            45                   45 OK      
+ItemMast                                                                                                                                          589                  589 OK      
+ItemRate                                                                                                                                          494                  494 OK      
+JobSchedule                                                                                                                                         0                    0 OK      
+JobScheduledDetail                                                                                                                                  0                    0 OK      
+KClStk                                                                                                                                              0                    0 OK      
+KOT                                                                                                                                             10296                10290 MISMATCH
+KOTLog                                                                                                                                            394                  394 OK      
+LastVou                                                                                                                                            12                   12 OK      
+LastVoucher                                                                                                                                         1                    1 OK      
+LeaderRev                                                                                                                                           0                    0 OK      
+Leave_Ench                                                                                                                                          0                    0 OK      
+Ledger                                                                                                                                          11952                11952 OK      
+ledgerAdj                                                                                                                                           0                    0 OK      
+LedgerLog                                                                                                                                           2                    2 OK      
+LedgerM                                                                                                                                             6                    6 OK      
+LedgerMerge                                                                                                                                         0                    0 OK      
+LedgerMLog                                                                                                                                          1                    1 OK      
+LedgerMMerge                                                                                                                                        0                    0 OK      
+ledgerRef                                                                                                                                           0                    0 OK      
+LedgerTDS                                                                                                                                           0                    0 OK      
+Loan                                                                                                                                                0                    0 OK      
+LocationFacility                                                                                                                                    0                    0 OK      
+LostFoundDetail                                                                                                                                     0                    0 OK      
+MarketSeg                                                                                                                                           4                    4 OK      
+mCurStk                                                                                                                                             0                    0 OK      
+MemAddRWA                                                                                                                                           0                    0 OK      
+MemberFamily                                                                                                                                        0                    0 OK      
+MembershipRevMast                                                                                                                                   0                    0 OK      
+MemBill                                                                                                                                             0                    0 OK      
+MemBill1                                                                                                                                            0                    0 OK      
+MemCatChngDetail                                                                                                                                    0                    0 OK      
+MemCatFacility                                                                                                                                      0                    0 OK      
+MemCatMast                                                                                                                                          0                    0 OK      
+MemCatRevWise                                                                                                                                       0                    0 OK      
+MemEnviro                                                                                                                                           1                    1 OK      
+MemFacilityBilling                                                                                                                                  0                    0 OK      
+MemFacilityMast                                                                                                                                     0                    0 OK      
+MemOutStation                                                                                                                                       0                    0 OK      
+MemProposedMemInf                                                                                                                                   0                    0 OK      
+MemRevenueForPeriod                                                                                                                                 0                    0 OK      
+MemRevWise                                                                                                                                          0                    0 OK      
+MemTagadaLetter                                                                                                                                     0                    0 OK      
+MemVisitEntry                                                                                                                                       0                    0 OK      
+menuHelp                                                                                                                                         1494                 1494 OK      
+menuHelp1                                                                                                                                         629                  629 OK      
+messaging                                                                                                                                           0                    0 OK      
+NarrMast                                                                                                                                            0                    0 OK      
+NCTypeMast                                                                                                                                          5                    5 OK      
+NightAuditLog                                                                                                                                     178                  178 OK      
+OrderAdvanceDetail                                                                                                                                  0                    0 OK      
+OrderPersonDetails                                                                                                                                  0                    0 OK      
+OutletBarCodePartDetail                                                                                                                             0                    0 OK      
+OverTime                                                                                                                                            0                    0 OK      
+PackingOrder                                                                                                                                        0                    0 OK      
+PackingOrderDetail                                                                                                                                  0                    0 OK      
+PackingOrderDetail1                                                                                                                                 0                    0 OK      
+PackingOrderDetail2                                                                                                                                 0                    0 OK      
+PayCharge                                                                                                                                       11403                11300 MISMATCH
+PayChargeH                                                                                                                                          0                    0 OK      
+PayChargeLog                                                                                                                                      569                  569 OK      
+PDALOG                                                                                                                                              0                    0 OK      
+Plan1                                                                                                                                               0                    0 OK      
+PlanDetails                                                                                                                                         0                    0 OK      
+PlanMast                                                                                                                                            3                    3 OK      
+PlanTokenDetails                                                                                                                                    0                    0 OK      
+POrder                                                                                                                                              0                    0 OK      
+POrder1                                                                                                                                             0                    0 OK      
+POS_SBill                                                                                                                                           0                    0 OK      
+ProfileImages                                                                                                                                       0                    0 OK      
+Purch1                                                                                                                                              0                    0 OK      
+Purch2                                                                                                                                              0                    0 OK      
+RateList                                                                                                                                           34                   34 OK      
+RawConsumption                                                                                                                                      0                    0 OK      
+RevMast                                                                                                                                            78                   78 OK      
+RoomBlockOut                                                                                                                                        0                    0 OK      
+RoomCat                                                                                                                                             3                    3 OK      
+RoomCheckOutStatus                                                                                                                                  0                    0 OK      
+RoomDet                                                                                                                                             0                    0 OK      
+RoomDiscount                                                                                                                                      312                  312 OK      
+RoomFeature                                                                                                                                         0                    0 OK      
+RoomMast                                                                                                                                           39                   39 OK      
+RoomMast1                                                                                                                                           0                    0 OK      
+RoomOcc                                                                                                                                           502                  502 OK      
+RoomRate                                                                                                                                            0                    0 OK      
+RoundOffSetting                                                                                                                                     3                    3 OK      
+RWParameter                                                                                                                                         0                    0 OK      
+Salary                                                                                                                                             18                   18 OK      
+SalaryLog                                                                                                                                           0                    0 OK      
+Sale1                                                                                                                                            2632                 2632 OK      
+Sale1Log                                                                                                                                           42                   42 OK      
+Sale2                                                                                                                                           19602                19602 OK      
+Sale2Log                                                                                                                                          538                  538 OK      
+SaleMIS                                                                                                                                             0                    0 OK      
+SchemeItemDetail                                                                                                                                    0                    0 OK      
+SchemeMast                                                                                                                                          0                    0 OK      
+SchemeOutletDiscount                                                                                                                                0                    0 OK      
+SeasonMast                                                                                                                                          0                    0 OK      
+SeasonMast1                                                                                                                                         0                    0 OK      
+SessionMast                                                                                                                                         4                    4 OK      
+ShiftMast                                                                                                                                           0                    0 OK      
+Site                                                                                                                                                0                    0 OK      
+SmartCardLedger                                                                                                                                     0                    0 OK      
+SmartCardMaster                                                                                                                                     0                    0 OK      
+SmartCardRegistration                                                                                                                               0                    0 OK      
+SmartCardReIssueDetail                                                                                                                              0                    0 OK      
+SMSEnviro                                                                                                                                           0                    0 OK      
+SplitBillDetail                                                                                                                                     0                    0 OK      
+SplitedSunTran                                                                                                                                      0                    0 OK      
+SplitSale1                                                                                                                                          0                    0 OK      
+SplitSale2                                                                                                                                          0                    0 OK      
+SplitStock                                                                                                                                          0                    0 OK      
+SplitStock1                                                                                                                                         0                    0 OK      
+SplitSunTran                                                                                                                                        0                    0 OK      
+State                                                                                                                                              44                   44 OK      
+Stock                                                                                                                                           10206                10206 OK      
+Stock1                                                                                                                                              0                    0 OK      
+StockLog                                                                                                                                          269                  269 OK      
+SubGroup                                                                                                                                          110                  110 OK      
+SubGroupCurrBal                                                                                                                                  1415                 1415 OK      
+SubGroupLog                                                                                                                                         0                    0 OK      
+SubGroupRate                                                                                                                                        0                    0 OK      
+SubGroupType                                                                                                                                        0                    0 OK      
+SundryMast                                                                                                                                         18                   18 OK      
+SundryType                                                                                                                                         28                   28 OK      
+SundryTypeFix                                                                                                                                       9                    9 OK      
+SunTran                                                                                                                                         15792                15792 OK      
+SunTranEst                                                                                                                                          0                    0 OK      
+SunTranFacility                                                                                                                                     0                    0 OK      
+SunTranH                                                                                                                                            0                    0 OK      
+SunTranHEst                                                                                                                                         0                    0 OK      
+SunTranLog                                                                                                                                        252                  252 OK      
+TaxStru                                                                                                                                            23                   23 OK      
+tbl_ApiEventCode                                                                                                                                    0                    0 OK      
+tbl_ClientReportMIS                                                                                                                                 0                    0 OK      
+tbl_Config                                                                                                                                          0                    0 OK      
+tbl_EventExc                                                                                                                                        0                    0 OK      
+tbl_EventPrameter                                                                                                                                   0                    0 OK      
+tbl_GetBooking                                                                                                                                      0                    0 OK      
+tbl_GetRoomMst                                                                                                                                      0                    0 OK      
+tbl_UserMaster                                                                                                                                      0                    0 OK      
+TDSCat                                                                                                                                              0                    0 OK      
+TDSCerti                                                                                                                                            0                    0 OK      
+TDSChal                                                                                                                                             0                    0 OK      
+TDSChal1                                                                                                                                            0                    0 OK      
+TelCallCode                                                                                                                                         0                    0 OK      
+TelCallType                                                                                                                                         0                    0 OK      
+TelExt                                                                                                                                              0                    0 OK      
+Temp_Sbill                                                                                                                                          0                    0 OK      
+TempPosDel                                                                                                                                          0                    0 OK      
+TOKEN                                                                                                                                               0                    0 OK      
+TradeInfo_bTwin                                                                                                                                     0                    0 OK      
+TranLog                                                                                                                                             0                    0 OK      
+TransDel                                                                                                                                            0                    0 OK      
+TransIn                                                                                                                                             0                    0 OK      
+TransOut                                                                                                                                            0                    0 OK      
+TranSunDetail                                                                                                                                       0                    0 OK      
+TranTaxDetail                                                                                                                                       0                    0 OK      
+Travel1                                                                                                                                             0                    0 OK      
+Travel2                                                                                                                                             0                    0 OK      
+UnitMast                                                                                                                                           18                   18 OK      
+User_Module                                                                                                                                       629                  629 OK      
+User1                                                                                                                                             629                  629 OK      
+User2                                                                                                                                              11                   11 OK      
+UserCollection                                                                                                                                      0                    0 OK      
+UserMast                                                                                                                                            8                    8 OK      
+UserModule                                                                                                                                        370                  370 OK      
+UserModule1                                                                                                                                       629                  629 OK      
+UserPermission                                                                                                                                      9                    9 OK      
+VenueCapacity                                                                                                                                       0                    0 OK      
+VenueFeatures                                                                                                                                       0                    0 OK      
+VenueMast                                                                                                                                           0                    0 OK      
+VenueMast1                                                                                                                                          0                    0 OK      
+VenueOCC                                                                                                                                            0                    0 OK      
+Voucher_Exclude                                                                                                                                     0                    0 OK      
+Voucher_Include                                                                                                                                     0                    0 OK      
+Voucher_Prefix                                                                                                                                    102                  102 OK      
+Voucher_Type                                                                                                                                      102                  102 OK      
+VoucherCat                                                                                                                                         78                   78 OK      
+Waiter                                                                                                                                             11                   11 OK      
+ 
+========== DONE : 283 transferred, 0 failed, 0 skipped ==========

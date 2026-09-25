@@ -121,19 +121,19 @@ def desig_config() -> MasterConfig:
 def memrev_config() -> MasterConfig:
     return MasterConfig(
         title="Revenue Master (Members) - HMS_py",
-        columns=[("Code","code"),("Description","description"),
-                 ("AcCode","accode"),("Status","status")],
+        columns=[("Code", "code"), ("Description", "desc"),
+                  ("AcCode", "accode"), ("Status", "status")],
         fields=[
-            Field("code","Revenue Code", max_len=6, required=True),
-            Field("description","Description", max_len=50, required=True),
-            Field("accode","Account Code", max_len=10),
-            Field("taxstru","Tax Structure", max_len=6),
-            Field("acposting","A/C Posting Y/N", max_len=1, default="N"),
-            Field("accountyn","Account Y/N", max_len=1, default="N"),
-            Field("refundable","Refundable Y/N", max_len=1, default="N"),
-            Field("subscharge","Subscription Charge Y/N", max_len=1, default="N"),
-            Field("subsdetails","Subscription Details", max_len=50),
-            Field("status","Status", max_len=10),
+            Field("code", "Revenue Code", max_len=6, required=True),
+            Field("desc", "Description", max_len=50, required=True),
+            Field("accode", "Account Code", max_len=8),
+            Field("taxstru", "Tax Structure", max_len=6),
+            Field("acposting", "A/C Posting", max_len=10),
+            Field("acountyn", "Account Y/N", max_len=1, default="N"),
+            Field("refundableyn", "Refundable Y/N", max_len=1, default="N"),
+            Field("subschargeyn", "Subscription Charge Y/N", max_len=1, default="N"),
+            Field("subsdetails", "Subscription Details", max_len=20),
+            Field("status", "Status", max_len=10, default="Active"),
         ],
         api=MemRevAPI,
         delete_guard=make_delete_guard("PYT"),
@@ -301,6 +301,22 @@ class EmployeeForm(QDialog):
         self._set_state(False)
 
 
+def _revenue_rights(user) -> set[str]:
+    username = str(user or "").strip().upper()
+    if not username:
+        return set()
+    if username == "SA":
+        return {"A", "E", "D"}
+    try:
+        from HMS_py.core import menu_help
+        if not menu_help.has_row(username, "Revenue Master"):
+            return set()
+        params = str(menu_help.rights(username, "Revenue Master") or "").upper()
+        return {right for right in "AED" if right in params}
+    except Exception:
+        return set()
+
+
 # ══════════════════════════════════════════════════════════════
 #  open helpers
 # ══════════════════════════════════════════════════════════════
@@ -314,7 +330,16 @@ def open_employee(parent=None): EmployeeForm(parent).exec()
 def open_memcat(parent=None):   _open(memcat_config, parent)
 def open_facility(parent=None): _open(facility_config, parent)
 def open_desig(parent=None):    _open(desig_config, parent)
-def open_memrev(parent=None):   _open(memrev_config, parent)
+def open_memrev(parent=None, user="SA"):
+    if not _revenue_rights(user):
+        QMessageBox.warning(
+            parent, "Revenue Master",
+            "Revenue Master is not authorized for this user.")
+        return None
+    form = BaseMasterForm(memrev_config(), parent)
+    form.set_permissions(add=False, edit=False, delete=False)
+    form.exec()
+    return form
 
 
 # ══════════════════════════════════════════════════════════════

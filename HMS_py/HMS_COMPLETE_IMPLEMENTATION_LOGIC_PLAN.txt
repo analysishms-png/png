@@ -1,0 +1,1204 @@
+ANALYSIS HMS COMPLETE MODULE-WISE IMPLEMENTATION LOGIC PLAN VB6 HMS.bas
+-> HMS_py FRONTEND + BACKEND + DATABASE + WORKFLOW + SQL + NIGHT AUDIT
+
+============================================================ 0. PURPOSE
+============================================================
+
+This document is the implementation blueprint for rebuilding/debugging
+the complete Analysis HMS project from the legacy VB6 HMS.bas behavior.
+
+Primary target: Windows local HMS application Python backend
+React/HTML/CSS frontend SQL Server 2008 R2 compatible database
+
+CORE PRINCIPLE:
+
+    UI -> API -> SERVICE/BUSINESS LOGIC -> REPOSITORY/SQL -> DATABASE
+
+Never put business rules only in the frontend. Never execute raw SQL
+from the frontend. Every important transaction must be validated again
+in the backend.
+
+The legacy system is centered around: USERMAST / permissions COMPANY /
+SITE / ENVIRO BOOKING GUESTPROF GUESTFOLIO ROOMMAST ROOMOCC PAYCHARGE
+POS/KOT/SunTran STOCK LEDGER NIGHTAUDITLOG
+
+============================================================ 1. GLOBAL
+PROJECT ARCHITECTURE
+============================================================
+
+FRONTEND
+
+Login Dashboard Masters Front Office Housekeeping Restaurant/POS Banquet
+Inventory Accounts Membership Payroll Communication Facility Reports
+Night Audit Settings
+
+BACKEND
+
+api/ core/ services/ repositories/ db/ reports/ integrations/ workers/
+audit/
+
+DATABASE
+
+SQL Server 2008 R2 Existing legacy schema should be preserved initially.
+
+RECOMMENDED FLOW:
+
+Frontend | | HTTP/JSON v Flask/FastAPI API | v Authentication +
+Permission | v Service Layer | v Repository Layer | v pyodbc | v SQL
+Server
+
+============================================================ 2. GLOBAL
+SESSION / CONTEXT LOGIC
+============================================================
+
+Every logged-in operation must have:
+
+UserName UserId CompanyCode SiteCode / LogSite_Code BusinessDate
+SessionId PermissionSet
+
+The backend must never trust SiteCode or permission values blindly from
+the browser.
+
+FLOW:
+
+LOGIN -> validate user -> load permission -> load company -> load site
+-> load business date -> create session -> dashboard
+
+GLOBAL DB FILTER:
+
+WHERE LogSite_Code = @SiteCode
+
+Use this consistently for property-specific data.
+
+============================================================ 3. LOGIN
+MODULE ============================================================
+
+FRONTEND
+
+Fields: Username Password
+
+Buttons: Login Exit Change Password if enabled
+
+BACKEND
+
+POST /api/auth/login
+
+LOGIC:
+
+1.  Receive username/password.
+2.  Query USERMAST.
+3.  Check user exists.
+4.  Check ActiveYN/status.
+5.  Validate password using legacy-compatible rule.
+6.  Load user label/role.
+7.  Load USER1 / USER_MODULE / MENUHELP.
+8.  Load allowed companies/sites.
+9.  Create authenticated session.
+10. Return dashboard context.
+
+QUERY:
+
+SELECT * FROM USERMAST WHERE USER_NAME = ?
+
+PERMISSION:
+
+SELECT * FROM USER1 WHERE USER_NAME = ?
+
+SELECT * FROM USER_MODULE WHERE USER_NAME = ?
+
+SELECT * FROM MENUHELP WHERE USERNAME = ? AND CompCode = ?
+
+ERROR CASES: invalid user invalid password inactive user no company no
+site no permission
+
+SECURITY: password must not be returned to frontend. DB credentials must
+never be sent to browser.
+
+============================================================ 4. COMPANY
+/ SITE / ENVIRONMENT MODULE
+============================================================
+
+TABLES: COMPANY ENVIRO DEPART SITE-related master tables
+
+FRONTEND: Company selector Site/property selector Business date display
+
+BACKEND: GET /api/companies GET /api/sites GET /api/site/context
+
+LOGIC: user -> permitted company -> site -> ENVIRO -> business context
+
+QUERY:
+
+SELECT * FROM Company WHERE Comp_Code IN ( SELECT DISTINCT CompCode FROM
+MenuHelp WHERE UserName = ? ) ORDER BY Start_dt DESC
+
+ENVIRONMENT:
+
+SELECT * FROM Enviro WHERE LogSite_Code = ?
+
+IMPORTANT ENVIRO SETTINGS: RoomChrgPostingType KOTAtNightAudit
+POSBillAtNightAudit NoShowAtNightAudit POSSaleRevenueBifercation
+RoomChrgDueAc AutoResetToken and related controls
+
+============================================================ 5. MASTER
+DATA MODULE ============================================================
+
+MASTER GROUPS
+
+Hotel/Property: Company Department Outlet Environment
+
+Room: RoomCat RoomMast RoomFeature RoomBlockOut
+
+Rate: RateList PlanMast PlanDetails Package FixedCharge
+
+Guest: GuestProf Guest parameters City State Country
+
+Revenue: RevMast RevGroup SubGroup Account mappings
+
+Tax: TaxMast TaxStru Tax category
+
+Payment: PayType VoucherType VoucherPrefix
+
+Inventory: ItemMast ItemCat ItemGroup Unit Godown
+
+Restaurant: MenuItem SpecialItem GravyItem MenuCatalog Waiter Table
+
+Banquet: Hall Venue Event Hall Item Category
+
+MASTER LOGIC: Create Read Update Deactivate Search Duplicate validation
+Audit
+
+RULE: Master data should not be hard-deleted if referenced by
+transactions. Use active/inactive state where possible.
+
+============================================================ 6. GUEST
+PROFILE MODULE
+============================================================
+
+FRONTEND: Guest search New guest Edit guest Guest history Vehicle
+Company Address Comments Documents/images if configured
+
+BACKEND: GET /api/guests POST /api/guests PUT /api/guests/{id} GET
+/api/guests/{id}/history
+
+TABLE: GuestProf GuestProfFor GuestProfVeh GuestStat
+
+FLOW:
+
+Search existing guest | Found? | YES -> select guest | NO -> create
+guest | Guest Code | Use in Booking / GuestFolio / RoomOcc
+
+IMPORTANT: Do not create duplicate guest profiles without a duplicate
+check.
+
+============================================================ 7.
+RESERVATION MODULE
+============================================================
+
+FRONTEND: Reservation list New reservation Modify Cancel Room lookup
+Room type lookup Guest lookup Group booking Advance deposit Confirmation
+Cancellation letter Registration card Reservation status
+
+TABLES: Booking BookingMore BookingPlanDetails GrpBookingDetails
+BookingCancelDetails GuestProf RoomCat RoomMast RateList PlanMast
+PlanDetails MarketSeg BussSource
+
+FLOW:
+
+Guest | Dates | Room Category | Availability | Rate / Plan | Company /
+Agent | Market Segment | Business Source | Booking | Booking Detail |
+Confirmation
+
+AVAILABILITY LOGIC:
+
+1.  Find rooms of selected category.
+2.  Remove blocked rooms.
+3.  Remove rooms occupied for overlapping dates.
+4.  Remove already reserved rooms.
+5.  Return available count/list.
+
+DO NOT rely only on frontend availability. Recheck availability during
+save.
+
+CANCELLATION:
+
+UPDATE GrpBookingDetails SET Cancel=‘Y’, CancelDate=GETDATE() WHERE
+BookingDocId=? AND Sno=?
+
+Also create cancellation audit/history where required.
+
+============================================================ 8. ROOM
+AVAILABILITY MODULE
+============================================================
+
+TABLES: RoomMast RoomCat RoomOcc RoomBlockOut Booking
+
+ROOM STATE CONCEPT:
+
+AVAILABLE | RESERVED | OCCUPIED | CHECKOUT | DIRTY / CLEARANCE | CLEAN |
+AVAILABLE
+
+Implementation must use actual legacy status codes from the live
+database.
+
+FRONTEND: Grid/calendar Room number Room type Category Status Guest
+Arrival Departure
+
+BACKEND: GET /api/rooms GET /api/rooms/availability
+
+============================================================ 9. WALK-IN
+MODULE ============================================================
+
+Walk-in is a reservation-less or direct-arrival entry.
+
+FLOW:
+
+Walk-In | Guest Search/Create | Room Availability | Room Select |
+Rate/Plan | Guest details | Advance/Payment if required | Check-In
+Transaction
+
+Do not bypass the normal GuestFolio + RoomOcc creation logic.
+
+============================================================ 10.
+CHECK-IN MODULE
+============================================================
+
+THIS IS A CRITICAL TRANSACTION.
+
+FRONTEND: Reservation lookup Guest Room Rate Plan Adults Children
+Arrival Departure Company Travel Agent Market Segment Business Source
+Advance Remarks
+
+API: POST /api/front-office/checkin
+
+BACKEND FLOW:
+
+1.  Authenticate.
+2.  Check permission.
+3.  Validate site.
+4.  Validate booking if booking-based.
+5.  Validate guest.
+6.  Validate target room.
+7.  Recheck room availability.
+8.  Begin transaction.
+9.  Create/update GuestFolio.
+10. Create RoomOcc.
+11. Create profile detail rows if required.
+12. Post initial advance/charge if configured.
+13. Update reservation conversion state.
+14. Commit.
+15. Return Folio/Room/Guest information.
+
+TRANSACTION:
+
+BEGIN TRANSACTION
+
+GuestFolio INSERT RoomOcc INSERT Profile detail INSERT Initial PayCharge
+INSERT if required Booking conversion UPDATE
+
+COMMIT
+
+ON ERROR: ROLLBACK
+
+ROOMOCC CORE FIELDS: DocID Sno FolioNo GuestProf RoomCat RoomType RoomNo
+RateCode RoomRate ChkInDate ChkInTime Adult Children DepDate DepTime
+PlanCode PlanAmt Site_Code LogSite_Code
+
+GUESTFOLIO CORE: DocId FolioNo MFolioNo GuestProf Name NoDays Company
+TravelAgent BookingDocId MarketSeg BussSource DepDate Site_Code
+LogSite_Code
+
+============================================================ 11.
+IN-HOUSE GUEST MODULE
+============================================================
+
+API: GET /api/front-office/inhouse
+
+DISPLAY: Guest Room Folio Arrival Departure Plan Balance Company Agent
+Remarks
+
+QUERY:
+
+SELECT G.DocId, G.FolioNo, G.GuestProf, G.Name, R.RoomNo, R.RoomType,
+R.ChkInDate, R.DepDate FROM GuestFolio G LEFT JOIN RoomOcc R ON
+R.DocId=G.DocId WHERE G.LogSite_Code=? AND ISNULL(R.Type,’‘)=’’
+
+============================================================ 12. FOLIO
+MODULE ============================================================
+
+FOLIO = stay-level financial and operational center.
+
+RELATION:
+
+GuestProf | GuestFolio | RoomOcc | PayCharge
+
+FRONTEND: Folio header Charges Payments Adjustments Transfer/merge
+Balance Print bill
+
+BACKEND: GET /api/folios/{id} GET /api/folios/{id}/charges POST
+/api/folios/{id}/charges POST /api/folios/{id}/payments
+
+============================================================ 13. CHARGE
+POSTING MODULE
+============================================================
+
+TABLE: PayCharge
+
+COMMON TYPES: Room Rent Food Laundry Other Charge Discount Tax Payment
+Adjustment POS transfer
+
+BALANCE:
+
+Balance = SUM(AmtDr) - SUM(AmtCr)
+
+QUERY:
+
+SELECT SUM(ISNULL(AmtDr,0)) Debit, SUM(ISNULL(AmtCr,0)) Credit,
+SUM(ISNULL(AmtDr,0))-SUM(ISNULL(AmtCr,0)) Balance FROM PayCharge WHERE
+FolioNoDocId=?
+
+RULE: Amount must be calculated/validated server-side. User cannot send
+arbitrary debit/credit without validation.
+
+============================================================ 14. PAYMENT
+MODULE ============================================================
+
+FLOW:
+
+Payment screen | Folio | Outstanding balance | Payment type | Amount |
+Reference/cheque/card/cash | Validation | PAYCHARGE credit | Receipt
+
+Backend must verify: amount > 0 folio exists folio belongs to site
+payment type is valid amount does not violate configured settlement
+rules
+
+============================================================ 15. ROOM
+CHANGE MODULE
+============================================================
+
+FLOW:
+
+Current Room | Validate Guest/Folio | Select New Room | Check New Room
+Availability | Check Rate/Plan rules | Begin Transaction | Update/create
+RoomOcc | Preserve old room history | Update operational state | Commit
+
+Never simply overwrite history if legacy logic expects occupancy
+history.
+
+============================================================ 16. MERGE /
+TRANSFER / AMENDMENT MODULE
+============================================================
+
+Objects include: Merge Charge Reverse Merge Charge Account Merge Amend
+Entry Re-settlement
+
+RULE: Any transfer/merge must preserve source document references.
+
+FLOW:
+
+Source Folio | Validate destination | Create destination posting |
+Create reversal/reference on source | Audit | Commit
+
+Do not silently delete original financial history.
+
+============================================================ 17.
+CHECKOUT MODULE
+============================================================
+
+FRONTEND: Guest/Folio Room Balance Payment/Settlement Clearance Final
+Bill Checkout confirmation
+
+BACKEND: POST /api/front-office/checkout
+
+FLOW:
+
+Load active GuestFolio | Load active RoomOcc | Calculate PayCharge
+balance | Settlement required? | Clearance required? | BEGIN TRAN |
+Final payment/settlement | Update RoomOcc | Update RoomMast |
+Create/update checkout clearance | COMMIT
+
+BALANCE:
+
+SUM(AmtDr) - SUM(AmtCr)
+
+LEGACY OBSERVED ROOMOCC UPDATE:
+
+UPDATE RoomOcc SET ChkOutTime=?, ChkOutDate=?, UserChkOutDate=?,
+ChkOutUser=?, Type=‘O’, U_EntDt=GETDATE() WHERE DocId=? AND
+LogSite_Code=?
+
+LEGACY OBSERVED ROOM STATUS:
+
+UPDATE RoomMast SET ROOMSTAT=‘D’ WHERE CODE=? AND TYPE=‘RO’ AND
+LOGSITE_CODE=?
+
+============================================================ 18. REVERSE
+CHECKOUT ============================================================
+
+FLOW:
+
+Reverse Checkout | Permission | Find latest checkout | Validate no
+conflicting later transaction | Reverse checkout state | Restore room
+operational state | Reverse required settlement state | Audit
+
+Never use blind DELETE.
+
+============================================================ 19.
+CHECKOUT CLEARANCE / HOUSEKEEPING HANDOFF
+============================================================
+
+TABLE: RoomCheckOutStatus
+
+FIELDS: FolioNoDocId RoomCode ChkOutClearanceYN Site_Code U_Name U_EntDt
+U_AE LogSite_Code
+
+FLOW:
+
+Checkout | Clearance required? YES | RoomCheckOutStatus | Housekeeping |
+Clean | Available
+
+============================================================ 20.
+HOUSEKEEPING MODULE
+============================================================
+
+MODULES: Housekeeping Housekeeping stock Room operation stock Item issue
+on cleaning Room block
+
+FLOW:
+
+Checkout | Dirty / Clearance | Housekeeping Assignment | Cleaning |
+Inspection | Clean | Available
+
+HOUSEKEEPING SHOULD NOT CHANGE FINANCIAL FOLIO BALANCE.
+
+It changes operational room state and cleaning inventory/records.
+
+============================================================ 21. POS /
+RESTAURANT MODULE
+============================================================
+
+CORE: Table Menu KOT Kitchen Sale Bill Payment Token Waiter/Steward
+Outlet Customer Delivery Touch screen
+
+FLOW:
+
+Table/Customer | Order | KOT | Kitchen | Item Issue / Production | Bill
+| Split/Transfer if required | Payment | Revenue | Accounts / Night
+Audit
+
+IMPORTANT: POS should not directly manipulate room folio without a
+controlled transfer/posting service.
+
+============================================================ 22. KOT
+MODULE ============================================================
+
+FLOW:
+
+Order | KOT create | Kitchen | Pending | Prepared | Delivered | Bill
+
+NIGHT AUDIT CONTROL: If KOTAtNightAudit is enabled: pending KOT can
+block Night Audit.
+
+============================================================ 23. POS
+BILL MODULE ============================================================
+
+FLOW:
+
+KOT/order | Bill creation | Tax/discount | Settlement | Revenue posting
+| Audit
+
+NIGHT AUDIT: If POSBillAtNightAudit is enabled: pending POS bills can
+block audit.
+
+============================================================ 24.
+RESTAURANT REVENUE MODULE
+============================================================
+
+SOURCE TABLES INCLUDE: SunTran RevMast Depart POS/Sale tables
+
+QUERY PATTERN:
+
+SELECT SUM(ST.Amount) RevAmt, ST.RevCode, ST.RestCode, ST.VDate FROM
+SunTran ST LEFT JOIN RevMast RM ON RM.Code=ST.RevCode LEFT JOIN Depart D
+ON D.Code=ST.RestCode WHERE ST.VDate=? GROUP BY
+ST.RevCode,ST.RestCode,ST.VDate
+
+============================================================ 25. BANQUET
+/ HALL / VENUE MODULE
+============================================================
+
+FLOW:
+
+Inquiry | Availability | Event/Hall/Venue | Booking | Estimate | Advance
+| Services/Items | Billing | Settlement | Reports
+
+MODULE AREAS: Hall Venue Catering Event Estimate Advance Hall Items Chef
+Pre-Costing
+
+RULE: Banquet revenue must remain traceable by event/booking/document.
+
+============================================================ 26. STORE /
+INVENTORY MODULE
+============================================================
+
+FLOW:
+
+Item Master | Opening Stock | Indent | Purchase Order | Receipt | Stock
+| Issue | Transfer | Consumption | Closing Stock | Costing
+
+STOCK FORMULA:
+
+Current Stock = Total Received - Total Issued +/- Transfers/Adjustments
+according to stock model
+
+Never allow frontend to directly set current stock without an audited
+adjustment transaction.
+
+============================================================ 27.
+PURCHASE MODULE
+============================================================
+
+FLOW:
+
+Indent | Approval | Purchase Order | Material Receipt | Stock Increase |
+Purchase Invoice | Accounts Payable | Payment
+
+============================================================ 28.
+INVENTORY ISSUE / CONSUMPTION
+============================================================
+
+FLOW:
+
+Department/Godown | Issue Request | Validation | Issue | Stock movement
+| Consumption | Costing
+
+HOUSEKEEPING/POS/KITCHEN may generate stock consumption.
+
+============================================================ 29.
+ACCOUNTS MODULE
+============================================================
+
+CORE: Voucher Ledger Account Group Sub Group Tax TDS Cash Bank
+Adjustment Reconciliation Year End
+
+FLOW:
+
+Transaction | Accounting Mapping | Voucher | Debit/Credit | Ledger |
+Trial Balance | Reports
+
+RULE: Operational modules should call accounting services instead of
+writing arbitrary ledger rows.
+
+============================================================ 30.
+ACCOUNTING POSTING SERVICE
+============================================================
+
+Recommended service:
+
+post_accounting_entry( source_module, source_doc_id, debit_account,
+credit_account, amount, tax, site_code, user )
+
+VALIDATE: account exists site matches amount valid source not already
+posted
+
+CREATE: voucher header voucher lines tax lines if needed source
+reference audit
+
+============================================================ 31. TAX /
+TDS MODULE ============================================================
+
+FLOW:
+
+Transaction | Tax structure | Tax rate | Tax split | Tax posting | Tax
+report
+
+TDS: applicable vendor/party category threshold/rule deduction
+certificate/challan report
+
+Do not hard-code tax rates in frontend.
+
+============================================================ 32.
+MEMBERSHIP MODULE
+============================================================
+
+FLOW:
+
+Category | Member Registration | Membership Number | Card/Smart Card |
+Recharge | Facility Usage | Billing | Renewal | Category Change | Reward
+Points | Reports
+
+Smart card operations: Registration Recharge Refund Lost/Reissue
+Facility entry
+
+============================================================ 33. HR /
+PAYROLL MODULE
+============================================================
+
+FLOW:
+
+Employee | Category/Designation | Attendance | Leave | Loan | Overtime |
+Salary Creation | Payroll | Reports
+
+Payroll must be isolated from hotel financial posting except through
+controlled accounting posting.
+
+============================================================ 34.
+TELEPHONE / EPABX
+============================================================
+
+FLOW:
+
+Extension | Call | Call Type/Code | EPABX | Call Record | Guest/Folio
+posting if configured | Report
+
+============================================================ 35. SMS /
+MESSAGING ============================================================
+
+FLOW:
+
+Event | Message Template | Queue | Provider/API | Sent/Failed |
+Outbox/Log
+
+Examples: Reservation confirmation Cancellation Guest message Payment
+Marketing Operational alerts
+
+============================================================ 36.
+FACILITY / MAINTENANCE
+============================================================
+
+FLOW:
+
+Facility Master | Location | Assignment | Meter/Usage | Complaint/Job |
+Scheduler | Completion | Cost/Report
+
+============================================================ 37. DOOR
+LOCK INTEGRATION
+============================================================
+
+FLOW:
+
+Check-In | Room/Guest | Door Lock API/SDK | Key/Card | Access | Audit
+
+On checkout: key/card should be invalidated according to lock-system
+rules.
+
+============================================================ 38.
+REPORTING ARCHITECTURE
+============================================================
+
+Reports should use a common service.
+
+FRONTEND: Report selection Filters Preview Export PDF Export Excel Print
+
+BACKEND: Validate report permission Validate filters Execute
+parameterized query Generate dataset Render
+
+DO NOT: put large SQL strings in React.
+
+REPORT CATEGORIES: Front Office Reservation Guest Room Housekeeping POS
+Inventory Accounts Banquet Membership Payroll Night Audit
+
+============================================================ 39. NIGHT
+AUDIT — MASTER LOGIC
+============================================================
+
+NIGHT AUDIT IS THE MOST CRITICAL DAILY PROCESS.
+
+PRE-CONDITION: Normal billing must be stopped/controlled. User must have
+Night Audit permission. Business date must match expected audit date.
+
+FLOW:
+
+START | Acquire audit lock | Validate user | Validate date | Load ENVIRO
+| Pending KOT check | Pending POS bill check | No-show | Room rent |
+POS/F&B revenue | Account posting | Token reset | Audit reports |
+NightAuditLog | Business date transition | Release lock | END
+
+============================================================ 40. NIGHT
+AUDIT — DATE VALIDATION
+============================================================
+
+Input: Audit Date
+
+Validate against: Current Business Date / Enviro configuration
+
+If mismatch: STOP
+
+Message: Check Audit Date or contact administrator.
+
+============================================================ 41. NIGHT
+AUDIT — KOT CHECK
+============================================================
+
+Read:
+
+SELECT KOTAtNightAudit FROM Enviro WHERE LogSite_Code=?
+
+If enabled: search pending KOT.
+
+If pending: show outlet/table/token/KOT details block or warn according
+to legacy rule.
+
+============================================================ 42. NIGHT
+AUDIT — POS BILL CHECK
+============================================================
+
+Read:
+
+SELECT POSBillAtNightAudit FROM Enviro WHERE LogSite_Code=?
+
+If enabled: find pending/unsettled POS bills.
+
+If pending: block or warn according to legacy rule.
+
+============================================================ 43. NIGHT
+AUDIT — NO SHOW
+============================================================
+
+Read: NoShowAtNightAudit
+
+If enabled:
+
+Find today’s arrivals where: Cancel <> ‘Y’ AND no GuestFolio/check-in
+exists
+
+Mark:
+
+Cancel=‘Y’ CancelDate=GETDATE() U_Name=‘NOSHOW’
+
+Never mark a guest as no-show if a valid check-in exists.
+
+============================================================ 44. NIGHT
+AUDIT — ACTIVE ROOMS
+============================================================
+
+Source: RoomOcc GuestFolio RoomCat RevMast
+
+Find: ChkOutDate IS NULL Site matches
+
+For each active stay: determine room rate determine plan determine tax
+determine discount determine complimentary status determine revenue
+account determine charge code
+
+============================================================ 45. NIGHT
+AUDIT — ROOM RENT POSTING
+============================================================
+
+CONFIG: RoomChrgPostingType
+
+For each eligible room:
+
+1.  Check whether today’s room charge already exists.
+2.  Calculate correct amount.
+3.  Determine revenue code/account.
+4.  Determine tax.
+5.  Determine discount/RODISC.
+6.  Post PayCharge.
+7.  Record source reference.
+8.  Mark posting successful.
+
+IDEMPOTENCY:
+
+Before insert: search PayCharge for same: Folio BusinessDate
+ChargeType=‘RC’ Source=‘NIGHT_AUDIT’
+
+If already posted: DO NOT INSERT AGAIN.
+
+============================================================ 46. NIGHT
+AUDIT — POS / F&B REVENUE
+============================================================
+
+Read: SunTran RevMast Depart POS tables
+
+Group: revenue code outlet business date
+
+Post: required revenue/account entries
+
+Keep: POS document reference source outlet source date posting user
+audit run id
+
+============================================================ 47. NIGHT
+AUDIT — ACCOUNT POSTING
+============================================================
+
+Possible sources: Room Rent POS/F&B Payments Taxes Discounts Account
+transfers
+
+Flow:
+
+Source transaction | Mapping | Debit/Credit | Validation |
+Ledger/Voucher | Audit reference
+
+============================================================ 48. NIGHT
+AUDIT — TOKEN RESET
+============================================================
+
+If configured:
+
+UPDATE Depart SET CurTokenNo=0, CurTokenNoKOT=0 WHERE
+AutoResetToken=‘Yes’ AND Logsite_code=@SiteCode
+
+Only reset configured departments.
+
+============================================================ 49. NIGHT
+AUDIT — LOG ============================================================
+
+INSERT INTO NightAuditLog ( DateChngFrom, DateChngTo, StartNightAudit,
+EndNightAudit, Site_Code, U_AE, U_Name, U_EntDt, LogSite_Code ) VALUES (
+@DateFrom, @DateTo, @StartAudit, GETDATE(), @SiteCode, ‘A’, @UserName,
+GETDATE(), @SiteCode )
+
+Audit log must contain: run id site user start end date from date to
+success/failure summary counts error if failed
+
+============================================================ 50. NIGHT
+AUDIT — REVERSE
+============================================================
+
+Reverse Night Audit must NOT blindly delete all transactions.
+
+Recommended:
+
+Audit Run | Load postings generated by RunID | Validate no later
+dependent transaction | Create reversals | Reverse only generated
+entries | Restore business date according to rules | Audit reversal
+
+If legacy database has no RunID: create a controlled migration
+wrapper/table for new HMS_py rather than relying only on date/time.
+
+============================================================ 51.
+FRONTEND SCREEN ARCHITECTURE
+============================================================
+
+RECOMMENDED:
+
+/login /dashboard
+
+/master /company /site /guest /room /room-category /rate /plan /tax
+/payment-type /revenue /item /department
+
+/front-office /reservation /walk-in /check-in /in-house /folio
+/room-change /checkout /reverse-checkout /clearance
+
+/housekeeping
+
+/restaurant /tables /kot /kitchen /sales /payment /reprint
+
+/banquet /inventory /accounts /membership /payroll /telephone /sms
+/facility /reports /night-audit /settings
+
+============================================================ 52.
+FRONTEND COMPONENT RULE
+============================================================
+
+Every screen should contain:
+
+    Header
+    Search/filter
+    Data grid/form
+    Validation messages
+    Save
+    Cancel
+    Print if applicable
+    Audit information where applicable
+
+Frontend validation: required fields date format numeric format basic
+business checks
+
+Backend validation: ALL business-critical checks again.
+
+============================================================ 53. BACKEND
+FOLDER STRUCTURE
+============================================================
+
+HMS_py/ | ├── app.py ├── config.py | ├── api/ | ├── auth_routes.py | ├──
+master_routes.py | ├── reservation_routes.py | ├──
+front_office_routes.py | ├── housekeeping_routes.py | ├── pos_routes.py
+| ├── banquet_routes.py | ├── inventory_routes.py | ├──
+accounts_routes.py | ├── membership_routes.py | ├── payroll_routes.py |
+├── reports_routes.py | └── night_audit_routes.py | ├── core/ | ├──
+auth.py | ├── company.py | ├── guest.py | ├── reservation.py | ├──
+room.py | ├── checkin.py | ├── folio.py | ├── charges.py | ├──
+payment.py | ├── room_change.py | ├── checkout.py | ├── housekeeping.py
+| ├── pos.py | ├── banquet.py | ├── inventory.py | ├── accounts.py | ├──
+membership.py | ├── payroll.py | └── night_audit.py | ├── repositories/
+| ├── user_repository.py | ├── booking_repository.py | ├──
+guest_repository.py | ├── room_repository.py | ├── folio_repository.py |
+├── charge_repository.py | ├── pos_repository.py | ├──
+stock_repository.py | ├── accounts_repository.py | └──
+night_audit_repository.py | ├── db/ | ├── connection.py | ├──
+transaction.py | └── sql.py | ├── reports/ ├── integrations/ └──
+workers/
+
+============================================================ 54. API
+LIST ============================================================
+
+AUTH: POST /api/auth/login POST /api/auth/logout GET /api/auth/me GET
+/api/auth/permissions
+
+MASTER: GET/POST/PUT /api/guests GET/POST/PUT /api/rooms GET/POST/PUT
+/api/room-categories GET/POST/PUT /api/plans GET/POST/PUT /api/rates
+GET/POST/PUT /api/taxes GET/POST/PUT /api/items
+
+RESERVATION: GET /api/reservations POST /api/reservations PUT
+/api/reservations/{id} POST /api/reservations/{id}/cancel GET
+/api/reservations/{id}
+
+FRONT OFFICE: POST /api/front-office/checkin GET
+/api/front-office/inhouse POST /api/front-office/room-change GET
+/api/front-office/folio/{id} POST /api/front-office/folio/{id}/charge
+POST /api/front-office/folio/{id}/payment POST
+/api/front-office/checkout POST /api/front-office/reverse-checkout
+
+HOUSEKEEPING: GET /api/housekeeping/rooms POST
+/api/housekeeping/room-status POST /api/housekeeping/clearance
+
+POS: POST /api/pos/kot POST /api/pos/bill POST /api/pos/payment POST
+/api/pos/reprint POST /api/pos/transfer
+
+INVENTORY: POST /api/inventory/receipt POST /api/inventory/issue POST
+/api/inventory/transfer GET /api/inventory/stock
+
+ACCOUNTS: POST /api/accounts/voucher GET /api/accounts/ledger POST
+/api/accounts/payment POST /api/accounts/adjustment
+
+NIGHT AUDIT: GET /api/night-audit/precheck POST /api/night-audit/run
+POST /api/night-audit/reverse GET /api/night-audit/log GET
+/api/night-audit/summary
+
+REPORTS: POST /api/reports/{report_code}
+
+============================================================ 55.
+DATABASE TRANSACTION STANDARD
+============================================================
+
+Every critical transaction:
+
+VALIDATE | LOCK/RECHECK | BEGIN TRAN | WRITE | POST-CONDITION CHECK |
+COMMIT
+
+Error:
+
+ROLLBACK | AUDIT LOG | SAFE ERROR RESPONSE
+
+CRITICAL TRANSACTIONS: Check-In Checkout Reverse Checkout Payment Charge
+transfer POS Bill Stock Issue Stock Receipt Accounting Voucher Night
+Audit
+
+============================================================ 56.
+CONCURRENCY RULES
+============================================================
+
+ROOM BOOKING: lock/recheck room before assignment.
+
+CHECK-IN: lock/recheck room before RoomOcc insert.
+
+PAYMENT: reread current folio balance.
+
+CHECKOUT: reread balance and active RoomOcc.
+
+NIGHT AUDIT: acquire single-run lock.
+
+POS: prevent duplicate bill numbers.
+
+INVENTORY: prevent negative stock if configured.
+
+============================================================ 57. AUDIT /
+LOGGING STANDARD
+============================================================
+
+Every sensitive operation should record:
+
+User Site Date Time Action Source Document Old Value New Value Reason
+Machine/Session Result
+
+FINANCIAL: Charge delete Charge amendment Payment reversal Bill deletion
+Bill modification Checkout reversal Night Audit reversal
+
+============================================================ 58. ERROR
+HANDLING STANDARD
+============================================================
+
+FRONTEND: friendly business message no SQL error dump
+
+BACKEND LOG: exception stack trace request id user site document id
+
+EXAMPLE:
+
+Business: “Room 101 is no longer available.”
+
+Technical log: request_id SQL error timestamp user site endpoint
+
+============================================================ 59. REPORT
+RECONCILIATION
+============================================================
+
+During migration run legacy and Python systems in parallel.
+
+COMPARE: Room occupancy Arrivals Departures In-house Folio balance Room
+rent POS revenue Tax Payment Stock Ledger Night Audit totals
+
+Acceptance rule: totals must reconcile before production cutover.
+
+============================================================ 60.
+MIGRATION ORDER
+============================================================
+
+PHASE 0: Backup DB Schema snapshot Source control HMS.bas archive
+
+PHASE 1: Login Permission Company Site Environment
+
+PHASE 2: All master data read/search
+
+PHASE 3: Guest Reservation Room Availability
+
+PHASE 4: Check-In GuestFolio RoomOcc
+
+PHASE 5: Charge Payment Room Change Checkout Reverse Checkout
+
+PHASE 6: Housekeeping
+
+PHASE 7: POS / KOT / F&B
+
+PHASE 8: Inventory / Purchase
+
+PHASE 9: Accounts / Tax / TDS
+
+PHASE 10: Banquet
+
+PHASE 11: Membership
+
+PHASE 12: Payroll
+
+PHASE 13: Telephone / SMS / Facility
+
+PHASE 14: Reports
+
+PHASE 15: Night Audit / Reverse Night Audit
+
+PHASE 16: Tally / eInvoice / Web API
+
+PHASE 17: Parallel reconciliation
+
+PHASE 18: Production
+
+============================================================ 61. MODULE
+IMPLEMENTATION TEMPLATE
+============================================================
+
+For EVERY module use this template:
+
+MODULE NAME
+
+1.  Purpose
+2.  Legacy VB6 forms
+3.  Tables
+4.  Master data dependencies
+5.  Frontend screens
+6.  API endpoints
+7.  Backend service
+8.  Repository queries
+9.  Validation rules
+10. Transaction boundary
+11. Audit rules
+12. Error handling
+13. Reports
+14. Integration dependencies
+15. Test cases
+16. Legacy-vs-Python reconciliation
+
+============================================================ 62. FRONT
+OFFICE IMPLEMENTATION PRIORITY
+============================================================
+
+P0: Login Permission Site Guest Room Reservation
+
+P1: Check-In GuestFolio RoomOcc PayCharge Payment
+
+P2: Room Change Checkout Reverse Checkout Clearance Housekeeping
+
+P3: Night Audit Reports Reconciliation
+
+============================================================ 63. NIGHT
+AUDIT ACCEPTANCE CHECKLIST
+============================================================
+
+Before audit: [ ] User authorized [ ] Correct business date [ ] Normal
+posting stopped [ ] Pending KOT checked [ ] Pending POS checked [ ]
+No-show list reviewed [ ] Active rooms loaded
+
+Posting: [ ] Room rent calculated [ ] No duplicate room rent [ ] POS
+revenue reconciled [ ] Taxes reconciled [ ] Account postings reconciled
+[ ] Token reset done if configured
+
+Finish: [ ] NightAuditLog created [ ] Start/end time recorded [ ] User
+recorded [ ] Business date transitioned [ ] Audit lock released [ ]
+Summary generated
+
+============================================================ 64. FINAL
+MASTER FLOW ============================================================
+
+USER | LOGIN | PERMISSION | COMPANY / SITE | ENVIRONMENT / BUSINESS DATE
+| MASTER DATA | +————————-+ | OPERATIONS | | | | Front Office | |
+Reservation | | Guest | | Housekeeping | | Restaurant/POS | | Banquet |
+| Inventory | | Accounts | | Membership | | Payroll | | Communication |
+| Facility | +————————-+ | POSTING | PAYCHARGE / STOCK / LEDGER / POS |
+REPORTS | NIGHT AUDIT | NO-SHOW | ROOM RENT | POS REVENUE | ACCOUNT
+POSTING | NIGHTAUDITLOG | BUSINESS DATE | NEXT OPERATING DAY
+
+============================================================ 65. GOLDEN
+RULES FOR HMS_py
+============================================================
+
+1.  Preserve legacy business behavior before redesigning it.
+2.  UI is not business logic.
+3.  Backend owns validation.
+4.  SQL is parameterized.
+5.  Site isolation is mandatory.
+6.  Critical operations are transactional.
+7.  Financial records should be reversible/auditable.
+8.  Room availability must be rechecked at save time.
+9.  Folio balance must be recalculated from DB.
+10. Inventory must be calculated from movements.
+11. Night Audit must be idempotent.
+12. Night Audit must be single-run locked.
+13. Reports must reconcile with legacy reports.
+14. Never blindly delete financial history.
+15. Every module should have its own service + repository + tests.
+16. Every legacy opaque procedure should be traced before replacing it.
+17. Keep SQL Server 2008 R2 compatibility until migration is complete.
+18. Use the same backend services for desktop, web and touch-screen UI.
+
+============================================================ 66. FINAL
+IMPLEMENTATION ROADMAP
+============================================================
+
+STEP 1: Freeze current HMS.bas behavior.
+
+STEP 2: Extract complete form -> event -> SQL map.
+
+STEP 3: Extract DB schema: tables columns primary keys foreign keys
+indexes views stored procedures
+
+STEP 4: Implement authentication/context.
+
+STEP 5: Implement masters.
+
+STEP 6: Implement Front Office.
+
+STEP 7: Implement POS/Housekeeping/Inventory.
+
+STEP 8: Implement Accounts/Banquet/Membership/Payroll.
+
+STEP 9: Implement Reports.
+
+STEP 10: Implement Night Audit.
+
+STEP 11: Add integrations.
+
+STEP 12: Run legacy/Python parallel testing.
+
+STEP 13: Reconcile every daily total.
+
+STEP 14: Production cutover.
+
+END OF DOCUMENT

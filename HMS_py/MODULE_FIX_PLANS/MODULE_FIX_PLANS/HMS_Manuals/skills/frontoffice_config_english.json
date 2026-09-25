@@ -1,0 +1,1467 @@
+{
+ "module": "FRONT OFFICE MODULE",
+ "subtitle": "Master · Operations · Transactions · Reports · MIS · Appendix",
+ "property": "Property: Demo Property",
+ "version": "Training Manual for Front Desk Staff",
+ "header": "Analysis HMS — Front Office Module Training Manual",
+ "footerText": "Analysis HMS Front Office Training Manual | Demo Property",
+ "output": "HMS_Manuals/FrontOffice/FrontOffice_Module_Training_Manual_English.docx",
+ "imageRoot": ".",
+ "theme": {
+  "color": "3F51B5",
+  "dark": "283593",
+  "light": "E8EAF6"
+ },
+ "sections": [
+  {
+   "title": "1. Introduction & Module Overview",
+   "intro": "Front Office is the hotel's most important module — it manages the guest's complete journey from first contact (check-in) to last contact (check-out & billing).\n\nIn Analysis HMS the Front Office Module handles guest registration, room assignment, folio (bill) management, in-house guest tracking, check-out settlement and all related reports. This training manual teaches front desk staff to operate the system step by step.\n\nGUEST JOURNEY (Training Flow):\nReservation/Enquiry → Guest Arrival → Registration (GRC) → Room Assign → Check-In → Stay (charges post, room change, folio merge) → Check-Out → Bill Settlement → Bill Print → Guest History",
+   "subsections": [
+    {
+     "title": "Module Sections Overview",
+     "table": {
+      "headers": [
+       "Section",
+       "Purpose",
+       "Key Screens"
+      ],
+      "rows": [
+       [
+        "MASTER (Setup)",
+        "One-time setup — rooms, plans and sources",
+        "FOM Parameter, Business Source, Guest Status, Charge/Plan Master, Room Category/Master, Booking Source, Building"
+       ],
+       [
+        "OPERATIONS",
+        "Daily guest lifecycle",
+        "Blank GRC, Walk-In Check-In, CheckIn List, Room Status, In-House Status, Add New Profile"
+       ],
+       [
+        "TRANSACTIONS",
+        "Billing & folio",
+        "Bill Reprint, Bill Re-Settlement, Misc Payment, Merge/Reverse Merge Folio"
+       ],
+       [
+        "REPORTS",
+        "Daily register & audit",
+        "CheckIn/CheckOut Register, Cashier, Occupancy, Expected CheckOut, Complimentary, Room Change History"
+       ],
+       [
+        "MIS REPORTS",
+        "Management analytics",
+        "Room Inventory, Sale Summary, Company Contribution, Guest Trail, Revenue Source"
+       ],
+       [
+        "TAX REPORTS",
+        "GST compliance",
+        "FOM Tax Detail"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Keyboard Shortcuts (for Front Desk)",
+     "table": {
+      "headers": [
+       "Shortcut",
+       "Screen",
+       "when to use"
+      ],
+      "rows": [
+       [
+        "Shift + W",
+        "Walk-In Check In",
+        "Guest walks in directly and asks for a room"
+       ],
+       [
+        "Shift + S",
+        "Room Status",
+        "To see available/dirty rooms"
+       ],
+       [
+        "Shift + I",
+        "In-House Room Status",
+        "Status of in-house guests"
+       ],
+       [
+        "Shift + H",
+        "Housekeeping Screen",
+        "Coordinate with HK team"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Key Benefits",
+     "bullets": [
+      "Fast walk-in check-in — assign a room in 2 minutes",
+      "Digital GRC (Guest Registration Card) — paperless",
+      "Live room status — which room is available/dirty/occupied",
+      "Folio-based billing — all charges in one place",
+      "Multiple payment modes with GST auto-calculation",
+      "Merge folio — family/group in one bill",
+      "Complete guest history — repeat guest recognition",
+      "Night audit integration — automatic day close"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "2. Login & Navigation",
+   "screenshot": "HMS_Manuals/FrontOffice/screenshots/00_Login/01_Login_Page.png",
+   "caption": "Analysis HMS Login Screen — analysishms.com/login",
+   "subsections": [
+    {
+     "title": "Login Page",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/00_Login/01_Login_Page.png",
+     "para": "Login Page — Sign In by entering User ID + Password at analysishms.com. After property selection the module menu opens. (This screenshot was earlier missing in the gallery, now it has been added.)"
+    },
+    {
+     "title": "Login Steps (Training Exercise 1)",
+     "table": {
+      "headers": [
+       "Step",
+       "Action",
+       "Details"
+      ],
+      "rows": [
+       [
+        "1",
+        "Open the browser",
+        "https://analysishms.com → Login"
+       ],
+       [
+        "2",
+        "Username",
+        "Front desk user ID (get from admin)"
+       ],
+       [
+        "3",
+        "Password",
+        "Assigned password"
+       ],
+       [
+        "4",
+        "Property ID",
+        "Your property ID (get from admin)"
+       ],
+       [
+        "5",
+        "Login click",
+        "Dashboard khul jayega"
+       ],
+       [
+        "6",
+        "By expanding 'Front Office' in the sidebar",
+        "Operations / Reports / MIS / Tax sub-menus"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Front Office Menu Structure",
+     "bullets": [
+      "Front Office → Operations: Blank GRC, WalkIn Check In (Shift+W), CheckIn List, Room Status (Shift+S), Bill Reprint, Bill Re-Settlement, Misc Payment/Rect., Merge Folio, Reverse Merge Folio, In House Room Status (Shift+I), Add New Profile",
+      "Front Office → Reports: CheckIn Register, CheckOut Register, Cashier Report, Cancel Bill Details, Occupancy Report, Expected CheckOut, Complimentary Report, Room Change History",
+      "Front Office → MIS Report: Room Inventory, Sale Summary, Company Contribution, Guest Trail, Company wise Analysis, Revenue Source Report",
+      "Front Office → Tax Reports: FOM Tax Detail",
+      "Main Setup → Front Office: FOM Parameter, Business Source, Guest Status, Charge Master, Plan Master, Room Features, Room Category, Room Master, Booking Source, Building Master"
+     ]
+    },
+    {
+     "title": "How does the system work (Technical Understanding)",
+     "paragraph": "The entire data of Front Office is saved in the cloud database. For training it is important to understand which table your entry goes into:",
+     "table": {
+      "headers": [
+       "what are you doing",
+       "Database Table",
+       "What store is there?"
+      ],
+      "rows": [
+       [
+        "Check the guest in",
+        "roomocc",
+        "Room no, check-in date/time, adult/child, rate, plan, expected checkout"
+       ],
+       [
+        "Fill in guest details",
+        "guestprof",
+        "Name, mobile, email, address, nationality, ID details"
+       ],
+       [
+        "Folio/bill is made",
+        "guestfolio",
+        "Ledger entry for every charge, tax, payment"
+       ],
+       [
+        "Room setup (admin)",
+        "room_mast",
+        "Room no, category, floor, building, status"
+       ],
+       [
+        "Room types (admin)",
+        "room_cat",
+        "Category name, rate code, occupancy"
+       ],
+       [
+        "Night audit",
+        "nightauditlog",
+        "Log of software date advance"
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "3. Master Module — Setup & Configuration",
+   "intro": "Master setup happens once — defining the property's rooms, rates, sources and parameters. Front desk needs this only for coordination, entries are mainly administered.",
+   "subsections": [
+    {
+     "title": "3.1 FOM Parameter",
+     "navPath": "Main Setup ▶ Front Office ▶ Fom Parameter",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/01_Master/01_FOM_Parameter.png",
+     "paragraph": "Global settings of the Front Office Module — check-in/check-out time, tax rules, folio printing rules, GRC format parameters etc. These control the behaviour of the entire module.",
+     "table": {
+      "headers": [
+       "Parameter Group",
+       "What controls?"
+      ],
+      "rows": [
+       [
+        "Check-In / Check-Out Time",
+        "Default arrival/departure time"
+       ],
+       [
+        "Tax Parameters",
+        "GST slabs, tax inclusive/exclusive"
+       ],
+       [
+        "Folio/GRC Params",
+        "Print format, numbering"
+       ],
+       [
+        "Night Audit Settings",
+        "Auto no-show, day close rules"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.2 Business Source",
+     "navPath": "Main Setup ▶ Front Office ▶ Business Source",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/01_Master/02_Business_Source.png",
+     "paragraph": "Where is business coming from – Walk-In, Phone, WhatsApp, OTA (MakeMyTrip, Booking.com), Corporate etc. On every check-in, business source is selected, after which Revenue Source Report is created.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description",
+       "Example"
+      ],
+      "rows": [
+       [
+        "Source Name",
+        "Business source name",
+        "MakeMyTrip"
+       ],
+       [
+        "Code",
+        "Short code",
+        "MMT"
+       ],
+       [
+        "Active",
+        "Enabled/disabled",
+        "Yes"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.3 Guest Status",
+     "navPath": "Main Setup ▶ Front Office ▶ Guest Status",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/01_Master/03_Guest_Status.png",
+     "paragraph": "Define guest categories — Regular, VIP, Corporate Guest, Complimentary etc. Special handling and alerts for VIP guests come from this.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Status Name",
+        "Regular / VIP / Semi-VIP / Complimentary"
+       ],
+       [
+        "Description",
+        "Meaning of this status"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.4 Charge Master",
+     "navPath": "Main Setup ▶ Front Office ▶ Charge Master",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/01_Master/04_Charge_Master.png",
+     "paragraph": "The charges that can be posted other than room are as follows – Laundry, Restaurant, Mini Bar, Extra Bed, Late Checkout. These charges are posted in the guest folio.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description",
+       "Example"
+      ],
+      "rows": [
+       [
+        "Charge Name",
+        "Charge name",
+        "Extra Bed"
+       ],
+       [
+        "Rate",
+        "Default rate",
+        "800.00"
+       ],
+       [
+        "Tax Code",
+        "Which GST applies",
+        "12%"
+       ],
+       [
+        "Post To",
+        "Folio posting group",
+        "Room Service"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.5 Plan Master",
+     "navPath": "Main Setup ▶ Front Office ▶ Plan Master",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/01_Master/05_Plan_Master.png",
+     "paragraph": "Room plans — EP (sir room), CP (room + breakfast), MAP (breakfast + dinner), AP (all meals). The rate structure and included meals of the plan are defined here.",
+     "table": {
+      "headers": [
+       "Plan",
+       "Full Form",
+       "Includes"
+      ],
+      "rows": [
+       [
+        "EP",
+        "European Plan",
+        "Room only"
+       ],
+       [
+        "CP",
+        "Continental Plan",
+        "Room + Breakfast"
+       ],
+       [
+        "MAP",
+        "Modified American Plan",
+        "Room + Breakfast + Dinner"
+       ],
+       [
+        "AP",
+        "American Plan",
+        "Room + Breakfast + Lunch + Dinner"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.6 Room Features",
+     "navPath": "Main Setup ▶ Front Office ▶ Room Features",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/01_Master/06_Room_Features.png",
+     "paragraph": "Room's special features — Sea View, Balcony, Jacuzzi, Connecting Door. These have been attached to Room Master.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Feature Name",
+        "Sea View / Balcony / Bathtub"
+       ],
+       [
+        "Description",
+        "what is in detail"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.7 Room Category",
+     "navPath": "Main Setup ▶ Front Office ▶ Room Category",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/01_Master/07_Room_Category.png",
+     "paragraph": "Room types defined – Deluxe, Super Deluxe, Suite, Executive. Each category's rate, occupancy (multiper) and revenue code are set here. This is the basis of all rates and occupancy reports.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description",
+       "Example"
+      ],
+      "rows": [
+       [
+        "Category Name",
+        "Room type",
+        "Deluxe"
+       ],
+       [
+        "Short Name",
+        "Short form in the report",
+        "DLX"
+       ],
+       [
+        "Rate Code / Rev Code",
+        "Revenue mapping",
+        "R1"
+       ],
+       [
+        "Max Occupancy",
+        "How many guests",
+        "2 + 1 child"
+       ],
+       [
+        "No. of Rooms",
+        "Total rooms of this category",
+        "10"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.8 Room Master",
+     "navPath": "Main Setup ▶ Front Office ▶ Room Master",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/01_Master/08_Room_Master.png",
+     "paragraph": "Every physical room entry — room number, category, floor, building, features and QR code. Room QR generator is also distributed from here (for housekeeper QR login).",
+     "table": {
+      "headers": [
+       "Field",
+       "Description",
+       "Example"
+      ],
+      "rows": [
+       [
+        "Room No.",
+        "Physical room number",
+        "101"
+       ],
+       [
+        "Category",
+        "Room type dropdown",
+        "Deluxe"
+       ],
+       [
+        "Floor",
+        "Which floor",
+        "1ST FLOOR"
+       ],
+       [
+        "Building",
+        "Building name",
+        "Main Block"
+       ],
+       [
+        "Features",
+        "Attached features",
+        "Sea View, Balcony"
+       ],
+       [
+        "Status",
+        "Is the room active or not?",
+        "Active"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.9 Booking Source",
+     "navPath": "Main Setup ▶ Front Office ▶ Booking Source",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/01_Master/09_Booking_Source.png",
+     "paragraph": "Where to book the reservation — Direct, Agent, Corporate, OTA. Different from Business Source: It tracks the booking channel.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Source Name",
+        "Direct / Travel Agent / Company"
+       ],
+       [
+        "Type",
+        "Online / Offline"
+       ],
+       [
+        "Commission %",
+        "Agent commission (if any)"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.10 Building Master",
+     "navPath": "Main Setup ▶ Front Office ▶ Building Master",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/01_Master/10_Building_Master.png",
+     "paragraph": "Define buildings in a multi-building property — Main Block, Annex, Service Wing. Rooms are distributed across these buildings.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Building Name",
+        "Main Block / Annex"
+       ],
+       [
+        "Description",
+        "Building detail"
+       ],
+       [
+        "Floors",
+        "How many floors are there?"
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "4. Operations Module — Guest Lifecycle",
+   "intro": "This is the daily work of the front desk — guests come to check-in, manage their stay, check room status. Core section of training: Every screen with demo data.",
+   "subsections": [
+    {
+     "title": "4.1 Blank GRC (Guest Registration Card)",
+     "navPath": "Front Office ▶ Operations ▶ Blank GRC",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/02_Operations/01_Blank_GRC.png",
+     "paragraph": "To print blank registration card — when system is down or immediate paper record of walk-in guest is required. Later this data is entered into the system.",
+     "table": {
+      "headers": [
+       "when to use",
+       "how"
+      ],
+      "rows": [
+       [
+        "System slow/down ho",
+        "Open the screen → Print"
+       ],
+       [
+        "Training/practice",
+        "Fill out the blank form by printing it."
+       ],
+       [
+        "Backup paper record",
+        "For guest signature"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "4.2 Walk-In Check In (Shift+W) — Most Important Screen",
+     "navPath": "Front Office ▶ Operations ▶ WalkIn Check In",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/02_Operations/02_WalkIn_CheckIn.png",
+     "paragraph": "Guest directly goes to hotel to check-in. This 3-part form is: (1) Stay details above, (2) Room/Rate details in the middle, (3) Guest information below. Complete check-in is done from one screen.",
+     "table": {
+      "headers": [
+       "Section",
+       "Fields",
+       "What to fill in"
+      ],
+      "rows": [
+       [
+        "Stay Details",
+        "Check-In date/time, Nights, Checkout, Room, Remarks, Pick Up/Drop",
+        "Checkout auto-updates when nights are changed"
+       ],
+       [
+        "Source Details",
+        "Company, Booking Source, Business Source, Bill To",
+        "Select from dropdowns — if not available, quick-add with '+'"
+       ],
+       [
+        "Room Row",
+        "Room Type, Room No, Adult, Child, Plan, Rate, Tax Inc., Leader",
+        "First type → then available room → rate will appear, check tax inclusive toggle"
+       ],
+       [
+        "Add Room",
+        "Multi-room check-in",
+        "Multiple rooms for one guest — Add Room button"
+       ],
+       [
+        "Guest Information",
+        "Prefix, Full Name, Mobile, Email, City, State, Country, Nationality, Zip, Address",
+        "Mobile & name required — may be updated later"
+       ],
+       [
+        "Other Information",
+        "WhatsApp at checkout, No Charge Post, Suppress Rate on GRC",
+        "If it's a complimentary room, tick the checkbox"
+       ],
+       [
+        "Buttons",
+        "Cancel / Check In",
+        "Check In click → room assigned, folio banned"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "4.3 CheckIn List",
+     "navPath": "Front Office ▶ Operations ▶ CheckIn List",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/02_Operations/03_CheckIn_List.png",
+     "paragraph": "List of all check-ins for today (or any date) — guest name, room, plan, rate, status. From here you can take any action on in-house guest: room change, amend stay, profile update, view folio, checkout.",
+     "table": {
+      "headers": [
+       "Column/Action",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Guest / Folio No.",
+        "Guest name and folio number"
+       ],
+       [
+        "Room / Category",
+        "Assigned room"
+       ],
+       [
+        "Arrival / Departure",
+        "Stay dates"
+       ],
+       [
+        "Rate / Plan",
+        "Rate and plan"
+       ],
+       [
+        "Action Icons",
+        "Room Change, Ammend Stay, Profile Edit, Folio, Checkout, Room Key print"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "4.4 Room Status (Shift+S)",
+     "navPath": "Front Office ▶ Operations ▶ Room Status",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/02_Operations/04_Room_Status.png",
+     "paragraph": "Live room map of the whole property — which room is vacant clean, vacant dirty, occupied, out of order. The front desk finds available rooms from here at check-in. Colors meaning: Green=available, Red=occupied, Yellow=dirty, Gray=OOO.",
+     "table": {
+      "headers": [
+       "Status",
+       "Meaning",
+       "Front Desk Action"
+      ],
+      "rows": [
+       [
+        "Vacant Clean",
+        "Khali + saaf",
+        "You can allow check-in"
+       ],
+       [
+        "Vacant Dirty",
+        "Khali + gandagi",
+        "get cleaning done from HK"
+       ],
+       [
+        "Occupied",
+        "Guest is present",
+        "Check-in cannot be allowed"
+       ],
+       [
+        "Expected Checkout",
+        "Checkout will happen today",
+        "Allocate after checkout"
+       ],
+       [
+        "Out of Order",
+        "Under repair",
+        "My engineering follow up"
+       ],
+       [
+        "Blocked",
+        "Reserve/Group block",
+        " only on authorized release"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "4.5 In-House Room Status (Shift+I)",
+     "navPath": "Front Office ▶ Operations ▶ In House Room Status",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/02_Operations/10_InHouse_Room_Status.png",
+     "paragraph": "Now detailed view of all the guests staying in the hotel — room wise guest, folio balance, arrival/departure. With room-wise guest lookup and DND/vacant status.",
+     "table": {
+      "headers": [
+       "Info",
+       "Use"
+      ],
+      "rows": [
+       [
+        "Room-wise guest list",
+        "Who is in which room?"
+       ],
+       [
+        "Folio balance",
+        "How much is the charge/pending?"
+       ],
+       [
+        "Departure date",
+        "Who is there today?"
+       ],
+       [
+        "Guest contact",
+        "For call/message"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "4.6 Add New Profile",
+     "navPath": "Front Office ▶ Operations ▶ Add New Profile",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/02_Operations/11_Add_New_Profile.png",
+     "paragraph": "Repeat guest or company/agent profile should be created in advance – it has to be selected only at the time of check-in. Name, contact, ID, preferences, GSTIN are saved in guest profile.",
+     "table": {
+      "headers": [
+       "Profile Type",
+       "What has been saved?"
+      ],
+      "rows": [
+       [
+        "Guest Profile",
+        "Name, mobile, email, address, ID proof, DOB/Anniversary"
+       ],
+       [
+        "Company Profile",
+        "Company name, GSTIN, address, billing contact"
+       ],
+       [
+        "Travel Agent",
+        "Agent name, commission %, contact"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "4.7 Room Change (from CheckIn List)",
+     "paragraph": "Guest room change required: CheckIn List → guest select → Room Change → new room (vacant must be cleaned) → reason → save. The old room is becoming vacant, the folio is being shifted to the new room. History is mentioned in 'Room Change History' report.",
+     "steps": [
+      "Open the CheckIn List",
+      "Click the Room Change action on the guest row",
+      "Select a new room from available rooms",
+      "Give reason (optional) and save"
+     ]
+    },
+    {
+     "title": "4.8 Ammend Stay (Date/Rate Change)",
+     "paragraph": "If the guest extends/shortens the stay or the rate changes: CheckIn List → Ammend Stay → new departure date or rate → update. Nights are auto-recalculated and room charges in the folio are adjusted.",
+     "steps": [
+      "CheckIn List → select the guest",
+      "Click Ammend Stay",
+      "Enter the new departure date / rate",
+      "Save — the difference will be posted to the folio"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "5. Transactions Module — Billing & Folio",
+   "intro": "All billing-related work at check-out time or during the stay. Folio = the guest's bill ledger, where room charges, POS charges and payments are all posted.",
+   "subsections": [
+    {
+     "title": "5.1 Bill Reprint",
+     "navPath": "Front Office ▶ Operations ▶ Bill Reprint",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/02_Operations/05_Bill_Reprint.png",
+     "paragraph": "Reprint an old printed bill — keep the guest copy or issue a duplicate. Enter Year + Bill No. → Search → details → Print. If the bill was wrong, a new bill is made after re-settlement.",
+     "steps": [
+      "Select the For Year",
+      "Enter the Bill No.",
+      "Search — bill details load hongi",
+      "Click Bill Print (duplicate copy)"
+     ]
+    },
+    {
+     "title": "5.2 Bill Re-Settlement",
+     "navPath": "Front Office ▶ Operations ▶ Bill Re-Settlement",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/02_Operations/06_Bill_ReSettlement.png",
+     "paragraph": "If there is a mistake in the settled bill (wrong payment mode, amount, or guest returns) — a new settlement is made by reversing the old settlement. Select Room/folio → load old settlement → modify → re-settle.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Room/Folio No.",
+        "Which room's bill has to be re-settled?"
+       ],
+       [
+        "Old Settlement",
+        "Record to be reversed"
+       ],
+       [
+        "New Settlement",
+        "Sahi payment mode + amount"
+       ],
+       [
+        "Reason/Narration",
+        "Why re-settled (required for audit)"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "5.3 Misc Payment / Rectification",
+     "navPath": "Front Office ▶ Operations ▶ Misc Payment /Rect.",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/02_Operations/07_Misc_Payment.png",
+     "paragraph": "Non-guest payments or corrections — expense sheet entry: cash received/paid outside the folio, petty cash, rectification entries. Shows in the cashier report.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Voucher Type",
+        "Payment / Receipt / Rectification"
+       ],
+       [
+        "Account Head",
+        "In whose head should I post?"
+       ],
+       [
+        "Amount + Mode",
+        "Cash/UPI/Card/Cheque"
+       ],
+       [
+        "Narration",
+        "Why entry?"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "5.4 Merge Folio",
+     "navPath": "Front Office ▶ Operations ▶ Merge Folio",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/02_Operations/08_Merge_Folio.png",
+     "paragraph": "Combine separate folios of multiple rooms of one guest/family into one — one bill at checkout. E.g. Room 101 and 102 both for the same guest – one bill by merging both the folios.",
+     "steps": [
+      "Open the Merge Folio screen",
+      "By selecting master folio (which has to be merged)",
+      "Select the folios to merge",
+      "Confirm — all charges will move to the master folio"
+     ]
+    },
+    {
+     "title": "5.5 Reverse Merge Folio",
+     "navPath": "Front Office ▶ Operations ▶ Reverse Merge Folio",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/02_Operations/09_Reverse_Merge_Folio.png",
+     "paragraph": "Have you merged by mistake? Reverse Merge separates the folios back — charges go back to their original rooms.",
+     "steps": [
+      "Open Reverse Merge Folio",
+      "Select the merged folio",
+      "Select which charges to reverse?",
+      "Confirm — the folios will be separated"
+     ]
+    },
+    {
+     "title": "5.6 Check-Out & Settlement Process (Complete Flow)",
+     "paragraph": "This is the most important training flow – while visiting the guest:",
+     "steps": [
+      "Open the guest's folio from In-House/CheckIn List",
+      "Please verify all charges – room nights, POS, laundry, minibar",
+      "If a discount applies — only within the authorized discount %",
+      "Adjust the advance/deposit",
+      "Select the payment mode — Cash / UPI / Card / City Ledger (company bill)",
+      "Settle by clicking — GST auto-calculate is done",
+      "Print the bill — guest copy + hotel copy",
+      "Room status appears to be 'Vacant Dirty' - inform HK"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "6. Reports Module — Daily Registers",
+   "intro": "Registers of daily operations — for shift handover, audit and record keeping. All reports have date filter + print/export.",
+   "subsections": [
+    {
+     "title": "6.1 Available Reports",
+     "navPath": "Front Office ▶ Reports",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/03_Reports/01_CheckIn_Register.png",
+     "caption": "Check-In Register — Reports module",
+     "table": {
+      "headers": [
+       "Report",
+       "what do you see",
+       "when to use"
+      ],
+      "rows": [
+       [
+        "Check In Register",
+        "Date-wise all check-ins — guest, room, rate, source",
+        "Daily audit, police records"
+       ],
+       [
+        "Check Out Register",
+        "Date-wise checkouts — bill amount, payment mode",
+        "Cashier reconciliation"
+       ],
+       [
+        "Cashier Report",
+        "Shift-wise cash/UPI/card collection",
+        "Shift handover — matching cash"
+       ],
+       [
+        "Cancel Bill Details",
+        "Canceled bills – when, when, why",
+        "Audit trail"
+       ],
+       [
+        "Occupancy Report",
+        "Occupancy % — room type/floor wise",
+        "Daily management review"
+       ],
+       [
+        "Expected CheckOut",
+        "Today's expected departures",
+        "Morning duty list"
+       ],
+       [
+        "Complimentary Report",
+        "Free/complimentary rooms — with reason",
+        "Management approval audit"
+       ],
+       [
+        "Room Change History",
+        "Room changes — from/to room, reason, user",
+        "Dispute resolution"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "6.2 Common Report Filters",
+     "table": {
+      "headers": [
+       "Filter",
+       "Options"
+      ],
+      "rows": [
+       [
+        "Date Range",
+        "From–To date"
+       ],
+       [
+        "Shift",
+        "Morning / Evening / Night (in Cashier)"
+       ],
+       [
+        "Room Type",
+        "All / specific category"
+       ],
+       [
+        "Payment Mode",
+        "Cash / UPI / Card / City Ledger"
+       ],
+       [
+        "Export",
+        "Print / Excel / PDF"
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "7. MIS Reports — Management Analytics",
+   "intro": "Management-level analytics — revenue, company contribution, guest behaviour. For the owner/GM.",
+   "subsections": [
+    {
+     "title": "7.1 Available MIS Reports",
+     "navPath": "Front Office ▶ MIS Report",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/04_MIS/02_Sale_Summary.png",
+     "caption": "FOM Sale Summary — revenue breakdown",
+     "table": {
+      "headers": [
+       "Report",
+       "what do you see"
+      ],
+      "rows": [
+       [
+        "Room Inventory",
+        "Category-wise rooms — total, occupied, vacant, OOO, ADR"
+       ],
+       [
+        "Sale Summary (FOM)",
+        "Revenue summary — room rent, extra charges, tax, discounts"
+       ],
+       [
+        "Company Contribution Report",
+        "Which company has how much revenue?"
+       ],
+       [
+        "Guest Trail",
+        "Repeat guest history — visits, spend, preferences"
+       ],
+       [
+        "Company wise Analysis",
+        "Company-wise room nights + revenue + ADR"
+       ],
+       [
+        "Revenue Source Report",
+        "Business source-wise revenue — OTA vs Direct vs Corporate"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "7.2 Tax Reports",
+     "navPath": "Front Office ▶ Tax Reports",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/05_Tax/01_FOM_Tax_Detail.png",
+     "paragraph": "GST compliance report — FOM Tax Detail: date-wise GST breakdown of room revenue (CGST/SGST), HSN code-wise summary. The accountant uses it in GSTR filing.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Date Range",
+        "By selecting period"
+       ],
+       [
+        "Tax Slab",
+        "0% / 12% (room rate based)"
+       ],
+       [
+        "Output",
+        "CGST + SGST breakdown, invoice-wise detail"
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "8. Dated Reports Analysis — 01-Sep to 18-Sep-2026 (Live Data + Internal Logic)",
+   "intro": "This section has been created by applying date-filter of 01-Sep-2026 to 18-Sep-2026 from live system. Along with every report, its internal logic is given – which table, which join, which date column is used. Screenshots folder: screenshots/05_Reports_Dated/. Detailed logic file: FO_Logic_Explanation_01to18Sep.txt (found along with the manual).\n\nIn training, study this section on 3rd day — first Masters (data language), then Operations (guest lifecycle), then these reports with logic.",
+   "subsections": [
+    {
+     "title": "8.1 Check In Register (01-18 Sep) — Logic",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/05_Reports_Dated/01_CheckIn_Register_01to18Sep.png",
+     "para": "Navigation: Front Office > Reports > Check In Register > From 01/Sep/2026 To 18/Sep/2026 > Refresh.\n\nINTERNAL LOGIC: guestfolio JOIN roomocc JOIN guestprof WHERE vdate BETWEEN 01 and 18 Sep, GROUP BY docid+sno1. Advance column = SUM(paycharge.amtcr) WHERE modeset<>'S'. Merged folio shows via mFoliono.\n\nVisible in live data: Guest 'Anurag Kushwaha' (Bageshwar)'s 14+ room group check-in on 01-Sep (rooms 101-1151, rate 2500-3000, checkout 03-Sep) — a perfect example of group booking. Operator audit happens via the USER column."
+    },
+    {
+     "title": "8.2 Check Out Register (01-18 Sep) — Logic",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/05_Reports_Dated/02_CheckOut_Register.png",
+     "para": "INTERNAL LOGIC: fom_billdetail WHERE billdate BETWEEN dates. Filters: business source, company, travel agent, payment type. Revenue columns come from revmast (field_type='C', Desk_code='FOM'), EXCLUDING ROFF/DISC/CGSS/SGSS/TOUT special codes.\n\nHow many checkouts came from which source — the base of market segment analysis."
+    },
+    {
+     "title": "8.3 Cashier Report (01-18 Sep) — Logic",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/05_Reports_Dated/03_Cashier_Report.png",
+     "para": "INTERNAL LOGIC (payment reconciliation): paycharge JOIN revmast(field_type='P') WHERE RESTCODE='FOM' AND VDate BETWEEN dates. The anti-double-count logic: advance settles (ARRES/ADRES) only when DbtChkIn<>'Yes'; refdocid-linked entries are skipped; CHK voucher comes from a separate query.\n\nNetSale = AmtCr - AmtDr. Mode-wise totals (Cash/UPI/Card) = the cashier's shift-handover reconciliation tool."
+    },
+    {
+     "title": "8.4 Cancel Bill Details (01-18 Sep) — Logic",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/05_Reports_Dated/04_Cancel_Bill_Details.png",
+     "para": "INTERNAL LOGIC: fom_billdetail WHERE status='Cancel' AND billdate BETWEEN dates. Bill will never be deleted — just status change + reason. Full audit trail.\n\nAudit point: Who (u_name) is canceling how many bills."
+    },
+    {
+     "title": "8.5 Occupancy Report (01-18 Sep) — Logic",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/05_Reports_Dated/05_Occupancy_Report.png",
+     "para": "INTERNAL LOGIC (the most important concept): roomocc WHERE chkindate <= to AND (chkoutdate >= from OR chkoutdate IS NULL) — meaning whoever was in-house during the date range (whether checked in earlier or checked out in between). This is the 'room-nights consumed' report, not just check-ins.\n\nJoins: room_mast(type='RO'), guestprof (nationality/ID), plan_mast (package), subgroup (company/TA), busssource (segment), rate_list (rack rate comparison). DayUse = those with chkindate=chkoutdate."
+    },
+    {
+     "title": "8.6 Expected Check Out (01-18 Sep) — Logic",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/05_Reports_Dated/06_Expected_Check_Out.png",
+     "para": "INTERNAL LOGIC: guestfolio JOIN roomocc WHERE chkoutdate IS NULL AND depdate BETWEEN dates. The date is set at the time of check-in — night audit thus creates a 'today/those who go' list. depth = expected time.\n\nFront desk action: After seeing this list, keep express checkout ready, confirm folio balance."
+    },
+    {
+     "title": "8.7 Complimentary Report (01-18 Sep) — Logic",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/05_Reports_Dated/07_Complimentary_Report.png",
+     "para": "INTERNAL LOGIC: guestprof JOIN roomocc WHERE complimentry='Y' AND chkindate BETWEEN dates. The comp flag sits on the profile; comp rooms use a zero rate or comp revenue code, so they are not double-counted in revenue reports.\n\nManager audit: who sanctioned the comps."
+    },
+    {
+     "title": "8.8 Room Change History (01-18 Sep) — Logic",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/05_Reports_Dated/08_Room_Change_History.png",
+     "para": "INTERNAL LOGIC (self-join trick): roomocc oldr JOIN roomocc newr ON same folio AND newr.roomno=oldr.newroomno AND newr.sno>oldr.sno, WHERE chngdate BETWEEN dates. On a room change a new row (sno+1) is created and the old row gets newroomno written — the whole chain is traceable.\n\nColumns: old room/type/rate/plan -> new room/type/rate/plan, changedby, reason. Proof for dispute resolution."
+    },
+    {
+     "title": "8.9 MIS Room Inventory — Logic",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/05_Reports_Dated/09_MIS_Room_Inventory.png",
+     "para": "INTERNAL LOGIC (live snapshot): total = room_mast WHERE InclCount='Y'; occupied = roomocc WHERE chkoutdate IS NULL with guestfolio+booking+busssource+plan joins; free = total - occupied. RackRate = MAX(rate_list.rate2).\n\nDate filters here are for the live position — in training, the answer to 'how many rooms can we sell today' comes from here."
+    },
+    {
+     "title": "8.10 MIS Sale Summary (01-18 Sep) — Logic",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/05_Reports_Dated/10_MIS_Sale_Summary.png",
+     "para": "INTERNAL LOGIC (PIVOT report): revmast heads become columns (EXCLUDE ROFF/DISC/GST/TOUT), paycharge SUM per rev_code per day. Occupancy% = sold/(rooms x days), ADR = RoomRent/room-nights.\n\nThe manager's daily revenue dashboard — day-wise for 01-18 Sep."
+    },
+    {
+     "title": "8.11 MIS Company Contribution — Logic",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/05_Reports_Dated/11_MIS_Company_Contribution.png",
+     "para": "INTERNAL LOGIC: the start/end date is built from the month input (year+month). Corporate -> guestfolio.company join, otherwise travelagent. paycharge WHERE paycode='RMCH' AND vtype='RC' AND sno=1 — only ROOM RENT room-nights. Day-wise COUNT matrix per company.\n\nWhich company is bringing how many room-nights on which day — sales review."
+    },
+    {
+     "title": "8.12 MIS Guest Trail — Logic",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/05_Reports_Dated/12_MIS_Guest_Trail.png",
+     "para": "INTERNAL LOGIC: per-folio SUM(paycharge) grouped by type: RoomRent, RoomDisc, ExtraCharge, Tax, Outlet(transfer), CreditAmt. Nights = chkout-chkin (or today-chkin for in-house).\n\nOne guest's complete financial journey — the single-window answer for bill disputes."
+    },
+    {
+     "title": "8.13 MIS Company wise Analysis — Logic",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/05_Reports_Dated/13_MIS_Company_wise_Analysis.png",
+     "para": "INTERNAL LOGIC: subgroup(Corporate) x guestfolio x paycharge — RoomNights, Guests, GrossRevenue, RoomRent, Outlet transfer, Tax. Amounts are split via CASE paycode.\n\nCorporate account performance review — data for renewal negotiations."
+    },
+    {
+     "title": "8.14 MIS Revenue Source — Logic",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/05_Reports_Dated/14_MIS_Revenue_Source.png",
+     "para": "INTERNAL LOGIC (raw SQL): GROUP BY against busssource — SUM(RoomNights), SUM(Guests), SUM(GrossRevenue), SUM(RoomRent), SUM(Outlet), SUM(Tax), ADR = RoomRent/NULLIF(RoomNights,0).\n\nThe Business Source master bears fruit here: OTA vs Direct vs Corporate mix — the base of sales strategy."
+    },
+    {
+     "title": "8.15 FOM Tax Detail (01-18 Sep) — Logic",
+     "screenshot": "HMS_Manuals/FrontOffice/screenshots/05_Reports_Dated/15_Tax_FOM_Tax_Detail.png",
+     "para": "INTERNAL LOGIC: paycharge WHERE paycode IN (CGSS, SGSS, luxury codes) AND VDate BETWEEN dates — tax amounts per voucher/bill. GST slabs 0%/12% based on room rate (7500 threshold rule).\n\nThe CA's monthly GST working — output tax on rooms. Excel export option available."
+    },
+    {
+     "title": "8.16 Report Date-Logic Cheatsheet",
+     "table": {
+      "headers": [
+       "Report",
+       "Date Column",
+       "Meaning of Range",
+       "Special Condition"
+      ],
+      "rows": [
+       [
+        "Check In Register",
+        "guestfolio.vdate",
+        "Check-ins in the range",
+        "GROUP BY docid+sno1"
+       ],
+       [
+        "Check Out Register",
+        "fom_billdetail.billdate",
+        "Checkouts billed in the range",
+        "Status active bills"
+       ],
+       [
+        "Cashier Report",
+        "paycharge.vdate",
+        "Payments in the range",
+        "DbtChkIn + refdocid dedupe"
+       ],
+       [
+        "Cancel Bill",
+        "billdate",
+        "Cancellations in the range",
+        "status='Cancel'"
+       ],
+       [
+        "Occupancy",
+        "chkindate vs chkoutdate overlap",
+        "Were in-house in the range",
+        "chkoutdate IS NULL bhi include"
+       ],
+       [
+        "Expected Checkout",
+        "roomocc.depdate",
+        "Departure expected in the range",
+        "chkoutdate IS NULL (still in-house)"
+       ],
+       [
+        "Complimentary",
+        "chkindate",
+        "Comp check-ins in the range",
+        "complimentry='Y'"
+       ],
+       [
+        "Room Change",
+        "chngdate",
+        "Changes in the range",
+        "newroomno<>roomno"
+       ]
+      ]
+     },
+     "para": "THIS TABLE IS THE CORE OF TRAINING: Same From-To, different thing is measured in every report. Ask the trainee on each report — 'What is the meaning of the date in this report?'"
+    },
+    {
+     "title": "8.17 Data Flow — Where does your entry appear in the database?",
+     "table": {
+      "headers": [
+       "Screen/Report",
+       "Main Table",
+       "Key Columns",
+       "Linked Tables"
+      ],
+      "rows": [
+       [
+        "WalkIn Check In",
+        "guestfolio + roomocc",
+        "Docid, folio_no, chkindate, roomno, roomrate",
+        "guestprof, plan_mast"
+       ],
+       [
+        "Advance",
+        "paycharge",
+        "VTYPE=ADRES, AmtCr, PayType",
+        "guestfolio.Docid"
+       ],
+       [
+        "Room Change",
+        "roomocc (new row sno+1)",
+        "newroomno, chngdate, reasonrchange",
+        "room_mast"
+       ],
+       [
+        "Settlement/Checkout",
+        "paycharge",
+        "VTYPE=CHK, refdocid",
+        "fom_billdetail"
+       ],
+       [
+        "Merge Folio",
+        "guestfolio.mFoliono",
+        "mFoliono = merged target",
+        "paycharge.FOLIONODOCID re-point"
+       ],
+       [
+        "Bill Print",
+        "fom_billdetail",
+        "billno, billdate, status",
+        "guestfolio"
+       ],
+       [
+        "All Revenue Reports",
+        "paycharge",
+        "PayCode, AmtCr/AmtDr, VDATE",
+        "revmast (heads)"
+       ]
+      ]
+     },
+     "para": "Let the trainee understand this – one click on the screen gets the information written in the database. This puts confidence in the report numbers and makes troubleshooting easier."
+    }
+   ]
+  },
+  {
+   "title": "9. Appendix — Training Reference",
+   "intro": "Quick reference for front desk training — daily workflow, status codes, troubleshooting and contact.",
+   "subsections": [
+    {
+     "title": "Front Desk Daily Workflow (Training Timetable)",
+     "table": {
+      "headers": [
+       "Time",
+       "Activity",
+       "Screen"
+      ],
+      "rows": [
+       [
+        "Shift start",
+        "Take over from cashier report, cash count",
+        "Cashier Report"
+       ],
+       [
+        "Morning",
+        "Check Expected CheckOut — departure list ready",
+        "Expected CheckOut"
+       ],
+       [
+        "Morning",
+        "Room Status check — how many rooms available today",
+        "Room Status (Shift+S)"
+       ],
+       [
+        "All day",
+        "Walk-in guests check-in",
+        "WalkIn CheckIn (Shift+W)"
+       ],
+       [
+        "All day",
+        "By posting charges — restaurant, laundry",
+        "Guest Folio"
+       ],
+       [
+        "12:00",
+        "Process checkouts — settle bill + print",
+        "CheckIn List → Checkout"
+       ],
+       [
+        "Evening",
+        "Verify today's check-ins/checkouts",
+        "CheckIn/CheckOut Register"
+       ],
+       [
+        "Night",
+        "Match cash, close the shift",
+        "Cashier Report"
+       ],
+       [
+        "Night audit",
+        "Day close — software date advance",
+        "Night Audit module"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Reservation Screen (Related Module)",
+     "paragraph": "An extension of Front Office — future bookings. In the reservation screen: guest details, room type, dates, advance amount. Expected arrivals from here appear in the Room Status Board and Expected CheckOut reports. Quick-add: Company (Alt: reservation/quick-add-company), Travel Agent, City — all created right from the reservation form.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Check-In / Checkout Date",
+        "Stay dates"
+       ],
+       [
+        "Room Type + Nos",
+        "Which room, how many?"
+       ],
+       [
+        "Guest Details",
+        "Name, mobile"
+       ],
+       [
+        "Advance",
+        "Deposit amount — adjusted in the folio"
+       ],
+       [
+        "Status",
+        "Confirmed / Tentative / Cancelled"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "How a Charge Is Posted to the Folio (Data Flow)",
+     "table": {
+      "headers": [
+       "Source",
+       "Charge",
+       "Folio Entry"
+      ],
+      "rows": [
+       [
+        "Room night",
+        "Room rent + plan meals",
+        "Auto — posted daily during night audit"
+       ],
+       [
+        "Restaurant bill",
+        "F&B charge — billed on 'Room'",
+        "Direct folio post from POS"
+       ],
+       [
+        "Laundry",
+        "HK laundry memo",
+        "Post folio from the laundry module"
+       ],
+       [
+        "Manual",
+        "Minibar, damage, extra bed",
+        "Guest Folio → Post Charge → select from Charge Master"
+       ],
+       [
+        "Advance",
+        "Guest gave first",
+        "Advance Entry — settlement pe adjust"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Troubleshooting (Common Training Issues)",
+     "table": {
+      "headers": [
+       "Issue",
+       "Cause",
+       "Solution"
+      ],
+      "rows": [
+       [
+        "Cannot login",
+        "Wrong credentials/property ID",
+        "Verify User/Password/Property"
+       ],
+       [
+        "Room list empty in WalkIn",
+        "There is no vacant clean room of our type",
+        "Check Room Status — change category or get cleaning done from HK"
+       ],
+       [
+        "Rate auto did not come",
+        "Plan/category rate not set",
+        "Set rate in Plan Master / Room Category"
+       ],
+       [
+        "Check-In button disabled",
+        "Required fields missing",
+        "Complete the guest name + mobile + room row"
+       ],
+       [
+        "Bill is not being printed",
+        "Printer ya bill not saved",
+        "First settle/save, then print; printer check"
+       ],
+       [
+        "Wrong charge in the folio",
+        "Wrong charge posted",
+        "Reverse the charge and post correctly — write the narration"
+       ],
+       [
+        "Guest history not visible",
+        "Profile is duplicate",
+        "Use one profile from Add New Profile."
+       ],
+       [
+        "Screen not loading",
+        "Session expire",
+        "Re-login (with your own credentials)"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Contact & Support",
+     "table": {
+      "headers": [
+       "Contact",
+       "Details"
+      ],
+      "rows": [
+       [
+        "Website",
+        "https://analysishms.com"
+       ],
+       [
+        "Support Email",
+        "support@analysishms.com"
+       ],
+       [
+        "Phone",
+        "+91 9161380170"
+       ],
+       [
+        "Training Login",
+        "Use your assigned User ID and Password (demo data)"
+       ],
+       [
+        "Staff Login",
+        "Admin assigned user for front desk"
+       ],
+       [
+        "Software Version",
+        "Analysis HMS "
+       ]
+      ]
+     }
+    }
+   ]
+  }
+ ]
+}

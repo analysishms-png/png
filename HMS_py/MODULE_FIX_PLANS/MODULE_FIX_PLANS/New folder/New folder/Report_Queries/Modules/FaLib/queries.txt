@@ -1,0 +1,55 @@
+Module: FaLib
+Total SQL statements: 17
+================================================================================
+
+-- SQL Statement 1 --
+  loc_126D860: var_D0 = CVar("SELECT COUNT(*) FROM SUBGROUPCURRBAL WHERE LogSite_Code='" & MemVar_1F81078 & "' AND SubCode='" & arg_10 & "' AND V_Date=") 'String
+
+-- SQL Statement 2 --
+  loc_126D906:   var_D0 = CVar("INSERT INTO SUBGROUPCURRBAL (LogSite_Code,SubCode,V_Date,GroupCode,Curr_Bal) VALUES ('" & MemVar_1F81078 & "','" & arg_10 & "',") 'String
+
+-- SQL Statement 3 --
+  loc_126D9A3:   var_9C = "Update SubGroupCURRBAL Set Curr_Bal=Curr_Bal+" & "INSERT INTO SUBGROUPCURRBAL (LogSite_Code,SubCode,V_Date,GroupCode,Curr_Bal) VALUES ('" & MemVar_1F81078
+
+-- SQL Statement 4 --
+  loc_126D9AA:   var_A0 = "INSERT INTO SUBGROUPCURRBAL (LogSite_Code,SubCode,V_Date,GroupCode,Curr_Bal) VALUES ('" & MemVar_1F81078 & "','" & " Where LogSite_Code='"
+
+-- SQL Statement 5 --
+  loc_126DA1C: Me.Connection15.Execute "SELECT MAINGRCODE FROM ACGROUP Where GroupCode='" & arg_1C & "' AND AliasYN='N'", var_C0, -1
+
+-- SQL Statement 6 --
+  loc_126DABB:     Me.Connection15.Execute "SELECT * FROM ACGROUP Where MAINGRCODE='" & var_94 & "' AND AliasYN='N'", var_C0, -1
+
+-- SQL Statement 7 --
+  loc_126DB48:       var_104 = CVar("SELECT COUNT(*) FROM ACGROUPCURRBAL WHERE LogSite_Code='" & MemVar_1F81078 & "' AND GROUPCode='") & var_C0 & "' AND V_Date=" 
+
+-- SQL Statement 8 --
+  loc_126DC14:         var_E0 = CVar("INSERT INTO ACGROUPCURRBAL (LogSite_Code,V_Date,GroupCode,Curr_Bal) VALUES ('" & MemVar_1F81078 & "',") & var_C0 
+
+-- SQL Statement 9 --
+  loc_126DCD3:         var_9C = "Update ACGroupCURRBAL Set Curr_Bal=Curr_Bal+" & "INSERT INTO ACGROUPCURRBAL (LogSite_Code,V_Date,GroupCode,Curr_Bal) VALUES ('" & MemVar_1F81078
+
+-- SQL Statement 10 --
+  loc_FCC694: Me.Database.OpenRecordset "select * from " & arg_10, var_A8, var_B8, var_C8
+
+-- SQL Statement 11 --
+  loc_1076878:   unk_429253.Execute "SELECT isnull(sum(ledger.Amtcr),0) AS OpRec FROM ledger where subcode='" & arg_C & "'", var_C0, -1
+
+-- SQL Statement 12 --
+  loc_10768E6:   unk_429253.Execute "SELECT isnull(sum(ledger.Amtdr),0) AS OpIss FROM ledger where subcode='" & arg_C & "'", var_C0, -1
+
+-- SQL Statement 13 --
+  loc_107695C:   var_F4 = "SELECT isnull(sum(ledger.Amtcr),0) AS OpRec FROM ledger where subcode='" & arg_C & "' AND LOGSITE_CODE='" & MemVar_1F81078 & "'"
+
+-- SQL Statement 14 --
+  loc_10769DC:   var_F4 = "SELECT isnull(sum(ledger.Amtdr),0) AS OpIss FROM ledger where subcode='" & arg_C & "' AND LOGSITE_CODE='" & MemVar_1F81078 & "'"
+
+-- SQL Statement 15 --
+  loc_FD928C:   var_8C = "Select Count(" & arg_14 & ") from " & arg_10 & " where " & arg_14 & " = '" & arg_18 & "'"
+
+-- SQL Statement 16 --
+  loc_FD92E7:     var_8C = "Select Count(" & arg_14 & ") from " & arg_10 & " where " & arg_14 & " = " & arg_18 & vbNullString
+
+-- SQL Statement 17 --
+  loc_FD9342:       var_8C = "Select Count(" & arg_14 & ") from " & arg_10 & " where " & arg_14 & " = #" & arg_18 & "#"
+

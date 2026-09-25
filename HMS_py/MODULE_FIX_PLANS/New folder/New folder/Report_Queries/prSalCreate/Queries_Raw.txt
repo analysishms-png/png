@@ -1,0 +1,244 @@
+Module: prSalCreate
+Total SQL statements: 80
+================================================================================
+
+-- SQL Statement 1 --
+  loc_F92336: var_98 = "Select Employee.Code,Employee.Name,IsNull(Depart.Name,'') As Department,Desig.Name As Designation,IsNull(Depart.Code,'') As DepartCode From Employee Left Join Depart On Depart.Code=Employee.Department Left Join Desig on Desig.Code=Employee.Designation Order by Name"
+
+-- SQL Statement 2 --
+  loc_F923AE: var_BC = "Select Distinct G.Code,G.Name From GodownMast G iNNER join Employee E on E.Department=G.Code Where (G.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 3 --
+  loc_1CF3D6E: Proc_6_16_EA44E0(var_25C, MemVar_1F81078, "Select * From Enviro WHERE LOGSITE_CODE=", var_29C, -1, var_224)
+
+-- SQL Statement 4 --
+  loc_1CF3DD3:   var_22C = "Select E.*,EC.Name,EC.Type From Employee E Left Join EmpCategory EC On E.Category=EC.Code Where E.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 5 --
+  loc_1CF3EFC:   var_22C = "Select E.*,EC.Name,EC.Type From Employee E Left Join EmpCategory EC On E.Category=EC.Code Where E.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 6 --
+  loc_1CF3FCA:   Call 0.Method_Command1_UnknownEvent_90 (CInt(3), var_228, var_304, "Select Count(*) From Salary Where LOGSITE_CODE='" & MemVar_1F81078 & "' AND Mth_Year='" & var_170 & "' And Emp_Code='", var_25C, -1, var_230)
+
+-- SQL Statement 7 --
+  loc_1CF4161:   unk_4C2CE0.Execute "Select Count(*) From Salary Where LOGSITE_CODE='" & MemVar_1F81078 & "' AND Mth_Year='" & var_170 & "'" & var_1FC, var_25C, -1
+
+-- SQL Statement 8 --
+  loc_1CF42D9:   var_29C = CVar("Select Count(*) From Salary Where Logsite_code='" & MemVar_1F81078 & "' and Emp_Code='") & var_20C.Fields.Item("Code").Value 
+
+-- SQL Statement 9 --
+  loc_1CF4B3C:       var_2BC = CVar("select count(*) from holiday where LogSite_Code='" & MemVar_1F81078 & "' AND datepart(dw,vdate)<>'1' and month(VDate)='") 'String
+
+-- SQL Statement 10 --
+  loc_1CF4CBF:       var_2BC = CVar("select count(*) from holiday where LOGSITE_CODE='" & MemVar_1F81078 & "' AND datepart(dw,vdate)<>'1' and month(VDate)='") 'String
+
+-- SQL Statement 11 --
+  loc_1CF5177:     var_27C = CVar("Select * From Attend Where LOGSITE_CODE='" & MemVar_1F81078 & "' AND Emp_Code='") 'String
+
+-- SQL Statement 12 --
+  loc_1CF5699:       var_27C = "SELECT IncrMth, Basic, Increment FROM Employee WHERE Code='" & var_20C.Fields.Item("Code").Value 
+
+-- SQL Statement 13 --
+  loc_1CF59A8:         var_27C = CVar("Select *  from salarylog where LOGSITE_CODE='" & MemVar_1F81078 & "' and mth_year='" & var_170 & "' and Emp_Code='") 'String
+
+-- SQL Statement 14 --
+  loc_1CF5A61:         var_27C = CVar("Delete from salarylog where LOGSITE_CODE='" & MemVar_1F81078 & "' and mth_year='" & var_170 & "' and Emp_Code='") 'String
+
+-- SQL Statement 15 --
+  loc_1CF5ADF:         var_22C = "Insert Into SalaryLog(Mth_Year,Emp_Code,Basic,Increment,U_Name,U_EntDt,Site_code,logsite_code,CreationDate) VALUES('" & var_170
+
+-- SQL Statement 16 --
+  loc_1CF5CBA:         Proc_6_38_E75F08(var_27C, CVar(var_20C.Fields.Item("Basic")), "Update Employee Set Basic=")
+
+-- SQL Statement 17 --
+  loc_1CF60C2:       var_27C = "SELECT IncrMth, Basic, Increment FROM Employee WHERE Code='" & var_20C.Fields.Item("Code").Value 
+
+-- SQL Statement 18 --
+  loc_1CF628F:         var_27C = CVar("Select *  from salarylog where LOGSITE_CODE='" & MemVar_1F81078 & "' and mth_year='" & var_170 & "' and Emp_Code='") 'String
+
+-- SQL Statement 19 --
+  loc_1CF6348:         var_27C = CVar("Delete from salarylog where LOGSITE_CODE='" & MemVar_1F81078 & "' and mth_year='" & var_170 & "' and Emp_Code='") 'String
+
+-- SQL Statement 20 --
+  loc_1CF63C6:         var_22C = "Insert Into SalaryLog(Mth_Year,Emp_Code,Basic,Increment,U_Name,U_EntDt,Site_code,logsite_code,CreationDate) VALUES('" & var_170
+
+-- SQL Statement 21 --
+  loc_1CF65A1:         Proc_6_38_E75F08(var_27C, CVar(var_20C.Fields.Item("Basic")), "Update Employee Set Basic=")
+
+-- SQL Statement 22 --
+  loc_1CF67E8:     var_2CC = CVar("Select * from overtime where LOGSITE_CODE='" & MemVar_1F81078 & "' AND month(OTDATE)='") & Format(CVar(var_228), "mm") 
+
+-- SQL Statement 23 --
+  loc_1CF766B:     var_27C = CVar("Select IsNull(Sum(Amount),0) From Loan Where LOGSITE_CODE='" & MemVar_1F81078 & "' AND V_Type='LO' And Emp_Code='") 'String
+
+-- SQL Statement 24 --
+  loc_1CF7716:     var_3BC = CVar("Select IsNull(Sum(Amount),0) From Loan Where LOGSITE_CODE='" & MemVar_1F81078 & "' and V_Type In('LR','LR1') And Emp_Code='") 'String
+
+-- SQL Statement 25 --
+  loc_1CF7AC6:         var_238 = "Insert Into Loan(Sr_No,V_Type,V_Date,Emp_Code,Amount,Installment,Remark,AC_Code,MTH_YEAR,Site_Code,U_Name,U_EntDt,U_AE,LogSite_Code) Values (" & CStr(var_194)
+
+-- SQL Statement 26 --
+  loc_1CF7C2A:         var_27C = CVar("SELECT GROUPCODE,GROUPNATURE FROM SUBGROUP WHERE (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO') and SUBCODE='") 'String
+
+-- SQL Statement 27 --
+  loc_1CF7E0F:           var_22C = "Insert Into Ledger(DocId,V_SNo,V_Type,V_Prefix,V_No,Site_Code,V_Date,SubCode,ContraSub,AmtCr,Narration,mth_year,Emp_Code,U_Name,U_EntDt,U_AE,GROUPCODE,GROUPNATURE,LogSite_Code) Values ('" & var_98
+
+-- SQL Statement 28 --
+  loc_1CF8106:           var_22C = "Insert Into Ledger(DocId,V_SNo,V_Type,V_Prefix,V_No,Site_Code,V_Date,SubCode,ContraSub,AmtCr,Narration,mth_year,Emp_Code,U_Name,U_EntDt,U_AE,GROUPCODE,GROUPNATURE,LogSite_Code) Values ('" & var_98
+
+-- SQL Statement 29 --
+  loc_1CF82B9:         var_27C = CVar("SELECT GROUPCODE,GROUPNATURE FROM SUBGROUP WHERE (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO')  and SUBCODE='") 'String
+
+-- SQL Statement 30 --
+  loc_1CF8464:           var_22C = "Insert Into Ledger(DocId,V_SNo,V_Type,V_Prefix,V_No,Site_Code,V_Date,SubCode,ContraSub,AmtDr,Narration,mth_year,Emp_Code,U_Name,U_EntDt,U_AE,GROUPCODE,GROUPNATURE,LogSite_Code) Values ('" & var_98
+
+-- SQL Statement 31 --
+  loc_1CF8705:           var_22C = "Insert Into Ledger(DocId,V_SNo,V_Type,V_Prefix,V_No,Site_Code,V_Date,SubCode,ContraSub,AmtDr,Narration,mth_year,Emp_Code,U_Name,U_EntDt,U_AE,GROUPCODE,GROUPNATURE,LogSite_Code) Values ('" & var_98
+
+-- SQL Statement 32 --
+  loc_1CF88DF:         var_33C = "Update Voucher_Prefix Set Start_Srl_No=" & CStr(var_524) & " Where (SITE_CODE='" & MemVar_1F81070 & "' AND LOGSITE_CODE='"
+
+-- SQL Statement 33 --
+  loc_1CF8A1F:     var_27C = CVar("Select IsNull(Sum(Amount),0) From Loan Where LOGSITE_CODE='" & MemVar_1F81078 & "' and  V_Type='ADE' And Emp_Code='") 'String
+
+-- SQL Statement 34 --
+  loc_1CF8AC2:     var_3BC = "Select IsNull(Sum(Amount),0) From Loan Where V_Type In('AR1','AR2') AND Emp_Code='" & var_404.Item("Code").Value & "' and V_Date<=" 
+
+-- SQL Statement 35 --
+  loc_1CF8BC0:       var_22C = "Select IsNull(Max(Sr_No),0)+1 From Loan Where LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 36 --
+  loc_1CF8BC7:       var_238 = "Select IsNull(Sum(Amount),0) From Loan Where LOGSITE_CODE='" & MemVar_1F81078 & "' and  V_Type='AR2'"
+
+-- SQL Statement 37 --
+  loc_1CF8D32:       var_238 = "Insert Into Loan(Sr_No,V_Type,V_Date,Emp_Code,Amount,Installment,Remark,AC_Code,mth_year,Site_Code,U_Name,U_EntDt,U_AE,LogSite_Code) Values (" & CStr(var_194)
+
+-- SQL Statement 38 --
+  loc_1CF8EA6:       var_27C = "SELECT GROUPCODE,GROUPNATURE FROM SUBGROUP WHERE SUBCODE='" & var_228.Value 
+
+-- SQL Statement 39 --
+  loc_1CF906F:         var_22C = "Insert Into Ledger(DocId,V_SNo,V_Type,V_Prefix,V_No,Site_Code,V_Date,SubCode,ContraSub,AmtCr,Narration,mth_year,Emp_Code,U_Name,U_EntDt,U_AE,GROUPCODE,GROUPNATURE,LogSite_Code) Values ('" & var_98
+
+-- SQL Statement 40 --
+  loc_1CF9395:         var_22C = "Insert Into Ledger(DocId,V_SNo,V_Type,V_Prefix,V_No,Site_Code,V_Date,SubCode,ContraSub,AmtCr,Narration,mth_year,Emp_Code,U_Name,U_EntDt,U_AE,GROUPCODE,GROUPNATURE,LogSite_Code) Values ('" & var_98
+
+-- SQL Statement 41 --
+  loc_1CF9560:       var_27C = CVar("SELECT GROUPCODE,GROUPNATURE FROM SUBGROUP WHERE (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO')  and  SUBCODE='") 'String
+
+-- SQL Statement 42 --
+  loc_1CF96FB:         var_22C = "Insert Into Ledger(DocId,V_SNo,V_Type,V_Prefix,V_No,Site_Code,V_Date,SubCode,ContraSub,AmtDr,Narration,mth_year,Emp_Code,U_Name,U_EntDt,U_AE,GROUPCODE,GROUPNATURE,LogSite_Code) Values ('" & var_98
+
+-- SQL Statement 43 --
+  loc_1CF998A:         var_22C = "Insert Into Ledger(DocId,V_SNo,V_Type,V_Prefix,V_No,Site_Code,V_Date,SubCode,ContraSub,AmtDr,Narration,mth_year,Emp_Code,U_Name,U_EntDt,U_AE,GROUPCODE,GROUPNATURE,LogSite_Code) Values ('" & var_98
+
+-- SQL Statement 44 --
+  loc_1CF9B4D:       var_23C = "Update Voucher_Prefix Set Start_Srl_No=" & CStr(var_524)
+
+-- SQL Statement 45 --
+  loc_1CF9D1E:     var_27C = CVar("SELECT GROUPCODE,GROUPNATURE FROM SUBGROUP WHERE (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO') and SUBCODE='") 'String
+
+-- SQL Statement 46 --
+  loc_1CF9EB9:       var_22C = "Insert Into Ledger(DocId,V_SNo,V_Type,V_Prefix,V_No,Site_Code,V_Date,SubCode,ContraSub,AmtCr,Narration,mth_year,Emp_Code,U_Name,U_EntDt,U_AE,GROUPCODE,GROUPNATURE,LogSite_Code) Values ('" & var_98
+
+-- SQL Statement 47 --
+  loc_1CFA16B:       var_22C = "Insert Into Ledger(DocId,V_SNo,V_Type,V_Prefix,V_No,Site_Code,V_Date,SubCode,ContraSub,AmtCr,Narration,mth_year,Emp_Code,U_Name,U_EntDt,U_AE,GROUPCODE,GROUPNATURE,LogSite_Code) Values ('" & var_98
+
+-- SQL Statement 48 --
+  loc_1CFA344:     var_27C = "SELECT GROUPCODE,GROUPNATURE FROM SUBGROUP WHERE SUBCODE='" & var_228.Value 
+
+-- SQL Statement 49 --
+  loc_1CFA4AC:       var_22C = "Insert Into Ledger(DocId,V_SNo,V_Type,V_Prefix,V_No,Site_Code,V_Date,SubCode,ContraSub,AmtDr,Narration,mth_year,Emp_Code,U_Name,U_EntDt,U_AE,GROUPCODE,GROUPNATURE,LogSite_Code) Values ('" & var_98
+
+-- SQL Statement 50 --
+  loc_1CFA75E:       var_22C = "Insert Into Ledger(DocId,V_SNo,V_Type,V_Prefix,V_No,Site_Code,V_Date,SubCode,ContraSub,AmtDr,Narration,mth_year,Emp_Code,U_Name,U_EntDt,U_AE,GROUPCODE,GROUPNATURE,LogSite_Code) Values ('" & var_98
+
+-- SQL Statement 51 --
+  loc_1CFA959:     var_33C = "Update Voucher_Prefix Set Start_Srl_No=" & CStr(var_524) & " Where (SITE_CODE='" & MemVar_1F81070 & "' AND LOGSITE_CODE='"
+
+-- SQL Statement 52 --
+  loc_1CFAAA9:     var_23C = "Update Employee Set Curr_Earned=IsNull(Curr_Earned,0)+" & CStr(var_524)
+
+-- SQL Statement 53 --
+  loc_1CFAAB0:     var_308 = "Update Voucher_Prefix Set Start_Srl_No=" & CStr(var_524) & ",Curr_Casual=IsNull(Curr_Casual,0)+"
+
+-- SQL Statement 54 --
+  loc_1CFAAC3:     var_2BC = CVar("Update Voucher_Prefix Set Start_Srl_No=" & CStr(var_524) & " Where (SITE_CODE='" & MemVar_1F81070 & CStr(var_52C) & ",Curr_PF_Balance=IsNull(Curr_PF_Balance,0)+") 'String
+
+-- SQL Statement 55 --
+  loc_1CFABB3:     var_22C = "Insert Into Salary(Mth_Year,Emp_Code,Work_Day,Leave,Sunday,Holiday,Absent,Basic,DA,HRA,Income_Tax,Other_Allow,Other_Deduc,Conveyance,Medical,LTA,PF,EPF,ESI,Loan,Advance,Net_Salary,Loan_Bal,Adv_Bal,Emp_Basic,OverTime,OverTimeAmt,CL,Site_Code,U_Name,U_EntDt,U_AE,LOGSITE_CODE) VALUES ('" & var_170
+
+-- SQL Statement 56 --
+  loc_16D4B18:   Proc_6_16_EA44E0(var_218, MemVar_1F81078, "Select * From Enviro WHERE LOGSITE_CODE=", var_248, -1, var_1D4)
+
+-- SQL Statement 57 --
+  loc_16D4B7D:     var_2FC = "Select * From Salary Where Mth_Year='" & var_88
+
+-- SQL Statement 58 --
+  loc_16D4CB9:     var_2FC = "Select * From Salary Where Mth_Year='" & var_88
+
+-- SQL Statement 59 --
+  loc_16D4D8C:     Call 0.Method_Command2_UnknownEvent_90 (CInt(3), var_1DC, var_300, "Select * From Employee Where site_code='" & MemVar_1F81078 & "' and Code='")
+
+-- SQL Statement 60 --
+  loc_16D4EB0:     var_298 = CVar("Select * From Employee Where site_code='" & MemVar_1F81078 & "' and (Resign_Date Is Null or Resign_Date > ") 'String
+
+-- SQL Statement 61 --
+  loc_16D4F8B:     var_2FC = CStr("Select * From Salary Where Emp_COde='" & var_180.Fields.Item("Code").Value & "' and Mth_Year='" & CVar(var_88) & "'")
+
+-- SQL Statement 62 --
+  loc_16D51D7:         var_298 = "Update Employee Set U_EntDt=" & var_238 & "<<<<<<<  Processing " & CVar(Val(CStr(var_184.Fields.Item("Leave").Value))) 
+
+-- SQL Statement 63 --
+  loc_16D542A:         var_2F8 = "Update Employee Set U_EntDt=" & var_238 & "<<<<<<<  Processing " & CVar(Val(CStr(var_1DC.Value))) & "'" & CVar(Val(CStr(var_1E0.Item("CL").Value))) 
+
+-- SQL Statement 64 --
+  loc_16D5552:     Call 0.Method_Command2_UnknownEvent_90 (CInt(3), var_1DC, var_308, "Select * From Salary Where Logsite_code='" & MemVar_1F81078 & "' and Mth_Year='" & var_88 & "' And Emp_Code='", var_218, -1, var_1E0)
+
+-- SQL Statement 65 --
+  loc_16D5750:       Call 0.Method_Command2_UnknownEvent_90 (CInt(3), var_1DC, var_308, "Delete From Salary Where Logsite_code='" & MemVar_1F81078 & "' and Mth_Year='" & var_88 & "' And Emp_Code='", var_218, -1, var_1E0)
+
+-- SQL Statement 66 --
+  loc_16D57AE:     var_300 = "Select * From Loan Where Logsite_code='" & MemVar_1F81078 & "' and Upper(Convert(varchar(3),V_Date,0))+Convert(varchar(4),Year(V_Date))='"
+
+-- SQL Statement 67 --
+  loc_16D57D3:     Call 0.Method_Command2_UnknownEvent_90 (CInt(3), var_1DC, var_308, "Delete From Salary Where Logsite_code='" & MemVar_1F81078 & "' and Mth_Year='" & var_88 & "' And Emp_Code='", var_218)
+
+-- SQL Statement 68 --
+  loc_16D59D4:       var_300 = "Delete From Loan Where Logsite_code='" & MemVar_1F81078 & "' and Upper(Convert(varchar(3),V_Date,0))+Convert(varchar(4),Year(V_Date))='"
+
+-- SQL Statement 69 --
+  loc_16D5A5E:     var_304 = "Select * From Ledger Where Logsite_code='" & MemVar_1F81078 & "' and V_Type In('LR1','AR2','SL') And UPpER(mth_year)='" & var_88
+
+-- SQL Statement 70 --
+  loc_16D5C03:       var_300 = "Delete From Ledger Where Logsite_code='" & MemVar_1F81078 & "' and V_Type In('LR1','AR2','SL') And UPpER(mth_year)='"
+
+-- SQL Statement 71 --
+  loc_16D5D17:     unk_4C2CE0.Execute "Select * From Salary Where Logsite_code='" & MemVar_1F81078 & "' and Mth_Year='" & var_88 & "'" & var_194, var_218, -1
+
+-- SQL Statement 72 --
+  loc_16D5EE3:       unk_4C2CE0.Execute "Delete From Salary Where Logsite_code='" & MemVar_1F81078 & "' and Mth_Year='" & var_88 & "'" & var_194, var_218, -1
+
+-- SQL Statement 73 --
+  loc_16D5F16:     var_300 = "Select * From Loan Where Logsite_code='" & MemVar_1F81078 & "' and Upper(Convert(varchar(3),V_Date,0))+Convert(varchar(4),Year(V_Date))='"
+
+-- SQL Statement 74 --
+  loc_16D5F24:     var_308 = "Delete From Salary Where Logsite_code='" & MemVar_1F81078 & "' and Mth_Year='" & var_88 & "' And V_Type In('LR1','AR2')"
+
+-- SQL Statement 75 --
+  loc_16D610A:       var_300 = "Delete From Loan Where Logsite_code='" & MemVar_1F81078 & "' and Upper(Convert(varchar(3),V_Date,0))+Convert(varchar(4),Year(V_Date))='"
+
+-- SQL Statement 76 --
+  loc_16D6162:     var_304 = "Select * From Ledger Where Logsite_code='" & MemVar_1F81078 & "' and V_Type In('LR1','AR2','SL') And UPpER(mth_year)='" & var_88
+
+-- SQL Statement 77 --
+  loc_16D62CE:       var_2FC = "Delete From Ledger Where Logsite_code='" & MemVar_1F81078
+
+-- SQL Statement 78 --
+  loc_F8AC32: var_98 = "Select VT.Number_Method,VP.V_Type,VP.Date_From,VP.Prefix,VP.Start_Srl_No From Voucher_Type VT Inner Join Voucher_Prefix VP on (VT.V_Type=VP.V_Type AND VT.SITE_CODE=VP.SITE_CODE AND VP.LOGSITE_CODE=VP.LOGSITE_CODE) Where (VP.SITE_CODE='" & MemVar_1F81070
+
+-- SQL Statement 79 --
+  loc_1000E3A: var_98 = "Select VT.Number_Method,VP.V_Type,VP.Date_From,VP.Prefix,VP.Start_Srl_No From Voucher_Type VT Inner Join Voucher_Prefix VP on (VT.V_Type=VP.V_Type AND VT.SITE_CODE=VP.SITE_CODE AND VP.LOGSITE_CODE=VP.LOGSITE_CODE) Where (VP.SITE_CODE='" & MemVar_1F81070
+
+-- SQL Statement 80 --
+  loc_F8931E: var_98 = "Select VT.Number_Method,VP.V_Type,VP.Date_From,VP.Prefix,VP.Start_Srl_No From Voucher_Type VT Inner Join Voucher_Prefix VP on (VT.V_Type=VP.V_Type AND VT.SITE_CODE=VP.SITE_CODE AND VP.LOGSITE_CODE=VP.LOGSITE_CODE) Where (VP.SITE_CODE='" & MemVar_1F81070
+

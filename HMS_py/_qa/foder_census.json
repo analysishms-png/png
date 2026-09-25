@@ -1,0 +1,10100 @@
+{
+ "CsehDemoForm.frm": [],
+ "DMTree.frm": [
+  {
+   "t": "UserModule1",
+   "live": true,
+   "rows": 617,
+   "py": false
+  },
+  {
+   "t": "menuHelp1",
+   "live": true,
+   "rows": 1234,
+   "py": true
+  }
+ ],
+ "FaEnvron.frm": [
+  {
+   "t": "ACGROUP",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "FAENVIRO",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "FaEnviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "LEDGER",
+   "live": true,
+   "rows": 40818,
+   "py": true
+  },
+  {
+   "t": "LEDGERM",
+   "live": true,
+   "rows": 3158,
+   "py": true
+  },
+  {
+   "t": "SUBGROUP",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  }
+ ],
+ "FaGlobeNarr.frm": [
+  {
+   "t": "NarrMast",
+   "live": true,
+   "rows": 2,
+   "py": true
+  }
+ ],
+ "FaRepView.frm": [],
+ "FaVtype.frm": [
+  {
+   "t": "AcGroup",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "Date",
+   "live": false,
+   "rows": null,
+   "py": true
+  },
+  {
+   "t": "FaEnviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "SUBGROUP",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "VoucherCat",
+   "live": true,
+   "rows": 79,
+   "py": true
+  },
+  {
+   "t": "Voucher_Exclude",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "Voucher_Include",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "Voucher_Prefix",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_Type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_include",
+   "live": true,
+   "rows": 0,
+   "py": true
+  }
+ ],
+ "FindMess.frm": [
+  {
+   "t": "GuestMessage",
+   "live": true,
+   "rows": 0,
+   "py": true
+  }
+ ],
+ "Form1.frm": [],
+ "FrmBdayLookup.frm": [
+  {
+   "t": "Date",
+   "live": false,
+   "rows": null,
+   "py": true
+  },
+  {
+   "t": "GuestProf",
+   "live": true,
+   "rows": 7802,
+   "py": true
+  }
+ ],
+ "FrmBusinessSrc.frm": [
+  {
+   "t": "BussSource",
+   "live": true,
+   "rows": 6,
+   "py": true
+  }
+ ],
+ "FrmChangeDepart.frm": [
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  }
+ ],
+ "FrmChangeKitch.frm": [
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  }
+ ],
+ "FrmChangeRest.frm": [
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  }
+ ],
+ "FrmChangeSite.frm": [
+  {
+   "t": "SITE",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "Site",
+   "live": true,
+   "rows": 0,
+   "py": true
+  }
+ ],
+ "FrmComplaintMast.frm": [
+  {
+   "t": "ComplaintCategory",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "ComplaintDetail",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "State",
+   "live": true,
+   "rows": 55,
+   "py": true
+  }
+ ],
+ "FrmConsumMast9999.frm": [
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "ItemMast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  }
+ ],
+ "FrmControlPanel.frm": [],
+ "FrmDataRecieving.frm": [],
+ "FrmDeliveredItemDetail.frm": [
+  {
+   "t": "AssignDelivery",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "Date",
+   "live": false,
+   "rows": null,
+   "py": true
+  },
+  {
+   "t": "DeliveryBoy",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "PayCharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "Sale1",
+   "live": true,
+   "rows": 12686,
+   "py": true
+  }
+ ],
+ "FrmDeliveryBoyMast.frm": [
+  {
+   "t": "DeliveryBoy",
+   "live": true,
+   "rows": 0,
+   "py": true
+  }
+ ],
+ "FrmEventMast.frm": [
+  {
+   "t": "FunctionType",
+   "live": true,
+   "rows": 8,
+   "py": true
+  }
+ ],
+ "FrmExpense.frm": [
+  {
+   "t": "ENVIRO",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "ExpSheet",
+   "live": true,
+   "rows": 4,
+   "py": false
+  },
+  {
+   "t": "ForExTrans",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "REVMAST",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "Voucher_Prefix",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_Type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "enviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "var_B0",
+   "live": false,
+   "rows": null,
+   "py": false
+  }
+ ],
+ "FrmFacilityMast.frm": [
+  {
+   "t": "FacilityMast",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "Subgroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "TaxStru",
+   "live": true,
+   "rows": 56,
+   "py": true
+  },
+  {
+   "t": "Voucher_Prefix",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_Type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  }
+ ],
+ "FrmFomBillDeletion.frm": [
+  {
+   "t": "Date",
+   "live": false,
+   "rows": null,
+   "py": true
+  },
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "FomBillDetails",
+   "live": true,
+   "rows": 662,
+   "py": true
+  },
+  {
+   "t": "PayCharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "Paycharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "RevMast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "TempPosDel",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "VOUCHER_PREFIX",
+   "live": true,
+   "rows": 171,
+   "py": true
+  }
+ ],
+ "FrmForeignExMast.frm": [
+  {
+   "t": "ForEx",
+   "live": true,
+   "rows": 0,
+   "py": true
+  }
+ ],
+ "FrmGrcBlank.frm": [
+  {
+   "t": "Booking",
+   "live": true,
+   "rows": 25,
+   "py": true
+  },
+  {
+   "t": "Enviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "Voucher_Prefix",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_Type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  }
+ ],
+ "FrmGuestAddObj.frm": [
+  {
+   "t": "Member",
+   "live": false,
+   "rows": null,
+   "py": true
+  },
+  {
+   "t": "Voucher_Prefix",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_Type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Waiter",
+   "live": true,
+   "rows": 58,
+   "py": true
+  }
+ ],
+ "FrmGuestStat.frm": [
+  {
+   "t": "GuestStat",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "gueststat",
+   "live": true,
+   "rows": 0,
+   "py": true
+  }
+ ],
+ "FrmGuestWakeUp.frm": [
+  {
+   "t": "City",
+   "live": true,
+   "rows": 466,
+   "py": true
+  },
+  {
+   "t": "EPABX_IN",
+   "live": false,
+   "rows": null,
+   "py": true
+  },
+  {
+   "t": "GuestFolio",
+   "live": true,
+   "rows": 11042,
+   "py": true
+  },
+  {
+   "t": "GuestStat",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "GuestWakeUp",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "RoomCat",
+   "live": true,
+   "rows": 2,
+   "py": true
+  },
+  {
+   "t": "RoomOcc",
+   "live": true,
+   "rows": 11463,
+   "py": true
+  },
+  {
+   "t": "Roomocc",
+   "live": true,
+   "rows": 11463,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "Voucher_Prefix",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_Type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  }
+ ],
+ "FrmHallItemCatMast.frm": [
+  {
+   "t": "ItemCatMast",
+   "live": true,
+   "rows": 50,
+   "py": true
+  },
+  {
+   "t": "PayCharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "RevMast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "Revmast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "TaxStru",
+   "live": true,
+   "rows": 56,
+   "py": true
+  },
+  {
+   "t": "ViewSubGroup",
+   "live": false,
+   "rows": null,
+   "py": false
+  }
+ ],
+ "FrmHouGuestMsg.frm": [
+  {
+   "t": "City",
+   "live": true,
+   "rows": 466,
+   "py": true
+  },
+  {
+   "t": "GuestFolio",
+   "live": true,
+   "rows": 11042,
+   "py": true
+  },
+  {
+   "t": "GuestMessage",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "GuestStat",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "RoomCat",
+   "live": true,
+   "rows": 2,
+   "py": true
+  },
+  {
+   "t": "RoomOcc",
+   "live": true,
+   "rows": 11463,
+   "py": true
+  },
+  {
+   "t": "Roomocc",
+   "live": true,
+   "rows": 11463,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "Voucher_Prefix",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_Type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  }
+ ],
+ "FrmHouseStatus.frm": [
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "FunctionType",
+   "live": true,
+   "rows": 8,
+   "py": true
+  },
+  {
+   "t": "GuestFolio",
+   "live": true,
+   "rows": 11042,
+   "py": true
+  },
+  {
+   "t": "HallBook",
+   "live": true,
+   "rows": 147,
+   "py": true
+  },
+  {
+   "t": "ROOMCAT",
+   "live": true,
+   "rows": 2,
+   "py": true
+  },
+  {
+   "t": "RoomBLockOut",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "RoomBlockOut",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "RoomCat",
+   "live": true,
+   "rows": 2,
+   "py": true
+  },
+  {
+   "t": "RoomMast",
+   "live": true,
+   "rows": 86,
+   "py": true
+  },
+  {
+   "t": "RoomOcc",
+   "live": true,
+   "rows": 11463,
+   "py": true
+  },
+  {
+   "t": "ViewBooking",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "paycharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "roommast",
+   "live": true,
+   "rows": 86,
+   "py": true
+  },
+  {
+   "t": "roomocc",
+   "live": true,
+   "rows": 11463,
+   "py": true
+  },
+  {
+   "t": "venuemast",
+   "live": true,
+   "rows": 10,
+   "py": true
+  },
+  {
+   "t": "venueocc",
+   "live": true,
+   "rows": 216,
+   "py": true
+  }
+ ],
+ "FrmImage.frm": [],
+ "FrmItemCatMast.frm": [
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "ItemCatMast",
+   "live": true,
+   "rows": 50,
+   "py": true
+  },
+  {
+   "t": "PayCharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "RevMast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "Revmast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "TaxStru",
+   "live": true,
+   "rows": 56,
+   "py": true
+  },
+  {
+   "t": "ViewSubGroup",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "itemcatmast",
+   "live": true,
+   "rows": 50,
+   "py": true
+  }
+ ],
+ "FrmItemCatRaw.frm": [
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "Enviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "ItemCatMast",
+   "live": true,
+   "rows": 50,
+   "py": true
+  },
+  {
+   "t": "PayCharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "RevMast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "TaxStru",
+   "live": true,
+   "rows": 56,
+   "py": true
+  },
+  {
+   "t": "ViewSubGroup",
+   "live": false,
+   "rows": null,
+   "py": false
+  }
+ ],
+ "FrmItemGroupMast.frm": [
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "ItemGrp",
+   "live": true,
+   "rows": 140,
+   "py": true
+  },
+  {
+   "t": "itemgrp",
+   "live": true,
+   "rows": 140,
+   "py": true
+  }
+ ],
+ "FrmItemMastRaw.frm": [
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "Item",
+   "live": true,
+   "rows": 3187,
+   "py": true
+  },
+  {
+   "t": "ItemCatMast",
+   "live": true,
+   "rows": 50,
+   "py": true
+  },
+  {
+   "t": "ItemGrp",
+   "live": true,
+   "rows": 140,
+   "py": true
+  },
+  {
+   "t": "ItemMast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "Itemmast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "STOCK",
+   "live": true,
+   "rows": 61925,
+   "py": true
+  },
+  {
+   "t": "Stock",
+   "live": true,
+   "rows": 61925,
+   "py": true
+  },
+  {
+   "t": "UnitMast",
+   "live": true,
+   "rows": 32,
+   "py": true
+  },
+  {
+   "t": "iTEMMAST",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "itemCatMast",
+   "live": true,
+   "rows": 50,
+   "py": true
+  },
+  {
+   "t": "sTOCK",
+   "live": true,
+   "rows": 61925,
+   "py": true
+  }
+ ],
+ "FrmLostFound.frm": [
+  {
+   "t": "LostFoundDetail",
+   "live": true,
+   "rows": 0,
+   "py": true
+  }
+ ],
+ "FrmMarketSeg.frm": [
+  {
+   "t": "MarketSeg",
+   "live": true,
+   "rows": 10,
+   "py": true
+  }
+ ],
+ "FrmMenuList.frm": [],
+ "FrmMenuRate.frm": [
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "ItemCatMast",
+   "live": true,
+   "rows": 50,
+   "py": true
+  },
+  {
+   "t": "ItemGrp",
+   "live": true,
+   "rows": 140,
+   "py": true
+  },
+  {
+   "t": "ItemMast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "ItemRate",
+   "live": true,
+   "rows": 718,
+   "py": true
+  },
+  {
+   "t": "Itemrate",
+   "live": true,
+   "rows": 718,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  }
+ ],
+ "FrmMergeCharge.frm": [
+  {
+   "t": "GUESTSTAT",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "GuestFolio",
+   "live": true,
+   "rows": 11042,
+   "py": true
+  },
+  {
+   "t": "GuestProf",
+   "live": true,
+   "rows": 7802,
+   "py": true
+  },
+  {
+   "t": "Leader",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "PayCharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "RoomCat",
+   "live": true,
+   "rows": 2,
+   "py": true
+  },
+  {
+   "t": "RoomOcc",
+   "live": true,
+   "rows": 11463,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "paycharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  }
+ ],
+ "FrmMsgBox.frm": [],
+ "FrmNAMessageA.frm": [],
+ "FrmNAMessageB.frm": [],
+ "FrmNAMessageC.frm": [],
+ "FrmOPStock.frm": [
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "GodownMast",
+   "live": true,
+   "rows": 70,
+   "py": true
+  },
+  {
+   "t": "ItemMast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "Stock",
+   "live": true,
+   "rows": 61925,
+   "py": true
+  },
+  {
+   "t": "Voucher_Prefix",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_Type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  }
+ ],
+ "FrmPOSBillDeletion.frm": [
+  {
+   "t": "AssignDelivery",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "DEPART",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "Date",
+   "live": false,
+   "rows": null,
+   "py": true
+  },
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "GuestReward",
+   "live": true,
+   "rows": 11310,
+   "py": true
+  },
+  {
+   "t": "PayCharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "Paycharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "RevMast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "Sale1",
+   "live": true,
+   "rows": 12686,
+   "py": true
+  },
+  {
+   "t": "Sale2",
+   "live": true,
+   "rows": 66055,
+   "py": true
+  },
+  {
+   "t": "Stock",
+   "live": true,
+   "rows": 61925,
+   "py": true
+  },
+  {
+   "t": "SunTran",
+   "live": true,
+   "rows": 98025,
+   "py": true
+  },
+  {
+   "t": "TempPosDel",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "VOUCHER_PREFIX",
+   "live": true,
+   "rows": 171,
+   "py": true
+  }
+ ],
+ "FrmPOSBillModificationDatewise.frm": [
+  {
+   "t": "DEPART",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "Date",
+   "live": false,
+   "rows": null,
+   "py": true
+  },
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "PayCharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "Paycharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "RevMast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "Sale1",
+   "live": true,
+   "rows": 12686,
+   "py": true
+  },
+  {
+   "t": "Sale2",
+   "live": true,
+   "rows": 66055,
+   "py": true
+  },
+  {
+   "t": "Stock",
+   "live": true,
+   "rows": 61925,
+   "py": true
+  },
+  {
+   "t": "SunTran",
+   "live": true,
+   "rows": 98025,
+   "py": true
+  },
+  {
+   "t": "TempPosDel",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "VOUCHER_PREFIX",
+   "live": true,
+   "rows": 171,
+   "py": true
+  }
+ ],
+ "FrmPOSBillModificationItemGroupwise.frm": [
+  {
+   "t": "DEPART",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "Date",
+   "live": false,
+   "rows": null,
+   "py": true
+  },
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "PayCharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "Paycharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "RevMast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "Sale1",
+   "live": true,
+   "rows": 12686,
+   "py": true
+  },
+  {
+   "t": "Sale2",
+   "live": true,
+   "rows": 66055,
+   "py": true
+  },
+  {
+   "t": "Stock",
+   "live": true,
+   "rows": 61925,
+   "py": true
+  },
+  {
+   "t": "SunTran",
+   "live": true,
+   "rows": 98025,
+   "py": true
+  },
+  {
+   "t": "TempPosDel",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "VOUCHER_PREFIX",
+   "live": true,
+   "rows": 171,
+   "py": true
+  }
+ ],
+ "FrmPOSRecycleData.frm": [
+  {
+   "t": "DEPART",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "POS_SBill",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "Paycharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "Sale1",
+   "live": true,
+   "rows": 12686,
+   "py": true
+  },
+  {
+   "t": "Sale2",
+   "live": true,
+   "rows": 66055,
+   "py": true
+  },
+  {
+   "t": "SplitSale1",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "SplitSale2",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "SplitStock",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "SplitedSunTran",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "Stock",
+   "live": true,
+   "rows": 61925,
+   "py": true
+  },
+  {
+   "t": "SunTran",
+   "live": true,
+   "rows": 98025,
+   "py": true
+  },
+  {
+   "t": "VOUCHER_PREFIX",
+   "live": true,
+   "rows": 171,
+   "py": true
+  }
+ ],
+ "FrmPOSSaleDataTransfer.frm": [
+  {
+   "t": "Date",
+   "live": false,
+   "rows": null,
+   "py": true
+  },
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "PayCharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "Sale1",
+   "live": true,
+   "rows": 12686,
+   "py": true
+  },
+  {
+   "t": "Sale2",
+   "live": true,
+   "rows": 66055,
+   "py": true
+  },
+  {
+   "t": "Stock",
+   "live": true,
+   "rows": 61925,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "SunTran",
+   "live": true,
+   "rows": 98025,
+   "py": true
+  },
+  {
+   "t": "var_B4",
+   "live": false,
+   "rows": null,
+   "py": false
+  }
+ ],
+ "FrmPackageMast.frm": [
+  {
+   "t": "FixedCharge",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "Plan1",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "PlanMast",
+   "live": true,
+   "rows": 9,
+   "py": true
+  },
+  {
+   "t": "PlanTokenDetails",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "REVMAST",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "ROOMCAT",
+   "live": true,
+   "rows": 2,
+   "py": true
+  },
+  {
+   "t": "RevMast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "RoomCat",
+   "live": true,
+   "rows": 2,
+   "py": true
+  },
+  {
+   "t": "TaxStru",
+   "live": true,
+   "rows": 56,
+   "py": true
+  },
+  {
+   "t": "taxstru",
+   "live": true,
+   "rows": 56,
+   "py": true
+  }
+ ],
+ "FrmParty.frm": [
+  {
+   "t": "ACGROUP",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "AcGroup",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "CATEGORY",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "City",
+   "live": true,
+   "rows": 466,
+   "py": true
+  },
+  {
+   "t": "LEDGER",
+   "live": true,
+   "rows": 40818,
+   "py": true
+  },
+  {
+   "t": "Ledger",
+   "live": true,
+   "rows": 40818,
+   "py": true
+  },
+  {
+   "t": "SUBGROUP",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "SUBGROUPCURRBAL",
+   "live": true,
+   "rows": 6164,
+   "py": true
+  },
+  {
+   "t": "Site",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "Subgroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "TDSCAT",
+   "live": true,
+   "rows": 4,
+   "py": true
+  },
+  {
+   "t": "Voucher_Prefix",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_Type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  }
+ ],
+ "FrmPayTypeMast.frm": [
+  {
+   "t": "CreditCardhistory",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "DepartPay",
+   "live": true,
+   "rows": 75,
+   "py": false
+  },
+  {
+   "t": "MenuHelp",
+   "live": true,
+   "rows": 9212,
+   "py": true
+  },
+  {
+   "t": "REVMAST",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "RevMast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "Subgroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "TaxStru",
+   "live": true,
+   "rows": 56,
+   "py": true
+  },
+  {
+   "t": "revmast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "taxstru",
+   "live": true,
+   "rows": 56,
+   "py": true
+  }
+ ],
+ "FrmPlanPackMast.frm": [
+  {
+   "t": "FixedCharge",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "Plan1",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "PlanMast",
+   "live": true,
+   "rows": 9,
+   "py": true
+  }
+ ],
+ "FrmPlanTokenMast.frm": [
+  {
+   "t": "RevMast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "TaxStru",
+   "live": true,
+   "rows": 56,
+   "py": true
+  }
+ ],
+ "FrmReceivePayment.frm": [
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "ENVIRO",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "ExpSheet",
+   "live": true,
+   "rows": 4,
+   "py": false
+  },
+  {
+   "t": "ForExTrans",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "PayCharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "Paycharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "REVMAST",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "Sale1",
+   "live": true,
+   "rows": 12686,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "Voucher_Prefix",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_Type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "enviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "var_B0",
+   "live": false,
+   "rows": null,
+   "py": false
+  }
+ ],
+ "FrmRevMergeCharge.frm": [
+  {
+   "t": "GUESTSTAT",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "Group",
+   "live": false,
+   "rows": null,
+   "py": true
+  },
+  {
+   "t": "GuestFolio",
+   "live": true,
+   "rows": 11042,
+   "py": true
+  },
+  {
+   "t": "GuestProf",
+   "live": true,
+   "rows": 7802,
+   "py": true
+  },
+  {
+   "t": "PayCharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "RoomCat",
+   "live": true,
+   "rows": 2,
+   "py": true
+  },
+  {
+   "t": "RoomOcc",
+   "live": true,
+   "rows": 11463,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "paycharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  }
+ ],
+ "FrmRevenueWiseBudget.frm": [
+  {
+   "t": "BUDGETDETAILS",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "BudgetDetails",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "FixedCharge",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "RevMast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  }
+ ],
+ "FrmRoomCatMast.frm": [
+  {
+   "t": "RateList",
+   "live": true,
+   "rows": 62,
+   "py": false
+  },
+  {
+   "t": "RevMast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "RoomCat",
+   "live": true,
+   "rows": 2,
+   "py": true
+  },
+  {
+   "t": "enviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "rateList",
+   "live": true,
+   "rows": 62,
+   "py": false
+  },
+  {
+   "t": "roomcat",
+   "live": true,
+   "rows": 2,
+   "py": true
+  },
+  {
+   "t": "var_DC",
+   "live": false,
+   "rows": null,
+   "py": false
+  }
+ ],
+ "FrmRoomFeatureMast.frm": [
+  {
+   "t": "RoomFeature",
+   "live": true,
+   "rows": 0,
+   "py": true
+  }
+ ],
+ "FrmSMSEnviro.frm": [
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "EmailSMSForward",
+   "live": true,
+   "rows": 18,
+   "py": true
+  },
+  {
+   "t": "JobSchedule",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "JobScheduledDetail",
+   "live": true,
+   "rows": 2,
+   "py": true
+  },
+  {
+   "t": "SMSEnviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  }
+ ],
+ "FrmSMSMultiType.frm": [
+  {
+   "t": "ACGROUP",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "City",
+   "live": true,
+   "rows": 466,
+   "py": true
+  },
+  {
+   "t": "DBSendSMS",
+   "live": true,
+   "rows": 18810,
+   "py": true
+  },
+  {
+   "t": "Employee",
+   "live": true,
+   "rows": 140,
+   "py": true
+  },
+  {
+   "t": "GuestProf",
+   "live": true,
+   "rows": 7802,
+   "py": true
+  },
+  {
+   "t": "Holiday",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "Ledger",
+   "live": true,
+   "rows": 40818,
+   "py": true
+  },
+  {
+   "t": "MemCatMast",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "MemberFamily",
+   "live": true,
+   "rows": 37,
+   "py": true
+  },
+  {
+   "t": "MenuHelp",
+   "live": true,
+   "rows": 9212,
+   "py": true
+  },
+  {
+   "t": "SMSEnviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  }
+ ],
+ "FrmTaxStruMast.frm": [
+  {
+   "t": "RevMast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "TaxStru",
+   "live": true,
+   "rows": 56,
+   "py": true
+  },
+  {
+   "t": "Taxstru",
+   "live": true,
+   "rows": 56,
+   "py": true
+  }
+ ],
+ "FrmUnSettledBillsInfo.frm": [
+  {
+   "t": "DEPART",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "PayCharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "RoomMast",
+   "live": true,
+   "rows": 86,
+   "py": true
+  },
+  {
+   "t": "VOUCHER_TYPE",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Waiter",
+   "live": true,
+   "rows": 58,
+   "py": true
+  },
+  {
+   "t": "wAITER",
+   "live": true,
+   "rows": 58,
+   "py": true
+  }
+ ],
+ "FrmUserPaymentCollection.frm": [
+  {
+   "t": "ENVIRO",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "MenuHelp",
+   "live": true,
+   "rows": 9212,
+   "py": true
+  },
+  {
+   "t": "REVMAST",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "UserCollection",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "UserMast",
+   "live": true,
+   "rows": 70,
+   "py": true
+  },
+  {
+   "t": "Voucher_Prefix",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_Type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "enviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "var_AC",
+   "live": false,
+   "rows": null,
+   "py": false
+  }
+ ],
+ "FrmVenueFeat.frm": [
+  {
+   "t": "FeatureMast",
+   "live": true,
+   "rows": 0,
+   "py": false
+  }
+ ],
+ "HKIssRec.frm": [
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "GodownMast",
+   "live": true,
+   "rows": 70,
+   "py": true
+  },
+  {
+   "t": "ItemGrp",
+   "live": true,
+   "rows": 140,
+   "py": true
+  },
+  {
+   "t": "ItemMast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "LASTVOU",
+   "live": true,
+   "rows": 22,
+   "py": true
+  },
+  {
+   "t": "ROOMMAST",
+   "live": true,
+   "rows": 86,
+   "py": true
+  },
+  {
+   "t": "RoomMast",
+   "live": true,
+   "rows": 86,
+   "py": true
+  },
+  {
+   "t": "STOCK",
+   "live": true,
+   "rows": 61925,
+   "py": true
+  },
+  {
+   "t": "Stock",
+   "live": true,
+   "rows": 61925,
+   "py": true
+  },
+  {
+   "t": "VOUCHER_tYPE",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_Prefix",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_Type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  }
+ ],
+ "HKRoomOpStk.frm": [
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "ItemGrp",
+   "live": true,
+   "rows": 140,
+   "py": true
+  },
+  {
+   "t": "ItemMast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "LASTVOU",
+   "live": true,
+   "rows": 22,
+   "py": true
+  },
+  {
+   "t": "RoomMast",
+   "live": true,
+   "rows": 86,
+   "py": true
+  },
+  {
+   "t": "STOCK",
+   "live": true,
+   "rows": 61925,
+   "py": true
+  },
+  {
+   "t": "Stock",
+   "live": true,
+   "rows": 61925,
+   "py": true
+  },
+  {
+   "t": "VOUCHER_tYPE",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_Prefix",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_Type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  }
+ ],
+ "HWIHistory.frm": [
+  {
+   "t": "Booking",
+   "live": true,
+   "rows": 25,
+   "py": true
+  },
+  {
+   "t": "GuestFolio",
+   "live": true,
+   "rows": 11042,
+   "py": true
+  },
+  {
+   "t": "GuestProf",
+   "live": true,
+   "rows": 7802,
+   "py": true
+  },
+  {
+   "t": "PlanMast",
+   "live": true,
+   "rows": 9,
+   "py": true
+  },
+  {
+   "t": "RoomCat",
+   "live": true,
+   "rows": 2,
+   "py": true
+  },
+  {
+   "t": "RoomMast",
+   "live": true,
+   "rows": 86,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  }
+ ],
+ "HallAcPostChrg.frm": [
+  {
+   "t": "Date",
+   "live": false,
+   "rows": null,
+   "py": true
+  },
+  {
+   "t": "Enviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  }
+ ],
+ "HallAdvanceDepDialog.frm": [
+  {
+   "t": "CreditCardHistory",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "DepartPay",
+   "live": true,
+   "rows": 75,
+   "py": false
+  },
+  {
+   "t": "Employee",
+   "live": true,
+   "rows": 140,
+   "py": true
+  },
+  {
+   "t": "Enviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "GuestProf",
+   "live": true,
+   "rows": 7802,
+   "py": true
+  },
+  {
+   "t": "HallBook",
+   "live": true,
+   "rows": 147,
+   "py": true
+  },
+  {
+   "t": "HallSale1",
+   "live": true,
+   "rows": 38,
+   "py": true
+  },
+  {
+   "t": "Ledger",
+   "live": true,
+   "rows": 40818,
+   "py": true
+  },
+  {
+   "t": "PayChargeH",
+   "live": true,
+   "rows": 11567,
+   "py": true
+  },
+  {
+   "t": "PaychargeH",
+   "live": true,
+   "rows": 11567,
+   "py": true
+  },
+  {
+   "t": "REVMAST",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "RevMast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "RoomMast",
+   "live": true,
+   "rows": 86,
+   "py": true
+  },
+  {
+   "t": "RoomOcc",
+   "live": true,
+   "rows": 11463,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "TaxStru",
+   "live": true,
+   "rows": 56,
+   "py": true
+  },
+  {
+   "t": "VenueMast",
+   "live": true,
+   "rows": 10,
+   "py": true
+  },
+  {
+   "t": "Voucher_Prefix",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_Type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "hallbook",
+   "live": true,
+   "rows": 147,
+   "py": true
+  },
+  {
+   "t": "lEDGER",
+   "live": true,
+   "rows": 40818,
+   "py": true
+  },
+  {
+   "t": "revmast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "taxstru",
+   "live": true,
+   "rows": 56,
+   "py": true
+  }
+ ],
+ "HallBill.frm": [
+  {
+   "t": "Booking",
+   "live": true,
+   "rows": 25,
+   "py": true
+  },
+  {
+   "t": "City",
+   "live": true,
+   "rows": 466,
+   "py": true
+  },
+  {
+   "t": "DEPART",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "Employee",
+   "live": true,
+   "rows": 140,
+   "py": true
+  },
+  {
+   "t": "Enviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "FAEnviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "FunctionType",
+   "live": true,
+   "rows": 8,
+   "py": true
+  },
+  {
+   "t": "GuestProf",
+   "live": true,
+   "rows": 7802,
+   "py": true
+  },
+  {
+   "t": "HALLBOOK",
+   "live": true,
+   "rows": 147,
+   "py": true
+  },
+  {
+   "t": "HALLSTOCK",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "HallBooK",
+   "live": true,
+   "rows": 147,
+   "py": true
+  },
+  {
+   "t": "HallBook",
+   "live": true,
+   "rows": 147,
+   "py": true
+  },
+  {
+   "t": "HallBook1",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "HallSale1",
+   "live": true,
+   "rows": 38,
+   "py": true
+  },
+  {
+   "t": "HallSale2",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "HallStock",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "Hallsale1",
+   "live": true,
+   "rows": 38,
+   "py": true
+  },
+  {
+   "t": "ITEMMAST",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "ItemCatMast",
+   "live": true,
+   "rows": 50,
+   "py": true
+  },
+  {
+   "t": "ItemGrp",
+   "live": true,
+   "rows": 140,
+   "py": true
+  },
+  {
+   "t": "ItemMast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "ItemRate",
+   "live": true,
+   "rows": 718,
+   "py": true
+  },
+  {
+   "t": "LASTVOU",
+   "live": true,
+   "rows": 22,
+   "py": true
+  },
+  {
+   "t": "Ledger",
+   "live": true,
+   "rows": 40818,
+   "py": true
+  },
+  {
+   "t": "PAYCHARGEH",
+   "live": true,
+   "rows": 11567,
+   "py": true
+  },
+  {
+   "t": "PayChargeH",
+   "live": true,
+   "rows": 11567,
+   "py": true
+  },
+  {
+   "t": "PaychargeH",
+   "live": true,
+   "rows": 11567,
+   "py": true
+  },
+  {
+   "t": "PrinterSetup",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "RevMast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "Revmast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "RoomMast",
+   "live": true,
+   "rows": 86,
+   "py": true
+  },
+  {
+   "t": "RoundOffSetting",
+   "live": true,
+   "rows": 5,
+   "py": true
+  },
+  {
+   "t": "State",
+   "live": true,
+   "rows": 55,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "SunTran",
+   "live": true,
+   "rows": 98025,
+   "py": true
+  },
+  {
+   "t": "SunTranH",
+   "live": true,
+   "rows": 228,
+   "py": true
+  },
+  {
+   "t": "SunTransaction",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "SundryMast",
+   "live": true,
+   "rows": 19,
+   "py": true
+  },
+  {
+   "t": "SundryType",
+   "live": true,
+   "rows": 118,
+   "py": true
+  },
+  {
+   "t": "TaxStru",
+   "live": true,
+   "rows": 56,
+   "py": true
+  },
+  {
+   "t": "VOUCHER_TYPE",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "VenueMast",
+   "live": true,
+   "rows": 10,
+   "py": true
+  },
+  {
+   "t": "VenueOcc",
+   "live": true,
+   "rows": 216,
+   "py": true
+  },
+  {
+   "t": "Voucher_Prefix",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_Type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "eInvoiceBill1",
+   "live": true,
+   "rows": 211,
+   "py": false
+  },
+  {
+   "t": "eInvoiceBill2",
+   "live": true,
+   "rows": 540,
+   "py": false
+  },
+  {
+   "t": "revmast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "var_160",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_A0",
+   "live": false,
+   "rows": null,
+   "py": false
+  }
+ ],
+ "HallBillEstimate.frm": [
+  {
+   "t": "Booking",
+   "live": true,
+   "rows": 25,
+   "py": true
+  },
+  {
+   "t": "DEPART",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "Enviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "FAEnviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "HALLBOOK",
+   "live": true,
+   "rows": 147,
+   "py": true
+  },
+  {
+   "t": "HallBooK",
+   "live": true,
+   "rows": 147,
+   "py": true
+  },
+  {
+   "t": "HallBook",
+   "live": true,
+   "rows": 147,
+   "py": true
+  },
+  {
+   "t": "HallBook1",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "HallSale1",
+   "live": true,
+   "rows": 38,
+   "py": true
+  },
+  {
+   "t": "HallSale1Est",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "HallStockEst",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "ITEMMAST",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "ItemCatMast",
+   "live": true,
+   "rows": 50,
+   "py": true
+  },
+  {
+   "t": "ItemGrp",
+   "live": true,
+   "rows": 140,
+   "py": true
+  },
+  {
+   "t": "ItemMast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "ItemRate",
+   "live": true,
+   "rows": 718,
+   "py": true
+  },
+  {
+   "t": "LASTVOU",
+   "live": true,
+   "rows": 22,
+   "py": true
+  },
+  {
+   "t": "PayChargeH",
+   "live": true,
+   "rows": 11567,
+   "py": true
+  },
+  {
+   "t": "PrinterSetup",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "RevMast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "Revmast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "SunTranEst",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "SunTranHEst",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "SundryMast",
+   "live": true,
+   "rows": 19,
+   "py": true
+  },
+  {
+   "t": "SundryType",
+   "live": true,
+   "rows": 118,
+   "py": true
+  },
+  {
+   "t": "TaxStru",
+   "live": true,
+   "rows": 56,
+   "py": true
+  },
+  {
+   "t": "VOUCHER_TYPE",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "VenueMast",
+   "live": true,
+   "rows": 10,
+   "py": true
+  },
+  {
+   "t": "VenueOcc",
+   "live": true,
+   "rows": 216,
+   "py": true
+  },
+  {
+   "t": "Voucher_Prefix",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_Type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "var_A0",
+   "live": false,
+   "rows": null,
+   "py": false
+  }
+ ],
+ "HallEstimate.frm": [
+  {
+   "t": "Booking",
+   "live": true,
+   "rows": 25,
+   "py": true
+  },
+  {
+   "t": "DEPART",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "Date",
+   "live": false,
+   "rows": null,
+   "py": true
+  },
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "Enviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "FAEnviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "HALLBOOK",
+   "live": true,
+   "rows": 147,
+   "py": true
+  },
+  {
+   "t": "HallBooK",
+   "live": true,
+   "rows": 147,
+   "py": true
+  },
+  {
+   "t": "HallBook",
+   "live": true,
+   "rows": 147,
+   "py": true
+  },
+  {
+   "t": "HallBook1",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "HallSale1",
+   "live": true,
+   "rows": 38,
+   "py": true
+  },
+  {
+   "t": "HallStock",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "Hallsale1",
+   "live": true,
+   "rows": 38,
+   "py": true
+  },
+  {
+   "t": "ITEMMAST",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "ItemCatMast",
+   "live": true,
+   "rows": 50,
+   "py": true
+  },
+  {
+   "t": "ItemGrp",
+   "live": true,
+   "rows": 140,
+   "py": true
+  },
+  {
+   "t": "ItemMast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "ItemRate",
+   "live": true,
+   "rows": 718,
+   "py": true
+  },
+  {
+   "t": "LASTVOU",
+   "live": true,
+   "rows": 22,
+   "py": true
+  },
+  {
+   "t": "PrinterSetup",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "RevMast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "SunTran",
+   "live": true,
+   "rows": 98025,
+   "py": true
+  },
+  {
+   "t": "SunTranH",
+   "live": true,
+   "rows": 228,
+   "py": true
+  },
+  {
+   "t": "SunTransaction",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "SundryMast",
+   "live": true,
+   "rows": 19,
+   "py": true
+  },
+  {
+   "t": "SundryType",
+   "live": true,
+   "rows": 118,
+   "py": true
+  },
+  {
+   "t": "TaxStru",
+   "live": true,
+   "rows": 56,
+   "py": true
+  },
+  {
+   "t": "VOUCHER_TYPE",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "VenueMast",
+   "live": true,
+   "rows": 10,
+   "py": true
+  },
+  {
+   "t": "VenueOcc",
+   "live": true,
+   "rows": 216,
+   "py": true
+  },
+  {
+   "t": "Voucher_Prefix",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_Type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "var_A0",
+   "live": false,
+   "rows": null,
+   "py": false
+  }
+ ],
+ "HallItemGroupMast.frm": [
+  {
+   "t": "ItemGrp",
+   "live": true,
+   "rows": 140,
+   "py": true
+  }
+ ],
+ "HallMenuCatalog.frm": [
+  {
+   "t": "CatalogMast",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "Enviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "GroupCatalog",
+   "live": true,
+   "rows": 4,
+   "py": false
+  },
+  {
+   "t": "ItemGrp",
+   "live": true,
+   "rows": 140,
+   "py": true
+  },
+  {
+   "t": "ItemMast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "var_CC",
+   "live": false,
+   "rows": null,
+   "py": false
+  }
+ ],
+ "HallMenuItemEntry.frm": [
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "Item",
+   "live": true,
+   "rows": 3187,
+   "py": true
+  },
+  {
+   "t": "ItemCatMast",
+   "live": true,
+   "rows": 50,
+   "py": true
+  },
+  {
+   "t": "ItemGrp",
+   "live": true,
+   "rows": 140,
+   "py": true
+  },
+  {
+   "t": "ItemMast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "ItemRate",
+   "live": true,
+   "rows": 718,
+   "py": true
+  },
+  {
+   "t": "Itemmast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "Itemrate",
+   "live": true,
+   "rows": 718,
+   "py": true
+  },
+  {
+   "t": "STOCK",
+   "live": true,
+   "rows": 61925,
+   "py": true
+  },
+  {
+   "t": "TaxStru",
+   "live": true,
+   "rows": 56,
+   "py": true
+  },
+  {
+   "t": "UnitMast",
+   "live": true,
+   "rows": 32,
+   "py": true
+  }
+ ],
+ "InHouseGuestFolio.frm": [
+  {
+   "t": "Booking",
+   "live": true,
+   "rows": 25,
+   "py": true
+  },
+  {
+   "t": "City",
+   "live": true,
+   "rows": 466,
+   "py": true
+  },
+  {
+   "t": "EPABX_IN",
+   "live": false,
+   "rows": null,
+   "py": true
+  },
+  {
+   "t": "EmailSMSForward",
+   "live": true,
+   "rows": 18,
+   "py": true
+  },
+  {
+   "t": "Employee",
+   "live": true,
+   "rows": 140,
+   "py": true
+  },
+  {
+   "t": "Enviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "FOMBillDetails",
+   "live": true,
+   "rows": 662,
+   "py": true
+  },
+  {
+   "t": "GuestFolio",
+   "live": true,
+   "rows": 11042,
+   "py": true
+  },
+  {
+   "t": "GuestFolioProfDetail",
+   "live": true,
+   "rows": 747,
+   "py": true
+  },
+  {
+   "t": "GuestMessage",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "GuestProf",
+   "live": true,
+   "rows": 7802,
+   "py": true
+  },
+  {
+   "t": "GuestStat",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "PayCharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "Paycharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "PlanMast",
+   "live": true,
+   "rows": 9,
+   "py": true
+  },
+  {
+   "t": "ROOMCAT",
+   "live": true,
+   "rows": 2,
+   "py": true
+  },
+  {
+   "t": "ROOMOCC",
+   "live": true,
+   "rows": 11463,
+   "py": true
+  },
+  {
+   "t": "RevMast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "RoomBLockOut",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "RoomBlockOut",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "RoomCat",
+   "live": true,
+   "rows": 2,
+   "py": true
+  },
+  {
+   "t": "RoomMast",
+   "live": true,
+   "rows": 86,
+   "py": true
+  },
+  {
+   "t": "RoomOcc",
+   "live": true,
+   "rows": 11463,
+   "py": true
+  },
+  {
+   "t": "Roomcat",
+   "live": true,
+   "rows": 2,
+   "py": true
+  },
+  {
+   "t": "SMSEnviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "Subgroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "UserPermission",
+   "live": true,
+   "rows": 76,
+   "py": true
+  },
+  {
+   "t": "ViewBooking",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "enviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "menuhelp",
+   "live": true,
+   "rows": 9212,
+   "py": true
+  },
+  {
+   "t": "paycharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "roommast",
+   "live": true,
+   "rows": 86,
+   "py": true
+  }
+ ],
+ "LockForm.frm": [],
+ "MemCatMast.frm": [
+  {
+   "t": "MEmCatMast",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "MemCatMast",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  }
+ ],
+ "MemRenewalEntry.frm": [
+  {
+   "t": "MemCatMast",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "MemHistory",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "Subgroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  }
+ ],
+ "MemSelectCategory.frm": [
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "MemCatMast",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "MemSelectCategory",
+   "live": false,
+   "rows": null,
+   "py": false
+  }
+ ],
+ "MemberEnviro.frm": [
+  {
+   "t": "MemEnviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  }
+ ],
+ "MemberProposedMemInf.frm": [
+  {
+   "t": "MemCatMast",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "MemProposedMemInf",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "MemberFamily",
+   "live": true,
+   "rows": 37,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  }
+ ],
+ "MemberSMS.frm": [
+  {
+   "t": "Enviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  }
+ ],
+ "MemberShipRevenueMast.frm": [
+  {
+   "t": "MembershipRevMast",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "TaxStru",
+   "live": true,
+   "rows": 56,
+   "py": true
+  }
+ ],
+ "OutLetMast.frm": [
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "MenuHelp",
+   "live": true,
+   "rows": 9212,
+   "py": true
+  },
+  {
+   "t": "OutletBarCodePartDetail",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "RevMast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "SchemeMast",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "SchemeOutletDiscount",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "Stock",
+   "live": true,
+   "rows": 61925,
+   "py": true
+  },
+  {
+   "t": "SundryType",
+   "live": true,
+   "rows": 118,
+   "py": true
+  },
+  {
+   "t": "UserModule",
+   "live": true,
+   "rows": 450,
+   "py": false
+  },
+  {
+   "t": "Voucher_Prefix",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_Type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "enviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "menu",
+   "live": false,
+   "rows": null,
+   "py": true
+  }
+ ],
+ "PrAttend1.frm": [
+  {
+   "t": "ATTENDENCE",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "Attend",
+   "live": true,
+   "rows": 1323,
+   "py": true
+  },
+  {
+   "t": "DESIG",
+   "live": true,
+   "rows": 61,
+   "py": true
+  },
+  {
+   "t": "EMPLOYEE",
+   "live": true,
+   "rows": 140,
+   "py": true
+  },
+  {
+   "t": "Salary",
+   "live": true,
+   "rows": 282,
+   "py": true
+  },
+  {
+   "t": "attend",
+   "live": true,
+   "rows": 1323,
+   "py": true
+  },
+  {
+   "t": "attendence",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "employee",
+   "live": true,
+   "rows": 140,
+   "py": true
+  },
+  {
+   "t": "here",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "holiday",
+   "live": true,
+   "rows": 0,
+   "py": true
+  }
+ ],
+ "PrLoan.frm": [
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "Desig",
+   "live": true,
+   "rows": 61,
+   "py": true
+  },
+  {
+   "t": "EMPLOYEE",
+   "live": true,
+   "rows": 140,
+   "py": true
+  },
+  {
+   "t": "Employee",
+   "live": true,
+   "rows": 140,
+   "py": true
+  },
+  {
+   "t": "Enviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "LEDGER",
+   "live": true,
+   "rows": 40818,
+   "py": true
+  },
+  {
+   "t": "LEDGERM",
+   "live": true,
+   "rows": 3158,
+   "py": true
+  },
+  {
+   "t": "LOAN",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "SUBGROUP",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "VOUCHER_TYPE",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_Prefix",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_Type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "employee",
+   "live": true,
+   "rows": 140,
+   "py": true
+  }
+ ],
+ "REPVIEW.frm": [],
+ "RrLookUpGuest.frm": [
+  {
+   "t": "GuestProf",
+   "live": true,
+   "rows": 7802,
+   "py": true
+  },
+  {
+   "t": "RoomCat",
+   "live": true,
+   "rows": 2,
+   "py": true
+  }
+ ],
+ "RsAssignDelivery.frm": [
+  {
+   "t": "AssignDelivery",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "DeliveryBoy",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "ENVIRO",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "Sale1",
+   "live": true,
+   "rows": 12686,
+   "py": true
+  },
+  {
+   "t": "SplitSale1",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "VOUCHER_TYPE",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_Type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  }
+ ],
+ "RsBookingEntry.frm": [
+  {
+   "t": "ComboPackDetail",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "DEPART",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "Depart1",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "ENVIRO",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "Enviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "ITEMMAST",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "ItemCatMast",
+   "live": true,
+   "rows": 50,
+   "py": true
+  },
+  {
+   "t": "ItemGrp",
+   "live": true,
+   "rows": 140,
+   "py": true
+  },
+  {
+   "t": "ItemMast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "ItemRate",
+   "live": true,
+   "rows": 718,
+   "py": true
+  },
+  {
+   "t": "NCTypeMast",
+   "live": true,
+   "rows": 16,
+   "py": true
+  },
+  {
+   "t": "OrderPersonDetails",
+   "live": true,
+   "rows": 6,
+   "py": false
+  },
+  {
+   "t": "PackingOrder",
+   "live": true,
+   "rows": 7,
+   "py": true
+  },
+  {
+   "t": "PackingOrderDetail",
+   "live": true,
+   "rows": 7,
+   "py": true
+  },
+  {
+   "t": "PackingOrderDetail1",
+   "live": true,
+   "rows": 14,
+   "py": false
+  },
+  {
+   "t": "PackingOrderDetail2",
+   "live": true,
+   "rows": 49,
+   "py": false
+  },
+  {
+   "t": "PayCharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "RevMast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "Revmast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "RoundOffSetting",
+   "live": true,
+   "rows": 5,
+   "py": true
+  },
+  {
+   "t": "SplitStock",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "Stock",
+   "live": true,
+   "rows": 61925,
+   "py": true
+  },
+  {
+   "t": "SundryMast",
+   "live": true,
+   "rows": 19,
+   "py": true
+  },
+  {
+   "t": "SundryType",
+   "live": true,
+   "rows": 118,
+   "py": true
+  },
+  {
+   "t": "TaxStru",
+   "live": true,
+   "rows": 56,
+   "py": true
+  },
+  {
+   "t": "UnitMast",
+   "live": true,
+   "rows": 32,
+   "py": true
+  },
+  {
+   "t": "Voucher_Prefix",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_Type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "packingorderdetail2",
+   "live": true,
+   "rows": 49,
+   "py": false
+  },
+  {
+   "t": "taxStru",
+   "live": true,
+   "rows": 56,
+   "py": true
+  },
+  {
+   "t": "var_11C",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_1B8",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_98",
+   "live": false,
+   "rows": null,
+   "py": false
+  }
+ ],
+ "RsBookingEntryAdvance.frm": [
+  {
+   "t": "PackingOrder",
+   "live": true,
+   "rows": 7,
+   "py": true
+  }
+ ],
+ "RsKOTEntry.frm": [
+  {
+   "t": "DEPART",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "Depart1",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "ENVIRO",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "EmailSMSForward",
+   "live": true,
+   "rows": 18,
+   "py": true
+  },
+  {
+   "t": "Enviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "FreeItemDetail",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "GuestFolio",
+   "live": true,
+   "rows": 11042,
+   "py": true
+  },
+  {
+   "t": "GuestProf",
+   "live": true,
+   "rows": 7802,
+   "py": true
+  },
+  {
+   "t": "HappyHours",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "ItemGrp",
+   "live": true,
+   "rows": 140,
+   "py": true
+  },
+  {
+   "t": "ItemMast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "ItemRate",
+   "live": true,
+   "rows": 718,
+   "py": true
+  },
+  {
+   "t": "Itemmast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "KOTLog",
+   "live": true,
+   "rows": 1420,
+   "py": true
+  },
+  {
+   "t": "LASTVOU",
+   "live": true,
+   "rows": 22,
+   "py": true
+  },
+  {
+   "t": "MEMENVIRO",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "MemCatMast",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "MemEnviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "NCTypeMast",
+   "live": true,
+   "rows": 16,
+   "py": true
+  },
+  {
+   "t": "PayCharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "PlanMast",
+   "live": true,
+   "rows": 9,
+   "py": true
+  },
+  {
+   "t": "PrinterSetup",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "RoomMast",
+   "live": true,
+   "rows": 86,
+   "py": true
+  },
+  {
+   "t": "SchemeItemDetail",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "SessionMast",
+   "live": true,
+   "rows": 2,
+   "py": true
+  },
+  {
+   "t": "SmartCardRegistration",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "Stock",
+   "live": true,
+   "rows": 61925,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "UnitMast",
+   "live": true,
+   "rows": 32,
+   "py": true
+  },
+  {
+   "t": "UserPermission",
+   "live": true,
+   "rows": 76,
+   "py": true
+  },
+  {
+   "t": "VOUCHER_TYPE",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_Prefix",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_Type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Waiter",
+   "live": true,
+   "rows": 58,
+   "py": true
+  },
+  {
+   "t": "depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "enviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "itemmast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "paycharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "var_144",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_98",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "wAITER",
+   "live": true,
+   "rows": 58,
+   "py": true
+  }
+ ],
+ "RsMenuItemEntry.frm": [
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "Item",
+   "live": true,
+   "rows": 3187,
+   "py": true
+  },
+  {
+   "t": "ItemCatMast",
+   "live": true,
+   "rows": 50,
+   "py": true
+  },
+  {
+   "t": "ItemGrp",
+   "live": true,
+   "rows": 140,
+   "py": true
+  },
+  {
+   "t": "ItemMast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "ItemRate",
+   "live": true,
+   "rows": 718,
+   "py": true
+  },
+  {
+   "t": "Itemrate",
+   "live": true,
+   "rows": 718,
+   "py": true
+  },
+  {
+   "t": "TaxStru",
+   "live": true,
+   "rows": 56,
+   "py": true
+  },
+  {
+   "t": "UnitMast",
+   "live": true,
+   "rows": 32,
+   "py": true
+  },
+  {
+   "t": "depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "itemrate",
+   "live": true,
+   "rows": 718,
+   "py": true
+  },
+  {
+   "t": "var_98",
+   "live": false,
+   "rows": null,
+   "py": false
+  }
+ ],
+ "RsPOSDisplayNew.frm": [
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "DispColor",
+   "live": true,
+   "rows": 6,
+   "py": true
+  },
+  {
+   "t": "Dispcolor",
+   "live": true,
+   "rows": 6,
+   "py": true
+  },
+  {
+   "t": "GuestProf",
+   "live": true,
+   "rows": 7802,
+   "py": true
+  },
+  {
+   "t": "PackingOrder",
+   "live": true,
+   "rows": 7,
+   "py": true
+  },
+  {
+   "t": "PackingOrderDetail",
+   "live": true,
+   "rows": 7,
+   "py": true
+  },
+  {
+   "t": "PayCharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "PlanMast",
+   "live": true,
+   "rows": 9,
+   "py": true
+  },
+  {
+   "t": "RoomMast",
+   "live": true,
+   "rows": 86,
+   "py": true
+  },
+  {
+   "t": "UserPermission",
+   "live": true,
+   "rows": 76,
+   "py": true
+  },
+  {
+   "t": "WAITER",
+   "live": true,
+   "rows": 58,
+   "py": true
+  },
+  {
+   "t": "Waiter",
+   "live": true,
+   "rows": 58,
+   "py": true
+  }
+ ],
+ "RsSpecItemEntry.frm": [
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "Item",
+   "live": true,
+   "rows": 3187,
+   "py": true
+  },
+  {
+   "t": "ItemCatMast",
+   "live": true,
+   "rows": 50,
+   "py": true
+  },
+  {
+   "t": "ItemGrp",
+   "live": true,
+   "rows": 140,
+   "py": true
+  },
+  {
+   "t": "ItemMast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "Itemmast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "UnitMast",
+   "live": true,
+   "rows": 32,
+   "py": true
+  }
+ ],
+ "RsStatusScreen.frm": [
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "LocationMast",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "MemFacilityBilling",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "RoomMast",
+   "live": true,
+   "rows": 86,
+   "py": true
+  },
+  {
+   "t": "Sale1",
+   "live": true,
+   "rows": 12686,
+   "py": true
+  },
+  {
+   "t": "Waiter",
+   "live": true,
+   "rows": 58,
+   "py": true
+  }
+ ],
+ "RsTbChange.frm": [
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "RoomMast",
+   "live": true,
+   "rows": 86,
+   "py": true
+  },
+  {
+   "t": "Table",
+   "live": false,
+   "rows": null,
+   "py": true
+  },
+  {
+   "t": "WAITER",
+   "live": true,
+   "rows": 58,
+   "py": true
+  },
+  {
+   "t": "roommast",
+   "live": true,
+   "rows": 86,
+   "py": true
+  }
+ ],
+ "RsTouchScreenBookingEntry.frm": [
+  {
+   "t": "DEPART",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "ItemCatMast",
+   "live": true,
+   "rows": 50,
+   "py": true
+  },
+  {
+   "t": "ItemGrp",
+   "live": true,
+   "rows": 140,
+   "py": true
+  },
+  {
+   "t": "ItemMast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "ItemRate",
+   "live": true,
+   "rows": 718,
+   "py": true
+  },
+  {
+   "t": "PackingOrder",
+   "live": true,
+   "rows": 7,
+   "py": true
+  },
+  {
+   "t": "PackingOrderDetail",
+   "live": true,
+   "rows": 7,
+   "py": true
+  },
+  {
+   "t": "RoundOffSetting",
+   "live": true,
+   "rows": 5,
+   "py": true
+  },
+  {
+   "t": "Voucher_Prefix",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_Type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "packingorderdetail",
+   "live": true,
+   "rows": 7,
+   "py": true
+  }
+ ],
+ "RsTouchScreenFAFind.frm": [],
+ "RsTouchScreenSteward.frm": [
+  {
+   "t": "MemCatMast",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "Waiter",
+   "live": true,
+   "rows": 58,
+   "py": true
+  }
+ ],
+ "SmartCardLostReIssue.frm": [
+  {
+   "t": "MemberFamily",
+   "live": true,
+   "rows": 37,
+   "py": true
+  },
+  {
+   "t": "SmartCardMaster",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "SmartCardReIssueDetail",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "SmartCardRegistration",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "Subgroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  }
+ ],
+ "SmartCardMast.frm": [
+  {
+   "t": "Enviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "ItemMast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "Purch1",
+   "live": true,
+   "rows": 880,
+   "py": true
+  },
+  {
+   "t": "Purch2",
+   "live": true,
+   "rows": 3826,
+   "py": true
+  },
+  {
+   "t": "SmartCardMaster",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "VOUCHER_TYPE",
+   "live": true,
+   "rows": 171,
+   "py": true
+  }
+ ],
+ "SmartCardRecharge.frm": [
+  {
+   "t": "MemberFamily",
+   "live": true,
+   "rows": 37,
+   "py": true
+  },
+  {
+   "t": "SmartCardLedger",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "SmartCardRegistration",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "SmartCardTransaction",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "Subgroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  }
+ ],
+ "SmartCardRefund.frm": [
+  {
+   "t": "MemberFamily",
+   "live": true,
+   "rows": 37,
+   "py": true
+  },
+  {
+   "t": "SmartCardLedger",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "SmartCardRegistration",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "Subgroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  }
+ ],
+ "TelCallCodeMast.frm": [
+  {
+   "t": "TelCallCode",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "TelCallType",
+   "live": true,
+   "rows": 0,
+   "py": true
+  }
+ ],
+ "TelCallEntry.frm": [
+  {
+   "t": "COUNTER",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "EPABX_OUT",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "RoomMast",
+   "live": true,
+   "rows": 86,
+   "py": true
+  },
+  {
+   "t": "TelExt",
+   "live": true,
+   "rows": 0,
+   "py": true
+  }
+ ],
+ "TelCallTypeMast.frm": [
+  {
+   "t": "RevMast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "Subgroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "TaxStru",
+   "live": true,
+   "rows": 56,
+   "py": true
+  },
+  {
+   "t": "TelCallCode",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "TelCallType",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "taxstru",
+   "live": true,
+   "rows": 56,
+   "py": true
+  }
+ ],
+ "UserPermission.frm": [
+  {
+   "t": "Company",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "MenuHelp",
+   "live": true,
+   "rows": 9212,
+   "py": true
+  },
+  {
+   "t": "UserMast",
+   "live": true,
+   "rows": 70,
+   "py": true
+  },
+  {
+   "t": "UserModule",
+   "live": true,
+   "rows": 450,
+   "py": false
+  },
+  {
+   "t": "UserPermission",
+   "live": true,
+   "rows": 76,
+   "py": true
+  }
+ ],
+ "VoucherSundrySetting.frm": [
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "RevMast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "SundryMast",
+   "live": true,
+   "rows": 19,
+   "py": true
+  },
+  {
+   "t": "SundryType",
+   "live": true,
+   "rows": 118,
+   "py": true
+  },
+  {
+   "t": "SundryTypeFix",
+   "live": true,
+   "rows": 9,
+   "py": true
+  },
+  {
+   "t": "Voucher_type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  }
+ ],
+ "fdNDAcPostChrg.frm": [
+  {
+   "t": "Date",
+   "live": false,
+   "rows": null,
+   "py": true
+  },
+  {
+   "t": "Enviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "ItemMast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "PayCharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "Paycharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "Stock",
+   "live": true,
+   "rows": 61925,
+   "py": true
+  },
+  {
+   "t": "mCurStk",
+   "live": true,
+   "rows": 15199,
+   "py": false
+  },
+  {
+   "t": "stock",
+   "live": true,
+   "rows": 61925,
+   "py": true
+  },
+  {
+   "t": "var_98",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "voucher_type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  }
+ ],
+ "fdPrintScreen.frm": [
+  {
+   "t": "GUESTSTAT",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "GuestFolio",
+   "live": true,
+   "rows": 11042,
+   "py": true
+  },
+  {
+   "t": "GuestProf",
+   "live": true,
+   "rows": 7802,
+   "py": true
+  },
+  {
+   "t": "RevMast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "RoomCat",
+   "live": true,
+   "rows": 2,
+   "py": true
+  },
+  {
+   "t": "RoomOcc",
+   "live": true,
+   "rows": 11463,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "paycharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "revmast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  }
+ ],
+ "frmComboMast.frm": [
+  {
+   "t": "ComboPackDetail",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "Item",
+   "live": true,
+   "rows": 3187,
+   "py": true
+  },
+  {
+   "t": "ItemCatMast",
+   "live": true,
+   "rows": 50,
+   "py": true
+  },
+  {
+   "t": "ItemGrp",
+   "live": true,
+   "rows": 140,
+   "py": true
+  },
+  {
+   "t": "ItemMast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "ItemRate",
+   "live": true,
+   "rows": 718,
+   "py": true
+  },
+  {
+   "t": "Itemmast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "Itemrate",
+   "live": true,
+   "rows": 718,
+   "py": true
+  },
+  {
+   "t": "UnitMast",
+   "live": true,
+   "rows": 32,
+   "py": true
+  },
+  {
+   "t": "depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "itemmast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "itemrate",
+   "live": true,
+   "rows": 718,
+   "py": true
+  }
+ ],
+ "frmCompany.frm": [
+  {
+   "t": "Booking",
+   "live": true,
+   "rows": 25,
+   "py": true
+  },
+  {
+   "t": "BussSource",
+   "live": true,
+   "rows": 6,
+   "py": true
+  },
+  {
+   "t": "COMPANY",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "Company",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "Enviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "FaEnviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "FacilityBill",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "FacilityBill1",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "GrpBookingDetails",
+   "live": true,
+   "rows": 56,
+   "py": false
+  },
+  {
+   "t": "GuestFolio",
+   "live": true,
+   "rows": 11042,
+   "py": true
+  },
+  {
+   "t": "GuestFolioProfDetail",
+   "live": true,
+   "rows": 747,
+   "py": true
+  },
+  {
+   "t": "GuestProf",
+   "live": true,
+   "rows": 7802,
+   "py": true
+  },
+  {
+   "t": "GuestReward",
+   "live": true,
+   "rows": 11310,
+   "py": true
+  },
+  {
+   "t": "Item",
+   "live": true,
+   "rows": 3187,
+   "py": true
+  },
+  {
+   "t": "ItemMast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "ItemRate",
+   "live": true,
+   "rows": 718,
+   "py": true
+  },
+  {
+   "t": "MarketSeg",
+   "live": true,
+   "rows": 10,
+   "py": true
+  },
+  {
+   "t": "MemEnviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "MenuHelp",
+   "live": true,
+   "rows": 9212,
+   "py": true
+  },
+  {
+   "t": "Paycharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "PaychargeLog",
+   "live": true,
+   "rows": 252,
+   "py": true
+  },
+  {
+   "t": "PlanMast",
+   "live": true,
+   "rows": 9,
+   "py": true
+  },
+  {
+   "t": "RevMast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "Revmast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "RoomCat",
+   "live": true,
+   "rows": 2,
+   "py": true
+  },
+  {
+   "t": "RoomDiscount",
+   "live": true,
+   "rows": 1584,
+   "py": false
+  },
+  {
+   "t": "RoomOcc",
+   "live": true,
+   "rows": 11463,
+   "py": true
+  },
+  {
+   "t": "Sale1",
+   "live": true,
+   "rows": 12686,
+   "py": true
+  },
+  {
+   "t": "Sale1Log",
+   "live": true,
+   "rows": 130,
+   "py": false
+  },
+  {
+   "t": "Serial",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "SmartCardRegistration",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "SplitSale1",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "SplitStock",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "Stock",
+   "live": true,
+   "rows": 61925,
+   "py": true
+  },
+  {
+   "t": "StockLog",
+   "live": true,
+   "rows": 563,
+   "py": false
+  },
+  {
+   "t": "SunTran",
+   "live": true,
+   "rows": 98025,
+   "py": true
+  },
+  {
+   "t": "SunTranFacility",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "SunTranH",
+   "live": true,
+   "rows": 228,
+   "py": true
+  },
+  {
+   "t": "USERMAST",
+   "live": true,
+   "rows": 70,
+   "py": true
+  },
+  {
+   "t": "User1",
+   "live": true,
+   "rows": 617,
+   "py": true
+  },
+  {
+   "t": "UserMast",
+   "live": true,
+   "rows": 70,
+   "py": true
+  },
+  {
+   "t": "User_Module",
+   "live": true,
+   "rows": 617,
+   "py": true
+  },
+  {
+   "t": "company",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "eInvoiceEnviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "enviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "information_schema",
+   "live": false,
+   "rows": null,
+   "py": true
+  },
+  {
+   "t": "module",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "user1",
+   "live": true,
+   "rows": 617,
+   "py": true
+  },
+  {
+   "t": "user2",
+   "live": true,
+   "rows": 84,
+   "py": false
+  },
+  {
+   "t": "userMAST",
+   "live": true,
+   "rows": 70,
+   "py": true
+  },
+  {
+   "t": "userMast",
+   "live": true,
+   "rows": 70,
+   "py": true
+  },
+  {
+   "t": "usermast",
+   "live": true,
+   "rows": 70,
+   "py": true
+  }
+ ],
+ "frmEnviro.frm": [
+  {
+   "t": "Acgroup",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "Enviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "Godownmast",
+   "live": true,
+   "rows": 70,
+   "py": true
+  },
+  {
+   "t": "ItemMast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "Itemmast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "MenuHelp",
+   "live": true,
+   "rows": 9212,
+   "py": true
+  },
+  {
+   "t": "RevMAst",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "RevMast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "Revmast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "RoundOffSetting",
+   "live": true,
+   "rows": 5,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "TaxStru",
+   "live": true,
+   "rows": 56,
+   "py": true
+  }
+ ],
+ "frmFdLeaderRev.frm": [
+  {
+   "t": "BussSource",
+   "live": true,
+   "rows": 6,
+   "py": true
+  },
+  {
+   "t": "GuestFolio",
+   "live": true,
+   "rows": 11042,
+   "py": true
+  },
+  {
+   "t": "GuestProf",
+   "live": true,
+   "rows": 7802,
+   "py": true
+  },
+  {
+   "t": "MarketSeg",
+   "live": true,
+   "rows": 10,
+   "py": true
+  },
+  {
+   "t": "PlanMast",
+   "live": true,
+   "rows": 9,
+   "py": true
+  },
+  {
+   "t": "ROOMCAT",
+   "live": true,
+   "rows": 2,
+   "py": true
+  },
+  {
+   "t": "RevMast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "RoomCat",
+   "live": true,
+   "rows": 2,
+   "py": true
+  },
+  {
+   "t": "RoomMast",
+   "live": true,
+   "rows": 86,
+   "py": true
+  },
+  {
+   "t": "RoomOcc",
+   "live": true,
+   "rows": 11463,
+   "py": true
+  },
+  {
+   "t": "Subgroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "enviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  }
+ ],
+ "frmFixedChargeMast.frm": [
+  {
+   "t": "FixedCharge",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "PLAN1",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "RevMast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "TaxStru",
+   "live": true,
+   "rows": 56,
+   "py": true
+  },
+  {
+   "t": "taxstru",
+   "live": true,
+   "rows": 56,
+   "py": true
+  }
+ ],
+ "frmFomB.frm": [
+  {
+   "t": "City",
+   "live": true,
+   "rows": 466,
+   "py": true
+  },
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "Enviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "FOMBillDetails",
+   "live": true,
+   "rows": 662,
+   "py": true
+  },
+  {
+   "t": "FomBillChangeDetails",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "GUESTSTAT",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "GuestFolio",
+   "live": true,
+   "rows": 11042,
+   "py": true
+  },
+  {
+   "t": "GuestProf",
+   "live": true,
+   "rows": 7802,
+   "py": true
+  },
+  {
+   "t": "PAYCHARGE",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "PayCharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "PayChargeLog",
+   "live": true,
+   "rows": 252,
+   "py": true
+  },
+  {
+   "t": "Paycharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "PrinterSetup",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "RevMast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "Revmast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "RoomCat",
+   "live": true,
+   "rows": 2,
+   "py": true
+  },
+  {
+   "t": "RoomOcc",
+   "live": true,
+   "rows": 11463,
+   "py": true
+  },
+  {
+   "t": "RoomOccDet",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "RoundOffSetting",
+   "live": true,
+   "rows": 5,
+   "py": true
+  },
+  {
+   "t": "State",
+   "live": true,
+   "rows": 55,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "Subgroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "SundryMast",
+   "live": true,
+   "rows": 19,
+   "py": true
+  },
+  {
+   "t": "UserPermission",
+   "live": true,
+   "rows": 76,
+   "py": true
+  },
+  {
+   "t": "Voucher_Prefix",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_Type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "eInvoiceBill1",
+   "live": true,
+   "rows": 211,
+   "py": false
+  },
+  {
+   "t": "eInvoiceBill2",
+   "live": true,
+   "rows": 540,
+   "py": false
+  },
+  {
+   "t": "more",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "paycharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "revmast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "var_178",
+   "live": false,
+   "rows": null,
+   "py": false
+  }
+ ],
+ "frmGodrejLockSettings.frm": [
+  {
+   "t": "DoorLockEnviro",
+   "live": false,
+   "rows": null,
+   "py": false
+  }
+ ],
+ "frmGuestInfo.frm": [
+  {
+   "t": "GUESTPROF",
+   "live": true,
+   "rows": 7802,
+   "py": true
+  },
+  {
+   "t": "GuestProf",
+   "live": true,
+   "rows": 7802,
+   "py": true
+  },
+  {
+   "t": "LocationFacility",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "LocationMast",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "SmartCardRegistration",
+   "live": true,
+   "rows": 0,
+   "py": true
+  }
+ ],
+ "frmGuestParamMast.frm": [
+  {
+   "t": "GUESTPARAM",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "GuestParam",
+   "live": true,
+   "rows": 0,
+   "py": true
+  }
+ ],
+ "frmMessage.frm": [],
+ "frmPassword.frm": [],
+ "frmPurEnviro.frm": [
+  {
+   "t": "Enviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "Godownmast",
+   "live": true,
+   "rows": 70,
+   "py": true
+  },
+  {
+   "t": "RevMast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  }
+ ],
+ "frmRevGroup.frm": [
+  {
+   "t": "Revmast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "revmast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  }
+ ],
+ "frmWelcome.frm": [
+  {
+   "t": "GuestProf",
+   "live": true,
+   "rows": 7802,
+   "py": true
+  }
+ ],
+ "hAdvanceDepDialog.frm": [
+  {
+   "t": "CreditCardHistory",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "DepartPay",
+   "live": true,
+   "rows": 75,
+   "py": false
+  },
+  {
+   "t": "Employee",
+   "live": true,
+   "rows": 140,
+   "py": true
+  },
+  {
+   "t": "Enviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "GuestFolio",
+   "live": true,
+   "rows": 11042,
+   "py": true
+  },
+  {
+   "t": "HallSale1",
+   "live": true,
+   "rows": 38,
+   "py": true
+  },
+  {
+   "t": "Ledger",
+   "live": true,
+   "rows": 40818,
+   "py": true
+  },
+  {
+   "t": "MemCatMast",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "PAYCHARGE",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "PAYCHARGEH",
+   "live": true,
+   "rows": 11567,
+   "py": true
+  },
+  {
+   "t": "PayChargeH",
+   "live": true,
+   "rows": 11567,
+   "py": true
+  },
+  {
+   "t": "PaychargeH",
+   "live": true,
+   "rows": 11567,
+   "py": true
+  },
+  {
+   "t": "REVMAST",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "RevMast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "RoomMast",
+   "live": true,
+   "rows": 86,
+   "py": true
+  },
+  {
+   "t": "RoomOcc",
+   "live": true,
+   "rows": 11463,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "TaxStru",
+   "live": true,
+   "rows": 56,
+   "py": true
+  },
+  {
+   "t": "Voucher_Prefix",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_Type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "paycharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "paychargeH",
+   "live": true,
+   "rows": 11567,
+   "py": true
+  },
+  {
+   "t": "revmast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "taxstru",
+   "live": true,
+   "rows": 56,
+   "py": true
+  }
+ ],
+ "hAdvanceDepDialogSecondry.frm": [
+  {
+   "t": "Employee",
+   "live": true,
+   "rows": 140,
+   "py": true
+  },
+  {
+   "t": "Enviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "GuestFolio",
+   "live": true,
+   "rows": 11042,
+   "py": true
+  },
+  {
+   "t": "PAYCHARGEH",
+   "live": true,
+   "rows": 11567,
+   "py": true
+  },
+  {
+   "t": "REVMAST",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "RevMast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "RoomMast",
+   "live": true,
+   "rows": 86,
+   "py": true
+  },
+  {
+   "t": "RoomOcc",
+   "live": true,
+   "rows": 11463,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "Voucher_Prefix",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_Type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "taxstru",
+   "live": true,
+   "rows": 56,
+   "py": true
+  }
+ ],
+ "kClStk.frm": [
+  {
+   "t": "DateLock",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "GODOWNMAST",
+   "live": true,
+   "rows": 70,
+   "py": true
+  },
+  {
+   "t": "GodownMast",
+   "live": true,
+   "rows": 70,
+   "py": true
+  },
+  {
+   "t": "ITEMMAST",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "ItemMast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "KClStk",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "KcLsTK",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "Ledger",
+   "live": true,
+   "rows": 40818,
+   "py": true
+  },
+  {
+   "t": "Purch1",
+   "live": true,
+   "rows": 880,
+   "py": true
+  },
+  {
+   "t": "Stock",
+   "live": true,
+   "rows": 61925,
+   "py": true
+  },
+  {
+   "t": "Voucher_Prefix",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_Type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "enviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  }
+ ],
+ "memAgeRevMast.frm": [
+  {
+   "t": "MemAgeRevWise",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "MemCatMast",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "MembershipRevMast",
+   "live": true,
+   "rows": 0,
+   "py": true
+  }
+ ],
+ "memCatRevMast.frm": [
+  {
+   "t": "MemCatMast",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "MemCatRevWise",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "MembershipRevMast",
+   "live": true,
+   "rows": 0,
+   "py": true
+  }
+ ],
+ "pGIss.frm": [
+  {
+   "t": "Acgroup",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "Enviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "GodownMast",
+   "live": true,
+   "rows": 70,
+   "py": true
+  },
+  {
+   "t": "HallBook",
+   "live": true,
+   "rows": 147,
+   "py": true
+  },
+  {
+   "t": "Indent",
+   "live": true,
+   "rows": 2115,
+   "py": true
+  },
+  {
+   "t": "Indent1",
+   "live": true,
+   "rows": 13022,
+   "py": true
+  },
+  {
+   "t": "ItemMast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "STOCK",
+   "live": true,
+   "rows": 61925,
+   "py": true
+  },
+  {
+   "t": "Stock",
+   "live": true,
+   "rows": 61925,
+   "py": true
+  },
+  {
+   "t": "Subgroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "Voucher_Prefix",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_Type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "voucher_type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  }
+ ],
+ "pMREntry.frm": [
+  {
+   "t": "City",
+   "live": true,
+   "rows": 466,
+   "py": true
+  },
+  {
+   "t": "Enviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "GodownMast",
+   "live": true,
+   "rows": 70,
+   "py": true
+  },
+  {
+   "t": "Godownmast",
+   "live": true,
+   "rows": 70,
+   "py": true
+  },
+  {
+   "t": "Indent",
+   "live": true,
+   "rows": 2115,
+   "py": true
+  },
+  {
+   "t": "Indent1",
+   "live": true,
+   "rows": 13022,
+   "py": true
+  },
+  {
+   "t": "ItemCatMast",
+   "live": true,
+   "rows": 50,
+   "py": true
+  },
+  {
+   "t": "ItemMast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "Itemmast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "Purch2",
+   "live": true,
+   "rows": 3826,
+   "py": true
+  },
+  {
+   "t": "Stock",
+   "live": true,
+   "rows": 61925,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "Voucher_Prefix",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_Type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  }
+ ],
+ "pPBill.frm": [
+  {
+   "t": "CVar",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "City",
+   "live": true,
+   "rows": 466,
+   "py": true
+  },
+  {
+   "t": "DEPART",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "Enviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "GodownMast",
+   "live": true,
+   "rows": 70,
+   "py": true
+  },
+  {
+   "t": "Godownmast",
+   "live": true,
+   "rows": 70,
+   "py": true
+  },
+  {
+   "t": "ITEMMAST",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "ItemCatMast",
+   "live": true,
+   "rows": 50,
+   "py": true
+  },
+  {
+   "t": "ItemGrp",
+   "live": true,
+   "rows": 140,
+   "py": true
+  },
+  {
+   "t": "ItemMast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "LASTVOU",
+   "live": true,
+   "rows": 22,
+   "py": true
+  },
+  {
+   "t": "Ledger",
+   "live": true,
+   "rows": 40818,
+   "py": true
+  },
+  {
+   "t": "PrinterSetup",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "Purch1",
+   "live": true,
+   "rows": 880,
+   "py": true
+  },
+  {
+   "t": "Purch2",
+   "live": true,
+   "rows": 3826,
+   "py": true
+  },
+  {
+   "t": "RevMast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "RoundOffSetting",
+   "live": true,
+   "rows": 5,
+   "py": true
+  },
+  {
+   "t": "Sale1",
+   "live": true,
+   "rows": 12686,
+   "py": true
+  },
+  {
+   "t": "Sale2",
+   "live": true,
+   "rows": 66055,
+   "py": true
+  },
+  {
+   "t": "Stock",
+   "live": true,
+   "rows": 61925,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "Subgroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "SunTran",
+   "live": true,
+   "rows": 98025,
+   "py": true
+  },
+  {
+   "t": "SundryType",
+   "live": true,
+   "rows": 118,
+   "py": true
+  },
+  {
+   "t": "TaxStru",
+   "live": true,
+   "rows": 56,
+   "py": true
+  },
+  {
+   "t": "Taxstru",
+   "live": true,
+   "rows": 56,
+   "py": true
+  },
+  {
+   "t": "VOUCHER_TYPE",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "ViewSubGroup",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "Voucher_Prefix",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_Type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "enviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "purch1",
+   "live": true,
+   "rows": 880,
+   "py": true
+  },
+  {
+   "t": "taxStru",
+   "live": true,
+   "rows": 56,
+   "py": true
+  },
+  {
+   "t": "var_184",
+   "live": false,
+   "rows": null,
+   "py": false
+  }
+ ],
+ "pReqSlip.frm": [
+  {
+   "t": "Acgroup",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "DateLock",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "Enviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "GodownMast",
+   "live": true,
+   "rows": 70,
+   "py": true
+  },
+  {
+   "t": "HallBook",
+   "live": true,
+   "rows": 147,
+   "py": true
+  },
+  {
+   "t": "HallSale1",
+   "live": true,
+   "rows": 38,
+   "py": true
+  },
+  {
+   "t": "INDENT",
+   "live": true,
+   "rows": 2115,
+   "py": true
+  },
+  {
+   "t": "INDENT1",
+   "live": true,
+   "rows": 13022,
+   "py": true
+  },
+  {
+   "t": "Indent",
+   "live": true,
+   "rows": 2115,
+   "py": true
+  },
+  {
+   "t": "Indent1",
+   "live": true,
+   "rows": 13022,
+   "py": true
+  },
+  {
+   "t": "ItemMast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "Purch1",
+   "live": true,
+   "rows": 880,
+   "py": true
+  },
+  {
+   "t": "Stock",
+   "live": true,
+   "rows": 61925,
+   "py": true
+  },
+  {
+   "t": "Subgroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "Voucher_Prefix",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_Type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  }
+ ],
+ "rFaRepView.frm": [
+  {
+   "t": "ACGROUP",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "AcGroup",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "Account",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "Budget",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "City",
+   "live": true,
+   "rows": 466,
+   "py": true
+  },
+  {
+   "t": "DAYS",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "Date",
+   "live": false,
+   "rows": null,
+   "py": true
+  },
+  {
+   "t": "FAENVIRO",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "FaEnviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "LEDGER",
+   "live": true,
+   "rows": 40818,
+   "py": true
+  },
+  {
+   "t": "LEDGERADJ",
+   "live": true,
+   "rows": 264,
+   "py": true
+  },
+  {
+   "t": "Ledger",
+   "live": true,
+   "rows": 40818,
+   "py": true
+  },
+  {
+   "t": "LedgerRef",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "PARTY_LIST",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "SUBGROUP",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "Site",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "VIEWLEDGER",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "VIEWSUBGROUP",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "ViewSubgroup",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "Voucher_type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "ledgerRef",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "subgroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "var_100",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_104",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_114",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_120",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_12C",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_13C",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_B4",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_C4",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_C8",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_CC",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_D4",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_D8",
+   "live": false,
+   "rows": null,
+   "py": false
+  }
+ ],
+ "rFomRepView.frm": [
+  {
+   "t": "Arrival",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "BOOKING",
+   "live": true,
+   "rows": 25,
+   "py": true
+  },
+  {
+   "t": "Bill",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "BillDet",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "Billdet",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "Booking",
+   "live": true,
+   "rows": 25,
+   "py": true
+  },
+  {
+   "t": "BookingMore",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "BudgetDetails",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "BussSource",
+   "live": true,
+   "rows": 6,
+   "py": true
+  },
+  {
+   "t": "Check",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "City",
+   "live": true,
+   "rows": 466,
+   "py": true
+  },
+  {
+   "t": "Country",
+   "live": true,
+   "rows": 13,
+   "py": true
+  },
+  {
+   "t": "DEPART",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "Date",
+   "live": false,
+   "rows": null,
+   "py": true
+  },
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "Deposit",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "EXPSHEET",
+   "live": true,
+   "rows": 4,
+   "py": false
+  },
+  {
+   "t": "Enviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "ExpSheet",
+   "live": true,
+   "rows": 4,
+   "py": false
+  },
+  {
+   "t": "FAEnviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "FOMBILLDETAILS",
+   "live": true,
+   "rows": 662,
+   "py": true
+  },
+  {
+   "t": "FOMBillChangeDetails",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "FOMBillDetails",
+   "live": true,
+   "rows": 662,
+   "py": true
+  },
+  {
+   "t": "FacilityBill",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "FacilityBill1",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "FacilityBill2",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "FacilityMast",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "Facilitymast",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "FixedCharge",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "FomBillDetails",
+   "live": true,
+   "rows": 662,
+   "py": true
+  },
+  {
+   "t": "ForEx",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "ForExTrans",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "GUESTFOLIO",
+   "live": true,
+   "rows": 11042,
+   "py": true
+  },
+  {
+   "t": "GUESTPROF",
+   "live": true,
+   "rows": 7802,
+   "py": true
+  },
+  {
+   "t": "GroupProf",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "GrpBookingDetails",
+   "live": true,
+   "rows": 56,
+   "py": false
+  },
+  {
+   "t": "GuestFolio",
+   "live": true,
+   "rows": 11042,
+   "py": true
+  },
+  {
+   "t": "GuestFolioProfDetail",
+   "live": true,
+   "rows": 747,
+   "py": true
+  },
+  {
+   "t": "GuestProf",
+   "live": true,
+   "rows": 7802,
+   "py": true
+  },
+  {
+   "t": "GuestStat",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "HallBook",
+   "live": true,
+   "rows": 147,
+   "py": true
+  },
+  {
+   "t": "HallSale1",
+   "live": true,
+   "rows": 38,
+   "py": true
+  },
+  {
+   "t": "HallSale2",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "HallStock",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "ITEMCATMAST",
+   "live": true,
+   "rows": 50,
+   "py": true
+  },
+  {
+   "t": "ItemCatMast",
+   "live": true,
+   "rows": 50,
+   "py": true
+  },
+  {
+   "t": "ItemGrp",
+   "live": true,
+   "rows": 140,
+   "py": true
+  },
+  {
+   "t": "ItemMast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "ItemcatMast",
+   "live": true,
+   "rows": 50,
+   "py": true
+  },
+  {
+   "t": "Itemmast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "Ledger",
+   "live": true,
+   "rows": 40818,
+   "py": true
+  },
+  {
+   "t": "LedgerTDS",
+   "live": true,
+   "rows": 338,
+   "py": true
+  },
+  {
+   "t": "MarketSeg",
+   "live": true,
+   "rows": 10,
+   "py": true
+  },
+  {
+   "t": "NCTypeMast",
+   "live": true,
+   "rows": 16,
+   "py": true
+  },
+  {
+   "t": "NightAuditLog",
+   "live": true,
+   "rows": 134,
+   "py": true
+  },
+  {
+   "t": "PAYCHARGE",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "PLANMAST",
+   "live": true,
+   "rows": 9,
+   "py": true
+  },
+  {
+   "t": "PayCharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "PayChargeH",
+   "live": true,
+   "rows": 11567,
+   "py": true
+  },
+  {
+   "t": "PayChargeh",
+   "live": true,
+   "rows": 11567,
+   "py": true
+  },
+  {
+   "t": "Paycharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "PaychargeH",
+   "live": true,
+   "rows": 11567,
+   "py": true
+  },
+  {
+   "t": "Paychargeh",
+   "live": true,
+   "rows": 11567,
+   "py": true
+  },
+  {
+   "t": "Plan1",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "PlanDetails",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "PlanMAst",
+   "live": true,
+   "rows": 9,
+   "py": true
+  },
+  {
+   "t": "PlanMast",
+   "live": true,
+   "rows": 9,
+   "py": true
+  },
+  {
+   "t": "PlanTokenDetails",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "Purch1",
+   "live": true,
+   "rows": 880,
+   "py": true
+  },
+  {
+   "t": "REVMAST",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "ROOMOCC",
+   "live": true,
+   "rows": 11463,
+   "py": true
+  },
+  {
+   "t": "RateList",
+   "live": true,
+   "rows": 62,
+   "py": false
+  },
+  {
+   "t": "RawConsumption",
+   "live": true,
+   "rows": 88094,
+   "py": false
+  },
+  {
+   "t": "RevMast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "Revmast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "RoomBlockOut",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "RoomCat",
+   "live": true,
+   "rows": 2,
+   "py": true
+  },
+  {
+   "t": "RoomMast",
+   "live": true,
+   "rows": 86,
+   "py": true
+  },
+  {
+   "t": "RoomOCC",
+   "live": true,
+   "rows": 11463,
+   "py": true
+  },
+  {
+   "t": "RoomOcc",
+   "live": true,
+   "rows": 11463,
+   "py": true
+  },
+  {
+   "t": "RoomOccDet",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "Roomcat",
+   "live": true,
+   "rows": 2,
+   "py": true
+  },
+  {
+   "t": "Roommast",
+   "live": true,
+   "rows": 86,
+   "py": true
+  },
+  {
+   "t": "Roomocc",
+   "live": true,
+   "rows": 11463,
+   "py": true
+  },
+  {
+   "t": "SUBGROUP",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "Sale1",
+   "live": true,
+   "rows": 12686,
+   "py": true
+  },
+  {
+   "t": "Sale2",
+   "live": true,
+   "rows": 66055,
+   "py": true
+  },
+  {
+   "t": "Site",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "State",
+   "live": true,
+   "rows": 55,
+   "py": true
+  },
+  {
+   "t": "Stock",
+   "live": true,
+   "rows": 61925,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "Subgroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "SunTran",
+   "live": true,
+   "rows": 98025,
+   "py": true
+  },
+  {
+   "t": "SunTranFacility",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "SunTranH",
+   "live": true,
+   "rows": 228,
+   "py": true
+  },
+  {
+   "t": "SundryMast",
+   "live": true,
+   "rows": 19,
+   "py": true
+  },
+  {
+   "t": "Table_GSTR2A",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "TaxStru",
+   "live": true,
+   "rows": 56,
+   "py": true
+  },
+  {
+   "t": "VOUCHER_TYPE",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "ViewBooking",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "Voucher_Type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "eInvoiceBill1",
+   "live": true,
+   "rows": 211,
+   "py": false
+  },
+  {
+   "t": "enviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "facilitybill",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "facilitybill1",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "guestFolio",
+   "live": true,
+   "rows": 11042,
+   "py": true
+  },
+  {
+   "t": "guestfolio",
+   "live": true,
+   "rows": 11042,
+   "py": true
+  },
+  {
+   "t": "guestprof",
+   "live": true,
+   "rows": 7802,
+   "py": true
+  },
+  {
+   "t": "itemcatmast",
+   "live": true,
+   "rows": 50,
+   "py": true
+  },
+  {
+   "t": "itemgrp",
+   "live": true,
+   "rows": 140,
+   "py": true
+  },
+  {
+   "t": "itemmast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "mCurStk",
+   "live": true,
+   "rows": 15199,
+   "py": false
+  },
+  {
+   "t": "marketSeg",
+   "live": true,
+   "rows": 10,
+   "py": true
+  },
+  {
+   "t": "mcurstk",
+   "live": true,
+   "rows": 15199,
+   "py": false
+  },
+  {
+   "t": "menuhelp",
+   "live": true,
+   "rows": 9212,
+   "py": true
+  },
+  {
+   "t": "paycharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "revmast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "subgroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "suntran",
+   "live": true,
+   "rows": 98025,
+   "py": true
+  },
+  {
+   "t": "suntranH",
+   "live": true,
+   "rows": 228,
+   "py": true
+  },
+  {
+   "t": "suntranfacility",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "var_100",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_104",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_108",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_10C",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_118",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_11C",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_120",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_124",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_128",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_12C",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_14C",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_15C",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_168",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_178",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_17C",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_18C",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_190",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_1B8",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_1C0",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_1C8",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_1DC",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_1E0",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_1EC",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_214",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_274",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_94",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_A0",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_A8",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_AC",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_B0",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_B4",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_BC",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_C0",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_C4",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_C8",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_CC",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_D0",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_D4",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_E0",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_E4",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_E8",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_EC",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_F8",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_FC",
+   "live": false,
+   "rows": null,
+   "py": false
+  }
+ ],
+ "rHallRepView.frm": [
+  {
+   "t": "BookingDetail",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "Date",
+   "live": false,
+   "rows": null,
+   "py": true
+  },
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "FAEnviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "FunctionType",
+   "live": true,
+   "rows": 8,
+   "py": true
+  },
+  {
+   "t": "HallBook",
+   "live": true,
+   "rows": 147,
+   "py": true
+  },
+  {
+   "t": "HallSale1",
+   "live": true,
+   "rows": 38,
+   "py": true
+  },
+  {
+   "t": "HallSale2",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "HallStock",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "Hallsale1",
+   "live": true,
+   "rows": 38,
+   "py": true
+  },
+  {
+   "t": "ItemGrp",
+   "live": true,
+   "rows": 140,
+   "py": true
+  },
+  {
+   "t": "ItemMast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "Itemmast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "PayChargeH",
+   "live": true,
+   "rows": 11567,
+   "py": true
+  },
+  {
+   "t": "PaychargeH",
+   "live": true,
+   "rows": 11567,
+   "py": true
+  },
+  {
+   "t": "RevMast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "Revmast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "SUBGROUP",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "Sale1",
+   "live": true,
+   "rows": 12686,
+   "py": true
+  },
+  {
+   "t": "Site",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "Subgroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "SunTran",
+   "live": true,
+   "rows": 98025,
+   "py": true
+  },
+  {
+   "t": "SunTranH",
+   "live": true,
+   "rows": 228,
+   "py": true
+  },
+  {
+   "t": "SundryMast",
+   "live": true,
+   "rows": 19,
+   "py": true
+  },
+  {
+   "t": "SuntranH",
+   "live": true,
+   "rows": 228,
+   "py": true
+  },
+  {
+   "t": "VenueMast",
+   "live": true,
+   "rows": 10,
+   "py": true
+  },
+  {
+   "t": "VenueOCC",
+   "live": true,
+   "rows": 216,
+   "py": true
+  },
+  {
+   "t": "Voucher_type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "revmast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "var_110",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_130",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_140",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_154",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_160",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_16C",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_1DC",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_1E0",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_20C",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_94",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_B8",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_BC",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_D4",
+   "live": false,
+   "rows": null,
+   "py": false
+  }
+ ],
+ "rInventRepView.frm": [
+  {
+   "t": "City",
+   "live": true,
+   "rows": 466,
+   "py": true
+  },
+  {
+   "t": "Date",
+   "live": false,
+   "rows": null,
+   "py": true
+  },
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "Enviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "FAEnviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "GoDownMast",
+   "live": true,
+   "rows": 70,
+   "py": true
+  },
+  {
+   "t": "GodownMast",
+   "live": true,
+   "rows": 70,
+   "py": true
+  },
+  {
+   "t": "ITEMGRP",
+   "live": true,
+   "rows": 140,
+   "py": true
+  },
+  {
+   "t": "ITEMMAST",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "Indent",
+   "live": true,
+   "rows": 2115,
+   "py": true
+  },
+  {
+   "t": "Indent1",
+   "live": true,
+   "rows": 13022,
+   "py": true
+  },
+  {
+   "t": "ItemCatMast",
+   "live": true,
+   "rows": 50,
+   "py": true
+  },
+  {
+   "t": "ItemGrp",
+   "live": true,
+   "rows": 140,
+   "py": true
+  },
+  {
+   "t": "ItemMast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "Itemgrp",
+   "live": true,
+   "rows": 140,
+   "py": true
+  },
+  {
+   "t": "Itemmast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "Itemrate",
+   "live": true,
+   "rows": 718,
+   "py": true
+  },
+  {
+   "t": "KClStk",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "POrder1",
+   "live": true,
+   "rows": 47,
+   "py": true
+  },
+  {
+   "t": "PURCH2",
+   "live": true,
+   "rows": 3826,
+   "py": true
+  },
+  {
+   "t": "Purch1",
+   "live": true,
+   "rows": 880,
+   "py": true
+  },
+  {
+   "t": "Purch2",
+   "live": true,
+   "rows": 3826,
+   "py": true
+  },
+  {
+   "t": "RawConsumption",
+   "live": true,
+   "rows": 88094,
+   "py": false
+  },
+  {
+   "t": "RevMast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "Revmast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "Sale1",
+   "live": true,
+   "rows": 12686,
+   "py": true
+  },
+  {
+   "t": "Sale2",
+   "live": true,
+   "rows": 66055,
+   "py": true
+  },
+  {
+   "t": "ShiftMast",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "Site",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "State",
+   "live": true,
+   "rows": 55,
+   "py": true
+  },
+  {
+   "t": "Stock",
+   "live": true,
+   "rows": 61925,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "Subgroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "SundryMast",
+   "live": true,
+   "rows": 19,
+   "py": true
+  },
+  {
+   "t": "TaxStru",
+   "live": true,
+   "rows": 56,
+   "py": true
+  },
+  {
+   "t": "Voucher_Type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "itemgrp",
+   "live": true,
+   "rows": 140,
+   "py": true
+  },
+  {
+   "t": "itemmast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "mCurStk",
+   "live": true,
+   "rows": 15199,
+   "py": false
+  },
+  {
+   "t": "purch2",
+   "live": true,
+   "rows": 3826,
+   "py": true
+  },
+  {
+   "t": "stock",
+   "live": true,
+   "rows": 61925,
+   "py": true
+  },
+  {
+   "t": "var_104",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_118",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_11C",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_128",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_12C",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_184",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_1C4",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_2A0",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_2B8",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_314",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_94",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_A8",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_B4",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_C0",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_CC",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_D0",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_D4",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_D8",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_E0",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_EC",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_F0",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_F4",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_FC",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "voucher_type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  }
+ ],
+ "rMemberRepView.frm": [
+  {
+   "t": "City",
+   "live": true,
+   "rows": 466,
+   "py": true
+  },
+  {
+   "t": "Country",
+   "live": true,
+   "rows": 13,
+   "py": true
+  },
+  {
+   "t": "Date",
+   "live": false,
+   "rows": null,
+   "py": true
+  },
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "FAEnviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "Ledger",
+   "live": true,
+   "rows": 40818,
+   "py": true
+  },
+  {
+   "t": "MemAddRWA",
+   "live": true,
+   "rows": 31,
+   "py": false
+  },
+  {
+   "t": "MemBill",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "MemBill1",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "MemBill2",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "MemCatMast",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "MemFacilityBilling",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "MemFacilityMast",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "MemTagadaLetter",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "MemberFamily",
+   "live": true,
+   "rows": 37,
+   "py": true
+  },
+  {
+   "t": "MembershipRevMast",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "PayCharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "RevMast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "SUBGROUPCURRBAL",
+   "live": true,
+   "rows": 6164,
+   "py": true
+  },
+  {
+   "t": "Site",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "State",
+   "live": true,
+   "rows": 55,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "ledger",
+   "live": true,
+   "rows": 40818,
+   "py": true
+  },
+  {
+   "t": "membill",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "membill1",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "subGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "var_144",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_1A0",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_BC",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_C4",
+   "live": false,
+   "rows": null,
+   "py": false
+  }
+ ],
+ "rPOSRepView.frm": [
+  {
+   "t": "AssignDelivery",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "DEPART",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "Date",
+   "live": false,
+   "rows": null,
+   "py": true
+  },
+  {
+   "t": "DeliveryBoy",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "Depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "Enviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "FAEnviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "GuestFolio",
+   "live": true,
+   "rows": 11042,
+   "py": true
+  },
+  {
+   "t": "GuestProf",
+   "live": true,
+   "rows": 7802,
+   "py": true
+  },
+  {
+   "t": "GuestReward",
+   "live": true,
+   "rows": 11310,
+   "py": true
+  },
+  {
+   "t": "ITEMCATMAST",
+   "live": true,
+   "rows": 50,
+   "py": true
+  },
+  {
+   "t": "ITEMGRP",
+   "live": true,
+   "rows": 140,
+   "py": true
+  },
+  {
+   "t": "ITEMMAST",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "ItemCatMast",
+   "live": true,
+   "rows": 50,
+   "py": true
+  },
+  {
+   "t": "ItemGrp",
+   "live": true,
+   "rows": 140,
+   "py": true
+  },
+  {
+   "t": "ItemMast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "ItemRate",
+   "live": true,
+   "rows": 718,
+   "py": true
+  },
+  {
+   "t": "Itemmast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "KOTLog",
+   "live": true,
+   "rows": 1420,
+   "py": true
+  },
+  {
+   "t": "LedgerAdj",
+   "live": true,
+   "rows": 264,
+   "py": true
+  },
+  {
+   "t": "NCTypeMast",
+   "live": true,
+   "rows": 16,
+   "py": true
+  },
+  {
+   "t": "NCtypemast",
+   "live": true,
+   "rows": 16,
+   "py": true
+  },
+  {
+   "t": "PAYCHARGE",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "PackingOrder",
+   "live": true,
+   "rows": 7,
+   "py": true
+  },
+  {
+   "t": "PackingOrderDetail",
+   "live": true,
+   "rows": 7,
+   "py": true
+  },
+  {
+   "t": "PayCharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "PayChargeLog",
+   "live": true,
+   "rows": 252,
+   "py": true
+  },
+  {
+   "t": "Paycharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "PlanMast",
+   "live": true,
+   "rows": 9,
+   "py": true
+  },
+  {
+   "t": "REVMAST",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "ROOMMAST",
+   "live": true,
+   "rows": 86,
+   "py": true
+  },
+  {
+   "t": "RWParameter",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "RevMast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "Revmast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "SALE1",
+   "live": true,
+   "rows": 12686,
+   "py": true
+  },
+  {
+   "t": "SAle1",
+   "live": true,
+   "rows": 12686,
+   "py": true
+  },
+  {
+   "t": "Sale1",
+   "live": true,
+   "rows": 12686,
+   "py": true
+  },
+  {
+   "t": "Sale1Log",
+   "live": true,
+   "rows": 130,
+   "py": false
+  },
+  {
+   "t": "Sale2",
+   "live": true,
+   "rows": 66055,
+   "py": true
+  },
+  {
+   "t": "SessionMast",
+   "live": true,
+   "rows": 2,
+   "py": true
+  },
+  {
+   "t": "Site",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "SmartCardLedger",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "SmartCardRegistration",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "Stock",
+   "live": true,
+   "rows": 61925,
+   "py": true
+  },
+  {
+   "t": "StockLog",
+   "live": true,
+   "rows": 563,
+   "py": false
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "Subgroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "SunTran",
+   "live": true,
+   "rows": 98025,
+   "py": true
+  },
+  {
+   "t": "SundryMast",
+   "live": true,
+   "rows": 19,
+   "py": true
+  },
+  {
+   "t": "Suntran",
+   "live": true,
+   "rows": 98025,
+   "py": true
+  },
+  {
+   "t": "TaxStru",
+   "live": true,
+   "rows": 56,
+   "py": true
+  },
+  {
+   "t": "UnitMast",
+   "live": true,
+   "rows": 32,
+   "py": true
+  },
+  {
+   "t": "UserCollection",
+   "live": true,
+   "rows": 0,
+   "py": false
+  },
+  {
+   "t": "VOUCHER_TYPE",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_Type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Waiter",
+   "live": true,
+   "rows": 58,
+   "py": true
+  },
+  {
+   "t": "depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "enviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "itemMast",
+   "live": true,
+   "rows": 3355,
+   "py": true
+  },
+  {
+   "t": "itemrate",
+   "live": true,
+   "rows": 718,
+   "py": true
+  },
+  {
+   "t": "memcatmast",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "menuHelp",
+   "live": true,
+   "rows": 9212,
+   "py": true
+  },
+  {
+   "t": "revmast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "stock",
+   "live": true,
+   "rows": 61925,
+   "py": true
+  },
+  {
+   "t": "subGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "var_104",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_130",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_150",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_154",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_160",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_170",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_1A0",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_1A8",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_1CC",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_208",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_214",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_224",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_32C",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_4B0",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_94",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_98",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_9C",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_A0",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_AC",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_B0",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_B4",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_B8",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_C4",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_D0",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_D4",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_D8",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_DC",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_E0",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_E8",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_EC",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "var_F8",
+   "live": false,
+   "rows": null,
+   "py": false
+  },
+  {
+   "t": "wAITER",
+   "live": true,
+   "rows": 58,
+   "py": true
+  }
+ ],
+ "resGroup.frm": [
+  {
+   "t": "Booking",
+   "live": true,
+   "rows": 25,
+   "py": true
+  },
+  {
+   "t": "BussSource",
+   "live": true,
+   "rows": 6,
+   "py": true
+  },
+  {
+   "t": "CITY",
+   "live": true,
+   "rows": 466,
+   "py": true
+  },
+  {
+   "t": "City",
+   "live": true,
+   "rows": 466,
+   "py": true
+  },
+  {
+   "t": "Country",
+   "live": true,
+   "rows": 13,
+   "py": true
+  },
+  {
+   "t": "GROUPPROF",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "GroupProf",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "GuestFolio",
+   "live": true,
+   "rows": 11042,
+   "py": true
+  },
+  {
+   "t": "MarketSeg",
+   "live": true,
+   "rows": 10,
+   "py": true
+  },
+  {
+   "t": "RateList",
+   "live": true,
+   "rows": 62,
+   "py": false
+  },
+  {
+   "t": "RoomBlockOut",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "RoomCat",
+   "live": true,
+   "rows": 2,
+   "py": true
+  },
+  {
+   "t": "RoomOcc",
+   "live": true,
+   "rows": 11463,
+   "py": true
+  },
+  {
+   "t": "State",
+   "live": true,
+   "rows": 55,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  }
+ ],
+ "resRoomType.frm": [
+  {
+   "t": "Date",
+   "live": false,
+   "rows": null,
+   "py": true
+  },
+  {
+   "t": "FAEnviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "GuestFolio",
+   "live": true,
+   "rows": 11042,
+   "py": true
+  },
+  {
+   "t": "RateList",
+   "live": true,
+   "rows": 62,
+   "py": false
+  },
+  {
+   "t": "RoomBlockOut",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "RoomCat",
+   "live": true,
+   "rows": 2,
+   "py": true
+  },
+  {
+   "t": "RoomMast",
+   "live": true,
+   "rows": 86,
+   "py": true
+  },
+  {
+   "t": "RoomOcc",
+   "live": true,
+   "rows": 11463,
+   "py": true
+  },
+  {
+   "t": "var_AC",
+   "live": false,
+   "rows": null,
+   "py": false
+  }
+ ],
+ "rrsAdvanceDepDialog.frm": [
+  {
+   "t": "AssignDelivery",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "DeliveryBoy",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "DepartPay",
+   "live": true,
+   "rows": 75,
+   "py": false
+  },
+  {
+   "t": "Employee",
+   "live": true,
+   "rows": 140,
+   "py": true
+  },
+  {
+   "t": "Enviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "GuestFolio",
+   "live": true,
+   "rows": 11042,
+   "py": true
+  },
+  {
+   "t": "MemCatMast",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "PAYCHARGE",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "PayCharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "REVMAST",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "RevMast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "RoomMast",
+   "live": true,
+   "rows": 86,
+   "py": true
+  },
+  {
+   "t": "RoomOcc",
+   "live": true,
+   "rows": 11463,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "Voucher_Prefix",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_Type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Waiter",
+   "live": true,
+   "rows": 58,
+   "py": true
+  },
+  {
+   "t": "depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "pAYcHARGE",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "paycharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "taxstru",
+   "live": true,
+   "rows": 56,
+   "py": true
+  }
+ ],
+ "rsAdvanceDepDialog.frm": [
+  {
+   "t": "DepartPay",
+   "live": true,
+   "rows": 75,
+   "py": false
+  },
+  {
+   "t": "Employee",
+   "live": true,
+   "rows": 140,
+   "py": true
+  },
+  {
+   "t": "Enviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "GuestFolio",
+   "live": true,
+   "rows": 11042,
+   "py": true
+  },
+  {
+   "t": "MemCatMast",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "MemEnviro",
+   "live": true,
+   "rows": 1,
+   "py": true
+  },
+  {
+   "t": "PayCharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "REVMAST",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "RevMast",
+   "live": true,
+   "rows": 174,
+   "py": true
+  },
+  {
+   "t": "RoomMast",
+   "live": true,
+   "rows": 86,
+   "py": true
+  },
+  {
+   "t": "RoomOcc",
+   "live": true,
+   "rows": 11463,
+   "py": true
+  },
+  {
+   "t": "Sale1",
+   "live": true,
+   "rows": 12686,
+   "py": true
+  },
+  {
+   "t": "SmartCardRegistration",
+   "live": true,
+   "rows": 0,
+   "py": true
+  },
+  {
+   "t": "SubGroup",
+   "live": true,
+   "rows": 3238,
+   "py": true
+  },
+  {
+   "t": "Voucher_Prefix",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "Voucher_Type",
+   "live": true,
+   "rows": 171,
+   "py": true
+  },
+  {
+   "t": "depart",
+   "live": true,
+   "rows": 73,
+   "py": true
+  },
+  {
+   "t": "paycharge",
+   "live": true,
+   "rows": 28349,
+   "py": true
+  },
+  {
+   "t": "taxstru",
+   "live": true,
+   "rows": 56,
+   "py": true
+  }
+ ]
+}

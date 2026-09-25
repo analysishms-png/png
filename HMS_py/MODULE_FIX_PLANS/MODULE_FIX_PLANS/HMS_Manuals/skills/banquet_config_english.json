@@ -1,0 +1,597 @@
+{
+ "module": "BANQUET MODULE",
+ "subtitle": "Master · Operations · Reports · Appendix",
+ "property": "Property: Demo Property",
+ "version": "Training Manual for Banquet Sales & Operations",
+ "header": "Analysis HMS — Banquet Module Training Manual",
+ "footerText": "Analysis HMS Banquet Training Manual | Demo Property",
+ "output": "HMS_Manuals/Banquet/Banquet_Module_Training_Manual_English.docx",
+ "imageRoot": ".",
+ "theme": {
+  "color": "AD1457",
+  "dark": "880E4F",
+  "light": "FCE4EC"
+ },
+ "sections": [
+  {
+   "title": "1. Introduction & Module Overview",
+   "intro": "The Banquet module manages the complete lifecycle of weddings, conferences, parties and corporate events — from enquiry to final billing.\n\nIn Analysis HMS the banquet flow: Enquiry received → Venue availability check → Follow-up → Booking confirmed (with advance) → Function sheet (to kitchen/service) → Event execution → Proforma/Invoice → Final Billing + Outstanding follow-up.\n\nBANQUET EVENT LIFECYCLE:\nInquiry → Follow-up → Booking (BEO - Banquet Event Order) → Function Sheet → Event Day → Billing → Payment Follow-up",
+   "subsections": [
+    {
+     "title": "Module Sections Overview",
+     "table": {
+      "headers": [
+       "Section",
+       "Purpose",
+       "Key Screens"
+      ],
+      "rows": [
+       [
+        "MASTER (Main Setup)",
+        "Venues, events, menus",
+        "Venue Master, Events, Venue Features, Menu Items, Banquet Parameter, Catalog Master"
+       ],
+       [
+        "OPERATION",
+        "Enquiry to billing",
+        "Venue Availability, Booking Inquiry, Banquet Booking, Venue Status, Banquet Billing, Follow-up, Proforma, Advance List"
+       ],
+       [
+        "REPORTS",
+        "Sales & operations",
+        "Sales Register, Cashier Report, Daily Function Sheet, Outstanding, Company/Item-wise Sale"
+       ],
+       [
+        "TAX",
+        "GST compliance",
+        "Tax Reports"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Banquet Data Flow (Technical Understanding)",
+     "table": {
+      "headers": [
+       "what are you doing",
+       "Database",
+       "what happened?"
+      ],
+      "rows": [
+       [
+        "Inquiry record",
+        "bookinginquiry",
+        "Guest, date, venue, expected pax, status"
+       ],
+       [
+        "Follow-up",
+        "booking_follow_ups",
+        "Note for every call/meeting + next follow-up date"
+       ],
+       [
+        "Booking confirm",
+        "booking + bookingdetail",
+        "BEO — venue, menu, timing, rates"
+       ],
+       [
+        "Menu/plan",
+        "bookingplandetails",
+        "Selected menu packages"
+       ],
+       [
+        "Billing",
+        "hallsale1/hallsale2",
+        "Banquet bill — venue + F&B + taxes"
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "2. Master Module — Venue & Menu Setup",
+   "subsections": [
+    {
+     "title": "2.1 Venue Master & Features",
+     "navPath": "Main Setup ▶ Banquet ▶ Venue Master / Venue Features",
+     "screenshot": "HMS_Manuals/Banquet/screenshots/03_Master/01_Venue_Master.png",
+     "paragraph": "Define banquet halls/spaces — capacity (float/theatre/round table), features (projector, stage, green room), per-venue charges. Venue Availability and Booking run from this master.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Venue Name",
+        "Grand Hall / Conference Room A / Lawn"
+       ],
+       [
+        "Capacity",
+        "Float / Theatre / U-shape / Round table capacity"
+       ],
+       [
+        "Features",
+        "Attached features — projector, sound, parking"
+       ],
+       [
+        "Venue Charges",
+        "Hall rent (half-day/full-day slots)"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "2.2 Events & Menu Setup",
+     "navPath": "Main Setup ▶ Banquet ▶ Events / Menu Items",
+     "screenshot": "HMS_Manuals/Banquet/screenshots/03_Master/02b_Events_Master.png",
+     "caption": "Events Master — banquet event types",
+     "paragraph": "Event types (Wedding, Birthday, Conference, Kitty) and banquet menu packages (Veg/Non-veg per-plate rates). Event type + menu package are selected in the booking.",
+     "table": {
+      "headers": [
+       "Setup",
+       "Fields"
+      ],
+      "rows": [
+       [
+        "Events",
+        "Event name, description"
+       ],
+       [
+        "Menu Category",
+        "Veg Starter / Main Course / Dessert etc."
+       ],
+       [
+        "Menu Items",
+        "Dish name, category, per-plate rate"
+       ],
+       [
+        "Banquet Parameter",
+        "Tax rules, service charge %, advance %, cancellation policy days"
+       ],
+       [
+        "Catalog Master",
+        "Printable catalog/packages for clients"
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "3. Operations Module — Inquiry to Billing",
+   "subsections": [
+    {
+     "title": "3.1 Venue Availability",
+     "navPath": "Banquet ▶ Operation ▶ Venue Availability",
+     "screenshot": "HMS_Manuals/Banquet/screenshots/01_Operations/01_Venue_Availability.png",
+     "paragraph": "Enter date range — which venue is free/booked on which date. Please check here before the client asks for the date. Tentative bookings will also be shown.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "From–To Date",
+        "Availability period"
+       ],
+       [
+        "Venue Grid",
+        "Per date per venue — Free / Tentative / Confirmed"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.2 Booking Inquiry & Follow-up",
+     "navPath": "Banquet ▶ Operation ▶ Booking Inquiry / Inquiry follow up",
+     "screenshot": "HMS_Manuals/Banquet/screenshots/01_Operations/02_Booking_Inquiry.png",
+     "paragraph": "Record every inquiry — client, event type, date, expected guests, budget. In the follow-up screen, a note for every call + next follow-up date. The sales team converts leads from this.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Client + Contact",
+        "Name, mobile, email"
+       ],
+       [
+        "Event + Date",
+        "Which event, when, which venue interest?"
+       ],
+       [
+        "Expected Pax",
+        "How many guests expect?"
+       ],
+       [
+        "Status",
+        "Hot / Warm / Cold / Converted / Lost"
+       ],
+       [
+        "Follow-up",
+        "Last note + next follow-up date (reminder list)"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.3 Banquet Booking (BEO) — Core Screen",
+     "navPath": "Banquet ▶ Operation ▶ Banquet Booking",
+     "screenshot": "HMS_Manuals/Banquet/screenshots/01_Operations/03_Banquet_Booking.png",
+     "paragraph": "The master document of a confirmed booking — Banquet Event Order. Venue, date, timing, menu package, per-plate rate, hall charges, advance terms, cancellation policy — all in one place. The BEO print goes to the kitchen/service teams.",
+     "table": {
+      "headers": [
+       "Section",
+       "Fields"
+      ],
+      "rows": [
+       [
+        "Client Details",
+        "Booking party, bill-to company, contact"
+       ],
+       [
+        "Event Details",
+        "Event type, venue, date, timing (setup to end)"
+       ],
+       [
+        "Menu/Pax",
+        "Menu package, guaranteed pax, rate per plate"
+       ],
+       [
+        "Charges",
+        "Venue charges, F&B, extra services (deco, DJ)"
+       ],
+       [
+        "Advance",
+        "Advance % / amount, mode, receipt"
+       ],
+       [
+        "Terms",
+        "Cancellation policy, payment schedule"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.4 Venue Status & Daily Function Sheet",
+     "navPath": "Banquet ▶ Operation ▶ Venue Status | Reports ▶ Daily Function Sheet",
+     "screenshot": "HMS_Manuals/Banquet/screenshots/01_Operations/04_Venue_Status.png",
+     "paragraph": "Venue Status: live position for today/this week. Daily Function Sheet: full detail of today's events — venue, timings, menu, pax, contact person. This sheet reaches kitchen, service and housekeeping every morning.",
+     "table": {
+      "headers": [
+       "Sheet Column",
+       "Use"
+      ],
+      "rows": [
+       [
+        "Venue + Timing",
+        "Where, when setup/start/end"
+       ],
+       [
+        "Event + Pax",
+        "What event, how many guests?"
+       ],
+       [
+        "Menu",
+        "What will be served?"
+       ],
+       [
+        "Contact",
+        "Who will handle it on site"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.5 Proforma Invoice & Advance List",
+     "navPath": "Banquet ▶ Operation ▶ Performa Invoice / Advance List",
+     "screenshot": "HMS_Manuals/Banquet/screenshots/01_Operations/07_Proforma_Invoice.png",
+     "paragraph": "Proforma Invoice: Estimate/advance request to the client before the event. Advance List: How much advance was received on which booking — pending advances follow-up.",
+     "steps": [
+      "By selecting Booking → generate Proforma",
+      "Print estimated amounts + advance due",
+      "When advance is received, record it — it will be tracked in the Advance List"
+     ]
+    },
+    {
+     "title": "3.6 Banquet Billing (Final Bill)",
+     "navPath": "Banquet ▶ Operation ▶ Banquet Billing",
+     "screenshot": "HMS_Manuals/Banquet/screenshots/01_Operations/05_Banquet_Billing.png",
+     "paragraph": "Final bill after the event — actual pax, extra items, venue charges, GST, minus advances. For company events the bill goes to the city ledger (credit); retail is settled by cash/UPI.",
+     "steps": [
+      "Load the booking no.",
+      "Actual pax/extra items updated",
+      "With advance adjustment",
+      "Calculate tax (as per parameter)",
+      "Print bill / post to city ledger"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "4. Reports Module",
+   "subsections": [
+    {
+     "title": "4.1 Available Reports",
+     "navPath": "Banquet ▶ Reports",
+     "screenshot": "HMS_Manuals/Banquet/screenshots/02_Reports/03_Daily_Function_Sheet.png",
+     "caption": "Daily Function Sheet",
+     "table": {
+      "headers": [
+       "Report",
+       "what do you see"
+      ],
+      "rows": [
+       [
+        "Sales Register",
+        "Date-wise banquet revenue — bookings billed"
+       ],
+       [
+        "Cashier Report",
+        "Cash/UPI/card collection at the banquet counter"
+       ],
+       [
+        "Daily Function Sheet",
+        "Today's events — complete run sheet"
+       ],
+       [
+        "Booking Inquiry Detail",
+        "Leads funnel – how to proceed with an inquiry"
+       ],
+       [
+        "OutStanding Report",
+        "Unpaid bills — company wise pending amounts"
+       ],
+       [
+        "Company Wise Sale",
+        "Banquet revenue from corporate clients"
+       ],
+       [
+        "Item Wise Sales",
+        "Menu item wise sale – what is more sold"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "4.2 Tax Reports",
+     "navPath": "Banquet ▶ Tax Report",
+     "screenshot": "HMS_Manuals/Banquet/screenshots/02_Reports/04_Outstanding_Report.png",
+     "caption": "Outstanding Report (with bill details)",
+     "paragraph": "Banquet GST report — slab-wise breakup of venue rent (18%) and catering (5% without accommodation rule). The accountant uses it for GSTR filing.",
+     "table": {
+      "headers": [
+       "Report",
+       "Use"
+      ],
+      "rows": [
+       [
+        "Tax Reports",
+        "Bill-wise CGST/SGST detail — filing data"
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "5. Complete Screens Gallery — Banquet (All Captured Screens)",
+   "intro": "This gallery shows SAARI captured screens of the Banquet module which is not covered in detail in the main sections. For revision after training — Every screen the trainee has seen before, there is a place for complete reference.",
+   "subsections": [
+    {
+     "title": "G.01 01_Operations — 06 Inquiry Followup",
+     "screenshot": "HMS_Manuals/Banquet/screenshots/01_Operations/06_Inquiry_Followup.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.02 01_Operations — 08 Advance List",
+     "screenshot": "HMS_Manuals/Banquet/screenshots/01_Operations/08_Advance_List.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.03 02_Reports — 01 Sales Register",
+     "screenshot": "HMS_Manuals/Banquet/screenshots/02_Reports/01_Sales_Register.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.04 02_Reports — 02 Cashier Report",
+     "screenshot": "HMS_Manuals/Banquet/screenshots/02_Reports/02_Cashier_Report.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.05 02_Reports — 05 Companywise Sale",
+     "screenshot": "HMS_Manuals/Banquet/screenshots/02_Reports/05_Companywise_Sale.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.06 02_Reports — 06 Itemwise Sales",
+     "screenshot": "HMS_Manuals/Banquet/screenshots/02_Reports/06_Itemwise_Sales.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.07 03_Master — 02 Events",
+     "screenshot": "HMS_Manuals/Banquet/screenshots/03_Master/02_Events.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.08 03_Master — 03 Menu Category",
+     "screenshot": "HMS_Manuals/Banquet/screenshots/03_Master/03_Menu_Category.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.09 03_Master — 04 Menu Items",
+     "screenshot": "HMS_Manuals/Banquet/screenshots/03_Master/04_Menu_Items.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.10 03_Master — 05 Banquet Parameter",
+     "screenshot": "HMS_Manuals/Banquet/screenshots/03_Master/05_Banquet_Parameter.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.11 00_Login — 01 Login Page",
+     "screenshot": "HMS_Manuals/Banquet/screenshots/00_Login/01_Login_Page.png",
+     "para": "Screen captured from the live system — part of the complete reference gallery."
+    }
+   ]
+  },
+  {
+   "title": "6. Appendix — Training Reference",
+   "subsections": [
+    {
+     "title": "Banquet Team Workflow",
+     "table": {
+      "headers": [
+       "Stage",
+       "Activity",
+       "Screen"
+      ],
+      "rows": [
+       [
+        "Inquiry aayi",
+        "Record it + check venue availability",
+        "Booking Inquiry / Venue Availability"
+       ],
+       [
+        "Follow-up",
+        "Note for every call + set the next date",
+        "Inquiry follow up"
+       ],
+       [
+        "Confirmed",
+        "Make Booking (BEO) + Advance Lo",
+        "Banquet Booking"
+       ],
+       [
+        "1 day before the event",
+        "Function sheet distribute month",
+        "Daily Function Sheet"
+       ],
+       [
+        "Event day",
+        "View venue status live",
+        "Venue Status"
+       ],
+       [
+        "after the event",
+        "Final billing + advance adjust",
+        "Banquet Billing"
+       ],
+       [
+        "Monthly",
+        "Outstanding follow-up calls",
+        "Outstanding Report"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Common Scenarios (Training Q&A)",
+     "table": {
+      "headers": [
+       "Scenario",
+       "what to do"
+      ],
+      "rows": [
+       [
+        "Two clients want the same venue on the same date",
+        "Priority will be given to first booking; Others may alternate venue/date — tentative block"
+       ],
+       [
+        "Guest count increased/decreased",
+        "Actual pax in billing; The parameter rule seems to be less than the guaranteed pax."
+       ],
+       [
+        "Advance cash aayi",
+        "Advance entry in booking form — print receipt"
+       ],
+       [
+        "Client wants the bill in the company's name",
+        "In booking, Bill To = Company; post to city ledger on billing"
+       ],
+       [
+        "Event got canceled",
+        "Cancel booking + advance adjustment note as per cancellation policy"
+       ],
+       [
+        "Add extra services to the bill (DJ/decoration)",
+        "Extra service line item in Booking/Billing — with rate"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Troubleshooting",
+     "table": {
+      "headers": [
+       "Issue",
+       "Cause",
+       "Solution"
+      ],
+      "rows": [
+       [
+        "Shows booked in venue availability",
+        "Tentative/confirmed booking",
+        "See who booked in Venue Status"
+       ],
+       [
+        "Function sheet not printing",
+        "Booking incomplete",
+        "By verifying Venue/menu/timing fields"
+       ],
+       [
+        "Menu rates missing in billing",
+        "Menu package not mapped",
+        "Set rates in Menu Items / select the package in booking"
+       ],
+       [
+        "Advance bill has not been adjusted",
+        "Advance doosri booking pe",
+        "Booking no. in Advance List. please verify"
+       ],
+       [
+        "Tax rate galat",
+        "Parameter wrong",
+        "Correct the tax rules in Banquet Parameter."
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Contact & Support",
+     "table": {
+      "headers": [
+       "Contact",
+       "Details"
+      ],
+      "rows": [
+       [
+        "Website",
+        "https://analysishms.com"
+       ],
+       [
+        "Support Email",
+        "support@analysishms.com"
+       ],
+       [
+        "Phone",
+        "+91 9161380170"
+       ],
+       [
+        "Training Login",
+        "Use your assigned User ID and Password"
+       ],
+       [
+        "Software Version",
+        "Analysis HMS "
+       ]
+      ]
+     }
+    }
+   ]
+  }
+ ]
+}

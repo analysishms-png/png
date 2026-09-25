@@ -254,11 +254,16 @@ def _open(cfg_fn, parent=None):
 
 def open_roomfeature(parent=None):     _open(roomfeat_config, parent)
 def open_godown(parent=None):          _open(godown_config, parent)
-def open_vouchertype(parent=None):     VoucherTypeBrowser(parent).exec()
+def open_vouchertype(parent=None):
+    from HMS_py.ui.voucher_environment_ui import open_voucher_environment
+    return open_voucher_environment(parent)
+
 def open_enviro(parent=None):          EnviroViewer(parent).exec()
 def open_guestparam(parent=None):      GuestParamViewer(parent).exec()
 def open_printing(parent=None):        PrintingSettingsViewer(parent).exec()
-def open_vouchcat(parent=None):        _open(vouchcat_config, parent)
+def open_vouchcat(parent=None):
+    from HMS_py.ui.voucher_environment_ui import open_voucher_category
+    return open_voucher_category(parent)
 
 
 # ── Voucher Category Master ────────────────────────────────────

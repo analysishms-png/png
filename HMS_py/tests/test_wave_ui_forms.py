@@ -202,6 +202,55 @@ class TestWalkinRackUi:
         finally:
             w.close()
 
+    def test_walkin_entry_uses_progressive_steps(self, monkeypatch):
+        from HMS_py.ui import walkin_rack_ui as m
+        _qapp()
+        monkeypatch.setattr(m.roomstatus, "room_rack", lambda: [])
+        w = m.open_walkin_entry()
+        try:
+            assert w.step_stack.currentIndex() == 0
+            w.btn_next.click()
+            assert w.step_stack.currentIndex() == 0
+            w.txt_name.setText("PYT Wizard Guest")
+            w.btn_next.click()
+            assert w.step_stack.currentIndex() == 1
+            w.btn_next.click()
+            assert w.step_stack.currentIndex() == 2
+            assert "PYT Wizard Guest" in w.lbl_review.text()
+        finally:
+            w.close()
+
+    def test_front_office_walkin_routes_to_entry(self, monkeypatch):
+        from HMS_py.ui import frontoffice, shell, walkin_rack_ui
+        calls = []
+
+        def _fake_entry(parent=None, user="PYADMIN"):
+            calls.append((parent, user))
+            return object()
+
+        monkeypatch.setattr(walkin_rack_ui, "open_walkin_entry", _fake_entry)
+        monkeypatch.setattr(frontoffice, "open_checkin",
+                            lambda *a, **k: pytest.fail(
+                                "WalkIn CheckIn must use the VB6 entry window"))
+        reg = shell._form_registry()
+        reg["WalkIn CheckIn"](None)
+        reg["Check In"](None)
+        assert calls == [(None, "PYADMIN"), (None, "PYADMIN")]
+
+    def test_walkin_entry_has_visual_hierarchy(self, monkeypatch):
+        from PyQt6.QtWidgets import QFrame
+        from HMS_py.ui import walkin_rack_ui as m
+        _qapp()
+        monkeypatch.setattr(m.roomstatus, "room_rack", lambda: [])
+        w = m.open_walkin_entry()
+        try:
+            assert w.findChild(QFrame, "walkinHeader") is not None
+            assert w.findChild(QFrame, "stepBar") is not None
+            assert w.btn_next.property("accent") is True
+            assert w.btn_checkin.property("success") is True
+        finally:
+            w.close()
+
     def test_room_view_tiles_render(self):
         from HMS_py.ui import walkin_rack_ui as m
         _qapp()

@@ -1,0 +1,469 @@
+Module: MembershipMast
+Total SQL statements: 155
+================================================================================
+
+-- SQL Statement 1 --
+  loc_107B832: unk_5AD372.Execute "Select IsNull(Max(CAST(SUBSTRING(SubCode,3,6) AS INT)),0)+1 AS MyCode From SubGroup Where IsNumeric(substring(SubCode,3,6))=1", var_A4, -1
+
+-- SQL Statement 2 --
+  loc_10B88D6:     Call 0.Method_TopCtrl1_UnknownEvent_B0 (CInt(0), var_118, var_114, "Delete From MemAddRWA where SubCode='")
+
+-- SQL Statement 3 --
+  loc_10B8975:     Call 0.Method_TopCtrl1_UnknownEvent_B0 (CInt(0), var_118, var_114, "Delete From MemAddRWA where SubCode='")
+
+-- SQL Statement 4 --
+  loc_1023365:   Call 0.Method_TopCtrl1_UnknownEvent_C0 (CInt(0), var_90, var_94, "SELECT COUNT(*) From Ledger Where SubCode= '", var_BC, -1)
+
+-- SQL Statement 5 --
+  loc_116D207:   Proc_6_16_EA44E0(var_B8, MemVar_1F81078, "Select DefCompGroup from enviro WHERE LOGSITE_CODE=", var_F8, -1)
+
+-- SQL Statement 6 --
+  loc_116D28B:     Proc_6_16_EA44E0(var_B8, MemVar_1F81078, "Select DefCompGroup from enviro WHERE LOGSITE_CODE=", var_F8, -1)
+
+-- SQL Statement 7 --
+  loc_116D333:     Call 0.Method_TopCtrl1_UnknownEvent_D0 (CInt(2), var_98, var_90, "Select GroupName From Acgroup Where GroupCode='", var_B8, -1)
+
+-- SQL Statement 8 --
+  loc_F1ED5A: var_10C = "Select SubCode As SearchCode,AppNo As ApplicationNo,Name,CardNo,G.GroupName As UnderGroup,ConPrefix,RTrim(ConPerson+' '+ConPersonMName+' '+ConPersonLName) ConPerson,FatherName,Add1 As Address1,Add2 As Address2,Add3 As Address3,C.CityName,a.areaname,Phone,Mobile,EMail,CSTNo As CST,LSTNo As LST,PANNo As PAN,GSTIN,Case ActiveYN WHEN 0 THEN 'No' WHEN 1 THEN 'Yes' End As Active,CreditLimit,CreditDays,Remark From (((SubGroup S Left Join AcGroup G on (S.GroupCode=G.GroupCode)) Left Join City C on (S.CityCode=C.CityCode)) Left Join AreaMast a on (s.areacode=a.areacode)) Where S.Companytype in (SELECT Code FROM MemCatMast WHERE Corporate='N') AND  (S.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 9 --
+  loc_1506363:   Call 0.Method_TopCtrl1_UnknownEvent_160 (CInt(0), var_94, var_A0, "Select Count(*) from memAddRWA where Name='Residential Address'  And Subcode='", var_104, -1)
+
+-- SQL Statement 10 --
+  loc_150646F:   Call 0.Method_TopCtrl1_UnknownEvent_160 (CInt(0), var_94, var_A0, "Select Count(*) from memAddRWA where Name='Residential Address'  And Subcode='", var_104, -1)
+
+-- SQL Statement 11 --
+  loc_150656A:   Call 0.Method_TopCtrl1_UnknownEvent_160 (CInt(1), var_94, var_A0, "Select NameHelp From SubGroup Where NameHelp='")
+
+-- SQL Statement 12 --
+  loc_1506677:     Call 0.Method_TopCtrl1_UnknownEvent_160 (CInt(1), var_94, var_A0, "Select NameHelp From SubGroup Where NameHelp='")
+
+-- SQL Statement 13 --
+  loc_1506BEA:       var_190 = "Select Count(*) From MemberFamily Where LogSite_Code='" & MemVar_1F81078 & "' And Relationship='" & CStr(var_B0) & "' And SubCode='"
+
+-- SQL Statement 14 --
+  loc_1361F21: unk_5AD372.Execute "Delete From MemAddRWA where  Mark='*'", var_B4, -1
+
+-- SQL Statement 15 --
+  loc_13621C2: var_B4 = CVar("Select SubCode As Code,Name,NameHelp,GroupCode From SubGroup WHERE NATURE='Customer' and (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO')  Order by Name") 'String
+
+-- SQL Statement 16 --
+  loc_136223E: var_C8 = "Select GroupCode As Code,GroupName As Name,GroupNature,MainGrCode,CurrentBalance,SubLedYN,AliasYN,GroupHelp,Nature From AcGroup Where NATURE='Customer' AND (LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 17 --
+  loc_13622C8: var_B4 = CVar("Select SubCode As Code,Name From SubGroup Where CompanyType in ('Mesh') And ActiveYN=1 And (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO') order by Name") 'String
+
+-- SQL Statement 18 --
+  loc_1362344: var_C8 = "Select CityCode As Code,CityName As Name,CityHelp,S.Name As SName,S.Code As SCode,C.Name As CName,C.Code As CCode From ((City Inner Join State S On S.Code=City.State) Inner Join Country C On C.Code=City.Country)  WHERE (City.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 19 --
+  loc_13623CE: var_B4 = CVar("Select  Code, Name, Corporate From MemCatMast WHERE (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO')  Order by Name") 'String
+
+-- SQL Statement 20 --
+  loc_136244A: var_C8 = "Select M.SubCode as PMemCode,M.Name,M.CardNo,M.ConPrefix,M.Gender,M.Mobile,M.Email,M.Desig,M.PicPath,M.SigPath,M.Label From MemberFamily M Inner Join SubGroup S On M.SubCode=S.SubCode And M. RelationShip='Member' Where M.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 21 --
+  loc_13624A2: var_C8 = "SELECT MembershipRevMast.Code, MembershipRevMast.Description As Name FROM MembershipRevMast Where (LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 22 --
+  loc_1362524: unk_5AD334.Execute "Select * From MemEnviro Where LogSite_Code='" & MemVar_1F81078 & "'", var_B4, -1
+
+-- SQL Statement 23 --
+  loc_1362612: var_C8 = "Select SubCode As SearchCode,SubCode,Site_Code,Name From SubGroup Where CompanyType in (SELECT Code FROM MemCatMast WHERE Corporate='N') and (LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 24 --
+  loc_FE0D24:   Call 0.Method_Form_Unload0 (CInt(0), var_A0, var_9C, "Delete From MemAddRWA where SubCode='")
+
+-- SQL Statement 25 --
+  loc_FE0DC3:   Call 0.Method_Form_Unload0 (CInt(0), var_A0, var_9C, "Delete From MemAddRWA where SubCode='")
+
+-- SQL Statement 26 --
+  loc_1116264:       var_170 = "Select Count(*) From MemberFamily Where HW_ID<>'' And Subcode='" & CStr(Me.FAGrid.TextMatrix)) & "' And SNo=" & CStr(Val(CStr(var_110)))
+
+-- SQL Statement 27 --
+  loc_1A88AB2:   var_FC = "Select MemAddRWA.*,City.CityName As CityN,State.Name As StateN,Country.Name As CountryN From MemAddRWA Left join City On MemAddRWA.City=City.CityCode Left Join State On MemAddRWA.State=State.Code Left Join Country On MemAddRWA.Country=Country.Code where MemAddRWA.Subcode='"
+
+-- SQL Statement 28 --
+  loc_1A88B5A:   var_FC = "Select MemAddRWA.*,City.CityName As CityN,State.Name As StateN,Country.Name As CountryN From MemAddRWA Left join City On MemAddRWA.City=City.CityCode Left Join State On MemAddRWA.State=State.Code Left Join Country On MemAddRWA.Country=Country.Code where MemAddRWA.Subcode='"
+
+-- SQL Statement 29 --
+  loc_1A88C19:   Call 0.Method_CmdAdd_UnknownEvent_90 (CInt(0), var_DC, var_D8, "Select Max(SNo) As SNo,Max(Name) As Name From MemAddRWA Where Subcode= '")
+
+-- SQL Statement 30 --
+  loc_1A88C81:   Call 0.Method_CmdAdd_UnknownEvent_90 (CInt(0), var_DC, var_D8, "Select Max(SNo) As SNo,Max(Name) As Name From MemAddRWA Where Subcode= '")
+
+-- SQL Statement 31 --
+  loc_1A88CE9:   Call 0.Method_CmdAdd_UnknownEvent_90 (CInt(0), var_DC, var_D8, "Select Max(SNo) As SNo,Max(Name) As Name From MemAddRWA Where Subcode= '")
+
+-- SQL Statement 32 --
+  loc_1A88D51:   Call 0.Method_CmdAdd_UnknownEvent_90 (CInt(0), var_DC, var_D8, "Select MemAddRWA.*,City.CityName As CityN,State.Name As StateN,Country.Name As CountryN From MemAddRWA Left join City On MemAddRWA.City=City.CityCode Left Join State On MemAddRWA.State=State.Code Left Join Country On MemAddRWA.Country=Country.Code where MemAddRWA.subcode ='")
+
+-- SQL Statement 33 --
+  loc_1A8B522:           Call 0.Method_CmdAdd_UnknownEvent_90 (CInt(0), var_DC, "Select CorresYN,Name from memAddRWA where SubCode='", var_150)
+
+-- SQL Statement 34 --
+  loc_1A8B65F:                 Call 0.Method_CmdAdd_UnknownEvent_90 (CInt(0), var_15C, "Update MemAddRWA set CorresYN='N' Where Name ='" & var_DC.Value & "' And SubCode='")
+
+-- SQL Statement 35 --
+  loc_1A8B77F:           Call 0.Method_CmdAdd_UnknownEvent_90 (CInt(0), var_DC, var_D8, "Select CorresYN,Name from MemAddRWA where subcode ='", var_374)
+
+-- SQL Statement 36 --
+  loc_1A8BA4A:                 Call 0.Method_CmdAdd_UnknownEvent_90 (CInt(0), var_15C, "Update MemAddRWA set CorresYN='N' Where Name ='" & var_B0.Fields.Item("Name").Value & "' And SubCode='")
+
+-- SQL Statement 37 --
+  loc_1A8BB8F:           Call 0.Method_CmdAdd_UnknownEvent_90 (CInt(0), var_154, "Delete From MemAddRWA Where Name ='" & Trim(CVar(Me.LblAddType.Caption)) & "' And SubCode='", var_1B4, -1)
+
+-- SQL Statement 38 --
+  loc_1A8BDDF:           var_130 = "Insert Into MemAddRWA(SubCode,Name,SNo,Add1,Add2,Add3,PinCode,City,State,Country,PAN,Phone,Mobile,Mobile1,Email, " & "CorresYN,Mark,Site_Code,LogSite_Code,U_Name,U_EntDt,U_AE) Values ('"
+
+-- SQL Statement 39 --
+  loc_1A8C09F:             Call 0.Method_CmdAdd_UnknownEvent_90 (CInt(0), var_DC, "Select Max(SNo) As SNo From MemAddRWA Where Name='" & Trim(CVar(Me.LblAddType)) & "' And Subcode='")
+
+-- SQL Statement 40 --
+  loc_1A8C321:             var_130 = "Insert Into MemAddRWA(SubCode,Name,SNo,Add1,Add2,Add3,PinCode,City,State,Country,PAN,Phone,Mobile,Mobile1,Email, " & "CorresYN,Mark,Site_Code,LogSite_Code,U_Name,U_EntDt,U_AE) Values ('"
+
+-- SQL Statement 41 --
+  loc_18FA0AF:     var_CC = "Select MF.Subcode,MF.SNo,MF.RelationShip,MF.ConPrefix+' '+MF.Name As Name,MF.Gender,MF.MaritalStatus,MF.DOB As Birthday,MF.POB,MF.WedDate As Anniversary," & "MF.Phone,MF.Mobile,MF.Mobile1,MF.Fax,MF.EMail,MF.Nationality,MF.Religion,MF.BloodGroup,MF.ProOcc,MF.EdQuali,MF.TBusiness,MF.TurnOver,MF.Desig,MF.PostedAt,MF.Passport,MF.PAN,"
+
+-- SQL Statement 42 --
+  loc_18FC00B:     var_CC = "Select MF.ConPrefix+' '+MF.Name As Name, S.Name As AcName,MF.CardNo, MCat.Name as CompanyType,MF.DOB As Birthday,MF.WedDate As Anniversary,S.Phone,S.Mobile,(Substring(LTrim(IsNull(S.AddName,'')),1,4)+'.- '+IsNull(S.Add1,'')+IsNull(S.Add2,'')+IsNull(S.Add3,'')) as Address,C.CityName As City,CO.Name As Country,ST.Name As State,S.Pin As PinCode, S.EMail,IsNull((Select Top 1 ConPrefix+Name from MemberFamily Where RelationShip='Father' And SubCode=S.SubCode),'') Father,IsNull((Select Top 1 ConPrefix+Name from MemberFamily Where RelationShip='Mother' And SubCode=S.SubCode),'') Mother,SCR.CurrBal,SCR.CurBalType,MF.SNo,MF.PicPath,S.GSTIN " & "From (((((Subgroup S Inner Join MemberFamily MF On S.SubCode=MF.Subcode)Inner Join MemCatMast Mcat On S.CompanyType=Mcat.code) Left Join City C On S.CityCode=C.CityCode) Left Join Country CO On C.Country=CO.Code) Left Join State ST On C.State=ST.Code) Left Join (SELECT SUBCODE,ABS(ISNULL(SUM(CURR_BAL),0)) AS CurrBal,CASE WHEN ISNULL(SUM(CURR_BAL),0)>0 THEN 'Cr' WHEN ISNULL(SUM(CURR_BAL),0)<0 THEN 'Dr' Else '' END CurBalType FROM SUBGROUPCURRBAL GROUP BY SUBCODE) SCR On SCR.SubCode=S.SubCode where ActiveYN=1 And "
+
+-- SQL Statement 43 --
+  loc_18FC65C:       MemVar_1F810E4 = "Select S.Mobile,S.SUBCODE,(S.ConPrefix+S.ConPerson + Case When IsNull(S.ConPersonMName,'')<>'' Then ' '+S.ConPersonMName Else '' End + Case When IsNull(S.ConPersonLName,'')<>'' Then ' '+S.ConPersonLName Else '' End) As Name,Mcat.Name AS CompanyType,MF.DOB As Birthday,MF.WedDate As AnniversaryDay,S.Phone,S.Mobile,S.AddName,(S.Add1+S.Add2+S.Add3) as Address,S.EMail From ((Subgroup S Left Join MemberFamily MF On S.SubCode=MF.Subcode And )Inner Join MemCat MCat On S.companytype=Mcat.Code)  where ActiveYN=1 AND COMPANYTYPE IN (SELECT Code FROM MemCatMast WHERE Corporate='N' ) Order by S.ConPerson"
+
+-- SQL Statement 44 --
+  loc_156EE75:       Call 0.Method_Txt_Validate0 (Cancel, var_A4, "Select Count(*) from SubGroup where AppNo='", var_134, -1, var_A8)
+
+-- SQL Statement 45 --
+  loc_156F03E:           var_D4 = "Select ID,GroupCode,GroupName,Nature,AliasYN,GroupNature From AcGroup Where GroupCode='" & Me.Fields.Item("Code").Value 
+
+-- SQL Statement 46 --
+  loc_153FF78: unk_5AD334.Execute "Select * From MemEnviro Where LogSite_Code='" & MemVar_1F81078 & "'", var_D4, -1
+
+-- SQL Statement 47 --
+  loc_154011E:       var_F0 = "Select ConPrefix + ' ' + Name As mName,AllowCredit From SubGroup Where Subcode='"
+
+-- SQL Statement 48 --
+  loc_1540210:         var_F0 = "Select ConPrefix + ' ' + Name As mName,CardNo,TinNo From MemSpouseGen Where Subcode='"
+
+-- SQL Statement 49 --
+  loc_154027E:           var_F0 = "Select ConPrefix + ' ' + Name As mName,CardNo,TinNo From MemChildrenGenPic Where Subcode='"
+
+-- SQL Statement 50 --
+  loc_15402F8:             var_F0 = "Select ConPrefix + ' ' + Name As mName,CardNo,TinNo From memFamily Where Subcode='"
+
+-- SQL Statement 51 --
+  loc_1540367:             var_F0 = "Select ConPrefix + ' ' + Name As mName,CardNo,TinNo From SubGroup Where Subcode='"
+
+-- SQL Statement 52 --
+  loc_1540935:         var_120 = "Select Validateupto From SubGroup Where validateupto Is Not Null And Subcode='" & Left(var_9C, 8) & "'" 
+
+-- SQL Statement 53 --
+  loc_1540A77:       unk_5AD334.Execute CStr("Select * From SmartCardRegistration Where code='" & Left(var_9C, 8) & "'"), var_140, -1
+
+-- SQL Statement 54 --
+  loc_100ECCE: var_88 = "Select '' as [All],Name As MemberType,Code From MemCatMast Where (Corporate='N') AND Logsite_Code='" & MemVar_1F81078 & "' Order By Name"
+
+-- SQL Statement 55 --
+  loc_10EF49F:   Call 0.Method_Proc_265_97_10EF70C0 (CInt(1), var_A8, var_AC, "Select Count(*) From Subgroup  Where (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO') and subcode='", var_A0, -1)
+
+-- SQL Statement 56 --
+  loc_10EF5EA:   Call 0.Method_Proc_265_97_10EF70C0 (CInt(1), var_A8, var_AC, "Select Count(*) From SubGroup Where (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO') and subcode='", var_A0, -1)
+
+-- SQL Statement 57 --
+  loc_107A373:   Call 0.Method_Proc_265_98_107A5700 (CInt(6), var_A8, var_AC, "Select Count(*) From Subgroup  Where (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO') and CardNo='", var_A0, -1)
+
+-- SQL Statement 58 --
+  loc_107A485:   Call 0.Method_Proc_265_98_107A5700 (CInt(6), var_A8, var_AC, "Select Count(*) From SubGroup Where (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO') and CardNo='", var_A0, -1)
+
+-- SQL Statement 59 --
+  loc_11F86BA:   MsgBox(CVar("Select " & CStr(var_C4)), &H40, var_160, var_170, var_180)
+
+-- SQL Statement 60 --
+  loc_10B4289: var_98 = "Select VT.Number_Method,VP.V_Type,VP.Date_From,VP.Prefix,VP.Start_Srl_No From Voucher_Type VT Left Join Voucher_Prefix VP on VT.V_Type=VP.V_Type Where VT.SITE_CODE='" & MemVar_1F81070
+
+-- SQL Statement 61 --
+  loc_1B325DB:   var_F0 = "Select S.Name,S.ConPrefix,S.ConPerson,S.ConPersonMName,S.ConPersonLName,S.FatherName,S.MotherName,S.PanNo,S.GSTIN,S.GroupCode,S.ApplDate,S.ValidFrom,S.ValidateUpto,S.Discount," & "S.meshAc,S.U_AE,S.U_Name,S.U_EntDt,S.AddName,S.Add1,S.Add2,S.Add3,S.CITYCODE,S.Pin,S.Phone,S.Mobile,S.Mobile1,S.Email,S.AppNo,S.CardNo,S.IdProof,S.IdProofNo,S.Remark,S.subcorresYN,"
+
+-- SQL Statement 62 --
+  loc_1B32C8A:     unk_5AD372.Execute "Select isnull(Sum(AmtCr),0) From Ledger Where V_Type='" & "F_AO" & "' and SubCode='" & var_F4 & "'", var_EC, -1
+
+-- SQL Statement 63 --
+  loc_1B32D33:     unk_5AD372.Execute "Select isnull(Sum(AmtDr),0) From Ledger Where V_Type='" & "F_AO" & "' and SubCode='" & var_F4 & "'", var_EC, -1
+
+-- SQL Statement 64 --
+  loc_1B32ED8:       Call 0.Method_Proc_265_112_1B371780 (CInt(0), var_D4, var_F0, "SELECT ISNULL(SUM(CURR_BAL),0) AS CurrBal FROM SUBGROUPCURRBAL WHERE SubCode='")
+
+-- SQL Statement 65 --
+  loc_1B32F47:       Call 0.Method_Proc_265_112_1B371780 (CInt(0), var_D4, var_F0, "SELECT ISNULL(SUM(CURR_BAL),0) AS CurrBal FROM SUBGROUPCURRBAL WHERE SubCode='")
+
+-- SQL Statement 66 --
+  loc_1B3414D:     var_124 = "select code,Name,Corporate from MemcatMast where code='" & var_88.Fields.Item("CompanyType").Value 
+
+-- SQL Statement 67 --
+  loc_1B35488:     Call 0.Method_Proc_265_112_1B371780 (CInt(0), var_D4, var_F4, "Select * From MemberFamily Where LOGSITE_CODE='" & MemVar_1F81078 & "' And SubCode='", var_EC, -1)
+
+-- SQL Statement 68 --
+  loc_1B361B9:     var_F0 = "Select *,MPF.Mark From (Select * From MemberFamily Where RelationShip='Member') MF Inner Join MemProposedMemInf MPF On MF.SubCode=MPF.PMemCode Where MPF.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 69 --
+  loc_1B3681C:     var_F0 = "Select NARRATION,DocID,V_SNo,V_Type,V_No,V_Date,Site_Code,SubCode,AmtCr,AmtDr,Chq_No,Chq_Date From Ledger Where (LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 70 --
+  loc_1B36D13:   var_F0 = "Select MembershipRevMast.Code As RevCode,MembershipRevMast.Description, MR.AppDate , MR.Amount , MR.Nature, MR.ActiveYN From (MemRevWise MR Left Join MembershipRevMast ON MR.RevCode = MembershipRevMast.Code) Where MR.Site_Code='" & MemVar_1F81070
+
+-- SQL Statement 71 --
+  loc_1A37CBF: Call 0.Method_Proc_265_113_1A3B0EC0 (CInt(2), var_D4, var_D8, "SELECT * From AcGroup Where GroupCode='")
+
+-- SQL Statement 72 --
+  loc_1A37DAF: Call 0.Method_Proc_265_113_1A3B0EC0 (CInt(0), var_D4, var_D8, "Select Max(SNo) As SNo,Max(Name) As Name From MemAddRWA Where Subcode= '")
+
+-- SQL Statement 73 --
+  loc_1A37E17: Call 0.Method_Proc_265_113_1A3B0EC0 (CInt(0), var_D4, var_D8, "Select Max(SNo) As SNo,Max(Name) As Name From MemAddRWA Where Subcode= '")
+
+-- SQL Statement 74 --
+  loc_1A37E7F: Call 0.Method_Proc_265_113_1A3B0EC0 (CInt(0), var_D4, var_D8, "Select Max(SNo) As SNo,Max(Name) As Name From MemAddRWA Where Subcode= '")
+
+-- SQL Statement 75 --
+  loc_1A37EE7: Call 0.Method_Proc_265_113_1A3B0EC0 (CInt(0), var_D4, var_D8, "Select * from MemAddRWA where subcode ='")
+
+-- SQL Statement 76 --
+  loc_1A38657:   var_D8 = "Insert Into " & arg_10
+
+-- SQL Statement 77 --
+  loc_1A38F79:   var_D8 = "Insert Into MemberFamily (Subcode,SNo,ConPrefix,Name,CardNo,Relationship,Gender,MaritalStatus,DOB,POB,WedDate,Phone," & "Mobile,Mobile1,Email,Nationality,Religion,BloodGroup,ProOcc,EdQuali,TBusiness,TurnOver,Desig,PostedAt,PassPort,PAN,InTax,SpInterest,PicPath,"
+
+-- SQL Statement 78 --
+  loc_1A39638:     var_DC = -1 & Proc_6_37_E618F4(arg_14, "Insert into SubgroupLog Select * from Subgroup Where SUBCODE='", var_100)
+
+-- SQL Statement 79 --
+  loc_1A3963F:     var_E0 = Proc_6_37_E618F4(arg_14, "Insert into SubgroupLog Select * from Subgroup Where SUBCODE='", var_100) & "SigPath,Label,Site_code,LogSite_Code,U_Name,U_EntDt,U_AE) " & "'"
+
+-- SQL Statement 80 --
+  loc_1A39688:     var_D8 = Proc_6_37_E618F4(arg_14, "Select Max(SeqNo) From SubgroupLog  Where SUBCODE='", var_100, -1, var_D0)
+
+-- SQL Statement 81 --
+  loc_1A3969C:     unk_5AD334.Execute var_D4 & Proc_6_37_E618F4(arg_14, "Insert into SubgroupLog Select * from Subgroup Where SUBCODE='", var_100) & "'", 0, var_104
+
+-- SQL Statement 82 --
+  loc_1A39702:     var_DC = "Update SubgroupLog Set SeqNo=" & Proc_6_37_E618F4(arg_14, "Insert into SubgroupLog Select * from Subgroup Where SUBCODE='", var_100)
+
+-- SQL Statement 83 --
+  loc_1A3971D:     var_390 = var_D0 & Proc_6_37_E618F4(arg_14, "Insert into SubgroupLog Select * from Subgroup Where SUBCODE='", var_100) & "SigPath,Label,Site_code,LogSite_Code,U_Name,U_EntDt,U_AE) " & "Values ('" & arg_14
+
+-- SQL Statement 84 --
+  loc_1A397C8:       var_D8 = "Update " & arg_10
+
+-- SQL Statement 85 --
+  loc_1A3A0F2:       var_D8 = "Update " & arg_10
+
+-- SQL Statement 86 --
+  loc_1A3A9D3:     Call 0.Method_Proc_265_113_1A3B0EC0 (CInt(3), var_D4, var_D8, "Update MemberFamily Set ConPrefix='")
+
+-- SQL Statement 87 --
+  loc_1A3B04A:     Call 0.Method_Proc_265_113_1A3B0EC0 (CInt(2), var_D4, var_D8, "UPDATE LEDGER SET LEDGER.GROUPCODE='")
+
+-- SQL Statement 88 --
+  loc_1766EB4:       var_CC = "Insert Into MemberFamily (Subcode,SNo,ConPrefix,Name,CardNo,Relationship,Gender,MaritalStatus,DOB,POB,WedDate,Phone," & "Mobile,Fax,Email,Nationality,Religion,BloodGroup,ProOcc,EdQuali,TBusiness,TurnOver,Desig,PassPort,PAN,InTax,SpInterest,PicPath,  "
+
+-- SQL Statement 89 --
+  loc_17672ED:   Call 0.Method_Proc_265_114_17684880 (CInt(0), var_D4, var_CC, "SELECT IsNull(Max(SNo),0)+1 From MemberFamily Where SubCode= '", var_C8, -1)
+
+-- SQL Statement 90 --
+  loc_1767373:   Call 0.Method_Proc_265_114_17684880 (CInt(0), var_D4, var_CC, "SELECT SubCode,SNo From MemberFamily Where SubCode= '")
+
+-- SQL Statement 91 --
+  loc_1767418:     var_EC = -1 & Proc_6_37_E618F4(var_C8, "Update MemberFamily Set SNo=" & var_CC & " where Subcode='", var_32C)
+
+-- SQL Statement 92 --
+  loc_176741F:     var_26C = CVar(Proc_6_37_E618F4(var_C8, "Update MemberFamily Set SNo=" & var_CC & " where Subcode='", var_32C) & "Update MemberFamily Set SNo=" & var_CC & " where Subcode='" & "' And SNo=") 'String
+
+-- SQL Statement 93 --
+  loc_17674C7:   Call 0.Method_Proc_265_114_17684880 (CInt(0), var_D4, var_CC, "SELECT SubCode,SNo From MemberFamily Where SubCode= '", var_C8)
+
+-- SQL Statement 94 --
+  loc_176756C:     var_EC = -1 & Proc_6_37_E618F4(CVar(var_D4), "Update MemberFamily Set SNo=" & CStr(var_B4) & " where Subcode='", var_32C)
+
+-- SQL Statement 95 --
+  loc_1767573:     var_26C = CVar(Proc_6_37_E618F4(CVar(var_D4), "Update MemberFamily Set SNo=" & CStr(var_B4) & " where Subcode='", var_32C) & "Update MemberFamily Set SNo=" & CStr(var_B4) & " where Subcode='" & "' And SNo=") 'String
+
+-- SQL Statement 96 --
+  loc_1767719:       var_E0 = "Insert into MemProposedMemInf(Subcode,SNo,PMemCode,MemberType,Mark,Site_Code,LogSite_Code,U_Name,U_EntDt,U_AE) " & "Values ('"
+
+-- SQL Statement 97 --
+  loc_1767853:   Call 0.Method_Proc_265_114_17684880 (CInt(0), var_D4, var_CC, "SELECT IsNull(Max(SNo),0)+1 From MemProposedMemInf Where SubCode= '", var_C8, -1)
+
+-- SQL Statement 98 --
+  loc_17678D9:   Call 0.Method_Proc_265_114_17684880 (CInt(0), var_D4, var_CC, "SELECT SubCode,SNo From MemProposedMemInf Where SubCode= '")
+
+-- SQL Statement 99 --
+  loc_176797E:     var_EC = -1 & Proc_6_37_E618F4(var_C8, "Update MemProposedMemInf Set SNo=" & var_CC & " where Subcode='", var_32C)
+
+-- SQL Statement 100 --
+  loc_1767A2D:   Call 0.Method_Proc_265_114_17684880 (CInt(0), var_D4, var_CC, "SELECT SubCode,SNo From MemProposedMemInf Where SubCode= '", var_C8)
+
+-- SQL Statement 101 --
+  loc_1767AD2:     var_EC = -1 & Proc_6_37_E618F4(CVar(var_D4), "Update MemProposedMemInf Set SNo=" & var_CC & " where Subcode='", var_32C)
+
+-- SQL Statement 102 --
+  loc_1767B8E:   Call 0.Method_Proc_265_114_17684880 (CInt(0), var_D4, var_CC, "Update memAddRWA set Mark='' where Subcode='", var_2CC)
+
+-- SQL Statement 103 --
+  loc_1768235:       var_CC = "Insert into MemRevWise (MemCode,AppDate,RevCode,Amount,Nature," & "ActiveYN,U_Name,U_EntDt,U_AE,Site_Code,LogSite_Code) "
+
+-- SQL Statement 104 --
+  loc_1A668DA: Call 0.Method_Proc_265_115_1A6A0D00 (CInt(2), var_C0, var_C4, "Select MainGrCode From AcGroup Where GroupCode='", var_EC, -1)
+
+-- SQL Statement 105 --
+  loc_1A6696A: var_CC = "SELECT * From Ledger Where V_Type='" & "F_AO" & "' and SubCode= '"
+
+-- SQL Statement 106 --
+  loc_1A66BB1: Call 0.Method_Proc_265_115_1A6A0D00 (CInt(0), var_C0, var_C4, "UPdate MemAddRWA  Set Mark='' Where SubCode= '")
+
+-- SQL Statement 107 --
+  loc_1A66C10: Call 0.Method_Proc_265_115_1A6A0D00 (CInt(0), var_C0, var_C4, "UPdate MemAddRWA  Set Mark='*' Where SubCode= '")
+
+-- SQL Statement 108 --
+  loc_1A66D5D:     Call 0.Method_Proc_265_115_1A6A0D00 (CInt(0), var_C0, var_C4, "Delete From MemberFamily Where Subcode='", var_EC, -1, var_F0)
+
+-- SQL Statement 109 --
+  loc_1A66DEA:   Call 0.Method_Proc_265_115_1A6A0D00 (CInt(0), var_C0, var_C4, "Delete From MemberFamily Where Subcode='")
+
+-- SQL Statement 110 --
+  loc_1A66F25:     unk_5AD372.Execute "Select Count(*) From MemberFamily where Subcode='" & var_C4 & "' And SNo=" & CStr(var_174), var_118, -1
+
+-- SQL Statement 111 --
+  loc_1A67440:       var_C4 = "Insert Into MemberFamily (Subcode,SNo,ConPrefix,Name,CardNo,Relationship,Gender,MaritalStatus,DOB,POB,WedDate,Phone," & "Mobile,Fax,Email,Nationality,Religion,BloodGroup,ProOcc,EdQuali,TBusiness,TurnOver,Desig,PassPort,PAN,InTax,SpInterest,PicPath,"
+
+-- SQL Statement 112 --
+  loc_1A67D3F:       var_CC = "Update MemberFamily Set SNo=" & var_C4 & ",ConPrefix='"
+
+-- SQL Statement 113 --
+  loc_1A68153: Call 0.Method_Proc_265_115_1A6A0D00 (CInt(0), var_C0, var_C4, "SELECT IsNull(Max(SNo),0)+1 From MemberFamily Where SubCode= '", var_EC, -1)
+
+-- SQL Statement 114 --
+  loc_1A681D9: Call 0.Method_Proc_265_115_1A6A0D00 (CInt(0), var_C0, var_C4, "SELECT SubCode,SNo From MemberFamily Where SubCode= '")
+
+-- SQL Statement 115 --
+  loc_1A6827E:   var_124 = -1 & Proc_6_37_E618F4(var_EC, "Update MemberFamily Set SNo=" & var_C4 & " where Subcode='", var_350)
+
+-- SQL Statement 116 --
+  loc_1A682C4:   unk_5AD372.Execute CStr(CVar("Update MemberFamily Set SNo=" & var_C4 & " where Subcode='" & CStr(var_EC) & "' And SNo=") & var_184), var_108, 
+
+-- SQL Statement 117 --
+  loc_1A6832D: Call 0.Method_Proc_265_115_1A6A0D00 (CInt(0), var_C0, var_C4, "SELECT SubCode,SNo From MemberFamily Where SubCode= '", var_EC)
+
+-- SQL Statement 118 --
+  loc_1A683D2:   var_124 = -1 & Proc_6_37_E618F4(CVar(var_C0), "Update MemberFamily Set SNo=" & var_C4 & " where Subcode='", var_350)
+
+-- SQL Statement 119 --
+  loc_1A6840A:   var_1AC = CVar("Update MemberFamily Set SNo=" & var_C4 & " where Subcode='" & CStr(CVar(var_C0)) & "' And SNo=") & var_184 
+
+-- SQL Statement 120 --
+  loc_1A6847C: Call 0.Method_Proc_265_115_1A6A0D00 (CInt(0), var_C0, var_C4, "Delete From MemProposedMemInf Where subcode='")
+
+-- SQL Statement 121 --
+  loc_1A6849D: unk_5AD372.Execute "Update MemberFamily Set SNo=" & var_C4 & "'", var_F0, var_B2
+
+-- SQL Statement 122 --
+  loc_1A685E5:     var_C8 = "Insert into MemProposedMemInf(Subcode,SNo,PMemCode,MemberType,Mark,Site_Code,LogSite_Code,U_Name,U_EntDt,U_AE) " & "Values ('"
+
+-- SQL Statement 123 --
+  loc_1A68720: Call 0.Method_Proc_265_115_1A6A0D00 (CInt(0), var_C0, var_C4, "SELECT IsNull(Max(SNo),0)+1 From MemProposedMemInf Where SubCode= '", var_EC, -1)
+
+-- SQL Statement 124 --
+  loc_1A687A6: Call 0.Method_Proc_265_115_1A6A0D00 (CInt(0), var_C0, var_C4, "SELECT SubCode,SNo From MemProposedMemInf Where SubCode= '")
+
+-- SQL Statement 125 --
+  loc_1A6884B:   var_124 = -1 & Proc_6_37_E618F4(var_EC, "Update MemProposedMemInf Set SNo=" & var_C4 & " where Subcode='", var_350)
+
+-- SQL Statement 126 --
+  loc_1A688FA: Call 0.Method_Proc_265_115_1A6A0D00 (CInt(0), var_C0, var_C4, "SELECT SubCode,SNo From MemProposedMemInf Where SubCode= '", var_EC)
+
+-- SQL Statement 127 --
+  loc_1A6899F:   var_124 = -1 & Proc_6_37_E618F4(CVar(var_C0), "Update MemProposedMemInf Set SNo=" & var_C4 & " where Subcode='", var_350)
+
+-- SQL Statement 128 --
+  loc_1A68A49: Call 0.Method_Proc_265_115_1A6A0D00 (CInt(0), var_C0, var_C4, "SELECT SubCode,CardRegId,ConPrefix + ' ' + Name As Name,CardNo From MemberFamily Where SubCode= '")
+
+-- SQL Statement 129 --
+  loc_1A68A6A: unk_5AD372.Execute "Update MemProposedMemInf Set SNo=" & var_C4 & "' And IsNull(HW_Id,'')<>'' And IsNull(CardRegId,'')<>'' Order By SNo", var_F0, var_B2
+
+-- SQL Statement 130 --
+  loc_1A68ADB:   var_C8 = -1 & Proc_6_37_E618F4(CVar(var_C0), "Update SmartCardRegistration Set Name='", var_1AC)
+
+-- SQL Statement 131 --
+  loc_1A68AE2:   var_CC = "Update MemProposedMemInf Set SNo=" & Proc_6_37_E618F4(CVar(var_C0), "Update SmartCardRegistration Set Name='", var_1AC) & "',CardNo='"
+
+-- SQL Statement 132 --
+  loc_1A68C05: Call 0.Method_Proc_265_115_1A6A0D00 (CInt(0), var_C0, "Select max(SNo) As SNo From MemAddRWA Where SubCode='", var_1AC)
+
+-- SQL Statement 133 --
+  loc_1A68CD5:     var_C8 = "Update MemAddRWA Set SNo=" & CStr(CVar(var_94.Fields.Item("subcode")) & "' And Name ='Residential Address' And Mark ='*'")
+
+-- SQL Statement 134 --
+  loc_1A68D65:     Call 0.Method_Proc_265_115_1A6A0D00 (CInt(0), var_C0, "Update MemAddRWA Set SNo=1 , Mark='' Where Subcode='", var_360)
+
+-- SQL Statement 135 --
+  loc_1A68DE9:     Call 0.Method_Proc_265_115_1A6A0D00 (CInt(0), var_C0, "Delete From MemAddRWA Where Subcode='")
+
+-- SQL Statement 136 --
+  loc_1A68E63: Call 0.Method_Proc_265_115_1A6A0D00 (CInt(0), var_C0, "Select max(SNo) As SNo From MemAddRWA Where SubCode='", var_1AC)
+
+-- SQL Statement 137 --
+  loc_1A68F35:     var_184 = CVar("Update MemAddRWA Set SNo=" & CStr(var_1AC & Trim(CVar(var_C0)) & "' And Name ='WorkPlace Address' And Mark ='*'") & " , Mark='*' Where Subcode='") 'String
+
+-- SQL Statement 138 --
+  loc_1A68FBE:     Call 0.Method_Proc_265_115_1A6A0D00 (CInt(0), var_C0, "Update MemAddRWA Set SNo=1 , Mark='' Where Subcode='", var_360)
+
+-- SQL Statement 139 --
+  loc_1A69042:     Call 0.Method_Proc_265_115_1A6A0D00 (CInt(0), var_C0, "Delete From MemAddRWA Where Subcode='")
+
+-- SQL Statement 140 --
+  loc_1A690BC: Call 0.Method_Proc_265_115_1A6A0D00 (CInt(0), var_C0, "Select max(SNo) As SNo From MemAddRWA Where SubCode='", var_1AC)
+
+-- SQL Statement 141 --
+  loc_1A6918E:     var_184 = CVar("Update MemAddRWA Set SNo=" & CStr(var_1AC & Trim(CVar(var_C0)) & "' And Name ='Abroad Address' And Mark ='*'") & " , Mark='*' Where Subcode='") 'String
+
+-- SQL Statement 142 --
+  loc_1A69217:     Call 0.Method_Proc_265_115_1A6A0D00 (CInt(0), var_C0, "Update MemAddRWA Set SNo=1 , Mark='' Where Subcode='", var_360)
+
+-- SQL Statement 143 --
+  loc_1A6929B:     Call 0.Method_Proc_265_115_1A6A0D00 (CInt(0), var_C0, "Delete From MemAddRWA Where Subcode='")
+
+-- SQL Statement 144 --
+  loc_1A698AF: Call 0.Method_Proc_265_115_1A6A0D00 (CInt(0), var_C0, var_C4, "Delete From MemRevWise Where MemCode='")
+
+-- SQL Statement 145 --
+  loc_1A698C7: var_CC = "Update MemAddRWA Set SNo=" & CStr(var_1AC & Trim(CVar(var_C0)) & "' And Name ='Abroad Address' And Mark ='*'") & "' And RevCode Not In('"
+
+-- SQL Statement 146 --
+  loc_1A699DD:     var_C8 = "Select * from MemRevWise where MemCode='" & var_C4
+
+-- SQL Statement 147 --
+  loc_1A69BAD:       var_C4 = "Insert into MemRevWise (MemCode,AppDate,RevCode,Amount,Nature," & "ActiveYN,U_Name,U_EntDt,U_AE,Site_Code,LogSite_Code) "
+
+-- SQL Statement 148 --
+  loc_1A69E8C:       var_404 = "Update MemRevWise Set Appdate=" & var_184 & ",RevCode='" & CVar(CStr(var_350)) & "',Amount=" & CVar(var_174) & ",Nature='" 
+
+-- SQL Statement 149 --
+  loc_129484B:   Call 0.Method_Proc_265_116_1294D440 (CInt(0), var_12C, var_130, "SELECT * From Ledger Where V_Type='" & "F_AO" & "' and SubCode= '")
+
+-- SQL Statement 150 --
+  loc_12949EA:   var_FC = CVar("Delete From Ledger Where V_Type='" & "F_AO" & "' and SubCode= '") 'String
+
+-- SQL Statement 151 --
+  loc_1294A71:   Call 0.Method_Proc_265_116_1294D440 (CInt(0), var_12C, "Delete From SubGroup Where SUBCode='", var_190)
+
+-- SQL Statement 152 --
+  loc_1294ADE:   Call 0.Method_Proc_265_116_1294D440 (CInt(0), var_12C, "Delete From MemberFamily Where subcode='")
+
+-- SQL Statement 153 --
+  loc_1294B4B:   Call 0.Method_Proc_265_116_1294D440 (CInt(0), var_12C, "Delete From MemProposedMemInf Where subcode='")
+
+-- SQL Statement 154 --
+  loc_1294BB8:   Call 0.Method_Proc_265_116_1294D440 (CInt(0), var_12C, "Delete From MemAddRWA Where subcode='")
+
+-- SQL Statement 155 --
+  loc_1294C25:   Call 0.Method_Proc_265_116_1294D440 (CInt(0), var_12C, "Delete From MemRevWise Where Memcode='")
+

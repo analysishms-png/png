@@ -1,0 +1,37 @@
+================================================================================
+   ANALYSIS HMS - NIGHT AUDIT MODULE : BUG REPORT (TESTER FORMAT)
+================================================================================
+Property: Demo Property | Report Date: 21-Sep-2026 | Round: 1 + 2 (Demo entries)
+Method: Manual UI testing on live app - demo entries, empty submits, duplicates,
+        report fetches. Source code sirf root-cause confirm karne ke liye dekha.
+================================================================================
+
+TOTAL BUGS: 1
+
+--------------------------------------------------------------------------------
+[NA-01] Night Audit Process par koi pre-check summary/confirmation nahi
+Severity : MEDIUM
+Screen   : Night Audit > Open Night Audit
+
+Steps:
+1. Open Night Audit kholo
+2. Screen dekho (process RUN nahi kiya gaya - live data)
+
+Expected: Process se pehle checklist: open folios, pending KOTs, unpublished bills, expected arrivals ka summary + confirm dialog.
+
+Actual (BUG): Sirf 'For Date: 21-09-2026' + Process button. Ek click me day-end.
+
+Impact: Galat click se day-end ho sakta hai bina kisi check ke. Recovery mushkil.
+
+Evidence: screenshots/NA_open.png
+--------------------------------------------------------------------------------
+
+================================================================================
+  JO SAHI KAAM KAR RAHA HAIN (VERIFIED)
+================================================================================
+  [OK] Night Audit screen ka For Date sahi (21-09-2026) - stale-date issue yahan nahi
+  [OK] Night Audit Log page load OK (date fields + user filters)
+
+================================================================================
+END OF NIGHT AUDIT BUG REPORT
+================================================================================

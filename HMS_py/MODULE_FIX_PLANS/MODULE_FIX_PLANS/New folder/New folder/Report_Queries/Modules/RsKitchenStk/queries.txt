@@ -1,0 +1,100 @@
+Module: RsKitchenStk
+Total SQL statements: 32
+================================================================================
+
+-- SQL Statement 1 --
+  loc_126FD9F: Call 0.Method_CmdLastEntry_UnknownEvent_90 (CInt(4), var_110, var_9C, "Select Distinct SH.Docid,SH.SNo,SH.Vtype,SH.Vno,SH.Vdate,SH.VPrefix,I.Name,I.Code,I.Unit,CASE WHEN I.LPurRate<=0 THEN I.PurchRate ELSE I.LPurRate END as Rate,I.ConvRatio,I.IssueUnit,I.RestCode From Stock SH Left Join ItemMast I On I.Code=SH.Item And I.ItemType='Store' where SH.VType='KSREC' And GoDownCode='")
+
+-- SQL Statement 2 --
+  loc_128594C:   var_98 = "Select distinct G.Code,G.Name From GodownMast G Left join Depart D on D.Code=G.Code Where (G.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 3 --
+  loc_1285B63:     var_98 = "Select distinct G.Code,G.Name From GodownMast G Left join Depart D on D.Code=G.Code Where (G.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 4 --
+  loc_144D1B2:     var_98 = "Select Count(*) From Stock Where DocID='" & global_80
+
+-- SQL Statement 5 --
+  loc_144D2F8:     var_98 = "Select Count(*) From Stock Where DocID='" & global_84
+
+-- SQL Statement 6 --
+  loc_123B007: var_C0 = "Select E.PurChaseGodown,G.Name PurChaseGodownName,E.RateEditableInStockIssue,E.BarCodeFeatureInPurchase,E.NegativeStockAllowYN From Enviro E Left Join GodownMast G On E.PurChaseGodown=G.Code WHERE E.LOGSITE_CODE="
+
+-- SQL Statement 7 --
+  loc_123B173:   var_8C = "Select I.Code,I.BarCode,I.Name,I.Unit,I.IssueUnit,CASE WHEN I.LPurRate<=0 THEN I.PurchRate ELSE I.LPurRate END as Rate,I.ConvRatio,I.RestCode From ItemMast I Where (LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 8 --
+  loc_123B1B0:   var_8C = "Select I.Code,I.BarCode,I.Name,I.Unit,I.IssueUnit,CASE WHEN I.LPurRate<=0 THEN I.PurchRate ELSE I.LPurRate END as Rate,I.ConvRatio,I.RestCode From ItemMast I Where (LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 9 --
+  loc_123B23A: var_B0 = CVar("Select G.Code,G.Name From GodownMast G iNNER join Depart D on D.Code=G.Code Where (G.LOGSITE_CODE='" & MemVar_1F81078 & "')  Order by G.Name") 'String
+
+-- SQL Statement 10 --
+  loc_123B2BD: var_B0 = CVar("Select G.Code,G.Name From GodownMast G INNER join Depart D on D.Code=G.Code Where (G.LOGSITE_CODE='" & MemVar_1F81078 & "')  Order by G.Name") 'String
+
+-- SQL Statement 11 --
+  loc_123B34A: Me.Open CVar("Select Code,Name From ShiftMast Where (LOGSITE_CODE='" & MemVar_1F81078 & "') Order by Name"), CVar(MemVar_1F81044), 2
+
+-- SQL Statement 12 --
+  loc_123B40A: var_B0 = CVar("Select Distinct DocID as SearchCode,Site_Code,LogSite_Code From Stock WHERE LOGSITE_CODE='" & MemVar_1F81078 & "' and VTYPE='KSREC' order by  DocID") 'String
+
+-- SQL Statement 13 --
+  loc_1122AD6:   Call 0.Method_TopCtrl1_UnknownEvent_C0 (CInt(0), var_13C, var_11C, "Delete From Stock Where DocID='")
+
+-- SQL Statement 14 --
+  loc_1122B28:   var_11C = "Delete From Stock Where DocID='" & CStr(var_1BC)
+
+-- SQL Statement 15 --
+  loc_EAD116: MemVar_1F810E4 = "Select Distinct S.Docid,S.Vno as VNo,CONVERT(VARCHAR(11),S.VDate) as [Date],D.NAME AS ToLocation From (Stock S left Join GodownMast D on S.GodownCode=D.Code) Left Join ItemMast I ON S.Item=I.Code And I.ItemType='Store' WHERE VTYPE='KSREC'"
+
+-- SQL Statement 16 --
+  loc_12CC2B8: var_C4 = "Select S.Docid,S.VNo,S.VDate,S.IssQty as Qty,S.IssueUnit As Unit,S.Rate,S.Amount,S.GodownCode," & " I.Name as ItemName,G.Name as GodName,SM.Name As Shift,S.Remarks,S.U_Name UserName,S.U_EntDt entdt, S.U_AE"
+
+-- SQL Statement 17 --
+  loc_12CC2F2: var_C4 = "Select S.GodownCode,G.Name as GodName" & " From Stock as S Left Join GodownMast as G on S.GodownCode=G.Code"
+
+-- SQL Statement 18 --
+  loc_168997E:   unk_4E9DBC.Execute "Delete From Stock Where DocID='" & global_80 & "'", var_FC, -1
+
+-- SQL Statement 19 --
+  loc_16899B7:   unk_4E9DBC.Execute "Delete From Stock Where DocID='" & global_84 & "'", var_FC, -1
+
+-- SQL Statement 20 --
+  loc_1689E3C:     var_AC = "Insert Into STOCK(DocID,Sno,VPrefix,Site_Code,VType,VNo,VDate,Item,COntraDocId,ContraSno,DepartCode,GodownCode,Rate,RecdQty,AccQty,RecdUnit,Amount,ConvRatio,U_Name,U_EntDt,U_AE,QtyRec,Unit,LogSite_Code,ItemRestCode,ShiftCode,Remarks)" & " VALUES ('"
+
+-- SQL Statement 21 --
+  loc_168A464:     var_AC = "Insert Into STOCK(DocID,Sno,VPrefix,Site_Code,VType,VNo,VDate,Item,ContraDocId,ContraSno,DepartCode,GodownCode,Rate,IssQty,IssueUnit,Amount,ConvRatio,U_Name,U_EntDt,U_AE,QtyIss,Unit,LogSite_Code,ItemRestCode,ShiftCode,Remarks) " & " VALUES ('"
+
+-- SQL Statement 22 --
+  loc_168A807:   var_AC = "Select VT.Number_Method,VP.V_Type,VP.Date_From,VP.Prefix,VP.Start_Srl_No From Voucher_Type VT Inner Join Voucher_Prefix VP on (VT.V_Type=VP.V_Type AND VT.SITE_CODE=VP.SITE_CODE AND VP.LOGSITE_CODE=VP.LOGSITE_CODE) Where (VP.SITE_CODE='" & MemVar_1F81070
+
+-- SQL Statement 23 --
+  loc_168A92D:     var_1B4 = "Update Voucher_Prefix Set Start_Srl_No=" & CStr(var_88C) & " Where (SITE_CODE='" & MemVar_1F81070 & "' AND LOGSITE_CODE='"
+
+-- SQL Statement 24 --
+  loc_168A9FA:   var_AC = "Select VT.Number_Method,VP.V_Type,VP.Date_From,VP.Prefix,VP.Start_Srl_No From Voucher_Type VT Inner Join Voucher_Prefix VP on (VT.V_Type=VP.V_Type AND VT.SITE_CODE=VP.SITE_CODE AND VP.LOGSITE_CODE=VP.LOGSITE_CODE) Where (VP.SITE_CODE='" & MemVar_1F81070
+
+-- SQL Statement 25 --
+  loc_168AB20:     var_1B4 = "Update Voucher_Prefix Set Start_Srl_No=" & CStr(var_88C) & " Where (SITE_CODE='" & MemVar_1F81070 & "' AND LOGSITE_CODE='"
+
+-- SQL Statement 26 --
+  loc_14922D4:   var_174 = "SELECT RATE FROM ITEMRATE WHERE ITEMCODE='" & CStr(var_12C)
+
+-- SQL Statement 27 --
+  loc_14EE5B3:   var_D8 = "Select Distinct SH.Docid,SH.SNo,SH.Vtype,SH.Vno,SH.Vdate,SH.VPrefix,SH.Rate,SH.Amount,SH.GodownCode,SH.Item,SH.QtyRec,SH.Unit,SH.RECDQty,SH.RECDUnit,SH.ConvRatio,SH.ItemRestCode,SH.U_Name,SH.U_entdt,SH.U_AE,I.Name As ItemName,SH.ShiftCode,SM.Name As ShiftName,SH.Remarks From Stock SH Left Join ItemMast I On I.Code=SH.Item And I.ItemType='Store' Left Join ShiftMast SM On SH.ShiftCode=SM.Code where DocID='"
+
+-- SQL Statement 28 --
+  loc_14EE794:   Call 0.Method_Proc_214_49_14EF3B80 (CInt(1), var_B8, var_10C, "Select VTYPE,GodownCode From Stock Where VtYpe='KSISS' and VNo=")
+
+-- SQL Statement 29 --
+  loc_14EE8D2:       Call 0.Method_Proc_214_49_14EF3B80 (CInt(3), var_B8, var_10C, "Select Name From GodownMast Where Code='")
+
+-- SQL Statement 30 --
+  loc_14EEA40:     Call 0.Method_Proc_214_49_14EF3B80 (CInt(4), var_B8, var_10C, "Select Name From GodownMast Where Code='")
+
+-- SQL Statement 31 --
+  loc_1152747: var_A0 = "Select VT.Number_Method,VP.V_Type,VP.Date_From,VP.Prefix,VP.Start_Srl_No From Voucher_Type VT Inner Join Voucher_Prefix VP on (VT.V_Type=VP.V_Type AND VT.SITE_CODE=VP.SITE_CODE AND VP.LOGSITE_CODE=VP.LOGSITE_CODE) Where (VP.SITE_CODE='" & MemVar_1F81070
+
+-- SQL Statement 32 --
+  loc_1104D87: var_A0 = "Select VT.Number_Method,VP.V_Type,VP.Date_From,VP.Prefix,VP.Start_Srl_No From Voucher_Type VT Inner Join Voucher_Prefix VP on (VT.V_Type=VP.V_Type AND VT.SITE_CODE=VP.SITE_CODE AND VP.LOGSITE_CODE=VP.LOGSITE_CODE) Where (VP.SITE_CODE='" & MemVar_1F81070
+

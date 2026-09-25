@@ -1,0 +1,38 @@
+================================================================================
+   ANALYSIS HMS - BANQUET MODULE : BUG REPORT (TESTER FORMAT)
+================================================================================
+Property: Demo Property | Report Date: 21-Sep-2026 | Round: 1 + 2 (Demo entries)
+Method: Manual UI testing on live app - demo entries, empty submits, duplicates,
+        report fetches. Source code sirf root-cause confirm karne ke liye dekha.
+================================================================================
+
+TOTAL BUGS: 1
+
+--------------------------------------------------------------------------------
+[BNQ-01] Daily Function Sheet me sirf 'No Data' mila (demo booking na hone par bhi Excel/CSV/Print buttons active)
+Severity : LOW
+Screen   : Banquet > Daily Function Sheet (/dailyfunctionsheet)
+
+Steps:
+1. DFS kholo
+2. 01-Sep se 21-Sep, Refresh
+
+Expected: No-data state me export/print buttons disabled ho sakte hain (UX nicety).
+
+Actual (BUG): 0 rows par bhi Excel/CSV/Print buttons active hain - blank file print/export ho sakti hai.
+
+Impact: Minor UX.
+
+Evidence: screenshots/BNQ2_dfs_data.png
+--------------------------------------------------------------------------------
+
+================================================================================
+  JO SAHI KAAM KAR RAHA HAIN (VERIFIED)
+================================================================================
+  [OK] Daily Function Sheet - clean 'No Data Available In Table' message, totals 0
+  [OK] Events master - empty submit validation sahi
+  [OK] Banquet booking page load OK
+
+================================================================================
+END OF BANQUET BUG REPORT
+================================================================================

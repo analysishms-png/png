@@ -1,0 +1,501 @@
+{
+ "module": "NIGHT AUDIT MODULE",
+ "subtitle": "Operations · Reports · Logs · GST · Appendix",
+ "property": "Property: Demo Property",
+ "version": "Training Manual for Night Auditor",
+ "header": "Analysis HMS — Night Audit Module Training Manual",
+ "footerText": "Analysis HMS Night Audit Training Manual | Demo Property",
+ "output": "HMS_Manuals/NightAudit/NightAudit_Module_Training_Manual_English.docx",
+ "imageRoot": ".",
+ "theme": {
+  "color": "37474F",
+  "dark": "263238",
+  "light": "ECEFF1"
+ },
+ "sections": [
+  {
+   "title": "1. Introduction & Module Overview",
+   "intro": "Night Audit is the process of closing the day's business – the hotel's 'day end'. At night a designated auditor does this:\n\n1. Verify settlements of all outlets 2. Post room charges + plan meals on in-house guests 3. Handle Departures/no-shows 4. Print Reports (Daily Report, FOCC) 5. Change software date (rollover).\n\nAnalysis Night Audit in HMS is a guided process — starts with Charges Posting (Shift+C) and is completed with Night Audit Process (Shift+N). If you make a mistake, you can rollback it from Reverse Night Audit.",
+   "subsections": [
+    {
+     "title": "Module Sections Overview",
+     "table": {
+      "headers": [
+       "Section",
+       "Purpose",
+       "Key Screens"
+      ],
+      "rows": [
+       [
+        "OPERATION",
+        "Day close process",
+        "Charges Posting (Shift+C), Night Audit Process (Shift+N), Reverse Night Audit, Account Posting"
+       ],
+       [
+        "REPORTS",
+        "Day-end reports",
+        "FOCC Report, Daily Report, Credit Report, Feedback Report, Service Request Register"
+       ],
+       [
+        "LOG",
+        "Audit trail",
+        "Night Audit Log, Charges Remove Log"
+       ],
+       [
+        "GST",
+        "Compliance",
+        "GSTR-1"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Night Audit Data Flow (Technical Understanding)",
+     "table": {
+      "headers": [
+       "Step",
+       "Database",
+       "what happened?"
+      ],
+      "rows": [
+       [
+        "Room charges post",
+        "guestfolio",
+        "Daily rent + plan meals entry on every in-house room"
+       ],
+       [
+        "Software date advance",
+        "nightauditlog",
+        "Log entry for the new business date"
+       ],
+       [
+        "No-show handling",
+        "roomocc/reservations",
+        "Update status of guests who could not arrive"
+       ],
+       [
+        "Audit trail",
+        "kotlog, sale1log",
+        "What happened that day — immutable logs"
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "2. Operations Module — Day Close Process",
+   "subsections": [
+    {
+     "title": "2.1 Charges Posting (Shift+C)",
+     "navPath": "Night Audit ▶ Operation ▶ Charges Posting",
+     "screenshot": "HMS_Manuals/NightAudit/screenshots/01_Operations/01_Charges_Posting.png",
+     "paragraph": "The first step of night audit — today's room rent + plan meals (as per CP/MAP/AP) are automatically posted on all in-house rooms. Extra charges (restaurant, laundry) are already in the folio. Manual charges can also be posted from here.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Date",
+        "On what date should the charge be posted?"
+       ],
+       [
+        "Room/Folio",
+        "Kis room pe"
+       ],
+       [
+        "Charge Head",
+        "Room Rent / Breakfast / Dinner etc."
+       ],
+       [
+        "Amount",
+        "Rate/plan based (auto) ya manual"
+       ],
+       [
+        "Post All",
+        "To all rooms in one click — bulk posting"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "2.2 Night Audit Process (Shift+N) — Main Process",
+     "navPath": "Night Audit ▶ Operation ▶ Night Audit Process",
+     "screenshot": "HMS_Manuals/NightAudit/screenshots/01_Operations/02_Night_Audit_Process.png",
+     "paragraph": "The day-close master wizard — step-by-step checks run: pending KOTs, unsettled bills, no-show processing, room charge posting verification, date rollover. The next step happens only after each step passes.",
+     "table": {
+      "headers": [
+       "Check/Step",
+       "what happened?"
+      ],
+      "rows": [
+       [
+        "Pending KOTs",
+        "By settling the pending KOT bill of any outlet first."
+       ],
+       [
+        "Unsettled bills",
+        "By clearing pending bills"
+       ],
+       [
+        "No-show",
+        "Today's non-arrived reservations no-show mark"
+       ],
+       [
+        "Charges verify",
+        "Is rent posted on all rooms?"
+       ],
+       [
+        "Date Rollover",
+        "Software date +1 — new business day starts"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "2.3 Reverse Night Audit",
+     "navPath": "Night Audit ▶ Operation ▶ Reverse Night Audit",
+     "screenshot": "HMS_Manuals/NightAudit/screenshots/01_Operations/03_Reverse_Night_Audit.png",
+     "paragraph": "Is the audit done by mistake (any charge miss/post mistake)? The first audit before reverse is rollback — the date is returned, with corrections, and then audited again. Restricted permission is available (manager/admin).",
+     "steps": [
+      "Select the date to reverse",
+      "Write the reason (saved in log)",
+      "Confirm — date rollback + charges reverse",
+      "Make the correction → run the Night Audit Process again"
+     ]
+    },
+    {
+     "title": "2.4 Account Posting",
+     "navPath": "Night Audit ▶ Operation ▶ Account Posting",
+     "screenshot": "HMS_Manuals/NightAudit/screenshots/01_Operations/04_Account_Posting.png",
+     "paragraph": "Posting the day's revenue heads to finance ledger accounts — room revenue, F&B revenue, tax heads. This is the bridge between FO/POS and the Finance module.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Revenue Head",
+        "Room Rent, F&B, Laundry etc."
+       ],
+       [
+        "Ledger Account",
+        "Which ledger will be posted in Finance?"
+       ],
+       [
+        "Amount/Period",
+        "What date range posting"
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "3. Reports Module",
+   "subsections": [
+    {
+     "title": "3.1 Day-End Reports",
+     "navPath": "Night Audit ▶ Reports",
+     "screenshot": "HMS_Manuals/NightAudit/screenshots/02_Reports/02_Daily_Report.png",
+     "caption": "Daily Report — the manager's morning report",
+     "table": {
+      "headers": [
+       "Report",
+       "what do you see"
+      ],
+      "rows": [
+       [
+        "FOCC Report",
+        "Foreign & Indian guest count — FRRO/police compliance data"
+       ],
+       [
+        "Daily Report",
+        "Manager report — occupancy, ARR, revenue, arrivals/departures, collection"
+       ],
+       [
+        "Credit Report",
+        "Credit/City ledger balances — company wise pending"
+       ],
+       [
+        "Feedback Report",
+        "Summary of guest feedback QR submissions"
+       ],
+       [
+        "Service Request Register",
+        "Guest requests — status wise"
+       ],
+       [
+        "Daily Service Summary",
+        "Service performance summary"
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "4. Logs & GST",
+   "subsections": [
+    {
+     "title": "4.1 Audit Logs",
+     "navPath": "Night Audit ▶ Log",
+     "screenshot": "HMS_Manuals/NightAudit/screenshots/03_Log_GST/01_Night_Audit_Log.png",
+     "paragraph": "Night Audit Log: When did the audit happen, who did it, what date is next. Charges Remove Log: Which charge was removed by whom — audit control. Both of these are evidence during dispute/audit.",
+     "table": {
+      "headers": [
+       "Log",
+       "Use"
+      ],
+      "rows": [
+       [
+        "Night Audit Log",
+        "Audit history — date, time, user"
+       ],
+       [
+        "Charges Remove Log",
+        "Charge deletion trail — user + reason"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "4.2 GSTR-1",
+     "navPath": "Night Audit ▶ GST Reports ▶ GSTR-1",
+     "screenshot": "HMS_Manuals/NightAudit/screenshots/03_Log_GST/03_GSTR1.png",
+     "paragraph": "Invoice-wise outward supply data in GSTR-1 format — the accountant exports it in JSON/Excel and files it on the GST portal. B2B (company GSTIN) and B2C come in separate sections.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Period",
+        "Which month's GSTR-1"
+       ],
+       [
+        "B2B/B2C",
+        "Registered vs unregistered guests invoices"
+       ],
+       [
+        "Export",
+        "Portal-ready format"
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "5. Complete Screens Gallery — Night Audit (All Captured Screens)",
+   "intro": "This gallery shows SAARI captured screens of the Night Audit module which is not covered in detail in the main sections. For revision after training — Every screen the trainee has seen before, there is a place for complete reference.",
+   "subsections": [
+    {
+     "title": "G.01 02_Reports — 01 FOCC Report",
+     "screenshot": "HMS_Manuals/NightAudit/screenshots/02_Reports/01_FOCC_Report.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.02 02_Reports — 03 Credit Report",
+     "screenshot": "HMS_Manuals/NightAudit/screenshots/02_Reports/03_Credit_Report.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.03 02_Reports — 04 Feedback Report",
+     "screenshot": "HMS_Manuals/NightAudit/screenshots/02_Reports/04_Feedback_Report.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.04 02_Reports — 05 Service Request Register",
+     "screenshot": "HMS_Manuals/NightAudit/screenshots/02_Reports/05_Service_Request_Register.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.05 02_Reports — 06 Daily Service Summary",
+     "screenshot": "HMS_Manuals/NightAudit/screenshots/02_Reports/06_Daily_Service_Summary.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.06 03_Log_GST — 02 Charges Remove Log",
+     "screenshot": "HMS_Manuals/NightAudit/screenshots/03_Log_GST/02_Charges_Remove_Log.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.07 00_Login — 01 Login Page",
+     "screenshot": "HMS_Manuals/NightAudit/screenshots/00_Login/01_Login_Page.png",
+     "para": "Screen captured from the live system — part of the complete reference gallery."
+    }
+   ]
+  },
+  {
+   "title": "6. Appendix — Night Auditor Checklist",
+   "subsections": [
+    {
+     "title": "Night Shift Checklist (in Sequence)",
+     "table": {
+      "headers": [
+       "Order",
+       "Task",
+       "Screen"
+      ],
+      "rows": [
+       [
+        "1",
+        "By clearing unsettled bills of all outlets",
+        "Settlement Entry (POS)"
+       ],
+       [
+        "2",
+        "By checking Pending KOTs",
+        "Pending KOT (POS)"
+       ],
+       [
+        "3",
+        "Have today's expected departures settled?",
+        "Expected CheckOut (FO)"
+       ],
+       [
+        "4",
+        "Mark non-arrivals (no-show)",
+        "Reservation List (FO)"
+       ],
+       [
+        "5",
+        "Charges posting — rent + meals",
+        "Charges Posting (Shift+C)"
+       ],
+       [
+        "6",
+        "Cash/counter summary match",
+        "Cashier Reports"
+       ],
+       [
+        "7",
+        "Run the Night Audit Process",
+        "Night Audit (Shift+N)"
+       ],
+       [
+        "8",
+        "Print the Daily Report + FOCC",
+        "Reports"
+       ],
+       [
+        "9",
+        "Account posting verify",
+        "Account Posting"
+       ],
+       [
+        "10",
+        "Check the log entry — all fine?",
+        "Night Audit Log"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Common Scenarios (Training Q&A)",
+     "table": {
+      "headers": [
+       "Scenario",
+       "what to do"
+      ],
+      "rows": [
+       [
+        "Audit chalte waqt pending KOT dikha",
+        "Before stopping, bill/void us KOT in POS, then audit resume."
+       ],
+       [
+        "Rent of any room has not been posted",
+        "Reverse the audit or post to that room manually via Charges Posting"
+       ],
+       [
+        "The date passed at half past two but someone missed the bill.",
+        "Reverse Night Audit → correction → re-audit"
+       ],
+       [
+        "No-show guest arrived later",
+        "Set status back to confirm in the Reservation List → check-in (or new booking)"
+       ],
+       [
+        "Revenue mismatch in account posting",
+        "Verify revenue heads vs ledger mapping — FA Parameter"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Troubleshooting",
+     "table": {
+      "headers": [
+       "Issue",
+       "Cause",
+       "Solution"
+      ],
+      "rows": [
+       [
+        "Night audit process ruk goes is",
+        "Pending bills/KOT",
+        "Read Wizard's error message - go to that screen and clear it."
+       ],
+       [
+        "Double advance got booked for the date",
+        "Audit do baar chala",
+        "Roll back via reverse audit"
+       ],
+       [
+        "Charges duplicate posts",
+        "Double posting",
+        "Check the Charges Remove Log, remove the charges (will appear in the log)"
+       ],
+       [
+        "Invoice missing in GSTR-1",
+        "Bill date period spring",
+        "select period correctly"
+       ],
+       [
+        "Company not in credit report",
+        "Bill was settled directly",
+        "Verify the city ledger posting"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Contact & Support",
+     "table": {
+      "headers": [
+       "Contact",
+       "Details"
+      ],
+      "rows": [
+       [
+        "Website",
+        "https://analysishms.com"
+       ],
+       [
+        "Support Email",
+        "support@analysishms.com"
+       ],
+       [
+        "Phone",
+        "+91 9161380170"
+       ],
+       [
+        "Training Login",
+        "Use your assigned User ID and Password"
+       ],
+       [
+        "Software Version",
+        "Analysis HMS "
+       ]
+      ]
+     }
+    }
+   ]
+  }
+ ]
+}

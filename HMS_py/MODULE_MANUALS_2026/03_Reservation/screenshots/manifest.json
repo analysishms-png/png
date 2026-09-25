@@ -1,0 +1,51 @@
+{
+  "module": "03_Reservation",
+  "generated_at": "2026-09-25T12:12:35",
+  "sidebar": "reservation",
+  "items": [
+    {
+      "leaf": "Booking Operations",
+      "layer": "operations",
+      "file": "10_operations_Booking_Operations.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "Reservation/Cancellation",
+      "layer": "operations",
+      "file": "20_operations_Reservation-Cancellation.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "Reservation With History",
+      "layer": "operations",
+      "file": "30_operations_Reservation_With_History.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "Reservation Status Report",
+      "layer": "reports",
+      "file": "40_reports_Reservation_Status_Report.png",
+      "status": "skipped_messagebox"
+    },
+    {
+      "leaf": "Reservation Status",
+      "layer": "reports",
+      "file": "50_reports_Reservation_Status.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "Reservation Status Arrival",
+      "layer": "reports",
+      "file": "60_reports_Reservation_Status_Arrival.png",
+      "status": "skipped_messagebox"
+    },
+    {
+      "leaf": "Reservation Status In-House",
+      "layer": "reports",
+      "file": "70_reports_Reservation_Status_In-House.png",
+      "status": "skipped_messagebox"
+    }
+  ],
+  "failed": [],
+  "shell": "00_shell_module.png"
+}

@@ -1,0 +1,68 @@
+================================================================================
+   ANALYSIS HMS - CROSS-CUTTING (Multiple Modules) MODULE : BUG REPORT (TESTER FORMAT)
+================================================================================
+Property: Demo Property | Report Date: 21-Sep-2026 | Round: 1 + 2 (Demo entries)
+Method: Manual UI testing on live app - demo entries, empty submits, duplicates,
+        report fetches. Source code sirf root-cause confirm karne ke liye dekha.
+================================================================================
+
+TOTAL BUGS: 3
+
+--------------------------------------------------------------------------------
+[X-01] 5+ modules me required dropdowns page-load par hi 'invalid' dikhti hain
+Severity : HIGH
+Screen   : POS Outlet, Inventory (Requisition/Opening), Finance Ledger, HR Salary, Reservation
+
+Steps:
+1. Koi bhi form kholo bina kuch kiye
+2. Required selects dekho
+
+Expected: Validation highlight sirf submit attempt ke baad.
+
+Actual (BUG): Load par hi underlined/invalid state - same framework-wide pattern.
+
+Impact: Professional look kharab; user ko lagta hai form already galat bhara hai. Ek CSS/JS fix se sab modules theek.
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+[X-02] Support/Ticket widget har page par upar chhaya rehta hai
+Severity : MEDIUM
+Screen   : Saare screens (bottom-right headset)
+
+Steps:
+1. Koi bhi screen kholo
+2. HK Laundry Send me submit karo
+
+Expected: Widget chhupa ho, sirf click par khule; forms ke saath interfere na kare.
+
+Actual (BUG): Har page par prominent; HK Laundry me submit karte hi auto-open ho jata tha (focus chura leta hai).
+
+Impact: Data-entry disturbance; HK silent-fail ke saath milakar confuse karta hai.
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+[X-03] Kayi masters SILENT save karte hain (success message nahi)
+Severity : MEDIUM
+Screen   : HR Designation, HK Floor, HK Lost & Found, Start/Complete Cleaning
+
+Steps:
+1. Designation banao / Floor banao / L&F entry karo
+
+Expected: Har save par visible confirmation.
+
+Actual (BUG): Kuch masters me popup hai (Business Source, Table Master) par kuch me bilkul silent (Designation, Floor, L&F). Inconsistent pattern.
+
+Impact: Duplicate entries + user confusion. Ek standard toast pattern sab jagah lagao.
+
+--------------------------------------------------------------------------------
+
+================================================================================
+  JO SAHI KAAM KAR RAHA HAIN (VERIFIED)
+================================================================================
+  [OK] Login flow stable (dono rounds me kaam kiya)
+  [OK] Navigation/menu saare 13 modules ke pages tak pahuncha
+  [OK] Har module me kam-se-kam ek data-entry + ek report screen test hua
+
+================================================================================
+END OF CROSS-CUTTING (Multiple Modules) BUG REPORT
+================================================================================

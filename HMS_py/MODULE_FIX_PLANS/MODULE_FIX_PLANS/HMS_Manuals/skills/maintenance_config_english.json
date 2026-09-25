@@ -1,0 +1,342 @@
+{
+ "module": "MAINTENANCE MODULE",
+ "subtitle": "Masters · Workflow · Appendix",
+ "property": "Property: Demo Property",
+ "version": "Training Manual for Engineering/Maintenance Team",
+ "header": "Analysis HMS — Maintenance Module Training Manual",
+ "footerText": "Analysis HMS Maintenance Training Manual | Demo Property",
+ "output": "HMS_Manuals/Maintenance/Maintenance_Module_Training_Manual_English.docx",
+ "imageRoot": ".",
+ "theme": {
+  "color": "546E7A",
+  "dark": "37474F",
+  "light": "ECEFF1"
+ },
+ "sections": [
+  {
+   "title": "1. Introduction & Module Overview",
+   "intro": "The Maintenance module is the system for the hotel's assets (AC, geyser, lights, lift, generator) and their repairs. Maintenance requests for guest rooms, public areas and the kitchen are tracked.\n\nMAINTENANCE FLOW: Register assets (Location + Asset Master) → Complaint/request received (in the room or from HK/FO) → Technician assigned → Repair complete → Asset history. The preventive maintenance schedule is also tracked.",
+   "subsections": [
+    {
+     "title": "Module Sections Overview",
+     "table": {
+      "headers": [
+       "Section",
+       "Purpose",
+       "Key Screens"
+      ],
+      "rows": [
+       [
+        "MASTERS",
+        "Assets & locations register",
+        "Location Master, Assets Master"
+       ],
+       [
+        "WORKFLOW",
+        "Repair process",
+        "Maintenance Master (HK linked), Service Master"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Key Benefits",
+     "bullets": [
+      "Asset-wise complete repair history",
+      "HK/FO integration of room maintenance — track OOO/blocked rooms",
+      "Service requests also come from QR portal (guest portal)",
+      "Preventive maintenance reminders"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "2. Masters Module",
+   "subsections": [
+    {
+     "title": "2.1 Location Master",
+     "navPath": "Maintenance ▶ Location Master",
+     "screenshot": "HMS_Manuals/Maintenance/screenshots/01_Masters/01_Location_Master.png",
+     "paragraph": "Maintenance locations of the property — Guest Rooms (floor-wise), Lobby, Restaurant, Kitchen, Pool, Generator Room, Lifts etc. Complaints and assets are tagged to this location.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Location Name",
+        "Room 201 / Main Kitchen / Rooftop"
+       ],
+       [
+        "Type",
+        "Room / Public Area / Back Area"
+       ],
+       [
+        "Active",
+        "Is the location in use or not?"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "2.2 Assets Master",
+     "navPath": "Maintenance ▶ Assets Master",
+     "screenshot": "HMS_Manuals/Maintenance/screenshots/01_Masters/02_Assets_Master.png",
+     "paragraph": "Record of every asset — AC unit, geyser, TV, kettle, lift, pump. Asset code, location, brand/model, purchase date, warranty, AMC details. Repair history attaches here. Excel export is also available.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Asset Code/Name",
+        "Unique ID + name (AC-201, Geyser-305)"
+       ],
+       [
+        "Location",
+        "Where is it installed"
+       ],
+       [
+        "Brand/Model/Serial",
+        "Make details"
+       ],
+       [
+        "Purchase/Warranty",
+        "When purchased, how long is the warranty?"
+       ],
+       [
+        "AMC",
+        "Annual maintenance contract details"
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "3. Workflow Module",
+   "subsections": [
+    {
+     "title": "3.1 Maintenance Master (HK Integration)",
+     "navPath": "Maintenance ▶ Maintenance Master (via HK)",
+     "screenshot": "HMS_Manuals/Maintenance/screenshots/02_Workflow/01_Maintenance_Master.png",
+     "paragraph": "Register of Room-wise maintenance complaints — Housekeeping or FO raises complaint (AC on room is bad etc.), technician updates status (Pending → In Progress → Done). Room block/OOO is also managed here.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Room/Location",
+        "where is the problem"
+       ],
+       [
+        "Complaint",
+        "what is the issue"
+       ],
+       [
+        "Reported By",
+        "HK/FO/Guest request"
+       ],
+       [
+        "Assigned To",
+        "Which technician"
+       ],
+       [
+        "Status",
+        "Pending / In-Progress / Resolved"
+       ],
+       [
+        "Room Status Impact",
+        "Resolve hone tak room OOO/Block"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.2 Service Master",
+     "navPath": "Maintenance ▶ Service Master",
+     "screenshot": "HMS_Manuals/Maintenance/screenshots/02_Workflow/02_Service_Master.png",
+     "paragraph": "Service types by defining — Electrical, Plumbing, AC, Carpentry, IT. Complaint category comes from here, for department wise assignment.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Service Name",
+        "AC Service / Plumbing / Electrical"
+       ],
+       [
+        "Department",
+        "Engineering team mapping"
+       ],
+       [
+        "Active",
+        "Not in use"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.3 Complaint-to-Resolution Flow (Training Flow)",
+     "steps": [
+      "Complaint received — from HK/FO/Guest portal (or create it yourself)",
+      "Register the complaint in Maintenance Master — location + service type",
+      "Assign the technician — status In-Progress",
+      "If material was used, requisition it (from the Inventory module)",
+      "Repair complete — status Resolved + remarks",
+      "Room was to HK please inform — room status update (for cleaning)"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "4. Complete Screens Gallery — Maintenance (All Captured Screens)",
+   "intro": "This gallery is a reference to the captured screens throughout the Maintenance module — for training revision.",
+   "subsections": [
+    {
+     "title": "G.01 00_Login — 01 Login Page",
+     "screenshot": "HMS_Manuals/Maintenance/screenshots/00_Login/01_Login_Page.png",
+     "para": "Screen captured from the live system — part of the complete reference gallery."
+    }
+   ]
+  },
+  {
+   "title": "5. Appendix",
+   "subsections": [
+    {
+     "title": "Engineering Team Daily Workflow",
+     "table": {
+      "headers": [
+       "Time",
+       "Activity",
+       "Screen"
+      ],
+      "rows": [
+       [
+        "Morning",
+        "View the list of pending complaints",
+        "Maintenance Master"
+       ],
+       [
+        "All day",
+        "Assign and resolve complaints",
+        "Maintenance Master"
+       ],
+       [
+        "All day",
+        "Room LLC/block manage with FO",
+        "Maintenance Master + FO Room Status"
+       ],
+       [
+        "Weekly",
+        "Preventive maintenance (AC filter, pumps)",
+        "Assets Master"
+       ],
+       [
+        "Monthly",
+        "Track AMC vendor visits",
+        "Assets Master (AMC field)"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Common Scenarios (Training Q&A)",
+     "table": {
+      "headers": [
+       "Scenario",
+       "what to do"
+      ],
+      "rows": [
+       [
+        "AC faulty in the guest room",
+        "Create the complaint, mark the room OOO/blocked if the repair is long, and inform FO to provide an alternate room"
+       ],
+       [
+        "Asset sent outside for repair",
+        "Gate Pass Exit (Inventory) + asset pe remark"
+       ],
+       [
+        "Same complaint baar baar",
+        "Review asset history — suggest replacement"
+       ],
+       [
+        "Request received from the guest portal",
+        "Accept in the Service Desk / Service Request Register"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Troubleshooting",
+     "table": {
+      "headers": [
+       "Issue",
+       "Cause",
+       "Solution"
+      ],
+      "rows": [
+       [
+        "Complaint is not saving",
+        "Location/Service not selected",
+        "Fill in both mandatory fields"
+       ],
+       [
+        "Asset is not visible in the list",
+        "Wrong location filter",
+        "View by using Location filter 'All'."
+       ],
+       [
+        "Room LLC status is not shown in FO",
+        "Room was not blocked",
+        "Block the room from Maintenance or manually from FO"
+       ],
+       [
+        "Excel export khali",
+        "No data in filters",
+        "Check the date range/location filters"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Contact & Support",
+     "table": {
+      "headers": [
+       "Contact",
+       "Details"
+      ],
+      "rows": [
+       [
+        "Website",
+        "https://analysishms.com"
+       ],
+       [
+        "Support Email",
+        "support@analysishms.com"
+       ],
+       [
+        "Phone",
+        "+91 9161380170"
+       ],
+       [
+        "Training Login",
+        "Use your assigned User ID and Password"
+       ],
+       [
+        "Software Version",
+        "Analysis HMS "
+       ]
+      ]
+     }
+    }
+   ]
+  }
+ ]
+}

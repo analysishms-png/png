@@ -1,0 +1,117 @@
+{
+  "module": "04_FrontOffice",
+  "generated_at": "2026-09-25T10:42:37",
+  "sidebar": "front office",
+  "items": [
+    {
+      "leaf": "Guest Profile",
+      "layer": "masters",
+      "file": "10_masters_Guest_Profile.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "Guest Registration",
+      "layer": "masters",
+      "file": "20_masters_Guest_Registration.png",
+      "status": "skipped_messagebox"
+    },
+    {
+      "leaf": "Room Master",
+      "layer": "masters",
+      "file": "30_masters_Room_Master.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "Room Category",
+      "layer": "masters",
+      "file": "40_masters_Room_Category.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "Plan Master",
+      "layer": "masters",
+      "file": "50_masters_Plan_Master.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "Check In",
+      "layer": "operations",
+      "file": "60_operations_Check_In.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "Check In Browser",
+      "layer": "operations",
+      "file": "70_operations_Check_In_Browser.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "Check Out",
+      "layer": "operations",
+      "file": "80_operations_Check_Out.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "Booking Operations",
+      "layer": "operations",
+      "file": "90_operations_Booking_Operations.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "Room Change",
+      "layer": "operations",
+      "file": "100_operations_Room_Change.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "Folio Log",
+      "layer": "operations",
+      "file": "110_operations_Folio_Log.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "Room Check Out",
+      "layer": "operations",
+      "file": "120_operations_Room_Check_Out.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "Guest Services",
+      "layer": "operations",
+      "file": "130_operations_Guest_Services.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "Room Status",
+      "layer": "reports",
+      "file": "140_reports_Room_Status.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "Room Display",
+      "layer": "reports",
+      "file": "150_reports_Room_Display.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "Reservation Status Report",
+      "layer": "reports",
+      "file": "160_reports_Reservation_Status_Report.png",
+      "status": "skipped_messagebox"
+    },
+    {
+      "leaf": "Guest History",
+      "layer": "reports",
+      "file": "170_reports_Guest_History.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "Guest Ledger",
+      "layer": "reports",
+      "file": "180_reports_Guest_Ledger.png",
+      "status": "ok"
+    }
+  ],
+  "failed": [],
+  "shell": "00_shell_module.png"
+}

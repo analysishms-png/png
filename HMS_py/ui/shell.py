@@ -574,6 +574,7 @@ class MainSetupWorkbench(QDialog):
                 "Room Features", "Godown Master", "Voucher Environment",
                 "FA Environment", "Parameter", "Printing Setup",
                 "Voucher Category", "Voucher Type", "eInvoice Config",
+                "Revenue Group Setting", "Revenue Wise Budget Entry",
             ]),
              ("Finance & Reports", [
                  "Tax Master", "Tax Structure", "Payment Type", "Market Segment",
@@ -1056,9 +1057,11 @@ def _form_registry() -> dict[str, callable]:
         "Main Setup": _open_main_setup,
         # P4-a Front Office:
         "Guest Profile": lambda w: fo.open_guestprof(w),
-        "Check In": lambda w: fo.open_checkin(w, user=getattr(w, 'user', 'PYADMIN')),
-        "Check-In": lambda w: fo.open_checkin(w, user=getattr(w, 'user', 'PYADMIN')),
-        "Checkin": lambda w: fo.open_checkin(w, user=getattr(w, 'user', 'PYADMIN')),
+        "Check In": (lambda w: wrui.open_walkin_entry(w, user=getattr(w, 'user', 'PYADMIN'))) if wrui else _coming_soon("Check In"),
+        "Check-In": (lambda w: wrui.open_walkin_entry(w, user=getattr(w, 'user', 'PYADMIN'))) if wrui else _coming_soon("Check-In"),
+        "Checkin": (lambda w: wrui.open_walkin_entry(w, user=getattr(w, 'user', 'PYADMIN'))) if wrui else _coming_soon("Checkin"),
+        "Check In Browser": lambda w: fo.open_checkin(w, user=getattr(w, 'user', 'PYADMIN')),
+        "Check-In Browser": lambda w: fo.open_checkin(w, user=getattr(w, 'user', 'PYADMIN')),
         # P5 POS + Night Audit:
         "KOT Entry": (lambda w: kot.open_kot_entry(w, user=getattr(w, 'user', 'PYADMIN'))) if kot else None,
         "POS Status": _pos,
@@ -1100,7 +1103,7 @@ def _form_registry() -> dict[str, callable]:
         "Check Out": (lambda w: fo2.open_checkout(w, user=getattr(w, 'user', 'PYADMIN'))) if fo2 else None,
         "Check-Out": (lambda w: fo2.open_checkout(w, user=getattr(w, 'user', 'PYADMIN'))) if fo2 else None,
         "Checkout": (lambda w: fo2.open_checkout(w, user=getattr(w, 'user', 'PYADMIN'))) if fo2 else None,
-        "WalkIn CheckIn": lambda w: fo.open_checkin(w, user=getattr(w, 'user', 'PYADMIN')),
+        "WalkIn CheckIn": (lambda w: wrui.open_walkin_entry(w, user=getattr(w, 'user', 'PYADMIN'))) if wrui else _coming_soon("WalkIn CheckIn"),
         "Reverse Check Out": (lambda w: fo2.open_checkout(w, user=getattr(w, 'user', 'PYADMIN'), reverse=True)) if fo2 else _coming_soon("Reverse Check Out"),
         "Room Status": (lambda w: rs_ui.open_roomstatus(w, user=getattr(w, 'user', 'PYADMIN'))) if rs_ui else None,
         "House Keeping Screen": (lambda w: rs_ui.open_roomstatus(w, user=getattr(w, 'user', 'PYADMIN'))) if rs_ui else None,
@@ -1135,11 +1138,12 @@ def _form_registry() -> dict[str, callable]:
         # Wave 3: Members Mgmt masters
         "Member Category":   (lambda w: hr.open_memcat(w)) if hr else None,
         "Facility Master":   (lambda w: hr.open_facility(w)) if hr else None,
-        "Revenue Master":    (lambda w: hr.open_memrev(w)) if hr else None,
+        "Revenue Master":    (lambda w: hr.open_memrev(w, user=getattr(w, "user", "SA"))) if hr else None,
         # Wave 3: General Setup masters
         "Room Features":     (lambda w: gs.open_roomfeature(w)) if gs else None,
         "Godown Master":     (lambda w: gs.open_godown(w)) if gs else None,
         "Voucher Environment": (lambda w: gs.open_vouchertype(w)) if gs else None,
+        "Voucher Type": (lambda w: gs.open_vouchertype(w)) if gs else None,
         "FA Environment":    (lambda w: gs.open_enviro(w)) if gs else None,
         "Guest Parameters Setting": (lambda w: gs.open_guestparam(w)) if gs else None,
         "Voucher Category":  (lambda w: gs.open_vouchcat(w)) if gs else None,
@@ -1192,10 +1196,10 @@ def _form_registry() -> dict[str, callable]:
         # Pending (minimal - only truly missing tables):
         "Tax Structure": (lambda w: tsu.open_taxstru(w)) if tsu else None,
         "Parameter": _open_enviro,
-        "Revenue Group Setting": (lambda w: revbud_ui.open_revenue_budget(w)) if revbud_ui else _coming_soon("Revenue Group Setting"),
+        "Revenue Group Setting": (lambda w: revbud_ui.open_revenue_group(w)) if revbud_ui else _coming_soon("Revenue Group Setting"),
         "Printing Parameters": (lambda w: gs.open_printing(w)) if gs else None,
         "Printing Setup": (lambda w: gs.open_printing(w)) if gs else None,
-        "Revenue Wise Budget Entry": (lambda w: revbud_ui.open_revenue_budget(w)) if revbud_ui else _coming_soon("Revenue Wise Budget Entry"),
+        "Revenue Wise Budget Entry": (lambda w: revbud_ui.open_revenue_budget_entry(w)) if revbud_ui else _coming_soon("Revenue Wise Budget Entry"),
         "Guest History": (lambda w: ghu.open_guest_history(w, user=getattr(w, 'user', 'PYADMIN'))) if ghu else None,
         "Room Display": (lambda w: rs_ui.open_roomstatus(w, user=getattr(w, 'user', 'PYADMIN'))) if rs_ui else None,
         "Update Database Nulls": (lambda w: dbmaint_ui.open_db_maintenance(w)) if dbmaint_ui else _coming_soon("Update Database Nulls"),

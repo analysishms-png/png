@@ -1,0 +1,666 @@
+{
+ "module": "INVENTORY MODULE",
+ "subtitle": "Master · Operations · Reports · MIS · Appendix",
+ "property": "Property: Demo Property",
+ "version": "Training Manual for Store/Purchase Staff",
+ "header": "Analysis HMS — Inventory Module Training Manual",
+ "footerText": "Analysis HMS Inventory Training Manual | Demo Property",
+ "output": "HMS_Manuals/Inventory/Inventory_Module_Training_Manual_English.docx",
+ "imageRoot": ".",
+ "theme": {
+  "color": "6A1B9A",
+  "dark": "4A148C",
+  "light": "F3E5F5"
+ },
+ "sections": [
+  {
+   "title": "1. Introduction & Module Overview",
+   "intro": "The Inventory module is the hotel's store and purchase system — from vegetables to amenities, the stock of all items is tracked.\n\nIn Analysis HMS the inventory flow: Quotation/Indent → Purchase Order → Material Receive (MR) → Purchase Bill (stock in) → Requisition → Stock Issue (stock out) → Reports (register, summary, movement). Kitchen/Outlet consumption is deducted automatically from POS sales on a recipe basis (through the Recipe Master).\n\nPURCHASE CYCLE (Training Flow):\nNeed identified → Indent → Quotations compared → PO issued → Material Receive → Purchase Bill entry → Payment (Finance) — and the consumption side: Department requisition → Stock issue → Stock reports",
+   "subsections": [
+    {
+     "title": "Module Sections Overview",
+     "table": {
+      "headers": [
+       "Section",
+       "Purpose",
+       "Key Screens"
+      ],
+      "rows": [
+       [
+        "MASTER (Main Setup)",
+        "Items, parties, opening stock",
+        "Party Master, Item Group/Category/Entry, Opening Stock, Recipe Master"
+       ],
+       [
+        "OPERATION",
+        "Purchase + issue cycle",
+        "Quotation, Indent, PO, MR Entry, Purchase Bill, Stock Transfer, Requisition, Stock Issue"
+       ],
+       [
+        "REPORTS",
+        "Stock position",
+        "Stock Register/Summary/In Hand, Purchase Register/Summary"
+       ],
+       [
+        "MIS",
+        "Consumption analysis",
+        "Stock Movement, Kitchen-wise Issue & Sale"
+       ],
+       [
+        "GATE PASS",
+        "Inward/outward control",
+        "Gate Pass Exit, Security Check, Inward Details"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Inventory Data Flow (Technical Understanding)",
+     "table": {
+      "headers": [
+       "what are you doing",
+       "Database",
+       "what happened?"
+      ],
+      "rows": [
+       [
+        "create item",
+        "itemmast/itemgrp/itemcatmast",
+        "Item code, group, category, unit"
+       ],
+       [
+        "MR entry (goods received)",
+        "stock tables",
+        "Stock IN — qty + rate + batch"
+       ],
+       [
+        "With stock issue",
+        "stock tables",
+        "Stock OUT — department wise consumption"
+       ],
+       [
+        "Purchase bill",
+        "purchase tables",
+        "Vendor bill — stock in + finance liability"
+       ],
+       [
+        "Rate update",
+        "itemrate",
+        "Latest purchase rate — costing base"
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "2. Master Module — Items & Parties",
+   "subsections": [
+    {
+     "title": "2.1 Party Master (Vendors/Suppliers)",
+     "navPath": "Main Setup ▶ Inventory ▶ Party Master",
+     "screenshot": "HMS_Manuals/Inventory/screenshots/03_Master/01_Party_Master.png",
+     "paragraph": "Suppliers/vendors master — name, address, GSTIN, payment terms, TDS category. This is where the party is selected in the Purchase Order and Purchase Bill.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description",
+       "Example"
+      ],
+      "rows": [
+       [
+        "Party Name",
+        "Vendor's name",
+        "Sharma Vegetable Traders"
+       ],
+       [
+        "GSTIN / Address",
+        "Compliance data",
+        "GST number, city"
+       ],
+       [
+        "Payment Terms",
+        "Credit period",
+        "7 days / Cash on delivery"
+       ],
+       [
+        "TDS Category",
+        "TDS as per vendor type",
+        "194C - Contractor"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "2.2 Item Group / Category / Item Entry",
+     "navPath": "Main Setup ▶ Inventory ▶ Item Group / Item Category / Item Entry",
+     "screenshot": "HMS_Manuals/Inventory/screenshots/03_Master/04_Item_Entry.png",
+     "paragraph": "Items hierarchy: Group (Vegetables/Dairy/Cleaning) → Category (fine detail) → Item entry (code, unit, rate, min stock level, store). The raw items of the dish are defined in Recipe Master — for auto-deduction on sale.",
+     "table": {
+      "headers": [
+       "Setup",
+       "Fields"
+      ],
+      "rows": [
+       [
+        "Item Group",
+        "Group name, type (Food/General/Liquor)"
+       ],
+       [
+        "Item Category",
+        "Categories under the group"
+       ],
+       [
+        "Item Entry",
+        "Item name, code, group/category, unit (Kg/Ltr/Pcs), min level, store"
+       ],
+       [
+        "Opening Stock",
+        "Item wise starting qty + rate (at the time of system start)"
+       ],
+       [
+        "Recipe Master",
+        "Dish → raw items + qty (1 plate Paneer = 200g paneer + 50g butter...)"
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "3. Operations Module — Purchase & Issue Cycle",
+   "subsections": [
+    {
+     "title": "3.1 Quotation & Indent",
+     "navPath": "Inventory ▶ Operation ▶ Quotation / Indent",
+     "screenshot": "HMS_Manuals/Inventory/screenshots/01_Operations/01_Quotation.png",
+     "paragraph": "Quotation: Record the rates received from vendors (for comparison). Indent: department's requirement — how much item is required. PO is issued after indent is approved.",
+     "table": {
+      "headers": [
+       "Screen",
+       "Use"
+      ],
+      "rows": [
+       [
+        "Quotation",
+        "Vendor, item, rate, validity — to compare"
+       ],
+       [
+        "Indent",
+        "Department, item, required qty, required date — approval workflow"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.2 Purchase Order (PO)",
+     "navPath": "Inventory ▶ Operation ▶ Purchase Order",
+     "screenshot": "HMS_Manuals/Inventory/screenshots/01_Operations/03_Purchase_Order.png",
+     "paragraph": "Issue PO with approved indent/quotations – print to send to vendor. The material has been received on PO (see PO reference in MR).",
+     "steps": [
+      "Open the PO screen → select the vendor",
+      "Load items from the indent or add manually",
+      "Please verify the rates (as per quotation)",
+      "Save + Print — send to the vendor"
+     ]
+    },
+    {
+     "title": "3.3 M R Entry (Material Receive)",
+     "navPath": "Inventory ▶ Operation ▶ M R Entry",
+     "screenshot": "HMS_Manuals/Inventory/screenshots/01_Operations/04_MR_Entry.png",
+     "paragraph": "Goods arrive at receive entry — receive qty against PO, check quality, note short/damage. This is the document of stock IN.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "PO No./Vendor",
+        "On what order did the material come?"
+       ],
+       [
+        "Item/Qty/Rate",
+        "How much did you come, at what rate?"
+       ],
+       [
+        "Challan No.",
+        "Vendor challan reference"
+       ],
+       [
+        "Short/Excess/Damage",
+        "Quality check remarks"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.4 Purchase Bill",
+     "navPath": "Inventory ▶ Operation ▶ Purchase Bill",
+     "screenshot": "HMS_Manuals/Finance/screenshots/01_Transaction/01_Voucher_Entry.png",
+     "caption": "Purchase Bill entry screen",
+     "paragraph": "Vendor's actual bill entry — MR's against bill amount, tax (GST input credit), sundry charges. This entry is made as stock value + vendor liability (payable in finance). Duplicate bill check also happens (same bill no. block).",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Vendor + Bill No./Date",
+        "Bill identity — duplicate check is performed"
+       ],
+       [
+        "MR Reference",
+        "What to receive against bill"
+       ],
+       [
+        "Item Amounts + GST",
+        "Taxable value, CGST/SGST input credit"
+       ],
+       [
+        "Sundry (Freight etc.)",
+        "Add extra charges to landed cost"
+       ],
+       [
+        "Total Payable",
+        "How much does the vendor have to pay?"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.5 Requisition Slip → Approval → Stock Issue",
+     "navPath": "Inventory ▶ Operation ▶ Requisition Slip / Approved Requisition / Stock Issue",
+     "screenshot": "HMS_Manuals/Inventory/screenshots/01_Operations/07_Requisition_Slip.png",
+     "paragraph": "Departments (Kitchen, HK, F&B) request material from the store: create a Requisition Slip → store manager approves (Approved Requisition screen) → material is issued on Stock Issue. Stock is consumed department-wise.",
+     "steps": [
+      "Requisition Slip — department, items, qty maango",
+      "Approved Requisition — store manager approves/rejects",
+      "Stock Issue on Requisition — with approved slip pe issue (stock out)"
+     ]
+    },
+    {
+     "title": "3.6 Stock Transfer",
+     "navPath": "Inventory ▶ Operation ▶ Stock Transfer",
+     "screenshot": "HMS_Manuals/Inventory/screenshots/01_Operations/06_Stock_Transfer.png",
+     "paragraph": "Send stock from one store/department to another — Main Store → Kitchen, or Kitchen → Bar. Qty is adjusted at both places (from minus, to plus).",
+     "steps": [
+      "Select the from store/location",
+      "By selecting store/location",
+      "Add items + qty → Save/Print"
+     ]
+    },
+    {
+     "title": "3.7 Kitchen Closing Stock Entry",
+     "navPath": "Inventory ▶ Operation ▶ Kitchen Closing Stock",
+     "screenshot": "HMS_Manuals/Inventory/screenshots/01_Operations/10_Kitchen_Closing_Stock.png",
+     "paragraph": "Physical count entry of night's closing stock in the kitchen — this is necessary to calculate daily consumption (Issue - Closing = Actual Consumption). Wastage/variance is thus tracked.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Date",
+        "Closing as of which date"
+       ],
+       [
+        "Item + Qty",
+        "How much is left physically in the kitchen?"
+       ],
+       [
+        "Department",
+        "Which kitchen/outlet"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.8 Gate Pass Exit (Security Control)",
+     "navPath": "Inventory ▶ Gate Pass ▶ Gate Pass Exit",
+     "screenshot": "HMS_Manuals/Inventory/screenshots/01_Operations/11_Gate_Pass_Exit.png",
+     "paragraph": "Gate pass for goods going out from the hotel (repair, return, transfer) — this pass is checked at the security gate. No food comes without a pass.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Item + Qty",
+        "What's going on?"
+       ],
+       [
+        "Reason",
+        "Repair / Return / Transfer"
+       ],
+       [
+        "Return Date",
+        "When will it come back (under repair)"
+       ],
+       [
+        "Authorized By",
+        "Who approved?"
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "4. Reports Module",
+   "subsections": [
+    {
+     "title": "4.1 Stock & Purchase Reports",
+     "navPath": "Inventory ▶ Reports",
+     "screenshot": "HMS_Manuals/Inventory/screenshots/02_Reports/01_Stock_Register.png",
+     "caption": "Stock Register",
+     "table": {
+      "headers": [
+       "Report",
+       "what do you see"
+      ],
+      "rows": [
+       [
+        "Stock Register",
+        "Item-wise IN/OUT/Closing — date wise detail"
+       ],
+       [
+        "Stock Summary",
+        "Item + group wise consolidated stock"
+       ],
+       [
+        "Stock In Hand",
+        "Today's live stock — with valuation"
+       ],
+       [
+        "Issue Check List",
+        "Which item where issued — audit list"
+       ],
+       [
+        "Purchase Register",
+        "Date/vendor wise saari purchases — for GST input"
+       ],
+       [
+        "Purchase Summary",
+        "Vendor/item wise purchase totals"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "4.2 MIS Reports",
+     "navPath": "Inventory ▶ MIS",
+     "screenshot": "HMS_Manuals/Inventory/screenshots/04_MIS/02_Kitchenwise_Issue_Sale.png",
+     "paragraph": "Stock Movement: Complete journey of the item (receive → transfer → issue). Kitchen-wise Issue & Sale: What was the issue in the kitchen vs how much was sold — variance/wastage analysis. This is the core report of food cost control.",
+     "table": {
+      "headers": [
+       "Report",
+       "Use"
+      ],
+      "rows": [
+       [
+        "Stock Movement Report",
+        "Item-wise complete movement trail"
+       ],
+       [
+        "Kitchen Wise Issue & Sale",
+        "Issue qty vs sold qty — gap = wastage/theft check"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "4.3 Gate Pass (Inward/Outward Control)",
+     "navPath": "Inventory ▶ Gate Pass",
+     "screenshot": "HMS_Manuals/Inventory/screenshots/02_Reports/05_Purchase_Summary.png",
+     "caption": "Gate Pass related screens",
+     "paragraph": "Gate Pass Exit: Items to be taken out of the hotel (repair, return) — print pass for security check. Inward Details / Receiving Department: Record of the food coming from spring. These passes are checked at the security gate.",
+     "table": {
+      "headers": [
+       "Screen",
+       "Use"
+      ],
+      "rows": [
+       [
+        "Gate Pass Exit",
+        "Pass for items that are not available — reason + return date"
+       ],
+       [
+        "Security Check",
+        "Gate pe pass verify meat no screen"
+       ],
+       [
+        "Inward Details",
+        "Inward record of return/coming items"
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "5. Complete Screens Gallery — Inventory (All Captured Screens)",
+   "intro": "This gallery shows SAARI captured screens of the Inventory module which is not covered in detail in the main sections. For revision after training — Every screen the trainee has seen before, there is a place for complete reference.",
+   "subsections": [
+    {
+     "title": "G.01 01_Operations — 02 Indent",
+     "screenshot": "HMS_Manuals/Inventory/screenshots/01_Operations/02_Indent.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.02 01_Operations — 05 Purchase Bill",
+     "screenshot": "HMS_Manuals/Inventory/screenshots/01_Operations/05_Purchase_Bill.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.03 01_Operations — 08 Stock Issue",
+     "screenshot": "HMS_Manuals/Inventory/screenshots/01_Operations/08_Stock_Issue.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.04 01_Operations — 09 Approved Requisition",
+     "screenshot": "HMS_Manuals/Inventory/screenshots/01_Operations/09_Approved_Requisition.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.05 02_Reports — 02 Stock Summary",
+     "screenshot": "HMS_Manuals/Inventory/screenshots/02_Reports/02_Stock_Summary.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.06 02_Reports — 03 Stock In Hand",
+     "screenshot": "HMS_Manuals/Inventory/screenshots/02_Reports/03_Stock_In_Hand.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.07 02_Reports — 04 Purchase Register",
+     "screenshot": "HMS_Manuals/Inventory/screenshots/02_Reports/04_Purchase_Register.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.08 03_Master — 02 Item Group",
+     "screenshot": "HMS_Manuals/Inventory/screenshots/03_Master/02_Item_Group.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.09 03_Master — 03 Item Category",
+     "screenshot": "HMS_Manuals/Inventory/screenshots/03_Master/03_Item_Category.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.10 03_Master — 05 Opening Stock",
+     "screenshot": "HMS_Manuals/Inventory/screenshots/03_Master/05_Opening_Stock.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.11 03_Master — 06 Recipe Master",
+     "screenshot": "HMS_Manuals/Inventory/screenshots/03_Master/06_Recipe_Master.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.12 04_MIS — 01 Stock Movement",
+     "screenshot": "HMS_Manuals/Inventory/screenshots/04_MIS/01_Stock_Movement.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.13 00_Login — 01 Login Page",
+     "screenshot": "HMS_Manuals/Inventory/screenshots/00_Login/01_Login_Page.png",
+     "para": "Screen captured from the live system — part of the complete reference gallery."
+    }
+   ]
+  },
+  {
+   "title": "6. Appendix — Training Reference",
+   "subsections": [
+    {
+     "title": "Store Keeper Daily Workflow",
+     "table": {
+      "headers": [
+       "Time",
+       "Activity",
+       "Screen"
+      ],
+      "rows": [
+       [
+        "Morning",
+        "View today's indents/pending approvals",
+        "Approved Requisition"
+       ],
+       [
+        "Vendor arrival",
+        "Receive the material (quality check)",
+        "M R Entry"
+       ],
+       [
+        "Vendor bill received",
+        "Enter the bill — with GST input",
+        "Purchase Bill"
+       ],
+       [
+        "Departments request",
+        "After approving the requisition and issuing it",
+        "Requisition / Stock Issue"
+       ],
+       [
+        "Evening",
+        "Stock in hand see — min level below items",
+        "Stock In Hand"
+       ],
+       [
+        "Weekly",
+        "Kitchen variance report — wastage review",
+        "Kitchen Wise Issue & Sale"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Common Scenarios (Training Q&A)",
+     "table": {
+      "headers": [
+       "Scenario",
+       "what to do"
+      ],
+      "rows": [
+       [
+        "Material came without PO",
+        "Direct MR entry (permission ho) — or create PO first, best practice PO first"
+       ],
+       [
+        "Bill came, got less material",
+        "Actual qty in MR, billed qty in bill — follow up the difference claim"
+       ],
+       [
+        "Department ne bina requisition maanga",
+        "First make requisition + approve — usi issue pe"
+       ],
+       [
+        "Item rate was posted incorrectly.",
+        "Bill cancel/re-edit (with permission), verify in Purchase Register"
+       ],
+       [
+        "Stock negative dikha",
+        "Issue issued first, received later — MR date check/backdate (authorized)"
+       ],
+       [
+        "There was no expired stock in the kitchen.",
+        "Physical count + wastage entry — Kitchen Closing Stock Entry"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Troubleshooting",
+     "table": {
+      "headers": [
+       "Issue",
+       "Cause",
+       "Solution"
+      ],
+      "rows": [
+       [
+        "Purchase Bill is not being saved",
+        "Duplicate bill no.",
+        "Bill no./vendor check — this is the duplicate block"
+       ],
+       [
+        "PO is not visible in MR",
+        "PO already fully received",
+        "Check PO pending qty / new PO"
+       ],
+       [
+        "There is no issue",
+        "Stock insufficient",
+        "See Stock In Hand – first receive it."
+       ],
+       [
+        "Item not visible in stock report",
+        "Item inactive/wrong store",
+        "Check store + active status in Item Entry"
+       ],
+       [
+        "Opening stock galat",
+        "Initial entry wrong",
+        "Correct from the Opening Stock screen (only at year start)"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Contact & Support",
+     "table": {
+      "headers": [
+       "Contact",
+       "Details"
+      ],
+      "rows": [
+       [
+        "Website",
+        "https://analysishms.com"
+       ],
+       [
+        "Support Email",
+        "support@analysishms.com"
+       ],
+       [
+        "Phone",
+        "+91 9161380170"
+       ],
+       [
+        "Training Login",
+        "Use your assigned User ID and Password"
+       ],
+       [
+        "Software Version",
+        "Analysis HMS "
+       ]
+      ]
+     }
+    }
+   ]
+  }
+ ]
+}

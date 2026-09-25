@@ -308,35 +308,62 @@ class _GodownAPI:
 GodownAPI = _GodownAPI()
 
 
-# ============================================================
-# Voucher Type browser (read-only - config table, no user edits)
-# ============================================================
-def voucher_type_list(cn=None) -> list[dict]:
-    """Voucher_Type table browse (VB6 General Setup -> Voucher Environment)."""
-    rows = db.query(
-        "SELECT V_Type, Category, Description, Number_Method, Start_No, "
-        "Short_Name, Site_Code, U_NAME, U_EntDt, U_AE "
-        "FROM Voucher_Type ORDER BY Category, V_Type", cn=cn)
-    out = []
-    for r in rows:
+def _v_text(value) -> str:
+    return str(value if value is not None else "").strip()
+
+
+def _v_row_value(row, name: str, index: int, default=None):
+    try:
+        return getattr(row, name)
+    except AttributeError:
         try:
-            out.append({
-                "vtype": r.V_Type or "", "category": r.Category or "",
-                "desc": (r.Description or "").strip(),
-                "method": r.Number_Method or "",
-                "startno": r.Start_No or 1,
-                "short": (r.Short_Name or "").strip(),
-                "u_name": r.U_NAME or "", "u_ae": r.U_AE or "",
-            })
-        except AttributeError:
-            vt, cat, desc, mth, sno, sh, _, un, _, uae = r
-            out.append({
-                "vtype": vt or "", "category": cat or "",
-                "desc": (desc or "").strip(), "method": mth or "",
-                "startno": sno or 1, "short": (sh or "").strip(),
-                "u_name": un or "", "u_ae": uae or "",
-            })
-    return out
+            return row[index]
+        except (IndexError, KeyError, TypeError):
+            return default
+
+
+def _v_query_read(sql: str, params=(), cn=None, table_name: str = ""):
+    try:
+        return db.query(sql, params, cn=cn)
+    except Exception as exc:
+        message = str(exc).lower()
+        if "invalid object name" in message and table_name.lower() in message:
+            return []
+        raise
+
+
+def _v_scope(logsite_code=None) -> str:
+    return _v_text(logsite_code) or SITE_CODE
+
+
+def voucher_type_list(logsite_code=None, cn=None) -> list[dict]:
+    site = _v_scope(logsite_code)
+    rows = _v_query_read(
+        "SELECT V_Type, Category, NCat, Description, Number_Method, Start_No, "
+        "Short_Name, Site_Code, LogSite_Code, U_NAME, U_EntDt, U_AE "
+        "FROM Voucher_Type WHERE (LogSite_Code = ? OR LogSite_Code = 'HO') "
+        "ORDER BY Category, V_Type",
+        (site,),
+        cn=cn,
+        table_name="Voucher_Type",
+    )
+    output = []
+    for row in rows:
+        output.append({
+            "vtype": _v_text(_v_row_value(row, "V_Type", 0, "")),
+            "category": _v_text(_v_row_value(row, "Category", 1, "")),
+            "ncat": _v_text(_v_row_value(row, "NCat", 2, "")),
+            "desc": _v_text(_v_row_value(row, "Description", 3, "")),
+            "method": _v_text(_v_row_value(row, "Number_Method", 4, "")),
+            "startno": _v_row_value(row, "Start_No", 5, 1) or 1,
+            "short": _v_text(_v_row_value(row, "Short_Name", 6, "")),
+            "site_code": _v_text(_v_row_value(row, "Site_Code", 7, "")),
+            "logsite_code": _v_text(_v_row_value(row, "LogSite_Code", 8, "")),
+            "u_name": _v_text(_v_row_value(row, "U_NAME", 9, "")),
+            "u_entdt": _v_row_value(row, "U_EntDt", 10),
+            "u_ae": _v_text(_v_row_value(row, "U_AE", 11, "")),
+        })
+    return output
 
 
 def printing_settings_snapshot(cn=None) -> dict:
@@ -401,78 +428,167 @@ def enviro_get(field: str, cn=None) -> str | None:
         return None
 
 
-# ============================================================
-# Voucher Category Master
-# Table: VoucherCat - Category varchar PK, NCat varchar,
-#        Site_Code, LogSite_Code (NO audit cols: no U_Name/U_EntDt/U_AE)
-# ============================================================
-VOUCHCAT_LIMITS = {"category": 10, "ncat": 10}
-VOUCHCAT_COLS = "Category, NCat, Site_Code"
+VOUCHCAT_LIMITS = {"category": 10, "ncat": 5}
+VOUCHCAT_COLS = "Category, NCat, Site_Code, LogSite_Code"
 
 
-def _map_vouchcat(r) -> dict:
-    try:
-        return {"category": r.Category, "ncat": (r.NCat or "").strip(),
-                "site": r.Site_Code or ""}
-    except AttributeError:
-        c, nc, sc = r
-        return {"category": c, "ncat": (nc or "").strip(),
-                "site": sc or ""}
+def _map_vouchcat(row) -> dict:
+    return {
+        "category": _v_text(_v_row_value(row, "Category", 0, "")),
+        "ncat": _v_text(_v_row_value(row, "NCat", 1, "")),
+        "site_code": _v_text(_v_row_value(row, "Site_Code", 2, "")),
+        "logsite_code": _v_text(_v_row_value(row, "LogSite_Code", 3, "")),
+    }
 
 
-def vouchcat_list(cn=None) -> list[dict]:
-    return [_map_vouchcat(r) for r in db.query(
-        f"SELECT {VOUCHCAT_COLS} FROM VoucherCat ORDER BY Category", cn=cn)]
+def vouchcat_list(logsite_code=None, cn=None) -> list[dict]:
+    site = _v_scope(logsite_code)
+    rows = _v_query_read(
+        f"SELECT {VOUCHCAT_COLS} FROM VoucherCat "
+        "WHERE (LogSite_Code = ? OR LogSite_Code = 'HO') "
+        "ORDER BY Category, NCat",
+        (site,),
+        cn=cn,
+        table_name="VoucherCat",
+    )
+    return [_map_vouchcat(row) for row in rows]
 
 
-def vouchcat_get(code: str, cn=None) -> dict | None:
-    rows = db.query(
-        f"SELECT {VOUCHCAT_COLS} FROM VoucherCat WHERE Category = ?",
-        (code,), cn=cn)
+def vouchcat_get(category: str, ncat: str, logsite_code=None, cn=None) -> dict | None:
+    site = _v_scope(logsite_code)
+    rows = _v_query_read(
+        f"SELECT {VOUCHCAT_COLS} FROM VoucherCat "
+        "WHERE (LogSite_Code = ? OR LogSite_Code = 'HO') "
+        "AND Category = ? AND NCat = ?",
+        (site, _v_text(category), _v_text(ncat)),
+        cn=cn,
+        table_name="VoucherCat",
+    )
     return _map_vouchcat(rows[0]) if rows else None
 
 
-def vouchcat_exists(code: str, cn=None) -> bool:
-    return bool(db.query(
-        "SELECT 1 FROM VoucherCat WHERE Category = ?", (code,), cn=cn))
+def vouchcat_exists(category: str, ncat: str, logsite_code=None, cn=None) -> bool:
+    site = _v_scope(logsite_code)
+    rows = _v_query_read(
+        "SELECT 1 FROM VoucherCat "
+        "WHERE (LogSite_Code = ? OR LogSite_Code = 'HO') "
+        "AND Category = ? AND NCat = ?",
+        (site, _v_text(category), _v_text(ncat)),
+        cn=cn,
+        table_name="VoucherCat",
+    )
+    return bool(rows)
 
 
-def vouchcat_insert(rec: dict, cn=None, commit=True) -> int:
-    if not rec.get("category", "").strip():
-        raise ValueError("Category zaroori hai")
-    db.require_absent("VoucherCat", "Category", rec["category"], "Voucher Category")
-    return db.execute(
-        "INSERT INTO VoucherCat (Category, NCat, Site_Code, LogSite_Code) "
-        "VALUES (?, ?, ?, ?)",
-        (rec["category"], rec.get("ncat", ""),
-         SITE_CODE, SITE_CODE), cn=cn, commit=commit)
+def vouchcat_insert(*args, **kwargs):
+    raise PermissionError("VoucherCat is read-only in this parity slice")
 
 
-def vouchcat_update(code: str, rec: dict, cn=None, commit=True) -> int:
-    return db.execute(
-        "UPDATE VoucherCat SET NCat = ? WHERE Category = ?",
-        (rec.get("ncat", ""), code), cn=cn, commit=commit)
+def vouchcat_update(*args, **kwargs):
+    raise PermissionError("VoucherCat is read-only in this parity slice")
 
 
-def vouchcat_delete(code: str, cn=None, commit=True) -> int:
-    return db.execute(
-        "DELETE FROM VoucherCat WHERE Category = ?", (code,),
-        cn=cn, commit=commit)
+def vouchcat_delete(*args, **kwargs):
+    raise PermissionError("VoucherCat is read-only in this parity slice")
+
+
+def _map_voucher_prefix(row) -> dict:
+    return {
+        "vtype": _v_text(_v_row_value(row, "V_Type", 0, "")),
+        "date_from": _v_row_value(row, "Date_From", 1),
+        "date_to": _v_row_value(row, "Date_To", 2),
+        "prefix": _v_text(_v_row_value(row, "Prefix", 3, "")),
+        "start_srl_no": _v_row_value(row, "Start_Srl_No", 4, 0),
+        "site_code": _v_text(_v_row_value(row, "Site_Code", 5, "")),
+        "u_entdt": _v_row_value(row, "U_EntDt", 6),
+        "logsite_code": _v_text(_v_row_value(row, "LogSite_Code", 7, "")),
+        "u_name": _v_text(_v_row_value(row, "U_Name", 8, "")),
+        "u_ae": _v_text(_v_row_value(row, "U_AE", 9, "")),
+    }
+
+
+def _map_voucher_group(row) -> dict:
+    return {
+        "vtype": _v_text(_v_row_value(row, "V_Type", 0, "")),
+        "group_code": _v_text(_v_row_value(row, "GroupCode", 1, "")),
+        "dr": _v_text(_v_row_value(row, "Dr", 2, "")),
+        "cr": _v_text(_v_row_value(row, "Cr", 3, "")),
+        "site_code": _v_text(_v_row_value(row, "Site_Code", 4, "")),
+        "u_entdt": _v_row_value(row, "U_EntDt", 5),
+        "u_ae": _v_text(_v_row_value(row, "U_AE", 6, "")),
+        "logsite_code": _v_text(_v_row_value(row, "LogSite_Code", 7, "")),
+        "u_name": _v_text(_v_row_value(row, "U_Name", 8, "")),
+    }
+
+
+def voucher_prefix_list(vtype: str, logsite_code=None, cn=None) -> list[dict]:
+    site = _v_scope(logsite_code)
+    rows = _v_query_read(
+        "SELECT V_Type, Date_From, Date_To, Prefix, Start_Srl_No, Site_Code, "
+        "U_EntDt, LogSite_Code, U_Name, U_AE FROM Voucher_Prefix "
+        "WHERE (LogSite_Code = ? OR LogSite_Code = 'HO') AND V_Type = ? "
+        "ORDER BY Date_From",
+        (site, _v_text(vtype)),
+        cn=cn,
+        table_name="Voucher_Prefix",
+    )
+    return [_map_voucher_prefix(row) for row in rows]
+
+
+def voucher_include_list(vtype: str, logsite_code=None, cn=None) -> list[dict]:
+    site = _v_scope(logsite_code)
+    rows = _v_query_read(
+        "SELECT V_Type, GroupCode, Dr, Cr, Site_Code, U_EntDt, U_AE, "
+        "LogSite_Code, U_Name FROM Voucher_Include "
+        "WHERE (LogSite_Code = ? OR LogSite_Code = 'HO') AND V_Type = ? "
+        "ORDER BY GroupCode",
+        (site, _v_text(vtype)),
+        cn=cn,
+        table_name="Voucher_Include",
+    )
+    return [_map_voucher_group(row) for row in rows]
+
+
+def voucher_exclude_list(vtype: str, logsite_code=None, cn=None) -> list[dict]:
+    site = _v_scope(logsite_code)
+    rows = _v_query_read(
+        "SELECT V_Type, GroupCode, Dr, Cr, Site_Code, U_EntDt, U_AE, "
+        "LogSite_Code, U_Name FROM Voucher_Exclude "
+        "WHERE (LogSite_Code = ? OR LogSite_Code = 'HO') AND V_Type = ? "
+        "ORDER BY GroupCode",
+        (site, _v_text(vtype)),
+        cn=cn,
+        table_name="Voucher_Exclude",
+    )
+    return [_map_voucher_group(row) for row in rows]
 
 
 class _VouchCatAPI:
     LIMITS = VOUCHCAT_LIMITS
+
     @staticmethod
-    def list_all(cn=None): return vouchcat_list(cn)
+    def list_all(cn=None, logsite_code=None):
+        return vouchcat_list(logsite_code=logsite_code, cn=cn)
+
     @staticmethod
-    def get(code, cn=None): return vouchcat_get(code, cn)
+    def get(category, ncat, cn=None, logsite_code=None):
+        return vouchcat_get(category, ncat, logsite_code=logsite_code, cn=cn)
+
     @staticmethod
-    def exists(code, cn=None): return vouchcat_exists(code, cn)
+    def exists(category, ncat, cn=None, logsite_code=None):
+        return vouchcat_exists(category, ncat, logsite_code=logsite_code, cn=cn)
+
     @staticmethod
-    def insert(rec, cn=None, commit=True): return vouchcat_insert(rec, cn, commit)
+    def insert(*args, **kwargs):
+        return vouchcat_insert(*args, **kwargs)
+
     @staticmethod
-    def update(code, rec, cn=None, commit=True): return vouchcat_update(code, rec, cn, commit)
+    def update(*args, **kwargs):
+        return vouchcat_update(*args, **kwargs)
+
     @staticmethod
-    def delete(code, cn=None, commit=True): return vouchcat_delete(code, cn, commit)
+    def delete(*args, **kwargs):
+        return vouchcat_delete(*args, **kwargs)
+
 
 VouchCatAPI = _VouchCatAPI()

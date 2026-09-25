@@ -1,0 +1,27 @@
+======================================================================
+REPORT NAME   : RoomRentAuditRpt
+REPORT NO.    : 188
+CATEGORY      : FRONT OFFICE / GUEST
+STOCK/INVENTORY: NAHI - ye non-stock report hai
+MENU PATH     : Front Office > Reports  [Sub: FDORep_Click]
+SOURCE TABLES : SunTran, PayCharge, GuestMast*
+DESCRIPTION   : Front-office tables (*master tables purane DB me hain)
+OUTPUT COLUMNS: Vdate, FolioNo/RoomNo, Guest/Charge columns (front-office layout)
+----------------------------------------------------------------------
+DATABASE DUMP (visahl.sql) TABLES: Stock, Sale1, Sale2, SunTran, PayCharge
+STOCK TABLE DETAIL: (is report me Stock table directly use nahi hota)
+----------------------------------------------------------------------
+NOTE: Ye report VB6 software (EXTRAS.text decompiled source) ke menu se mili hai.
+      SQL Server DB me isko chalane ke liye upar di gayi tables ka use hota hai.
+======================================================================
+
+----------------------------------------------------------------------
+GENERIC SQL QUERY (is category ke liye - tables visahl.sql me available hain)
+----------------------------------------------------------------------
+-- Tables available in dump: Stock, Sale1, Sale2, SunTran, PayCharge
+-- NOTE: Sirf in 5 tables ka dump hai; ItemMast/PartyMast jaisi master tables dump me NAHI hain
+
+-- FRONT OFFICE DATA (PayCharge folio charges, SunTran room revenue)
+DECLARE @F DATE='2016-09-01', @T DATE='2016-09-30';
+SELECT P.Vdate, P.FolioNo, P.RoomNo, P.PayCode, P.AmtDr, P.AmtCr, P.Bill_No
+FROM PayCharge P WHERE P.Vdate BETWEEN @F AND @T ORDER BY P.Vdate;

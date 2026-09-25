@@ -1,0 +1,327 @@
+{
+  "module": "03_Reservation",
+  "name": "Reservation",
+  "sidebar": "reservation",
+  "generated_by": "collect_logic.py",
+  "menuhelp": {
+    "masters": [],
+    "operations": [
+      {
+        "caption": "reservation/cancellation",
+        "caption_disp": "Reservation/Cancellation",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "ResOpEnt",
+        "opt1": "13",
+        "opt2": "11",
+        "opt3": "11",
+        "opt4": "",
+        "code": 189
+      },
+      {
+        "caption": "reservation with history",
+        "caption_disp": "Reservation With History",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "ResOpEnt",
+        "opt1": "13",
+        "opt2": "11",
+        "opt3": "15",
+        "opt4": "",
+        "code": 193
+      }
+    ],
+    "reports": [
+      {
+        "caption": "reservation status",
+        "caption_disp": "Reservation Status",
+        "param": "***P",
+        "flag": "R",
+        "module": "ResStatusRpt",
+        "opt1": "13",
+        "opt2": "12",
+        "opt3": "11",
+        "opt4": "",
+        "code": 200
+      },
+      {
+        "caption": "reservation status arrival",
+        "caption_disp": "Reservation Status Arrival",
+        "param": "***P",
+        "flag": "R",
+        "module": "ResStatusRpt",
+        "opt1": "13",
+        "opt2": "12",
+        "opt3": "12",
+        "opt4": "",
+        "code": 201
+      },
+      {
+        "caption": "arrival list",
+        "caption_disp": "Arrival List",
+        "param": "***P",
+        "flag": "R",
+        "module": "ResStatusRpt",
+        "opt1": "13",
+        "opt2": "12",
+        "opt3": "16",
+        "opt4": "",
+        "code": 205
+      },
+      {
+        "caption": "advance recd.",
+        "caption_disp": "Advance Recd.",
+        "param": "***P",
+        "flag": "R",
+        "module": "AdvRecdRpt",
+        "opt1": "13",
+        "opt2": "13",
+        "opt3": "11",
+        "opt4": "",
+        "code": 207
+      },
+      {
+        "caption": "advance recd. arrival",
+        "caption_disp": "Advance Recd. Arrival",
+        "param": "***P",
+        "flag": "R",
+        "module": "AdvRecdRpt",
+        "opt1": "13",
+        "opt2": "13",
+        "opt3": "12",
+        "opt4": "",
+        "code": 208
+      }
+    ],
+    "hidden": [],
+    "unclassified": [
+      {
+        "caption": "reservation",
+        "caption_disp": "Reservation",
+        "param": "",
+        "flag": "N",
+        "module": "Reserv",
+        "opt1": "13",
+        "opt2": "",
+        "opt3": "",
+        "opt4": "",
+        "code": 187
+      },
+      {
+        "caption": "operations",
+        "caption_disp": "Operations",
+        "param": "AEDP",
+        "flag": "N",
+        "module": "ReservationEnt",
+        "opt1": "13",
+        "opt2": "11",
+        "opt3": "",
+        "opt4": "",
+        "code": 188
+      },
+      {
+        "caption": "reservation status report",
+        "caption_disp": "Reservation Status Report",
+        "param": "AEDP",
+        "flag": "N",
+        "module": "ReservationEnt",
+        "opt1": "13",
+        "opt2": "12",
+        "opt3": "",
+        "opt4": "",
+        "code": 199
+      },
+      {
+        "caption": "advance recd. report",
+        "caption_disp": "Advance Recd. Report",
+        "param": "AEDP",
+        "flag": "N",
+        "module": "ReservationEnt",
+        "opt1": "13",
+        "opt2": "13",
+        "opt3": "",
+        "opt4": "",
+        "code": 206
+      },
+      {
+        "caption": "m.i.s.",
+        "caption_disp": "M.I.S.",
+        "param": "AEDP",
+        "flag": "N",
+        "module": "ReservationEnt",
+        "opt1": "13",
+        "opt2": "14",
+        "opt3": "",
+        "opt4": "",
+        "code": 210
+      },
+      {
+        "caption": "look up room types",
+        "caption_disp": "Look Up Room types",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "ResOpEnt",
+        "opt1": "13",
+        "opt2": "11",
+        "opt3": "13",
+        "opt4": "",
+        "code": 191
+      },
+      {
+        "caption": "look up rooms",
+        "caption_disp": "Look Up Rooms",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "ResOpEnt",
+        "opt1": "13",
+        "opt2": "11",
+        "opt3": "14",
+        "opt4": "",
+        "code": 192
+      },
+      {
+        "caption": "advance deposit",
+        "caption_disp": "Advance Deposit",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "ResOpEnt",
+        "opt1": "13",
+        "opt2": "11",
+        "opt3": "16",
+        "opt4": "",
+        "code": 194
+      },
+      {
+        "caption": "confirmation letters",
+        "caption_disp": "Confirmation Letters",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "ResOpEnt",
+        "opt1": "13",
+        "opt2": "11",
+        "opt3": "17",
+        "opt4": "",
+        "code": 195
+      },
+      {
+        "caption": "cancellation letters",
+        "caption_disp": "Cancellation Letters",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "ResOpEnt",
+        "opt1": "13",
+        "opt2": "11",
+        "opt3": "18",
+        "opt4": "",
+        "code": 196
+      },
+      {
+        "caption": "registration card",
+        "caption_disp": "Registration Card",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "ResOpEnt",
+        "opt1": "13",
+        "opt2": "11",
+        "opt3": "19",
+        "opt4": "",
+        "code": 197
+      },
+      {
+        "caption": "reservation status screen",
+        "caption_disp": "Reservation Status Screen",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "ResOpEnt",
+        "opt1": "13",
+        "opt2": "11",
+        "opt3": "20",
+        "opt4": "",
+        "code": 198
+      },
+      {
+        "caption": "7-730 days forecast",
+        "caption_disp": "7-730 Days Forecast",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "ReservationMIS",
+        "opt1": "13",
+        "opt2": "14",
+        "opt3": "11",
+        "opt4": "",
+        "code": 211
+      },
+      {
+        "caption": "23 day room availability forecast",
+        "caption_disp": "23 Day Room Availability Forecast",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "ReservationMIS",
+        "opt1": "13",
+        "opt2": "14",
+        "opt3": "12",
+        "opt4": "",
+        "code": 212
+      },
+      {
+        "caption": "23 day room type availability forecast",
+        "caption_disp": "23 Day Room Type Availability Forecast",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "ReservationMIS",
+        "opt1": "13",
+        "opt2": "14",
+        "opt3": "13",
+        "opt4": "",
+        "code": 213
+      },
+      {
+        "caption": "package forecast",
+        "caption_disp": "Package Forecast",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "ReservationMIS",
+        "opt1": "13",
+        "opt2": "14",
+        "opt3": "14",
+        "opt4": "",
+        "code": 214
+      }
+    ],
+    "counts": {
+      "masters": 0,
+      "operations": 2,
+      "reports": 5,
+      "hidden": 0,
+      "other": 16,
+      "unclassified": 16
+    }
+  },
+  "registry_hits": {
+    "masters": [],
+    "operations": [
+      "Booking Operations",
+      "Reservation/Cancellation",
+      "Reservation With History"
+    ],
+    "reports": [
+      "Reservation Status Report",
+      "Reservation Status",
+      "Reservation Status Arrival",
+      "Reservation Status In-House"
+    ]
+  },
+  "core_files": [
+    "reservation",
+    "booking",
+    "guestprof"
+  ],
+  "module_names": [
+    "Reserv",
+    "ReservationEnt",
+    "ResOpEnt",
+    "ResStatusRpt",
+    "AdvRecdRpt",
+    "ReservationMIS"
+  ]
+}

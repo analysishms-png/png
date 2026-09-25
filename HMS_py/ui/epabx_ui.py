@@ -13,15 +13,17 @@ from HMS_py.ui.base_master import BaseMasterForm, Field, MasterConfig, make_dele
 def calltype_config() -> MasterConfig:
     return MasterConfig(
         title="Call Type Master (EPABX) - HMS_py",
-        columns=[("Code","code"),("CallType","calltype"),("Short","shortname")],
+        columns=[("Code", "code"), ("CallType", "calltype"),
+                  ("Short", "shortname")],
         fields=[
-            Field("code","Type Code", max_len=6, required=True),
-            Field("calltype","Call Type Name", max_len=30, required=True),
-            Field("shortname","Short Name", max_len=6),
-            Field("accode","A/C Code", max_len=10),
-            Field("taxstru","Tax Structure", max_len=6),
+            Field("code", "Type Code", max_len=5, required=True),
+            Field("calltype", "Call Type Name", max_len=15, required=True),
+            Field("shortname", "Short Name", max_len=5),
+            Field("accode", "A/C Code", max_len=8),
+            Field("taxstru", "Tax Structure", max_len=6),
         ],
         api=CallTypeAPI,
+        pk_key="code",
         delete_guard=make_delete_guard("PYT"),
     )
 
@@ -29,15 +31,16 @@ def calltype_config() -> MasterConfig:
 def callcode_config() -> MasterConfig:
     return MasterConfig(
         title="Call Code Master (EPABX) - HMS_py",
-        columns=[("STD","stdcode"),("Type","calltypecode"),
-                 ("Description","description"),("Pulse","pulseinsec")],
+        columns=[("STD", "stdcode"), ("Type", "calltype"),
+                  ("Description", "desc"), ("Pulse", "pulse")],
         fields=[
-            Field("stdcode","STD Code", max_len=6, required=True),
-            Field("calltypecode","Call Type Code", max_len=6, required=True),
-            Field("description","Description", max_len=50),
-            Field("pulseinsec","Pulse In Sec", default="0"),
+            Field("stdcode", "STD Code", max_len=10, required=True),
+            Field("calltype", "Call Type Code", max_len=15),
+            Field("desc", "Description", max_len=35),
+            Field("pulse", "Pulse In Sec", default="0"),
         ],
         api=CallCodeAPI,
+        pk_key="stdcode",
         delete_guard=make_delete_guard("PYT"),
     )
 
@@ -45,19 +48,20 @@ def callcode_config() -> MasterConfig:
 def ext_config() -> MasterConfig:
     return MasterConfig(
         title="Extension Master (EPABX) - HMS_py",
-        columns=[("Code","code"),("Description","description"),
-                 ("Extension","extension"),("Type","type"),("Room","roomno")],
+        columns=[("Code", "code"), ("Description", "desc"),
+                  ("Extension", "extension"), ("Type", "type"), ("Room", "room")],
         fields=[
-            Field("code","Extension Code", max_len=6, required=True),
-            Field("description","Description", max_len=50),
-            Field("extension","Extension No", max_len=10),
-            Field("type","Type", max_len=10),
-            Field("roomno","Room No", max_len=6),
-            Field("shopno","Shop No", max_len=6),
-            Field("depcode","Department Code", max_len=6),
-            Field("pulserate","Pulse Rate", default="0"),
+            Field("code", "Extension Code", max_len=5, required=True),
+            Field("desc", "Description", max_len=35, required=True),
+            Field("extension", "Extension No", max_len=10),
+            Field("type", "Type", max_len=10),
+            Field("room", "Room No", max_len=5),
+            Field("shop", "Shop No", max_len=10),
+            Field("dept", "Department Code", max_len=5),
+            Field("pulserate", "Pulse Rate", default="0"),
         ],
         api=TelExtAPI,
+        pk_key="code",
         delete_guard=make_delete_guard("PYT"),
     )
 
@@ -65,7 +69,11 @@ def ext_config() -> MasterConfig:
 def _open(cfg_fn, parent=None):
     BaseMasterForm(cfg_fn(), parent).exec()
 
-def open_calltype(parent=None):  _open(calltype_config, parent)
+def open_calltype(parent=None):
+    form = BaseMasterForm(calltype_config(), parent)
+    form.set_permissions(add=False, edit=False, delete=False)
+    form.exec()
+    return form
 def open_callcode(parent=None):  _open(callcode_config, parent)
 def open_extension(parent=None): _open(ext_config, parent)
 

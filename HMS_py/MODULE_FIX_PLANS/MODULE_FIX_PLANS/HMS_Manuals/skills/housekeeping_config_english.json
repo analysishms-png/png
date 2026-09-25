@@ -1,0 +1,1165 @@
+{
+ "module": "HOUSEKEEPING MODULE",
+ "subtitle": "Master · Operations · Transactions · Reports · Appendix",
+ "property": "Property: Demo Property",
+ "version": "Training Manual for Housekeeping Staff",
+ "header": "Analysis HMS — Housekeeping Module Manual",
+ "footerText": "Analysis HMS Housekeeping Manual | Demo Property",
+ "output": "HMS_Manuals/Housekeeping/Housekeeping_Module_Manual_English.docx",
+ "imageRoot": ".",
+ "theme": {
+  "color": "00897B",
+  "dark": "00695C",
+  "light": "E0F2F1"
+ },
+ "sections": [
+  {
+   "title": "1. Introduction & System Overview",
+   "intro": "Analysis HMS (Hotel Management System) is a comprehensive cloud-based software designed for the Indian hospitality industry. It manages Front Office, Housekeeping, Laundry, POS, Inventory and Reporting on a unified platform — from any device, through a web browser.\n\nThe Housekeeping Module provides complete management of room cleaning, staff assignment, room status tracking and laundry services. The module is organized into four main sections: MASTER (setup), OPERATIONS (daily workflow), TRANSACTIONS/LAUNDRY (billing & settlement), REPORTS (analytics).",
+   "subsections": [
+    {
+     "title": "Module Sections Overview",
+     "table": {
+      "headers": [
+       "Module Section",
+       "Purpose",
+       "Key Functions"
+      ],
+      "rows": [
+       [
+        "MASTER",
+        "Setup & Configuration",
+        "Floor, Housekeeper, Cleaning Type, Supervisor, Checklist, Amenities"
+       ],
+       [
+        "OPERATIONS",
+        "Daily Workflow Management",
+        "HK Screen, Room Status Board, Assignments, Cleaning, Inspection, Lost & Found"
+       ],
+       [
+        "TRANSACTIONS (Laundry)",
+        "Laundry Billing & Settlement",
+        "Laundry Memo, Bill Reprint, Settlement Entry, Split Bill"
+       ],
+       [
+        "REPORTS",
+        "Analytics & Reporting",
+        "HK Report, Cleaning Register, Assignment & Amenities Reports"
+       ],
+       [
+        "LINEN (Extras)",
+        "Linen Movement Tracking",
+        "Laundry Send, Laundry Receive"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Key Benefits",
+     "bullets": [
+      "Real-time room status tracking across all floors",
+      "Automated room assignment to housekeeping staff",
+      "Digital cleaning checklists for consistent quality",
+      "Laundry billing and settlement management",
+      "Housekeeper workload monitoring & efficiency tracking",
+      "Photo documentation before/after cleaning",
+      "Lost & Found and Damage management",
+      "Integrated inspection workflow with approval/rejection"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "2. Login & Navigation",
+   "screenshot": "HMS_Manuals/Housekeeping/screenshots/00_Login/01_Login_Page.png",
+   "caption": "Analysis HMS Login Screen — analysishms.com/login",
+   "intro": "To access the software one has to login first. There are dedicated login credentials for housekeeping staff.",
+   "subsections": [
+    {
+     "title": "Login Page",
+     "screenshot": "HMS_Manuals/Housekeeping/screenshots/00_Login/01_Login_Page.png",
+     "para": "Login Page — Sign In by entering User ID + Password at analysishms.com. After property selection the module menu opens. (This screenshot was earlier missing in the gallery, now it has been added.)"
+    },
+    {
+     "title": "Login Steps",
+     "table": {
+      "headers": [
+       "Step",
+       "Action",
+       "Details"
+      ],
+      "rows": [
+       [
+        "1",
+        "Open Browser",
+        "Go to: https://analysishms.com"
+       ],
+       [
+        "2",
+        "Click Login",
+        "Click on 'Login' link in the top menu"
+       ],
+       [
+        "3",
+        "Enter Username",
+        "e.g. HOUSEKEEPING (or admin — get credentials from admin)"
+       ],
+       [
+        "4",
+        "Enter Password",
+        "Assigned password"
+       ],
+       [
+        "5",
+        "Enter Property ID",
+        "Your property ID (get from admin)"
+       ],
+       [
+        "6",
+        "Click Login",
+        "Dashboard open ho jayega"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Housekeeping Menu Structure (Sidebar)",
+     "bullets": [
+      "House Keeping → Operations: House Keeping Screen, Room Status Board, Assignments, Start Cleaning, Room Cleaning Entry, Inspection, Lost & Found, Damage Entry",
+      "House Keeping → Reports: HK Report, Cleaning Register, Assignment Report, Amenities Report, Room-wise Amenities, Damage Report, Lost & Found Register",
+      "House Keeping → Linen Management: Laundry Send, Laundry Receive",
+      "House Keeping → LAUNDRY: Laundry Memo, Memo Bill Reprint, Settlement Entry, Split Bill",
+      "Main Setup → House Keeping: Floor Master, Housekeeper Master, Cleaning Type, HK Supervisor, Checklist, Amenities Master"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "3. Master Module — Setup & Configuration",
+   "intro": "The Master module contains several setup entries that must be made once before operations — floors, staff, cleaning types, supervisors, checklists and amenities.",
+   "subsections": [
+    {
+     "title": "3.1 Floor Master",
+     "navPath": "Main Setup ▶ House Keeping ▶ Floor Master",
+     "screenshot": "HMS_Manuals/Housekeeping/screenshots/01_Master/01_Floor_Master.png",
+     "paragraph": "Define the floors of the property. Rooms and housekeepers are assigned according to each floor.",
+     "table": {
+      "headers": [
+       "Element",
+       "Description",
+       "Action"
+      ],
+      "rows": [
+       [
+        "Floor Name",
+        "Floor name (1ST FLOOR, GROUND FLOOR...)",
+        "Enter"
+       ],
+       [
+        "Submit",
+        "Saves records",
+        "Click"
+       ],
+       [
+        "Search Box",
+        "Filters existing floors",
+        "type with"
+       ],
+       [
+        "Edit / Delete",
+        "Record modify/remove",
+        "by clicking on the row"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.2 Housekeeper Master",
+     "navPath": "Main Setup ▶ House Keeping ▶ Housekeeper Master",
+     "screenshot": "HMS_Manuals/Housekeeping/screenshots/01_Master/02_Housekeeper_Master.png",
+     "paragraph": "Register housekeeping staff — with their floor, supervisor and contact details.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description",
+       "Example"
+      ],
+      "rows": [
+       [
+        "Housekeeper Name *",
+        "Staff member's full name (required)",
+        "Rajesh Kumar"
+       ],
+       [
+        "Floor *",
+        "Assigned floor dropdown",
+        "1ST FLOOR"
+       ],
+       [
+        "Supervisor *",
+        "Assigned supervisor dropdown",
+        "Sandeep Pal"
+       ],
+       [
+        "Mobile Number",
+        "Contact number",
+        "9876543210"
+       ],
+       [
+        "Gender",
+        "Male / Female",
+        "Male"
+       ],
+       [
+        "Status",
+        "Active / Inactive",
+        "Active"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.3 Cleaning Type Master",
+     "navPath": "Main Setup ▶ House Keeping ▶ Cleaning Type",
+     "screenshot": "HMS_Manuals/Housekeeping/screenshots/01_Master/03_Cleaning_Type.png",
+     "paragraph": "Define the cleaning categories used at the time of room assignment.",
+     "table": {
+      "headers": [
+       "Sno.",
+       "Cleaning Type",
+       "Usage"
+      ],
+      "rows": [
+       [
+        "1",
+        "NORMAL CLEANING",
+        "Routine cleaning (occupied rooms)"
+       ],
+       [
+        "2",
+        "CHECKOUT CLEANING",
+        "Deep clean after guest checkout"
+       ],
+       [
+        "3",
+        "DEEP CLEANING",
+        "Thorough cleaning — all surfaces/fixtures"
+       ],
+       [
+        "4",
+        "EXPRESS CLEANING",
+        "Quick clean for urgent turnover"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.4 HK Supervisor Master",
+     "navPath": "Main Setup ▶ House Keeping ▶ HK Supervisor",
+     "screenshot": "HMS_Manuals/Housekeeping/screenshots/01_Master/04_HK_Supervisor.png",
+     "paragraph": "Supervisors are registered who manage and inspect housekeepers.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Name *",
+        "Supervisor's full name"
+       ],
+       [
+        "Active",
+        "Yes/No status"
+       ],
+       [
+        "Code",
+        "Auto/manual supervisor code"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.5 Checklist Master",
+     "navPath": "Main Setup ▶ House Keeping ▶ Checklist",
+     "screenshot": "HMS_Manuals/Housekeeping/screenshots/01_Master/05_Checklist_Master.png",
+     "paragraph": "Define the cleaning checklist items that are digitally ticked in every room cleaning.",
+     "table": {
+      "headers": [
+       "Sno.",
+       "Checklist Item",
+       "Category"
+      ],
+      "rows": [
+       [
+        "1",
+        "BED MAKE",
+        "Bedroom"
+       ],
+       [
+        "2",
+        "LINEN CLEAN",
+        "Bedroom"
+       ],
+       [
+        "3",
+        "VACUUM AREA",
+        "General"
+       ],
+       [
+        "4",
+        "TV & REMOTE",
+        "Electronics"
+       ],
+       [
+        "5",
+        "TOILET CHECK",
+        "Bathroom"
+       ],
+       [
+        "6",
+        "ROOM FRAGRANCE",
+        "Ambiance"
+       ],
+       [
+        "7",
+        "BATHROOM CLEAN",
+        "Bathroom"
+       ],
+       [
+        "8",
+        "FLOOR MOPPING",
+        "General"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.6 Amenities Master",
+     "navPath": "Main Setup ▶ House Keeping ▶ Amenities Master",
+     "screenshot": "HMS_Manuals/Housekeeping/screenshots/01_Master/06_Amenities_Master.png",
+     "paragraph": "Master list of linen, amenities and chemicals provided in the room.",
+     "table": {
+      "headers": [
+       "Category",
+       "Examples",
+       "Tab Color"
+      ],
+      "rows": [
+       [
+        "Linen",
+        "Pillow Cover, Bath Towel, Hand Towel",
+        "Blue"
+       ],
+       [
+        "Amenities",
+        "Soap, Tea Kit, Coffee, Shampoo",
+        "Green"
+       ],
+       [
+        "Chemical",
+        "Glass/Floor/Toilet Cleaner",
+        "Gray"
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "4. Operations Module — Daily Workflow",
+   "intro": "The Operations module is the core of the daily routine of housekeeping — viewing room status, assigning work, tracking cleaning, inspection and lost & found.",
+   "subsections": [
+    {
+     "title": "4.1 Housekeeping Screen (Main Dashboard) — Shift+H",
+     "navPath": "House Keeping ▶ Operations ▶ House Keeping Screen",
+     "screenshot": "HMS_Manuals/Housekeeping/screenshots/02_Operations/01_Housekeeping_Screen.png",
+     "paragraph": "Room status grid of the entire property — cleaning status of all rooms at a glance.",
+     "table": {
+      "headers": [
+       "Color",
+       "Status",
+       "Meaning"
+      ],
+      "rows": [
+       [
+        "Green",
+        "C (Clean)",
+        "Room clean, check-in ready"
+       ],
+       [
+        "Yellow/Orange",
+        "D (Dirty)",
+        "Room needs cleaning"
+       ],
+       [
+        "Red",
+        "Occupied",
+        "Guest occupied"
+       ],
+       [
+        "White/Gray",
+        "N (Maintenance)",
+        "It is in maintenance."
+       ],
+       [
+        "Blue",
+        "Remove Block",
+        "Block removed, available"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "4.2 Room Status Board",
+     "navPath": "House Keeping ▶ Operations ▶ Room Status Board",
+     "screenshot": "HMS_Manuals/Housekeeping/screenshots/02_Operations/02_Room_Status_Board.png",
+     "paragraph": "Real-time status dashboard with summary cards — Total Rooms, Occupied Clean/Dirty, Vacant Clean/Dirty, Out of Order, Maintenance, Inspection Pending, Occupancy %. Filters: Floor, Status, Room Type, Priority.",
+     "table": {
+      "headers": [
+       "Status",
+       "Meaning"
+      ],
+      "rows": [
+       [
+        "Occupied / Occupied Dirty",
+        "Guest present / guest present + cleaning needed"
+       ],
+       [
+        "Vacant Clean / Vacant Dirty",
+        "Khali + clean (check-in ready) / khali + dirty"
+       ],
+       [
+        "Out of Order",
+        "Room not available"
+       ],
+       [
+        "VIP Room",
+        "VIP guest — special attention"
+       ],
+       [
+        "DND",
+        "Do Not Disturb — skip cleaning"
+       ],
+       [
+        "Inspection Pending",
+        "Cleaned, supervisor check pending"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "4.3 Assignments (Room Assignment)",
+     "navPath": "House Keeping ▶ Operations ▶ Assignments",
+     "screenshot": "HMS_Manuals/Housekeeping/screenshots/02_Operations/03_Assignments.png",
+     "paragraph": "Interface to assign rooms to housekeepers. Left panel has unassigned rooms, right has housekeeper's bucket.",
+     "table": {
+      "headers": [
+       "Button/Field",
+       "Function"
+      ],
+      "rows": [
+       [
+        "Assignment Date",
+        "Select the date"
+       ],
+       [
+        "Supervisor",
+        "By selecting Supervisor"
+       ],
+       [
+        "Auto Assignment",
+        "Rooms automatically distributed"
+       ],
+       [
+        "Balance Assignment",
+        "Workload equally distributed"
+       ],
+       [
+        "Floor Wise / Zone Wise",
+        "Assign as per floor/zone"
+       ],
+       [
+        "→ / ← Arrows",
+        "Room move with housekeeper in/out"
+       ],
+       [
+        "Print Assignment",
+        "Print the assignment sheet"
+       ],
+       [
+        "Save Assignment",
+        "Save the assignment"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "4.4 Start Cleaning",
+     "navPath": "House Keeping ▶ Operations ▶ Start Cleaning",
+     "screenshot": "HMS_Manuals/Housekeeping/screenshots/02_Operations/04_Start_Cleaning.png",
+     "paragraph": "When Housekeeper starts cleaning: select assigned room → verify assignment info → Before photo upload (Camera/Gallery) → START CLEANING click. Timer T1 starts, status shows 'Cleaning In Progress'. Damage Report and Lost & Found buttons are also accessible from here.",
+     "steps": [
+      "Select your room by choosing Assigned Room dropdown.",
+      "Verify Assignment No. and Room Details",
+      "Photo (Before) by capturing — from Camera or Gallery",
+      "Click the START CLEANING button (start time is recorded)"
+     ]
+    },
+    {
+     "title": "4.5 Room Cleaning Entry",
+     "navPath": "House Keeping ▶ Operations ▶ Room Cleaning Entry",
+     "screenshot": "HMS_Manuals/Housekeeping/screenshots/02_Operations/05_Room_Cleaning_Entry.png",
+     "paragraph": "After cleaning is complete: select the room → tick checklist items → enter the actual end time → upload the After photo → update room status to 'Vacant Clean' / 'Occupied Clean' → Submit.",
+     "steps": [
+      "Select the cleaned room",
+      "Mark checklist items complete",
+      "Enter the end time",
+      "By uploading 'Photo After'",
+      "Please update room status and submit."
+     ]
+    },
+    {
+     "title": "4.6 Inspection",
+     "navPath": "House Keeping ▶ Operations ▶ Inspection",
+     "screenshot": "HMS_Manuals/Housekeeping/screenshots/02_Operations/06_Inspection.png",
+     "paragraph": "Supervisor inspects the cleaned rooms: checklist review → before/after photos verify → remarks add → Approve (room clean mark) or Reject (send to re-cleaning).",
+     "table": {
+      "headers": [
+       "Step",
+       "Action",
+       "Result"
+      ],
+      "rows": [
+       [
+        "1",
+        "Select the room from the inspection list",
+        "Details load"
+       ],
+       [
+        "2",
+        "Review the checklist",
+        "Items verified"
+       ],
+       [
+        "3",
+        "By checking photos",
+        "Quality verify"
+       ],
+       [
+        "4",
+        "by adding remarks",
+        "Quality notes"
+       ],
+       [
+        "5",
+        "Approve / Reject",
+        "Clean mark / Re-clean"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "4.7 Lost & Found",
+     "navPath": "House Keeping ▶ Operations ▶ Lost & Found",
+     "screenshot": "HMS_Manuals/Housekeeping/screenshots/02_Operations/07_Lost_and_Found.png",
+     "paragraph": "Record of items found in rooms: Date Found, Room Number, Item Description, Found By, Custody, Status (Pending/Claimed/Returned), Remarks.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Date Found",
+        "When did you get the item?"
+       ],
+       [
+        "Room Number",
+        "Which room it was found in"
+       ],
+       [
+        "Item Description",
+        "Item details"
+       ],
+       [
+        "Found By",
+        "Which housekeeper was assigned"
+       ],
+       [
+        "Custody",
+        "Where is the store?"
+       ],
+       [
+        "Status",
+        "Pending / Claimed / Returned"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "4.8 Damage Entry",
+     "navPath": "House Keeping ▶ Operations ▶ Damage Entry",
+     "screenshot": "HMS_Manuals/Housekeeping/screenshots/02_Operations/08_Damage_Entry.png",
+     "paragraph": "Please report if you find any damage in the room — along with item description. This has been aggregated in the Damage Report.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Room No.",
+        "Which room was damaged?"
+       ],
+       [
+        "Item",
+        "What damage happened?"
+       ],
+       [
+        "Description",
+        "Damage details"
+       ],
+       [
+        "Reported By",
+        "Housekeeper/Supervisor"
+       ],
+       [
+        "Date",
+        "When was the report made?"
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "5. Transactions Module — Laundry",
+   "intro": "Laundry module handles billing and settlement of guest laundry services. Operates through Laundry outlet (LAUN).",
+   "subsections": [
+    {
+     "title": "5.1 Laundry Memo",
+     "navPath": "House Keeping ▶ LAUNDRY ▶ Laundry Memo",
+     "screenshot": "HMS_Manuals/Housekeeping/screenshots/04_Laundry/01_Laundry_Memo.png",
+     "paragraph": "Creating the guest laundry bill/memo: search by Room No/Guest/Barcode → add items from the item group (Iron/Washing/Favourite) → set qty/rate → charges summary (Discount, CGST, SGST, Round Off, Net) → Bill Print or Settlement.",
+     "table": {
+      "headers": [
+       "Section",
+       "Function"
+      ],
+      "rows": [
+       [
+        "Search Fields",
+        "Room No., Guest Name, Bar Code"
+       ],
+       [
+        "Item Selection",
+        "Items from Iron/Washing/Favourite groups"
+       ],
+       [
+        "Charges Summary",
+        "Discount, CGST, SGST, Round Off, Net"
+       ],
+       [
+        "Bill Print",
+        "By printing memo bill"
+       ],
+       [
+        "Settlement",
+        "mark the memo as paid"
+       ],
+       [
+        "Delete",
+        "By deleting memo"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "5.2 Memo Bill Reprint",
+     "navPath": "House Keeping ▶ LAUNDRY ▶ Memo Bill Reprint",
+     "screenshot": "HMS_Manuals/Housekeeping/screenshots/04_Laundry/02_Memo_Bill_Reprint.png",
+     "paragraph": "To print old laundry bills again: Select For Year → Bill No. Enter → Search → load details → Bill Print.",
+     "steps": [
+      "House Keeping → LAUNDRY → open Memo Bill Reprint",
+      "Select the For Year",
+      "Enter the Bill No.",
+      "Search by clicking — item-wise details will load.",
+      "Click Bill Print"
+     ]
+    },
+    {
+     "title": "5.3 Settlement Entry",
+     "navPath": "House Keeping ▶ LAUNDRY ▶ Settlement Entry",
+     "screenshot": "HMS_Manuals/Housekeeping/screenshots/04_Laundry/03_Settlement_Entry.png",
+     "paragraph": "Record payment of pending laundry bills: enter For Year + Bill No. → select payment mode (Cash/Cheque/UPI/Card) → Amount + Narration → Submit. Total/Paid/Balance is visible in Pending Bill Details.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "For Year",
+        "Financial year select"
+       ],
+       [
+        "Bill No.",
+        "bill to settle"
+       ],
+       [
+        "Charge/Payment",
+        "Cash in Hand / Cheque / UPI / Card"
+       ],
+       [
+        "Amount",
+        "Payment amount"
+       ],
+       [
+        "Narration",
+        "Optional remark"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "5.4 Split Bill",
+     "navPath": "House Keeping ▶ LAUNDRY ▶ Split Bill",
+     "screenshot": "HMS_Manuals/Housekeeping/screenshots/03_Reports/04_SplitBill_Retry.png",
+     "caption": "Split Bill — demo property pe permission restricted (live screen)",
+     "paragraph": "Splitting one laundry bill across multiple accounts: select the original bill → define the split amounts → generate individual bills → settle each split. The splits stay linked to the original memo.\n\nNote: This screen is restricted on the demo property — it is fully functional on a live property.",
+     "bullets": [
+      "Select the original bill",
+      "Split amounts by defining per account",
+      "Individual bills are generated",
+      "Every split has a different settlement."
+     ]
+    }
+   ]
+  },
+  {
+   "title": "6. Linen Management",
+   "intro": "The Linen module tracks the external laundry movement of hotel linen — sending and receiving back, with counts.",
+   "subsections": [
+    {
+     "title": "6.1 Laundry Send",
+     "navPath": "House Keeping ▶ Linen Management ▶ Laundry Send",
+     "screenshot": "HMS_Manuals/Housekeeping/screenshots/05_Linen/01_Laundry_Send.png",
+     "paragraph": "Record of sending linen to external laundry: item, quantity, date, sent-by details. With vendor laundry challan.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Date",
+        "Send date"
+       ],
+       [
+        "Item",
+        "Linen item (Pillow Cover, Towel...)"
+       ],
+       [
+        "Qty Sent",
+        "How much did you send?"
+       ],
+       [
+        "Challan/Reference",
+        "Vendor challan no."
+       ],
+       [
+        "Remarks",
+        "Optional notes"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "6.2 Laundry Receive",
+     "navPath": "House Keeping ▶ Linen Management ▶ Laundry Receive",
+     "screenshot": "HMS_Manuals/Housekeeping/screenshots/05_Linen/02_Laundry_Receive.png",
+     "paragraph": "Record of return of linen from laundry — sent quantity against received qty and pending balance is tracked.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Date",
+        "Receive date"
+       ],
+       [
+        "Item",
+        "Linen item"
+       ],
+       [
+        "Qty Received",
+        "How far back have you come?"
+       ],
+       [
+        "Pending",
+        "Sent - Received balance"
+       ],
+       [
+        "Remarks",
+        "Damage/loss notes"
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "7. Reports Module",
+   "intro": "The reports section gives complete housekeeping analytics. All reports have common filters: Date Range, Floor, Room Type, Housekeeper, Status. Export: Print / Excel / PDF.",
+   "subsections": [
+    {
+     "title": "7.1 Available Reports",
+     "navPath": "House Keeping ▶ Reports",
+     "screenshot": "HMS_Manuals/Housekeeping/screenshots/03_Reports/01_Housekeeping_Report.png",
+     "caption": "House Keeping Report — the main screen of the Reports module",
+     "table": {
+      "headers": [
+       "Report",
+       "Description",
+       "Usage"
+      ],
+      "rows": [
+       [
+        "House Keeping Report",
+        "Complete summary of room cleaning activities",
+        "Daily monitoring"
+       ],
+       [
+        "Cleaning Register",
+        "All cleaning entries — date, room, staff",
+        "History & audit"
+       ],
+       [
+        "Assignment Report",
+        "Daily room assignments staff-wise",
+        "Workload management"
+       ],
+       [
+        "Amenities Report",
+        "Amenities issued/consumed summary",
+        "Amenities tracking"
+       ],
+       [
+        "Room-wise Amenities",
+        "Room level amenities issued/consumed/pending",
+        "Verification"
+       ],
+       [
+        "Damage Report",
+        "Register of room damages",
+        "Maintenance follow-up"
+       ],
+       [
+        "Lost & Found Register",
+        "Full history of found items",
+        "Audit & claim tracking"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "7.2 Common Report Filters",
+     "table": {
+      "headers": [
+       "Filter",
+       "Options"
+      ],
+      "rows": [
+       [
+        "Date Range",
+        "From–To (daily/weekly/monthly/custom)"
+       ],
+       [
+        "Floor",
+        "All / specific floor"
+       ],
+       [
+        "Room Type",
+        "All / Deluxe / Suite"
+       ],
+       [
+        "Housekeeper",
+        "All / specific staff"
+       ],
+       [
+        "Status",
+        "All / Clean / Dirty / Occupied / OOO / Maintenance"
+       ],
+       [
+        "Export",
+        "Print / Excel / PDF"
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "8. Complete Screens Gallery — Housekeeping (All Captured Screens)",
+   "intro": "This gallery shows SAARI captured screens of the Housekeeping module not covered in detail in the main sections. For revision after training — Every screen the trainee has seen before, there is a place for complete reference.",
+   "subsections": [
+    {
+     "title": "G.01 03_Reports — 02 Cleaning Register",
+     "screenshot": "HMS_Manuals/Housekeeping/screenshots/03_Reports/02_Cleaning_Register.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.02 03_Reports — 03 Assignment Report",
+     "screenshot": "HMS_Manuals/Housekeeping/screenshots/03_Reports/03_Assignment_Report.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.03 03_Reports — 04 Roomwise Amenities Report",
+     "screenshot": "HMS_Manuals/Housekeeping/screenshots/03_Reports/04_Roomwise_Amenities_Report.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.04 03_Reports — 05 Damage Report",
+     "screenshot": "HMS_Manuals/Housekeeping/screenshots/03_Reports/05_Damage_Report.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.05 03_Reports — 06 LostFound Register",
+     "screenshot": "HMS_Manuals/Housekeeping/screenshots/03_Reports/06_LostFound_Register.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.06 04_Laundry — 04 Split Bill",
+     "screenshot": "HMS_Manuals/Housekeeping/screenshots/04_Laundry/04_Split_Bill.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    }
+   ]
+  },
+  {
+   "title": "9. Appendix — Reference & Best Practices",
+   "intro": "Quick reference tables which come in handy in daily operations.",
+   "subsections": [
+    {
+     "title": "Room Status Codes",
+     "table": {
+      "headers": [
+       "Code",
+       "Status",
+       "Meaning",
+       "Next Action"
+      ],
+      "rows": [
+       [
+        "VC",
+        "Vacant Clean",
+        "Empty + cleaned, ready",
+        "FO: guest allocate away"
+       ],
+       [
+        "VD",
+        "Vacant Dirty",
+        "Empty + cleaning required",
+        "HK: immediate cleaning"
+       ],
+       [
+        "OC",
+        "Occupied Clean",
+        "Guest + clean",
+        "Monitor / next service"
+       ],
+       [
+        "OD",
+        "Occupied Dirty",
+        "Guest + cleaning required",
+        "HK: schedule (guest coordinate)"
+       ],
+       [
+        "OOO",
+        "Out of Order",
+        "not available",
+        "Engineering fix"
+       ],
+       [
+        "M",
+        "Maintenance",
+        "Temporary maintenance",
+        "Engineering + notify HK"
+       ],
+       [
+        "IP",
+        "Inspection Pending",
+        "Cleaned, QA pending",
+        "Supervisor inspect"
+       ],
+       [
+        "DND",
+        "Do Not Disturb",
+        "Guest did not turn on DND",
+        "Skip, try later"
+       ],
+       [
+        "EC",
+        "Early Check-in",
+        "Guest will arrive soon",
+        "Priority cleaning"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Daily Housekeeping Workflow",
+     "table": {
+      "headers": [
+       "Time",
+       "Activity",
+       "Screen",
+       "Responsible"
+      ],
+      "rows": [
+       [
+        "7:00 AM",
+        "Briefing + room status check",
+        "HK Screen / Room Status Board",
+        "HK Manager"
+       ],
+       [
+        "7:30 AM",
+        "make assignments",
+        "Operations > Assignments",
+        "HK Supervisor"
+       ],
+       [
+        "8:00 AM",
+        "Cleaning start",
+        "Operations > Start Cleaning",
+        "Housekeeper"
+       ],
+       [
+        "8AM–2PM",
+        "Room cleaning + entries",
+        "Room Cleaning Entry",
+        "Housekeeper"
+       ],
+       [
+        "Continuous",
+        "Inspection",
+        "Operations > Inspection",
+        "HK Supervisor"
+       ],
+       [
+        "Throughout",
+        "Laundry requests",
+        "Laundry > Laundry Memo",
+        "Laundry Staff"
+       ],
+       [
+        "Throughout",
+        "Log lost items",
+        "Lost & Found",
+        "Housekeeper"
+       ],
+       [
+        "6:00 PM",
+        "Evening status review",
+        "Room Status Board",
+        "HK Manager"
+       ],
+       [
+        "End of day",
+        "Daily reports",
+        "Reports section",
+        "HK Manager"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Troubleshooting",
+     "table": {
+      "headers": [
+       "Issue",
+       "Cause",
+       "Solution"
+      ],
+      "rows": [
+       [
+        "Cannot login",
+        "Wrong credentials/property",
+        "Verify User/Password/Property"
+       ],
+       [
+        "Not visible in room assignment",
+        "Already assigned ya filtered",
+        "View Assignment check / filters clear"
+       ],
+       [
+        "Not in the housekeeper dropdown",
+        "Inactive ya not added",
+        "Mark Active in the Housekeeper Master"
+       ],
+       [
+        "Cannot start cleaning",
+        "Room not assigned to you",
+        "check your name in assignments"
+       ],
+       [
+        "Memo is not being printed",
+        "Printer/bill not saved",
+        "First save, then print the bill."
+       ],
+       [
+        "Status is not updating",
+        "Cache issue",
+        "F5 / cache clear"
+       ],
+       [
+        "Inspection option not available",
+        "Cleaning entry was not submitted",
+        "First submit Room Cleaning Entry."
+       ],
+       [
+        "Split Bill error",
+        "Demo permission restricted",
+        "Try it on the live property"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Contact & Support",
+     "table": {
+      "headers": [
+       "Contact",
+       "Details"
+      ],
+      "rows": [
+       [
+        "Website",
+        "https://analysishms.com"
+       ],
+       [
+        "Support Email",
+        "support@analysishms.com"
+       ],
+       [
+        "Phone",
+        "+91 9161380170"
+       ],
+       [
+        "System Login",
+        "User: HOUSEKEEPING | Pass: HOUSEKEEPING | Property: Demo"
+       ],
+       [
+        "Software Version",
+        "Analysis HMS "
+       ]
+      ]
+     }
+    }
+   ]
+  }
+ ]
+}

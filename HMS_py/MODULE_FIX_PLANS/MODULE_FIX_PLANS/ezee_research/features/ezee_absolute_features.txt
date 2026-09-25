@@ -1,0 +1,26 @@
+eZee Absolute — FEATURES (screenshots\absolute\ folder se)
+===========================================================
+Source: official ezeeabsolute.com/screenshots.php (Wayback 2024-05-16)
+
+MAIN SCREENS/MODULES (image name ke saath):
+- Walk-in            -> bina reservation ke direct check-in entry
+- Room View          -> property ka room plan, status grid
+- Quick View         -> today's front-office snapshot (arrivals/departures/in-house/total rooms)
+- Quick View Graphical -> dashboard with graphical summary (occupancy, revenue)
+- Stay View          -> guest folio/stay details ek screen pe
+- Transaction        -> folio transactions (charges/payments)
+- Reservation List   -> saare reservations ka list + search/filter
+- Night Audit        -> closing process, date roll-over, audit log/running total
+- Housekeeping       -> HK status + task updates
+- Group Management   -> group/tour bookings
+- Guest Review       -> guest feedback/review mgmt
+- Guest List Report  -> guest master/report
+- CRS Report         -> Central Reservation System report (booking source/channel wise)
+- Monthly Stat Report-> monthly statistics (occupancy %, ADR, RevPAR)
+- Payment Summary Report -> payments/collection summary
+- Room Availability Report -> availability per room type/date
+
+NOTE: "dhaboard-rs" = dashboard for revenue summary (revenue dashboard).
+
+eZee Absolute ek combined PMS + modules package hai:
+PMS core + CRS + Channel Manager... + POS + Accounting bridge + HSKP + Night Audit + Reports + CRM/Review mgmt + Loyalty.

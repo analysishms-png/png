@@ -1,0 +1,468 @@
+{
+ "module": "RESERVATION MODULE",
+ "subtitle": "Operations · Reports · Appendix",
+ "property": "Property: Demo Property",
+ "version": "Training Manual for Reservation Staff",
+ "header": "Analysis HMS — Reservation Module Training Manual",
+ "footerText": "Analysis HMS Reservation Training Manual | Demo Property",
+ "output": "HMS_Manuals/Reservation/Reservation_Module_Training_Manual_English.docx",
+ "imageRoot": ".",
+ "theme": {
+  "color": "00838F",
+  "dark": "006064",
+  "light": "E0F7FA"
+ },
+ "sections": [
+  {
+   "title": "1. Introduction & Module Overview",
+   "intro": "The reservation module is the system for future bookings — if a guest calls today and books a room for next week, the entry happens here. It is an extension of Front Office: a reservation converts to check-in.\n\nIn Analysis HMS the reservation flow: Enquiry → Booking create (guest + room type + dates + advance) → Confirmation → Check-In in Front Office on arrival day → No-show/cancellation handling. OTA bookings are also pulled into this via the Channel Manager (in EXTRAs).",
+   "subsections": [
+    {
+     "title": "Module Sections Overview",
+     "table": {
+      "headers": [
+       "Section",
+       "Purpose",
+       "Key Screens"
+      ],
+      "rows": [
+       [
+        "OPERATIONS",
+        "Making and managing bookings",
+        "Reservation form (Shift+Q), Reservation List, Look Up Rooms"
+       ],
+       [
+        "REPORTS",
+        "Arrival/forecast analysis",
+        "Arrival List, Lookup Room Type, Advance Report, Occupancy Forecast"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Reservation Data Flow (Technical Understanding)",
+     "table": {
+      "headers": [
+       "what are you doing",
+       "Database",
+       "what happened?"
+      ],
+      "rows": [
+       [
+        "Booking create",
+        "guestfolio + roomocc",
+        "Reservation entry is created (chkoutdate, status)"
+       ],
+       [
+        "Take advance",
+        "guestfolio (advance entry)",
+        "Advance amount has been credited in the folio."
+       ],
+       [
+        "Quick add company/agent",
+        "guestprof",
+        "Company/Travel agent profile is created"
+       ],
+       [
+        "Check-in pe convert",
+        "roomocc update",
+        "Reservation is available in-room."
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Key Benefits",
+     "bullets": [
+      "New reservation form in 2 seconds with Shift+Q",
+      "Live room availability — via Look Up Rooms",
+      "Advance/deposit tracking with receipts",
+      "Occupancy forecast — room/sold picture of the coming days",
+      "Company/Agent quick-add — profile right at booking time",
+      "Cancellation letter and reservation card printing",
+      "OTA (channel manager) integration ready"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "2. Login & Navigation",
+   "screenshot": "HMS_Manuals/Reservation/screenshots/00_Login/01_Login_Page.png",
+   "caption": "Analysis HMS Login Screen",
+   "subsections": [
+    {
+     "title": "Login Page",
+     "screenshot": "HMS_Manuals/Reservation/screenshots/00_Login/01_Login_Page.png",
+     "para": "Login Page — Sign In by entering User ID + Password at analysishms.com. After property selection the module menu opens. (This screenshot was earlier missing in the gallery, now it has been added.)"
+    },
+    {
+     "title": "Login & Menu",
+     "table": {
+      "headers": [
+       "Step",
+       "Action"
+      ],
+      "rows": [
+       [
+        "1",
+        "https://analysishms.com → Login (user/pass/demo property)"
+       ],
+       [
+        "2",
+        "By expanding 'Reservations' in the sidebar"
+       ],
+       [
+        "3",
+        "Operations: reservation(Shift+Q), Reservation List, Look Up Rooms"
+       ],
+       [
+        "4",
+        "Reports: Arrival List, Look Up Room type, Advance Report, Occupancy Forecast"
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "3. Operations Module",
+   "subsections": [
+    {
+     "title": "3.1 Reservation Form (Shift+Q) — Main Screen",
+     "navPath": "Reservations ▶ Operations ▶ reservation(Shift+q)",
+     "screenshot": "HMS_Manuals/Reservation/screenshots/01_Operations/01_Reservation_Form.png",
+     "paragraph": "New booking has been made here. Guest details, stay dates, room type/nos, rate and advance — all in one form. There are also quick-add buttons for Company/Travel Agent/City (new profile is created at the time of booking).",
+     "table": {
+      "headers": [
+       "Field Group",
+       "Fields",
+       "Notes"
+      ],
+      "rows": [
+       [
+        "Stay Details",
+        "Check-In Date, Nights, Checkout, Adults, Children, Rooms",
+        "Nights badlo to checkout auto-update"
+       ],
+       [
+        "Guest Details",
+        "Prefix, Name, Mobile, Email, City, Address",
+        "Existing guest ho to search and select"
+       ],
+       [
+        "Company / Agent",
+        "Company, Travel Agent dropdowns + quick-add (+)",
+        "If Bill To is a company, set it here"
+       ],
+       [
+        "Room & Rate",
+        "Room Type, Room Nos, Plan, Rate, Tax",
+        "According to availability type"
+       ],
+       [
+        "Advance",
+        "Amount + Payment Mode",
+        "Tracked in Advance Report"
+       ],
+       [
+        "Remarks/Status",
+        "Remarks, Confirmed/Tentative",
+        "Tentative bookings with deadline"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.2 Reservation List",
+     "navPath": "Reservations ▶ Operations ▶ Reservation List",
+     "screenshot": "HMS_Manuals/Reservation/screenshots/01_Operations/02_Reservation_List.png",
+     "paragraph": "List of all bookings — with date range filter. From here you can edit reservation, cancel, print arrival letter, or convert into check-in.",
+     "table": {
+      "headers": [
+       "Column/Action",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Guest / Res No.",
+        "Booking reference"
+       ],
+       [
+        "Dates / Rooms / Rate",
+        "Stay summary"
+       ],
+       [
+        "Status",
+        "Confirmed / Tentative / Cancelled / Checked-In / No-Show"
+       ],
+       [
+        "Actions",
+        "Edit, Cancel (cancellation letter), Check-In convert, Res Card/Letter print"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.3 Look Up Rooms",
+     "navPath": "Reservations ▶ Operations ▶ Look Up Rooms",
+     "screenshot": "HMS_Manuals/Reservation/screenshots/01_Operations/03_Lookup_Rooms.png",
+     "paragraph": "Enter dates — shows how many rooms are available in which room type. Please verify availability here before confirming booking.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "From–To Date",
+        "Availability check period"
+       ],
+       [
+        "Room Type Grid",
+        "Total / Booked / Available per type per day"
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "4. Reports Module",
+   "subsections": [
+    {
+     "title": "4.1 Available Reports",
+     "navPath": "Reservations ▶ Reports",
+     "screenshot": "HMS_Manuals/Reservation/screenshots/02_Reports/04_Occupancy_Forecast.png",
+     "caption": "Occupancy Forecast",
+     "table": {
+      "headers": [
+       "Report",
+       "what do you see",
+       "Use"
+      ],
+      "rows": [
+       [
+        "Arrival List",
+        "On what date and who will arrive — guest, nights, rooms",
+        "Morning duty list — pickups/rooms ready"
+       ],
+       [
+        "Look Up Room Type",
+        "Type-wise availability calendar",
+        "Avoiding overbooking"
+       ],
+       [
+        "Advance Report",
+        "How much advance should be taken on which booking?",
+        "Finance reconciliation"
+       ],
+       [
+        "Occupancy Forecast",
+        "Single day occupancy % (on-the-books)",
+        "Pricing/OTAs decisions"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "4.2 Report Filters",
+     "table": {
+      "headers": [
+       "Filter",
+       "Options"
+      ],
+      "rows": [
+       [
+        "Date Range",
+        "From–To"
+       ],
+       [
+        "Room Type",
+        "All / specific"
+       ],
+       [
+        "Source",
+        "Direct / OTA / Agent / Company"
+       ],
+       [
+        "Export",
+        "Print / Excel / PDF"
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "5. Complete Screens Gallery — Reservation (All Captured Screens)",
+   "intro": "This gallery shows SAARI captured screens of the Reservation module which is not covered in detail in the main sections. For revision after training — Every screen the trainee has seen before, there is a place for complete reference.",
+   "subsections": [
+    {
+     "title": "G.01 02_Reports — 01 Arrival List",
+     "screenshot": "HMS_Manuals/Reservation/screenshots/02_Reports/01_Arrival_List.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.02 02_Reports — 02 Lookup RoomType",
+     "screenshot": "HMS_Manuals/Reservation/screenshots/02_Reports/02_Lookup_RoomType.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.03 02_Reports — 03 Advance Report",
+     "screenshot": "HMS_Manuals/Reservation/screenshots/02_Reports/03_Advance_Report.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    }
+   ]
+  },
+  {
+   "title": "6. Appendix — Training Reference",
+   "subsections": [
+    {
+     "title": "Reservation Staff Daily Workflow",
+     "table": {
+      "headers": [
+       "Time",
+       "Activity",
+       "Screen"
+      ],
+      "rows": [
+       [
+        "Morning",
+        "Print the list of today's arrivals.",
+        "Arrival List"
+       ],
+       [
+        "Morning",
+        "Tentative bookings will be confirmed (deadline check)",
+        "Reservation List"
+       ],
+       [
+        "All day",
+        "Create new bookings — call/OTA/walk-in enquiry",
+        "Reservation (Shift+Q)"
+       ],
+       [
+        "All day",
+        "Advance receive and record",
+        "Reservation form / Advance Report"
+       ],
+       [
+        "Evening",
+        "See forecast for next 7-30 days",
+        "Occupancy Forecast"
+       ],
+       [
+        "OTA sync",
+        "Channel manager should verify bookings.",
+        "EXTRAs → Channel Manager → Data Push"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Common Scenarios (Training Q&A)",
+     "table": {
+      "headers": [
+       "Scenario",
+       "what to do"
+      ],
+      "rows": [
+       [
+        "Guest changed the dates",
+        "Reservation List → Edit → nayi dates → save (availability check)"
+       ],
+       [
+        "Guest is canceling",
+        "Reservation List → Cancel → print cancellation letter (advance refund note as per policy)"
+       ],
+       [
+        "Guest turned no-show",
+        "With Status No-Show — night audit is also done automatically (depending on the parameter)."
+       ],
+       [
+        "Corporate booking — bill to the company",
+        "Company dropdown select ya quick-add + Bill To = Company"
+       ],
+       [
+        "Booking received from OTA",
+        "Automatic from channel manager; if received manually, select source OTA"
+       ],
+       [
+        "Advance cash mila",
+        "Advance in the reservation form or Front Office → Advance Deposit Entry"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Troubleshooting",
+     "table": {
+      "headers": [
+       "Issue",
+       "Cause",
+       "Solution"
+      ],
+      "rows": [
+       [
+        "Reservation is not being saved",
+        "Required fields missing",
+        "Check guest name + mobile + dates + room type"
+       ],
+       [
+        "Availability 0 in the room type",
+        "Rooms were full on that date",
+        "Check alternate type/date in Look Up Rooms"
+       ],
+       [
+        "Not visible in advance report",
+        "Advance saved not done",
+        "Edit the reservation and verify the advance entry"
+       ],
+       [
+        "Reservation not found at check-in",
+        "Date ya status filter",
+        "Check the date range and status in the Reservation List"
+       ],
+       [
+        "Double booking happened",
+        "Manual entry + OTA clash",
+        "Do a cancel; Habito to verify before creating Look Up Rooms"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Contact & Support",
+     "table": {
+      "headers": [
+       "Contact",
+       "Details"
+      ],
+      "rows": [
+       [
+        "Website",
+        "https://analysishms.com"
+       ],
+       [
+        "Support Email",
+        "support@analysishms.com"
+       ],
+       [
+        "Phone",
+        "+91 9161380170"
+       ],
+       [
+        "Training Login",
+        "Use your assigned User ID and Password"
+       ],
+       [
+        "Software Version",
+        "Analysis HMS "
+       ]
+      ]
+     }
+    }
+   ]
+  }
+ ]
+}

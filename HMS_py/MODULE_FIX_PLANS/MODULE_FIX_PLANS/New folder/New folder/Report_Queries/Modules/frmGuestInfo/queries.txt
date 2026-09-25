@@ -1,0 +1,25 @@
+Module: frmGuestInfo
+Total SQL statements: 7
+================================================================================
+
+-- SQL Statement 1 --
+  loc_EBF5DE: var_10C = "Select DISTINCT (LF.LcCode+Space(6-len(LF.LcCode))+'**'+Convert(Varchar(11),LF.AppDate,103)) AS Code,LM.Name As LocationName,Convert(Varchar(11),LF.AppDate,103) From (LocationFacility LF Left Join LocationMast LM On LF.LcCode=LM.Code) Where (LF.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 2 --
+  loc_13DBE99:       var_1CC = "Update GuestProf Set Name=" & var_108 & ",Add1=" & var_1BC 
+
+-- SQL Statement 3 --
+  loc_13DC0A0:       var_314 = "Update SmartCardRegistration Set Name=" & var_108 & ",Addr=" & var_1CC & ",Phone=" & var_270 & " Where MemberCode='" & CVar(CStr(Me.FGrid.TextMatrix))) 
+
+-- SQL Statement 4 --
+  loc_13DC1C4:         var_514 = "Select IsNull(Max(CAST(SUBSTRING(Code,3,6) AS INT)),1)+1 AS MyCode From GUESTPROF WHERE SITE_CODE='" & MemVar_1F81070
+
+-- SQL Statement 5 --
+  loc_13DC3A5:         var_514 = "Insert Into GuestProf (Code,Name,Add1,MobileNo,CityName,BirthDate,Anniversary,POS,Site_Code,U_Name,U_EntDt,U_AE,LOGSITE_CODE) Values ('" & CStr("Update SmartCardRegistration Set Name=" & var_108)
+
+-- SQL Statement 6 --
+  loc_F552F5: var_AC = "Select DISTINCT (LF.LcCode+Space(6-len(LF.LcCode))+'**'+Convert(Varchar(11),LF.AppDate,103)) AS SearchCode,SITE_CODE,LOGSITE_CODE From LocationFacility LF Where (LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 7 --
+  loc_1198D34: var_8C = "Select Code,Name,MobileNo,Add1,BirthDate,Anniversary,CityName From GuestProf Where POS=1 And (LOGSITE_CODE='" & MemVar_1F81078
+

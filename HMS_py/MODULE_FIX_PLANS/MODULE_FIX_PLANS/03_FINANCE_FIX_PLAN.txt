@@ -1,0 +1,72 @@
+FINANCE AND MASTER DATA FIX PLAN
+================================
+
+VB6 logic extracted from legacy master patterns:
+- FrmPayTypeMast validates payment types and protects deletion when PayCharge references them.
+- GuestStatus, MarketSeg, BussSource, and Forex tables are maintained as master lists and reused
+  by front office and billing functions.
+- tax structure masters rely on header + detail rows and are used in room/rate calculations.
+- Ledger and account-group management is tied to account movement and financial posting logic.
+
+Scope:
+- Tax master / tax structure
+- Payment type
+- Market segment / business source / guest status
+- Forex master
+- Ledger / account group
+- Group accounts / narration / sundry
+
+Primary Files:
+- HMS_py/core/taxmaster.py
+- HMS_py/core/taxstru.py
+- HMS_py/core/paymenttype.py
+- HMS_py/core/marketsegment.py
+- HMS_py/core/businesssource.py
+- HMS_py/core/gueststatus.py
+- HMS_py/core/forexmaster.py
+- HMS_py/core/ledger.py
+- HMS_py/core/acgroup.py
+- HMS_py/core/fixcharge.py
+- HMS_py/ui/finance_masters_ui.py
+
+Crystal / print pages and names:
+- FrmPayTypeMast / FrmTaxMast / FrmTaxStruMast / FrmMarketSeg / FrmBusinessSrc / FrmGuestStat / FrmForeignExMast
+- FaReports / FaRepView / FaVtype / FaMagic / FaFind / FaGlobeNarr / FaTaxVoucher
+- Temp printing setup: financial report export to report folder and temp spool; print preview window names from FA report forms
+- Crystal report families: rFaRepView, rRepPayRoll, FA report preview and print module names
+
+VB6 behavior to preserve:
+1. Payment types are not just free text; they must match allowed modes used by payment receive logic.
+2. GuestStatus / MarketSeg / BussSource must map to actual live DB tables, not guessed legacy names.
+3. Tax structure and forex data are used by room and billing calculations and must validate before write.
+4. Financial masters are highly relational; create/update must reject invalid references.
+
+Known Missing / Risky Logic:
+1. Legacy table name mismatches such as MarketSeg / BussSource / GuestStatus need final schema mapping.
+2. Tax structure validation logic must ensure header and line rows align.
+3. Payment type mapping must reject unsupported values.
+4. Forex and ledger records must validate code and short names before updates.
+5. Some screens may expose fields not present in live DB — these must be suppressed or no-op.
+
+Required Fixes:
+1. Normalize table aliasing for live DB fields and match to VB6 semantics.
+2. Add validation for tax code, rate, and description lengths.
+3. Protect unsupported payment types with explicit ValueError or silent rejection.
+4. Ensure ledger records point to valid account group and financial code.
+5. Keep finance values read-only when live DB marks them as operational-only or sensitive.
+
+Implementation Steps:
+1. Check each master against live DB table names and columns.
+2. Standardize validation helpers and error messages in Hindi/English hybrid as already used in project.
+3. Add regression tests for:
+   - tax code required
+   - invalid payment type rejection
+   - duplicate account group names
+   - forex master code validation
+4. Run core validation suite after each master change.
+
+Expected Result:
+- Financial master screens remain DB-driven and consistent with VB6 behavior.
+- No invalid account or payment mappings reach production DB.
+- Finance screens are stable and safe for user-driven maintenance.
+
