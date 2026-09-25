@@ -25,6 +25,13 @@ Har module ke liye ye **11 files** banao (root = `MODULE_MANUALS_2026/<NN_Module
 | TEST_PLAN.md | `tests/` mapping + TEST_RESULTS table + 10-step manual script |
 | 0x_*/README.md | `_logic.json` layer bucket + 1-2 line functioning + tables + SQL pattern |
 
+> **Citation snapshot policy:** `shell:NNN` line refs = snapshot at doc creation
+> (batch 2026-09-25 ~10:00-13:40, pre-push). Concurrent sessions `shell.py`
+> refactor karte hain (e.g. 14:21 push `50627a3`, sidebar `mod_target` API hataa)
+> to line numbers shift ho sakte hain — resolve **caption/opener name** se pehle
+> (capture bhi caption-se hi resolve karta hai, registry intact), line number
+> indicative hai. Shell stabilize hone ke baad spot-check + bulk update karo.
+
 5. `python -m HMS_py.tools.manual_pipeline.check_manual --module <NN_Module>` (cwd `png`) — Task 11
 6. Section rules: har `##` section ka source upar wali table se; data live hai —
    guess mat karo, query/padho; jo na mile wo "gap" likho (placeholder word use mat karo).

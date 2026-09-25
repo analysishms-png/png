@@ -87,6 +87,14 @@ def test_classify_norm_collision_exact_precedence():
     assert [r["caption_disp"] for r in out["other"]] == [
         "SMS (Conditional)", "SMS", "Operations"]
 
+    # drift-guard: _xnorm = _norm_caption ki cleanup steps + paren-preserving.
+    # Agar menu_help._norm_caption ka cleanup (suffix/space rules) badle to ye fail hoga.
+    from HMS_py.tools.manual_pipeline.collect_logic import _xnorm
+    for plain in ("Guest Profile", "Walk In Check In", "- HMS_py Sales"):
+        assert _xnorm(plain) == _norm_caption(plain), plain
+    assert _xnorm("SMS (API)") == "sms (api)"
+    assert _norm_caption("SMS (API)") == "sms"  # trailing-paren strip = KI-10 root
+
 
 def test_collect_payload_shape():
     from HMS_py.tools.manual_pipeline import collect_logic

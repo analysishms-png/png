@@ -46,13 +46,15 @@ Unmapped-to-folder values (batch discovery me assign hote hain): `UNMAPPED, FO, 
 
 1. `Flag='V'` → **hidden**
 2. `Flag='R'` → **reports**
-3. normalized caption ∈ curated `leaves['masters']` (modules_map) YA `Module_Name ∈ master_modules` → **masters**
-4. normalized caption ∈/contains curated `leaves['operations']` → **operations** (variant match, e.g. "Walk In Check In" ⊃ "check in")
-5. baaki sab → **other** bucket (count `menuhelp.counts.other` — kabhi drop nahi hota; manual README §3 me compulsory likhna hai)
+3. paren-preserving EXACT `caption_disp` ∈ curated `leaves['masters']` → **masters** (case-insensitive; KI-10 fix step 1)
+4. paren-preserving EXACT `caption_disp` ∈ curated `leaves['operations']` → **operations** (KI-10 fix step 2 — exact curation sabse pehle honour hoti hai)
+5. normalized caption ∈ curated `leaves['masters']` (paren leaves ka stripped norm legacy caps me **exclude** — collision root) YA `Module_Name ∈ master_modules` → **masters**
+6. normalized caption ∈/contains curated `leaves['operations']` → **operations** (variant match, e.g. "Walk In Check In" ⊃ "check in")
+7. baaki sab → **other** bucket (count `menuhelp.counts.other` — kabhi drop nahi hota; manual README §3 me compulsory likhna hai)
 
 Curated lists source: `MODULE_FIX_PLANS/FODER/HMS_MenuHelp_Wise_MasterOpReports/04_FrontOffice/*` (existing Master/Op/Report classification) + registry leaves.
 
 FO pilot (`_logic.json`, 2026-09-25): `masters=0, operations=1, reports=33, hidden=0, other=29`
 (masters=0 = FO ke menuHelp rows me curated master captions/Module_Name nahi — Guest Profile jaise masters `Mast/GEN` (02_MainSetup) groups me baithe hain; manual me document hota hai.)
 
-Batch final (Task 12, 2026-09-25): all 14 modules complete (check_manual 14/14); rows 11/14 discovery resolved as noted above; KI-10 norm-collision quirk (`_norm_caption` trailing-paren strip) documented in 00_Instructions/TEST_PLAN_MASTER.md - classify tool fix pending (gate counts par depend nahi karta).
+Batch final (Task 12, 2026-09-25): all 14 modules complete (check_manual 14/14); rows 11/14 discovery resolved as noted above; KI-10 norm-collision quirk (`_norm_caption` trailing-paren strip) documented in 00_Instructions/TEST_PLAN_MASTER.md - classify tool fix APPLIED 2026-09-25 (exact caption_disp precedence + paren-leaf norm exclusion; 12_Messaging counts 5/0/0/0/1 -> 2/1/0/0/3, other 13 modules zero change, TDD test green).

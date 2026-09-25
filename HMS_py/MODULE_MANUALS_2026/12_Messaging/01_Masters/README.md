@@ -2,10 +2,10 @@
 
 ## Leaves (MenuHelp)
 
-**masters bucket = 5**: `Sstup` (VB6 misspelling, Flag N, SMSSETUP), `SMS (API)`, `SMS (Scheduled)`, `SMS (Conditional)`, `SMS`.
+**masters bucket = 2**: `Sstup` (VB6 misspelling, Flag N, SMSSETUP, via `master_modules`), `SMS (API)` (exact curated leaf).
 Curated capture leaf: **`SMS (API)`** (shell:1547 → `sms_ui_mod.open_sms_send`; menuHelp `SA AEDP E EXTSMSSETUP`).
 
-> Classify note: `_norm_caption` strips trailing `(...)` → all `SMS (...)` captions normalize to `"sms"` and land in masters via `master_caps` (masters-first ordering). `SMS (Scheduled)` is really operations (registry `hits.operations`) but counts here — see module README §1.
+> Classify note (KI-10 fixed 2026-09-25): `_norm_caption` strips trailing `(...)` se pehle poora SMS family masters me collapse ho jaata tha; ab `classify` exact `caption_disp` match pehle karta hai + paren-leaf stripped norms exclude karta hai → `SMS (Scheduled)` operations me, uncurated siblings (`SMS (Conditional)`, `SMS`) other me — see module README §1.
 
 ## Functioning
 

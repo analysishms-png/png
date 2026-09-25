@@ -787,20 +787,17 @@
     ],
     "operations": [
       "Check In",
-      "Check In Browser",
       "Check Out",
       "Booking Operations",
       "Room Change",
       "Folio Log",
-      "Room Check Out",
       "Guest Services"
     ],
     "reports": [
       "Room Status",
       "Room Display",
       "Reservation Status Report",
-      "Guest History",
-      "Guest Ledger"
+      "Guest History"
     ]
   },
   "core_files": [

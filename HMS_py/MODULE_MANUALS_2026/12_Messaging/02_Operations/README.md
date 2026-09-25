@@ -2,7 +2,7 @@
 
 ## Leaves (MenuHelp)
 
-**operations bucket = 0 classify** (norm-collision: `SMS (Scheduled)` caption normalizes to `"sms"` = master_caps → counted in masters; see module README §1). Curated capture leaf: **`SMS (Scheduled)`** (shell:1548 → `sms_ui_mod.open_sms_history`; menuHelp `SA AEDP E EXTSMSOPR`; registry `hits.operations=[SMS (Scheduled)]`).
+**operations bucket = 1 classify**: `SMS (Scheduled)` (exact curated leaf match — KI-10 fix 2026-09-25, module README §1). Curated capture leaf: **`SMS (Scheduled)`** (shell:1548 → `sms_ui_mod.open_sms_history`; menuHelp `SA AEDP E EXTSMSOPR`; registry `hits.operations=[SMS (Scheduled)]`).
 
 Registry-only siblings: `SMS Send` → `sms_http_ui.open_sms_compose` (shell:1560, `_coming_soon` fallback); SMS log dialog `SMS InBox (Sent)`/`SMS OutBox (Pending)` (shell:951).
 
@@ -36,6 +36,6 @@ SELECT ... FROM DBSendSMS ...                                          -- sms_ht
 SELECT UserName, Param_Str, Flag, Module_Name FROM menuHelp
 WHERE RTRIM([Option]) IN ('SMS (Scheduled)','SMS Send','SMS (Conditional)','SMS');
 -- SMS (Scheduled): SA AEDP E EXTSMSOPR | SMS Send: NO ROW (registry-only)
--- SMS (Conditional), SMS: norm-collapsed to "sms" (classify masters bucket)
+-- SMS (Conditional), SMS: uncurated → classify other bucket (KI-10 fix 2026-09-25)
 ```
 Screenshot: `screenshots/20_operations_SMS_(Scheduled).png` (copy: `02_Operations/screenshots/`).

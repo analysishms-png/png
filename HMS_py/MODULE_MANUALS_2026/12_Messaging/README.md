@@ -4,10 +4,11 @@
 
 - Sidebar root: `extras` (shared extras group; capture used `sidebar 'extras'`).
 - Module_Names: `SMSSETUP`, `EXTSMSSETUP`, `SMSOPR`, `EXTSMSOPR`, `EXTRSMS`, `EXTSMS`; `master_modules` = `SMSSETUP`, `EXTSMSSETUP`.
-- Counts: **masters=5, ops=0, reports=0, hidden=0, other=1**.
-- Masters (classify): `Sstup` (VB6 misspelling, Flag N, SMSSETUP), `SMS (API)`, `SMS (Scheduled)`, `SMS (Conditional)`, `SMS`.
-- Other (1): `Operations` (header row).
-- **Classify quirk:** `_norm_caption` strips trailing `(...)` (menu_help.py:35-38) → `SMS (API)/(Scheduled)/(Conditional)/SMS` all normalize to `"sms"`; curated masters leaf `"SMS (API)"` makes `master_caps={"sms"}` and masters is checked before operations (collect_logic.py:39-41) → all four SMS captions classify as **masters** even though `(Scheduled)` is curated as operations. Registry hits preserve the true mapping: `hits.masters=[SMS (API)]`, `hits.operations=[SMS (Scheduled)]`.
+- Counts: **masters=2, ops=1, reports=0, hidden=0, other=3** (post KI-10 fix, 2026-09-25).
+- Masters (classify): `Sstup` (VB6 misspelling, Flag N, SMSSETUP, via `master_modules`), `SMS (API)` (exact curated leaf).
+- Operations (classify): `SMS (Scheduled)` (exact curated leaf).
+- Other (3): `SMS (Conditional)`, `SMS` (nodes, not curated), `Operations` (header row).
+- **KI-10 norm-collision — FIXED 2026-09-25:** `_norm_caption` strips trailing `(...)` (menu_help.py:35-38) → `SMS (API)/(Scheduled)/(Conditional)/SMS` all normalize to `"sms"`. `collect_logic.classify` now (a) checks paren-preserving exact `caption_disp` match against curated leaves FIRST and (b) excludes paren-leaf stripped norms from legacy `master_caps`/`oper_caps` → curated layers honored; uncurated siblings fall to `other`. Test: `test_classify_norm_collision_exact_precedence` (16/16 green). Registry hits unchanged: `hits.masters=[SMS (API)]`, `hits.operations=[SMS (Scheduled)]`.
 - Registry family (sms_ui_mod, shell:1547-1549): `SMS (API)` → `open_sms_send`, `SMS (Scheduled)` → `open_sms_history`, `SMS Environment Settings` → `SMSEnviroSettings`. Plus `SMS Send` → `sms_http_ui.open_sms_compose` (shell:1560, `_coming_soon` fallback), `SMS Center Settings` → `SMSEnviroSettings` (shell:1596, same fallback). SMS log dialog `SMS InBox (Sent)`/`SMS OutBox (Pending)` (shell:948-951).
 - **Curated leaves (fixed 2026-09-25):** masters `SMS (API)` (shell:1547 — earlier masters=[]), operations `SMS (Scheduled)` (shell:1548 — earlier `SMS Center`, key does not exist). Both confirmed in `_logic.json` `registry_hits`.
 
@@ -25,11 +26,11 @@
 
 | Layer | Count | registry hits |
 |---|---|---|
-| masters | 5 (incl. norm-collision siblings) | SMS (API) |
-| operations | 0 classify (curated leaf exists) | SMS (Scheduled) |
+| masters | 2 (`Sstup`, `SMS (API)`) | SMS (API) |
+| operations | 1 (`SMS (Scheduled)`) | SMS (Scheduled) |
 | reports | 0 | — |
 | hidden | 0 | — |
-| other | 1 | `Operations` header |
+| other | 3 (`SMS (Conditional)`, `SMS`, `Operations`) | — |
 
 ## 4. Screenshot index (manifest `failed=[]`)
 

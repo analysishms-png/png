@@ -42,8 +42,11 @@ Live count query har doc me `SELECT COUNT(*)` se aata hai — static number mat 
 
 ## Known DB-side notes (test runs 2026-09-25)
 
-- `test_fa_voucher` ke interrupted run se `Ledger` me ek orphan row rahi thi
+- `test_fa_voucher` ke interrupted run se `Ledger` me ek orphan row bani thi
   (`DocId='DKKJV   2026      904', V_SNo=2, Narration='cash dep'`) — fixture cleanup
-  sirf `Narration='PYT test voucher'` delete karta hai. Cleanup SQL user approval pending.
+  sirf `Narration='PYT test voucher'` delete karta hai. **Orphan DELETE executed +
+  DB-recheck done (user-approved, 2026-09-25; rows now 0)** — ab ki 8/9 = `V7 TB balanced`
+  pre-existing parity assertion (KI-4). Orphan ka root: interrupted fixture run; usi family
+  ki recurrence guard = KI-9 PayChargeLog fixture note.
 - L2c script tests me data-dependent fails: `inventory_registers` (GIN/POrder empty),
   `tally_export` (vouchers>0) — DB me test data ki kami, code nahi.

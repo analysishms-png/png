@@ -14,6 +14,19 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[3]))
 from HMS_py.tools.manual_pipeline.modules_map import Module, get
 
 
+def _xnorm(v) -> str:
+    """Paren-preserving normalize (KI-10): `_norm_caption` jaisi cleanup
+    (CR/LF, '- HMS' suffix, double-space) par trailing '(...)' NOT stripped.
+
+    `_norm_caption` se drift-guard test: test_classify_norm_collision_exact_precedence.
+    """
+    s = str(v or "").replace("\r", "").replace("\n", "")
+    s = s.replace("- HMS_py", "").replace("- HMS", "").strip()
+    while "  " in s:
+        s = s.replace("  ", " ")
+    return s.lower()
+
+
 def classify(rows: list[dict], mod: Module) -> dict:
     """Split menuHelp rows into Masters/Operations/Reports/hidden/other.
 
@@ -32,14 +45,6 @@ def classify(rows: list[dict], mod: Module) -> dict:
       (counted, NEVER dropped).
     """
     from HMS_py.core.menu_help import _norm_caption
-
-    def _xnorm(v) -> str:
-        # paren-preserving normalize (KI-10): trailing "(...)" NOT stripped
-        s = str(v or "").replace("\r", "").replace("\n", "")
-        s = s.replace("- HMS_py", "").replace("- HMS", "").strip()
-        while "  " in s:
-            s = s.replace("  ", " ")
-        return s.lower()
 
     masters_leaves = mod.leaves.get("masters", [])
     oper_leaves = mod.leaves.get("operations", [])

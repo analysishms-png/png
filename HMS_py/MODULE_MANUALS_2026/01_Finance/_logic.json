@@ -575,12 +575,7 @@
     }
   },
   "registry_hits": {
-    "masters": [
-      "Ledger Accounts Entry",
-      "Group Accounts Entry",
-      "Global Narration",
-      "T.D.S.Category Entry"
-    ],
+    "masters": [],
     "operations": [
       "Voucher Entry",
       "Bank Reconciliation",

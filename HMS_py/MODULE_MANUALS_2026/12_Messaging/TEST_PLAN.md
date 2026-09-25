@@ -10,6 +10,9 @@ python -m HMS_py.tools.manual_pipeline.collect_logic --module 12_Messaging
 #   NOTE: _norm_caption strips "(...)" (menu_help.py:35-38) → all "SMS (...)" captions
 #   normalize to "sms" = master_caps → masters-first ordering captures them (ops bucket 0);
 #   registry_hits: masters=[SMS (API)] operations=[SMS (Scheduled)] — true layer mapping kept
+# after KI-10 fix (2026-09-25, classify exact-precedence + paren-leaf norm exclusion):
+# → masters=2 ops=1 reports=0 hidden=0 other=3  (Sstup+SMS (API) / SMS (Scheduled) / SMS (Conditional)+SMS+Operations)
+#   unit: test_classify_norm_collision_exact_precedence green; all other 13 modules' counts unchanged
 
 python -m HMS_py.tools.manual_pipeline.run_module_tests --module 12_Messaging --layers L1,L2b
 # first run: FAIL L1 "1 failed, 412 passed" — same transient cross-session red as 13
@@ -34,7 +37,7 @@ python -m HMS_py.tools.manual_pipeline.check_manual --module 12_Messaging
 
 ## 3. Known issues / notes
 
-- **Classify norm-collision (module-specific):** `_norm_caption` trailing-paren strip collapses `SMS (API)/(Scheduled)/(Conditional)/SMS` to one key `"sms"` — curated masters leaf poisons the whole family into masters (ops bucket counts 0 even with curated ops leaf). Capture unaffected (uses leaf list directly). Candidate future fix: classify should check `caption_disp`-based curated matches or skip norm-collision when a curated ops entry exists.
+- **Classify norm-collision (module-specific):** `_norm_caption` trailing-paren strip collapses `SMS (API)/(Scheduled)/(Conditional)/SMS` to one key `"sms"` — curated masters leaf poisons the whole family into masters (ops bucket counts 0 even with curated ops leaf). Capture unaffected (uses leaf list directly). **FIXED 2026-09-25:** classify checks exact `caption_disp` curated matches first + excludes paren-leaf stripped norms → 2/1/0/0/3; TDD `test_classify_norm_collision_exact_precedence` green.
 - `SMS Environment Settings` registry-only (menuHelp NO ROW); `SMS Send`/`SMS Center Settings` = `_coming_soon` fallbacks if `sms_http_ui`/`sms_ui_mod` None.
 - `Sstup` = VB6 misspelling caption (Flag N, Param NULL, SMSSETUP) — parity keep.
 - Cross-session interference (both L1 attempts): concurrent workstream's untracked desktop-surface TDD red; final rollup reruns full L1.
