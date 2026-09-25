@@ -1,0 +1,30 @@
+F_ Windows PowerShell x Tay = a x
+
+=| Windows PowerShell xX +t - o x
+2.
+123 if not os.path.exists(ocr_path):
+124 ocr_img = Image.open(path)
+125 text = pytesseract.image_to_string(ocr_img)
+126 with openCocr_path, "w") as of:
+127 of .write(text)
+128 print(#" OCR: {f} C{len(text)} chars)")
+129 except Exception as e:
+130 print(#"OCR batch skipped: {e}")
+131
+132 print("\nDone! All modules verified via win32 MCP interaction.")
+133
+
+- Thought: 12ms
+
+Let me run this script.
+: ed "C:\Users\LENOVO\Desktop\serialkey\PROJECT_REPAIR - Copy\HMS_py" && python win32_login_automation.py 2>&1
+
+& Build - Ling 3.0 Flash Fin Free
+
+Build auto - Ling 3.0 Flash Fin Free OpenCode Zen - high AIR -
+
+esc interrupt 189.1K (72%) ctrl+p commands
+
+23° — | ENG 6:14 AM
+oe ZQS65*oaoenmao= 9 2» HEOo@o ~ N&O 095% 95 /50p/2026
+
