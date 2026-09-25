@@ -48,9 +48,13 @@ def main() -> int:
     if not ok:
         return 1
 
-    # 2. Company (frmCompany bypass — live config)
+    # 2. Company (frmCompany bypass — live Company table, Start_Dt DESC)
     from HMS_py.core import company
-    comp = company.current()
+    comps = company.list_companies()
+    if not comps:
+        print("koi company nahi mili — skip")
+        return 0
+    comp = comps[0]
     print(f"[company] {comp}")
 
     # 3. MainWindow restricted user ke saath
