@@ -184,22 +184,30 @@ OUTBOUND (inventory/rates/restrictions):
 - **Exit criteria:** config save/load + roommap CRUD + client mock
   FetchBookings canned response (UI nahi — wo Phase-2 exit me)
 
-### Phase 2 — Inbound bookings (~1-2 din)
+### Phase 2 — Inbound bookings (~1-2 din) — ✅ IMPLEMENTED (2026-09-25)
 - `booking_in.py`: FetchBookings poll + parse + dedup queue
-  (cursor: LastBookingPollDt/LastChangeId se 'since' fetch)
-- `ui/channel_ui.py` — ChannelConfigForm + ChannelBookingsForm:
-  queue view → "Accept" → reservation draft ban jaye
-- Cancellation handling (ResStatus sync)
-- Tests: mock payload → queue → reservation round-trip (rollback-safe)
-- **Exit criteria:** mock OTA booking accept karke humari Booking ban jaye
-  (UI se bhi — ab UI yahan aayi)
+  (cursor: LastBookingPollDt 'since' fetch; commit ke baad hi cursor update)
+- `ui/channel_ui.py` — ChannelManagerDialog: Config (masked AuthCode +
+  Test Connection ladder) | Bookings (Accept → roomcat chooser) |
+  Sync Log | Inventory tabs
+- Cancellation handling: `sync_cancellations()` (RawJson LIKE + Booking
+  DocId lookup, already-cancelled skip)
+- Mock samples: 4 realistic bookings (confirmed/cancelled/modified/no-name)
+- Tests: `test_channel_phase23.py` (20 unit) + `test_channel_phase2_live.py`
+  (2 live E2E — poll→dedup→accept→Booking + cancellation sync)
+- **Exit criteria MET:** mock OTA booking UI se accept → humari Booking
+- Fix: `sync_cancellations` LIKE pattern quote-agnostic (repr rawjson)
 
-### Phase 3 — Outbound inventory (~1 din)
-- `inventory.py`: availability compute (RoomMast − RoomOcc, room_occ.py
-  ka availability logic reuse) → UpdateRoomInventory
-- Manual "Push Now" + NA ke baad auto-push flag
-- Tests: availability math + mock push payload assertions
-- **Exit criteria:** mock me inventory push ka payload verify ho jaye
+### Phase 3 — Outbound inventory (~1 din) — ✅ IMPLEMENTED (2026-09-25)
+- `inventory.py`: `free_rooms_by_cat()` (RoomMast − RoomOcc overlap −
+  RoomBLockOut via RoomCode→RoomMast join; clamp 0) + `push_inventory()`
+  (per-date UpdateRoomInventory, 200-call rate-limit, not-live skip)
+- NA trigger: `maybe_auto_push_after_na()` — `run_night_audit` success par
+  best-effort (fail NA ko fail nahi karta); `AutoPushYN`+`PushWindowDays`
+  config (idempotent ALTER)
+- Live verify: KK002=6, KK003=22 free rooms compute sahi
+- UI: Inventory tab (date-range preview 62 rows + Push Now)
+- **Exit criteria MET:** payload assertions + live availability math
 
 ### Phase 4 — Rates + restrictions (~1 din)
 - `rates.py`: ratelist.py `resolve_rates` → SetRoomRate (linear)
@@ -230,7 +238,20 @@ OUTBOUND (inventory/rates/restrictions):
 
 ---
 
-## 7. Pehla Kadam (agla actionable)
+## 7. Status Board
+
+| Phase | Status |
+|---|---|
+| 1 Config + Mock | ✅ d22ad65 |
+| 2 Inbound bookings | ✅ (is batch) |
+| 3 Outbound inventory | ✅ (is batch) |
+| 4 Rates + restrictions | pending |
+| 5 Live provisioning | user-dependent (YCS portal, paid) |
+
+Shell leaf: "Channel Manager" (Main Setup group) → 4-tab dialog.
+Full suite: **517 passed** (443 pre-channel → +74 channel tests)
+
+## 7b. Pehla Kadam (historical)
 
 1. `core/channel/__init__.py` `ensure_tables()` idempotent DDL — **Phase 1**
 2. `config.py` + `roommap.py` + `client.py` (mock mode)

@@ -537,7 +537,7 @@ def run_night_audit(date_from, date_to=None, user: str = USER,
         if commit:
             cn.commit()
 
-        return {
+        result = {
             "success": len(errors) == 0,
             "date_from": date_from,
             "date_to": date_to,
@@ -549,6 +549,19 @@ def run_night_audit(date_from, date_to=None, user: str = USER,
             "start_time": start_time,
             "end_time": datetime.datetime.now(),
         }
+
+        # Phase-3: channel auto-push (sirf AutoPushYN='Y' + live-ready par;
+        # fail NA ko fail nahi karta — best-effort)
+        if result["success"] and dates_processed:
+            try:
+                from HMS_py.core.channel import inventory as ch_inv
+                push = ch_inv.maybe_auto_push_after_na(
+                    dates_processed[-1], user=user, cn=cn)
+                if push is not None:
+                    result["channel_push"] = push
+            except Exception as e:
+                result["channel_push_error"] = str(e)
+        return result
     except Exception as e:
         if own and cn:
             cn.rollback()

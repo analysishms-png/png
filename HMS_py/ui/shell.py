@@ -46,6 +46,7 @@ from HMS_py.ui.theme import (apply_theme, current_theme, palette,
                              toggle_theme)
 from HMS_py.ui.glass import AppearanceDialog, AuroraCanvas
 from HMS_py.ui.design import WindowSize, Size, Spacing, Font
+from HMS_py.ui.desktop_style import apply_desktop_surface, mark_desktop_action
 from HMS_py.ui.front_office_dashboard import FrontOfficeDashboard
 from HMS_py.ui import sidebar_buttons as _sb
 from HMS_py.core import menu_help as _mh
@@ -553,13 +554,20 @@ class MainSetupWorkbench(QDialog):
             QPushButton:pressed { border-style: inset; }
             QScrollArea { background: #d4d0c8; border: none; }
         """)
+        apply_desktop_surface(self, "mainSetupWorkbench")
 
         root = QVBoxLayout(self)
+        header = QHBoxLayout()
         title = QLabel("Main Setup")
+        title.setObjectName("mainSetupTitle")
         title.setFont(QFont("Arial", 14, QFont.Weight.Bold))
         title.setStyleSheet("color: #000080; background: transparent;")
-        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        root.addWidget(title)
+        header.addWidget(title)
+        header.addStretch()
+        user_label = QLabel(f"User: {self.user}")
+        user_label.setObjectName("mainSetupUserLabel")
+        header.addWidget(user_label)
+        root.addLayout(header)
 
         registry = _form_registry()
         groups = [
@@ -575,6 +583,7 @@ class MainSetupWorkbench(QDialog):
                 "FA Environment", "Parameter", "Printing Setup",
                 "Voucher Category", "Voucher Type", "eInvoice Config",
                 "Revenue Group Setting", "Revenue Wise Budget Entry",
+                "Channel Manager",
             ]),
              ("Finance & Reports", [
                  "Tax Master", "Tax Structure", "Payment Type", "Market Segment",
@@ -612,6 +621,7 @@ class MainSetupWorkbench(QDialog):
             box.setSpacing(4)
             # VB6: navy section caption + underline separator
             label = QLabel(name)
+            label.setObjectName("desktopSectionLabel")
             label.setStyleSheet(
                 "color: #000080; font-size: 10pt; font-weight: bold;"
                 " background: transparent;"
@@ -627,7 +637,7 @@ class MainSetupWorkbench(QDialog):
                 if opener is None:
                     continue
                 btn = QPushButton(item)
-                btn.setMinimumHeight(28)
+                mark_desktop_action(btn)
                 btn.setToolTip(f"Open {item} form")
                 btn.clicked.connect(lambda _, fn=opener: fn(self))
                 grid.addWidget(btn, row, col)
@@ -647,6 +657,7 @@ class MainSetupWorkbench(QDialog):
 
         btns = QHBoxLayout()
         btn_close = QPushButton("Close")
+        mark_desktop_action(btn_close)
         btn_close.setToolTip("Close the Main Setup window")
         btn_close.clicked.connect(self.reject)
         btns.addStretch()
@@ -838,6 +849,13 @@ def _form_registry() -> dict[str, callable]:
         from HMS_py.ui import revenue_budget_ui as revbud_ui
     except ImportError:
         revbud_ui = None
+    # Channel Manager (eZee) — Phase-2/3 UI
+    try:
+        from HMS_py.ui.channel_ui import open_channel_manager as _open_channel_manager
+        _chan_ok = True
+    except ImportError:
+        _open_channel_manager = None
+        _chan_ok = False
     try:
         from HMS_py.ui import nightaudit_reports_ui as narep_ui
     except ImportError:
@@ -1197,6 +1215,7 @@ def _form_registry() -> dict[str, callable]:
         "Tax Structure": (lambda w: tsu.open_taxstru(w)) if tsu else None,
         "Parameter": _open_enviro,
         "Revenue Group Setting": (lambda w: revbud_ui.open_revenue_group(w)) if revbud_ui else _coming_soon("Revenue Group Setting"),
+        "Channel Manager": (lambda w: _open_channel_manager(w, user=getattr(w, 'user', 'SA'))) if _chan_ok else _coming_soon("Channel Manager"),
         "Printing Parameters": (lambda w: gs.open_printing(w)) if gs else None,
         "Printing Setup": (lambda w: gs.open_printing(w)) if gs else None,
         "Revenue Wise Budget Entry": (lambda w: revbud_ui.open_revenue_budget_entry(w)) if revbud_ui else _coming_soon("Revenue Wise Budget Entry"),

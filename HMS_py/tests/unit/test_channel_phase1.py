@@ -226,7 +226,10 @@ def test_client_mock_fetch_bookings_shape():
                     "user_agent": "UA"})
     resp = c.fetch_bookings(since="2026-09-01")
     assert resp["success"] and resp["mock"]
-    assert resp["Bookings"] == []
+    # Phase-2 samples: confirmed + cancelled + modified + missing-field edge
+    assert len(resp["Bookings"]) == 4
+    statuses = {b["Status"] for b in resp["Bookings"]}
+    assert {"Confirmed", "Cancelled", "Modified"} <= statuses
 
 
 def test_client_mock_inventory_validates_negative():

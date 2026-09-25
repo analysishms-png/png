@@ -109,9 +109,43 @@ class EzeeClient:
     _MOCK_ROOMS = [{"RoomType": "Superior DLX", "RoomTypeName": "SDLX",
                     "RatePlan": "EP"}]
 
+    # Phase-2 samples: parser/poll/accept tests ke liye realistic payloads
+    # (confirmed + cancelled + modified + missing-field edge). Field names
+    # eZee docs-shaped; live provisioning par adjust honge (plan §5 Phase-5).
+    _MOCK_BOOKINGS = [
+        {"BookingId": "EZ-1001", "Status": "Confirmed",
+         "RoomType": "Superior DLX", "RatePlan": "EP",
+         "GuestName": "RAMESH KUMAR", "GuestEmail": "ramesh@x.com",
+         "GuestPhone": "+91-9876543210",
+         "CheckIn": "2026-10-01", "CheckOut": "2026-10-03",
+         "Adults": 2, "Children": 0,
+         "TotalAmount": 3600.0, "Commission": 180.0},
+        {"BookingId": "EZ-1002", "Status": "Cancelled",
+         "RoomType": "Superior DLX", "RatePlan": "EP",
+         "GuestName": "SITA DEVI", "GuestEmail": "",
+         "GuestPhone": "+91-9123456780",
+         "CheckIn": "2026-10-05", "CheckOut": "2026-10-06",
+         "Adults": 1, "Children": 0,
+         "TotalAmount": 1800.0, "Commission": 90.0},
+        {"BookingId": "EZ-1003", "Status": "Modified",
+         "RoomType": "Superior DLX", "RatePlan": "EP",
+         "GuestName": "AHMED ALI", "GuestEmail": "ahmed@y.com",
+         "GuestPhone": "",
+         "CheckIn": "2026-10-10", "CheckOut": "2026-10-12",
+         "Adults": 2, "Children": 1,
+         "TotalAmount": 5400.0, "Commission": 270.0},
+        {"BookingId": "EZ-1004", "Status": "Confirmed",
+         "RoomType": "Superior DLX", "RatePlan": "EP",
+         "GuestName": "", "GuestEmail": "", "GuestPhone": "",
+         "CheckIn": "", "CheckOut": "2026-10-20",
+         "Adults": None, "Children": None,
+         "TotalAmount": None, "Commission": None},
+    ]
+
     def _mock_response(self, request_type: str, body: dict) -> dict:
         if request_type == "FetchBookings":
-            return {"success": True, "mock": True, "Bookings": []}
+            return {"success": True, "mock": True,
+                    "Bookings": self._MOCK_BOOKINGS}
         if request_type == "FetchBooking":
             return {"success": True, "mock": True, "Booking": {}}
         if request_type == "FetchRoomInformation":

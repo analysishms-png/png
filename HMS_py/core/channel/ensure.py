@@ -9,6 +9,9 @@ Review fixes baked in:
 - ChannelRoomMap: unique (Provider, LogSite_Code, RoomCat, EzeeRoomType)
 - ChannelSyncLog: PayloadHash CHAR(32)
 - ChannelBookingIn: BookingDocId NVARCHAR(21) + index
+
+Phase-3 add: ChannelEnviro.AutoPushYN + PushWindowDays (idempotent ALTER
+— existing deployments ke liye bhi).
 """
 from __future__ import annotations
 
@@ -28,6 +31,8 @@ _DDL = [
     UserAgent VARCHAR(100) NULL,
     LastBookingPollDt DATETIME NULL,          -- poll cursor (review fix)
     LastChangeId VARCHAR(40) NULL,            -- eZee change-id cursor
+    AutoPushYN CHAR(1) NOT NULL DEFAULT 'N',  -- Phase-3: NA ke baad push
+    PushWindowDays INT NOT NULL DEFAULT 30,   -- Phase-3: inventory window
     Site_Code VARCHAR(2) NULL, U_Name VARCHAR(10) NULL, U_EntDt DATETIME NULL,
     U_AE CHAR(1) NULL, LogSite_Code VARCHAR(2) NULL
 )""",
@@ -89,6 +94,15 @@ CREATE UNIQUE INDEX UX_ChannelBookingIn ON dbo.ChannelBookingIn (EzeeBookingId)"
     """IF NOT EXISTS (SELECT 1 FROM sys.indexes
     WHERE name = 'IX_ChannelBookingIn_BookingDocId' AND object_id = OBJECT_ID('dbo.ChannelBookingIn'))
 CREATE INDEX IX_ChannelBookingIn_BookingDocId ON dbo.ChannelBookingIn (BookingDocId)""",
+    # Phase-3: existing ChannelEnviro deployments ke liye column adds
+    """IF NOT EXISTS (SELECT 1 FROM sys.columns c
+    JOIN sys.tables t ON t.object_id = c.object_id
+    WHERE t.name = 'ChannelEnviro' AND c.name = 'AutoPushYN')
+ALTER TABLE dbo.ChannelEnviro ADD AutoPushYN CHAR(1) NOT NULL DEFAULT 'N'""",
+    """IF NOT EXISTS (SELECT 1 FROM sys.columns c
+    JOIN sys.tables t ON t.object_id = c.object_id
+    WHERE t.name = 'ChannelEnviro' AND c.name = 'PushWindowDays')
+ALTER TABLE dbo.ChannelEnviro ADD PushWindowDays INT NOT NULL DEFAULT 30""",
 ]
 
 
@@ -102,7 +116,13 @@ def ensure_tables(cn=None, commit: bool = True) -> list[str]:
         cur = cn.cursor()
         for ddl in _DDL:
             cur.execute(ddl)
-            # object name extract for reporting
+            # object name extract for reporting (ALTERs -> labelled skip)
+            if "ADD AutoPushYN" in ddl:
+                created.append("ALTER:AutoPushYN")
+                continue
+            if "ADD PushWindowDays" in ddl:
+                created.append("ALTER:PushWindowDays")
+                continue
             token = "CREATE TABLE dbo." if "CREATE TABLE dbo." in ddl \
                 else "CREATE UNIQUE INDEX " if "CREATE UNIQUE INDEX" in ddl \
                 else "CREATE INDEX "
