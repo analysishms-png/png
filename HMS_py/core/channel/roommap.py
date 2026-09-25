@@ -61,16 +61,38 @@ def get(map_id: int, cn=None) -> dict | None:
 
 
 def insert(rec: dict, cn=None, commit: bool = True, user: str = USER) -> int:
+    """Insert mapping; returns new Id (SCOPE_IDENTITY, rowcount nahi)."""
     _validate(rec, cn=cn)
-    return db.execute(
-        "INSERT INTO ChannelRoomMap (Provider, RoomCat, EzeeRoomType, "
-        "RatePlan, ActiveYN, Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code) "
-        "VALUES (?, ?, ?, ?, ?, ?, ?, getdate(), 'A', ?)",
-        (PROVIDER, str(rec["roomcat"]).strip(),
-         str(rec["ezee_room_type"]).strip(),
-         str(rec.get("rate_plan") or "").strip(),
-         str(rec.get("active_yn") or "Y").upper(),
-         SITE_CODE, user, SITE_CODE), cn=cn, commit=commit)
+    own = cn is None
+    if own:
+        cn = db.connect()
+    try:
+        cur = cn.cursor()
+        cur.execute(
+            "INSERT INTO ChannelRoomMap (Provider, RoomCat, EzeeRoomType, "
+            "RatePlan, ActiveYN, Site_Code, U_Name, U_EntDt, U_AE, "
+            "LogSite_Code) VALUES (?, ?, ?, ?, ?, ?, ?, getdate(), 'A', ?); "
+            "SELECT CAST(SCOPE_IDENTITY() AS INT);",
+            (PROVIDER, str(rec["roomcat"]).strip(),
+             str(rec["ezee_room_type"]).strip(),
+             str(rec.get("rate_plan") or "").strip(),
+             str(rec.get("active_yn") or "Y").upper(),
+             SITE_CODE, user, SITE_CODE))
+        cur.nextset()                          # INSERT ke baad SELECT result
+        new_id = int(cur.fetchone()[0])
+        if commit:
+            cn.commit()
+        return new_id
+    except Exception:
+        if own:
+            try:
+                cn.rollback()
+            except Exception:
+                pass
+        raise
+    finally:
+        if own:
+            cn.close()
 
 
 def update(map_id: int, rec: dict, cn=None, commit: bool = True,

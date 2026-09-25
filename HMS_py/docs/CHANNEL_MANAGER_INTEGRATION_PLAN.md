@@ -252,4 +252,25 @@ Plan ko live-DB facts se cross-check kiya, ye fixes apply hue:
 6. UI Phase-1 → Phase-2 move (exit criteria ab consistent)
 7. DPAPI-first secret storage, XOR fallback (plain base64 weak tha)
 
-**Phase-1 status: implementation-ready (no blocking issues).**
+**Phase-1 status: ✅ IMPLEMENTED (2026-09-25).**
+
+### Phase-1 delivery notes
+- `core/channel/ensure.py` — idempotent DDL (4 tables + 5 indexes;
+  AuthCode `VARBINARY` blob — plaintext kabhi store nahi)
+- `core/channel/config.py` — DPAPI-first (`win32crypt.CryptProtectData`),
+  XOR fallback; `is_live_ready()` ladder (no_config/mock/disabled/live);
+  `set_poll_cursor()`
+- `core/channel/roommap.py` — CRUD + RoomCat FK guard + dup guard +
+  `ezee_type_for()`/`roomcat_for()` mapping helpers (SCOPE_IDENTITY return)
+- `core/channel/synclog.py` — audit + PayloadHash (dict→json stable) +
+  `find_same_hash(since_dt=)` idempotency + `purge_older_than(>=30d)`
+- `core/channel/client.py` — `EzeeClient` mode ladder; mock canned
+  responses spec-shaped; live path `http_post` + vendor UA;
+  `fetch_bookings/fetch_room_information/update_room_inventory/
+  set_room_rate/update_stop_sell/update_min_stay`
+- Tests: `tests/unit/test_channel_phase1.py` (23, mocked db) +
+  `tests/database/test_channel_phase1_live.py` (5, live round-trip,
+  cleanup restores)
+- Live bug found+fixed during tests: `db.execute()` rowcount return karta
+  hai, IDENTITY nahi — inserts ab `SCOPE_IDENTITY()` se Id dete hain
+- Full suite: **491 passed**
