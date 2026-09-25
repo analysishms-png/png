@@ -8,6 +8,7 @@ from PyQt6.QtWidgets import (QApplication, QMainWindow, QPushButton,
                              QVBoxLayout, QWidget)
 from HMS_py.core.epabx_masters import CallTypeAPI, CallCodeAPI, TelExtAPI
 from HMS_py.ui.base_master import BaseMasterForm, Field, MasterConfig, make_delete_guard
+from HMS_py.ui.desktop_style import apply_desktop_surface, mark_desktop_action
 
 
 def calltype_config() -> MasterConfig:
@@ -81,13 +82,14 @@ def open_extension(parent=None): _open(ext_config, parent)
 class EPABXLauncher(QMainWindow):
     def __init__(self):
         super().__init__()
+        apply_desktop_surface(self, "desktopEPABXLauncher")
         self.setWindowTitle("HMS_py - EPABX Masters")
         self.resize(340, 200)
         c = QWidget(); lay = QVBoxLayout(c)
         for lbl, fn in [("Call Type Master", open_calltype),
                         ("Call Code Master", open_callcode),
                         ("Extension Master", open_extension)]:
-            b = QPushButton(lbl); b.clicked.connect(fn); lay.addWidget(b)
+            b = QPushButton(lbl); mark_desktop_action(b); b.clicked.connect(fn); lay.addWidget(b)
         self.setCentralWidget(c)
 
 

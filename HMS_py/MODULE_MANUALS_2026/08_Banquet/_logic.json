@@ -1,0 +1,500 @@
+{
+  "module": "08_Banquet",
+  "name": "Banquet",
+  "sidebar": "banquet",
+  "generated_by": "collect_logic.py",
+  "menuhelp": {
+    "masters": [
+      {
+        "caption": "events",
+        "caption_disp": "Events",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "HallM",
+        "opt1": "12",
+        "opt2": "15",
+        "opt3": "11",
+        "opt4": "",
+        "code": 103
+      },
+      {
+        "caption": "venue features",
+        "caption_disp": "Venue Features",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "HallM",
+        "opt1": "12",
+        "opt2": "15",
+        "opt3": "12",
+        "opt4": "",
+        "code": 104
+      },
+      {
+        "caption": "venue master",
+        "caption_disp": "Venue Master",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "HallM",
+        "opt1": "12",
+        "opt2": "15",
+        "opt3": "13",
+        "opt4": "",
+        "code": 105
+      },
+      {
+        "caption": "menu category",
+        "caption_disp": "Menu Category",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "HallM",
+        "opt1": "12",
+        "opt2": "15",
+        "opt3": "14",
+        "opt4": "",
+        "code": 106
+      },
+      {
+        "caption": "item group",
+        "caption_disp": "Item Group",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "HallM",
+        "opt1": "12",
+        "opt2": "15",
+        "opt3": "15",
+        "opt4": "",
+        "code": 107
+      },
+      {
+        "caption": "menu item",
+        "caption_disp": "Menu Item",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "HallM",
+        "opt1": "12",
+        "opt2": "15",
+        "opt3": "16",
+        "opt4": "",
+        "code": 108
+      },
+      {
+        "caption": "catalog master",
+        "caption_disp": "Catalog Master",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "HallM",
+        "opt1": "12",
+        "opt2": "15",
+        "opt3": "17",
+        "opt4": "",
+        "code": 109
+      },
+      {
+        "caption": "banquet bill sundry setting",
+        "caption_disp": "Banquet Bill Sundry Setting",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "HallM",
+        "opt1": "12",
+        "opt2": "15",
+        "opt3": "18",
+        "opt4": "",
+        "code": 110
+      }
+    ],
+    "operations": [
+      {
+        "caption": "banquet booking",
+        "caption_disp": "Banquet Booking",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "Hallop",
+        "opt1": "18",
+        "opt2": "12",
+        "opt3": "12",
+        "opt4": "",
+        "code": 419
+      },
+      {
+        "caption": "banquet booking advance",
+        "caption_disp": "Banquet Booking Advance",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "Hallop",
+        "opt1": "18",
+        "opt2": "12",
+        "opt3": "20",
+        "opt4": "",
+        "code": 427
+      }
+    ],
+    "reports": [
+      {
+        "caption": "sales register",
+        "caption_disp": "Sales Register",
+        "param": "***P",
+        "flag": "R",
+        "module": "BanqRep",
+        "opt1": "18",
+        "opt2": "13",
+        "opt3": "11",
+        "opt4": "",
+        "code": 429
+      },
+      {
+        "caption": "outstanding report",
+        "caption_disp": "OutStanding Report",
+        "param": "***P",
+        "flag": "R",
+        "module": "BanqRep",
+        "opt1": "18",
+        "opt2": "13",
+        "opt3": "12",
+        "opt4": "",
+        "code": 430
+      },
+      {
+        "caption": "party wise outstanding",
+        "caption_disp": "Party wise OutStanding",
+        "param": "***P",
+        "flag": "R",
+        "module": "BanqRep",
+        "opt1": "18",
+        "opt2": "13",
+        "opt3": "13",
+        "opt4": "",
+        "code": 431
+      },
+      {
+        "caption": "cashier report",
+        "caption_disp": "Cashier  Report",
+        "param": "***P",
+        "flag": "R",
+        "module": "BanqRep",
+        "opt1": "18",
+        "opt2": "13",
+        "opt3": "14",
+        "opt4": "",
+        "code": 432
+      },
+      {
+        "caption": "booking inquiry detail",
+        "caption_disp": "Booking Inquiry Detail",
+        "param": "***P",
+        "flag": "R",
+        "module": "BanqRep",
+        "opt1": "18",
+        "opt2": "13",
+        "opt3": "15",
+        "opt4": "",
+        "code": 433
+      },
+      {
+        "caption": "settlement report",
+        "caption_disp": "Settlement  Report",
+        "param": "***P",
+        "flag": "R",
+        "module": "BanqRep",
+        "opt1": "18",
+        "opt2": "13",
+        "opt3": "16",
+        "opt4": "",
+        "code": 434
+      },
+      {
+        "caption": "daily function sheet",
+        "caption_disp": "Daily Function Sheet",
+        "param": "***P",
+        "flag": "R",
+        "module": "BanqRep",
+        "opt1": "18",
+        "opt2": "13",
+        "opt3": "17",
+        "opt4": "",
+        "code": 435
+      },
+      {
+        "caption": "item wise sales report",
+        "caption_disp": "Item Wise Sales Report",
+        "param": "***P",
+        "flag": "R",
+        "module": "BanqRep",
+        "opt1": "18",
+        "opt2": "13",
+        "opt3": "18",
+        "opt4": "",
+        "code": 436
+      },
+      {
+        "caption": "company wise sale report",
+        "caption_disp": "Company Wise Sale Report",
+        "param": "***P",
+        "flag": "R",
+        "module": "BanqRep",
+        "opt1": "18",
+        "opt2": "13",
+        "opt3": "19",
+        "opt4": "",
+        "code": 437
+      },
+      {
+        "caption": "function wise item detail",
+        "caption_disp": "Function Wise Item Detail",
+        "param": "***P",
+        "flag": "R",
+        "module": "BanqRep",
+        "opt1": "18",
+        "opt2": "13",
+        "opt3": "20",
+        "opt4": "",
+        "code": 438
+      },
+      {
+        "caption": "cover analysis",
+        "caption_disp": "Cover Analysis",
+        "param": "***P",
+        "flag": "R",
+        "module": "BanqRepMIS",
+        "opt1": "18",
+        "opt2": "14",
+        "opt3": "11",
+        "opt4": "",
+        "code": 440
+      },
+      {
+        "caption": "collection summary",
+        "caption_disp": "Collection Summary",
+        "param": "***P",
+        "flag": "R",
+        "module": "BanqRepMIS",
+        "opt1": "18",
+        "opt2": "14",
+        "opt3": "12",
+        "opt4": "",
+        "code": 441
+      },
+      {
+        "caption": "tax report",
+        "caption_disp": "Tax Report",
+        "param": "***P",
+        "flag": "R",
+        "module": "HallTaxP",
+        "opt1": "18",
+        "opt2": "15",
+        "opt3": "11",
+        "opt4": "",
+        "code": 443
+      },
+      {
+        "caption": "tax summary",
+        "caption_disp": "Tax Summary",
+        "param": "***P",
+        "flag": "R",
+        "module": "HallTaxP",
+        "opt1": "18",
+        "opt2": "15",
+        "opt3": "12",
+        "opt4": "",
+        "code": 444
+      }
+    ],
+    "hidden": [],
+    "unclassified": [
+      {
+        "caption": "banquet",
+        "caption_disp": "Banquet",
+        "param": "",
+        "flag": "N",
+        "module": "Banquet",
+        "opt1": "18",
+        "opt2": "",
+        "opt3": "",
+        "opt4": "",
+        "code": 407
+      },
+      {
+        "caption": "operation",
+        "caption_disp": "Operation",
+        "param": "",
+        "flag": "N",
+        "module": "oper",
+        "opt1": "18",
+        "opt2": "12",
+        "opt3": "",
+        "opt4": "",
+        "code": 417
+      },
+      {
+        "caption": "booking inquiry",
+        "caption_disp": "Booking Inquiry",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "Hallop",
+        "opt1": "18",
+        "opt2": "12",
+        "opt3": "11",
+        "opt4": "",
+        "code": 418
+      },
+      {
+        "caption": "catalog selection",
+        "caption_disp": "Catalog Selection",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "Hallop",
+        "opt1": "18",
+        "opt2": "12",
+        "opt3": "13",
+        "opt4": "",
+        "code": 420
+      },
+      {
+        "caption": "chef pre-costing",
+        "caption_disp": "Chef Pre-Costing",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "Hallop",
+        "opt1": "18",
+        "opt2": "12",
+        "opt3": "14",
+        "opt4": "",
+        "code": 421
+      },
+      {
+        "caption": "banquet billing",
+        "caption_disp": "Banquet Billing",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "Hallop",
+        "opt1": "18",
+        "opt2": "12",
+        "opt3": "15",
+        "opt4": "",
+        "code": 422
+      },
+      {
+        "caption": "venue availability",
+        "caption_disp": "Venue Availability",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "Hallop",
+        "opt1": "18",
+        "opt2": "12",
+        "opt3": "17",
+        "opt4": "",
+        "code": 424
+      },
+      {
+        "caption": "guest comments",
+        "caption_disp": "Guest Comments",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "Hallop",
+        "opt1": "18",
+        "opt2": "12",
+        "opt3": "18",
+        "opt4": "",
+        "code": 425
+      },
+      {
+        "caption": "banquet estimate billing",
+        "caption_disp": "Banquet Estimate Billing",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "Hallop",
+        "opt1": "18",
+        "opt2": "12",
+        "opt3": "19",
+        "opt4": "",
+        "code": 426
+      },
+      {
+        "caption": "reports",
+        "caption_disp": "Reports",
+        "param": "AEDP",
+        "flag": "N",
+        "module": "HallReport",
+        "opt1": "18",
+        "opt2": "13",
+        "opt3": "",
+        "opt4": "",
+        "code": 428
+      },
+      {
+        "caption": "mis",
+        "caption_disp": "MIS",
+        "param": "AEDP",
+        "flag": "N",
+        "module": "HallMIS",
+        "opt1": "18",
+        "opt2": "14",
+        "opt3": "",
+        "opt4": "",
+        "code": 439
+      },
+      {
+        "caption": "tax report",
+        "caption_disp": "Tax Report",
+        "param": "",
+        "flag": "N",
+        "module": "HallTax",
+        "opt1": "18",
+        "opt2": "15",
+        "opt3": "",
+        "opt4": "",
+        "code": 442
+      },
+      {
+        "caption": "banquet taxwise details",
+        "caption_disp": "Banquet Taxwise Details",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "HallTaxP",
+        "opt1": "18",
+        "opt2": "15",
+        "opt3": "13",
+        "opt4": "",
+        "code": 445
+      }
+    ],
+    "counts": {
+      "masters": 8,
+      "operations": 2,
+      "reports": 14,
+      "hidden": 0,
+      "other": 13,
+      "unclassified": 13
+    }
+  },
+  "registry_hits": {
+    "masters": [
+      "Venue Master"
+    ],
+    "operations": [
+      "Banquet Booking"
+    ],
+    "reports": [
+      "Banquet Taxwise Details"
+    ]
+  },
+  "core_files": [
+    "hall_booking",
+    "banquet_ops",
+    "banquet_masters",
+    "venue",
+    "packagemaster",
+    "seasonmaster"
+  ],
+  "module_names": [
+    "Banquet",
+    "oper",
+    "Hallop",
+    "HallReport",
+    "BanqRep",
+    "HallMIS",
+    "BanqRepMIS",
+    "HallTax",
+    "HallTaxP",
+    "HallM"
+  ]
+}

@@ -217,6 +217,92 @@ def exists(code, cn=None) -> bool:
     return bool(get(code, cn=cn))
 
 
+def _weekend_text(value) -> str:
+    if isinstance(value, dict):
+        return "".join(
+            "*" if value.get(day, False) else " "
+            for day in WEEKEND_DAYS
+        )
+    return (_text(value) + "       ")[:7]
+
+
+def save_year(year, rows, weekend="", logsite_code=None, cn=None,
+              commit: bool = True) -> int:
+    selected_year = normalize_year(year)
+    normalized = validate_rows(selected_year, rows)
+    site = _site_scope(logsite_code)
+    weekend_value = _weekend_text(weekend)
+    own = cn is None
+    connection = cn or db.connect()
+    try:
+        db.execute(
+            "DELETE FROM SeasonMast WHERE YEAR(FromDate) = ? "
+            "AND (LogSite_Code = ? OR LogSite_Code = 'HO')",
+            (selected_year, site), cn=connection, commit=False,
+        )
+        for row in normalized:
+            db.execute(
+                "INSERT INTO SeasonMast (FromDate, ToDate, RateCode, "
+                "Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code) "
+                "VALUES (?, ?, ?, ?, ?, getdate(), ?, ?)",
+                (datetime.date.fromisoformat(row["fromdate"]),
+                 datetime.date.fromisoformat(row["todate"]),
+                 row["ratecode"], SITE_CODE, USER, "A", site),
+                cn=connection, commit=False,
+            )
+        db.execute(
+            "DELETE FROM SeasonMast1 WHERE (LogSite_Code = ? "
+            "OR LogSite_Code = 'HO')",
+            (site,), cn=connection, commit=False,
+        )
+        db.execute(
+            "INSERT INTO SeasonMast1 (Weekend, Site_Code, U_Name, "
+            "U_EntDt, U_AE, LogSite_Code) VALUES (?, ?, ?, getdate(), ?, ?)",
+            (weekend_value, SITE_CODE, USER, "A", site),
+            cn=connection, commit=False,
+        )
+        if commit:
+            connection.commit()
+        return len(normalized)
+    except Exception:
+        connection.rollback()
+        raise
+    finally:
+        if own:
+            connection.close()
+
+
+def save_weekend(weekend, logsite_code=None, cn=None,
+                 commit: bool = True) -> int:
+    site = _site_scope(logsite_code)
+    own = cn is None
+    connection = cn or db.connect()
+    try:
+        db.execute(
+            "DELETE FROM SeasonMast1 WHERE (LogSite_Code = ? "
+            "OR LogSite_Code = 'HO')",
+            (site,), cn=connection, commit=False,
+        )
+        db.execute(
+            "INSERT INTO SeasonMast1 (Weekend, Site_Code, U_Name, "
+            "U_EntDt, U_AE, LogSite_Code) VALUES (?, ?, ?, getdate(), ?, ?)",
+            (_weekend_text(weekend), SITE_CODE, USER, "A", site),
+            cn=connection, commit=False,
+        )
+        if commit:
+            connection.commit()
+        return 1
+    except Exception:
+        connection.rollback()
+        raise
+    finally:
+        if own:
+            connection.close()
+
+
+replace_year = save_year
+
+
 def insert(*args, **kwargs):
     raise PermissionError("Season Master is read-only in this parity slice")
 

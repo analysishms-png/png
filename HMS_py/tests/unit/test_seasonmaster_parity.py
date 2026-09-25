@@ -6,7 +6,8 @@ import pytest
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
-from PyQt6.QtWidgets import QApplication, QCheckBox, QPushButton
+from PyQt6.QtWidgets import (QAbstractItemView, QApplication, QCheckBox,
+                             QPushButton, QTableWidgetItem)
 
 
 _app = QApplication.instance() or QApplication(sys.argv)
@@ -139,6 +140,121 @@ def test_weekend_flags_map_monday_through_sunday():
     }
 
 
+class FakeConnection:
+    def __init__(self):
+        self.commits = 0
+        self.rollbacks = 0
+
+    def commit(self):
+        self.commits += 1
+
+    def rollback(self):
+        self.rollbacks += 1
+
+
+def test_save_year_replaces_periods_and_weekend_atomically(monkeypatch):
+    from HMS_py.core import seasonmaster
+
+    calls = []
+    cn = FakeConnection()
+
+    def fake_execute(sql, params=(), cn=None, commit=True):
+        calls.append((sql, params, commit))
+        return 1
+
+    monkeypatch.setattr(seasonmaster.db, "execute", fake_execute)
+
+    assert seasonmaster.save_year(
+        2026,
+        [{"from_ddmm": "0104", "to_ddmm": "3006", "ratecode": "A"}],
+        "**  *  ",
+        logsite_code="KK",
+        cn=cn,
+    ) == 1
+
+    assert "DELETE FROM SeasonMast" in calls[0][0]
+    assert "INSERT INTO SeasonMast" in calls[1][0]
+    assert "DELETE FROM SeasonMast1" in calls[2][0]
+    assert "INSERT INTO SeasonMast1" in calls[3][0]
+    assert all(call[2] is False for call in calls)
+    assert calls[3][1][0] == "**  *  "
+    assert cn.commits == 1
+
+
+def test_save_year_rejects_invalid_rows_before_opening_transaction(monkeypatch):
+    from HMS_py.core import seasonmaster
+
+    cn = FakeConnection()
+    monkeypatch.setattr(
+        seasonmaster.db, "execute",
+        lambda *args, **kwargs: pytest.fail("invalid rows must not write"),
+    )
+
+    with pytest.raises(ValueError, match="Value Required"):
+        seasonmaster.save_year(
+            2026, [{"from_ddmm": "", "to_ddmm": "3006", "ratecode": "A"}],
+            "", cn=cn)
+
+
+def test_season_rights_are_fail_closed(monkeypatch):
+    from HMS_py.ui import seasonmaster_ui
+
+    assert seasonmaster_ui._season_rights("SA") == {"A", "E"}
+    assert seasonmaster_ui._season_rights("") == set()
+
+    from HMS_py.core import menu_help
+    monkeypatch.setattr(menu_help, "has_row", lambda user, caption: False)
+    assert seasonmaster_ui._season_rights("PYUSER") == set()
+
+
+def test_season_editor_is_explicitly_editable(monkeypatch):
+    from HMS_py.core import seasonmaster
+    from HMS_py.ui import seasonmaster_ui
+
+    monkeypatch.setattr(seasonmaster, "list_years", lambda: [2026])
+    monkeypatch.setattr(seasonmaster, "list_rows", lambda year: [])
+    monkeypatch.setattr(seasonmaster, "get_weekend", lambda: "       ")
+
+    dialog = seasonmaster_ui.SeasonMasterDialog(editable=True)
+    try:
+        captions = {button.text() for button in dialog.findChildren(QPushButton)}
+        assert "Save" in captions
+        assert dialog.grid.editTriggers() != QAbstractItemView.EditTrigger.NoEditTriggers
+        assert all(box.isEnabled() for box in dialog.findChildren(QCheckBox))
+    finally:
+        dialog.close()
+
+
+def test_season_editor_saves_collected_year_and_weekend(monkeypatch):
+    from HMS_py.core import seasonmaster
+    from HMS_py.ui import seasonmaster_ui
+
+    monkeypatch.setattr(seasonmaster, "list_years", lambda: [2026])
+    monkeypatch.setattr(seasonmaster, "list_rows", lambda year: [])
+    monkeypatch.setattr(seasonmaster, "get_weekend", lambda: "       ")
+    calls = []
+    monkeypatch.setattr(
+        seasonmaster, "save_year",
+        lambda year, rows, weekend, **kwargs:
+            calls.append((year, rows, weekend, kwargs)) or 1,
+    )
+
+    dialog = seasonmaster_ui.SeasonMasterDialog(editable=True)
+    try:
+        dialog.grid.setRowCount(1)
+        for col, value in enumerate(("0104", "3006", "A")):
+            dialog.grid.setItem(0, col, QTableWidgetItem(value))
+        dialog._weekend_checks[0].setChecked(True)
+        dialog._save()
+        assert calls[0][0:3] == (
+            2026,
+            [{"from_ddmm": "0104", "to_ddmm": "3006", "ratecode": "A"}],
+            "*      ",
+        )
+    finally:
+        dialog.close()
+
+
 def test_p2_seasonmaster_opener_uses_read_only_dialog(monkeypatch):
     from HMS_py.ui import p2_masters, seasonmaster_ui
 
@@ -146,11 +262,26 @@ def test_p2_seasonmaster_opener_uses_read_only_dialog(monkeypatch):
     monkeypatch.setattr(
         seasonmaster_ui,
         "open_seasonmaster",
-        lambda parent: calls.append(parent) or "opened",
+        lambda parent, **kwargs:
+            calls.append((parent, kwargs)) or "opened",
     )
 
-    assert p2_masters.open_seasonmaster("parent") == "opened"
-    assert calls == ["parent"]
+    assert p2_masters.open_seasonmaster("parent", user="SA") == "opened"
+    assert calls == [("parent", {"editable": True, "user": "SA"})]
+
+
+def test_shell_season_route_forwards_user(monkeypatch):
+    from HMS_py.ui import p2_masters, shell
+
+    calls = []
+    monkeypatch.setattr(
+        p2_masters, "open_seasonmaster",
+        lambda parent=None, user="SA": calls.append((parent, user)) or "opened",
+    )
+    parent = type("Parent", (), {"user": "PYADMIN"})()
+
+    assert shell._form_registry()["Season Master"](parent) == "opened"
+    assert calls == [(parent, "PYADMIN")]
 
 
 def test_seasonmaster_dialog_is_read_only_year_and_weekend_view(monkeypatch):

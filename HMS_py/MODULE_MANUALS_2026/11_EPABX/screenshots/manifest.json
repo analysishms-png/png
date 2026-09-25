@@ -1,0 +1,21 @@
+{
+  "module": "11_EPABX",
+  "generated_at": "2026-09-25T13:27:22",
+  "sidebar": "epabx",
+  "items": [
+    {
+      "leaf": "Call Type",
+      "layer": "masters",
+      "file": "10_masters_Call_Type.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "Telephone Call Entry",
+      "layer": "operations",
+      "file": "20_operations_Telephone_Call_Entry.png",
+      "status": "ok"
+    }
+  ],
+  "failed": [],
+  "shell": "00_shell_module.png"
+}

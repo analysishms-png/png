@@ -1,0 +1,149 @@
+{
+  "module": "05_HouseKeeping",
+  "name": "House Keeping",
+  "sidebar": "house keeping",
+  "generated_by": "collect_logic.py",
+  "menuhelp": {
+    "masters": [],
+    "operations": [],
+    "reports": [
+      {
+        "caption": "house keeping report",
+        "caption_disp": "House Keeping Report",
+        "param": "***P",
+        "flag": "R",
+        "module": "HouseREP",
+        "opt1": "15",
+        "opt2": "13",
+        "opt3": "16",
+        "opt4": "",
+        "code": 305
+      }
+    ],
+    "hidden": [],
+    "unclassified": [
+      {
+        "caption": "house keeping",
+        "caption_disp": "House Keeping",
+        "param": "",
+        "flag": "N",
+        "module": "HouseKeeping",
+        "opt1": "15",
+        "opt2": "",
+        "opt3": "",
+        "opt4": "",
+        "code": 285
+      },
+      {
+        "caption": "operations",
+        "caption_disp": "Operations",
+        "param": "",
+        "flag": "N",
+        "module": "TransHK",
+        "opt1": "15",
+        "opt2": "12",
+        "opt3": "",
+        "opt4": "",
+        "code": 288
+      },
+      {
+        "caption": "complaint master",
+        "caption_disp": "Complaint Master",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "HouseEnt",
+        "opt1": "15",
+        "opt2": "12",
+        "opt3": "11",
+        "opt4": "",
+        "code": 289
+      },
+      {
+        "caption": "complaint clearance",
+        "caption_disp": "Complaint Clearance",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "HouseEnt",
+        "opt1": "15",
+        "opt2": "12",
+        "opt3": "12",
+        "opt4": "",
+        "code": 290
+      },
+      {
+        "caption": "lost / found entry",
+        "caption_disp": "Lost / Found Entry",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "HouseEnt",
+        "opt1": "15",
+        "opt2": "12",
+        "opt3": "13",
+        "opt4": "",
+        "code": 291
+      },
+      {
+        "caption": "claim entry",
+        "caption_disp": "Claim Entry",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "HouseEnt",
+        "opt1": "15",
+        "opt2": "12",
+        "opt3": "14",
+        "opt4": "",
+        "code": 292
+      },
+      {
+        "caption": "house keeping screen",
+        "caption_disp": "House Keeping Screen",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "HouseEnt",
+        "opt1": "15",
+        "opt2": "12",
+        "opt3": "17",
+        "opt4": "",
+        "code": 295
+      },
+      {
+        "caption": "reports",
+        "caption_disp": "Reports",
+        "param": "",
+        "flag": "N",
+        "module": "ReportsHK",
+        "opt1": "15",
+        "opt2": "13",
+        "opt3": "",
+        "opt4": "",
+        "code": 299
+      }
+    ],
+    "counts": {
+      "masters": 0,
+      "operations": 0,
+      "reports": 1,
+      "hidden": 0,
+      "other": 8,
+      "unclassified": 8
+    }
+  },
+  "registry_hits": {
+    "masters": [],
+    "operations": [
+      "Room Status"
+    ],
+    "reports": []
+  },
+  "core_files": [
+    "roomstatus",
+    "room_occ"
+  ],
+  "module_names": [
+    "HouseKeeping",
+    "TransHK",
+    "HouseEnt",
+    "ReportsHK",
+    "HouseREP"
+  ]
+}

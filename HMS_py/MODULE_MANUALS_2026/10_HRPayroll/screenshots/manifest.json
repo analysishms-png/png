@@ -1,0 +1,27 @@
+{
+  "module": "10_HRPayroll",
+  "generated_at": "2026-09-25T13:00:06",
+  "sidebar": "hr/payroll",
+  "items": [
+    {
+      "leaf": "Employee Master",
+      "layer": "masters",
+      "file": "10_masters_Employee_Master.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "HR Payroll",
+      "layer": "operations",
+      "file": "20_operations_HR_Payroll.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "Pay Slip",
+      "layer": "reports",
+      "file": "30_reports_Pay_Slip.png",
+      "status": "ok"
+    }
+  ],
+  "failed": [],
+  "shell": "00_shell_module.png"
+}

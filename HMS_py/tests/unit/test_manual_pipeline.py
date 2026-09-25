@@ -59,6 +59,35 @@ def test_classify_layers():
     assert [r["caption_disp"] for r in out["other"]] == ["Some Unknown Leaf"]
 
 
+def test_classify_norm_collision_exact_precedence():
+    """KI-10: _norm_caption trailing-paren strip se SMS family sab 'sms'
+    ban jaati thi -> curated masters leaf ne operations bucket swallow
+    kiya tha. Fix: paren-preserving exact match (pehle) + paren leaf ka
+    stripped norm legacy caps se exclude."""
+    from HMS_py.core.menu_help import _norm_caption
+    from HMS_py.tools.manual_pipeline.collect_logic import classify
+    msg = mm.get("12_Messaging")
+
+    def _prow(caption, module, flag="E"):
+        return {"caption": _norm_caption(caption), "caption_disp": caption,
+                "flag": flag, "param": "AEDP", "module": module,
+                "opt1": "1", "opt2": "2", "opt3": "0", "opt4": "0", "code": 0}
+
+    rows = [
+        _prow("SMS (API)", "EXTSMSSETUP"),       # exact curated master
+        _prow("SMS (Scheduled)", "EXTSMSOPR"),   # exact curated operation
+        _prow("SMS (Conditional)", "EXTSMSOPR"),  # not curated -> other
+        _prow("SMS", "EXTSMS"),                  # node, not curated -> other
+        _prow("Sstup", "SMSSETUP"),              # master_modules rule -> masters
+        _prow("Operations", "SMSOPR"),           # node -> other
+    ]
+    out = classify(rows, msg)
+    assert [r["caption_disp"] for r in out["masters"]] == ["SMS (API)", "Sstup"]
+    assert [r["caption_disp"] for r in out["operations"]] == ["SMS (Scheduled)"]
+    assert [r["caption_disp"] for r in out["other"]] == [
+        "SMS (Conditional)", "SMS", "Operations"]
+
+
 def test_collect_payload_shape():
     from HMS_py.tools.manual_pipeline import collect_logic
     fo = mm.get("04_FrontOffice")
@@ -193,6 +222,33 @@ def test_capture_leaf_rescues_hidden_returned_widget(tmp_path, monkeypatch):
     status = capture_leaf(win, app, "hidden leaf", out)
     assert status == "ok", f"rescue failed: status={status} exists={out.exists()}"
     assert validate_image(out)
+
+
+def test_capture_leaf_opener_exception_returns_failed(tmp_path, monkeypatch):
+    monkeypatch.setenv("QT_QPA_PLATFORM", "offscreen")
+    from PyQt6.QtWidgets import QApplication, QMainWindow
+    from HMS_py.tools.manual_pipeline.capture_module import capture_leaf
+
+    app = QApplication.instance() or QApplication([])
+
+    class BoomWin(QMainWindow):
+        registry = {}
+
+        def __init__(self):
+            super().__init__()
+            self._reg_ci = {"boom leaf": self._open_boom}
+
+        def _open_boom(self, w):
+            raise RuntimeError("opener crash (GIN-style KeyError)")
+
+        def _safe_open(self, leaf):
+            fn = self._reg_ci.get(leaf.strip().lower())
+            if fn:
+                fn(self)
+
+    win = BoomWin()
+    status = capture_leaf(win, app, "boom leaf", tmp_path / "boom.png")
+    assert status == "failed", f"opener exception must yield failed, got {status}"
 
 
 def test_check_manual_missing_dir_reports_problems(tmp_path):

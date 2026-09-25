@@ -1,0 +1,39 @@
+{
+  "module": "07_POS",
+  "generated_at": "2026-09-25T12:43:43",
+  "sidebar": "point of sale",
+  "items": [
+    {
+      "leaf": "Restaurant Master",
+      "layer": "masters",
+      "file": "10_masters_Restaurant_Master.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "KOT Entry",
+      "layer": "operations",
+      "file": "20_operations_KOT_Entry.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "Table Change Entry",
+      "layer": "operations",
+      "file": "30_operations_Table_Change_Entry.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "KOT Transfer",
+      "layer": "operations",
+      "file": "40_operations_KOT_Transfer.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "Sales Register",
+      "layer": "reports",
+      "file": "50_reports_Sales_Register.png",
+      "status": "ok"
+    }
+  ],
+  "failed": [],
+  "shell": "00_shell_module.png"
+}

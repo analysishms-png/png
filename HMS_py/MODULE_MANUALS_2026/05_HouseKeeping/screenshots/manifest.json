@@ -1,0 +1,15 @@
+{
+  "module": "05_HouseKeeping",
+  "generated_at": "2026-09-25T12:23:51",
+  "sidebar": "house keeping",
+  "items": [
+    {
+      "leaf": "Room Status",
+      "layer": "operations",
+      "file": "10_operations_Room_Status.png",
+      "status": "ok"
+    }
+  ],
+  "failed": [],
+  "shell": "00_shell_module.png"
+}

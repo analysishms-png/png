@@ -27,6 +27,7 @@ from PyQt6.QtWidgets import (QApplication, QDialog, QHBoxLayout, QLabel,
 from HMS_py.core.general_setup import RoomFeatAPI, GodownAPI, VouchCatAPI, voucher_type_list
 from HMS_py.ui.base_master import BaseMasterForm, Field, MasterConfig, make_delete_guard
 from HMS_py.ui import theme as _theme
+from HMS_py.ui.desktop_style import apply_desktop_surface, mark_desktop_action
 
 
 # ── Room Feature Master ───────────────────────────────────────
@@ -76,6 +77,7 @@ class VoucherTypeBrowser(QDialog):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        apply_desktop_surface(self, "desktopVoucherTypeBrowser")
         self.setWindowTitle("Voucher Type Browser (Read-Only) - HMS_py")
         self.resize(860, 480)
         root = QVBoxLayout(self)
@@ -90,8 +92,10 @@ class VoucherTypeBrowser(QDialog):
         root.addWidget(self.tbl)
         btns = QHBoxLayout()
         btnR = QPushButton("Refresh (F5)")
+        mark_desktop_action(btnR)
         btnR.setToolTip("Reload voucher types from database")
         btnC = QPushButton("Close")
+        mark_desktop_action(btnC)
         btnC.setToolTip("Close this window")
         btnR.clicked.connect(self.reload)
         btnC.clicked.connect(self.reject)
@@ -117,6 +121,7 @@ class EnviroViewer(QDialog):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        apply_desktop_surface(self, "desktopEnvironmentViewer")
         self.setWindowTitle("System Environment Settings (Read-Only) - HMS_py")
         self.resize(720, 480)
         root = QVBoxLayout(self)
@@ -129,8 +134,8 @@ class EnviroViewer(QDialog):
         self.tbl.horizontalHeader().setStretchLastSection(True)
         root.addWidget(self.tbl)
         btns = QHBoxLayout()
-        btnR = QPushButton("Refresh"); btnR.setToolTip("Reload settings from database")
-        btnC = QPushButton("Close"); btnC.setToolTip("Close this window")
+        btnR = QPushButton("Refresh"); mark_desktop_action(btnR); btnR.setToolTip("Reload settings from database")
+        btnC = QPushButton("Close"); mark_desktop_action(btnC); btnC.setToolTip("Close this window")
         btnR.clicked.connect(self.reload); btnC.clicked.connect(self.reject)
         btns.addStretch(); btns.addWidget(btnR); btns.addWidget(btnC)
         root.addLayout(btns)
@@ -162,6 +167,7 @@ class GuestParamViewer(QDialog):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        apply_desktop_surface(self, "desktopGuestParameters")
         self.setWindowTitle("Guest Parameters (Read-Only) - HMS_py")
         self.resize(720, 400)
         root = QVBoxLayout(self)
@@ -173,7 +179,7 @@ class GuestParamViewer(QDialog):
         self.tbl.horizontalHeader().setStretchLastSection(True)
         root.addWidget(self.tbl)
         btns = QHBoxLayout()
-        btnC = QPushButton("Close"); btnC.clicked.connect(self.reject)
+        btnC = QPushButton("Close"); mark_desktop_action(btnC); btnC.clicked.connect(self.reject)
         btnC.setToolTip("Close this window")
         btns.addStretch(); btns.addWidget(btnC)
         root.addLayout(btns)
@@ -204,6 +210,7 @@ class PrintingSettingsViewer(QDialog):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        apply_desktop_surface(self, "desktopPrintingSettings")
         self.setWindowTitle("Printing Setup / Parameters - HMS_py")
         self.resize(820, 520)
         root = QVBoxLayout(self)
@@ -217,8 +224,10 @@ class PrintingSettingsViewer(QDialog):
         root.addWidget(self.tbl)
         btns = QHBoxLayout()
         btnR = QPushButton("Refresh")
+        mark_desktop_action(btnR)
         btnR.setToolTip("Reload printing settings from database")
         btnC = QPushButton("Close")
+        mark_desktop_action(btnC)
         btnC.setToolTip("Close this window")
         btnR.clicked.connect(self.reload)
         btnC.clicked.connect(self.reject)
@@ -296,6 +305,7 @@ def vouchcat_config() -> MasterConfig:
 class GeneralSetupLauncher(QMainWindow):
     def __init__(self):
         super().__init__()
+        apply_desktop_surface(self, "desktopGeneralSetupLauncher")
         self.setWindowTitle("HMS_py - General Setup Masters")
         self.resize(360, 320)
         c = QWidget(); lay = QVBoxLayout(c)
@@ -308,7 +318,7 @@ class GeneralSetupLauncher(QMainWindow):
             ("Guest Parameters",               open_guestparam),
             ("Printing Setup / Parameters",    open_printing),
         ):
-            b = QPushButton(lbl); b.clicked.connect(fn); b.setToolTip(f"Open {lbl}"); lay.addWidget(b)
+            b = QPushButton(lbl); mark_desktop_action(b); b.clicked.connect(fn); b.setToolTip(f"Open {lbl}"); lay.addWidget(b)
         self.setCentralWidget(c)
 
 

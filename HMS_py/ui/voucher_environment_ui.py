@@ -19,6 +19,7 @@ from PyQt6.QtWidgets import (
 
 from HMS_py.core import general_setup
 from HMS_py.ui.theme import palette
+from HMS_py.ui.desktop_style import apply_desktop_surface, mark_desktop_action
 
 
 def _cell(value):
@@ -58,6 +59,7 @@ class VoucherEnvironmentDialog(QDialog):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        apply_desktop_surface(self, "desktopVoucherEnvironment")
         self.setWindowTitle("Voucher Environment")
         self.resize(1080, 700)
         self._types = []
@@ -100,8 +102,10 @@ class VoucherEnvironmentDialog(QDialog):
         footer.addWidget(self.lbl_status)
         footer.addStretch()
         self.btn_refresh = QPushButton("Refresh")
+        mark_desktop_action(self.btn_refresh)
         self.btn_refresh.clicked.connect(self.reload)
         self.btn_close = QPushButton("Close")
+        mark_desktop_action(self.btn_close)
         self.btn_close.clicked.connect(self.close)
         footer.addWidget(self.btn_refresh)
         footer.addWidget(self.btn_close)
@@ -146,6 +150,7 @@ class VoucherEnvironmentDialog(QDialog):
 class VoucherCategoryBrowser(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
+        apply_desktop_surface(self, "desktopVoucherCategories")
         self.setWindowTitle("Voucher Categories")
         self.resize(760, 480)
         root = QVBoxLayout(self)
@@ -164,8 +169,10 @@ class VoucherCategoryBrowser(QDialog):
         footer.addWidget(self.lbl_status)
         footer.addStretch()
         self.btn_refresh = QPushButton("Refresh")
+        mark_desktop_action(self.btn_refresh)
         self.btn_refresh.clicked.connect(self.reload)
         self.btn_close = QPushButton("Close")
+        mark_desktop_action(self.btn_close)
         self.btn_close.clicked.connect(self.close)
         footer.addWidget(self.btn_refresh)
         footer.addWidget(self.btn_close)

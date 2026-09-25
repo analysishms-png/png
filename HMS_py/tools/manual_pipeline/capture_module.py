@@ -125,7 +125,11 @@ def capture_leaf(win, app, leaf: str, out_path: pathlib.Path) -> str:
     watchdog.start(LEAF_WAIT_MS)
 
     fn = win._reg_ci.get(leaf.strip().lower()) or win.registry.get(leaf)
-    res = fn(win) if fn else None      # modal leaf yahan block hota hai
+    try:
+        res = fn(win) if fn else None      # modal leaf yahan block hota hai
+    except Exception as exc:               # opener crash = leaf fail, module na maar
+        print(f"[capture] {leaf}: opener raised {exc!r}", flush=True)
+        res = None
 
     # Rescue: opener ne hidden widget return kiya (no-show pattern)
     if (state["status"] == "failed" and isinstance(res, QWidget)

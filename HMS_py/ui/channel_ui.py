@@ -31,6 +31,7 @@ from HMS_py.core.channel import booking_in as bi
 from HMS_py.core.channel import client as client_mod
 from HMS_py.core.channel import config as cfg_mod
 from HMS_py.core.channel import inventory as ch_inv
+from HMS_py.core.channel import rates as ch_rates
 from HMS_py.core.channel import roommap, synclog
 from HMS_py.core.channel.ensure import ensure_tables
 from HMS_py.ui import theme as _theme
@@ -214,14 +215,22 @@ class ChannelManagerDialog(QDialog):
         btn_preview.clicked.connect(self._preview_inventory)
         self.btn_push = QPushButton("Push Inventory Now")
         self.btn_push.clicked.connect(self._push_inventory)
-        btns.addWidget(btn_preview)
-        btns.addWidget(self.btn_push)
+        btn_preview_rates = QPushButton("Preview Rates/StopSell")
+        btn_preview_rates.clicked.connect(self._preview_rates)
+        self.btn_push_rates = QPushButton("Push Rates Now")
+        self.btn_push_rates.clicked.connect(self._push_rates)
+        self.btn_push_stop = QPushButton("Push StopSell Now")
+        self.btn_push_stop.clicked.connect(self._push_stop_sell)
+        for w in (btn_preview, self.btn_push, btn_preview_rates,
+                  self.btn_push_rates, self.btn_push_stop):
+            btns.addWidget(w)
         btns.addStretch()
         v.addLayout(btns)
 
-        self.inv_table = QTableWidget(0, 4)
+        self.inv_table = QTableWidget(0, 6)
         self.inv_table.setHorizontalHeaderLabels(
-            ["Date", "RoomCat", "Ezee RoomType", "Free"])
+            ["Date", "RoomCat", "Ezee RoomType", "Free/Rate",
+             "Plan/Occ", "Type"])
         self.inv_table.setEditTriggers(
             QAbstractItemView.EditTrigger.NoEditTriggers)
         self.inv_table.horizontalHeader().setSectionResizeMode(
@@ -394,7 +403,8 @@ class ChannelManagerDialog(QDialog):
                 fr = ch_inv.free_rooms_by_cat(day)
                 for rc, n in fr["free"].items():
                     rows.append((day.isoformat(), rc,
-                                 mappings.get(rc, "(unmapped)"), n))
+                                 mappings.get(rc, "(unmapped)"), n,
+                                 "", "INV"))
                 day += datetime.timedelta(days=1)
         except Exception as e:
             QMessageBox.critical(self, "Error", str(e))
@@ -425,6 +435,80 @@ class ChannelManagerDialog(QDialog):
                 self, "Push",
                 f"pushed={out['pushed']} failed={out['failed']} "
                 f"calls={out['calls']} unmapped={out['unmapped']}")
+        self._refresh_state()
+
+    # ---- Phase-4: rates + stop-sell (Inventory tab me hi) ----
+    def _preview_rates(self):
+        d_from = self.dt_from.date().toPyDate()
+        d_to = self.dt_to.date().toPyDate()
+        try:
+            rr = ch_rates.rate_rows(d_from, d_to)
+            ss = ch_rates.stop_sell_rows(d_from, d_to)
+        except Exception as e:
+            QMessageBox.critical(self, "Error", str(e))
+            return
+        rows = []
+        for r in rr["rows"]:
+            rows.append((r["date"].isoformat(), r["roomcat"],
+                         r["ezee_room_type"], f"{r['rate']:.0f}",
+                         r["rate_plan"], "RATE"))
+        for u in rr["unrated"][:100]:
+            rows.append((u["date"].isoformat(), u["roomcat"], "",
+                         "0 (skip)", u["plan"] or "-", "UNRATED"))
+        for r in ss:
+            rows.append((r["date"].isoformat(), r["roomcat"],
+                         r["ezee_room_type"], "-", "StopSell", "STOP"))
+        self.inv_table.setRowCount(0)
+        self.inv_table.setRowCount(min(len(rows), 800))
+        for i, r in enumerate(rows[:800]):
+            for c, val in enumerate(r):
+                self.inv_table.setItem(i, c, _dark_item(str(val)))
+
+    def _push_rates(self):
+        if QMessageBox.question(
+                self, "Push Rates",
+                "SetRoomRate eZee ko push karein?") != \
+                QMessageBox.StandardButton.Yes:
+            return
+        try:
+            out = ch_rates.push_rates(self.dt_from.date().toPyDate(),
+                                      self.dt_to.date().toPyDate(),
+                                      user=self.user)
+        except Exception as e:
+            QMessageBox.critical(self, "Push fail", str(e))
+            return
+        if out.get("skipped_reason"):
+            QMessageBox.warning(self, "Push skipped",
+                                f"Not live: {out['skipped_reason']}")
+        else:
+            QMessageBox.information(
+                self, "Push Rates",
+                f"pushed={out['pushed']} failed={out['failed']} "
+                f"calls={out['calls']} unrated={out['unrated']}")
+        self._refresh_state()
+
+    def _push_stop_sell(self):
+        if QMessageBox.question(
+                self, "Push StopSell",
+                "StopSell push karein? (inventory-push ke BAAD chalta "
+                "hai — pehle availability, phir close)") != \
+                QMessageBox.StandardButton.Yes:
+            return
+        try:
+            out = ch_rates.push_stop_sell(self.dt_from.date().toPyDate(),
+                                          self.dt_to.date().toPyDate(),
+                                          user=self.user)
+        except Exception as e:
+            QMessageBox.critical(self, "Push fail", str(e))
+            return
+        if out.get("skipped_reason"):
+            QMessageBox.warning(self, "Push skipped",
+                                f"Not live: {out['skipped_reason']}")
+        else:
+            QMessageBox.information(
+                self, "Push StopSell",
+                f"pushed={out['pushed']} failed={out['failed']} "
+                f"calls={out['calls']}")
         self._refresh_state()
 
 

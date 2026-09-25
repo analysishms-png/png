@@ -1551,7 +1551,7 @@ User ko bolo: pilot complete hai (`04_FrontOffice: COMPLETE`), wo `MODULE_MANUAL
 **Interfaces:**
 - Consumes: `MANUAL_TEMPLATE.md` (Task 10), saare 4 scripts (Tasks 2-5, 11), user approval (Task 11 Step 5).
 
-- [ ] **Step 1: Discovery — khali module_names fill karo**
+- [x] **Step 1: Discovery — khali module_names fill karo**
 
 ```powershell
 python -c "import sys; sys.path.insert(0, r'C:\Users\PC\Desktop\New folder (3)\png'); from HMS_py.core import menu_help as mh; print([m for m in mh.modules() if any(k in m.lower() for k in ('epabx','tel','sale','mkt','market','mall','extr'))])"
@@ -1559,7 +1559,7 @@ python -c "import sys; sys.path.insert(0, r'C:\Users\PC\Desktop\New folder (3)\p
 
 Output ko dekhkar `modules_map.py` me `11_EPABX` aur `14_SaleMarketing` ke `module_names` set karo (agar EPABX rows `UNMAPPED` me hain to caption-keyword fallback note karo aur leaves list registry se bharo). `pytest tests/unit/test_manual_pipeline.py -q` green rakho.
 
-- [ ] **Step 2: Per-module pipeline loop (13 modules × step order)**
+- [x] **Step 2: Per-module pipeline loop (13 modules × step order)**
 
 Har module `M` ke liye (TASK se dependent — approval ke baad):
 
@@ -1580,7 +1580,7 @@ Notes:
 - `11_EPABX` / `14_SaleMarketing` capture `sidebar="extras"` use karta hai — agar sidebar root mismatch mile to `_sidebar module` step me `mod.sidebar` = "extras" hi rahega; leaves registry-based hain, dashboard shot extras ka aayega.
 - Har module ke `other` bucket counts `README.md §3` me compulsory.
 
-- [ ] **Step 3: Batch gate**
+- [x] **Step 3: Batch gate**
 
 Sab 13 modules ke liye:
 
@@ -1592,7 +1592,7 @@ foreach($m in @("01_Finance","02_MainSetup","03_Reservation","05_HouseKeeping","
 
 Expected: sab `COMPLETE` + exit 0.
 
-- [ ] **Step 4: Final rollup**
+- [x] **Step 4: Final rollup**
 
 `00_GLOBAL/RUN_TEST_LOG.md` ke last entries + per-module `TEST_RESULTS.md` status se `TEST_PLAN_MASTER.md` ki per-module matrix fill karo; `00_GLOBAL/TEST_PLAN_MASTER.md` me Known issues complete list. User ko final summary do (folders, screenshot counts, test status, known issues).
 

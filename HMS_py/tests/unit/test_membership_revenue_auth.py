@@ -84,7 +84,7 @@ def test_open_memrev_applies_explicit_rights_to_form(monkeypatch):
 
     assert isinstance(result, FakeForm)
     assert captured["parent"] is parent
-    assert captured["permissions"] == {"add": False, "edit": False, "delete": False}
+    assert captured["permissions"] == {"add": True, "edit": False, "delete": True}
     assert captured["exec"] is True
 
 

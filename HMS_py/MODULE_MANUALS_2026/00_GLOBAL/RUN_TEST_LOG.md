@@ -59,3 +59,29 @@ Format: one entry per run: ISO timestamp | layer | command | exit | summary | no
 2026-09-25T12:05:27 | L2b | -m pytest tests/test_front_office.py -q --tb=line | exit=0 | PASS 27 passed in 0.62s | 1.6s
 2026-09-25T12:17:19 | L1 | -m pytest tests/unit -q --tb=line | exit=1 | FAIL 1 failed, 384 passed in 19.06s | 20.5s
 2026-09-25T12:17:19 | L2b | -m pytest tests/test_front_office.py -q --tb=line | exit=0 | PASS 27 passed in 0.91s | 2.1s
+2026-09-25T12:19:00 | L1 | -m pytest tests/unit -q --tb=line | exit=0 | PASS 385 passed in 39.00s | 40.6s
+2026-09-25T12:19:00 | L2b | -m pytest tests/test_front_office.py -q --tb=line | exit=0 | PASS 27 passed in 3.15s | 5.9s
+2026-09-25T12:23:32 | L1 | -m pytest tests/unit -q --tb=line | exit=0 | PASS 408 passed in 20.06s | 21.2s
+2026-09-25T12:23:32 | L2b | -m pytest tests/test_front_office.py -q --tb=line | exit=0 | PASS 27 passed in 0.91s | 2.2s
+2026-09-25T12:27:35 | L1 | -m pytest tests/unit -q --tb=line | exit=0 | PASS 408 passed in 14.61s | 15.7s
+2026-09-25T12:27:35 | L2b | -m pytest tests/test_front_office.py -q --tb=line | exit=0 | PASS 27 passed in 0.55s | 1.6s
+2026-09-25T12:40:57 | L1 | -m pytest tests/unit -q --tb=line | exit=0 | PASS 410 passed in 22.05s | 23.7s
+2026-09-25T12:40:57 | L2b | -m pytest tests/test_front_office.py -q --tb=line | exit=0 | PASS 27 passed in 0.89s | 2.2s
+2026-09-25T12:47:37 | L1 | -m pytest tests/unit -q --tb=line | exit=0 | PASS 410 passed in 17.30s | 18.4s
+2026-09-25T12:47:37 | L2b | -m pytest tests/test_front_office.py -q --tb=line | exit=0 | PASS 27 passed in 0.66s | 1.7s
+2026-09-25T12:52:03 | L1 | -m pytest tests/unit -q --tb=line | exit=0 | PASS 410 passed in 19.46s | 20.7s
+2026-09-25T12:52:03 | L2b | -m pytest tests/test_front_office.py -q --tb=line | exit=0 | PASS 27 passed in 0.69s | 1.7s
+2026-09-25T12:59:55 | L1 | -m pytest tests/unit -q --tb=line | exit=0 | PASS 410 passed in 19.26s | 20.4s
+2026-09-25T12:59:55 | L2b | -m pytest tests/test_front_office.py -q --tb=line | exit=0 | PASS 27 passed in 0.82s | 1.9s
+2026-09-25T13:04:33 | L1 | -m pytest tests/unit -q --tb=line | exit=2 | FAIL 1 error in 1.45s | 3.0s
+2026-09-25T13:04:33 | L2b | -m pytest tests/test_front_office.py -q --tb=line | exit=0 | PASS 27 passed in 0.95s | 2.2s
+2026-09-25T13:09:15 | L1 | -m pytest tests/unit -q --tb=line | exit=0 | PASS 413 passed in 21.81s | 23.8s
+2026-09-25T13:09:15 | L2b | -m pytest tests/test_front_office.py -q --tb=line | exit=0 | PASS 27 passed in 1.02s | 2.3s
+2026-09-25T13:13:08 | L1 | -m pytest tests/unit -q --tb=line | exit=1 | FAIL 1 failed, 412 passed in 24.71s | 25.9s
+2026-09-25T13:13:08 | L2b | -m pytest tests/test_front_office.py -q --tb=line | exit=0 | PASS 27 passed in 1.92s | 3.2s
+2026-09-25T13:14:57 | L1 | -m pytest tests/unit -q --tb=line | exit=0 | PASS 413 passed in 49.03s | 50.7s
+2026-09-25T13:14:57 | L2b | -m pytest tests/test_front_office.py -q --tb=line | exit=0 | PASS 27 passed in 1.50s | 3.3s
+2026-09-25T13:27:10 | L1 | -m pytest tests/unit -q --tb=line | exit=0 | PASS 434 passed in 41.08s | 42.8s
+2026-09-25T13:27:10 | L2b | -m pytest tests/test_front_office.py -q --tb=line | exit=0 | PASS 27 passed in 22.40s | 24.1s
+2026-09-25T13:32:33 | L1 | -m pytest tests/unit -q --tb=line | exit=0 | PASS 434 passed in 34.65s | 37.5s
+2026-09-25T13:32:33 | L2b | -m pytest tests/test_front_office.py -q --tb=line | exit=0 | PASS 27 passed in 1.77s | 3.7s

@@ -1,0 +1,35 @@
+{
+  "module": "11_EPABX",
+  "name": "EPABX",
+  "sidebar": "epabx",
+  "generated_by": "collect_logic.py",
+  "menuhelp": {
+    "masters": [],
+    "operations": [],
+    "reports": [],
+    "hidden": [],
+    "unclassified": [],
+    "counts": {
+      "masters": 0,
+      "operations": 0,
+      "reports": 0,
+      "hidden": 0,
+      "other": 0,
+      "unclassified": 0
+    }
+  },
+  "registry_hits": {
+    "masters": [
+      "Call Type"
+    ],
+    "operations": [
+      "Telephone Call Entry"
+    ],
+    "reports": []
+  },
+  "core_files": [
+    "epabx_masters",
+    "epabx_ops"
+  ],
+  "module_names": []
+}

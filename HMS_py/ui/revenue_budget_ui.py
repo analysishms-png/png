@@ -24,6 +24,7 @@ from PyQt6.QtWidgets import (
 
 from HMS_py.core import revenue_budget as rb
 from HMS_py.ui.theme import palette
+from HMS_py.ui.desktop_style import apply_desktop_surface, mark_desktop_action
 
 
 def _item(value, editable=False, alignment=None):
@@ -44,6 +45,7 @@ def _button(text, callback=None, primary=False):
     button.setMinimumHeight(34)
     if primary:
         button.setProperty("accent", True)
+    mark_desktop_action(button, "primary" if primary else "default")
     if callback is not None:
         button.clicked.connect(callback)
     return button
@@ -77,6 +79,7 @@ def _configure_table(table, headers, editable_columns=()):
 class RevenueGroupWindow(QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
+        apply_desktop_surface(self, "desktopRevenueGroup")
         self.setWindowTitle("Revenue Group Setting")
         self.resize(900, 620)
         self._rows = []
@@ -178,6 +181,7 @@ class RevenueWiseBudgetWindow(QMainWindow):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        apply_desktop_surface(self, "desktopRevenueBudget")
         self.setWindowTitle("Revenue Wise Budget Entry")
         self.resize(1040, 700)
         self._rows = []

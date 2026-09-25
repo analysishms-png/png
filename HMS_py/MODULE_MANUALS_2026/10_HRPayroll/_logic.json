@@ -1,0 +1,312 @@
+{
+  "module": "10_HRPayroll",
+  "name": "HR & Payroll",
+  "sidebar": "hr/payroll",
+  "generated_by": "collect_logic.py",
+  "menuhelp": {
+    "masters": [
+      {
+        "caption": "designation master",
+        "caption_disp": "Designation Master",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "PRM",
+        "opt1": "12",
+        "opt2": "17",
+        "opt3": "11",
+        "opt4": "",
+        "code": 125
+      },
+      {
+        "caption": "category master",
+        "caption_disp": "Category  Master",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "PRM",
+        "opt1": "12",
+        "opt2": "17",
+        "opt3": "12",
+        "opt4": "",
+        "code": 126
+      },
+      {
+        "caption": "holiday master",
+        "caption_disp": "Holiday Master",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "PRM",
+        "opt1": "12",
+        "opt2": "17",
+        "opt3": "13",
+        "opt4": "",
+        "code": 127
+      },
+      {
+        "caption": "employee master",
+        "caption_disp": "Employee Master",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "PRM",
+        "opt1": "12",
+        "opt2": "17",
+        "opt3": "14",
+        "opt4": "",
+        "code": 128
+      }
+    ],
+    "operations": [],
+    "reports": [
+      {
+        "caption": "pay slip",
+        "caption_disp": "Pay Slip",
+        "param": "***P",
+        "flag": "R",
+        "module": "PayRep",
+        "opt1": "20",
+        "opt2": "12",
+        "opt3": "11",
+        "opt4": "",
+        "code": 480
+      },
+      {
+        "caption": "payroll register",
+        "caption_disp": "Payroll Register",
+        "param": "***P",
+        "flag": "R",
+        "module": "PayRep",
+        "opt1": "20",
+        "opt2": "12",
+        "opt3": "12",
+        "opt4": "",
+        "code": 481
+      },
+      {
+        "caption": "loan register",
+        "caption_disp": "Loan Register",
+        "param": "***P",
+        "flag": "R",
+        "module": "PayRep",
+        "opt1": "20",
+        "opt2": "12",
+        "opt3": "13",
+        "opt4": "",
+        "code": 482
+      },
+      {
+        "caption": "loan/advance summary",
+        "caption_disp": "Loan/Advance Summary",
+        "param": "***P",
+        "flag": "R",
+        "module": "PayRep",
+        "opt1": "20",
+        "opt2": "12",
+        "opt3": "14",
+        "opt4": "",
+        "code": 483
+      },
+      {
+        "caption": "loan/advance ledger",
+        "caption_disp": "Loan/Advance Ledger",
+        "param": "***P",
+        "flag": "R",
+        "module": "PayRep",
+        "opt1": "20",
+        "opt2": "12",
+        "opt3": "15",
+        "opt4": "",
+        "code": 484
+      },
+      {
+        "caption": "attendence report",
+        "caption_disp": "Attendence Report",
+        "param": "***P",
+        "flag": "R",
+        "module": "PayRep",
+        "opt1": "20",
+        "opt2": "12",
+        "opt3": "16",
+        "opt4": "",
+        "code": 485
+      },
+      {
+        "caption": "gratuity report",
+        "caption_disp": "Gratuity Report",
+        "param": "***P",
+        "flag": "R",
+        "module": "PayRep",
+        "opt1": "20",
+        "opt2": "12",
+        "opt3": "17",
+        "opt4": "",
+        "code": 486
+      },
+      {
+        "caption": "pf statement",
+        "caption_disp": "PF Statement",
+        "param": "***P",
+        "flag": "R",
+        "module": "PayRep",
+        "opt1": "20",
+        "opt2": "12",
+        "opt3": "18",
+        "opt4": "",
+        "code": 487
+      },
+      {
+        "caption": "form c",
+        "caption_disp": "Form C",
+        "param": "***P",
+        "flag": "R",
+        "module": "PayRep",
+        "opt1": "20",
+        "opt2": "12",
+        "opt3": "19",
+        "opt4": "",
+        "code": 488
+      }
+    ],
+    "hidden": [],
+    "unclassified": [
+      {
+        "caption": "hr/payroll",
+        "caption_disp": "HR/Payroll",
+        "param": "",
+        "flag": "N",
+        "module": "PR",
+        "opt1": "12",
+        "opt2": "17",
+        "opt3": "",
+        "opt4": "",
+        "code": 124
+      },
+      {
+        "caption": "hr/payroll",
+        "caption_disp": "HR/Payroll",
+        "param": "",
+        "flag": "N",
+        "module": "PayRoll",
+        "opt1": "20",
+        "opt2": "",
+        "opt3": "",
+        "opt4": "",
+        "code": 471
+      },
+      {
+        "caption": "operations",
+        "caption_disp": "Operations",
+        "param": "***P",
+        "flag": "N",
+        "module": "PayO",
+        "opt1": "20",
+        "opt2": "11",
+        "opt3": "",
+        "opt4": "",
+        "code": 20110000
+      },
+      {
+        "caption": "leave",
+        "caption_disp": "Leave",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "PayOpr",
+        "opt1": "20",
+        "opt2": "11",
+        "opt3": "11",
+        "opt4": "",
+        "code": 20111100
+      },
+      {
+        "caption": "loan/advance",
+        "caption_disp": "Loan/Advance",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "PayOpr",
+        "opt1": "20",
+        "opt2": "11",
+        "opt3": "13",
+        "opt4": "",
+        "code": 475
+      },
+      {
+        "caption": "over time",
+        "caption_disp": "Over Time",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "PayOpr",
+        "opt1": "20",
+        "opt2": "11",
+        "opt3": "14",
+        "opt4": "",
+        "code": 476
+      },
+      {
+        "caption": "leave encashment",
+        "caption_disp": "Leave Encashment",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "PayOpr",
+        "opt1": "20",
+        "opt2": "11",
+        "opt3": "15",
+        "opt4": "",
+        "code": 477
+      },
+      {
+        "caption": "salary creation",
+        "caption_disp": "Salary Creation",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "PayOpr",
+        "opt1": "20",
+        "opt2": "11",
+        "opt3": "16",
+        "opt4": "",
+        "code": 478
+      },
+      {
+        "caption": "reports",
+        "caption_disp": "Reports",
+        "param": "",
+        "flag": "N",
+        "module": "PayR",
+        "opt1": "20",
+        "opt2": "12",
+        "opt3": "",
+        "opt4": "",
+        "code": 479
+      }
+    ],
+    "counts": {
+      "masters": 4,
+      "operations": 0,
+      "reports": 9,
+      "hidden": 0,
+      "other": 9,
+      "unclassified": 9
+    }
+  },
+  "registry_hits": {
+    "masters": [
+      "Employee Master"
+    ],
+    "operations": [
+      "HR Payroll"
+    ],
+    "reports": [
+      "Pay Slip"
+    ]
+  },
+  "core_files": [
+    "hr_masters",
+    "hr_payroll"
+  ],
+  "module_names": [
+    "PR",
+    "PRM",
+    "PayRoll",
+    "PayO",
+    "PayOpr",
+    "PayR",
+    "PayRep"
+  ]
+}

@@ -1,0 +1,118 @@
+{
+  "module": "12_Messaging",
+  "name": "Messaging",
+  "sidebar": "extras",
+  "generated_by": "collect_logic.py",
+  "menuhelp": {
+    "masters": [
+      {
+        "caption": "sstup",
+        "caption_disp": "Sstup",
+        "param": "",
+        "flag": "N",
+        "module": "SMSSETUP",
+        "opt1": "27",
+        "opt2": "12",
+        "opt3": "11",
+        "opt4": "",
+        "code": 592
+      },
+      {
+        "caption": "sms",
+        "caption_disp": "SMS (API)",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "EXTSMSSETUP",
+        "opt1": "27",
+        "opt2": "12",
+        "opt3": "11",
+        "opt4": "11",
+        "code": 593
+      }
+    ],
+    "operations": [
+      {
+        "caption": "sms",
+        "caption_disp": "SMS (Scheduled)",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "EXTSMSOPR",
+        "opt1": "27",
+        "opt2": "12",
+        "opt3": "12",
+        "opt4": "11",
+        "code": 595
+      }
+    ],
+    "reports": [],
+    "hidden": [],
+    "unclassified": [
+      {
+        "caption": "operations",
+        "caption_disp": "Operations",
+        "param": "",
+        "flag": "N",
+        "module": "SMSOPR",
+        "opt1": "27",
+        "opt2": "12",
+        "opt3": "12",
+        "opt4": "",
+        "code": 594
+      },
+      {
+        "caption": "sms",
+        "caption_disp": "SMS (Conditional)",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "EXTSMSOPR",
+        "opt1": "27",
+        "opt2": "12",
+        "opt3": "12",
+        "opt4": "12",
+        "code": 596
+      },
+      {
+        "caption": "sms",
+        "caption_disp": "SMS",
+        "param": "",
+        "flag": "N",
+        "module": "EXTSMS",
+        "opt1": "27",
+        "opt2": "12",
+        "opt3": "",
+        "opt4": "",
+        "code": 591
+      }
+    ],
+    "counts": {
+      "masters": 2,
+      "operations": 1,
+      "reports": 0,
+      "hidden": 0,
+      "other": 3,
+      "unclassified": 3
+    }
+  },
+  "registry_hits": {
+    "masters": [
+      "SMS (API)"
+    ],
+    "operations": [
+      "SMS (Scheduled)"
+    ],
+    "reports": []
+  },
+  "core_files": [
+    "sms_comm",
+    "sms_enviro",
+    "sms_http"
+  ],
+  "module_names": [
+    "SMSSETUP",
+    "EXTSMSSETUP",
+    "SMSOPR",
+    "EXTSMSOPR",
+    "EXTRSMS",
+    "EXTSMS"
+  ]
+}

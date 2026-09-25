@@ -1,0 +1,45 @@
+{
+  "module": "06_Inventory",
+  "generated_at": "2026-09-25T12:34:33",
+  "sidebar": "inventory",
+  "items": [
+    {
+      "leaf": "Indent",
+      "layer": "masters",
+      "file": "10_masters_Indent.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "GIN / Purchase Receipt",
+      "layer": "operations",
+      "file": "20_operations_GIN_-_Purchase_Receipt.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "Stock Transfer",
+      "layer": "operations",
+      "file": "30_operations_Stock_Transfer.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "Stock Summary",
+      "layer": "reports",
+      "file": "40_reports_Stock_Summary.png",
+      "status": "skipped_messagebox"
+    },
+    {
+      "leaf": "Stock Register",
+      "layer": "reports",
+      "file": "50_reports_Stock_Register.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "Purchase Register",
+      "layer": "reports",
+      "file": "60_reports_Purchase_Register.png",
+      "status": "ok"
+    }
+  ],
+  "failed": [],
+  "shell": "00_shell_module.png"
+}

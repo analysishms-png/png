@@ -1,0 +1,21 @@
+{
+  "module": "14_SaleMarketing",
+  "generated_at": "2026-09-25T13:32:45",
+  "sidebar": "extras",
+  "items": [
+    {
+      "leaf": "Market Segment",
+      "layer": "masters",
+      "file": "10_masters_Market_Segment.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "Business Source",
+      "layer": "operations",
+      "file": "20_operations_Business_Source.png",
+      "status": "ok"
+    }
+  ],
+  "failed": [],
+  "shell": "00_shell_module.png"
+}

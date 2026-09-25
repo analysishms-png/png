@@ -13,7 +13,7 @@ Regenerate: `python -c "import sys,json; sys.path.insert(0, r'C:\Users\PC\Deskto
 
 Analysis.ini ke 15 module entries me se 4 ke paas sidebar root nahi hain:
 **EPABX / Messaging / Members Mgmt / Sale & Marketing** (+ Mall Management entry).
-→ `modules_map` me inka `sidebar='extras'` rakha gaya hai; Module_Name grouping `modules()` se hoti hai.
+→ `modules_map` me Messaging/Members Mgmt/Sale & Marketing ka `sidebar='extras'`; EPABX ka apna `epabx` sidebar section hai (sidebar_buttons.py:70 - own L1, `extras` nahi). Module_Name grouping `modules()` se hota hai.
 
 ## menuHelp `Module_Name` values (97 total, live)
 
@@ -35,10 +35,10 @@ Unmapped-to-folder values (batch discovery me assign hote hain): `UNMAPPED, FO, 
 | 8 | 08_Banquet | banquet | Banquet, oper, Hallop, HallReport, BanqRep, HallMIS, BanqRepMIS, HallTax, HallTaxP | hall_booking, banquet_ops, banquet_masters, venue, packagemaster, seasonmaster |
 | 9 | 09_NightAudit | night audit | NightAudit, NightAudito, NightAuditoR, NightAuditR, NightAuditRR, NightAuditL, NightAuditLR, NightAuditGST, NightAuditGSTR, NightAuditMenu | nightaudit, year_end, guest_folio, folio |
 | 10 | 10_HRPayroll | hr/payroll | PR, PRM, PayRoll, PayO, PayOpr, PayR, PayRep | hr_masters, hr_payroll |
-| 11 | 11_EPABX | extras | (discovery pending — Task 12) | epabx_masters, epabx_ops |
+| 11 | 11_EPABX | epabx | (menuHelp me EPABX rows hi nahi — discovery 2026-09-25; leaves registry se: Call Type, Telephone Call Entry) | epabx_masters, epabx_ops |
 | 12 | 12_Messaging | extras | SMSSETUP, EXTSMSSETUP, SMSOPR, EXTSMSOPR, EXTRSMS*, EXTSMS | sms_comm, sms_enviro, sms_http |
 | 13 | 13_MembersMgmt | extras | Mem, MemMas, MemOpr | members_masters, member_billing, facility_billing |
-| 14 | 14_SaleMarketing | extras | (discovery pending — Task 12) | marketsegment, businesssource, guestprof |
+| 14 | 14_SaleMarketing | extras | (dedicated group nahi — Business Source rows `Module_Name='Mas'` me hain jo 02 ke bucket me count hote hain; discovery 2026-09-25; leaves registry se: Market Segment, Business Source) | marketsegment, businesssource, guestprof |
 
 \* `FDORep`/`EXTRSMS` map values me live list me na milne par bhi curated rakha gaya hai (extra rows = 0 harm; missing group = rows empty).
 
@@ -54,3 +54,5 @@ Curated lists source: `MODULE_FIX_PLANS/FODER/HMS_MenuHelp_Wise_MasterOpReports/
 
 FO pilot (`_logic.json`, 2026-09-25): `masters=0, operations=1, reports=33, hidden=0, other=29`
 (masters=0 = FO ke menuHelp rows me curated master captions/Module_Name nahi — Guest Profile jaise masters `Mast/GEN` (02_MainSetup) groups me baithe hain; manual me document hota hai.)
+
+Batch final (Task 12, 2026-09-25): all 14 modules complete (check_manual 14/14); rows 11/14 discovery resolved as noted above; KI-10 norm-collision quirk (`_norm_caption` trailing-paren strip) documented in 00_Instructions/TEST_PLAN_MASTER.md - classify tool fix pending (gate counts par depend nahi karta).

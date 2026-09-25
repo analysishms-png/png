@@ -1,0 +1,36 @@
+{
+  "module": "14_SaleMarketing",
+  "name": "Sale & Marketing",
+  "sidebar": "extras",
+  "generated_by": "collect_logic.py",
+  "menuhelp": {
+    "masters": [],
+    "operations": [],
+    "reports": [],
+    "hidden": [],
+    "unclassified": [],
+    "counts": {
+      "masters": 0,
+      "operations": 0,
+      "reports": 0,
+      "hidden": 0,
+      "other": 0,
+      "unclassified": 0
+    }
+  },
+  "registry_hits": {
+    "masters": [
+      "Market Segment"
+    ],
+    "operations": [
+      "Business Source"
+    ],
+    "reports": []
+  },
+  "core_files": [
+    "marketsegment",
+    "businesssource",
+    "guestprof"
+  ],
+  "module_names": []
+}

@@ -1,0 +1,39 @@
+{
+  "module": "02_MainSetup",
+  "generated_at": "2026-09-25T12:19:29",
+  "sidebar": "main setup",
+  "items": [
+    {
+      "leaf": "Room Master",
+      "layer": "masters",
+      "file": "10_masters_Room_Master.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "Room Category",
+      "layer": "masters",
+      "file": "20_masters_Room_Category.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "Plan Master",
+      "layer": "masters",
+      "file": "30_masters_Plan_Master.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "Guest Profile",
+      "layer": "masters",
+      "file": "40_masters_Guest_Profile.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "Department Master",
+      "layer": "masters",
+      "file": "50_masters_Department_Master.png",
+      "status": "ok"
+    }
+  ],
+  "failed": [],
+  "shell": "00_shell_module.png"
+}

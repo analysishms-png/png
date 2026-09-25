@@ -120,3 +120,41 @@ def test_memrev_write_api_validates_before_database(monkeypatch):
         mm.memrev_insert({"code": "KK0001", "desc": "Membership"})
     with pytest.raises(ValueError, match="Subscription Details"):
         mm.memrev_update("KK0001", {"desc": "Membership"})
+
+
+def test_generated_membership_revenue_pk_can_be_left_blank(monkeypatch):
+    from HMS_py.ui.base_master import BaseMasterForm
+    from HMS_py.ui.hr_members_ui import memrev_config
+
+    class Api:
+        inserted = []
+
+        @staticmethod
+        def list_all():
+            return []
+
+        @staticmethod
+        def exists(code):
+            return False
+
+        @staticmethod
+        def insert(record):
+            Api.inserted.append(record)
+
+    config = memrev_config()
+    config.api = Api
+    from PyQt6.QtWidgets import QApplication, QMessageBox
+    app = QApplication.instance() or QApplication([])
+    assert app is not None
+    monkeypatch.setattr(
+        QMessageBox, "warning", lambda *args, **kwargs: QMessageBox.StandardButton.Ok
+    )
+    form = BaseMasterForm(config)
+    try:
+        assert config.generated_pk is True
+        form._on_new()
+        form.edits["desc"].setText("Membership")
+        form._on_save()
+        assert Api.inserted[0]["code"] == ""
+    finally:
+        form.close()

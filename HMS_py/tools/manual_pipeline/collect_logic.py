@@ -19,23 +19,51 @@ def classify(rows: list[dict], mod: Module) -> dict:
 
     Rules (spec §3 + HMS_MenuHelp_Wise README):
       flag R -> reports;  flag V -> hidden;
-      normalized caption in curated leaves['masters'] OR module in
-      master_modules -> masters;  caption in/containing curated
-      leaves['operations'] (variants e.g. "Walk In Check In") ->
-      operations;  everything else -> other (counted, NEVER dropped).
+      paren-preserving EXACT caption match (case-insensitive) in curated
+      masters/operations leaves first — KI-10 fix: _norm_caption strips
+      trailing "(...)" so "SMS (API)/(Scheduled)/(Conditional)/SMS" sab
+      "sms" ban jaate the aur curated masters leaf operations bucket
+      swallow kar leti thi;
+      then normalized caption in curated leaves['masters'] (paren leaves
+      ka stripped norm legacy caps me EXCLUDE hota hai — collision root)
+      OR module in master_modules -> masters;
+      caption in/containing curated leaves['operations'] (variants e.g.
+      "Walk In Check In") -> operations;  everything else -> other
+      (counted, NEVER dropped).
     """
     from HMS_py.core.menu_help import _norm_caption
-    master_caps = {_norm_caption(c) for c in mod.leaves.get("masters", [])}
-    oper_caps = {_norm_caption(c) for c in mod.leaves.get("operations", [])}
+
+    def _xnorm(v) -> str:
+        # paren-preserving normalize (KI-10): trailing "(...)" NOT stripped
+        s = str(v or "").replace("\r", "").replace("\n", "")
+        s = s.replace("- HMS_py", "").replace("- HMS", "").strip()
+        while "  " in s:
+            s = s.replace("  ", " ")
+        return s.lower()
+
+    masters_leaves = mod.leaves.get("masters", [])
+    oper_leaves = mod.leaves.get("operations", [])
+    master_exact = {_xnorm(c) for c in masters_leaves}
+    oper_exact = {_xnorm(c) for c in oper_leaves}
+    # paren leaves = exact-match only; stripped norm collision cause hai
+    master_caps = {_norm_caption(c) for c in masters_leaves
+                   if _norm_caption(c) == _xnorm(c)}
+    oper_caps = {_norm_caption(c) for c in oper_leaves
+                 if _norm_caption(c) == _xnorm(c)}
     out = {"masters": [], "operations": [], "reports": [],
            "hidden": [], "other": []}
     for r in rows:
         flag = (r.get("flag") or "").upper()
         cap = r.get("caption") or ""
+        disp_x = _xnorm(r.get("caption_disp") or "")
         if flag == "V":
             out["hidden"].append(r)
         elif flag == "R":
             out["reports"].append(r)
+        elif disp_x in master_exact:
+            out["masters"].append(r)
+        elif disp_x in oper_exact:
+            out["operations"].append(r)
         elif cap in master_caps or r.get("module") in mod.master_modules:
             out["masters"].append(r)
         elif cap in oper_caps or any(o and o in cap for o in oper_caps):
