@@ -4,16 +4,18 @@ import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QTableWidget, QTableWidgetItem, QPushButton, QLineEdit, QLabel,
-    QGroupBox, QHeaderView, QMessageBox)
+    QGroupBox, QHeaderView, QMessageBox, QAbstractItemView)
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor, QFont
 from HMS_py.core import db
 from HMS_py.ui.theme import palette
+from HMS_py.ui.desktop_style import apply_desktop_surface, mark_desktop_action
 
 
 class GuestLookupWindow(QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
+        apply_desktop_surface(self, "desktopGuestLookup")
         self.setWindowTitle("Guest Lookup")
         self.resize(900, 500)
         self._build_ui()
@@ -40,10 +42,13 @@ class GuestLookupWindow(QMainWindow):
         self.table.setHorizontalHeaderLabels(
             ["Code", "Name", "Phone", "Address", "City"])
         self.table.setAlternatingRowColors(True)
+        self.table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         layout.addWidget(self.table)
 
-        btn_exit = QPushButton("Exit"); btn_exit.clicked.connect(self.close)
+        btn_exit = QPushButton("Exit")
+        mark_desktop_action(btn_exit)
+        btn_exit.clicked.connect(self.close)
         btn_exit.setToolTip("Close this window")
         layout.addWidget(btn_exit)
 

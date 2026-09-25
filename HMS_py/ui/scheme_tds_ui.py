@@ -26,14 +26,14 @@ def tdscat_config() -> MasterConfig:
     return MasterConfig(
         title="T.D.S. Category - HMS_py",
         columns=[("Code", "code"), ("Name", "name"),
-                 ("TDS Limit", "tdslimit"), ("TDS %", "tdspercentage")],
+                 ("TDS Limit", "tdslimit"), ("TDS %", "tdsper")],
         fields=[
             Field("code", "Code", max_len=tdscore.LIMITS["code"],
                   required=True),
             Field("name", "Category Name",
                   max_len=tdscore.LIMITS["name"], required=True),
             Field("tdslimit", "TDS Limit", default="0"),
-            Field("tdspercentage", "TDS Percentage", default="0"),
+            Field("tdsper", "TDS Percentage", default="0"),
         ],
         api=tdscore,
         delete_guard=make_delete_guard("PYT"),
@@ -41,10 +41,10 @@ def tdscat_config() -> MasterConfig:
 
 
 def make_delete_guard(tag: str):
-    """PYT-prefixed live rows delete nahi honge (PYT-guard pattern)."""
     def guard(code: str) -> str | None:
-        if str(code).upper().startswith(tag):
-            return (f"{tag}-row production data hai — delete nahi hoga")
+        if not str(code).upper().startswith(tag):
+            return (f"only {tag}* test rows can be deleted "
+                    "(production data is protected)")
         return None
     return guard
 

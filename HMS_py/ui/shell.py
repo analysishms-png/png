@@ -42,6 +42,8 @@ from PyQt6.QtCore import Qt, qInstallMessageHandler, QtMsgType
 from PyQt6.QtGui import QFont, QShortcut, QKeySequence, QColor
 
 from HMS_py.ui.theme import apply_theme, toggle_theme, current_theme
+from HMS_py.ui.glass import AuroraCanvas
+from HMS_py.ui.desktop_style import apply_desktop_surface, mark_desktop_action
 
 
 _APP = None
@@ -506,6 +508,7 @@ class MainSetupWorkbench(QDialog):
 
     def __init__(self, parent=None, user: str = "SA"):
         super().__init__(parent)
+        apply_desktop_surface(self, "mainSetupWorkbench")
         self.user = user
         self.setWindowTitle("Main Setup")
         self.resize(1100, 700)
@@ -513,9 +516,14 @@ class MainSetupWorkbench(QDialog):
 
         root = QVBoxLayout(self)
         title = QLabel("Main Setup")
+        title.setObjectName("mainSetupTitle")
         title.setStyleSheet("font-size: 18px; font-weight: bold; color: #1d3d5d;")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         root.addWidget(title)
+        user_label = QLabel(f"User: {self.user}")
+        user_label.setObjectName("mainSetupUserLabel")
+        user_label.setAlignment(Qt.AlignmentFlag.AlignRight)
+        root.addWidget(user_label)
 
         registry = _form_registry()
         groups = [
@@ -523,13 +531,15 @@ class MainSetupWorkbench(QDialog):
                 "Country Master", "State Master", "Area Master",
                 "Room Category", "Room Master", "Package Master",
                 "Season Master", "Company Master", "Guest Parameters Setting",
+                "Guest History",
             ]),
             ("General Setup", [
-                "Charge Master", "Unit Master", "Item Master",
+                "Charge Master", "Unit Master", "Item Master", "Item Group",
                 "Sundry Master", "Narration Master", "Department/Outlet",
                 "Room Features", "Godown Master", "Voucher Environment",
                 "FA Environment", "Parameter", "Printing Setup",
                 "Voucher Category", "Voucher Type", "eInvoice Config",
+                "Revenue Group Setting", "Revenue Wise Budget Entry",
             ]),
             ("Finance & Reports", [
                 "Tax Master", "Tax Structure", "Payment Type", "Market Segment",
@@ -542,14 +552,18 @@ class MainSetupWorkbench(QDialog):
                 "Catalog Master", "Group Profile",
                 "NC Type", "Server / Waiter", "Shift Master",
                 "Combo Pack", "Smart Card", "Function Type",
-                "Call Type", "Call Code", "Extension",
+                 "Call Type", "Call Code", "Extension", "Happy Hours",
             ]),
             ("HR & Members", [
                 "Category  Master", "Holiday Master", "Employee Master",
                 "Category Master", "Facility Master",
                 "Revenue Master",
             ]),
-            ("Inventory & Reports", [
+             ("Utility & Admin", [
+                 "User Master", "Permissions", "User Permissions (Advanced)",
+                 "Guest LookUp",
+             ]),
+             ("Inventory & Reports", [
                 "Indent", "Stock Summary", "Stock Register",
                 "Stock Register Detailed", "GIN / Purchase Receipt",
                 "Kitchen Stock Report", "Kitchen Stock Summary",
@@ -562,6 +576,7 @@ class MainSetupWorkbench(QDialog):
             group = QWidget(self)
             box = QVBoxLayout(group)
             label = QLabel(name)
+            label.setObjectName("desktopSectionLabel")
             label.setStyleSheet("font-size: 12px; font-weight: bold; color: #2d4a64;")
             box.addWidget(label)
 
@@ -574,6 +589,7 @@ class MainSetupWorkbench(QDialog):
                     continue
                 btn = QPushButton(item)
                 btn.setObjectName("vbBtn")
+                mark_desktop_action(btn)
                 btn.setMinimumHeight(32)
                 btn.clicked.connect(lambda _, fn=opener: fn(self))
                 grid.addWidget(btn, row, col)
@@ -590,6 +606,7 @@ class MainSetupWorkbench(QDialog):
 
         btns = QHBoxLayout()
         btn_close = QPushButton("Close")
+        mark_desktop_action(btn_close)
         btn_close.clicked.connect(self.reject)
         btns.addStretch()
         btns.addWidget(btn_close)
@@ -625,7 +642,7 @@ def _rbac_guard(right: str, leaf: str):
 
 def _form_registry() -> dict[str, callable]:
     from HMS_py.ui import p2_masters as p2
-    from HMS_py.ui.plan_master import PlanMasterForm
+    from HMS_py.ui import item_rate_ui as item_rate
     from HMS_py.ui.reservation_browser import ReservationBrowser
     from HMS_py.ui import frontoffice as fo
     # Wave 2 imports (try/except: crash-safe agar module missing ho)
@@ -653,6 +670,10 @@ def _form_registry() -> dict[str, callable]:
         _na  = lambda w: pna.open_na(w)
     except ImportError:
         _pos = _na = None
+    try:
+        from HMS_py.ui import fd_forms_ui as fdui
+    except ImportError:
+        fdui = None
     try:
         from HMS_py.ui import inventory as _inv
     except ImportError:
@@ -698,6 +719,10 @@ def _form_registry() -> dict[str, callable]:
         from HMS_py.ui import member_billing_ui as memb_ui
     except ImportError:
         memb_ui = None
+    try:
+        from HMS_py.ui import member_environment_ui as member_env_ui
+    except ImportError:
+        member_env_ui = None
     try:
         from HMS_py.ui import guest_services_ui as gsvc_ui
     except ImportError:
@@ -778,6 +803,18 @@ def _form_registry() -> dict[str, callable]:
         from HMS_py.ui import revenue_budget_ui as revbud_ui
     except ImportError:
         revbud_ui = None
+    try:
+        from HMS_py.ui import user_permissions_ui as perm_ui
+    except ImportError:
+        perm_ui = None
+    try:
+        from HMS_py.ui import fa_enviro_ui as fa_envui
+    except ImportError:
+        fa_envui = None
+    try:
+        from HMS_py.ui import year_end_ui
+    except ImportError:
+        year_end_ui = None
     try:
         from HMS_py.ui import nightaudit_reports_ui as narep_ui
     except ImportError:
@@ -1028,7 +1065,7 @@ def _form_registry() -> dict[str, callable]:
         "Daily Report": _na,
         "Occupancy Analysis": _na,
         "Guest Audit Ledger": _na,
-        "Plan Master": lambda w: PlanMasterForm(w).exec(),
+        "Plan Master": lambda w: p2.open_planmaster(w),
         # Main Setup - Front Office masters (P2-complete):
         "City Master": lambda w: p2.open_city(w),
         "Country Master": lambda w: p2.open_country(w),
@@ -1037,7 +1074,8 @@ def _form_registry() -> dict[str, callable]:
         "Room Category": lambda w: p2.open_roomcategory(w),
         "Room Master": lambda w: p2.open_roommaster(w),
         "Package Master": lambda w: p2.open_packagemaster(w),
-        "Season Master": lambda w: p2.open_seasonmaster(w),
+        "Season Master": lambda w: p2.open_seasonmaster(
+            w, user=getattr(w, "user", "SA")),
         "Company Master": lambda w: p2.open_companymaster(w),
         # Main Setup - General / Charge:
         "Charge Master": lambda w: p2.open_fixcharge(w),
@@ -1054,7 +1092,10 @@ def _form_registry() -> dict[str, callable]:
         "Reservation/Cancellation": lambda w: ReservationBrowser(w).exec(),
         # Utility / User Master:
         "User Master": (lambda w: _rbac_guard("u", "User Master")(p2.open_usermaster)(w, current_user=w.user)),
-        "Permissions": (lambda w: _rbac_guard("u", "Permissions")(p2.open_usermaster)(w, current_user=w.user)),
+        "Permissions": (lambda w: perm_ui.open_user_permissions(
+            w, user=getattr(w, "user", "SA"))) if perm_ui else None,
+        "User Permissions (Advanced)": (lambda w: perm_ui.open_user_permissions(
+            w, user=getattr(w, "user", "SA"))) if perm_ui else None,
         # Wave 2: FO operational screens
         "Check Out": (lambda w: _rbac_guard("d", "Check Out")(fo2.open_checkout)(w, user=w.user)) if fo2 else None,
         "Check-Out": (lambda w: _rbac_guard("d", "Check-Out")(fo2.open_checkout)(w, user=w.user)) if fo2 else None,
@@ -1091,12 +1132,13 @@ def _form_registry() -> dict[str, callable]:
         # Wave 3: Members Mgmt masters
         "Category Master":   (lambda w: hr.open_memcat(w)) if hr else None,
         "Facility Master":   (lambda w: hr.open_facility(w)) if hr else None,
-        "Revenue Master":    (lambda w: hr.open_memrev(w)) if hr else None,
+        "Revenue Master":    (lambda w: hr.open_memrev(w, user=getattr(w, "user", "SA"))) if hr else None,
         # Wave 3: General Setup masters
         "Room Features":     (lambda w: gs.open_roomfeature(w)) if gs else None,
         "Godown Master":     (lambda w: gs.open_godown(w)) if gs else None,
         "Voucher Environment": (lambda w: gs.open_vouchertype(w)) if gs else None,
-        "FA Environment":    (lambda w: gs.open_enviro(w)) if gs else None,
+        "Voucher Type": (lambda w: gs.open_vouchertype(w)) if gs else None,
+        "FA Environment":    (lambda w: fa_envui.open_fa_environment(w)) if fa_envui else None,
         "Guest Parameters Setting": (lambda w: gs.open_guestparam(w)) if gs else None,
         "Voucher Category":  (lambda w: gs.open_vouchcat(w)) if gs else None,
         # Wave 3: POS new masters (NCType, Waiter, Shift, Combo, SmartCard)
@@ -1108,12 +1150,16 @@ def _form_registry() -> dict[str, callable]:
         "Smart Card":        (lambda w: pm.open_smartcard(w)) if pm else None,
         # Wave 3: Banquet new master (Function Type)
         "Function Type":     (lambda w: bm.open_func_type(w)) if bm else None,
+        "Events":            (lambda w: bm.open_func_type(w)) if bm else None,
+        "Setup Outlet":      (lambda w: p2.open_depart(w)) if p2 else None,
+        "Outlet Bill Sundry Setting": ((lambda w: fdui.open_depart_sundry(w))
+                                       if fdui else None),
         # Wave 3: EPABX masters
         "Call Type":         (lambda w: epabx.open_calltype(w)) if epabx else None,
         "Call Code":         (lambda w: epabx.open_callcode(w)) if epabx else None,
         "Extension":         (lambda w: epabx.open_extension(w)) if epabx else None,
         # Wave 3: Item masters
-        "Item Group":        (lambda w: pm.open_itemcat(w)) if pm else None,
+        "Item Group":        (lambda w: p2.open_item_group(w)) if p2 else None,
         # P5 Inventory:
         "Indent": (lambda w: _inv.open_indent_ui(w)) if _inv else None,
         "Indent Entry": (lambda w: _inv.open_indent_ui(w)) if _inv else None,
@@ -1150,10 +1196,10 @@ def _form_registry() -> dict[str, callable]:
         # Pending (minimal - only truly missing tables):
         "Tax Structure": (lambda w: tsu.open_taxstru(w)) if tsu else None,
         "Parameter": _open_enviro,
-        "Revenue Group Setting": (lambda w: revbud_ui.open_revenue_budget(w)) if revbud_ui else _coming_soon("Revenue Group Setting"),
+        "Revenue Group Setting": (lambda w: revbud_ui.open_revenue_group(w)) if revbud_ui else _coming_soon("Revenue Group Setting"),
         "Printing Parameters": (lambda w: gs.open_printing(w)) if gs else None,
         "Printing Setup": (lambda w: gs.open_printing(w)) if gs else None,
-        "Revenue Wise Budget Entry": (lambda w: revbud_ui.open_revenue_budget(w)) if revbud_ui else _coming_soon("Revenue Wise Budget Entry"),
+        "Revenue Wise Budget Entry": (lambda w: revbud_ui.open_revenue_budget_entry(w)) if revbud_ui else _coming_soon("Revenue Wise Budget Entry"),
         "Guest History": (lambda w: ghu.open_guest_history(w, user=w.user)) if ghu else None,
         "Room Display": (lambda w: rs_ui.open_roomstatus(w, user=w.user)) if rs_ui else None,
         "Update Database Nulls": (lambda w: dbmaint_ui.open_db_maintenance(w)) if dbmaint_ui else _coming_soon("Update Database Nulls"),
@@ -1163,9 +1209,10 @@ def _form_registry() -> dict[str, callable]:
         # VB6 caption aliases — screens pehle se the, VB6 naam se wire kiye
         "Server Master": (lambda w: pm.open_waiter(w)) if pm else None,
         "Menu Group": (lambda w: pm.open_itemcat(w)) if pm else None,
-        "Menu Item": (lambda w: pm.open_item(w)) if pm else None,
+        "Menu Item": (lambda w: p2.open_item(w)) if p2 else None,
         "Item Category": (lambda w: pm.open_itemcat(w)) if pm else None,
-        "Item  List": (lambda w: pm.open_itemcat(w)) if pm else None,
+        "Item  List": (lambda w: p2.open_item(w)) if p2 else None,
+        "Item Entry ": (lambda w: p2.open_item(w)) if p2 else None,
         "Location Master": (lambda w: gs.open_godown(w)) if gs else None,
         "Extension Master": (lambda w: epabx.open_extension(w)) if epabx else None,
         "Call Type Master": (lambda w: epabx.open_calltype(w)) if epabx else None,
@@ -1187,7 +1234,7 @@ def _form_registry() -> dict[str, callable]:
             lambda: __import__("HMS_py.core.tdscerti", fromlist=["x"]).list_all()),
         "Expense Voucher": (lambda w: exp_ui.open_expense(w, user=w.user)) if exp_ui else None,
         "Opening Balance Updation": lambda w: fvu.open_trial_balance(w),
-        "Year End Updation": lambda w: fvu.open_trial_balance(w),
+        "Year End Updation": (lambda w: year_end_ui.open_year_end_preflight(w)) if year_end_ui else None,
         "Current Balance Updation": lambda w: fvu.open_trial_balance(w),
         # Finance Display (fa_voucher_ui openers)
         "Balance Sheet": lambda w: fvu.open_balance_sheet(w),
@@ -1296,7 +1343,7 @@ def _form_registry() -> dict[str, callable]:
             "Display Table",
             "Order Booking", "Bill Lookup", "Order Booking Advance",
             "KOT Transfer", "Token Entry", "Assign Delivery", "Payment Receive",
-            "Events", "Banquet Bill Sundry Setting", "Banquet Booking",
+             "Banquet Bill Sundry Setting", "Banquet Booking",
             "Catalog Selection", "Chef Pre-Costing", "Banquet Billing",
             "Banquet Settlement", "Venue Availability", "Guest Comments",
             "Banquet Estimate Billing", "Banquet Booking Advance",
@@ -1304,10 +1351,10 @@ def _form_registry() -> dict[str, callable]:
             "Leave Encashment", "Salary Creation", "Member Master",
             "Corporate Member Master", "Category wise Revenue",
             "Category wise Facility", "Member Bill Sundry Setting",
-            "Environment Settings", "Member Age Wise Revenue",
-            "Member Select Category", "Outlet Bill Sundry Setting",
-            "Table Master", "Menu Item Rate", "Rate Group Master",
-            "Open Item Consumption", "Customer History", "Setup Outlet",
+             "Member Age Wise Revenue",
+             "Member Select Category",
+             "Rate Group Master",
+             "Open Item Consumption", "Customer History",
             "Card Initialization", "Card Registration", "Card Recharge",
             "Card Refund", "Card Re-Issue", "User Collection",
             "SMS (API)", "SMS (Scheduled)", "SMS (Conditional)",
@@ -1316,12 +1363,9 @@ def _form_registry() -> dict[str, callable]:
             "Manage MDI", "Restaurant Change ",
         )}),
         # --- S1 tail: last live-schema leaves ---
-        "Menu Item Rate": lambda w: _open_fv_list(
-            w, "Menu Item Rate",
-            lambda: __import__("HMS_py.core.db", fromlist=["x"]).query(
-                "SELECT TOP 300 ir.ItemCode, im.Name, ir.RestCode, ir.Rate, ir.MRP "
-                "FROM ItemRate ir LEFT JOIN ItemMast im ON im.Code = ir.ItemCode "
-                "ORDER BY ir.ItemCode")),        "Telephone Call Entry": lambda w: _open_fv_list(
+        "Menu Item Rate": lambda w: item_rate.open_item_rate(
+            w, user=getattr(w, "user", "SA")),
+        "Telephone Call Entry": lambda w: _open_fv_list(
             w, "Telephone Call Entry",
             lambda: __import__("HMS_py.core.db", fromlist=["x"]).query(
                 "SELECT TOP 200 ID, V_TYPE, PNT_NO, Extension, RoomNo, "
@@ -1370,7 +1414,7 @@ def _form_registry() -> dict[str, callable]:
         "Pending M.R.": (lambda w: reqslip_ui.open_requisition_slip(w)) if reqslip_ui else _coming_soon("Pending M.R."),
         # --- S1 tail: blocked tables (click par documented VB6-style message) ---
         **({cap: _coming_soon(cap) for cap in (
-            "Party Master", "Item Entry ", "Consumption Master",
+             "Party Master", "Consumption Master",
             "Purchase Sundry Setting", "Enviro Inventry",
             "Gravy Item Entry",
             "Finish Material Receive Entry", "Excise Invoice Cum Gate Pass",
@@ -1398,7 +1442,7 @@ def _form_registry() -> dict[str, callable]:
             "SMS Center Settings", "SMS Environment Settings",
             "Multiple SMS Type", "InBox", "OutBox",
             "Reward Points Parameter I",
-            "Guest Registration", "-", "User Permissions (Advanced)",
+             "Guest Registration", "-",
         )}),
         # PlanPopup (VB6 me bhi blank-caption popup leaves the — documented skip)
         "": _coming_soon("(Plan Popup)"),
@@ -1407,6 +1451,7 @@ def _form_registry() -> dict[str, callable]:
         "Hall Booking": (lambda w: hall_ui.open_hall_booking(w)) if hall_ui else None,
         "HR Payroll": (lambda w: payroll_ui.open_hr_payroll(w)) if payroll_ui else None,
         "Member Billing": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
+        "Environment Settings": (lambda w: member_env_ui.open_member_environment(w)) if member_env_ui else None,
         "Guest Services": (lambda w: gsvc_ui.open_guest_services(w)) if gsvc_ui else None,
         "Facility Billing": (lambda w: facb_ui.open_facility_billing(w)) if facb_ui else None,
         "POS Sales": (lambda w: psale_ui.open_pos_sales(w)) if psale_ui else None,
@@ -1414,6 +1459,7 @@ def _form_registry() -> dict[str, callable]:
         "POS Delivery": (lambda w: pdel_ui.open_pos_delivery(w)) if pdel_ui else None,
         "POS Happy Hours": (lambda w: phappy_ui.open_pos_happy(w)) if phappy_ui else None,
         "POS Table": (lambda w: ptable_ui.open_pos_table(w)) if ptable_ui else None,
+        "Table Master": (lambda w: ptable_ui.open_pos_table(w)) if ptable_ui else None,
         "POS Packing": (lambda w: ppack_ui.open_pos_packing(w)) if ppack_ui else None,
         "Finance Ledger": (lambda w: faledg_ui.open_fa_ledger(w)) if faledg_ui else None,
         "Voucher Entry": (lambda w: favchr_ui.open_voucher_entry(w)) if favchr_ui else None,
@@ -1439,6 +1485,11 @@ class MainWindow(QMainWindow):
         self._menus = menu.menubar_for  # shortcut
 
         central = QWidget()
+        self._central = central
+        self.aurora = AuroraCanvas(central)
+        self.aurora.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+        self.aurora.setGeometry(central.rect())
+        self.aurora.lower()
         root = QVBoxLayout(central)
         root.setSpacing(0)
         root.setContentsMargins(0, 0, 0, 0)
@@ -1597,6 +1648,11 @@ class MainWindow(QMainWindow):
                   activated=lambda: _safe("POS Stock")(self))
         QShortcut(QKeySequence("Ctrl+Alt+E"), self,
                   activated=lambda: _safe("Call Type")(self))
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        if hasattr(self, "aurora") and hasattr(self, "_central"):
+            self.aurora.setGeometry(self._central.rect())
 
     def _toggle_theme(self):
         app = QApplication.instance()

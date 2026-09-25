@@ -90,6 +90,12 @@ def rate_rows(date_from, date_to=None, cn=None) -> dict:
                     unrated.append({"roomcat": rc, "occtype": None,
                                     "plan": plan, "date": day})
                 continue
+            if not defaults:
+                # mapped par RateList defaults hi nahi — silent no-push
+                # nahi, per-day unrated report (crash nahi)
+                unrated.append({"roomcat": rc, "occtype": None,
+                                "plan": f"{rc}-?", "date": day})
+                continue
             # auto-suffix: "{roomcat}-{OccType}" per default OccType row
             for occtype in sorted(defaults):
                 rate = _rate_for(defaults[occtype], day)

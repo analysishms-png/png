@@ -15,6 +15,7 @@ Tables operated on (core/year_end.py):
 """
 from __future__ import annotations
 
+import datetime
 import os
 import sys
 
@@ -31,6 +32,7 @@ from PyQt6.QtWidgets import (QDialog, QHBoxLayout, QLabel,
 from HMS_py.core import year_end as ye
 from HMS_py.core import db
 from HMS_py.ui import theme as _theme
+from HMS_py.ui.desktop_style import apply_desktop_surface, mark_desktop_action
 
 # PYT guard prefix — test records only, production data protected
 PYT_PREFIX = "PYT"
@@ -348,6 +350,62 @@ class YearEndForm(QDialog):
             QMessageBox.critical(self, "Year-End Execution",
                                   f"Year-end procedure failed: {e}")
             self._set_state("Year-end execution failed", "#dc2626")
+
+
+class YearEndPreflightDialog(QDialog):
+    """Read-only year-end checks; no balance or budget writes."""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        apply_desktop_surface(self, "desktopYearEndPreflight")
+        self.setWindowTitle("Year End Updation - Preflight")
+        self.resize(760, 520)
+        root = QVBoxLayout(self)
+        self.lbl_fy = QLabel("Loading...")
+        self.lbl_lock = QLabel("Date lock: Loading...")
+        self.lbl_summary = QLabel("Summary: Loading...")
+        for label in (self.lbl_fy, self.lbl_lock, self.lbl_summary):
+            label.setWordWrap(True)
+            root.addWidget(label)
+        self.log = QLabel("Preflight is read-only; no year-end changes will be made.")
+        self.log.setWordWrap(True)
+        root.addWidget(self.log, 1)
+        footer = QHBoxLayout()
+        self.btn_refresh = QPushButton("Refresh")
+        self.btn_close = QPushButton("Close")
+        for button in (self.btn_refresh, self.btn_close):
+            mark_desktop_action(button)
+            footer.addWidget(button)
+        footer.addStretch()
+        root.addLayout(footer)
+        self.btn_refresh.clicked.connect(self.reload)
+        self.btn_close.clicked.connect(self.close)
+        self.reload()
+
+    def reload(self):
+        try:
+            fy = ye.get_fy_dates()
+            locked = ye.check_datelock(datetime.date.today())
+            summary = ye.year_end_summary()
+            self.lbl_fy.setText(
+                f"FY: {fy['fy']}  |  {fy['start']} to {fy['end']}")
+            self.lbl_lock.setText(
+                f"Date lock today: {'LOCKED' if locked else 'clear'}")
+            self.lbl_summary.setText(
+                f"Summary: subgroups={summary['subgroup_count']}, "
+                f"AC groups={summary['acgroup_count']}, "
+                f"balance={summary['balance']:.2f}")
+            self.log.setText(
+                "Preflight complete. Carry-forward and budget reset remain "
+                "disabled on this screen.")
+        except Exception as exc:
+            self.log.setText(f"Preflight failed: {exc}")
+
+
+def open_year_end_preflight(parent=None):
+    dialog = YearEndPreflightDialog(parent)
+    dialog.show()
+    return dialog
 
 
 def open_year_end(parent=None):

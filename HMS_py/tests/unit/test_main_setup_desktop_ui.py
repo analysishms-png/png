@@ -5,7 +5,8 @@ import pytest
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
-from PyQt6.QtWidgets import QApplication, QLabel, QPushButton
+from PyQt6.QtWidgets import (QAbstractItemView, QApplication, QLabel,
+                             QPushButton)
 
 
 _app = QApplication.instance() or QApplication(sys.argv)
@@ -118,6 +119,192 @@ def test_main_setup_launchers_use_desktop_surface():
     finally:
         for launcher in launchers:
             launcher.close()
+
+
+def test_table_master_delete_guard_protects_production_rows():
+    from HMS_py.ui.pos_table_ui import table_delete_guard
+
+    assert table_delete_guard("PYT01") is None
+    assert table_delete_guard("T01") is not None
+
+
+def test_guest_lookup_is_read_only_desktop_surface(monkeypatch):
+    from HMS_py.ui import guest_lookup_ui
+
+    monkeypatch.setattr(guest_lookup_ui.db, "query", lambda *args, **kwargs: [])
+    window = guest_lookup_ui.GuestLookupWindow()
+    try:
+        assert window.property("desktopSurface") is True
+        assert window.table.editTriggers() == QAbstractItemView.EditTrigger.NoEditTriggers
+    finally:
+        window.close()
+
+
+def test_tds_category_config_matches_core_field_contract():
+    from HMS_py.ui.scheme_tds_ui import tdscat_config
+
+    names = {field.name for field in tdscat_config().fields}
+    assert "tdsper" in names
+    assert "tdspercentage" not in names
+
+
+def test_tds_category_delete_guard_allows_only_test_rows():
+    from HMS_py.ui.scheme_tds_ui import make_delete_guard
+
+    guard = make_delete_guard("PYT")
+    assert guard("PYT01") is None
+    assert guard("LIVE01") is not None
+
+
+def test_workbench_exposes_read_only_setup_leaves():
+    from HMS_py.ui.shell import MainSetupWorkbench
+
+    workbench = MainSetupWorkbench()
+    try:
+        captions = {button.text() for button in workbench.findChildren(QPushButton)}
+    finally:
+        workbench.close()
+    assert {"Guest History", "Happy Hours", "Guest LookUp"} <= captions
+
+
+def test_workbench_exposes_admin_permission_actions():
+    from HMS_py.ui.shell import MainSetupWorkbench
+
+    workbench = MainSetupWorkbench()
+    try:
+        captions = {button.text() for button in workbench.findChildren(QPushButton)}
+    finally:
+        workbench.close()
+    assert "User Master" in captions
+    assert "Permissions" in captions
+    assert "User Permissions (Advanced)" in captions
+
+
+def test_member_environment_viewer_is_read_only(monkeypatch):
+    from HMS_py.core import member_billing
+    from HMS_py.ui import member_environment_ui
+
+    monkeypatch.setattr(
+        member_billing, "get_memenviro",
+        lambda: {"bill_header": "HMS", "bill_footer": "Thanks"})
+    dialog = member_environment_ui.MemberEnvironmentDialog()
+    try:
+        captions = {button.text() for button in dialog.findChildren(QPushButton)}
+        assert "Save" not in captions
+        assert dialog.property("desktopSurface") is True
+    finally:
+        dialog.close()
+
+
+def test_member_environment_route_uses_memenviro(monkeypatch):
+    from HMS_py.ui import member_environment_ui, shell
+
+    calls = []
+    monkeypatch.setattr(
+        member_environment_ui, "open_member_environment",
+        lambda parent=None: calls.append(parent) or "member-env",
+    )
+    assert shell._form_registry()["Environment Settings"]("parent") == "member-env"
+    assert calls == ["parent"]
+
+
+def test_fa_environment_route_uses_fa_enviro(monkeypatch):
+    from HMS_py.ui import fa_enviro_ui, shell
+
+    calls = []
+    monkeypatch.setattr(
+        fa_enviro_ui, "open_fa_environment",
+        lambda parent=None: calls.append(parent) or "fa",
+    )
+    assert shell._form_registry()["FA Environment"]("parent") == "fa"
+    assert calls == ["parent"]
+
+
+def test_item_group_route_uses_item_grp_master(monkeypatch):
+    from HMS_py.ui import p2_masters, shell
+
+    calls = []
+    monkeypatch.setattr(
+        p2_masters, "open_item_group",
+        lambda parent=None: calls.append(parent) or "group",
+    )
+    assert shell._form_registry()["Item Group"]("parent") == "group"
+    assert calls == ["parent"]
+
+
+def test_item_and_table_aliases_route_to_existing_masters(monkeypatch):
+    from HMS_py.ui import p2_masters, pos_table_ui, shell
+
+    item_calls = []
+    table_calls = []
+    monkeypatch.setattr(
+        p2_masters, "open_item",
+        lambda parent=None: item_calls.append(parent) or "item",
+    )
+    monkeypatch.setattr(
+        pos_table_ui, "open_pos_table",
+        lambda parent=None: table_calls.append(parent) or "table",
+    )
+    registry = shell._form_registry()
+    parent = object()
+
+    assert registry["Menu Item"](parent) == "item"
+    assert registry["Item Entry "](parent) == "item"
+    assert registry["Table Master"](parent) == "table"
+    assert item_calls == [parent, parent]
+    assert table_calls == [parent]
+
+
+def test_year_end_preflight_has_no_write_actions(monkeypatch):
+    from HMS_py.core import year_end
+    from HMS_py.ui import year_end_ui
+
+    monkeypatch.setattr(
+        year_end, "get_fy_dates",
+        lambda: {"fy": "2026-27", "start": "2026-04-01",
+                 "end": "2027-03-31"})
+    monkeypatch.setattr(year_end, "check_datelock", lambda value: False)
+    monkeypatch.setattr(
+        year_end, "year_end_summary",
+        lambda: {"subgroup_count": 1, "acgroup_count": 1, "balance": 0.0})
+
+    dialog = year_end_ui.YearEndPreflightDialog()
+    try:
+        captions = {button.text() for button in dialog.findChildren(QPushButton)}
+        assert "Execute Year-End" not in captions
+        assert "Carry Forward Balances (Ctrl+C)" not in captions
+        assert dialog.property("desktopSurface") is True
+    finally:
+        dialog.close()
+
+
+def test_year_end_route_uses_preflight_only(monkeypatch):
+    from HMS_py.ui import shell, year_end_ui
+
+    calls = []
+    monkeypatch.setattr(
+        year_end_ui, "open_year_end_preflight",
+        lambda parent=None: calls.append(parent) or "preflight",
+    )
+    assert shell._form_registry()["Year End Updation"]("parent") == "preflight"
+    assert calls == ["parent"]
+
+
+def test_permission_routes_use_matrix_editor(monkeypatch):
+    from HMS_py.ui import shell, user_permissions_ui
+
+    calls = []
+    monkeypatch.setattr(
+        user_permissions_ui, "open_user_permissions",
+        lambda parent=None, user="SA":
+            calls.append((parent, user)) or "permissions",
+    )
+    registry = shell._form_registry()
+    parent = type("Parent", (), {"user": "LIMITED"})()
+
+    assert registry["Permissions"](parent) == "permissions"
+    assert registry["User Permissions (Advanced)"](parent) == "permissions"
+    assert calls == [(parent, "LIMITED"), (parent, "LIMITED")]
 
 
 def test_dedicated_main_setup_aliases_are_wired(monkeypatch):

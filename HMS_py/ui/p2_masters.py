@@ -117,6 +117,32 @@ def item_config() -> MasterConfig:
     )
 
 
+def item_group_config() -> MasterConfig:
+    return MasterConfig(
+        title="Item Group Master - HMS_py",
+        columns=[("Code", "code"), ("Name", "name"),
+                 ("Type", "type"), ("Status", "status")],
+        fields=[
+            Field("code", "Item Group Code",
+                  max_len=item.ITEMGRP_LIMITS.get("code", 6), required=True),
+            Field("name", "Item Group Name",
+                  max_len=item.ITEMGRP_LIMITS.get("name", 30), required=True),
+            Field("type", "Type", max_len=item.ITEMGRP_LIMITS.get("type", 10)),
+            Field("status", "Status",
+                  max_len=item.ITEMGRP_LIMITS.get("status", 10)),
+            Field("rest", "Outlet / Rest Code",
+                  max_len=item.ITEMGRP_LIMITS.get("rest", 6)),
+            Field("choose_limit", "Choose Limit", default="0"),
+            Field("cattype", "Category Type",
+                  max_len=item.ITEMGRP_LIMITS.get("cattype", 10)),
+            Field("commodity", "Commodity Code",
+                  max_len=item.ITEMGRP_LIMITS.get("commodity", 6)),
+        ],
+        api=item.ItemGrpAPI,
+        delete_guard=make_delete_guard("PYT"),
+    )
+
+
 def acgroup_config() -> MasterConfig:
     return MasterConfig(
         title="Account Group Master (P2) - HMS_py",
@@ -278,6 +304,10 @@ def open_city(parent=None):
 
 def open_area(parent=None):
     _open_dialog(area_config, parent)
+
+
+def open_item_group(parent=None):
+    _open_dialog(item_group_config, parent)
 
 
 def open_item(parent=None):
