@@ -202,6 +202,39 @@ REPORTS: list[dict] = [
             "note": "Bucket = last-txn age (simplified ageing; VB6 used clg dates)",
         },
         {
+            "key": "bank_reconciliation",
+            "title": "Bank Reconciliation",
+            "module": "Finance",
+            "menu": ["Bank Reconciliation"],
+            "cols": ["V_Date", "Bank", "V_Type", "V_No", "Chq_No", "Chq_Date", "Debit", "Credit", "Status"],
+            "sql": (
+                "SELECT TOP ({L}) l.V_Date, ISNULL(s.Name,'?'), RTRIM(l.V_Type), l.V_No, ISNULL(l.Chq_No,''), l.Chq_Date, l.AmtDr, l.AmtCr, CASE WHEN l.Clg_Date IS NULL THEN 'Uncleared' ELSE 'Cleared' END FROM Ledger l JOIN Subgroup s ON s.SubCode = l.SubCode WHERE RTRIM(ISNULL(s.Nature,'')) = 'Bank' AND l.V_Date BETWEEN ? AND ? AND (ISNULL(l.Chq_No,'') <> '' OR l.AmtDr > 0 OR l.AmtCr > 0) ORDER BY l.V_Date, s.Name"
+            ),
+            "note": "Bank-nature ledger rows with cheque/clg status (kanpur txt BANK_RECONCILIATION; BankBook/ChequeRegister tables is DB me nahi — Ledger+Subgroup.Nature='Bank' se). Clg_Date 0-row hai, sab 'Uncleared' dikhenge jab tak clearing entry na ho.",
+        },
+        {
+            "key": "fund_flow",
+            "title": "Fund Flow",
+            "module": "Finance",
+            "menu": ["Fund Flow"],
+            "cols": ["Nature", "Inflow", "Outflow", "Net"],
+            "sql": (
+                "SELECT TOP ({L}) ISNULL(s.Nature,'?') AS Nature, SUM(l.AmtCr) AS Inflow, SUM(l.AmtDr) AS Outflow, SUM(l.AmtCr) - SUM(l.AmtDr) AS Net FROM Ledger l LEFT JOIN Subgroup s ON s.SubCode = l.SubCode WHERE l.V_Date BETWEEN ? AND ? GROUP BY ISNULL(s.Nature,'?') ORDER BY Net"
+            ),
+            "note": "Sources & uses by account nature: Cr = inflow/source, Dr = outflow/use (kanpur txt FUND_FLOW). Bank/Cash natures working-capital movement batate hain.",
+        },
+        {
+            "key": "cash_flow",
+            "title": "Cash Flow",
+            "module": "Finance",
+            "menu": ["Cash Flow"],
+            "cols": ["TxnDate", "Opening", "Receipts", "Payments", "Closing"],
+            "sql": (
+                "WITH Dates AS (SELECT CAST(? AS date) AS d UNION ALL SELECT DATEADD(day,1,d) FROM Dates WHERE d < ?) SELECT d, ISNULL((SELECT SUM(l.AmtCr - l.AmtDr) FROM Ledger l JOIN Subgroup s ON s.SubCode = l.SubCode WHERE RTRIM(ISNULL(s.Nature,'')) IN ('Cash','Bank') AND l.V_Date < d), 0) AS Opening, ISNULL((SELECT SUM(l.AmtCr) FROM Ledger l JOIN Subgroup s ON s.SubCode = l.SubCode WHERE RTRIM(ISNULL(s.Nature,'')) IN ('Cash','Bank') AND l.V_Date = d), 0) AS Receipts, ISNULL((SELECT SUM(l.AmtDr) FROM Ledger l JOIN Subgroup s ON s.SubCode = l.SubCode WHERE RTRIM(ISNULL(s.Nature,'')) IN ('Cash','Bank') AND l.V_Date = d), 0) AS Payments, ISNULL((SELECT SUM(l.AmtCr - l.AmtDr) FROM Ledger l JOIN Subgroup s ON s.SubCode = l.SubCode WHERE RTRIM(ISNULL(s.Nature,'')) IN ('Cash','Bank') AND l.V_Date <= d), 0) AS Closing FROM Dates ORDER BY d OPTION (MAXRECURSION 0)"
+            ),
+            "note": "Day-wise cash+bank receipts/payments with running opening/closing (kanpur txt CASH_FLOW; CashBook/BankBook tables is DB me nahi — Ledger×Subgroup.Nature Cash/Bank se). Cr into Cash/Bank = receipt, Dr = payment.",
+        },
+        {
             "key": "outstanding_dr",
             "title": "Outstanding Report For Debtors",
             "module": "Finance",
