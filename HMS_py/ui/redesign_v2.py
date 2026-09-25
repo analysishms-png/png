@@ -36,6 +36,10 @@ from HMS_py.ui.theme_v2 import (
 )
 from HMS_py.core import menu_help as _mh
 from HMS_py.core import db as _db
+from HMS_py.ui.business_logic_viewer import (
+    get_manager, create_business_logic_ui,
+    BusinessLogicDashboard, BusinessLogicViewer
+)
 
 
 # ── Status color mapping for room availability ──
@@ -511,6 +515,29 @@ class DashboardWidget(QWidget):
             """)
             modules_layout.addWidget(btn)
         
+        # Business Logic overview button
+        bl_btn = QPushButton("  📋 Business Logic Overview")
+        bl_btn.setFixedHeight(40)
+        bl_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        bl_btn.setStyleSheet(f"""
+            QPushButton {{
+                background-color: {DESIGN_TOKENS['accent']};
+                color: #fff;
+                border: none;
+                border-radius: {DESIGN_TOKENS['radius_md']};
+                font-family: {DESIGN_TOKENS['font_body']};
+                font-size: {DESIGN_TOKENS['font_size_md']};
+                text-align: left;
+                padding: 8px 16px;
+                font-weight: bold;
+            }}
+            QPushButton:hover {{
+                background-color: {DESIGN_TOKENS['accent_dark']};
+                box-shadow: {DESIGN_TOKENS['shadow_glow']};
+            }}
+        """)
+        modules_layout.addWidget(bl_btn)
+        
         modules_frame.setStyleSheet(CARD_STYLES["stat_card"])
         content_layout.addWidget(modules_frame)
         
@@ -569,7 +596,7 @@ class MainWindow(QWidget):
         self.content_layout.addStretch()
     
     def show_module(self, module_name: str):
-        """Show specific module"""
+        """Show specific module with business logic integration"""
         # Clear content
         while self.content_layout.count():
             child = self.content_layout.takeAt(0)
@@ -578,7 +605,7 @@ class MainWindow(QWidget):
         
         card = GlassCard(title=f"{module_name}", subtitle="Module screen")
         
-        # Add sample content
+        # Add sample content table
         table = QTableWidget(5, 4)
         table.setHorizontalHeaderLabels(["ID", "Name", "Status", "Action"])
         table.setStyleSheet(f"""
@@ -598,6 +625,13 @@ class MainWindow(QWidget):
             }}
         """)
         card.add_widget(table)
+        card.add_spacer()
+        
+        # Add Business Logic Viewer
+        bl_manager = get_manager()
+        bl_viewer = create_business_logic_ui(bl_manager, module_name)
+        bl_viewer.setFixedHeight(400)
+        card.add_widget(bl_viewer)
         card.add_spacer()
         
         self.content_layout.addWidget(card)
