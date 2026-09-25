@@ -244,6 +244,45 @@ def tds_detail(subcode: str, d_from=None, d_to=None, cn=None) -> list[dict]:
 
 
 # ============================================================
+# TDS Calculation (VB6 FaTDSCat.frm / kanpur txt: CALCULATE_TDS)
+#   TDS = OnAmt * TDSPercentage / 100  — TDSCat table (Code, Name,
+#   TDSLimit, TDSPercentage). Limit rule: amount >= TDSLimit par hi
+#   TDS kat-ta hai (limit 1.0 = always-deduct flag jaisa behave karta hai).
+# ============================================================
+def tds_categories(cn=None) -> list[dict]:
+    """TDSCat rows [{code, name, limit, percentage}]."""
+    rows = db.query(
+        "SELECT Code, Name, TDSLimit, TDSPercentage FROM TDSCat "
+        "ORDER BY Code", cn=cn)
+    return [{"code": r[0] or "", "name": (r[1] or "").strip(),
+             "limit": float(r[2] or 0), "percentage": float(r[3] or 0)}
+            for r in rows]
+
+
+def tds_calculate(amount: float, tdscat_code: str, cn=None,
+                  apply_limit: bool = True) -> dict:
+    """VB6 TDS calc: Amount * Rate / 100 (TDSCat.TDSPercentage).
+
+    apply_limit=True (default): amount < TDSLimit => TDS 0 (limit rule).
+    TDSCat row na mile => ValueError (silent 0 galat posting karta).
+    Returns {amount, tdscat, rate, limit, tds, deducted}.
+    """
+    rows = db.query(
+        "SELECT Name, TDSLimit, TDSPercentage FROM TDSCat WHERE Code = ?",
+        (tdscat_code,), cn=cn)
+    if not rows:
+        raise ValueError(f"TDSCat '{tdscat_code}' nahi mila")
+    name, limit, pct = (rows[0][0], float(rows[0][1] or 0),
+                        float(rows[0][2] or 0))
+    amt = round(float(amount or 0), 2)
+    below_limit = apply_limit and limit > 1.0 and amt < limit
+    tds = 0.0 if below_limit else round(amt * pct / 100.0, 2)
+    return {"amount": amt, "tdscat": tdscat_code, "name": name,
+            "rate": pct, "limit": limit, "tds": tds,
+            "deducted": not below_limit}
+
+
+# ============================================================
 # API Classes
 # ============================================================
 class _TDSChalAPI:

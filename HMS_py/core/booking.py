@@ -48,6 +48,81 @@ def _validate(rec: dict):
         raise ValueError("GuestName zaroori hai")
 
 
+def check_room_conflict(roomno: str, arr_date, dep_date,
+                        exclude_bookno: int | None = None,
+                        site: str = SITE_CODE, cn=None) -> list[dict]:
+    """Room+date-overlap conflict check (kanpur txt: CHECK_AVAILABILITY;
+    VB6 duplicate-check rule: same room + overlapping dates = conflict).
+
+    Sources: Booking (ResStatus='Confirm', Cancel<>'Y') + RoomOcc
+    (STATUS='Occupied'). Returns conflicting bookings list
+    [{source, bookno/docid, guestname, arr, dep}]; empty = available.
+    """
+    conflicts: list[dict] = []
+    ex = int(exclude_bookno or 0)
+    rows = db.query(
+        "SELECT BookNo, GuestName, ArrDate, DepDate, ResStatus, Cancel "
+        "FROM Booking WHERE Site_Code = ? AND RTRIM(RoomNo) = ? "
+        "AND Cancel <> 'Y' AND ResStatus = 'Confirm' "
+        "AND ArrDate < ? AND DepDate > ? "
+        "AND BookNo <> ?",
+        (site, str(roomno or "").strip(), dep_date, arr_date, ex), cn=cn)
+    for r in rows:
+        conflicts.append({"source": "booking", "bookno": int(r[0] or 0),
+                          "guestname": (r[1] or "").strip(),
+                          "arr": r[2], "dep": r[3]})
+    rows = db.query(
+        "SELECT DocId, RoomNo, ChkInDate, DepDate FROM RoomOcc "
+        "WHERE RTRIM(RoomNo) = ? AND ChkInDate < ? AND "
+        "(DepDate IS NULL OR DepDate > ?)",
+        (str(roomno or "").strip(), dep_date, arr_date), cn=cn)
+    for r in rows:
+        conflicts.append({"source": "roomocc", "docid": r[0] or "",
+                          "roomno": (r[1] or "").strip(),
+                          "arr": r[2], "dep": r[3]})
+    return conflicts
+
+
+def insert(rec: dict, cn=None, commit: bool = True, site: str = SITE_CODE,
+           user: str = USER) -> dict:
+    _validate(rec)
+    # VB6 duplicate-check rule: same room + overlapping dates = conflict.
+    # RoomNo + dates diye gaye hain to conflict pe insert block karo
+    # (check_conflict=False se caller opt-out kar sakta hai).
+    if rec.get("check_conflict", True) and rec.get("roomno") and \
+            rec.get("arrdate") and rec.get("depdate"):
+        conflicts = check_room_conflict(
+            rec["roomno"], rec["arrdate"], rec["depdate"], site=site, cn=cn)
+        if conflicts:
+            c = conflicts[0]
+            src = (f"Booking #{c['bookno']} ({c['guestname']})"
+                   if c["source"] == "booking"
+                   else f"In-house folio {c['docid']}")
+            raise ValueError(
+                f"Room {rec['roomno']} pe {src} ka conflict hai "
+                f"({c['arr']} -> {c['dep']}) — dusra room ya date chunein")
+    from datetime import date
+    from HMS_py.core.reservation import next_bookno, make_docid, VTYPE, VPREFIX
+    bookno = next_bookno(cn=cn, site=site)
+    docid = make_docid(site, VPREFIX, bookno, vtype=VTYPE)
+    db.execute(
+        "INSERT INTO Booking (DocId, Vtype, BookNo, Site_Code, Vprefix, "
+        "VDate, GuestName, ArrDate, DepDate, NoDays, Adult, Child, "
+        "NoofRooms, RoomRate, Remarks, Cancel, U_Name, U_EntDt, U_AE, "
+        "LogSite_Code, MobNo, Email, GuestProf, ResStatus) "
+        "VALUES (?, ?, ?, ?, ?, getdate(), ?, ?, ?, ?, ?, ?, ?, ?, ?, 'N', "
+        "?, getdate(), 'A', ?, ?, ?, ?, 'Confirm')",
+        (docid, VTYPE, bookno, site, VPREFIX,
+         rec.get("guestname", ""), rec.get("arrdate"), rec.get("depdate"),
+         rec.get("nodays", 1), rec.get("adult", 1), rec.get("child", 0),
+         rec.get("noofrooms", 1), rec.get("roomrate", 0.0),
+         rec.get("remarks", "."), user, site,
+         rec.get("mobno", ""), rec.get("email", ""),
+         rec.get("guestprof", "")),
+        cn=cn, commit=commit)
+    return get(bookno, site=site, cn=cn)
+
+
 def list_all(cn=None, limit=500) -> list[dict]:
     rows = db.query(
         f"SELECT TOP {int(limit)} DocId, BookNo, Vtype, Vprefix, VDate, GuestName, "
@@ -85,6 +160,21 @@ def search(term: str, site: str = SITE_CODE, cn=None, limit=100) -> list[dict]:
 def insert(rec: dict, cn=None, commit: bool = True, site: str = SITE_CODE,
            user: str = USER) -> dict:
     _validate(rec)
+    # VB6 duplicate-check rule: same room + overlapping dates = conflict.
+    # RoomNo + dates diye gaye hain to conflict pe insert block karo
+    # (check_conflict=False se caller opt-out kar sakta hai).
+    if rec.get("check_conflict", True) and rec.get("roomno") and \
+            rec.get("arrdate") and rec.get("depdate"):
+        conflicts = check_room_conflict(
+            rec["roomno"], rec["arrdate"], rec["depdate"], site=site, cn=cn)
+        if conflicts:
+            c = conflicts[0]
+            src = (f"Booking #{c['bookno']} ({c['guestname']})"
+                   if c["source"] == "booking"
+                   else f"In-house folio {c['docid']}")
+            raise ValueError(
+                f"Room {rec['roomno']} pe {src} ka conflict hai "
+                f"({c['arr']} -> {c['dep']}) — dusra room ya date chunein")
     from datetime import date
     from HMS_py.core.reservation import next_bookno, make_docid, VTYPE, VPREFIX
     bookno = next_bookno(cn=cn, site=site)

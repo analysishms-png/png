@@ -169,6 +169,75 @@ def insert_leave_ench(rec, cn=None, commit=True, site=SITE_CODE, user=USER):
 def delete_leave_ench(Sr_No, cn=None, commit=True):
     return db.execute("DELETE FROM Leave_Ench WHERE Sr_No = ?", (Sr_No,), cn=cn, commit=commit)
 
+# === Leave Balance (kanpur txt rule 13: Leave balance = Entitled - Used) ===
+# Entitlement: Employee.Tot_CL_Allow / Tot_EL_Allow / Tot_DL_Allow /
+# Tot_VL_Allow (VB6 HRMast per-category yearly allowance cols).
+# Opening: OP_Casual / OP_Earned / OP_* (pichhle saal ka carry).
+# Used: Salary table ke per-month CL/Leave(EL)/Absent(DL proxy) +
+# Leave_Ench (encashed) — VB6 Leave balance sheet ka source bhi yahi.
+LEAVE_TYPES = {
+    "CL": {"allow": "Tot_CL_Allow", "open": "OP_Casual",
+           "curr": "Curr_Casual", "used": "cl"},
+    "EL": {"allow": "Tot_EL_Allow", "open": "OP_Earned",
+           "curr": "Curr_Earned", "used": "leave"},
+    "DL": {"allow": "Tot_DL_Allow", "open": "OP_Casual",
+           "curr": "Curr_DL", "used": "absent"},
+    "VL": {"allow": "Tot_VL_Allow", "open": "OP_Casual",
+           "curr": "Curr_VL", "used": "leave"},
+}
+
+
+def leave_balance(emp_code: str, cn=None) -> dict:
+    """Employee ka leave balance (VB6 HRLeave rule: Entitled - Used).
+
+    Per type: entitled = Tot_*_Allow + opening(OP_*); used = Salary rows
+    ka CL/Leave/Absent sum + Leave_Ench (encash = used hi hai);
+    balance = entitled - used. Curr_* (DB me running balance) bhi
+    report karte hain — VB6 frm cross-check col.
+    Returns {emp_code, name, types: {CL: {...}, ...}, total_balance}.
+    """
+    emp = db.query(
+        "SELECT Name, Tot_CL_Allow, Tot_EL_Allow, Tot_DL_Allow, "
+        "Tot_VL_Allow, OP_Casual, OP_Earned, Curr_Casual, Curr_Earned, "
+        "Curr_DL, Curr_VL FROM Employee WHERE Code = ?",
+        (emp_code,), cn=cn)
+    if not emp:
+        raise ValueError(f"Employee '{emp_code}' nahi mila")
+    e = emp[0]
+    used_rows = db.query(
+        "SELECT ISNULL(SUM(CL), 0), ISNULL(SUM(Leave), 0), "
+        "ISNULL(SUM(Absent), 0) FROM Salary WHERE Emp_Code = ?",
+        (emp_code,), cn=cn)
+    used_map = {"cl": float(used_rows[0][0] or 0),
+                "leave": float(used_rows[0][1] or 0),
+                "absent": float(used_rows[0][2] or 0)}
+    ench_rows = db.query(
+        "SELECT ISNULL(SUM(Leave_Ench), 0) FROM Leave_Ench "
+        "WHERE Emp_Code = ?", (emp_code,), cn=cn)
+    ench = float(ench_rows[0][0] or 0)
+
+    curr_map = {"CL": float(e.Curr_Casual or 0), "EL": float(e.Curr_Earned or 0),
+                "DL": float(e.Curr_DL or 0), "VL": float(e.Curr_VL or 0)}
+    open_map = {"CL": float(e.OP_Casual or 0), "EL": float(e.OP_Earned or 0),
+                "DL": float(e.OP_Casual or 0), "VL": float(e.OP_Casual or 0)}
+    allow_map = {"CL": float(e.Tot_CL_Allow or 0), "EL": float(e.Tot_EL_Allow or 0),
+                 "DL": float(e.Tot_DL_Allow or 0), "VL": float(e.Tot_VL_Allow or 0)}
+
+    types: dict[str, dict] = {}
+    total = 0.0
+    for lt, spec in LEAVE_TYPES.items():
+        used = used_map[spec["used"]] + (ench if lt == "EL" else 0.0)
+        entitled = allow_map[lt] + open_map[lt]
+        bal = round(entitled - used, 2)
+        types[lt] = {"entitled": round(entitled, 2), "used": round(used, 2),
+                     "balance": bal, "opening": open_map[lt],
+                     "db_running": curr_map[lt]}
+        total += bal
+    return {"emp_code": emp_code, "name": (e.Name or "").strip(),
+            "types": types, "encashed_days": ench,
+            "total_balance": round(total, 2)}
+
+
 # === OverTime ===
 def _map_overtime(r) -> dict:
     try:
@@ -234,6 +303,7 @@ class HRPayrollAPI:
     def search_overtime(self, term, cn=None, limit=100): return search_overtime(term, cn, limit)
     def insert_overtime(self, rec, cn=None, commit=True, site=SITE_CODE, user=USER): return insert_overtime(rec, cn, commit, site, user)
     def delete_overtime(self, empcode, cn=None, commit=True): return delete_overtime(empcode, cn, commit)
+    def leave_balance(self, emp_code, cn=None): return leave_balance(emp_code, cn)
 
 
 # ============================================================
