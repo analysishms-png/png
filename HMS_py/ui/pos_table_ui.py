@@ -12,6 +12,12 @@ from HMS_py.core import pos_table
 from HMS_py.ui import theme as _theme
 
 
+def table_delete_guard(code: str) -> str | None:
+    if not str(code or "").upper().startswith("PYT"):
+        return "Only PYT* test tables can be deleted (production data protected)"
+    return None
+
+
 class PosTableWindow(QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -162,6 +168,10 @@ class PosTableWindow(QMainWindow):
     def _delete(self):
         if not self.current_code:
             QMessageBox.warning(self, "Validation", "Select a record first.")
+            return
+        guard_error = table_delete_guard(self.current_code)
+        if guard_error:
+            QMessageBox.warning(self, "Safety", guard_error)
             return
         reply = QMessageBox.question(self, "Confirm", "Delete this record?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
         if reply == QMessageBox.StandardButton.Yes:
