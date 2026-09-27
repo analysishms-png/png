@@ -117,6 +117,18 @@ class TestGlobalNarration:
         assert fn is not None, "Global Narration registry me nahi"
         assert "coming_soon" not in repr(fn), "Global Narration coming_soon"
 
+    def test_registry_pfui_batch_wired(self):
+        """partial_forms_ui ke saare ports VB6-exact captions par wired."""
+        from HMS_py.ui import shell
+        reg = shell._form_registry()
+        for cap in ("Group Accounts Entry", "Ledger Accounts Entry",
+                    "Magic", "Finance Reports", "Cheque/DD Clearing Entry",
+                    "Adjustment Delete", "Location wise Opening Stock Entry",
+                    "T.D.S.Category Entry"):
+            fn = reg.get(cap)
+            assert fn is not None, f"{cap} registry me nahi"
+            assert "coming_soon" not in repr(fn), f"{cap} coming_soon"
+
     def test_sweep_style_open_and_close(self):
         """Sweep harness jaisa: construct+show+close — koi exception nahi."""
         from HMS_py.ui.partial_forms_ui import GlobalNarrationWindow
@@ -130,3 +142,22 @@ class TestGlobalNarration:
             QApplication.processEvents()
         finally:
             w.close()
+
+    def test_pfui_windows_construct_and_close(self):
+        """Har pfui opener ka window construct+close (sweep parity)."""
+        from HMS_py.ui import partial_forms_ui as pfui
+        from PyQt6.QtWidgets import QApplication
+        _qapp()
+        for open_fn in (pfui.open_group_accounts, pfui.open_ledger_accounts,
+                        pfui.open_magic, pfui.open_fa_reports,
+                        pfui.open_cheque_dd_clearing,
+                        pfui.open_adjustment_delete,
+                        pfui.open_location_opening_stock,
+                        pfui.open_tds_category):
+            w = open_fn()
+            try:
+                QApplication.processEvents()
+                assert w is not None
+            finally:
+                w.close()
+                QApplication.processEvents()

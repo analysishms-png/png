@@ -1501,6 +1501,16 @@ def _form_registry() -> dict[str, callable]:
         "Voucher Entry": (lambda w: favchr_ui.open_voucher_entry(w)) if favchr_ui else None,
         # VB6 FaGlobeNarr — Global Narration picker window (partial_forms_ui)
         "Global Narration": (lambda w: pfui.open_global_narration(w)) if pfui else _coming_soon("Global Narration"),
+        # ACTION QUEUE batch: partial_forms_ui ke baaki ports (VB6 form
+        # captions EXACT — parity matrix caption-match isi par hota hai)
+        "Group Accounts Entry": (lambda w: pfui.open_group_accounts(w)) if pfui else _coming_soon("Group Accounts Entry"),
+        "Ledger Accounts Entry": (lambda w: pfui.open_ledger_accounts(w)) if pfui else _coming_soon("Ledger Accounts Entry"),
+        "Magic": (lambda w: pfui.open_magic(w)) if pfui else _coming_soon("Magic"),
+        "Finance Reports": (lambda w: pfui.open_fa_reports(w)) if pfui else _coming_soon("Finance Reports"),
+        "Cheque/DD Clearing Entry": (lambda w: pfui.open_cheque_dd_clearing(w)) if pfui else _coming_soon("Cheque/DD Clearing Entry"),
+        "Adjustment Delete": (lambda w: pfui.open_adjustment_delete(w)) if pfui else _coming_soon("Adjustment Delete"),
+        "Location wise Opening Stock Entry": (lambda w: pfui.open_location_opening_stock(w)) if pfui else _coming_soon("Location wise Opening Stock Entry"),
+        "T.D.S.Category Entry": (lambda w: pfui.open_tds_category(w)) if pfui else _coming_soon("T.D.S.Category Entry"),
         "System Config": (lambda w: syscfg_ui.open_sys_config(w)) if syscfg_ui else None,
         "Backup Data": (lambda w: dbbak_ui.open_db_backup(w)) if dbbak_ui else _coming_soon("Backup Data"),
         # Wave 5: Fd*/CheckOut batch (VB6 FdCheckOut/fdAmendEntry/...)

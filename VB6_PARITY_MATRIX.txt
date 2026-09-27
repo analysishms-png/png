@@ -5,8 +5,8 @@ VB6: *.frm captions + inline-SQL table evidence | Py: shell registry + core/ui s
 
 STATUS SUMMARY
 ------------------------------------------------------------------------------
-  DONE         104
-  PARTIAL      193
+  DONE         112
+  PARTIAL      185
   UI-ONLY      0
   BLOCKED-TBL  3
   MISSING      20
@@ -19,15 +19,7 @@ STATUS SUMMARY
 
 | VB6 form            | Caption                    | Python UI | Core | Wired | Tables (live) |
 |---------------------|----------------------------|-----------|------|-------|----------------------------------------|
-| DepOpStk            | Location wise Opening Stoc | no        | Y    | -     | DateLock, Depart, GodownMast, ItemMast |
 | EmptyInbox          | Inbox                      | no        | Y    | -     | Messaging, USERMAST                    |
-| FaAdjustDel         | Adjustment Delete          | no        | Y    | -     | LEDGERADJ, SUBGROUP                    |
-| FaChqClear          | Cheque/DD Clearing Entry   | no        | Y    | -     | FAENVIRO, Ledger, SubGroup, VIEWLedger |
-| FaGrEnt             | Group Accounts Entry       | no        | Y    | -     | ACGROUP, AcGroup, Acgroup, LEDGER, SUB |
-| FaMagic             | Magic                      | no        | Y    | -     | ACGROUP, FAENVIRO                      |
-| FaReports           | ReprtForm                  | no        | Y    | -     | ACGROUP, AcGroup, Budget, City, DAYS ( |
-| FaSubGroup          | Ledger Accounts Entry      | no        | Y    | -     | ACGROUP, AcGroup, CATEGORY, City, LEDG |
-| FaTDSCat            | T.D.S.Category Entry       | no        | Y    | -     | TDSCAT                                 |
 | fdNDAcPostChrg      | Posting Utility            | no        | Y    | -     | Enviro, ItemMast, PayCharge, Paycharge |
 | fdPrintScreen       | Guest Charges Summary      | no        | Y    | -     | GUESTSTAT, GuestFolio, GuestProf, RevM |
 | FindMess            | (blank)                    | no        | Y    | -     | GuestMessage                           |
@@ -245,20 +237,29 @@ STATUS SUMMARY
 | CompMast            | Company Master             | YES       | Y    | Y     | ACGROUP, AcGroup, Acgroup, CATEGORY, C |
 | DepartMast          | Department Master          | YES       | Y    | Y     | Depart, GodownMast, RevMast, Voucher_P |
 | DepartSundry        | Outlet Bill Sundry Setting | YES       | Y    | Y     | Depart, Enviro, RevMast, SundryMast, S |
+| DepOpStk            | Location wise Opening Stoc | YES       | Y    | Y     | DateLock, Depart, GodownMast, ItemMast |
+|                     | note: Orphan in VB6 (no menu leaf/launcher) — Python UI (partial_forms_ui.LocationOpeningStockWindow) + core (fa_masters_ops DOPR) complete |
 | DMTree              | Form1                      | no        | Y    | -     | UserModule1, menuHelp1                 |
 |                     | note: DMTree (ui/dmtree_ui.py) — menuHelp tree renderer |
 | FaAdjust            | Adjustment Entry           | YES       | Y    | Y     | ACGROUP, LEDGERAdj, LEDGERM, Ledger, L |
+| FaAdjustDel         | Adjustment Delete          | YES       | Y    | Y     | LEDGERADJ, SUBGROUP                    |
+| FaChqClear          | Cheque/DD Clearing Entry   | YES       | Y    | Y     | FAENVIRO, Ledger, SubGroup, VIEWLedger |
 | FacilitySundry      | Outlet Bill Sundry Setting | YES       | Y    | Y     | Depart, Enviro, RevMast, SundryMast, S |
 | FaCityMast          | City Master                | YES       | Y    | Y     | City, Country, State, city             |
 | FaCountryMast       | Country Master             | YES       | Y    | Y     | Country, country                       |
 | FaCurrBalUpdate     | Current Balance Updation   | YES       | Y    | Y     | ACGROUPCURRBAL, Booking, BookingCancel |
 | FaEnvron            | Environment Setting        | YES       | Y    | Y     | ACGROUP, FAENVIRO, FaEnviro, LEDGER, L |
 | FaGlobeNarr         | {Press <Esc> For Cancel && | YES       | Y    | Y     | NarrMast                               |
+| FaGrEnt             | Group Accounts Entry       | YES       | Y    | Y     | ACGROUP, AcGroup, Acgroup, LEDGER, SUB |
+| FaMagic             | Magic                      | YES       | Y    | Y     | ACGROUP, FAENVIRO                      |
 | FaNarrMast          | Narration Master           | YES       | Y    | Y     | NarrMast                               |
+| FaReports           | ReprtForm                  | YES       | Y    | Y     | ACGROUP, AcGroup, Budget, City, DAYS ( |
 | FaRepView           | Form1                      | YES       | -    | Y     |                                        |
 |                     | note: FaRepView window (ui/fa_voucher_ui.py) — wired via report captions |
 | FaStateMast         | State Master               | YES       | Y    | Y     | Country, State, state                  |
+| FaSubGroup          | Ledger Accounts Entry      | YES       | Y    | Y     | ACGROUP, AcGroup, CATEGORY, City, LEDG |
 | FaTaxVoucher        | Expense Voucher            | YES       | Y    | Y     | City, DEPART, Depart, Enviro, GIN (+31 |
+| FaTDSCat            | T.D.S.Category Entry       | YES       | Y    | Y     | TDSCAT                                 |
 | FaTDSCertificate    | T.D.S.Certificate Entry    | YES       | Y    | Y     | City, PARTY_LIST, SubGroup, TDSCERTI,  |
 | FaTDSChal           | T.D.S.Challan Entry        | YES       | Y    | Y     | City, LEDGER, LEDGERTDS, SUBGROUP, Sub |
 | FaVrEnt             | Voucher Entry              | YES       | Y    | Y     | DateLock, FAENVIRO, LEDGER, LEDGERADJ, |
@@ -382,32 +383,8 @@ STATUS SUMMARY
 ## ACTION QUEUE (MISSING + PARTIAL, portable)
 ==============================================================================
 
-- DepOpStk (DepOpStk.frm): 'Location wise Opening Stock Entry'
-    tables: DateLock, Depart, GodownMast, ItemMast, KClStk (+7)
-    ui=N core=Y
 - EmptyInbox (EmptyInbox.frm): 'Inbox'
     tables: Messaging, USERMAST
-    ui=N core=Y
-- FaAdjustDel (FaAdjustDel.frm): 'Adjustment Delete'
-    tables: LEDGERADJ, SUBGROUP
-    ui=N core=Y
-- FaChqClear (FaChqClear.frm): 'Cheque/DD Clearing Entry'
-    tables: FAENVIRO, Ledger, SubGroup, VIEWLedger
-    ui=N core=Y
-- FaGrEnt (FaGrEnt.frm): 'Group Accounts Entry'
-    tables: ACGROUP, AcGroup, Acgroup, LEDGER, SUBGROUP (+2)
-    ui=N core=Y
-- FaMagic (FaMagic.frm): 'Magic'
-    tables: ACGROUP, FAENVIRO
-    ui=N core=Y
-- FaReports (FaReports.frm): 'ReprtForm'
-    tables: ACGROUP, AcGroup, Budget, City, DAYS (+16)
-    ui=N core=Y
-- FaSubGroup (FaSubGroup.frm): 'Ledger Accounts Entry'
-    tables: ACGROUP, AcGroup, CATEGORY, City, LEDGER (+8)
-    ui=N core=Y
-- FaTDSCat (FaTDSCat.frm): 'T.D.S.Category Entry'
-    tables: TDSCAT
     ui=N core=Y
 - fdNDAcPostChrg (fdNDAcPostChrg.frm): 'Posting Utility'
     tables: Enviro, ItemMast, PayCharge, Paycharge, Stock (+3)
