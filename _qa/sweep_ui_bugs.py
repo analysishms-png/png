@@ -76,6 +76,37 @@ wired = {k: v for k, v in reg.items()
          and "doc_skip" not in repr(v)}
 print(f"WIRED={len(wired)}")
 
+# --fast (pre-commit hook): report-engine windows constructor me hi
+# default 2016->today queries chalate hain (ReportsCenter + ReportViewer).
+# Hook budget ke liye inhe skip karo — full sweep nightly/manual me.
+import inspect  # noqa: E402
+
+fast = "--fast" in sys.argv
+skipped = []
+if fast:
+    try:
+        from HMS_py.core import reports as _rp
+        _report_caps = {k.strip().lower()
+                        for k in _rp.menu_caption_map()}
+    except Exception:
+        _report_caps = set()
+
+    def _is_heavy(cap: str, fn) -> bool:
+        if cap.strip().lower() in _report_caps:
+            return True
+        try:
+            src = inspect.getsource(fn)
+        except Exception:
+            return False
+        return ("ReportViewer" in src or "_open_fv_list" in src
+                or "open_reports" in src)
+
+    heavy = {cap for cap, fn in wired.items() if _is_heavy(cap, fn)}
+    skipped = sorted(heavy)
+    for cap in skipped:
+        wired.pop(cap, None)
+    print(f"FAST MODE: {len(skipped)} heavy report windows skip")
+
 ok, fail = 0, []
 fails = {}
 
@@ -95,7 +126,7 @@ def _watchdog():
         else:
             stall = 0
             last = cur
-        if stall >= 60:
+        if stall >= 180:  # cold SQL cache pe report queries 60s+ le sakte hain
             print(f"\n*** WATCHDOG: HANG on [{cur}] — aborting ***", flush=True)
             os._exit(2)
 
@@ -138,7 +169,8 @@ for i, (cap, fn) in enumerate(sorted(wired.items()), 1):
             print(traceback.format_exc(limit=4))
 
 print("=" * 70)
-print(f"SWEEP RESULT: {ok} OK, {len(fail)} FAIL / {len(wired)}")
+print(f"SWEEP RESULT: {ok} OK, {len(fail)} FAIL, "
+      f"{len(skipped)} SKIP(fast) / {len(fail) + ok + len(skipped)}")
 for cap in fail[:80]:
     print(f"  - {cap}: {fails[cap]}")
 QTimer.singleShot(5000, app.quit)

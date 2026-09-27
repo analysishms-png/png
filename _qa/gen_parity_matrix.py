@@ -44,14 +44,31 @@ STOP = {
 }
 
 def vb6_forms() -> dict[str, dict]:
-    """{form_name: {caption, tables:set}} from ../*.frm"""
+    """{form_name: {caption, tables:set}} from FODER/*.frm.
+
+    Layout note: VB6 sources ab repo-root ke FODER/ me hain (purane
+    parent-dir layout ke liye PARENT/FODER fallback bhi hai).
+    """
     out: dict[str, dict] = {}
-    for fn in sorted(os.listdir(PARENT)):
+    src_dirs = [os.path.join(ROOT, "FODER"), os.path.join(PARENT, "FODER"),
+                PARENT]
+    frm_names: list[str] = []
+    for d in src_dirs:
+        if os.path.isdir(d):
+            frm_names = [fn for fn in sorted(os.listdir(d))
+                         if fn.lower().endswith(".frm")]
+            if frm_names:
+                break
+    src_dir = next((d for d in src_dirs
+                    if os.path.isdir(d) and
+                    any(x.lower().endswith(".frm")
+                        for x in os.listdir(d))), None)
+    for fn in frm_names:
         if not fn.lower().endswith(".frm"):
             continue
         try:
-            text = open(os.path.join(PARENT, fn), encoding="utf-8",
-                        errors="replace").read()
+            text = open(os.path.join(src_dir or PARENT, fn),
+                        encoding="utf-8", errors="replace").read()
         except OSError:
             continue
         m = FORM_RE.search(text)
@@ -286,7 +303,8 @@ def main():
     L.append("")
 
     out = "\r\n".join(L)
-    for path in (os.path.join(PARENT, "VB6_PARITY_MATRIX.txt"),
+    # repo-root copy (git toplevel) + _qa copy; PARENT ab repo ke bahar hai
+    for path in (os.path.join(ROOT, "VB6_PARITY_MATRIX.txt"),
                  os.path.join(ROOT, "_qa", "VB6_PARITY_MATRIX.txt")):
         with open(path, "w", encoding="utf-8", newline="") as f:
             f.write(out)
