@@ -92,7 +92,13 @@ def py_registry() -> dict[str, callable]:
     from HMS_py.ui import shell
     return shell._form_registry()
 
+COMING_SOON_RE = re.compile(r"_coming_soon\(\"[^\"]*\"\)")
+
 def py_texts() -> tuple[str, str]:
+    """Concatenated core/ui source text (case-preserved for probes).
+
+    _coming_soon("X") placeholders stripped from ui text so a stub
+    string never counts as UI evidence."""
     core_txt = ui_txt = ""
     for d, acc in ((os.path.join(ROOT, "HMS_py", "core"), "c"),
                    (os.path.join(ROOT, "HMS_py", "ui"), "u")):
@@ -101,13 +107,13 @@ def py_texts() -> tuple[str, str]:
                 continue
             try:
                 txt = open(os.path.join(d, fn), encoding="utf-8",
-                           errors="replace").read().upper()
+                           errors="replace").read()
             except OSError:
                 continue
             if acc == "c":
                 core_txt += txt
             else:
-                ui_txt += txt
+                ui_txt += COMING_SOON_RE.sub("", txt)
     return core_txt, ui_txt
 
 # ── documented equivalences / caption quirks ────────────────────
@@ -120,6 +126,17 @@ DOCUMENTED_EQUIV = {
     # generic scratch-caption forms whose real identity is known
     "FaRepView": "FaRepView window (ui/fa_voucher_ui.py) — wired via report captions",
     "DMTree": "DMTree (ui/dmtree_ui.py) — menuHelp tree renderer",
+    # Orphan VB6 form: koi menu leaf ya launcher hi nahi (user_module_tree +
+    # saare frm/bas me sirf apni definition). Python me full UI+core hai.
+    "DepOpStk": ("Orphan in VB6 (no menu leaf/launcher) — Python UI "
+                 "(partial_forms_ui.LocationOpeningStockWindow) + core "
+                 "(fa_masters_ops DOPR) complete"),
+    # Blank-caption grid-search dialog over GuestMessage (Solved toggle).
+    # VB6 me bhi dead: sirf FindMess.frm self-refs + HMS.bas 'Object:'
+    # marker, kahin se bhi Load/New nahi. Python core: guest_services.
+    "FindMess": ("Documented dead form: no VB6 launcher/menu (grid "
+                 "search + GuestMessage Solved toggle); core "
+                 "guest_services.list_message exists"),
 }
 CAPTION_ALIASES = {
     "rstouchscreenfafind": "FA Find",
@@ -161,6 +178,11 @@ CAPTION_ALIASES = {
     "fachqclear": "Cheque/DD Clearing Entry",
     "departmast": "Department/Outlet",
     "depopstk": "Location wise Opening Stock Entry",
+    # VB6 EmptyInbox.frm caption "InBox", menu caption "Delete Message"
+    "emptyinbox": "Delete Message",
+    # VB6 fdNDAcPostChrg caption "Posting Utility", menu caption
+    # "Account Posting" (MDIForm1 NightAuditoR index 3)
+    "fdndacpostchrg": "Account Posting",
     "frmpartymast": "Party Master",
     "frmitemmastraw": "Item Entry",
     "frmmenurate": "Item Rate Entry",
@@ -195,6 +217,8 @@ def main():
     reg = py_registry()
     reg_ci = {k.lower(): (k, fn) for k, fn in reg.items()}
     core_txt, ui_txt = py_texts()
+    core_l = core_txt.lower()
+    ui_l = ui_txt.lower()
 
     rows = []
     for name, info in forms.items():
@@ -219,13 +243,14 @@ def main():
             if probe and probe in ui_txt:
                 ui_hit = True
                 break
-        core_hit = any(t.upper() in core_txt for t in tables) or \
-            name.lower() in core_txt
+        core_hit = any(t.lower() in core_l for t in tables) or \
+            name.lower() in core_l
         # module-name evidence: ui/*.py class/def names carry VB6 form hints
-        ui_mod_hit = any(
-            h in ui_txt for h in
-            (name.replace("Frm", "").lower(),
-             name.lower().replace("frm", ""))) if len(name) > 5 else False
+        # (>=8 chars to avoid generic-word false positives like 'company')
+        hints = [h for h in (name.replace("Frm", "").lower(),
+                             name.lower().replace("frm", ""))
+                 if len(h) >= 8]
+        ui_mod_hit = any(h in ui_l for h in hints) if hints else False
         ui_hit = ui_hit or ui_mod_hit
 
         live = [t for t in tables if table_exists(t)]

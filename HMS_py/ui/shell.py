@@ -797,6 +797,16 @@ def _form_registry() -> dict[str, callable]:
         from HMS_py.ui import partial_forms_ui as pfui
     except ImportError:
         pfui = None
+    # VB6 EmptyInbox (Finance > "Delete Message") - Messaging table port
+    try:
+        from HMS_py.ui import messaging_ui as msgui
+    except ImportError:
+        msgui = None
+    # VB6 fdNDAcPostChrg (Night Audit > "Account Posting" = Posting Utility)
+    try:
+        from HMS_py.ui import posting_utility_ui as npu_ui
+    except ImportError:
+        npu_ui = None
     # Guest Charges Summary (VB6 fdPrintScreen port)
     try:
         from HMS_py.ui import guest_charges_ui as gchrg_ui
@@ -886,6 +896,12 @@ def _form_registry() -> dict[str, callable]:
         from HMS_py.ui import requisition_slip_ui as reqslip_ui
     except ImportError:
         reqslip_ui = None
+    # VB6 MISSING-batch: frmBlockMast + RewardPointParam1 + FAFind +
+    # FrmChangeSite (tables BlockMast/RWParameter LIVE hain)
+    try:
+        from HMS_py.ui import block_master_ui as bmst_ui
+    except ImportError:
+        bmst_ui = None
 
     def _open_report(cap: str):
         """mdi leaf caption -> reports engine key (exact-match map)."""
@@ -1118,6 +1134,8 @@ def _form_registry() -> dict[str, callable]:
         "Sundry Master": lambda w: p2.open_sundry(w),
         "Narration Master": lambda w: p2.open_narr(w),
         "Venue Master": lambda w: p2.open_venue(w),
+        # VB6 FrmVenueFeat 'VenueFeature' — FeatureMast master (LIVE table)
+        "VenueFeature": (lambda w: bmst_ui.open_venue_feature(w)) if bmst_ui else _coming_soon("VenueFeature"),
         "Department": lambda w: p2.open_depart(w),
         "Department/Outlet": lambda w: p2.open_depart(w),
         # Reservation:
@@ -1357,7 +1375,8 @@ def _form_registry() -> dict[str, callable]:
         "Night Audit Control Panel": (lambda w: narep_ui.open_nightaudit_reports(w)) if narep_ui else _coming_soon("Night Audit Control Panel"),
         "Reverse Night Audit": (lambda w: narep_ui.open_nightaudit_reports(w)) if narep_ui else _coming_soon("Reverse Night Audit"),
         "Charges Posting": (lambda w: narep_ui.open_nightaudit_reports(w)) if narep_ui else _coming_soon("Charges Posting"),
-        "Account Posting": (lambda w: narep_ui.open_nightaudit_reports(w)) if narep_ui else _coming_soon("Account Posting"),
+        # VB6 fdNDAcPostChrg = Posting Utility (NightAuditoR index 3)
+        "Account Posting": (lambda w: npu_ui.open_posting_utility(w, user=getattr(w, 'user', None))) if npu_ui else _coming_soon("Account Posting"),
         "Bill Reprint": (lambda w: psub_ui.open_bill_reprint(w)) if psub_ui else _coming_soon("Bill Reprint"),
         "Merge Room": (lambda w: fosub_ui.open_merge_charge(w)) if fosub_ui else _coming_soon("Merge Room"),
         "Bill Re-Settlement": (lambda w: fosub_ui.open_re_settlement(w)) if fosub_ui else _coming_soon("Bill Re-Settlement"),
@@ -1371,7 +1390,7 @@ def _form_registry() -> dict[str, callable]:
             "Reverse Room Merge", "Blank GRC", "Add/Edit/Delete Group With Reservation ",
             "Reservation With History",
             "Advance Deposit", "Confirmation Letters", "Cancellation Letters",
-            "Reservation Status Screen", "Block Master", "Item Issued On Cleaning",
+            "Reservation Status Screen", "Item Issued On Cleaning",
             "Check Out Clearance Screen", "Changes Department",
             "Table Change Entry", "Sale Bill Entry", "Settlement Entry",
             "Display Table",
@@ -1464,7 +1483,7 @@ def _form_registry() -> dict[str, callable]:
             "Inconsistency Check", "Menu Item Copy", "POS Bill Deletion",
             "Data Transfer", "Data Recieving",
             "Data Transfer (POS)", "PLU File (W.Scale)", "POS Recycle",
-            "Task Scheduler", "Voucher Serialisation", "Delete Message",
+            "Task Scheduler", "Voucher Serialisation",
             "Voucher Wise Sundry Entry", "Expected Plan/Package FB Details",
             "Cashier  Report", "Attendence Report", "Item Wise Sales Report",
             "Member Bill Missing Report",
@@ -1482,9 +1501,16 @@ def _form_registry() -> dict[str, callable]:
             "Meter Reading", "Com Port Properties",
             "SMS Center Settings", "SMS Environment Settings",
             "Multiple SMS Type", "InBox", "OutBox",
-            "Reward Points Parameter I",
              "Guest Registration", "-",
         )}),
+        # VB6 frmBlockMast (House Keeping > Block Master) — BlockMast LIVE
+        "Block Master": (lambda w: bmst_ui.open_block_master(w)) if bmst_ui else _coming_soon("Block Master"),
+        # VB6 RewardPointParam1 (Members Mgmt) — RWParameter LIVE
+        "Reward Points Parameter I": (lambda w: bmst_ui.open_reward_points(w)) if bmst_ui else _coming_soon("Reward Points Parameter I"),
+        # VB6 FAFind ('Help.?') — SubGroup search dialog
+        "FA Find": (lambda w: bmst_ui.open_fa_find(w)) if bmst_ui else _coming_soon("FA Find"),
+        # VB6 FrmChangeSite — login site picker
+        "Login Site": (lambda w: bmst_ui.open_change_site(w)) if bmst_ui else _coming_soon("Login Site"),
         # PlanPopup (VB6 me bhi blank-caption popup leaves the — documented skip)
         "": _coming_soon("(Plan Popup)"),
         # Wave 4: Operations UIs (booking, hall, HR, members, services, POS, finance)
@@ -1515,6 +1541,9 @@ def _form_registry() -> dict[str, callable]:
         "Cheque/DD Clearing Entry": (lambda w: pfui.open_cheque_dd_clearing(w)) if pfui else _coming_soon("Cheque/DD Clearing Entry"),
         "Adjustment Delete": (lambda w: pfui.open_adjustment_delete(w)) if pfui else _coming_soon("Adjustment Delete"),
         "Location wise Opening Stock Entry": (lambda w: pfui.open_location_opening_stock(w)) if pfui else _coming_soon("Location wise Opening Stock Entry"),
+        # VB6 EmptyInbox.frm (form caption "InBox", Finance menu caption
+        # "Delete Message" override karta hai - HMS.bas fame index 12)
+        "Delete Message": (lambda w: msgui.open_delete_message(w, user=getattr(w, 'user', None))) if msgui else _coming_soon("Delete Message"),
         "T.D.S.Category Entry": (lambda w: pfui.open_tds_category(w)) if pfui else _coming_soon("T.D.S.Category Entry"),
         # Guest Charges Summary (VB6 fdPrintScreen)
         "Guest Charges Summary": (lambda w: gchrg_ui.open_guest_charges(w)) if gchrg_ui else _coming_soon("Guest Charges Summary"),
