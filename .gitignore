@@ -20,6 +20,9 @@ Backups/
 
 # Temp / runtime logs
 *.log
+# QA sweep runtime artifacts (nightly logs/report/history)
+_qa/logs/
+_qa/sweep_history.jsonl
 *.tmp
 ErrorLog.Log
 ErrorLog.txt
