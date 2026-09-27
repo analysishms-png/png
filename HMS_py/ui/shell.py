@@ -725,6 +725,10 @@ def _form_registry() -> dict[str, callable]:
     except ImportError:
         hall_ui = None
     try:
+        from HMS_py.ui import banquet_ops_ui as banq_ui
+    except ImportError:
+        banq_ui = None
+    try:
         from HMS_py.ui import hr_payroll_ui as payroll_ui
     except ImportError:
         payroll_ui = None
@@ -788,6 +792,11 @@ def _form_registry() -> dict[str, callable]:
         from HMS_py.ui import einvoice_ui as einv_ui
     except ImportError:
         einv_ui = None
+    # PARTIAL-bucket ports (FaGlobeNarr/FaTDSCat/FaGrEnt/FaSubGroup/...)
+    try:
+        from HMS_py.ui import partial_forms_ui as pfui
+    except ImportError:
+        pfui = None
     try:
         from HMS_py.ui import purchase_order_ui as purord_ui
     except ImportError:
@@ -1363,10 +1372,6 @@ def _form_registry() -> dict[str, callable]:
             "Display Table",
             "Order Booking", "Bill Lookup", "Order Booking Advance",
             "KOT Transfer", "Token Entry", "Assign Delivery", "Payment Receive",
-             "Banquet Bill Sundry Setting", "Banquet Booking",
-            "Catalog Selection", "Chef Pre-Costing", "Banquet Billing",
-            "Banquet Settlement", "Venue Availability", "Guest Comments",
-            "Banquet Estimate Billing", "Banquet Booking Advance",
             "Leave", "Attendance", "Loan/Advance", "Over Time",
             "Leave Encashment", "Salary Creation", "Member Master",
             "Corporate Member Master", "Category wise Revenue",
@@ -1382,6 +1387,17 @@ def _form_registry() -> dict[str, callable]:
             "Godrej Locks", "Cascade", "Tile Horizontal", "Tile Vertical",
             "Manage MDI", "Restaurant Change ",
         )}),
+        # Banquet operations (VB6 Banquet > Operation; tables LIVE)
+        "Banquet Booking": (lambda w: hall_ui.open_hall_booking(w)) if hall_ui else _coming_soon("Banquet Booking"),
+        "Banquet Billing": (lambda w: banq_ui.open_banquet_billing(w)) if banq_ui else _coming_soon("Banquet Billing"),
+        "Banquet Estimate Billing": (lambda w: banq_ui.open_banquet_estimate(w)) if banq_ui else _coming_soon("Banquet Estimate Billing"),
+        "Banquet Booking Advance": (lambda w: banq_ui.open_banquet_advance(w)) if banq_ui else _coming_soon("Banquet Booking Advance"),
+        "Banquet Settlement": (lambda w: banq_ui.open_banquet_settlement(w)) if banq_ui else _coming_soon("Banquet Settlement"),
+        "Venue Availability": (lambda w: banq_ui.open_venue_availability(w)) if banq_ui else _coming_soon("Venue Availability"),
+        "Chef Pre-Costing": (lambda w: banq_ui.open_chef_precosting(w)) if banq_ui else _coming_soon("Chef Pre-Costing"),
+        "Catalog Selection": (lambda w: banq_ui.open_catalog_selection(w)) if banq_ui else _coming_soon("Catalog Selection"),
+        "Banquet Bill Sundry Setting": (lambda w: banq_ui.open_banquet_sundry_setting(w)) if banq_ui else _coming_soon("Banquet Bill Sundry Setting"),
+        "Guest Comments": (lambda w: banq_ui.open_guest_comments(w)) if banq_ui else _coming_soon("Guest Comments"),
         # --- S1 tail: last live-schema leaves ---
         "Menu Item Rate": lambda w: item_rate.open_item_rate(
             w, user=getattr(w, "user", "SA")),
@@ -1483,6 +1499,8 @@ def _form_registry() -> dict[str, callable]:
         "POS Packing": (lambda w: ppack_ui.open_pos_packing(w)) if ppack_ui else None,
         "Finance Ledger": (lambda w: faledg_ui.open_fa_ledger(w)) if faledg_ui else None,
         "Voucher Entry": (lambda w: favchr_ui.open_voucher_entry(w)) if favchr_ui else None,
+        # VB6 FaGlobeNarr — Global Narration picker window (partial_forms_ui)
+        "Global Narration": (lambda w: pfui.open_global_narration(w)) if pfui else _coming_soon("Global Narration"),
         "System Config": (lambda w: syscfg_ui.open_sys_config(w)) if syscfg_ui else None,
         "Backup Data": (lambda w: dbbak_ui.open_db_backup(w)) if dbbak_ui else _coming_soon("Backup Data"),
         # Wave 5: Fd*/CheckOut batch (VB6 FdCheckOut/fdAmendEntry/...)

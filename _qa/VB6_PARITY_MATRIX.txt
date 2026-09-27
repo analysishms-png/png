@@ -5,8 +5,8 @@ VB6: *.frm captions + inline-SQL table evidence | Py: shell registry + core/ui s
 
 STATUS SUMMARY
 ------------------------------------------------------------------------------
-  DONE         99
-  PARTIAL      198
+  DONE         104
+  PARTIAL      193
   UI-ONLY      0
   BLOCKED-TBL  3
   MISSING      20
@@ -19,12 +19,10 @@ STATUS SUMMARY
 
 | VB6 form            | Caption                    | Python UI | Core | Wired | Tables (live) |
 |---------------------|----------------------------|-----------|------|-------|----------------------------------------|
-| BanqAvailability    | Venue Availability         | no        | Y    | -     | FAEnviro, VenueMast                    |
 | DepOpStk            | Location wise Opening Stoc | no        | Y    | -     | DateLock, Depart, GodownMast, ItemMast |
 | EmptyInbox          | Inbox                      | no        | Y    | -     | Messaging, USERMAST                    |
 | FaAdjustDel         | Adjustment Delete          | no        | Y    | -     | LEDGERADJ, SUBGROUP                    |
 | FaChqClear          | Cheque/DD Clearing Entry   | no        | Y    | -     | FAENVIRO, Ledger, SubGroup, VIEWLedger |
-| FaGlobeNarr         | {Press <Esc> For Cancel && | no        | Y    | -     | NarrMast                               |
 | FaGrEnt             | Group Accounts Entry       | no        | Y    | -     | ACGROUP, AcGroup, Acgroup, LEDGER, SUB |
 | FaMagic             | Magic                      | no        | Y    | -     | ACGROUP, FAENVIRO                      |
 | FaReports           | ReprtForm                  | no        | Y    | -     | ACGROUP, AcGroup, Budget, City, DAYS ( |
@@ -59,7 +57,6 @@ STATUS SUMMARY
 | FrmForExRec         | Forex Receive Entry        | no        | Y    | -     | ForEx, ForExTrans, Voucher_Prefix, Vou |
 | FrmGrcBlank         | Guest Registration  Card   | no        | Y    | -     | Booking, Enviro, Voucher_Prefix, Vouch |
 | FrmGuestAddObj      | Guest Address & Observatio | no        | Y    | -     | Member, Voucher_Prefix, Voucher_Type,  |
-| frmGuestComments    | Guest Comments             | no        | Y    | -     | BussSource, CITY, FunctionType, GuestC |
 | frmGuestInfo        | Guest Information          | no        | Y    | -     | GUESTPROF, GuestProf, LocationFacility |
 | frmGuestParamMast   | Guest Parameters Master    | no        | Y    | -     | GUESTPARAM, GuestParam                 |
 | FrmGuestStat        | Guest Status Master        | no        | Y    | -     | GuestStat, gueststat                   |
@@ -113,8 +110,6 @@ STATUS SUMMARY
 | HallAdvanceDepDialog | Advance Recived            | no        | Y    | -     | CreditCardHistory, Depart, DepartPay,  |
 | HallBill            | Hall Bill Entry            | no        | Y    | -     | Booking, City, DEPART, Depart, Employe |
 | HallBillEstimate    | Banquet Estimate Bill      | no        | Y    | -     | Booking, DEPART, Depart, Enviro, FAEnv |
-| HallBooking         | Banquet Booking            | no        | Y    | -     | Booking, BookingDetail, BookingInquiry |
-| HallChefPreCosting  | Chef Pre-Costing           | no        | Y    | -     | CATALOGMAST, CatalogMast, Depart, Func |
 | HallEstimate        | Hall Estimate Entry        | no        | Y    | -     | Booking, DEPART, Depart, Enviro, FAEnv |
 | HallItemGroupMast   | Item Group Entry           | no        | Y    | -     | ItemGrp                                |
 | HallMenuCatalog     | Menu Catalog               | no        | Y    | -     | CatalogMast, Depart, Enviro, GroupCata |
@@ -245,6 +240,7 @@ STATUS SUMMARY
 | VB6 form            | Caption                    | Python UI | Core | Wired | Tables (live) |
 |---------------------|----------------------------|-----------|------|-------|----------------------------------------|
 | AccountMerg         | Account Merging            | YES       | Y    | Y     | City, SubGroup                         |
+| BanqAvailability    | Venue Availability         | YES       | Y    | Y     | FAEnviro, VenueMast                    |
 | CateringBooking     | Catalog Selection          | YES       | Y    | Y     | BussSource, CATALOGMAST, CatalogMast,  |
 | CompMast            | Company Master             | YES       | Y    | Y     | ACGROUP, AcGroup, Acgroup, CATEGORY, C |
 | DepartMast          | Department Master          | YES       | Y    | Y     | Depart, GodownMast, RevMast, Voucher_P |
@@ -257,6 +253,7 @@ STATUS SUMMARY
 | FaCountryMast       | Country Master             | YES       | Y    | Y     | Country, country                       |
 | FaCurrBalUpdate     | Current Balance Updation   | YES       | Y    | Y     | ACGROUPCURRBAL, Booking, BookingCancel |
 | FaEnvron            | Environment Setting        | YES       | Y    | Y     | ACGROUP, FAENVIRO, FaEnviro, LEDGER, L |
+| FaGlobeNarr         | {Press <Esc> For Cancel && | YES       | Y    | Y     | NarrMast                               |
 | FaNarrMast          | Narration Master           | YES       | Y    | Y     | NarrMast                               |
 | FaRepView           | Form1                      | YES       | -    | Y     |                                        |
 |                     | note: FaRepView window (ui/fa_voucher_ui.py) — wired via report captions |
@@ -293,6 +290,7 @@ STATUS SUMMARY
 | FrmDataRecieving    | Data Recieving Window . .  | no        | -    | -     |                                        |
 |                     | note: Documented skip: Access-MDB transfer; tables absent (VB6 me bhi dead) |
 | frmFacilityBillAdv  | Facility Billing           | YES       | Y    | Y     | City, Depart, FMReading, FMReading1, F |
+| frmGuestComments    | Guest Comments             | YES       | Y    | Y     | BussSource, CITY, FunctionType, GuestC |
 | FrmItemGroupMastRaw | Item Group                 | YES       | Y    | Y     | Depart, ItemGrp                        |
 | FrmLocationFacilities | Location Facilities        | YES       | Y    | Y     | FacilityMast, LocationFacility, Locati |
 | FrmLocationMast     | Location Master            | YES       | -    | Y     | LocationMast                           |
@@ -320,6 +318,8 @@ STATUS SUMMARY
 | Godown              | Location Master            | YES       | Y    | Y     | GODOWNMAST, GodownMast, Godownmast     |
 | GroupProfile        | Group Profile              | YES       | Y    | Y     | BussSource, CITY, City, Country, GROUP |
 | GuestProfile        | Guest Profile              | YES       | Y    | Y     | Booking, CITY, COUNTRY, City, Country  |
+| HallBooking         | Banquet Booking            | YES       | Y    | Y     | Booking, BookingDetail, BookingInquiry |
+| HallChefPreCosting  | Chef Pre-Costing           | YES       | Y    | Y     | CATALOGMAST, CatalogMast, Depart, Func |
 | HallSundry          | Outlet Bill Sundry Setting | YES       | Y    | Y     | RevMast, SundryMast, SundryType, Sundr |
 | HHouseKeeping       | House Keeping Screen       | YES       | Y    | Y     | RoomBlockOut, RoomMast, RoomOcc, roomm |
 | HKRoomBlock         | Room Block                 | YES       | Y    | Y     | BlockMast, Booking, FAEnviro, GuestFol |
@@ -382,9 +382,6 @@ STATUS SUMMARY
 ## ACTION QUEUE (MISSING + PARTIAL, portable)
 ==============================================================================
 
-- BanqAvailability (BanqAvailability.frm): 'Venue Availability'
-    tables: FAEnviro, VenueMast
-    ui=N core=Y
 - DepOpStk (DepOpStk.frm): 'Location wise Opening Stock Entry'
     tables: DateLock, Depart, GodownMast, ItemMast, KClStk (+7)
     ui=N core=Y
@@ -396,9 +393,6 @@ STATUS SUMMARY
     ui=N core=Y
 - FaChqClear (FaChqClear.frm): 'Cheque/DD Clearing Entry'
     tables: FAENVIRO, Ledger, SubGroup, VIEWLedger
-    ui=N core=Y
-- FaGlobeNarr (FaGlobeNarr.frm): '{Press <Esc> For Cancel && Exit} {Press <Enter> For Select && Exit} {Press Ctrl+S to Sort the selected Row}'
-    tables: NarrMast
     ui=N core=Y
 - FaGrEnt (FaGrEnt.frm): 'Group Accounts Entry'
     tables: ACGROUP, AcGroup, Acgroup, LEDGER, SUBGROUP (+2)
@@ -501,9 +495,6 @@ STATUS SUMMARY
     ui=N core=Y
 - FrmGuestAddObj (FrmGuestAddObj.frm): 'Guest Address & Observation'
     tables: Member, Voucher_Prefix, Voucher_Type, Waiter
-    ui=N core=Y
-- frmGuestComments (frmGuestComments.frm): 'Guest Comments'
-    tables: BussSource, CITY, FunctionType, GuestComments, HallSale1 (+3)
     ui=N core=Y
 - frmGuestInfo (frmGuestInfo.frm): 'Guest Information'
     tables: GUESTPROF, GuestProf, LocationFacility, LocationMast, SmartCardRegistration
@@ -663,12 +654,6 @@ STATUS SUMMARY
     ui=N core=Y
 - HallBillEstimate (HallBillEstimate.frm): 'Banquet Estimate Bill'
     tables: Booking, DEPART, Depart, Enviro, FAEnviro (+29)
-    ui=N core=Y
-- HallBooking (HallBooking.frm): 'Banquet Booking'
-    tables: Booking, BookingDetail, BookingInquiry, BussSource, CITY (+22)
-    ui=N core=Y
-- HallChefPreCosting (HallChefPreCosting.frm): 'Chef Pre-Costing'
-    tables: CATALOGMAST, CatalogMast, Depart, FunctionType, Functiontype (+17)
     ui=N core=Y
 - HallEstimate (HallEstimate.frm): 'Hall Estimate Entry'
     tables: Booking, DEPART, Depart, Enviro, FAEnviro (+27)

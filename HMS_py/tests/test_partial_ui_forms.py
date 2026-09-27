@@ -1,0 +1,132 @@
+"""PARTIAL-bucket UI ports: FaGlobeNarr Global Narration (pehla batch).
+
+VB6 evidence (FODER/FaGlobeNarr.frm):
+  - Form_Load: 'Select Name From NarrMast Order by name'
+  - TxtSearch type-to-filter + Enter(0x0D)=select+exit, Esc(0x1B)=cancel
+  - hint label verbatim: '{Press <Esc> For Cancel && Exit} ...'
+Python:
+  - ui/partial_forms_ui.GlobalNarrationWindow (search + Enter/Esc + picker)
+  - ui/fa_voucher_ui.open_global_narration_picker (FaVrEnt '...' button)
+  - shell registry 'Global Narration' caption wired
+"""
+from __future__ import annotations
+
+import os
+import sys
+from pathlib import Path
+
+import pytest
+
+os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+pytestmark = [pytest.mark.unit] if hasattr(pytest.mark, "unit") else []
+
+_QAPP = None
+
+
+def _stub_msgboxes():
+    from PyQt6.QtWidgets import QDialog, QMessageBox
+    QDialog.exec = lambda self, *a, **k: QDialog.DialogCode.Rejected
+    QMessageBox.information = staticmethod(
+        lambda *a, **k: QMessageBox.StandardButton.Ok)
+    QMessageBox.warning = staticmethod(
+        lambda *a, **k: QMessageBox.StandardButton.Ok)
+    QMessageBox.critical = staticmethod(
+        lambda *a, **k: QMessageBox.StandardButton.Ok)
+    QMessageBox.question = staticmethod(
+        lambda *a, **k: QMessageBox.StandardButton.Yes)
+
+
+@pytest.fixture(autouse=True)
+def _modal_guard():
+    import PyQt6.QtWidgets as W
+    _saved = (W.QDialog.exec, W.QMessageBox.information,
+              W.QMessageBox.warning, W.QMessageBox.critical,
+              W.QMessageBox.question)
+    _stub_msgboxes()
+    yield
+    (W.QDialog.exec, W.QMessageBox.information,
+     W.QMessageBox.warning, W.QMessageBox.critical,
+     W.QMessageBox.question) = _saved
+
+
+def _qapp():
+    global _QAPP
+    from PyQt6.QtWidgets import QApplication
+    _QAPP = QApplication.instance() or QApplication([])
+    return _QAPP
+
+
+class TestGlobalNarration:
+    def test_window_construct_and_load(self):
+        from HMS_py.ui.partial_forms_ui import GlobalNarrationWindow
+        _qapp()
+        w = GlobalNarrationWindow()
+        try:
+            assert w.windowTitle() == "Global Narration"
+            assert hasattr(w, "ed_search")
+            assert hasattr(w, "grid")
+            assert w.grid.rowCount() >= 0
+        finally:
+            w.close()
+
+    def test_search_filter_hides_nonmatching_rows(self):
+        from HMS_py.ui.partial_forms_ui import GlobalNarrationWindow
+        _qapp()
+        w = GlobalNarrationWindow()
+        try:
+            w._filter("zzz_no_match_zzz")
+            hidden = [w.grid.isRowHidden(r) for r in range(w.grid.rowCount())]
+            assert w.grid.rowCount() == 0 or any(hidden), \
+                "non-match filter ke saath kuch rows hidden honi chahiye"
+            w._filter("")  # reset
+            assert not any(w.grid.isRowHidden(r)
+                           for r in range(w.grid.rowCount()))
+        finally:
+            w.close()
+
+    def test_enter_accepts_selected_row(self):
+        from HMS_py.ui.partial_forms_ui import GlobalNarrationWindow
+        _qapp()
+        w = GlobalNarrationWindow()
+        try:
+            if w.grid.rowCount() == 0:
+                pytest.skip("NarrMast khali hai")
+            w.grid.setCurrentCell(0, 0)
+            expected = w.grid.item(0, 0).text()
+            w._accept_selected()  # Enter parity — window band ho jayegi
+            assert w.selected_name == expected
+        finally:
+            w.close()
+
+    def test_voucher_narration_button_exists(self):
+        from HMS_py.ui import fa_voucher_ui as fvu
+        _qapp()
+        w = fvu.VoucherEntryDialog()
+        try:
+            assert hasattr(w, "edNarr")
+            assert hasattr(w, "_pick_global_narration")
+        finally:
+            w.close()
+
+    def test_registry_global_narration_wired(self):
+        from HMS_py.ui import shell
+        reg = shell._form_registry()
+        fn = reg.get("Global Narration")
+        assert fn is not None, "Global Narration registry me nahi"
+        assert "coming_soon" not in repr(fn), "Global Narration coming_soon"
+
+    def test_sweep_style_open_and_close(self):
+        """Sweep harness jaisa: construct+show+close — koi exception nahi."""
+        from HMS_py.ui.partial_forms_ui import GlobalNarrationWindow
+        _qapp()
+        w = GlobalNarrationWindow()
+        try:
+            w.show()
+            from PyQt6.QtWidgets import QApplication
+            QApplication.processEvents()
+            w._filter("a")
+            QApplication.processEvents()
+        finally:
+            w.close()
