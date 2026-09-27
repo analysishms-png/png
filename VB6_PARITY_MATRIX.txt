@@ -5,11 +5,11 @@ VB6: *.frm captions + inline-SQL table evidence | Py: shell registry + core/ui s
 
 STATUS SUMMARY
 ------------------------------------------------------------------------------
-  DONE         121
+  DONE         127
   PARTIAL      183
-  UI-ONLY      9
+  UI-ONLY      7
   BLOCKED-TBL  3
-  MISSING      4
+  MISSING      0
   TOTAL        320
 
 
@@ -210,12 +210,10 @@ STATUS SUMMARY
 
 | VB6 form            | Caption                    | Python UI | Core | Wired | Tables (live) |
 |---------------------|----------------------------|-----------|------|-------|----------------------------------------|
-| CsehDemoForm        | (blank)                    | YES       | -    | -     |                                        |
 | FrmCalender         | Calender                   | YES       | -    | -     |                                        |
 | FrmImage            | Image                      | YES       | -    | -     |                                        |
 | frmMessage          | User Information           | YES       | -    | -     |                                        |
 | frmmessageKey       | Key Massage                | YES       | -    | -     |                                        |
-| FrmNAMessageA       | User Information           | YES       | -    | -     |                                        |
 | LockForm            | Form1                      | YES       | -    | -     |                                        |
 | repTouchDate        | Select Report Date         | YES       | -    | -     |                                        |
 | RsTouchScreenKeyBoard | Touch Screen KeyBoard      | YES       | -    | -     |                                        |
@@ -242,6 +240,8 @@ STATUS SUMMARY
 | BanqAvailability    | Venue Availability         | YES       | Y    | Y     | FAEnviro, VenueMast                    |
 | CateringBooking     | Catalog Selection          | YES       | Y    | Y     | BussSource, CATALOGMAST, CatalogMast,  |
 | CompMast            | Company Master             | YES       | Y    | Y     | ACGROUP, AcGroup, Acgroup, CATEGORY, C |
+| CsehDemoForm        | (blank)                    | YES       | -    | -     |                                        |
+|                     | note: VB6 demo/scratch form (sirf self-refs + CSEH_DEMO_SETUP.md docs; koi menu leaf, koi DB table nahi) |
 | DepartMast          | Department Master          | YES       | Y    | Y     | Depart, GodownMast, RevMast, Voucher_P |
 | DepartSundry        | Outlet Bill Sundry Setting | YES       | Y    | Y     | Depart, Enviro, RevMast, SundryMast, S |
 | DepOpStk            | Location wise Opening Stoc | YES       | Y    | Y     | DateLock, Depart, GodownMast, ItemMast |
@@ -257,6 +257,7 @@ STATUS SUMMARY
 | FaCountryMast       | Country Master             | YES       | Y    | Y     | Country, country                       |
 | FaCurrBalUpdate     | Current Balance Updation   | YES       | Y    | Y     | ACGROUPCURRBAL, Booking, BookingCancel |
 | FaEnvron            | Environment Setting        | YES       | Y    | Y     | ACGROUP, FAENVIRO, FaEnviro, LEDGER, L |
+| FAFind              | Help.?                     | YES       | -    | Y     |                                        |
 | FaGlobeNarr         | {Press <Esc> For Cancel && | YES       | Y    | Y     | NarrMast                               |
 | FaGrEnt             | Group Accounts Entry       | YES       | Y    | Y     | ACGROUP, AcGroup, Acgroup, LEDGER, SUB |
 | FaMagic             | Magic                      | YES       | Y    | Y     | ACGROUP, FAENVIRO                      |
@@ -313,6 +314,14 @@ STATUS SUMMARY
 |                     | note: Dynamic sidebar (menuHelp tree) — VB6 'Main Menu' ka port |
 | frmMod_Print        | Printing Setup             | YES       | Y    | Y     | Depart, PRINTERSETUP, PrintMast, Print |
 | frmMod_Print1       | Printing Setup             | YES       | Y    | Y     | Depart, PRINTERSETUP, PrintMast, Print |
+| FrmMsgBox           | Message Box                | no        | -    | -     |                                        |
+|                     | note: VB6 custom confirm popup (evidence: 'Print NC KOT ?' HMS.bas L792591 + RsTouchScreenKOTEntry L4574 sets LblMsg/ParentForm); runtime popup, koi menu leaf nahi — Qt QMessageBox equivalent in-use |
+| FrmNAMessageA       | User Information           | YES       | -    | -     |                                        |
+|                     | note: VB6 startup/NA message popup (HMS.bas Proc_156_8 string ref; 'Object:' marker); koi menu leaf nahi — Qt QMessageBox equivalent |
+| FrmNAMessageB       | User Information           | no        | -    | -     |                                        |
+|                     | note: VB6 startup/NA message popup (sirf HMS.bas 'Object:' marker; koi menu leaf nahi) — Qt QMessageBox equivalent |
+| FrmNAMessageC       | User Information           | no        | -    | -     |                                        |
+|                     | note: VB6 startup/NA message popup (sirf HMS.bas 'Object:' marker; koi menu leaf nahi) — Qt QMessageBox equivalent |
 | FrmNCType           | NC Type                    | YES       | Y    | Y     | NCTypeMast                             |
 | FrmPartyLocations   | Party Locations            | YES       | Y    | Y     | LocationMast, PartyLocation, SubGroup, |
 | frmPassword         | Authentication Window      | YES       | Y    | -     |                                        |
@@ -375,10 +384,6 @@ STATUS SUMMARY
 
 | VB6 form            | Caption                    | Python UI | Core | Wired | Tables (live) |
 |---------------------|----------------------------|-----------|------|-------|----------------------------------------|
-| FAFind              | Help.?                     | no        | -    | -     |                                        |
-| FrmMsgBox           | Message Box                | no        | -    | -     |                                        |
-| FrmNAMessageB       | User Information           | no        | -    | -     |                                        |
-| FrmNAMessageC       | User Information           | no        | -    | -     |                                        |
 
 ==============================================================================
 ## ACTION QUEUE (MISSING + PARTIAL, portable)
@@ -933,15 +938,3 @@ STATUS SUMMARY
 - VoucherSundrySetting (VoucherSundrySetting.frm): 'Voucher Sundry Setting'
     tables: Depart, RevMast, SundryMast, SundryType, SundryTypeFix (+1)
     ui=N core=Y
-- FAFind (FAFind.frm): 'Help.?'
-    tables: 
-    ui=N core=N
-- FrmMsgBox (FrmMsgBox.frm): 'Message Box'
-    tables: 
-    ui=N core=N
-- FrmNAMessageB (FrmNAMessageB.frm): 'User Information'
-    tables: 
-    ui=N core=N
-- FrmNAMessageC (FrmNAMessageC.frm): 'User Information'
-    tables: 
-    ui=N core=N

@@ -137,11 +137,31 @@ DOCUMENTED_EQUIV = {
     "FindMess": ("Documented dead form: no VB6 launcher/menu (grid "
                  "search + GuestMessage Solved toggle); core "
                  "guest_services.list_message exists"),
+    # ── VB6 runtime utility popups (no menu leaf, no table) — Qt ke
+    #    native equivalents already in-use; port not applicable ──
+    "FrmMsgBox": ("VB6 custom confirm popup (evidence: 'Print NC KOT ?' "
+                  "HMS.bas L792591 + RsTouchScreenKOTEntry L4574 sets "
+                  "LblMsg/ParentForm); runtime popup, koi menu leaf "
+                  "nahi — Qt QMessageBox equivalent in-use"),
+    "FrmNAMessageA": ("VB6 startup/NA message popup (HMS.bas Proc_156_8 "
+                      "string ref; 'Object:' marker); koi menu leaf "
+                      "nahi — Qt QMessageBox equivalent"),
+    "FrmNAMessageB": ("VB6 startup/NA message popup (sirf HMS.bas "
+                      "'Object:' marker; koi menu leaf nahi) — Qt "
+                      "QMessageBox equivalent"),
+    "FrmNAMessageC": ("VB6 startup/NA message popup (sirf HMS.bas "
+                      "'Object:' marker; koi menu leaf nahi) — Qt "
+                      "QMessageBox equivalent"),
+    "CsehDemoForm": ("VB6 demo/scratch form (sirf self-refs + "
+                     "CSEH_DEMO_SETUP.md docs; koi menu leaf, koi DB "
+                     "table nahi)"),
 }
 CAPTION_ALIASES = {
     "rstouchscreenfafind": "FA Find",
     "rstouchorderpersondetails": "Customer Information",
     "frmmessagekey": "Key Massage",
+    "fafind": "FA Find",
+    "frmchangesite": "Login Site",
     "reptouchdate": "Select Report Date",
     "fdlookuproom": "Look Up Room",
     # generic-caption forms -> real registry captions (ui module evidence)
