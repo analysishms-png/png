@@ -1,0 +1,44 @@
+eZee Optimus (Restaurant POS) — FEATURES + HAMARE PROJECT ME MAPPING
+====================================================================
+Source: ezeeoptimus.com (Wayback 2019-07-22 features page + live site + official brochure PDF)
+Screenshots in screenshots\optimus\ folder.
+
+CORE POS FEATURES (screenshot-wise):
+- accurate_billing.png             -> Accurate Billing: item-wise entry, tax, discount, quick menu keys
+- powerful_menu_management.png     -> Menu Mgmt: multiple menus, seasonal/periodic/happy-hour menus, pricing
+- quick_table_management.png       -> Table Mgmt: table plan, assign orders, merge/split tables
+- shift_management.png             -> Shift Mgmt: opening/closing balance, shift wise reports
+- day_close.png                    -> Day Close: din ka closing, settlement summary
+- inventory_stock_management.png   -> Inventory/Stock Mgmt: stock in/out, recipes, wastage
+- alerts_guest_engagement.png      -> Guest Engagement: deals/promo alerts, SMS/email campaigns
+- grant_privileges.png             -> Privileges: user roles, staff permissions (waiter/cashier/manager)
+
+OTHER KEY MODULES (brochure + live site):
+- Order Types / Entrée Types: Dine-In, Takeaway, Delivery, Room Service, Bar/Quick Service
+- KOT (Kitchen Order Ticket) / RC (Receipt) printing; printer mapping (kitchen/bar)
+- Item-wise Discount + Bill Discount + Percentage
+- SPLIT BILL: "Split bill by seat" - bill ko seat/guest wise split karke pay karne dena
+  = ye BILKUL hamare requested "POS split" feature jaisa hai
+- Delivery Aggregator Integration: Zomato, Swiggy, UberEats, Foodpanda e-orders direct POS me
+- RapidServe (order taking app) + Tablet POS app (Google Play/App Store, offline support)
+- Chain/Multi-Outlet: ek dashboard pe saare outlets, consolidated reports
+- Customer DB + engagement (SMS/email), CRM lite
+- Reports: sales, item-wise, shift, day-close settlement, tax
+- Pricing: Basic ~$45/outlet/month, Advanced ~$60/outlet/month, 14-day free trial
+
+HAMARE Laravel PROJECT (analysishms) SE MAPPING / GAPS
+------------------------------------------------------
+| eZee Optimus feature            | hamare project me status                          |
+|---------------------------------|--------------------------------------------------------|
+| Item-wise discount on sale bill | PARTIAL: salebillentry.blade.php me UI hai +              |
+|                                 | SaleBill.php:629,685-689 logic partially implements      |
+|                                 | (itemdiscepercent). POS bill me sirf bill-level discount.  |
+| Split bill                      | MISSING: sirf bill-level; seat-wise split nahi            |
+| Estimated/Pre-bill              | MISSING: eZee "pre checkout settlement" value hai         |
+| Move bill / folio transfer      | PARTIAL: mergeroompost RoomController.php:535 +           |
+|                                 | relatdfoliono/relatedfolionodocid fields hain             |
+| Day close / shift               | check project me (Night audit jaisa feature missing)      |
+| KOT printing                    | POS me printing flow check karna                          |
+| Aggregator integration          | OUT OF SCOPE (project me nahi)                             |
+
+=> In gaps pe PLAN_FEATURES.txt (3 features) + PLAN_EZEE_MISSING_FEATURES.txt (poora comparison) likha hua hai.

@@ -1,0 +1,19 @@
+Module: SmartCardRefund
+Total SQL statements: 5
+================================================================================
+
+-- SQL Statement 1 --
+  loc_1314112:     var_10C = CVar("Update SmartCardRegistration Set LastTransAmt=" & CStr(var_154) & ",LastTransDate=") 'String
+
+-- SQL Statement 2 --
+  loc_10B9F0E: unk_458EB4.Execute "Select Code,Name,CurrBal,SerialNo From SmartCardRegistration where CardType ='Cash Card' And IsNull(CurrBal,0)<>0", var_C0, -1
+
+-- SQL Statement 3 --
+  loc_10BA0B8: unk_458EB4.Execute "Update SmartCardRegistration Set CurrBal=0 where CardType ='Cash Card' And IsNull(CurrBal,0)<>0", var_C0, -1
+
+-- SQL Statement 4 --
+  loc_12530BE: var_90 = "Select SCR.MemberCode,S.Name As MemberName,SCR.Code,SCR.Name As Name,SCR.CardType,SCR.CardNo,SCR.Addr,SCR.Phone,SCR.SerialNo,SCR.IssDate,SCR.ValidUpto,SCR.BlockedYN,MF.PicPath,MF.SigPath From SmartCardRegistration SCR Left Join MemberFamily MF On MF.CardRegId=SCR.Code Left Join SubGroup S On SCR.MemberCode=S.Subcode Where SCR.LogSite_Code='" & MemVar_1F81078
+
+-- SQL Statement 5 --
+  loc_EF00D3: var_88 = "SELECT SCL.DocId As Searchcode,SCL.Code,SCL.VType,SCL.VNo,Convert(Varchar(11),SCL.VDate,103) VDate,SCL.Narration,SCL.U_Name,SCL.U_EntDt,SCL.CashAmt,SCL.SecurityAmt,SCR.IssDate,SCR.CardType,SCR.Name,SCR.CardNo,SCR.Addr,SCR.Phone,SCR.ValidUpto,SCR.BlockedYN,SCR.SerialNo,SCR.MemberCode,MF.PicPath,MF.SigPath,S.Name MemberName From (Select DocId,Max(Code)Code,Max(VType)Vtype,Max(VNo)VNo,Max(VDate)VDate,Max(Narration)Narration,Max(U_Name)U_Name,Max(U_EntDt)U_EntDt,IsNull(Sum(CashAmt),0)CashAmt,IsNull(Sum(SecurityAmt),0)SecurityAmt From " & "(Select DocId,Code,Vtype,VNo,VDate,Narration,U_Name,U_EntDt,CashAmt = CASE WHEN Type='RCARDC' THEN AmtDr ELSE 0 END ,SecurityAmt = CASE WHEN Type='RCARDS' THEN AmtDr ELSE 0 END From SmartCardLedger Where VType='RCARD' And AmtDr>0 And Code='"
+

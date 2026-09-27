@@ -20,6 +20,7 @@ from PyQt6.QtGui import QColor
 
 from HMS_py.core import usermaster
 from HMS_py.ui import theme as _theme
+from HMS_py.ui.desktop_style import apply_desktop_surface, mark_desktop_action
 
 
 class UserMasterForm(QDialog):
@@ -27,6 +28,7 @@ class UserMasterForm(QDialog):
 
     def __init__(self, parent=None, current_user: str = "SA"):
         super().__init__(parent)
+        apply_desktop_surface(self, "desktopUserMaster")
         self.current_user = current_user
         self.setWindowTitle("User Master - HMS_py")
         self.resize(700, 520)
@@ -88,10 +90,12 @@ class UserMasterForm(QDialog):
         self.btnExit.setToolTip("Close this window")
         for b in (self.btnNew, self.btnEdit, self.btnDelete, self.btnSave,
                   self.btnCancel, self.btnChgPwd, self.btnExit):
+            mark_desktop_action(b)
             btns.addWidget(b)
         root.addLayout(btns)
 
         self.lblState = QLabel("State: Idle")
+        self.lblState.setObjectName("desktopStateLabel")
         root.addWidget(self.lblState)
 
         self.btnNew.clicked.connect(self._on_new)
@@ -258,6 +262,7 @@ class UserMasterForm(QDialog):
                                     "Pehle grid mein user select karo")
             return
         dlg = QDialog(self)
+        apply_desktop_surface(dlg, "desktopChangePassword")
         dlg.setWindowTitle(f"Change Password - {uname}")
         dlg.setModal(True)
         form = QFormLayout()
@@ -274,6 +279,8 @@ class UserMasterForm(QDialog):
         brow = QHBoxLayout()
         ok = QPushButton("Change")
         cancel = QPushButton("Cancel")
+        mark_desktop_action(ok, "primary")
+        mark_desktop_action(cancel)
         brow.addStretch()
         brow.addWidget(ok)
         brow.addWidget(cancel)

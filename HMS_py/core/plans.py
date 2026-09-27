@@ -17,7 +17,7 @@ LIMITS = {"code": 5, "name": 25, "package": 7}
 def list_plans(cn=None) -> list:
     return db.query(
         "SELECT Code, Name, Total, Plan_Package, ActiveYN FROM PlanMast "
-        "ORDER BY Code", cn=cn)
+        "WHERE Plan_Package = ? ORDER BY Code", ("Plan",), cn=cn)
 
 
 # Alias for standard UI interface (same as list_plans)
@@ -49,12 +49,15 @@ def get(code: str, cn=None):
     rows = db.query(
         "SELECT Code, Name, Total, Plan_Package, PercentApp, ActiveYN, "
         "U_Name, U_EntDt, U_AE "
-        "FROM PlanMast WHERE Code = ?", (code,), cn=cn)
+        "FROM PlanMast WHERE Plan_Package = ? AND Code = ?",
+        ("Plan", code), cn=cn)
     return rows[0] if rows else None
 
 
 def exists(code: str, cn=None) -> bool:
-    rows = db.query("SELECT 1 FROM PlanMast WHERE Code = ?", (code,), cn=cn)
+    rows = db.query(
+        "SELECT 1 FROM PlanMast WHERE Plan_Package = ? AND Code = ?",
+        ("Plan", code), cn=cn)
     return bool(rows)
 
 
@@ -78,7 +81,7 @@ def insert(code: str, name: str, total: float, package: str = "",
         "INSERT INTO PlanMast (Code, Name, Total, Plan_Package, ActiveYN, "
         "Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code, App_Date, Tariff) "
         "VALUES (?, ?, ?, ?, ?, ?, ?, getdate(), 'A', ?, getdate(), ?)",
-        (code, name, total, package, active, SITE_CODE, USER, SITE_CODE,
+        (code, name, total, "Plan", active, SITE_CODE, USER, SITE_CODE,
          ""),  # Tariff varchar(25) - VB6 me bhi blank default
         cn=cn, commit=commit)
 
@@ -91,9 +94,25 @@ def update(code: str, name: str, total: float, package: str = "",
         "UPDATE PlanMast SET Name = ?, Total = ?, Plan_Package = ?, "
         "ActiveYN = ?, U_Name = ?, U_EntDt = getdate(), U_AE = 'E' "
         "WHERE Code = ?",
-        (name, total, package, active, USER, code), cn=cn, commit=commit)
+        (name, total, "Plan", active, USER, code), cn=cn, commit=commit)
 
 
 def delete(code: str, cn=None, commit: bool = True) -> int:
-    return db.execute("DELETE FROM PlanMast WHERE Code = ?", (code,),
-                      cn=cn, commit=commit)
+    own = cn is None
+    connection = cn or db.connect()
+    try:
+        db.execute("DELETE FROM PlanTokenDetails WHERE PlanCode = ?",
+                   (str(code).strip(),), cn=connection, commit=False)
+        db.execute("DELETE FROM Plan1 WHERE Code = ?",
+                   (str(code).strip(),), cn=connection, commit=False)
+        result = db.execute("DELETE FROM PlanMast WHERE Code = ?",
+                            (str(code).strip(),), cn=connection, commit=False)
+        if commit:
+            connection.commit()
+        return result
+    except Exception:
+        connection.rollback()
+        raise
+    finally:
+        if own:
+            connection.close()

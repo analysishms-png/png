@@ -1,0 +1,49 @@
+Module: prOverTime
+Total SQL statements: 15
+================================================================================
+
+-- SQL Statement 1 --
+  loc_14C9CA4:     var_134 = "Select Max(Joining_date) from employee where code='" & var_98.Tag & "'"
+
+-- SQL Statement 2 --
+  loc_14C9D2E:     unk_48BB32.Execute "Select Resign_date from employee where code='" & var_15C.Tag & "'", var_114, -1
+
+-- SQL Statement 3 --
+  loc_1187490: Call 0.Method_TopCtrl1_UnknownEvent_C0 (CInt(0), var_A8, var_158, "Select * From Salary Where site_code='" & MemVar_1F81070 & "' and Emp_Code='", var_B8, -1)
+
+-- SQL Statement 4 --
+  loc_11875F1:   var_E8 = "Delete From overTime Where EmpCode='" & var_A8.Value & "' And OTDate=" 
+
+-- SQL Statement 5 --
+  loc_108F948: Call 0.Method_TopCtrl1_UnknownEvent_D0 (CInt(0), var_94, var_144, "Select * From Salary Where site_code='" & MemVar_1F81070 & "' and Emp_Code='", var_A4, -1)
+
+-- SQL Statement 6 --
+  loc_F77AAF: var_B8 = "SELECT (EmpCode+convert(Varchar(12),OTDate,103)) as SearchCode,Employee.name,convert(Varchar(12),OTDate,103) AS OTDate,OverTime.OTime,OverTime.U_name,OverTime.Amount,OverTime.Remark FROM OverTime left join Employee on Employee.Code=OverTime.EmpCode Where Overtime.OTDate Between "
+
+-- SQL Statement 7 --
+  loc_106B4DD: unk_48BB32.Execute "SELECT (EmpCode+' '+convert(Varchar(12),OTDate,103)) as SearchCode,Employee.name,Overtime.EmpCode,Overtime.OTDate,OverTime.OTime,OverTime.U_name,OverTime.OTRate,OverTime.Amount,OverTime.Remark FROM OverTime left join Employee on Employee.Code=OverTime.EmpCode ORDER BY OTDate", var_BC, -1
+
+-- SQL Statement 8 --
+  loc_14BC618:   Call 0.Method_TopCtrl1_UnknownEvent_160 (CInt(0), var_A0, var_A4, "Select count(*) from OverTime where empcode='", var_114, -1)
+
+-- SQL Statement 9 --
+  loc_14BC740:   Call 0.Method_TopCtrl1_UnknownEvent_160 (CInt(0), var_A0, var_A4, "Select count(*) from OverTime where empcode='", var_1D0, -1)
+
+-- SQL Statement 10 --
+  loc_14BCBFD:   var_D0 = "Insert Into Overtime(EmpCode,OTDate,OTIME,Site_Code,LogSite_Code,U_Name,U_EntDt,U_AE,OTRate,Amount,Remark) Values('" & var_A4
+
+-- SQL Statement 11 --
+  loc_14BCEEE:   var_D0 = "UPDATE OverTime SET EmpCode='" & var_A4
+
+-- SQL Statement 12 --
+  loc_10A6D2B: unk_48BB32.Execute "Select Employee.Code,Employee.Name,IsNull(Depart.Name,'') As Department,Desig.Name As Designation,OTRate From Employee Left Join Depart On Depart.Code=Employee.Department Left Join Desig on Desig.Code=Employee.Designation Order by Employee.Name", var_D4, -1
+
+-- SQL Statement 13 --
+  loc_10A6D7F: var_AC = "SELECT (EmpCode+Convert(Varchar(12),OTDate,103)) as SearchCode,Employee.name,Overtime.EmpCode,Overtime.OTDate,OverTime.OTime,OverTime.U_AE,OverTime.U_name,OverTime.U_EntDt,OverTime.OTRate,OverTime.Amount,OverTime.Remark,IsNull(Depart.Name,'') As Department,Desig.Name As Designation FROM OverTime left join Employee on Employee.Code=OverTime.EmpCode Left Join Depart On Depart.Code=Employee.Department Left Join Desig on Desig.Code=Employee.Designation Where Overtime.OTDate Between "
+
+-- SQL Statement 14 --
+  loc_112BC92:   var_104 = "Select Count(*) From OVERTIME Where EmpCode+''+convert(Varchar(12),OTDate,103)='"
+
+-- SQL Statement 15 --
+  loc_112BDE8:   var_104 = "Select Count(*) From OVERTIME Where EmpCode+''+convert(Varchar(12),OTDate,103)='"
+

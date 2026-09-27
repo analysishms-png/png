@@ -43,15 +43,98 @@ def insert_salary(rec, cn=None, commit=True, site=SITE_CODE, user=USER):
 def delete_salary(Mth_Year, Emp_Code, cn=None, commit=True):
     return db.execute("DELETE FROM Salary WHERE Mth_Year = ? AND Emp_Code = ?", (Mth_Year, Emp_Code), cn=cn, commit=commit)
 
-# === Attendence ===
+# === Attendance ===
+# VB6 prAttend.frm evidence: DAILY attendance `Attend` table use karta hai
+# (V_Date, Emp_Code, FirstShift, SecondShift — P/A/H), 1323 live rows.
+# Monthly `attendence` (Attn_Str) sirf PrAttend1 lookup me hai — live 0 rows.
+# Port pehle galat table (Attendence) use karta tha -> attendance tab khali.
+def _map_attend(r) -> dict:
+    try:
+        return {"v_prefix": r.V_Prefix or "", "v_date": r.V_Date,
+                "emp_code": r.Emp_Code or "",
+                "firstshift": r.FirstShift or "",
+                "secondshift": r.SecondShift or ""}
+    except AttributeError:
+        return {"Emp_Code": str(r[0] or "")}
+
+
 def _map_attendence(r) -> dict:
+    """Legacy monthly-Attn_Str mapper (Attendence table, 0 rows live).
+    UI compat ke liye rakha; daily API niche `list_attendance` etc."""
     try:
         return {"mth_year": r.Mth_Year or "", "emp_code": r.Emp_Code or "", "attn_str": r.Attn_Str or "", "site_code": r.Site_Code or ""}
     except AttributeError:
         return {"Emp_Code": str(r[0] or "")}
 
 
+def list_attendance(cn=None, limit=500):
+    """VB6 prAttend fill: Attend + Employee/Depart/Desig joins, latest first."""
+    rows = db.query(
+        "SELECT TOP " + str(int(limit)) + " A.V_Prefix, A.V_Date, A.Emp_Code, "
+        "A.FirstShift, A.SecondShift, E.Name AS EmpName, "
+        "ISNULL(D.Name,'') AS Department, ISNULL(DG.Name,'') AS Designation "
+        "FROM Attend A LEFT JOIN Employee E ON E.Code = A.Emp_Code "
+        "LEFT JOIN Depart D ON D.Code = E.Department "
+        "LEFT JOIN Desig DG ON DG.Code = E.Designation "
+        "WHERE A.Site_Code = ? ORDER BY A.V_Date DESC, A.Emp_Code",
+        (SITE_CODE,), cn=cn)
+    out = []
+    for r in rows:
+        d = _map_attend(r)
+        d["emp_name"] = (r.EmpName or "").strip() if r.EmpName else ""
+        d["department"] = r.Department or ""
+        d["designation"] = r.Designation or ""
+        out.append(d)
+    return out
+
+
+def get_attendance(emp_code: str, v_date, cn=None) -> dict | None:
+    """VB6: ek employee-ek din ki shift rows (First/Second)."""
+    rows = db.query(
+        "SELECT A.V_Prefix, A.V_Date, A.Emp_Code, A.FirstShift, "
+        "A.SecondShift FROM Attend A WHERE A.Emp_Code = ? AND "
+        "CONVERT(date, A.V_Date) = CONVERT(date, ?) ORDER BY A.V_Date",
+        (emp_code, v_date), cn=cn)
+    return _map_attend(rows[0]) if rows else None
+
+
+def insert_attendance(emp_code: str, v_date, firstshift: str = "",
+                      secondshift: str = "", vprefix: str | None = None,
+                      cn=None, commit: bool = True, user: str = USER) -> dict:
+    """VB6 daily save: shift codes P/A/H/W (FirstShift, SecondShift)."""
+    if not str(emp_code or "").strip():
+        raise ValueError("Emp_Code zaroori hai")
+    if not v_date:
+        raise ValueError("V_Date zaroori hai")
+    vp = str(vprefix or db.get_vprefix())
+    cur = db.query(
+        "SELECT 1 FROM Attend WHERE Emp_Code = ? AND CONVERT(date, V_Date) "
+        "= CONVERT(date, ?)", (emp_code, v_date), cn=cn)
+    if cur:
+        raise ValueError(
+            f"Attendance already exists for {emp_code} on {v_date} "
+            "(VB6: duplicate V_Date+Emp_Code reject)")
+    db.execute(
+        "INSERT INTO Attend (V_Prefix, V_Date, Emp_Code, FirstShift, "
+        "SecondShift, Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code) "
+        "VALUES (?, ?, ?, ?, ?, ?, ?, getdate(), 'A', ?)",
+        (vp, v_date, emp_code, str(firstshift or "")[:1],
+         str(secondshift or "")[:1], SITE_CODE, user, SITE_CODE),
+        cn=cn, commit=commit)
+    return get_attendance(emp_code, v_date, cn=cn)
+
+
+def delete_attendance(emp_code: str, v_date, cn=None,
+                      commit: bool = True) -> int:
+    """VB6: Delete From Attend Where V_Date=<d> (+Emp_Code scope)."""
+    return db.execute(
+        "DELETE FROM Attend WHERE Emp_Code = ? AND "
+        "CONVERT(date, V_Date) = CONVERT(date, ?)",
+        (emp_code, v_date), cn=cn, commit=commit)
+
+
 def list_attendence(cn=None, limit=500):
+    """Legacy monthly API — Attendence table live me 0 rows (PrAttend1 only)."""
     rows = db.query(f"SELECT TOP {int(limit)} * FROM Attendence WHERE Site_Code = ? ORDER BY Emp_Code DESC",
                     (SITE_CODE,), cn=cn)
     return [_map_attendence(r) for r in rows]
@@ -283,6 +366,11 @@ class HRPayrollAPI:
     def search_salary(self, term, cn=None, limit=100): return search_salary(term, cn, limit)
     def insert_salary(self, rec, cn=None, commit=True, site=SITE_CODE, user=USER): return insert_salary(rec, cn, commit, site, user)
     def delete_salary(self, mth_year, emp_code, cn=None, commit=True): return delete_salary(mth_year, emp_code, cn, commit)
+    def list_attendance(self, cn=None, limit=500): return list_attendance(cn, limit)
+    def get_attendance(self, emp_code, v_date, cn=None): return get_attendance(emp_code, v_date, cn)
+    def insert_attendance(self, emp_code, v_date, firstshift="", secondshift="", cn=None, commit=True, user=USER): return insert_attendance(emp_code, v_date, firstshift, secondshift, cn=cn, commit=commit, user=user)
+    def update_attendance(self, emp_code, v_date, rec, cn=None, commit=True, user=USER): return update_attendance(emp_code, v_date, rec, cn=cn, commit=commit, user=user)
+    def delete_attendance(self, emp_code, v_date, cn=None, commit=True): return delete_attendance(emp_code, v_date, cn=cn, commit=commit)
     def list_attendence(self, cn=None, limit=500): return list_attendence(cn, limit)
     def get_attendence(self, mth_year, emp_code, cn=None): return get_attendence(mth_year, emp_code, cn)
     def search_attendence(self, term, cn=None, limit=100): return search_attendence(term, cn, limit)
@@ -330,6 +418,22 @@ def update_salary(mth_year, emp_code, rec, cn=None, commit=True,
                " WHERE Mth_Year = ? AND Emp_Code = ?", params,
                cn=cn, commit=commit)
     return get_salary(mth_year, emp_code, cn=cn)
+
+
+def update_attendance(emp_code: str, v_date, rec: dict, cn=None,
+                      commit: bool = True, user: str = USER) -> dict:
+    """VB6 daily edit: Attend row ki FirstShift/SecondShift update."""
+    n = db.execute(
+        "UPDATE Attend SET FirstShift = ?, SecondShift = ?, U_Name = ?, "
+        "U_EntDt = getdate(), U_AE = 'E' WHERE Emp_Code = ? AND "
+        "CONVERT(date, V_Date) = CONVERT(date, ?)",
+        (str(rec.get("firstshift", "") or "")[:1],
+         str(rec.get("secondshift", "") or "")[:1],
+         user, emp_code, v_date), cn=cn, commit=commit)
+    if not n:
+        raise ValueError(
+            f"Attend row nahi mili: {emp_code} @ {v_date}")
+    return get_attendance(emp_code, v_date, cn=cn)
 
 
 def update_attendence(emp_code, date_or_mth, rec, cn=None, commit=True,

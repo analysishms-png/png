@@ -1,0 +1,64 @@
+INVENTORY MODULE FIX PLAN
+=========================
+
+VB6 logic extracted from legacy inventory patterns:
+- FrmStockTransfer is a movement workflow with paired transfer docs and source/destination matching.
+- Inventory tracking uses stock records with movement type, godown, and quantity consistency.
+- Requisition issue/receipt flows are connected to stock movement and warehouse operations.
+- Material reports are opened by index and rely on report names such as RestIssue, IssueReg,
+  DailyStoreIssRpt, StockRegister, and StoreIssueReport.
+
+Scope:
+- Godown master
+- Stock movement
+- Inventory transfers
+- Stock register / ledger
+- Stock issue and receipt flows
+- Requisition / purchase/adjustment safety
+
+Primary Files:
+- HMS_py/core/inventory.py
+- HMS_py/ui/inventory.py
+- HMS_py/core/depart.py
+- HMS_py/core/roomstatus.py
+
+Crystal / print pages and names:
+- FrmStockTransfer / RsStoreRecEntry / RsKitchenStk / FrmItemMast / FrmItemCatMast / FrmItemGroupMast
+- rInventRepView / RestIssue / IssueReg / DailyStoreIssRpt / StoreIssueReport / PurchaseReg / PurchaseSumm / StockRegStore / StockSummStore / StockINHand
+- Temp printing setup: stock issue/receipt report queue and report/temp path from Analysis.ini
+- Print module names: frmPrintModule / frmMod_Print / report preview page names for inventory reports
+
+VB6 behavior to preserve:
+1. Stock transfer should be paired and validated against source and destination inventory rows.
+2. BMTC transfers (from live DB evidence) are real business flows and must be processed safely.
+3. Material report names are selected by index as in MatRep_Click and must match VB6 names.
+4. Inventory operations are read-heavy; writes must reconcile with current stock before posting.
+
+Known Missing / Risky Logic:
+1. Stock transfer between godowns needs exact pair matching using ContraDocId / ContraSno.
+2. Requisition issue and receipt flows must validate qty, movement type, and source/destination.
+3. Register / ledger view should be read-only and must reconcile with Stock table.
+4. Missing stock tables should not be guessed; they must be treated as blocked or safe no-op.
+5. Negative/zero quantity movement must be rejected.
+
+Required Fixes:
+1. Implement BMTC transfer logic using live evidence from Stock table and transfer docs.
+2. Validate stock balance before issue.
+3. Generate stock movement logs with consistent DocId and VType mapping.
+4. Ensure stock register reports never create phantom balances.
+5. Use safety checks for transfer pairs and issue/receipt completeness.
+
+Implementation Steps:
+1. Recheck live inventory tables with actual rows and columns.
+2. Build movement validation around source/destination godown, quantity, and document IDs.
+3. Add tests for:
+   - transfer with valid qty
+   - zero-qty transfer rejection
+   - reorder / reconcilation mismatch detection
+4. Validate no duplicate transfer lines are created on repeat runs.
+
+Expected Result:
+- Inventory workflows are close to VB6 business logic.
+- Transfer and issue/receipt operations remain safe and reversible.
+- Read-only inventory views are backed by live stock data without fabricated assumptions.
+

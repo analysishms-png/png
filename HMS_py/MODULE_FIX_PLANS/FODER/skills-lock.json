@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "skills": {
+    "vb6-ado-late-binding": {
+      "source": "alexcassol/claude-vb6-skills",
+      "sourceType": "github",
+      "skillPath": "skills/vb6-ado-late-binding/SKILL.md",
+      "computedHash": "4be3a27c6b0ceed7538e4a90ac9d44b3f45b17533edb392a1c7799f2c96242cc"
+    },
+    "vb6-error-handling": {
+      "source": "alexcassol/claude-vb6-skills",
+      "sourceType": "github",
+      "skillPath": "skills/vb6-error-handling/SKILL.md",
+      "computedHash": "8675c02364dce7d4a943140a90e67f0412832f46311b33204fe6a485fb803cc2"
+    },
+    "vb6-guidelines": {
+      "source": "alexcassol/claude-vb6-skills",
+      "sourceType": "github",
+      "skillPath": "skills/vb6-guidelines/SKILL.md",
+      "computedHash": "5a61e630f8deb7738b45702500cbe498221e882809cfd62705866121b24479e3"
+    },
+    "vb6-legacy": {
+      "source": "bobmatnyc/claude-mpm-skills",
+      "sourceType": "github",
+      "skillPath": "toolchains/visualbasic/legacy/vb6-legacy/SKILL.md",
+      "computedHash": "957f97360f34ff6052d17add1ff9d5bedb53fb726ba91242e76a8804b56e8aa1"
+    },
+    "vb6-trace-pattern": {
+      "source": "alexcassol/claude-vb6-skills",
+      "sourceType": "github",
+      "skillPath": "skills/vb6-trace-pattern/SKILL.md",
+      "computedHash": "c5fd0db02796feadb2d5087649f54e48f9504e9a38ca4bd172bcf92688449f22"
+    },
+    "vb6-utilities": {
+      "source": "alexcassol/claude-vb6-skills",
+      "sourceType": "github",
+      "skillPath": "skills/vb6-utilities/SKILL.md",
+      "computedHash": "6fe52c215ac63b56d2697a1d9bd6d917f90ed8ba1c3968f96ad8e5ab5d00995e"
+    }
+  }
+}

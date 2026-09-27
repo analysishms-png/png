@@ -241,6 +241,77 @@ class _CatalogAPI:
 CatalogAPI = _CatalogAPI()
 
 
+# ------------------------------------------------------------
+# GroupCatalog limits (VB6 HallMenuCatalog.frm parity)
+# VB6: catalog save -> Delete From GroupCatalog Where CatCode='..' ->
+#      grid rows ke liye Insert Into GroupCatalog(CatCode, ItemcatCode,
+#      Limit, U_Name, Site_Code, U_EntDt, U_AE, LogSite_Code).
+# Fill: GroupCatalog JOIN CatalogMast/ItemGrp/ItemMast (MaxLimit grid).
+# Live: GroupCatalog 4 rows (CatCode, ItemCatCode, Limit, ...).
+# ------------------------------------------------------------
+def grouplimits_list(catcode: str, cn=None) -> list[dict]:
+    """Ek catalog-code ke GroupCatalog limit rows (VB6 fill order: ItemGrp)."""
+    rows = db.query(
+        "SELECT GC.CatCode, GC.ItemCatCode, GC.Limit, IG.Name AS GroupName "
+        "FROM GroupCatalog GC LEFT JOIN ItemGrp IG ON IG.Code = GC.ItemCatCode "
+        "WHERE GC.CatCode = ? ORDER BY IG.Name",
+        (catcode,), cn=cn)
+    return [{"catcode": r.CatCode, "itemcat": r.ItemCatCode,
+             "limit": r.Limit, "groupname": (r.GroupName or "").strip()}
+            for r in rows]
+
+
+def grouplimits_set(catcode: str, limits: list[dict], user: str = USER,
+                    cn=None, commit: bool = True) -> int:
+    """VB6 save: DELETE CatCode rows -> INSERT har (itemcat, limit) row.
+
+    limits: [{itemcat, limit}] — limit int/float dono chalega (0 = no limit).
+    Transaction same-connection (skill note: self-deadlock avoid).
+    """
+    if not str(catcode or "").strip():
+        raise ValueError("CatCode zaroori hai")
+    own = cn is None
+    if own:
+        cn = db.connect()
+    try:
+        seen = set()
+        clean = []
+        for l in limits:
+            ic = str(l.get("itemcat", "")).strip()
+            if not ic:
+                raise ValueError("ItemCatCode zaroori hai")
+            if ic in seen:
+                raise ValueError(f"Duplicate ItemCatCode: {ic}")
+            seen.add(ic)
+            try:
+                lim = int(float(l.get("limit") or 0))
+            except (TypeError, ValueError):
+                raise ValueError("Limit number hona chahiye")
+            clean.append((ic, lim))
+        db.execute("DELETE FROM GroupCatalog WHERE CatCode = ?",
+                   (catcode,), cn=cn, commit=False)
+        for ic, lim in clean:
+            db.execute(
+                "INSERT INTO GroupCatalog (CatCode, ItemCatCode, Limit, "
+                "U_Name, Site_Code, U_EntDt, U_AE, LogSite_Code) "
+                "VALUES (?, ?, ?, ?, ?, getdate(), 'A', ?)",
+                (catcode, ic, lim, user, SITE_CODE, SITE_CODE),
+                cn=cn, commit=False)
+        if commit:
+            cn.commit()
+        return len(clean)
+    except Exception:
+        if own and cn is not None:
+            try:
+                cn.rollback()
+            except Exception:
+                pass
+        raise
+    finally:
+        if own and cn is not None:
+            cn.close()
+
+
 # ============================================================
 # Group Profile (used by Banquet + Reservation groups)
 # ============================================================

@@ -1,0 +1,16 @@
+Module: resRoomNo
+Total SQL statements: 4
+================================================================================
+
+-- SQL Statement 1 --
+  loc_13F1549: unk_4B07DE.Execute "Select * From FAEnviro", var_B8, -1
+
+-- SQL Statement 2 --
+  loc_15D2576: var_F4 = "Select RoomNO as RoomCode,ChkinDt as FromDate ,dATEdiff(D,ChkInDt,DepDate) as Days,GuestProf.Name as Reasons,dateadd(D,dATEdiff(D,ChkInDt,DepDate),chkindt) as TODate From RoomOccDet left join GuestProf on GuestProf.Code=RoomOccDet.GuestProf Where RoomOccDet.Logsite_Code='" & MemVar_1F81078
+
+-- SQL Statement 3 --
+  loc_15D297B: Proc_6_6_F208E4(var_124, var_8C, "Select RoomCode,FromDate ,dATEdiff(D,")
+
+-- SQL Statement 4 --
+  loc_15D2D95: var_F4 = "Select RoomNO as RoomCode,ArrDate as FromDate ,dATEdiff(D,ArrDate,DepDate) as Days,GuestProf.Name as Reasons,dateadd(D,dATEdiff(D,ArrDate,DepDate),ArrDate) as TODate,IsNull(P.Advance,0) Advance From ViewBooking B left join GuestProf on GuestProf.Code=B.GuestProf LEFT JOIN (Select RefDocId,IsNull(Sum(AmtCr),0) Advance From PayCharge Where VType In ('ADRES','ARRES') And Logsite_Code='" & MemVar_1F81078
+

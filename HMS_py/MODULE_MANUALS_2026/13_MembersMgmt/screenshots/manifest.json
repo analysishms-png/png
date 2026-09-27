@@ -1,0 +1,21 @@
+{
+  "module": "13_MembersMgmt",
+  "generated_at": "2026-09-25T13:04:44",
+  "sidebar": "extras",
+  "items": [
+    {
+      "leaf": "Member Select Category",
+      "layer": "masters",
+      "file": "10_masters_Member_Select_Category.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "Member Billing",
+      "layer": "operations",
+      "file": "20_operations_Member_Billing.png",
+      "status": "ok"
+    }
+  ],
+  "failed": [],
+  "shell": "00_shell_module.png"
+}

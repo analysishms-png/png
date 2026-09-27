@@ -1,0 +1,521 @@
+{
+ "module": "FINANCE MODULE",
+ "subtitle": "Master · Transaction · Reports · Appendix",
+ "property": "Property: Demo Property",
+ "version": "Training Manual for Accounts Staff",
+ "header": "Analysis HMS — Finance Module Training Manual",
+ "footerText": "Analysis HMS Finance Training Manual | Demo Property",
+ "output": "HMS_Manuals/Finance/Finance_Module_Training_Manual_English.docx",
+ "imageRoot": ".",
+ "theme": {
+  "color": "2E7D32",
+  "dark": "1B5E20",
+  "light": "E8F5E9"
+ },
+ "sections": [
+  {
+   "title": "1. Introduction & Module Overview",
+   "intro": "The Finance module is the hotel's double-entry accounting system — all revenue (FO, POS, Banquet, Laundry) and expenses are consolidated here.\n\nIn Analysis HMS the finance flow: create accounts in Masters (Group → Ledger) → Transactions (Voucher Entry) → Verification → Reports (Trial Balance, P&L, Balance Sheet). POS/Front Office settlement heads (Cash/UPI/Card/City Ledger) post to finance automatically — the accountant's manual entry remains only for adjustments/journals.",
+   "subsections": [
+    {
+     "title": "Module Sections Overview",
+     "table": {
+      "headers": [
+       "Section",
+       "Purpose",
+       "Key Screens"
+      ],
+      "rows": [
+       [
+        "MASTER",
+        "Chart of accounts setup",
+        "Group Accounts, Ledger Accounts, FA Parameter, TDS Category"
+       ],
+       [
+        "TRANSACTION",
+        "Daily vouchers",
+        "Voucher Entry, Bank Reconciliation, Verification Dashboard"
+       ],
+       [
+        "REPORT",
+        "Financial statements",
+        "Trial Balance, P&L, Balance Sheet, Cheque Registers, TDS, Ledger"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Key Benefits",
+     "bullets": [
+      "Auto-posting from all HMS modules — no manual duplicate entry",
+      "Voucher verification workflow — entry vs approval separation",
+      "Bank reconciliation — easy statement matching",
+      "One-click financial statements — TB, P&L, Balance Sheet",
+      "TDS category wise compliance reports",
+      "Cheque cleared/not-cleared registers — follow-up easy"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "2. Master Module — Chart of Accounts",
+   "subsections": [
+    {
+     "title": "2.1 Group Accounts",
+     "navPath": "Finance ▶ Master ▶ Group Accouns",
+     "screenshot": "HMS_Manuals/Finance/screenshots/03_Master/01_Group_Accounts.png",
+     "paragraph": "Chart of groups of accounts — sub-groups of Assets, Liabilities, Income, Expenses. Ledger accounts are divided into these groups, so first make the group structure correct.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description",
+       "Example"
+      ],
+      "rows": [
+       [
+        "Group Name",
+        "Account group",
+        "Sundry Debtors"
+       ],
+       [
+        "Under Group",
+        "Parent group",
+        "Current Assets"
+       ],
+       [
+        "Nature",
+        "Asset / Liability / Income / Expense",
+        "Asset"
+       ],
+       [
+        "Affects Gross",
+        "Will it come into gross profit or not in P&L?",
+        "Yes/No"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "2.2 Ledger Accounts",
+     "navPath": "Finance ▶ Master ▶ Ledger Accouns",
+     "screenshot": "HMS_Manuals/Finance/screenshots/03_Master/02_Ledger_Accounts.png",
+     "paragraph": "Actual accounts where transactions are posted — Cash, Bank, MakeMyTrip, GST Payable, Salary, Rent etc. Every ledger is divided under some group.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description",
+       "Example"
+      ],
+      "rows": [
+       [
+        "Ledger Name",
+        "Account name",
+        "HDFC Bank A/c 1234"
+       ],
+       [
+        "Under Group",
+        "Parent group",
+        "Bank Accounts"
+       ],
+       [
+        "Opening Balance",
+        "Opening balance",
+        "Dr/Cr with amount"
+       ],
+       [
+        "GST/pan fields",
+        "Vendor/customer compliance data",
+        "GSTIN"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "2.3 FA Parameter & TDS Category",
+     "navPath": "Finance ▶ Master ▶ FA Parameter / T.D.S. Category",
+     "screenshot": "HMS_Manuals/Finance/screenshots/03_Master/03_FA_Parameter.png",
+     "paragraph": "FA Parameter: global settings of the finance module (financial year start, voucher numbering, posting rules). TDS Category: TDS types (194C contractor 1%/2%, 194J professional 10%) — for auto-TDS calculation on vendor payments.",
+     "table": {
+      "headers": [
+       "Setup",
+       "Fields"
+      ],
+      "rows": [
+       [
+        "FA Parameter",
+        "FY start, voucher prefix/series, rounding, auto-post rules"
+       ],
+       [
+        "TDS Category",
+        "Section, rate %, threshold, TDS ledger mapping"
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "3. Transaction Module",
+   "subsections": [
+    {
+     "title": "3.1 Voucher Entry",
+     "navPath": "Finance ▶ Transaction ▶ Voucher Entry",
+     "screenshot": "HMS_Manuals/Finance/screenshots/01_Transaction/01_Voucher_Entry.png",
+     "paragraph": "Manual accounting entries — Payment, Receipt, Journal, Contra, Sales/Purchase (non-HMS). It is necessary to have Debit-Credit balance and the color is not saved.",
+     "table": {
+      "headers": [
+       "Voucher Type",
+       "when to use",
+       "Example"
+      ],
+      "rows": [
+       [
+        "Payment",
+        "Paise gaye",
+        "Rent payment to landlord"
+       ],
+       [
+        "Receipt",
+        "where is the money",
+        "Company provided the OTA settlement"
+       ],
+       [
+        "Journal",
+        "Adjustment (no cash)",
+        "Depreciation, TDS provision"
+       ],
+       [
+        "Contra",
+        "Bank-cash beach",
+        "Cash deposit to bank"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.2 Bank Reconciliation",
+     "navPath": "Finance ▶ Transaction ▶ Bank Reconciliation",
+     "screenshot": "HMS_Manuals/Finance/screenshots/01_Transaction/02_Bank_Reconciliation.png",
+     "paragraph": "Match bank statement transactions with system entries — tick the cleared entries. Difference = uncleared cheques/charges. Monthly reconciliation is a best practice.",
+     "steps": [
+      "Select the bank ledger + statement period",
+      "System entries vs bank statement comparison",
+      "Matched entries pe cleared tick lagao",
+      "Make a journal entry for bank charges/interest (if missing)",
+      "Save – balance difference should be zero."
+     ]
+    },
+    {
+     "title": "3.3 Verification Dashboard",
+     "navPath": "Finance ▶ Transaction ▶ Verification Dashboard",
+     "screenshot": "HMS_Manuals/Finance/screenshots/01_Transaction/03_Verification_Dashboard.png",
+     "paragraph": "Internal control — a dashboard to verify/approve entered vouchers. Only verified vouchers effectively reach a 'trusted' state in final reports (as per the parameter).",
+     "table": {
+      "headers": [
+       "Action",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Pending List",
+        "Vouchers waiting for verification"
+       ],
+       [
+        "Verify",
+        "Checker reviewed and approved"
+       ],
+       [
+        "Reject + Remark",
+        "Galat entry back — rectify with"
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "4. Reports Module",
+   "subsections": [
+    {
+     "title": "4.1 Financial Statements",
+     "navPath": "Finance ▶ Report",
+     "screenshot": "HMS_Manuals/Finance/screenshots/02_Reports/02_Profit_Loss.png",
+     "caption": "Profit & Loss Statement",
+     "table": {
+      "headers": [
+       "Report",
+       "what do you see"
+      ],
+      "rows": [
+       [
+        "Trail Balance",
+        "Dr/Cr closing balance of all ledgers — tally check"
+       ],
+       [
+        "Trail Group",
+        "Group-wise TB summary"
+       ],
+       [
+        "Profit Loss",
+        "Income vs Expense — gross/net profit"
+       ],
+       [
+        "Balance Sheet",
+        "Assets vs Liabilities — financial position"
+       ],
+       [
+        "Detailed Trial Ledger",
+        "Transaction-wise detail of every ledger (date, voucher, running balance)"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "4.1b Trail Group & Detailed Ledger",
+     "navPath": "Finance ▶ Report ▶ Trail Group / Detailed Trial Ledger",
+     "screenshot": "HMS_Manuals/Finance/screenshots/02_Reports/07_Trail_Group.png",
+     "paragraph": "Trail Group: group-wise TB summary. Detailed Trial Ledger: Every ledger's date-wise transactions with running balance — party statement like.",
+     "table": {
+      "headers": [
+       "Report",
+       "Use"
+      ],
+      "rows": [
+       [
+        "Trail Group",
+        "Group-level consolidated TB"
+       ],
+       [
+        "Detailed Trial Ledger",
+        "Ledger-wise full transaction history"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "4.2 Compliance & Bank Reports",
+     "navPath": "Finance ▶ Report",
+     "screenshot": "HMS_Manuals/Finance/screenshots/02_Reports/08_Cheque_NotCleared_Register.png",
+     "caption": "Cheque Not Cleared Register — pending follow-up list",
+     "paragraph": "TDS Report: Category-wise TDS deducted — for quarterly e-TDS filing. Check Registers: Cleared and not-cleared checks — for bank follow-up.",
+     "table": {
+      "headers": [
+       "Report",
+       "Use"
+      ],
+      "rows": [
+       [
+        "Cheque Cleared Register",
+        "Which checks clear the bank?"
+       ],
+       [
+        "Cheque Not Cleared Register",
+        "Pending cheques — follow-up list"
+       ],
+       [
+        "TDS Report",
+        "Section/vendor wise TDS — Form 26Q/24Q data"
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "5. Complete Screens Gallery — Finance (All Captured Screens)",
+   "intro": "This gallery shows SAARI captured screens of the Finance module which is not covered in detail in the main sections. For revision after training — Every screen the trainee has seen before, there is a place for complete reference.",
+   "subsections": [
+    {
+     "title": "G.01 02_Reports — 01 Trial Balance",
+     "screenshot": "HMS_Manuals/Finance/screenshots/02_Reports/01_Trial_Balance.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.02 02_Reports — 03 Balance Sheet",
+     "screenshot": "HMS_Manuals/Finance/screenshots/02_Reports/03_Balance_Sheet.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.03 02_Reports — 04 Cheque Cleared Register",
+     "screenshot": "HMS_Manuals/Finance/screenshots/02_Reports/04_Cheque_Cleared_Register.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.04 02_Reports — 05 TDS Report",
+     "screenshot": "HMS_Manuals/Finance/screenshots/02_Reports/05_TDS_Report.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.05 02_Reports — 06 Detailed Trial Ledger",
+     "screenshot": "HMS_Manuals/Finance/screenshots/02_Reports/06_Detailed_Trial_Ledger.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.06 03_Master — 04 TDS Category",
+     "screenshot": "HMS_Manuals/Finance/screenshots/03_Master/04_TDS_Category.png",
+     "para": "Captured screen from Live system. For complete reference see respective section for details of fields and operations included in the gallery."
+    },
+    {
+     "title": "G.07 00_Login — 01 Login Page",
+     "screenshot": "HMS_Manuals/Finance/screenshots/00_Login/01_Login_Page.png",
+     "para": "Screen captured from the live system — part of the complete reference gallery."
+    }
+   ]
+  },
+  {
+   "title": "6. Appendix — Training Reference",
+   "subsections": [
+    {
+     "title": "Accountant Daily/Periodic Workflow",
+     "table": {
+      "headers": [
+       "Frequency",
+       "Activity",
+       "Screen"
+      ],
+      "rows": [
+       [
+        "Daily",
+        "By checking today's auto-posting entries (cash/UPI/card from outlets)",
+        "Detailed Trial Ledger"
+       ],
+       [
+        "Daily",
+        "Enter manual vouchers",
+        "Voucher Entry"
+       ],
+       [
+        "Daily",
+        "Verify new vouchers",
+        "Verification Dashboard"
+       ],
+       [
+        "Weekly",
+        "Bank reconciliation",
+        "Bank Reconciliation"
+       ],
+       [
+        "Monthly",
+        "Trial Balance tally + P&L review",
+        "Trail Balance / Profit Loss"
+       ],
+       [
+        "Monthly",
+        "TDS report nikalo — deposit due date",
+        "TDS Report"
+       ],
+       [
+        "Quarterly",
+        "Balance Sheet + MIS to management",
+        "Balance Sheet"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Accounting Basics (for Non-Finance Trainees)",
+     "table": {
+      "headers": [
+       "Concept",
+       "Simple Meaning"
+      ],
+      "rows": [
+       [
+        "Debit (Dr)",
+        "Value increased from place – expense increased or asset increased."
+       ],
+       [
+        "Credit (Cr)",
+        "Value comes from the world – income is bad or liability is bad."
+       ],
+       [
+        "Trial Balance",
+        "Summary of all accounts – Dr total = Cr total should be there"
+       ],
+       [
+        "P&L",
+        "How much earned vs spent during the period = profit/loss"
+       ],
+       [
+        "Balance Sheet",
+        "What is today (assets) vs what is owed (liabilities) + capital"
+       ],
+       [
+        "Reconciliation",
+        "To match your books vs bank/party records"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Troubleshooting",
+     "table": {
+      "headers": [
+       "Issue",
+       "Cause",
+       "Solution"
+      ],
+      "rows": [
+       [
+        "Voucher is not being saved",
+        "Dr/Cr mismatch",
+        "Make the amounts equal on both sides"
+       ],
+       [
+        "Imbalance in the TB",
+        "Which voucher is valid?",
+        "Voucher audit — see rejected from verification dashboard"
+       ],
+       [
+        "Difference in bank reconciliation",
+        "Uncleared entries/charges",
+        "Check not-cleared cheques + bank charges journal"
+       ],
+       [
+        "Auto-posting did not happen",
+        "Parameter off / mapping missing",
+        "FA Parameter + outlet settlement heads mapping verify"
+       ],
+       [
+        "Entry missing in the TDS report",
+        "No TDS category on vendor",
+        "By setting TDS category on vendor ledger"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Contact & Support",
+     "table": {
+      "headers": [
+       "Contact",
+       "Details"
+      ],
+      "rows": [
+       [
+        "Website",
+        "https://analysishms.com"
+       ],
+       [
+        "Support Email",
+        "support@analysishms.com"
+       ],
+       [
+        "Phone",
+        "+91 9161380170"
+       ],
+       [
+        "Training Login",
+        "Use your assigned User ID and Password"
+       ],
+       [
+        "Software Version",
+        "Analysis HMS "
+       ]
+      ]
+     }
+    }
+   ]
+  }
+ ]
+}

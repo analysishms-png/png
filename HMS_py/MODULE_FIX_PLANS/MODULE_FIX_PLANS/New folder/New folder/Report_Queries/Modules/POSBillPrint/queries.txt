@@ -1,0 +1,685 @@
+Module: POSBillPrint
+Total SQL statements: 227
+================================================================================
+
+-- SQL Statement 1 --
+  loc_EFBC29: Proc_6_6_F208E4(var_B4, arg_10, CVar("Select Rate,Appdate From ItemRate Where ItemCode='" & arg_C & "' And AppDate <="))
+
+-- SQL Statement 2 --
+  loc_13654CD: var_AC = "Select R.NAME,R.HEADER1,R.HEADER2,R.HEADER3,R.HEADER4,R.COMPANYTITLE,R.OUTLETTITLE From DEPART R  Where R.CODE='" & Me(8) & "'"
+
+-- SQL Statement 3 --
+  loc_1364BFF: var_AC = "Select R.NAME,R.HEADER1,R.HEADER2,R.HEADER3,R.HEADER4,R.COMPANYTITLE,R.OUTLETTITLE From DEPART R  Where R.CODE='" & arg_18 & "'"
+
+-- SQL Statement 4 --
+  loc_1824AEF:   unk_43FED1.Execute "Select * from Depart Where Code='" & Me(8) & "'", var_11C, -1
+
+-- SQL Statement 5 --
+  loc_1824B13:   var_108 = "Select Sale1.* ,W.Name as WaiterName From Sale1 left join waiter W on sale1.waiter=w.code Where Sale1.DocID='" & Me(12)
+
+-- SQL Statement 6 --
+  loc_1824B27:   var_108 = "Select MAX(S.SNO)AS SRNO,MAX(S.TAXPER) AS TAXPER,MAX(S.RATE) AS RATE,SUM(S.QTYISS) AS QTY,SUM(S.AMOUNT) AS AMT,MAX(I.NAME) AS ITEMNAME From Stock S LEFT JOIN ITEMMAST I ON I.CODE=S.ITEM " & " Where S.DocID='"
+
+-- SQL Statement 7 --
+  loc_1824B58:   var_94 = "Select st.sno,st.SunCode,st.dispname,St.AMOUNT From Suntran St " & " Where St.DocID='" & Me(12) & "' order by sno"
+
+-- SQL Statement 8 --
+  loc_1824B69:   var_108 = "SELECT Distinct(I.Kitchen) AS Kitchen,D.Name AS Department FROM (ItemMast I INNER JOIN Stock S ON I.Code=S.Item) " & " INNER JOIN Depart D ON I.Kitchen=D.Code WHERE S.DocID='"
+
+-- SQL Statement 9 --
+  loc_1826147:       unk_43FED1.Execute "SELECT Slogan1 FROM Depart WHERE Code='" & Me(8) & "'", var_11C, -1
+
+-- SQL Statement 10 --
+  loc_1826243:       unk_43FED1.Execute "SELECT Slogan2 FROM Depart WHERE Code='" & Me(8) & "'", var_11C, -1
+
+-- SQL Statement 11 --
+  loc_18263AF:       unk_43FED1.Execute "SELECT TOKENPrint FROM Depart Where Code='" & Me(8) & "'", var_11C, -1
+
+-- SQL Statement 12 --
+  loc_182645B:           var_184 = (Chr(&HF) + CVar("SELECT TOKENPrint FROM Depart Where Code='" & Me(8) & "'"))
+
+-- SQL Statement 13 --
+  loc_18264B8:             var_108 = "Select MAX(S.Rate) AS Rate,SUM(S.QtyIss) AS QTY,SUM(S.Amount) AS AMT,MAX(I.Name) AS ItemName From Stock S LEFT JOIN ITEMMAST I ON I.CODE=S.ITEM " & " Where S.DocID='"
+
+-- SQL Statement 14 --
+  loc_19505A7:   unk_43FED1.Execute "Select * from Depart Where Code='" & Me(8) & "'", var_11C, -1
+
+-- SQL Statement 15 --
+  loc_19505D2:   var_8C = "Select Sale1.* ,W.Name as WaiterName From Sale1 left join waiter W on sale1.waiter=w.code Where Sale1.DocID='" & Me(12) & "'"
+
+-- SQL Statement 16 --
+  loc_19505DF:   var_F8 = "Select MAX(S.SNO)AS SRNO,MAX(S.TAXPER) AS TAXPER,MAX(S.RATE) AS RATE,SUM(S.QTYISS) AS QTY,SUM(S.AMOUNT) AS AMT,MAX(I.NAME) AS ITEMNAME From Stock S LEFT JOIN ITEMMAST I ON I.CODE=S.ITEM " & " Where S.DocID='"
+
+-- SQL Statement 17 --
+  loc_1950610:   var_94 = "Select st.sno,st.SunCode,st.dispname,St.AMOUNT From Suntran St " & " Where St.DocID='" & Me(12) & "' order by sno "
+
+-- SQL Statement 18 --
+  loc_1950621:   var_F8 = "SELECT Distinct(I.Kitchen) AS Kitchen,D.Name AS Department FROM (ItemMast I INNER JOIN Stock S ON I.Code=S.Item) " & " INNER JOIN Depart D ON I.Kitchen=D.Code WHERE S.DocID='"
+
+-- SQL Statement 19 --
+  loc_19509FA:       unk_43FED1.Execute "SELECT HEADER1 FROM Depart WHERE Code='" & Me(8) & "'", var_11C, -1
+
+-- SQL Statement 20 --
+  loc_1950BD6:       unk_43FED1.Execute "SELECT HEADER2 FROM Depart WHERE Code='" & Me(8) & "'", var_11C, -1
+
+-- SQL Statement 21 --
+  loc_195228D:       unk_43FED1.Execute "SELECT Slogan1 FROM Depart WHERE Code='" & Me(8) & "'", var_11C, -1
+
+-- SQL Statement 22 --
+  loc_19523A9:       unk_43FED1.Execute "SELECT Slogan2 FROM Depart WHERE Code='" & Me(8) & "'", var_11C, -1
+
+-- SQL Statement 23 --
+  loc_195252F:       unk_43FED1.Execute "SELECT TOKENPrint FROM Depart Where Code='" & Me(8) & "'", var_11C, -1
+
+-- SQL Statement 24 --
+  loc_1952686:             var_F8 = "Select MAX(S.Rate) AS Rate,SUM(S.QtyIss) AS QTY,SUM(S.Amount) AS AMT,MAX(I.Name) AS ItemName From Stock S LEFT JOIN ITEMMAST I ON I.CODE=S.ITEM " & " Where S.DocID='"
+
+-- SQL Statement 25 --
+  loc_1616D17:   unk_43FED1.Execute "Select * from Depart Where Code='" & Me(8) & "'", var_10C, -1
+
+-- SQL Statement 26 --
+  loc_1616D3B:   var_F8 = "Select Sale1.* ,W.Name as WaiterName,depart.ShortName From (Sale1 left join waiter W on sale1.waiter=w.code) LEFT JOIN Depart ON Sale1.RestCode = Depart.Code Where Sale1.DocID='" & Me(12)
+
+-- SQL Statement 27 --
+  loc_1616D4F:   var_F8 = "Select MAX(S.SNO)AS SRNO,MAX(S.TAXPER) AS TAXPER,MAX(S.RATE) AS RATE,SUM(S.QTYISS) AS QTY,SUM(S.AMOUNT) AS AMT,MAX(I.NAME) AS ITEMNAME,KOT.VDATE,MAX(KOT.VNO) AS KOTNO,MAX(i.dispcode) as ICode From (Stock S LEFT JOIN ITEMMAST I ON I.CODE=S.ITEM) Left Join KOT on (KOT.Docid=S.KOTDOCId AND KOT.SNO=S.KOTSNO) " & " Where S.DocID='"
+
+-- SQL Statement 28 --
+  loc_1616D94:   var_94 = "Select st.sno,st.SunCode,st.dispname,St.AMOUNT From Suntran St " & " Where St.DocID='" & Me(12) & "' order by sno "
+
+-- SQL Statement 29 --
+  loc_16E5B13:   unk_43FED1.Execute "Select * from Depart Where Code='" & Me(8) & "'", var_10C, -1
+
+-- SQL Statement 30 --
+  loc_16E5B3E:   var_8C = "Select Sale1.* ,W.Name as WaiterName From Sale1 left join waiter W on sale1.waiter=w.code Where Sale1.DocID='" & Me(12) & "'"
+
+-- SQL Statement 31 --
+  loc_16E5B4B:   var_F8 = "Select MAX(S.SNO)AS SRNO,MAX(S.TAXPER) AS TAXPER,MAX(S.RATE) AS RATE,SUM(S.QTYISS) AS QTY,SUM(S.AMOUNT) AS AMT,MAX(I.NAME) AS ITEMNAME From Stock S LEFT JOIN ITEMMAST I ON I.CODE=S.ITEM " & " Where S.DocID='"
+
+-- SQL Statement 32 --
+  loc_16E5B7C:   var_94 = "Select st.sno,st.SunCode,st.dispname,St.AMOUNT From Suntran St " & " Where St.DocID='" & Me(12) & "' order by sno "
+
+-- SQL Statement 33 --
+  loc_161C393:   unk_43FED1.Execute "Select * from Depart Where Code='" & Me(8) & "'", var_120, -1
+
+-- SQL Statement 34 --
+  loc_161C3B7:   var_10C = "Select Sale1.* ,W.Name as WaiterName From Sale1 left join waiter W on sale1.waiter=w.code Where Sale1.DocID='" & Me(12)
+
+-- SQL Statement 35 --
+  loc_161C3CB:   var_10C = "Select MAX(S.SNO)AS SRNO,MAX(S.TAXPER) AS TAXPER,MAX(S.RATE) AS RATE,SUM(S.QTYISS) AS QTY,SUM(S.AMOUNT) AS AMT,MAX(I.NAME) AS ITEMNAME From Stock S LEFT JOIN ITEMMAST I ON I.CODE=S.ITEM " & " Where S.DocID='"
+
+-- SQL Statement 36 --
+  loc_161C3FC:   var_94 = "Select st.sno,st.SunCode,st.dispname,St.AMOUNT From Suntran St " & " Where St.DocID='" & Me(12) & "' order by sno"
+
+-- SQL Statement 37 --
+  loc_161C40D:   var_10C = "SELECT Distinct(I.Kitchen) AS Kitchen,D.Name AS Department FROM (ItemMast I INNER JOIN Stock S ON I.Code=S.Item) " & " INNER JOIN Depart D ON I.Kitchen=D.Code WHERE S.DocID='"
+
+-- SQL Statement 38 --
+  loc_1A71AE1:     unk_43FED1.Execute "Select * from Depart Where Code='" & Me(8) & "'", var_134, -1
+
+-- SQL Statement 39 --
+  loc_1A71B05:     var_138 = "Select Sale1.* ,W.Name as WaiterName From Sale1 left join waiter W on sale1.waiter=w.code Where Sale1.DocID='" & Me(12)
+
+-- SQL Statement 40 --
+  loc_1A71B19:     var_138 = "Select MAX(S.SNO)AS SRNO,MAX(S.TAXPER) AS TAXPER,MAX(S.RATE) AS RATE,SUM(S.QTYISS) AS QTY,SUM(S.AMOUNT) AS AMT,MAX(I.NAME) AS ITEMNAME From Stock S LEFT JOIN ITEMMAST I ON I.CODE=S.ITEM " & " Where S.DocID='"
+
+-- SQL Statement 41 --
+  loc_1A71B4A:     var_94 = "Select st.sno,st.SunCode,st.dispname,St.AMOUNT From Suntran St " & " Where St.DocID='" & Me(12) & "' order by sno "
+
+-- SQL Statement 42 --
+  loc_1A71B5B:     var_138 = "SELECT Distinct(I.Kitchen) AS Kitchen,D.Name AS Department FROM (ItemMast I INNER JOIN Stock S ON I.Code=S.Item) " & " INNER JOIN Depart D ON I.Kitchen=D.Code WHERE S.DocID='"
+
+-- SQL Statement 43 --
+  loc_1A733CB:         unk_43FED1.Execute "SELECT Slogan1 FROM Depart WHERE Code='" & Me(8) & "'", var_134, -1
+
+-- SQL Statement 44 --
+  loc_1A734E7:         unk_43FED1.Execute "SELECT Slogan2 FROM Depart WHERE Code='" & Me(8) & "'", var_134, -1
+
+-- SQL Statement 45 --
+  loc_1A7371B:     unk_43FED1.Execute "Select DocId,OutletDocId,OutletCode from POS_SBill Where DocId='" & Me(12) & "'", var_134, -1
+
+-- SQL Statement 46 --
+  loc_1A737DB:         var_138 = Proc_6_37_E618F4(CVar(var_140.Item("OutletCode")), "Select * from Depart Where Code='", var_170, -1, var_14C, var_F8, var_EE)
+
+-- SQL Statement 47 --
+  loc_1A737EF:         unk_43FED1.Execute var_140 & "Select DocId,OutletDocId,OutletCode from POS_SBill Where DocId='" & Me(12) & "'", var_9E, var_9E
+
+-- SQL Statement 48 --
+  loc_1A73843:         var_170 = "Select Sale1.* ,W.Name as WaiterName From Sale1 left join waiter W on sale1.waiter=w.code Where Sale1.DocID='" & var_EC.Fields.Item("OutletDocid").Value 
+
+-- SQL Statement 49 --
+  loc_1A7386B:         var_170 = CVar("Select MAX(S.SNO)AS SRNO,MAX(S.TAXPER) AS TAXPER,MAX(S.RATE) AS RATE,SUM(S.QTYISS) AS QTY,SUM(S.AMOUNT) AS AMT,MAX(I.NAME) AS ITEMNAME From Stock S LEFT JOIN ITEMMAST I ON I.CODE=S.ITEM " & " Where S.DocID='") 'String
+
+-- SQL Statement 50 --
+  loc_1A738EF:         var_180 = CVar("Select st.sno,st.SunCode,st.dispname,St.AMOUNT From Suntran St " & " Where St.DocID='") & var_EC.Fields.Item("OutletDocid").Value 
+
+-- SQL Statement 51 --
+  loc_1A73919:         var_170 = CVar("SELECT Distinct(I.Kitchen) AS Kitchen,D.Name AS Department FROM (ItemMast I INNER JOIN Stock S ON I.Code=S.Item) " & " INNER JOIN Depart D ON I.Kitchen=D.Code WHERE S.DocID='") 'String
+
+-- SQL Statement 52 --
+  loc_1E13C09:   unk_43FED1.Execute "Select * from Depart Where Code='" & Me(8) & "'", var_174, -1
+
+-- SQL Statement 53 --
+  loc_1E13C3A:   var_178 = "Select Min(Sale2.SNo1) as SNo1,max(Revmast.name) as TaxName,Revmast.code,TaxPer,sum(TaxAmt) as TaxAmt,sum(BaseValue) as TaxableAmt from (sale2 left join revmast on revmast.code=sale2.Taxcode) where  Sale2.DocID='" & Me(12)
+
+-- SQL Statement 54 --
+  loc_1E13C79:   var_178 = "SELECT Distinct P.CustName FROM PackingOrder P INNER JOIN PackingOrderDetail PD ON P.Docid = PD.DocID WHERE (P.LogSite_Code = '" & MemVar_1F81078
+
+-- SQL Statement 55 --
+  loc_1E13D4F:   unk_43FED1.Execute "Select Sum(AmtCr) as Amount,Sum(TipAmt) as TipAmt From PayCharge Where DocID='" & Me(12) & "' And PayType='Cash'", var_174, -1
+
+-- SQL Statement 56 --
+  loc_1E13D73:   var_178 = "Select Sale1.* ,S.CardNo,Case When IsNull(S.Name,'')<>'' And IsNull(S.CompanyType,'')<>'Corporate' Then IsNull(S.Name,'') Else '' End MemName,W.Name as WaiterName,Case When IsNull(Sale1.RoomType,'')='RO' Then RTrim(LTrim(IsNull(GP.ConPrefix,'')))+' '+RTrim(LTrim(IsNull(GP.Name,''))) When IsNull(S.Name,'')<>'' And IsNull(S.CompanyType,'')<>'Corporate' Then RTrim(LTrim(IsNull(S.Name,'')))+' - '+RTrim(LTrim(IsNull(S.CardNo,''))) Else IsNull(Sale1.Remark,'') End Remark1,S.NAME AS CompanyName,S.Add1 CompAdd1,S.Add2 CompAdd2,S.Add3 CompAdd3,CC.CityName CompCity,CS.ShortName CompStateCode,CS.Name CompState,S.GSTIN CompGSTIN From ((((((Sale1 left join waiter W on sale1.waiter=w.code) left join SubGroup S On Sale1.Party=S.SubCode) Left Join City CC On CC.CityCode=S.CityCode) Left Join State CS On CS.Code=CC.State) left join GuestFolio GF On Sale1.FolionoDocId=GF.DocId) left join GuestProf GP On GF.GuestProf=GP.Code) Where Sale1.DocID='" & Me(12)
+
+-- SQL Statement 57 --
+  loc_1E13D7A:   var_8C = "Select Sum(AmtCr) as Amount,Sum(TipAmt) as TipAmt From PayCharge Where DocID='" & Me(12) & "'"
+
+-- SQL Statement 58 --
+  loc_1E13D87:   var_178 = "Select MAX(S.SNO)AS SRNO,MAX(S.TAXPER) AS TAXPER,MAX(S.RATE) AS RATE,SUM(S.QTYISS) AS QTY,SUM(S.AMOUNT) AS AMT,MAX(I.NAME) AS ITEMNAME,MAX(I.COMMODITYCODE) AS HSNCODE From Stock S LEFT JOIN ITEMMAST I ON I.CODE=S.ITEM And S.ItemRestCode=I.RestCode " & " Where S.DocID='"
+
+-- SQL Statement 59 --
+  loc_1E13DB8:   var_94 = "Select st.sno,st.SunCode,st.dispname,St.Svalue,St.AMOUNT From Suntran St " & " Where St.DocID='" & Me(12) & "' order by sno "
+
+-- SQL Statement 60 --
+  loc_1E13DC9:   var_178 = "SELECT Distinct(I.Kitchen) AS Kitchen,D.Name AS Department,D.Printer FROM (ItemMast I INNER JOIN Stock S ON I.Code=S.Item And S.ItemRestCode=I.RestCode) " & " INNER JOIN Depart D ON I.Kitchen=D.Code WHERE S.DocID='"
+
+-- SQL Statement 61 --
+  loc_1E13EC5:   var_178 = "Select IM.CATTYPE,S.DISCPER,SUM(S.DISCAMT) AS DISCAMT From Stock S LEFT JOIN ITEMMAST I ON I.CODE=S.ITEM And S.ItemRestCode=I.RestCode LEFT JOIN ITEMCATMAST IM ON IM.CODE=I.ITEMCATCODE Where S.DocID='" & Me(12)
+
+-- SQL Statement 62 --
+  loc_1E13FF7:       unk_43FED1.Execute "SELECT TOKENPrint FROM Depart where Code='" & Me(8) & "'", var_174, -1
+
+-- SQL Statement 63 --
+  loc_1E1407C:             var_178 = "Select MAX(S.Rate) AS Rate,SUM(S.QtyIss) AS QTY,Max(S.Unit) AS Unit,SUM(S.Amount) AS AMT,MAX(I.DispCode) AS DispCode,MAX(I.Name) AS ItemName From Stock S LEFT JOIN ITEMMAST I ON I.CODE=S.ITEM And S.ItemRestCode=I.RestCode " & " Where S.DocID='"
+
+-- SQL Statement 64 --
+  loc_1E1817D:       unk_43FED1.Execute "SELECT Slogan1 FROM Depart WHERE Code='" & Me(8) & "'", var_174, -1
+
+-- SQL Statement 65 --
+  loc_1E18299:       unk_43FED1.Execute "SELECT Slogan2 FROM Depart WHERE Code='" & Me(8) & "'", var_174, -1
+
+-- SQL Statement 66 --
+  loc_1E18535:       unk_43FED1.Execute "SELECT TOKENPrintAfter FROM Depart where Code='" & Me(8) & "'", var_174, -1
+
+-- SQL Statement 67 --
+  loc_1E185F8:             var_178 = "Select MAX(S.Rate) AS Rate,SUM(S.QtyIss) AS QTY,Max(S.Unit) AS Unit,SUM(S.Amount) AS AMT,MAX(I.Name) AS ItemName From Stock S LEFT JOIN ITEMMAST I ON I.CODE=S.ITEM And S.ItemRestCode=I.RestCode " & " Where S.DocID='"
+
+-- SQL Statement 68 --
+  loc_1E19428:         unk_43FED1.Execute "Update sale1 set Printed='Y' where Docid='" & Me(12) & "'", var_174, -1
+
+-- SQL Statement 69 --
+  loc_1E194E9: unk_43FED1.Execute "Select DocId,OutletDocId,OutletCode from POS_SBill Where DocId='" & Me(12) & "'", var_174, -1
+
+-- SQL Statement 70 --
+  loc_1E195A9: var_178 = Proc_6_37_E618F4(CVar(var_F4.Fields.Item("OutletCode")), "Select * from Depart Where Code='", var_1A4, -1)
+
+-- SQL Statement 71 --
+  loc_1E195BD: unk_43FED1.Execute var_1CC & "Select DocId,OutletDocId,OutletCode from POS_SBill Where DocId='" & Me(12) & "'", var_100, var_F6
+
+-- SQL Statement 72 --
+  loc_1E195EF: var_1C8 = "select Min(Sale2.SNo1) as SNo1,max(Revmast.name) as TaxName,Revmast.code,TaxPer,sum(TaxAmt) as TaxAmt,sum(BaseValue) as TaxableAmt from (sale2 left join revmast on revmast.code=sale2.Taxcode) where  Sale2.DocID='"
+
+-- SQL Statement 73 --
+  loc_1E1965A: var_1C8 = "Select Sale1.* ,S.CardNo,Case When IsNull(S.Name,'')<>'' And IsNull(S.CompanyType,'')<>'Corporate' Then IsNull(S.Name,'') Else '' End MemName,W.Name as WaiterName,Case When IsNull(Sale1.RoomType,'')='RO' Then RTrim(LTrim(IsNull(GP.ConPrefix,'')))+' '+RTrim(LTrim(IsNull(GP.Name,''))) When IsNull(S.Name,'')<>'' And IsNull(S.CompanyType,'')<>'Corporate' Then RTrim(LTrim(IsNull(S.Name,'')))+' - '+RTrim(LTrim(IsNull(S.CardNo,''))) Else IsNull(Sale1.Remark,'') End Remark1,S.NAME AS CompanyName,S.Add1 CompAdd1,S.Add2 CompAdd2,S.Add3 CompAdd3,CC.CityName CompCity,CS.ShortName CompStateCode,CS.Name CompState,S.GSTIN CompGSTIN From ((((((Sale1 left join waiter W on sale1.waiter=w.code) left join SubGroup S On Sale1.Party=S.SubCode) Left Join City CC On CC.CityCode=S.CityCode) Left Join State CS On CS.Code=CC.State) left join GuestFolio GF On Sale1.FolionoDocId=GF.DocId) left join GuestProf GP On GF.GuestProf=GP.Code) Where Sale1.DocID='"
+
+-- SQL Statement 74 --
+  loc_1E196B1: var_1A4 = CVar("Select MAX(S.SNO)AS SRNO,MAX(S.TAXPER) AS TAXPER,MAX(S.RATE) AS RATE,SUM(S.QTYISS) AS QTY,SUM(S.AMOUNT) AS AMT,MAX(I.NAME) AS ITEMNAME From Stock S LEFT JOIN ITEMMAST I ON I.CODE=S.ITEM And S.ItemRestCode=I.RestCode " & " Where S.DocID='") 'String
+
+-- SQL Statement 75 --
+  loc_1E19735: var_1B4 = CVar("Select st.sno,st.SunCode,st.dispname,St.AMOUNT From Suntran St " & " Where St.DocID='") & var_F4.Fields.Item("OutletDocid").Value 
+
+-- SQL Statement 76 --
+  loc_1E1975F: var_1A4 = CVar("SELECT Distinct(I.Kitchen) AS Kitchen,D.Name AS Department FROM (ItemMast I INNER JOIN Stock S ON I.Code=S.Item And S.ItemRestCode=I.RestCode) " & " INNER JOIN Depart D ON I.Kitchen=D.Code WHERE S.DocID='") 'String
+
+-- SQL Statement 77 --
+  loc_1E1995F:   unk_43FED1.Execute CStr("SELECT TOKENPrint FROM Depart where Code='" & var_180.Item("Code").Value & "'"), var_1DC, -1
+
+-- SQL Statement 78 --
+  loc_1E199EC:         var_1A4 = CVar("Select MAX(S.Rate) AS Rate,SUM(S.QtyIss) AS QTY,SUM(S.Amount) AS AMT,MAX(I.Name) AS ItemName From Stock S LEFT JOIN ITEMMAST I ON I.CODE=S.ITEM And S.ItemRestCode=I.RestCode " & " Where S.DocID='") 'String
+
+-- SQL Statement 79 --
+  loc_1E1CBD8: unk_43FED1.Execute "Select IsNull(PrintNetPayable,'') from Depart Where Code='" & Me(8) & "'", var_174, -1
+
+-- SQL Statement 80 --
+  loc_1E1D194: unk_43FED1.Execute "Update Sale1 set Printed='Y' Where DocId In (Select OutletDocId from POS_SBill where Docid='" & Me(12) & "')", var_174, -1
+
+-- SQL Statement 81 --
+  loc_1ED9E90:   unk_43FED1.Execute "Select * from Depart Where Code='" & Me(8) & "'", var_220, -1
+
+-- SQL Statement 82 --
+  loc_1ED9EC1:   var_224 = "select max(Revmast.name) as TaxName,Revmast.code,TaxPer,sum(TaxAmt) as TaxAmt,sum(BaseValue) as TaxableAmt from (sale2 left join revmast on revmast.code=sale2.Taxcode) where  Sale2.DocID='" & Me(12)
+
+-- SQL Statement 83 --
+  loc_1ED9EF5:   var_224 = "Select Sale1.* ,S.CardNo,IsNull(S.Name,'') As MemName,W.Name as WaiterName,Case When IsNull(Sale1.RoomType,'')='RO' Then RTrim(LTrim(IsNull(GP.ConPrefix,'')))+' '+RTrim(LTrim(IsNull(GP.Name,''))) When IsNull(S.Name,'')<>'' And IsNull(S.CompanyType,'')<>'Corporate' Then RTrim(LTrim(IsNull(S.Name,'')))+' - '+RTrim(LTrim(IsNull(S.CardNo,''))) Else IsNull(Sale1.Remark,'') End Remark1,S.NAME AS CompanyName,S.Add1 CompAdd1,S.Add2 CompAdd2,S.Add3 CompAdd3,CC.CityName CompCity,CS.ShortName CompStateCode,CS.Name CompState,S.GSTIN CompGSTIN From ((((((Sale1 left join waiter W on sale1.waiter=w.code) left join SubGroup S On Sale1.Party=S.SubCode) Left Join City CC On CC.CityCode=S.CityCode) Left Join State CS On CS.Code=CC.State) left join GuestFolio GF On Sale1.FolionoDocId=GF.DocId) left join GuestProf GP On GF.GuestProf=GP.Code) Where Sale1.DocID='" & Me(12)
+
+-- SQL Statement 84 --
+  loc_1ED9F09:   var_224 = "Select MAX(S.SNO)AS SRNO,MAX(S.TAXPER) AS TAXPER,Sum(S.TAXAMT) AS TAXAMT,S.RATE,S.Remarks,MAX(S.ItemRate) AS ItemRate,SUM(S.QTYISS) AS QTY,SUM(S.AMOUNT) AS AMT,MAX(I.NAME) AS ITEMNAME,MAX(I.COMMODITYCODE) AS HSNCODE,MAX(I.DISPCODE) As DISPCODE,Case When SUM(S.TAXAMT)=0 THEN SUM(S.AMOUNT) ELSE 0 END AS NONTAXABLE,Case When SUM(S.TAXAMT)<>0 THEN SUM(S.AMOUNT) ELSE 0 END AS TAXABLE,Max(S.Unit) As UNIT From Stock S LEFT JOIN ITEMMAST I ON I.CODE=S.ITEM And S.ItemRestCode=I.RestCode " & " Where S.DocID='"
+
+-- SQL Statement 85 --
+  loc_1ED9F3A:   var_94 = "Select st.sno,st.SunCode,st.dispname,St.Svalue,St.AMOUNT From Suntran St " & " Where St.DocID='" & Me(12) & "' order by sno"
+
+-- SQL Statement 86 --
+  loc_1ED9F4B:   var_224 = "SELECT Distinct(I.Kitchen) AS Kitchen,D.Name AS Department,D.Printer FROM (ItemMast I INNER JOIN Stock S ON I.Code=S.Item And S.ItemRestCode=I.RestCode) " & " INNER JOIN Depart D ON I.Kitchen=D.Code WHERE S.DocID='"
+
+-- SQL Statement 87 --
+  loc_1EDB331:       unk_43FED1.Execute "SELECT TOKENPrintAfter FROM Depart where Code='" & Me(8) & "'", var_220, -1
+
+-- SQL Statement 88 --
+  loc_1EDB3BE:             var_224 = "Select MAX(S.SNO)AS SRNO,MAX(S.TAXPER) AS TAXPER,Sum(S.TAXAMT) AS TAXAMT,S.RATE,S.Remarks,MAX(S.ItemRate) AS ItemRate,SUM(S.QTYISS) AS QTY,SUM(S.AMOUNT) AS AMT,MAX(I.NAME) AS ITEMNAME,MAX(I.COMMODITYCODE) AS HSNCODE,MAX(I.DISPCODE) As DISPCODE,Case When SUM(S.TAXAMT)=0 THEN SUM(S.AMOUNT) ELSE 0 END AS NONTAXABLE,Case When SUM(S.TAXAMT)<>0 THEN SUM(S.AMOUNT) ELSE 0 END AS TAXABLE,Max(S.Unit) As UNIT From Stock S LEFT JOIN ITEMMAST I ON I.CODE=S.ITEM And S.ItemRestCode=I.RestCode " & " Where S.DocID='"
+
+-- SQL Statement 89 --
+  loc_1EDD11F:     unk_43FED1.Execute "SELECT Header1,Header2,Header3,Header4,Slogan1,Slogan2 FROM Depart WHERE Code='" & Me(8) & "'", var_220, -1
+
+-- SQL Statement 90 --
+  loc_1EDD2D7:     var_224 = "SELECT ST.DOCID,ST.VNO,ST.VDATE,ST.VPREFIX,ST.BillAmount,ST.SNo, ST.GuestProf,GP.Name AS GPName, ST.EmpCode, E.Name AS EmpName, ST.Comments, ST.PayCode,ST.BatchNo ,P.Name AS PayName,ST.PayType, ST.AmtCr, ST.TipAmt, ST.RoomCat, ST.RoomType, ST.RoomNo, R.Name AS RoomName, ST.CardNo, ST.CardHolder, ST.ChqNo, ST.ChqDate, ST.ExpDate,CC.Name as CompName,CompCode FROM ((((PAYCHARGE AS ST LEFT JOIN GuestProf AS GP ON ST.GuestProf = GP.Code) LEFT JOIN Employee AS E ON ST.EmpCode = E.Code) LEFT JOIN RevMast AS P ON ST.PayCode = P.Code) LEFT JOIN RoomMast AS R ON (ST.RoomCat = R.RoomCat) AND (ST.RoomType = R.Type) AND (ST.RoomNo = R.Code))Left join SubGroup CC on CC.SubCode=ST.CompCode where ST.Docid='" & Me(12)
+
+-- SQL Statement 91 --
+  loc_1EDD612:           var_224 = Proc_6_37_E618F4(CVar(var_1B4.Fields.Item("DocID")), "Select IsNull(max(RoomNo),'') from PayCharge where DocId='", var_25C, -1, var_238)
+
+-- SQL Statement 92 --
+  loc_1EE01ED: unk_43FED1.Execute "Select DocId,OutletDocId,OutletCode from POS_SBill Where DocId='" & Me(12) & "'", var_220, -1
+
+-- SQL Statement 93 --
+  loc_1EE023F: var_224 = "Select IsNull(Sum(NetAmt),0) As TotalAmt from Sale1 Where DocId In (Select OutletDocId  from POS_SBill Where DocId='" & Me(12)
+
+-- SQL Statement 94 --
+  loc_1EE02F3: var_224 = Proc_6_37_E618F4(CVar(var_22C.Item("OutletCode")), "Select * from Depart Where Code='", var_25C, -1, var_238, var_104)
+
+-- SQL Statement 95 --
+  loc_1EE0339: var_248 = "select max(Revmast.name) as TaxName,Revmast.code,TaxPer,sum(TaxAmt) as TaxAmt,sum(BaseValue) as TaxableAmt from (sale2 left join revmast on revmast.code=sale2.Taxcode) where  Sale2.DocID='"
+
+-- SQL Statement 96 --
+  loc_1EE03A4: var_248 = "Select Sale1.* ,S.CardNo,IsNull(S.Name,'') As MemName,W.Name as WaiterName,Case When IsNull(Sale1.RoomType,'')='RO' Then RTrim(LTrim(IsNull(GP.ConPrefix,'')))+' '+RTrim(LTrim(IsNull(GP.Name,''))) When IsNull(S.Name,'')<>'' And IsNull(S.CompanyType,'')<>'Corporate' Then RTrim(LTrim(IsNull(S.Name,'')))+' - '+RTrim(LTrim(IsNull(S.CardNo,''))) Else IsNull(Sale1.Remark,'') End Remark1,S.NAME AS CompanyName,S.Add1 CompAdd1,S.Add2 CompAdd2,S.Add3 CompAdd3,CC.CityName CompCity,CS.ShortName CompStateCode,CS.Name CompState,S.GSTIN CompGSTIN From ((((((Sale1 left join waiter W on sale1.waiter=w.code) left join SubGroup S On Sale1.Party=S.SubCode) Left Join City CC On CC.CityCode=S.CityCode) Left Join State CS On CS.Code=CC.State) left join GuestFolio GF On Sale1.FolionoDocId=GF.DocId) left join GuestProf GP On GF.GuestProf=GP.Code) Where Sale1.DocID='"
+
+-- SQL Statement 97 --
+  loc_1EE03FB: var_25C = CVar("Select MAX(S.SNO)AS SRNO,MAX(S.TAXPER) AS TAXPER,Sum(S.TAXAMT) AS TAXAMT,S.RATE,S.Remarks,MAX(S.ItemRate) AS ItemRate,SUM(S.QTYISS) AS QTY,SUM(S.AMOUNT) AS AMT,MAX(I.NAME) AS ITEMNAME,MAX(I.COMMODITYCODE) AS HSNCODE,MAX(I.DISPCODE) As DISPCODE,Case When SUM(S.TAXAMT)=0 THEN SUM(S.AMOUNT) ELSE 0 END AS NONTAXABLE,Case When SUM(S.TAXAMT)<>0 THEN SUM(S.AMOUNT) ELSE 0 END AS TAXABLE,Max(S.Unit) As UNIT From Stock S LEFT JOIN ITEMMAST I ON I.CODE=S.ITEM And S.ItemRestCode=I.RestCode " & " Where S.DocID='") 'String
+
+-- SQL Statement 98 --
+  loc_1EE047F: var_26C = CVar("Select st.sno,st.SunCode,st.dispname,St.Svalue,St.AMOUNT From Suntran St " & " Where St.DocID='") & var_F8.Fields.Item("OutletDocid").Value 
+
+-- SQL Statement 99 --
+  loc_1EE04A9: var_25C = CVar("SELECT Distinct(I.Kitchen) AS Kitchen,D.Name AS Department,D.Printer FROM (ItemMast I INNER JOIN Stock S ON I.Code=S.Item And S.ItemRestCode=I.RestCode) " & " INNER JOIN Depart D ON I.Kitchen=D.Code WHERE S.DocID='") 'String
+
+-- SQL Statement 100 --
+  loc_1EE192E: unk_43FED1.Execute CStr("SELECT TOKENPrintAfter FROM Depart where Code='" & var_134.Fields.Item("Code").Value & "'"), var_27C, -1
+
+-- SQL Statement 101 --
+  loc_1EE19C3: var_25C = CVar("Select MAX(S.SNO)AS SRNO,MAX(S.TAXPER) AS TAXPER,Sum(S.TAXAMT) AS TAXAMT,S.RATE,S.Remarks,MAX(S.ItemRate) AS ItemRate,SUM(S.QTYISS) AS QTY,SUM(S.AMOUNT) AS AMT,MAX(I.NAME) AS ITEMNAME,MAX(I.COMMODITYCODE) AS HSNCODE,MAX(I.DISPCODE) As DISPCODE,Case When SUM(S.TAXAMT)=0 THEN SUM(S.AMOUNT) ELSE 0 END AS NONTAXABLE,Case When SUM(S.TAXAMT)<>0 THEN SUM(S.AMOUNT) ELSE 0 END AS TAXABLE,Max(S.Unit) As UNIT From Stock S LEFT JOIN ITEMMAST I ON I.CODE=S.ITEM And S.ItemRestCode=I.RestCode " & " Where S.DocID='") 'String
+
+-- SQL Statement 102 --
+  loc_1EE3772: var_224 = CStr("SELECT Header1,Header2,Header3,Header4,Slogan1,Slogan2 FROM Depart WHERE Code='" & var_134.Fields.Item("Code").Value & "'")
+
+-- SQL Statement 103 --
+  loc_1EE3941: var_248 = "SELECT ST.DOCID,ST.VNO,ST.VDATE,ST.VPREFIX,ST.BillAmount,ST.SNo, ST.GuestProf,GP.Name AS GPName, ST.EmpCode, E.Name AS EmpName, ST.Comments, ST.PayCode,ST.BatchNo ,P.Name AS PayName,ST.PayType, ST.AmtCr, ST.TipAmt, ST.RoomCat, ST.RoomType, ST.RoomNo, R.Name AS RoomName, ST.CardNo, ST.CardHolder, ST.ChqNo, ST.ChqDate, ST.ExpDate,CC.Name as CompName,CompCode FROM ((((PAYCHARGE AS ST LEFT JOIN GuestProf AS GP ON ST.GuestProf = GP.Code) LEFT JOIN Employee AS E ON ST.EmpCode = E.Code) LEFT JOIN RevMast AS P ON ST.PayCode = P.Code) LEFT JOIN RoomMast AS R ON (ST.RoomCat = R.RoomCat) AND (ST.RoomType = R.Type) AND (ST.RoomNo = R.Code))Left join SubGroup CC on CC.SubCode=ST.CompCode where ST.Docid='"
+
+-- SQL Statement 104 --
+  loc_1EE3CBC: var_224 = Proc_6_37_E618F4(CVar(var_1B4.Fields.Item("DocID")), "Select IsNull(max(RoomNo),'') from PayCharge where DocId='", var_25C, -1, var_238)
+
+-- SQL Statement 105 --
+  loc_181006C:   unk_43FED1.Execute "Select * from Depart Where Code='" & Me(8) & "'", var_11C, -1
+
+-- SQL Statement 106 --
+  loc_1810090:   var_108 = "Select Sale1.* ,W.Name as WaiterName From Sale1 left join waiter W on sale1.waiter=w.code Where Sale1.DocID='" & Me(12)
+
+-- SQL Statement 107 --
+  loc_18100A4:   var_108 = "Select MAX(S.SNO)AS SRNO,MAX(S.TAXPER) AS TAXPER,MAX(S.RATE) AS RATE,SUM(S.QTYISS) AS QTY,SUM(S.AMOUNT) AS AMT,MAX(I.NAME) AS ITEMNAME From Stock S LEFT JOIN ITEMMAST I ON I.CODE=S.ITEM " & " Where S.DocID='"
+
+-- SQL Statement 108 --
+  loc_18100D5:   var_94 = "Select st.sno,st.SunCode,st.dispname,St.AMOUNT From Suntran St " & " Where St.DocID='" & Me(12) & "' order by sno"
+
+-- SQL Statement 109 --
+  loc_18100E6:   var_108 = "SELECT Distinct(I.Kitchen) AS Kitchen,D.Name AS Department FROM (ItemMast I INNER JOIN Stock S ON I.Code=S.Item) " & " INNER JOIN Depart D ON I.Kitchen=D.Code WHERE S.DocID='"
+
+-- SQL Statement 110 --
+  loc_1810256:     unk_43FED1.Execute "SELECT TOKENPrint FROM Depart where Code='" & Me(8) & "'", var_11C, -1
+
+-- SQL Statement 111 --
+  loc_18102DB:           var_108 = "Select MAX(S.Rate) AS Rate,SUM(S.QtyIss) AS QTY,SUM(S.Amount) AS AMT,MAX(I.Name) AS ItemName From Stock S LEFT JOIN ITEMMAST I ON I.CODE=S.ITEM " & " Where S.DocID='"
+
+-- SQL Statement 112 --
+  loc_1811F28:     unk_43FED1.Execute "SELECT Slogan1 FROM Depart WHERE Code='" & Me(8) & "'", var_11C, -1
+
+-- SQL Statement 113 --
+  loc_1812024:     unk_43FED1.Execute "SELECT Slogan2 FROM Depart WHERE Code='" & Me(8) & "'", var_11C, -1
+
+-- SQL Statement 114 --
+  loc_18BF103:   unk_43FED1.Execute "Select * from Depart Where Code='" & Me(8) & "'", var_120, -1
+
+-- SQL Statement 115 --
+  loc_18BF127:   var_10C = "Select Sale1.* ,W.Name as WaiterName From Sale1 left join waiter W on sale1.waiter=w.code Where Sale1.DocID='" & Me(12)
+
+-- SQL Statement 116 --
+  loc_18BF13B:   var_10C = "Select MAX(S.SNO)AS SRNO,MAX(S.TAXPER) AS TAXPER,MAX(S.RATE) AS RATE,SUM(S.QTYISS) AS QTY,SUM(S.AMOUNT) AS AMT,MAX(I.NAME) AS ITEMNAME From Stock S LEFT JOIN ITEMMAST I ON I.CODE=S.ITEM " & " Where S.DocID='"
+
+-- SQL Statement 117 --
+  loc_18BF16C:   var_94 = "Select st.sno,st.SunCode,st.dispname,St.AMOUNT,ST.SValue From Suntran St " & " Where St.DocID='" & Me(12) & "' order by sno"
+
+-- SQL Statement 118 --
+  loc_18BF17D:   var_10C = "SELECT Distinct(I.Kitchen) AS Kitchen,D.Name AS Department FROM (ItemMast I INNER JOIN Stock S ON I.Code=S.Item) " & " INNER JOIN Depart D ON I.Kitchen=D.Code WHERE S.DocID='"
+
+-- SQL Statement 119 --
+  loc_18BF2ED:     unk_43FED1.Execute "SELECT TOKENPrint FROM Depart where Code='" & Me(8) & "'", var_120, -1
+
+-- SQL Statement 120 --
+  loc_18BF372:           var_10C = "Select MAX(S.Rate) AS Rate,SUM(S.QtyIss) AS QTY,SUM(S.Amount) AS AMT,MAX(I.Name) AS ItemName From Stock S LEFT JOIN ITEMMAST I ON I.CODE=S.ITEM " & " Where S.DocID='"
+
+-- SQL Statement 121 --
+  loc_18C11D6:     unk_43FED1.Execute "SELECT Slogan1 FROM Depart WHERE Code='" & Me(8) & "'", var_120, -1
+
+-- SQL Statement 122 --
+  loc_18C12D2:     unk_43FED1.Execute "SELECT Slogan2 FROM Depart WHERE Code='" & Me(8) & "'", var_120, -1
+
+-- SQL Statement 123 --
+  loc_18C141F:     unk_43FED1.Execute "Select * from PayCharge  where docid='" & Me(12) & "' and Sno=1", var_120, -1
+
+-- SQL Statement 124 --
+  loc_18C14A8:         var_110 = "Select Name from PayCharge left join Subgroup on Paycharge.CompCode=Subgroup.Subcode where docid='" & Me(12) & "'"
+
+-- SQL Statement 125 --
+  loc_18C159A:           unk_43FED1.Execute "Select rOOMNO from PayCharge where Paycode='" & MemVar_1F81078 & "TOUT' and docid='" & Me(12) & "'", var_120, -1
+
+-- SQL Statement 126 --
+  loc_17303FB:   unk_43FED1.Execute "Select * from Depart where code='" & Me(8) & "'", var_110, -1
+
+-- SQL Statement 127 --
+  loc_1730426:   var_8C = "Select Sale1.* ,W.Name as WaiterName From Sale1 left join waiter W on sale1.waiter=w.code Where Sale1.DocID='" & Me(12) & "'"
+
+-- SQL Statement 128 --
+  loc_1730489:       var_FC = "Select kot.vdate as kdate,MAX(S.SNO)AS SRNO,MAX(S.TAXPER) AS TAXPER,MAX(S.RATE) AS RATE,SUM(S.QTYISS) AS QTY,SUM(S.AMOUNT) AS AMT,MAX(I.NAME) AS ITEMNAME,KOT.VDATE,MAX(KOT.VNO) AS KOTNO,MAX(i.dispcode) as ICode From (Stock S LEFT JOIN ITEMMAST I ON I.CODE=S.ITEM) Left Join KOT on (KOT.Docid=S.KOTDOCId AND KOT.SNO=S.KOTSNO) " & " Where S.DocID='"
+
+-- SQL Statement 129 --
+  loc_17304C1:       var_FC = "Select kot.vdate as kdate,MAX(S.SNO)AS SRNO,MAX(S.TAXPER) AS TAXPER,MAX(S.RATE) AS RATE,SUM(S.QTYISS) AS QTY,SUM(S.AMOUNT) AS AMT,MAX(I.NAME) AS ITEMNAME,KOT.VDATE,MAX(KOT.VNO) AS KOTNO,MAX(i.dispcode) as ICode From (Stock S LEFT JOIN ITEMMAST I ON I.CODE=S.ITEM) Left Join KOT on (KOT.Docid=S.KOTDOCId AND KOT.SNO=S.KOTSNO) " & " Where S.DocID='"
+
+-- SQL Statement 130 --
+  loc_17304F5:   var_94 = "Select st.sno,st.SunCode,st.dispname,St.AMOUNT From Suntran St " & " Where St.DocID='" & Me(12) & "' order by sno "
+
+-- SQL Statement 131 --
+  loc_17305D9:   unk_43FED1.Execute "Select * from enviro where LogSite_Code='" & MemVar_1F81078 & "'", var_110, -1
+
+-- SQL Statement 132 --
+  loc_172AC77:   unk_43FED1.Execute "Select * from Depart where code='" & Me(8) & "'", var_110, -1
+
+-- SQL Statement 133 --
+  loc_172ACA2:   var_8C = "Select Sale1.* ,W.Name as WaiterName From Sale1 left join waiter W on sale1.waiter=w.code Where Sale1.DocID='" & Me(12) & "'"
+
+-- SQL Statement 134 --
+  loc_172ACAF:   var_FC = "Select MAX(S.SNO)AS SRNO,MAX(S.TAXPER) AS TAXPER,MAX(S.RATE) AS RATE,SUM(S.QTYISS) AS QTY,SUM(S.AMOUNT) AS AMT,MAX(I.NAME) AS ITEMNAME From Stock S LEFT JOIN ITEMMAST I ON I.CODE=S.ITEM " & " Where S.DocID='"
+
+-- SQL Statement 135 --
+  loc_172ACE0:   var_94 = "Select st.sno,st.SunCode,st.dispname,St.AMOUNT From Suntran St " & " Where St.DocID='" & Me(12) & "' order by sno "
+
+-- SQL Statement 136 --
+  loc_1721B7B:   unk_43FED1.Execute "Select * from Depart where code='" & Me(8) & "'", var_110, -1
+
+-- SQL Statement 137 --
+  loc_1721BA6:   var_8C = "Select Sale1.* ,W.Name as WaiterName From Sale1 left join waiter W on sale1.waiter=w.code Where Sale1.DocID='" & Me(12) & "'"
+
+-- SQL Statement 138 --
+  loc_1721C09:       var_FC = "Select kot.vdate as kdate,MAX(S.SNO)AS SRNO,MAX(S.TAXPER) AS TAXPER,MAX(S.RATE) AS RATE,SUM(S.QTYISS) AS QTY,SUM(S.AMOUNT) AS AMT,MAX(I.NAME) AS ITEMNAME,KOT.VDATE,MAX(KOT.VNO) AS KOTNO,MAX(i.dispcode) as ICode From (Stock S LEFT JOIN ITEMMAST I ON I.CODE=S.ITEM) Left Join KOT on (KOT.Docid=S.KOTDOCId AND KOT.SNO=S.KOTSNO) " & " Where S.DocID='"
+
+-- SQL Statement 139 --
+  loc_1721C41:       var_FC = "Select kot.vdate as kdate,MAX(S.SNO)AS SRNO,MAX(S.TAXPER) AS TAXPER,MAX(S.RATE) AS RATE,SUM(S.QTYISS) AS QTY,SUM(S.AMOUNT) AS AMT,MAX(I.NAME) AS ITEMNAME,KOT.VDATE,MAX(KOT.VNO) AS KOTNO,MAX(i.dispcode) as ICode From (Stock S LEFT JOIN ITEMMAST I ON I.CODE=S.ITEM) Left Join KOT on (KOT.Docid=S.KOTDOCId AND KOT.SNO=S.KOTSNO) " & " Where S.DocID='"
+
+-- SQL Statement 140 --
+  loc_1721C75:   var_94 = "Select st.sno,st.SunCode,st.dispname,St.AMOUNT From Suntran St " & " Where St.DocID='" & Me(12) & "' order by sno "
+
+-- SQL Statement 141 --
+  loc_1721D59:   unk_43FED1.Execute "Select * from enviro where LogSite_Code='" & MemVar_1F81078 & "'", var_110, -1
+
+-- SQL Statement 142 --
+  loc_158B987: unk_43FED1.Execute "Select IsNull(Max(RestType),'') from Depart where SITE_CODE='" & MemVar_1F81078 & "' AND Code='" & Me(8) & "'", var_BC, -1
+
+-- SQL Statement 143 --
+  loc_158B9FD: unk_44009E.Execute "Select * from PrinterSetup where SITE_CODE='" & MemVar_1F81078 & "' AND RestCode='" & Me(8) & "'", var_BC, -1
+
+-- SQL Statement 144 --
+  loc_158BB03:       unk_43FED1.Execute "Update sale1 set Printed='Y' where Docid='" & Me(12) & "'", var_BC, -1
+
+-- SQL Statement 145 --
+  loc_158BB7D:         unk_43FED1.Execute "Update sale1 set Printed='Y' where Docid='" & Me(12) & "'", var_BC, -1
+
+-- SQL Statement 146 --
+  loc_158BC47:       unk_43FED1.Execute "Update sale1 set Printed='Y' where Docid='" & Me(12) & "'", var_BC, -1
+
+-- SQL Statement 147 --
+  loc_158BCC0:         unk_43FED1.Execute "Update sale1 set Printed='Y' where Docid='" & Me(12) & "'", var_BC, -1
+
+-- SQL Statement 148 --
+  loc_158BD8D:         unk_43FED1.Execute "Update sale1 set Printed='Y' where Docid='" & Me(12) & "'", var_BC, -1
+
+-- SQL Statement 149 --
+  loc_158BE06:           unk_43FED1.Execute "Update sale1 set Printed='Y' where Docid='" & Me(12) & "'", var_BC, -1
+
+-- SQL Statement 150 --
+  loc_158BED7:           unk_43FED1.Execute "Update sale1 set Printed='Y' where Docid='" & Me(12) & "'", var_BC, -1
+
+-- SQL Statement 151 --
+  loc_158BF50:             unk_43FED1.Execute "Update sale1 set Printed='Y' where Docid='" & Me(12) & "'", var_BC, -1
+
+-- SQL Statement 152 --
+  loc_158C021:             unk_43FED1.Execute "Update sale1 set Printed='Y' where Docid='" & Me(12) & "'", var_BC, -1
+
+-- SQL Statement 153 --
+  loc_158C09A:               unk_43FED1.Execute "Update sale1 set Printed='Y' where Docid='" & Me(12) & "'", var_BC, -1
+
+-- SQL Statement 154 --
+  loc_158C167:               unk_43FED1.Execute "Update sale1 set Printed='Y' where Docid='" & Me(12) & "'", var_BC, -1
+
+-- SQL Statement 155 --
+  loc_158C1E0:                 unk_43FED1.Execute "Update sale1 set Printed='Y' where Docid='" & Me(12) & "'", var_BC, -1
+
+-- SQL Statement 156 --
+  loc_158C2F3:                 unk_43FED1.Execute "Update sale1 set Printed='Y' where Docid='" & Me(12) & "'", var_BC, -1
+
+-- SQL Statement 157 --
+  loc_158C36C:                   unk_43FED1.Execute "Update sale1 set Printed='Y' where Docid='" & Me(12) & "'", var_BC, -1
+
+-- SQL Statement 158 --
+  loc_158C47F:                   unk_43FED1.Execute "Update sale1 set Printed='Y' where Docid='" & Me(12) & "'", var_BC, -1
+
+-- SQL Statement 159 --
+  loc_158C4F8:                     unk_43FED1.Execute "Update sale1 set Printed='Y' where Docid='" & Me(12) & "'", var_BC, -1
+
+-- SQL Statement 160 --
+  loc_158C5C9:                     unk_43FED1.Execute "Update sale1 set Printed='Y' where Docid='" & Me(12) & "'", var_BC, -1
+
+-- SQL Statement 161 --
+  loc_158C642:                       unk_43FED1.Execute "Update sale1 set Printed='Y' where Docid='" & Me(12) & "'", var_BC, -1
+
+-- SQL Statement 162 --
+  loc_158C713:                       unk_43FED1.Execute "Update sale1 set Printed='Y' where Docid='" & Me(12) & "'", var_BC, -1
+
+-- SQL Statement 163 --
+  loc_158C78C:                         unk_43FED1.Execute "Update sale1 set Printed='Y' where Docid='" & Me(12) & "'", var_BC, -1
+
+-- SQL Statement 164 --
+  loc_158C859:                         unk_43FED1.Execute "Update SplitSale1 set Printed='Y' where Docid='" & Me(12) & "'", var_BC, -1
+
+-- SQL Statement 165 --
+  loc_158C891:                         unk_43FED1.Execute "Update sale1 set Printed='Y' where Docid='" & Me(12) & "'", var_BC, -1
+
+-- SQL Statement 166 --
+  loc_158C90A:                           unk_43FED1.Execute "Update SplitSale1 set Printed='Y' where Docid='" & Me(12) & "'", var_BC, -1
+
+-- SQL Statement 167 --
+  loc_158C942:                           unk_43FED1.Execute "Update sale1 set Printed='Y' where Docid='" & Me(12) & "'", var_BC, -1
+
+-- SQL Statement 168 --
+  loc_158CA0F:                           unk_43FED1.Execute "Update sale1 set Printed='Y' where Docid='" & Me(12) & "'", var_BC, -1
+
+-- SQL Statement 169 --
+  loc_158CA88:                             unk_43FED1.Execute "Update sale1 set Printed='Y' where Docid='" & Me(12) & "'", var_BC, -1
+
+-- SQL Statement 170 --
+  loc_1E4F104: Proc_6_16_EA44E0(var_168, arg_C, "SELECT Top 1 * FROM KOT WHERE DocId=")
+
+-- SQL Statement 171 --
+  loc_1E4F258: unk_44009E.Execute "Select * from PrinterSetup where SITE_CODE='" & MemVar_1F81078 & "' AND RestCode='" & var_138 & "' And ModType='KOT'", var_168, -1
+
+-- SQL Statement 172 --
+  loc_1E4F294: Proc_6_16_EA44E0(var_168, MemVar_1F81078, "SELECT * FROM ENVIRO WHERE LOGSITE_CODE=", var_1AC)
+
+-- SQL Statement 173 --
+  loc_1E4F4AE: unk_43FED1.Execute "Select Name,CKOTPrintYN,PrintType,CKOTPrintPath,NoOfKot From Depart Where Code='" & var_138 & "'", var_168, -1
+
+-- SQL Statement 174 --
+  loc_1E4FA6B: var_18C = "Select DISTINCT k.Vtime,K.VNo,K.VDate,S.CardNo,S.Name As MemName,W.name as WaiterName,k.RoomNo as TableNo,K.NCKOT,K.NCTYPE, K.Remarks , K.ContraDocId, D.ShortName,K.GuarAtt,K.U_AE,K.TokenNo,K.U_Name " & "From (((KOT K Left Join Waiter W on K.Waiter=W.Code) left join SubGroup S On K.Party=S.SubCode) Left Join Depart D on D.Code=K.RestCode) "
+
+-- SQL Statement 175 --
+  loc_1E4FAAE: var_188 = CVar("Select K.Sno,I.Name as ItemName,I.Unit,K.Qty, Depart.ShortName From (KOT K Left Join  ItemMast I on K.Item=I.Code And K.ItemRestCode=I.RestCode) LEFT JOIN Depart ON I.Kitchen=Depart.Code " & "Where K.DocID=") 'String
+
+-- SQL Statement 176 --
+  loc_1E4FB1C: unk_43FED1.Execute "Select * From Depart Where Code='" & var_138 & "'", var_168, -1
+
+-- SQL Statement 177 --
+  loc_1E4FB60: var_1E4 = "SELECT DISTINCT DOCID FROM KOT WHERE RESTCODE='" & var_138 & "' AND ROOMNO='" & var_13C & "' AND Pending='Y' AND VOIDYN<>'Y' AND (DELFLAG='N' or DELFLAG='') AND NCKOT<>'Y' AND ISNULL(CONTRADOCID,'')=''"
+
+-- SQL Statement 178 --
+  loc_1E4FD8E:     var_18C = "Select distinct(Depart.ShortName),Depart.Name,Depart.Code,Depart.Printer,Depart.PrintType From Depart Where Depart.Code='" & MemVar_1F81078
+
+-- SQL Statement 179 --
+  loc_1E4FDD0:     var_188 = CVar("Select distinct(Depart.ShortName),Depart.Name,Depart.Code,Depart.Printer,Depart.PrintType From (KOT K Left Join  ItemMast I on K.Item=I.Code And K.ItemRestCode=I.RestCode) LEFT JOIN Depart ON I.Kitchen=Depart.Code " & "Where K.DocID=") 'String
+
+-- SQL Statement 180 --
+  loc_1E4FE71:     var_18C = "Select distinct(Depart.ShortName),Depart.Name,Depart.Code,Depart.Printer,Depart.PrintType From Depart Where Depart.Code='" & MemVar_1F81078
+
+-- SQL Statement 181 --
+  loc_1E4FEB3:     var_188 = CVar("Select distinct(Depart.ShortName),Depart.Name,Depart.Code,Depart.Printer,Depart.PrintType From (KOT K Left Join  ItemMast I on K.Item=I.Code And K.ItemRestCode=I.RestCode) LEFT JOIN Depart ON I.Kitchen=Depart.Code " & "Where K.DocID=") 'String
+
+-- SQL Statement 182 --
+  loc_1E4FF1D: var_178 = "Select Count(Distinct Depart.Code) From (KOT K Left Join ItemMast I on K.Item=I.Code And K.ItemRestCode=I.RestCode) LEFT JOIN Depart ON I.Kitchen=Depart.Code Where K.DocID="
+
+-- SQL Statement 183 --
+  loc_1E50010:     var_188 = CVar("Select K.Sno,I.DispCode,I.Name as ItemName,I.Unit,K.Qty,K.Rate,K.Description, Depart.ShortName,Depart.Code,dEPART.nAME AS KITCHEN,Depart.PrintType,K.VoidYN As Cancel,K.Printed From (KOT K Left Join  ItemMast I on K.Item=I.Code And K.ItemRestCode=I.RestCode) LEFT JOIN Depart ON I.Kitchen=Depart.Code " & "Where K.DocID=") 'String
+
+-- SQL Statement 184 --
+  loc_1E500DC:     var_188 = CVar("Select K.Sno,I.DispCode,I.Name as ItemName,I.Unit,K.Qty,K.Rate,K.Description, Depart.ShortName,Depart.Code,dEPART.nAME AS KITCHEN,Depart.PrintType,K.VoidYN As Cancel,K.Printed From (KOT K Left Join  ItemMast I on K.Item=I.Code And K.ItemRestCode=I.RestCode) LEFT JOIN Depart ON I.Kitchen=Depart.Code " & "Where K.DocID=") 'String
+
+-- SQL Statement 185 --
+  loc_1E50154:     var_188 = CVar("Select K.Sno,I.DispCode,I.Name as ItemName,I.Unit,K.Qty,K.Rate,K.Description, Depart.ShortName,Depart.Code,dEPART.nAME AS KITCHEN,Depart.PrintType,K.VoidYN As Cancel,K.Printed From (KOT K Left Join  ItemMast I on K.Item=I.Code And K.ItemRestCode=I.RestCode) LEFT JOIN Depart ON I.Kitchen=Depart.Code " & "Where K.DocID=") 'String
+
+-- SQL Statement 186 --
+  loc_1E50220:     var_188 = CVar("Select K.Sno,I.DispCode,I.Name as ItemName,I.Unit,K.Qty,K.Rate,K.Description, Depart.ShortName,Depart.Code,dEPART.nAME AS KITCHEN,Depart.PrintType,K.VoidYN As Cancel,K.Printed From (KOT K Left Join  ItemMast I on K.Item=I.Code And K.ItemRestCode=I.RestCode) LEFT JOIN Depart ON I.Kitchen=Depart.Code " & "Where K.DocID=") 'String
+
+-- SQL Statement 187 --
+  loc_1E5111A:       var_188 = CVar("Select Count(Distinct Printed) From (KOT K Left Join  ItemMast I on K.Item=I.Code And K.ItemRestCode=I.RestCode) LEFT JOIN Depart ON I.Kitchen=Depart.Code " & "Where K.DocID=") 'String
+
+-- SQL Statement 188 --
+  loc_1E51238:       Proc_6_16_EA44E0(var_168, arg_C, "Select Count(Distinct Printed) from kot where docid=", var_21C)
+
+-- SQL Statement 189 --
+  loc_1E51360:         var_188 = CVar("Select Printed From (KOT K Left Join  ItemMast I on K.Item=I.Code And K.ItemRestCode=I.RestCode) LEFT JOIN Depart ON I.Kitchen=Depart.Code " & "Where K.DocID=") 'String
+
+-- SQL Statement 190 --
+  loc_1E5146E:         var_178 = "Select Printed from kot where docid="
+
+-- SQL Statement 191 --
+  loc_1E51B44:     Proc_6_16_EA44E0(var_168, arg_C, "Select Count(Distinct Printed) from kot where docid=")
+
+-- SQL Statement 192 --
+  loc_1E51BE7:       Proc_6_16_EA44E0(var_168, arg_C, "Select Printed from kot where docid=")
+
+-- SQL Statement 193 --
+  loc_1E53BC2:       var_188 = CVar("Select Count(Distinct Printed) From (KOT K Left Join ItemMast I on K.Item=I.Code And K.ItemRestCode=I.RestCode) LEFT JOIN Depart ON I.Kitchen=Depart.Code " & "Where K.DocID=") 'String
+
+-- SQL Statement 194 --
+  loc_1E53CE0:       Proc_6_16_EA44E0(var_168, arg_C, "Select Count(Distinct Printed) from kot where docid=")
+
+-- SQL Statement 195 --
+  loc_1E53E21:         var_188 = CVar("Select Printed From (KOT K Left Join ItemMast I on K.Item=I.Code And K.ItemRestCode=I.RestCode) LEFT JOIN Depart ON I.Kitchen=Depart.Code " & "Where K.DocID=") 'String
+
+-- SQL Statement 196 --
+  loc_1E53F3F:         Proc_6_16_EA44E0(var_168, arg_C, "Select Printed from kot where docid=")
+
+-- SQL Statement 197 --
+  loc_1E553EA:       var_188 = CVar("Select Count(Distinct Printed) From (KOT K Left Join ItemMast I on K.Item=I.Code And K.ItemRestCode=I.RestCode) LEFT JOIN Depart ON I.Kitchen=Depart.Code " & "Where K.DocID=") 'String
+
+-- SQL Statement 198 --
+  loc_1E55508:       Proc_6_16_EA44E0(var_168, arg_C, "Select Count(Distinct Printed) from kot where docid=")
+
+-- SQL Statement 199 --
+  loc_1E55649:         var_188 = CVar("Select Printed From (KOT K Left Join ItemMast I on K.Item=I.Code And K.ItemRestCode=I.RestCode) LEFT JOIN Depart ON I.Kitchen=Depart.Code " & "Where K.DocID=") 'String
+
+-- SQL Statement 200 --
+  loc_1E55767:         Proc_6_16_EA44E0(var_168, arg_C, "Select Printed from kot where docid=")
+
+-- SQL Statement 201 --
+  loc_1E571D1: var_188 = CVar("Select Count(Distinct Printed) From (KOT K Left Join ItemMast I on K.Item=I.Code And K.ItemRestCode=I.RestCode) LEFT JOIN Depart ON I.Kitchen=Depart.Code " & "Where K.DocID=") 'String
+
+-- SQL Statement 202 --
+  loc_1E572EF: Proc_6_16_EA44E0(var_168, arg_C, "Select Count(Distinct Printed) from kot where docid=")
+
+-- SQL Statement 203 --
+  loc_1E57430: var_188 = CVar("Select Printed From (KOT K Left Join ItemMast I on K.Item=I.Code And K.ItemRestCode=I.RestCode) LEFT JOIN Depart ON I.Kitchen=Depart.Code " & "Where K.DocID=") 'String
+
+-- SQL Statement 204 --
+  loc_1E5754E: Proc_6_16_EA44E0(var_168, arg_C, "Select Printed from kot where docid=")
+
+-- SQL Statement 205 --
+  loc_1E58E6E: var_188 = CVar("Select Count(Distinct Printed) From (KOT K Left Join ItemMast I on K.Item=I.Code And K.ItemRestCode=I.RestCode) LEFT JOIN Depart ON I.Kitchen=Depart.Code " & "Where K.DocID=") 'String
+
+-- SQL Statement 206 --
+  loc_1E58F8C: Proc_6_16_EA44E0(var_168, arg_C, "Select Count(Distinct Printed) from kot where docid=")
+
+-- SQL Statement 207 --
+  loc_1E590CD: var_188 = CVar("Select Printed From (KOT K Left Join ItemMast I on K.Item=I.Code And K.ItemRestCode=I.RestCode) LEFT JOIN Depart ON I.Kitchen=Depart.Code " & "Where K.DocID=") 'String
+
+-- SQL Statement 208 --
+  loc_1E591EB: Proc_6_16_EA44E0(var_168, arg_C, "Select Printed from kot where docid=")
+
+-- SQL Statement 209 --
+  loc_1E5985B: var_178 = "UPDATE KOT SET PRINTED='Y' From (KOT K Left Join ItemMast I on K.Item=I.Code) LEFT JOIN Depart ON I.Kitchen=Depart.Code Where K.DocID="
+
+-- SQL Statement 210 --
+  loc_1E59970: Proc_6_16_EA44E0(var_168, arg_C, "UPDATE KOT SET PRINTED='Y' WHERE DOCID=")
+
+-- SQL Statement 211 --
+  loc_1BBD880: Proc_6_16_EA44E0(var_124, arg_C, "SELECT Top 1 * FROM KOT WHERE DocId=")
+
+-- SQL Statement 212 --
+  loc_1BBD9BF: Proc_6_16_EA44E0(var_124, MemVar_1F81078, "SELECT * FROM ENVIRO WHERE LOGSITE_CODE=")
+
+-- SQL Statement 213 --
+  loc_1BBDB45: var_148 = "Select DISTINCT k.Vtime,K.VNo,K.VDate,S.CardNo,S.Name As MemName,W.name as WaiterName,k.RoomNo as TableNo,K.NCKOT,K.NCTYPE,K.Remarks , K.ContraDocId, D.ShortName,K.GuarAtt,K.U_AE,K.TokenNo " & "From (((KOT K Left Join Waiter W on K.Waiter=W.Code) left join SubGroup S On K.Party=S.SubCode) Left Join Depart D on D.Code=K.RestCode) "
+
+-- SQL Statement 214 --
+  loc_1BBDB88: var_144 = CVar("Select K.Sno,I.Name as ItemName,K.Qty, Depart.ShortName From (KOT K Left Join  ItemMast I on K.Item=I.Code And K.ItemRestCode=I.RestCode) LEFT JOIN Depart ON I.Kitchen=Depart.Code " & "Where K.DocID=") 'String
+
+-- SQL Statement 215 --
+  loc_1BBDC05: var_1A0 = "SELECT DISTINCT DOCID FROM KOT WHERE RESTCODE='" & var_F8 & "' AND ROOMNO='" & var_FC & "' AND PENDING='Y' AND (DELFLAG IS NULL OR DELFLAG<>'Y') AND CONTRADOCID IS NULL"
+
+-- SQL Statement 216 --
+  loc_1BBDD39: var_148 = "Select distinct(Depart.ShortName),Depart.Name,Depart.Code,Depart.Printer,Depart.PrintType From Depart Where Depart.Code='" & var_F8
+
+-- SQL Statement 217 --
+  loc_1BBDD7D:   var_144 = CVar("Select K.Sno,I.Name as ItemName,K.Qty,K.Rate,K.Description, Depart.ShortName,Depart.Code,dEPART.nAME AS KITCHEN,Depart.PrintType,K.VoidYN As Cancel,K.Printed From (KOT K Left Join  ItemMast I on K.Item=I.Code And K.ItemRestCode=I.RestCode) LEFT JOIN Depart ON I.Kitchen=Depart.Code " & "Where K.DocID=") 'String
+
+-- SQL Statement 218 --
+  loc_1BBE95A:         Proc_6_16_EA44E0(var_124, arg_C, "Select Count(Distinct Printed) from kot where docid=", Space(1), -1)
+
+-- SQL Statement 219 --
+  loc_1BBEA1E:           var_134 = "Select Printed from kot where docid="
+
+-- SQL Statement 220 --
+  loc_1BBEEDE:           Proc_6_16_EA44E0(var_124, arg_C, "Select Count(Distinct Printed) from kot where docid=")
+
+-- SQL Statement 221 --
+  loc_1BBEF81:             Proc_6_16_EA44E0(var_124, arg_C, "Select Printed from kot where docid=")
+
+-- SQL Statement 222 --
+  loc_1BC078B:             Proc_6_16_EA44E0(var_124, arg_C, "Select Count(Distinct Printed) from kot where docid=", var_194)
+
+-- SQL Statement 223 --
+  loc_1BC0878:               Proc_6_16_EA44E0(var_124, arg_C, "Select Max(Printed) from kot where docid=", var_194)
+
+-- SQL Statement 224 --
+  loc_1BC174F:               Proc_6_16_EA44E0(var_124, arg_C, "Select Count(Distinct Printed) from kot where docid=", var_194)
+
+-- SQL Statement 225 --
+  loc_1BC183C:                 Proc_6_16_EA44E0(var_124, arg_C, "Select Max(Printed) from kot where docid=", var_194)
+
+-- SQL Statement 226 --
+  loc_1BC2A90:                 Proc_6_16_EA44E0(var_124, arg_C, "Select Count(Distinct Printed) from kot where docid=", var_194)
+
+-- SQL Statement 227 --
+  loc_1BC2B7D:                   Proc_6_16_EA44E0(var_124, arg_C, "Select Max(Printed) from kot where docid=", var_194)
+

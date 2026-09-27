@@ -1,0 +1,49 @@
+DATABASE / UTILITY STABILITY FIX PLAN
+====================================
+
+Scope:
+- DB connection handling
+- SQL Server compatibility and config safety
+- Logging and error handling
+- Utility scripts and tool reliability
+- Temp / report / printer path safety
+
+Primary Files:
+- HMS_py/core/db.py
+- HMS_py/Analysis.ini
+- HMS_py/main.py
+- HMS_py/HMS_py/core/db.py
+- Any tools under HMS_py/tools
+- Error log handling and startup checks
+
+Crystal / print pages and names:
+- Global print setup: Analysis.ini -> Reports, Temp, Printer values
+- Shared print preview: frmMod_Print, frmPrintModule, report generation under _qa/reports
+- PDF output path: _qa/reports/<name>.pdf for report generation safety
+- Any report-printing module should use these shared temp/report paths instead of hardcoded local paths
+
+Known Missing / Risky Logic:
+1. Project root config must resolve correctly even when launched from different folders.
+2. DB connection should fail intentionally with clear message when SQL server or config is missing.
+3. Utility scripts should not assume old package paths or legacy directory layout.
+4. Error log and temp directory creation must remain safe under headless or restricted environments.
+5. Missing tables should log explicit warnings, not crash the app.
+
+Required Fixes:
+1. Keep DB path resolution project-local and deterministic.
+2. Fail gracefully when Analysis.ini path is missing or corrupted.
+3. Ensure utility scripts use present working root detection and package import stability.
+4. Add structured logging for DB exceptions, config issues, and missing table warnings.
+5. Keep report/temp/printer settings read from Analysis.ini or safe defaults.
+
+Implementation Steps:
+1. Audit root path logic and startup sequence in main.py.
+2. Validate DB naming expectations against live SQL Server.
+3. Add tests for missing config / missing DB / missing table behavior.
+4. Keep all utility scripts safe and non-destructive.
+
+Expected Result:
+- App starts reliably in local development and in restricted environments.
+- Troubleshooting is easier because failure modes are explicit and logged.
+- Legacy file layout or renamed paths no longer break critical scripts.
+

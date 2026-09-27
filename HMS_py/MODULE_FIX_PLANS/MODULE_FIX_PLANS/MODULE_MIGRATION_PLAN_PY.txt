@@ -1,0 +1,401 @@
+================================================================================
+  MODULE-WISE MIGRATION PLAN — VB6 (EXTRAS.text) → PYTHON (HMS_py)
+================================================================================
+Generated   : 2026-09-21
+Source      : MODULE_FIX_PLANS/EXTRAS.text (51.5 MB decompiled VB6 P-Code)
+              351 objects, 14,949 Sub/Function handlers
+Live DB     : KailashData2526 (tables live-verified via pyodbc)
+Target      : HMS_py (PyQt6 UI + core/pyodbc), zero schema change
+
+HAR MODULE ME 4 SECTIONS:
+  [MASTER]  - master entry forms (CRUD)
+  [REPORT]  - report viewers/prints
+  [WORKFLOW]- multi-step operations (posting, transfer, settlement)
+  [STATUS]  - CORE=core module hai | UI=UI form hai | GAPS=jo port karna hai
+
+Legend: [DONE] fully ported | [PART] partial | [MISS] not ported
+        [SKIP] live DB me tables hi nahi (documented skip, VB6 me bhi inactive)
+
+================================================================================
+MODULE 1 — MAIN SETUP (VB6: Mast, srno 42)
+================================================================================
+VB6 Objects : CompMast, DepartMast, FrmCityMast*, FaCityMast, FaCountryMast,
+              FaStateMast, FaGlobeNarr, FaNarrMast, SundryMast, FrmChargeMast,
+              frmUnitMast, FrmItemMast, FrmItemGroupMast, FrmItemCatMast,
+              FrmItemMastRaw, FrmItemCatRaw, FrmItemGroupMastRaw,
+              FrmRoomCatMast, FrmRoomMast, FrmRoomFeatureMast,
+              FrmPackageMast, frmSeasonMast, FrmVenueMast, FrmVenueFeat,
+              FrmBusinessSrc, FrmMarketSeg, FrmPayTypeMast, FrmGuestStat,
+              FrmForeignExMast, FrmNCType, FrmWaiterMast, frmSessionMast,
+              SchemeMast, frmComboMast, Godown, FrmLocationMast, FrmControlPanel
+Tables      : COMPANY, Depart, City, Country, State, NarrMast, SundryMast,
+              FixedCharge, UnitMast, ItemMast, ItemGrp, ItemCat, RoomCat,
+              RoomMast, RoomFeature, PlanMast, Plan1, SeasonMast, VenueMast,
+              VenueFeatures, BussSource, MarketSeg, PayType, GuestStat, ForEx,
+              NCTypeMast, Waiter, Session, SchemeMast, CatalogMast, GodownMast
+              (sab LIVE-verified)
+
+[MASTER] STATUS: [DONE]
+  CORE: city.py, country.py, state.py, area.py, depart.py, narr.py,
+        sundry.py, fixcharge.py, unit.py, item.py, roomcategory.py,
+        roommaster.py, packagemaster.py, seasonmaster.py, venue.py,
+        businesssource.py, marketsegment.py, paymenttype.py, gueststatus.py,
+        forexmaster.py, scheme.py, plans.py, companymaster.py, acgroup.py
+  UI  : p2_masters.py (23 masters), general_setup_ui.py (room features,
+        godown, voucher), pos_masters_ui.py (NCType, Waiter, Session, Combo)
+  GAPS: koi nahi — masters complete hain
+
+[WORKFLOW] Item raw-store split (VB6 FrmItemMastRaw + ItemMastRaw table):
+  STATUS: [MISS] — live DB me ItemMastRaw family check karna.
+  Agar table nahi => VB6 me bhi dead feature, SKIP.
+
+================================================================================
+MODULE 2 — FRONT OFFICE (VB6: FrontDesk, srno 216)
+================================================================================
+VB6 Objects : fdCheckIn, FdCheckOut, FdRevCheckOut, FdGrpCheckOut,
+              FdGrpdetCheckOut, FdReSetlement, fdDisplayFolio,
+              fdDisplayFolioSumm, fdPostChrg, fdPaymentCharge, fdNDAcPostChrg,
+              fdAcPostChrg, fdRoomChange, fdWalkInEntry, fdPrintScreen,
+              FdLookUpRoom, FdLookUpRoomNo, FdRoomDisplay, FrmGuestInfo,
+              FrmGuestStat, GuestProfile, FrmReservationStatus, RrLookUpGuest,
+              RrRoomReservation, frmAdvanceDepDialog (x4 variants),
+              InHouseGuestFolio, FrmGuestWakeUp, FrmHouGuestMsg, FindMess,
+              FrmGuestAddObj, FrmGrcBlank, FrmBdayLookup, FrmInc, FrmMergeCharge
+Tables      : GuestFolio, GuestProf, RoomOcc, PayCharge, FOMBillDetails,
+              GuestWakeUp, GuestMessage, Booking (sab LIVE)
+
+[MASTER] GuestProfile: [DONE] (core/guestprof.py + ui/frontoffice.py)
+[MASTER] Reservation:  [DONE] (core/reservation.py + ui/reservation_browser.py)
+
+[WORKFLOW] STATUS:
+  Check-In         : [DONE] core/checkin.py + ui (registration_entry_ui)
+  Check-Out        : [DONE] core/checkout.py + ui/checkout_ui.py
+                     (balance guard, clearance, reverse — v0.1.1 me fixes)
+  Reverse Checkout : [DONE] checkout.reverse_checkout
+  Group Checkout   : [PART] FdGrpCheckOut logic port nahi —
+                     GAPS: multi-folio group checkout (RoomOcc.FolioNo set se)
+  Re-Settlement    : [PART] FdReSetlement — ui/fo_sub_forms_ui.open_re_settlement
+                     stub hai; GAPS: bill re-open + PayCharge reversal flow
+  Post Charges     : [DONE] folio.post_room_charge + ui/folio_ui.py
+  ND Ac Post Chrg  : [PART] fdNDAcPostChrg — nightaudit posting me RC only;
+                     GAPS: non-department ac posting split
+  Room Change      : [MISS] fdRoomChange — GAPS: RoomOcc.RoomNo update +
+                     folio re-link (chhota workflow, 1 din)
+  Walk-In          : [DONE] fo.open_checkin (WalkIn alias)
+  Folio Display    : [DONE] folio_ui.py (FolioLog + Amend)
+  Advance Deposit  : [SKIP] AdvanceDepDialog x4 — tables live nahi
+  Merge Charge     : [PART] fo_sub_forms_ui.open_merge_charge stub;
+                     GAPS: PayCharge merge logic (VB6 FrmMergeCharge)
+
+[REPORT] Guest Ledger    : [DONE] reports.py (NightAuditoR index 0 port)
+[REPORT] Folio Summ      : [DONE] fdDisplayFolioSumm → folio_ui summary tab
+
+================================================================================
+MODULE 3 — RESERVATION (VB6: Reserv, srno 188)
+================================================================================
+VB6 Objects : RrRoomReservation, RrLookUpGuest, FrmReservationStatus,
+              RsBookingEntry, RsBookingEntryAdvance, RsTouchScreenBookingEntry,
+              BanqAvailability, resBanq, resGroup, resRoomNo, resRoomType,
+              FrmBookingInquiry, FrmCalender
+Tables      : Booking, BookingMore, BookingPlanDetails, BookingInquiry (LIVE)
+
+[MASTER] Booking CRUD : [DONE] core/booking.py + reservation_browser.py
+[MASTER] Booking Inquiry : [DONE] shell registry (FV list viewer)
+[WORKFLOW] Group Booking (resGroup):
+  STATUS: [PART] — Group1/GrpBookingDetails table LIVE;
+          GAPS: multi-room group reservation workflow (VB6 resGroup.frm)
+[REPORT] Availability (BanqAvailability): [PART] roomstatus.room_availability hai;
+          GAPS: date-range forecast grid (VB6 23-day forecast already in reports)
+
+================================================================================
+MODULE 4 — POINT OF SALE (VB6: Restaurant, srno 353)
+================================================================================
+VB6 Objects : RsKOTEntry, RsTouchScreenKOTEntry, RsPOSDisplay(+New),
+              RSSaleBill(+1), RSTouchScreenSaleBill, RsSaleBillSplit,
+              RsPaymentReceice, RsAssignDelivery, RsTbChange, RsKOTTransfer,
+              RsTokenEntry, RsTableMast, RsMenuItemEntry, RsMenuRate*,
+              FrmMenuList, RsSpecItemEntry, RsGravyItemEntry,
+              RsKitchenMaterial, RsKitchenStk, RsStatusScreen,
+              RsTouchDisplayTB, RsPOSCustInfo, pHappyHours, NewHappyHours,
+              pPBill, pPOrder, POSBillReprint, FrmPOSBillDeletion,
+              FrmPOSBillModification*, FrmPOSRecycleData, FrmPOSSaleDataTransfer,
+              FrmDeliveryBoyMast, FrmConsumMast(+9999), OutLetMast, OutLetSundry
+Tables      : KOT, KOTLOG, Sale1, Sale2, Sale3, Token, TableMast, ItemRate,
+              HappyHours, FreeItem, AssignDelivery, RewardPoint (LIVE subset)
+
+[MASTER] Outlet/Table/Menu  : [DONE] pos_masters.py + pos_masters_ui.py
+[MASTER] Happy Hours        : [DONE] pos_happy.py + pos_happy_ui.py
+[WORKFLOW] KOT Entry        : [DONE] pos_kot.py + kot_entry.py
+[WORKFLOW] Sale Bill        : [DONE] pos_sales.py + pos_sales_ui.py
+[WORKFLOW] Bill Split       : [PART] RsSaleBillSplit → splitbill_list_by_doc
+                              GAPS: split-transaction writer
+[WORKFLOW] KOT Transfer     : [MISS] RsKOTTransfer — GAPS: KOT table/outlet
+                              re-link (UPDATE KOT SET TableNo/RestCode)
+[WORKFLOW] Table Change     : [MISS] RsTbChange — same pattern as KOT transfer
+[WORKFLOW] Token Entry      : [PART] pos_kot.token_list read-only;
+                              GAPS: token issue/close writer
+[WORKFLOW] Payment Receive  : [DONE] pos_sales settlement paths
+[WORKFLOW] Delivery         : [DONE] pos_delivery.py + ui + sms_comm.insert_delivery
+[WORKFLOW] Kitchen Material : [MISS] RsKitchenMaterial/RsKitchenStk —
+                              GAPS: kitchen stock issue/receive writers
+                              (inventory.kitchen_material_issue core READY)
+[WORKFLOW] Gravy/Spec Items : [MISS] RsGravyItemEntry/RsSpecItemEntry —
+                              GAPS: recipe-linked item entry
+[REPORT] Bill Reprint       : [DONE] pos_sub_forms_ui.open_bill_reprint
+[REPORT] POS Modification   : [PART] datewise/itemgroupwise viewers missing
+[SKIP] Touch screen variants: hardware-bound (RsTouch*), VB6 me bhi site-specific
+
+================================================================================
+MODULE 5 — BANQUET (VB6: Banquet, srno 411)
+================================================================================
+VB6 Objects : HallBooking, HallBill, HallBillEstimate, HallEstimate,
+              HallChefPreCosting, HallMenuCatalog, HallMenuItemEntry,
+              HallItemGroupMast, HallSundry, HallAcPostChrg,
+              HallAdvanceDepDialog, CateringBooking, BanqModule, GroupProfile,
+              FunctionType (via banquet masters), resBanq
+Tables      : HallBook, HallBook1, HallSale1, HallSale2, VenueOcc,
+              CatalogMast, GroupProf, FunctionType, CateringBooking (LIVE)
+
+[MASTER] Venue/Catalog/GroupProf/FuncType : [DONE] banquet_masters.py + ui
+[WORKFLOW] Hall Booking : [DONE] banquet_ops.py + hall_booking.py + ui
+[WORKFLOW] Banquet Bill : [DONE] hallsale1/hallsale2 writers + ui
+[WORKFLOW] Estimate     : [PART] HallEstimate — GAPS: estimate → bill
+                          conversion workflow (HallSale1.Flag='E')
+[WORKFLOW] Chef Pre-Costing : [PART] pos_hall.precosting_list read-only;
+                          GAPS: BOM cost calc writer
+[WORKFLOW] Menu Catalog Entry : [PART] catalog master hai;
+                          GAPS: HallMenuItemEntry line grid
+[WORKFLOW] Ac Post Chrg : [MISS] HallAcPostChrg — GAPS: banquet bill →
+                          ledger posting (LEDGER insert)
+[REPORT] Hall Rep View  : [DONE] rHallRepView → reports engine aliases
+
+================================================================================
+MODULE 6 — HOUSE KEEPING (VB6: HouseKeeping, srno 287) — PARTIAL
+================================================================================
+VB6 Objects : HHouseKeeping, HKHouseOpStk, HKRoomOpStk, HKIssRec, HKRoomBlock,
+              HRoomCheckOutClearance, HWIHistory, FrmItemIssuedOnCleaning,
+              FrmMeterReading
+Tables      : LIVE-verified — HHouseKeeping, HKIssRec, HKRoomBlock,
+              HKRoomOpStk, HKHouseOpStk, HWIHistory SAB NO-TABLE.
+              Sirf RoomBlockOut shell reference hai (bhi empty).
+
+[MASTER] STATUS: [SKIP] — VB6 me bhi ye module inactive tha (tables gone)
+[WORKFLOW] Room Status/Housekeeping screen : [DONE] roomstatus_ui.py
+              (roomstatus.housekeeping_summary live RoomOcc se)
+[WORKFLOW] Checkout Clearance : [DONE] checkout.check_clearance
+              (guest balance + bill status based — VB6 table-less tha)
+GAPS: koi migration nahi — sirf roomstatus UI maintain karo
+
+================================================================================
+MODULE 7 — INVENTORY / PURCHASE (VB6: Purchase, srno 309) — PARTIAL
+================================================================================
+VB6 Objects : PIndent, pPOrder, pPBill, pGIss, pReqSlip, pMREntry, kClStk,
+              FrmOPStock, FrmStockTransfer, frmPurEnviro, FrmLocationFacilities,
+              FrmParty, FrmPartyLocations, FacilitySundry, DepOpStk,
+              FrmConsumMast, FrmConsumMast9999
+Tables      : Indent, Indent1, POrder, POrder1, Purch1, Purch2, Stock, GIN,
+              KClStk, eInvoiceEnviro (LIVE)
+
+[MASTER] Item/Group/Cat/Godown : [DONE]
+[MASTER] Purchase Order  : [DONE] core/purchase PORDER1API + purchase_order_ui.py
+[MASTER] Purchase Bill   : [DONE] Purch1/Purch2 API + purchase_bill_ui.py
+[MASTER] GIN Receipt     : [PART] inventory.gin_create + GINForm stub methods
+                           (`pass` bodies — GAPS: set_state/_on_save/_add_line
+                           implement karna, stock_create MRE already ready)
+[WORKFLOW] Indent       : [DONE] indent_create/update/delete + IndentForm
+[WORKFLOW] Stock Issue  : [DONE] stock_issue (RQI + ClearYN) + stock_issue_ui
+[WORKFLOW] Stock Receive: [DONE] stock_receive (RQR) + stock_receive_ui
+[WORKFLOW] Stock Adjust : [DONE] stock_adjust (ADJ) + stock_adjust_ui
+[WORKFLOW] Requisition Slip : [DONE] requisition_slip_ui.py (NEW v0.1.1)
+[WORKFLOW] M.R. Entry   : [DONE] registry wired to stock_receive (MRE)
+[WORKFLOW] Kitchen ClStk: [DONE] kitchen_clstk_ui.py (NEW v0.1.1)
+[WORKFLOW] Stock Transfer: [DONE] inventory stock transfer pairs + UI
+[WORKFLOW] Opening Stock: [DONE] misc_sub_forms_ui.open_opening_stock
+[WORKFLOW] Pur Enviro   : [PART] frmPurEnviro → enviro.py snapshot;
+                           GAPS: purchase-specific enviro fields UI
+[REPORT] Purchase Register / Stock Summary / Stock Register / Kitchen Stock :
+         [DONE] reports engine + inventory browsers
+
+================================================================================
+MODULE 8 — NIGHT AUDIT (VB6: NightAudit, srno 450) — COMPLETE
+================================================================================
+VB6 Objects : mdlNightAudit, frmReNightAudit, NightAuditLR_Click,
+              NightAuditoR_Click, NightAuditRR_Click (13 report indices),
+              mnuTelRep_Click (EPABX call rep)
+Tables      : NightAuditLog, PayCharge, RoomOcc, KOT, LEDGER (LIVE)
+
+[WORKFLOW] Night Audit Run : [DONE] nightaudit.py (RC posting, POS revenue,
+              date rollover, log)
+[WORKFLOW] Reverse NA      : [PART] — GAPS: posted entries reversal writer
+[REPORT] 13 NA reports     : [DONE] nightaudit_reports_ui.py + reports.py
+[REPORT] GuestChgJournalLog: [DONE] (NightAuditLR index 1 port)
+
+================================================================================
+MODULE 9 — FINANCE / FA (VB6: FA, srno 1) — PARTIAL
+================================================================================
+VB6 Objects : FaVrEnt, FaGrEnt, FaAdjust, FaAdjustDel, FaChqClear, FaTDSChal,
+              FaTDSCertificate, FaTDSCat, FaTaxVoucher, FaVtype, FaEnvron,
+              FaCurrBalUpdate, FaSubGroup, FaCityMast/FaStateMast/FaCountryMast,
+              FaReports, FaRepView, FaFind, FaMagic, FaLib, FaVoucher.bas,
+              AccountMerg, frmRevGroup, FrmRevenueWiseBudget, frmYearEnd,
+              frmTallyExport
+Tables      : Ledger, LedgerAdj, LedgerM, ACGROUP, SUBGROUP, VOUCHER_TYPE,
+              FAEnviro, TDS tables, Budget (LIVE)
+
+[MASTER] Voucher Entry     : [DONE] fa_voucher.post_voucher + fa_voucher_ui
+[MASTER] Ledger/SubGroup   : [DONE] ledger.py, fa_ledger_ops.py + fa_ledger_ui
+[MASTER] Adjustment/Chq/TDS: [DONE] fa_sub_forms_ui (adjust, chq clear, TDS cert)
+[MASTER] Account Merging   : [DONE] account_merge.py + account_merge_ui
+[MASTER] Revenue Group     : [DONE] revenue_budget.py + revenue_budget_ui
+[MASTER] Budget Entry      : [DONE] fa_ledger_ops budget CRUD + ui
+[MASTER] Year End          : [PART] year_end.py core; GAPS: confirmation UI
+[WORKFLOW] Cheque Clearing : [DONE] fa_voucher.cheque_cleared/pending + ui
+[WORKFLOW] Current Bal Update: [DONE] fa_ledger_ops.refresh_currbal
+[REPORT] BS / P&L / TB / Cash-Flow / Fund-Flow : [DONE] fa_voucher + fa_reports
+[REPORT] Tally XML Export  : [DONE] tally_export.py + tally_ui/tally_export_ui
+[WORKFLOW] Voucher Serialisation : [MISS] FrmSerialiseVr — GAPS: VNo series
+                           locking UI (db.next_vno helper ready)
+
+================================================================================
+MODULE 10 — HR / PAYROLL (VB6: PayRoll, srno 484) — COMPLETE (masters)
+================================================================================
+VB6 Objects : PrCategoryMast, PrDesigMast, PrEmployee, prHoliday, prSalCreate,
+              prAttend(+1), prLeavench, prOverTime, PrLoan, rRepPayRoll
+Tables      : Employee, EmpCategory, Desig, Holiday LIVE;
+              Salary, Attendence, Loan, Leave_Ench, OverTime LIVE-verified
+              (hr_payroll.py listers chal rahe hain)
+
+[MASTER] Category/Desig/Employee/Holiday : [DONE] hr_masters.py + hr_members_ui
+[MASTER] Salary/Attendance/Loan/OT/Leave : [PART] hr_payroll.py listers +
+              hr_payroll_ui.py browser;
+  GAPS: salary creation workflow (prSalCreate: attendance × rate → Salary
+        insert), attendance entry grid, loan EMI posting, OT calc
+[REPORT] PayRoll Rep : [PART] rRepPayRoll → reports "Attendance Report" hai;
+        GAPS: salary register + payslip print
+
+================================================================================
+MODULE 11 — MEMBERS MGMT (VB6: Member, srno 509) — PARTIAL
+================================================================================
+VB6 Objects : MembershipMast, MemCatMast, memFacilityMast, memCategoryFacilities,
+              MemFacilityEntry, MemVisitEntry, MemPaymentReceive,
+              MemBillPrintingModule, MemRenewalEntry, memCatChngEntry,
+              memCatChngCond, memCatRevMast, memAgeRevMast, memOutStationEntry,
+              MemAssistant, MemAutoSettleCardBalance, MemTagadaLetter,
+              MemberProposedMemInf, MemberShipRevenueMast, MemberEnviro,
+              MemberModule.bas, MemberSMS
+Tables      : MemCatMast, FacilityMast, MemberShipRevenueMast, MEMENVIRO LIVE;
+              member ops tables (Visit/FacilityEntry) LIVE-status verify karna
+
+[MASTER] Category/Facility/Revenue : [DONE] members_masters.py + hr_members_ui
+[WORKFLOW] Member Billing  : [PART] member_billing.py + member_billing_ui;
+  GAPS: MemFacilityEntry posting, MemVisitEntry, renewal workflow
+[WORKFLOW] Payment Receive : [PART] MemPaymentReceive — GAPS: writer
+[REPORT] Age-wise Revenue  : [MISS] memAgeRevMast — GAPS: grouping report
+[SKIP] TagadaLetter, MemberSMS (external gateway), SmartCard members ops
+
+================================================================================
+MODULE 12 — EPABX / TELEPHONE (VB6: Telephone, srno 502) — PARTIAL
+================================================================================
+VB6 Objects : TelCallEntry, TelCallTypeMast, TelCallCodeMast,
+              TelExtensionMast, TelCallControlMast, rRepTel(+Preview)
+Tables      : TelCallType, TelCallCode, TelExt LIVE; EPABX_Data LIVE
+
+[MASTER] CallType/CallCode/Extension : [DONE] epabx_masters.py + epabx_ui.py
+[MASTER] Call Control Mast : [PART] shell registry FV list viewer;
+  GAPS: full control-master form (rates, pulse calc)
+[WORKFLOW] Call Entry      : [READ-ONLY] EPABX_Data viewer live;
+  GAPS: external PBX import job (VB6 mobweb polling) — documented as
+        hardware/external dependency
+[REPORT] EPABX Call Rep    : [DONE] mnuTelRep index 0 → reports aliases
+
+================================================================================
+MODULE 13 — SMS / MESSAGING (VB6: SMS, Message, srno 532/506) — SKIP
+================================================================================
+VB6 Objects : SMSModule.bas, FrmSmsCenterSettings, FrmSMSEnviro,
+              FrmSMSMultiType, MemberSMS, Inbox, Outbox, EmptyInbox,
+              frmMessage, frmmessageKey, FrmNAMessageA/B/C, MobWebAPI.bas
+Tables      : Messaging LIVE (shell viewer), Inbox/Outbox NO-TABLE
+
+STATUS: [SKIP] — external SMS gateway dependency (VB6 me bhi inactive)
+CURRENT: sms_comm.py (delivery boys) + sms_enviro.py + Messaging viewer
+GAPS: nahi — documented skip
+
+================================================================================
+MODULE 14 — MALL MGMT / OUTDOOR / DIRECT SALE (srno 538/549/617) — SKIP/PART
+================================================================================
+VB6 Objects : FrmLocationFacilities, FacilitySundry, FrmDenomination,
+              DenominationDetail, FrmUserPaymentCollection, FrmDeliveredItemDetail,
+              FrmClaimEntry, FrmComplaintClearing, FrmComplaintMast, FrmLostFound
+Tables      : LocationFacility, SunTranFacility, DenominationDetail(+Format),
+              ComplaintDetail, LostFoundDetail, ComplaintCategory (sab LIVE)
+
+[MASTER] Complaint/Lost&Found/Claims : [DONE] guest_services.py + ui + viewers
+[MASTER] Location Facilities : [PART] FV list viewer;
+  GAPS: master form (FcCode, UnitRate, DueOn, StartMonth CRUD)
+[MASTER] Facility Sundry : [MISS] FacilitySundry — GAPS: sundry grid CRUD
+[WORKFLOW] Denomination  : [PART] facility_billing.py deno listers;
+  GAPS: cash-count entry screen (FrmDenomination grid)
+[WORKFLOW] User Payment Collection : [MISS] — GAPS: user-wise collection
+                           entry (UserPaymentCollection NO-TABLE verify —
+                           agar nahi to SKIP)
+[WORKFLOW] Facility Billing : [DONE] facility_billing.py + facility_billing_ui
+
+================================================================================
+MODULE 15 — EXTRAS / UTILITY (VB6: EXTR, UTLL, srno 586/624) — PARTIAL
+================================================================================
+VB6 Objects : AccountMerg (done), FrmUserPaymentCollection (above),
+              VoucherSundrySetting, UTLL Sale Bill Modification,
+              FrmControlPanel, frmPassword, LockForm, DMTree, Picture.bas,
+              GridPrint.bas, CommonDialog.bas, cStringBuilder.cls,
+              CGZipFiles/CGUnzipFiles (backup zip), JSON.bas, Hotlib,
+              MainLib, CodeModule, Functions.bas, ErrorHandlingModule,
+              DatabaseSecurityModule, ValidationModule, Module1, ModuleAdd,
+              ModuleDoorLock, ModuleSmartCard, SperialFolderPath, TmpTable,
+              TopBarLib, FOMModule, MemberModule, BanqModule, FaLib
+Tables      : misc
+
+[DONE] Account Merging, DB Backup (zip port), DB Maintenance (nulls update),
+       System Config, User Permissions, Tally Export, Year End core
+[MISS] Sale Bill Modification (UTLL) — GAPS: FOMBillDetails bill edit
+       (datewise/itemwise) — VB6 FrmPOSBillModification* helpers already
+       partial; priority MEDIUM
+[MISS] Voucher Sundry Setting — GAPS: VoucherSundry grid CRUD (table check)
+[SKIP] Door Lock / Smart Card modules (hardware), Job Scheduler,
+       FrmUploadProcess, DataTransfer/Recieving (site-sync)
+
+================================================================================
+PRIORITY IMPLEMENTATION QUEUE (next sessions)
+================================================================================
+P1 (high value, tables LIVE, cores ready):
+  1. GINForm completion (inventory.py stubs -> stock_create MRE + Stock rows)
+  2. Room Change workflow (fdRoomChange -> RoomOcc update)
+  3. KOT Transfer + Table Change writers (simple UPDATE flows)
+  4. Re-Settlement + Merge Charge real writers (folio_ui/fo_sub_forms)
+P2 (workflows):
+  5. Salary Creation workflow (prSalCreate port, attendance-driven)
+  6. Banquet Estimate -> Bill conversion
+  7. HallAcPostChrg -> LEDGER posting
+  8. Member Facility/Visit/Payment writers
+P3 (reports/UX):
+  9. Denomination cash-count screen
+  10. Location Facilities master form
+  11. POS Modification datewise/itemgroupwise viewers
+  12. Payslip + Salary Register reports
+P4 (documented skip — no tables/hardware):
+  HouseKeeping tables, AdvanceDepDialog, SMS/Inbox, Touch POS,
+  Door Locks, SmartCard, Job Scheduler, Data Transfer
+
+================================================================================
+MIGRATION PATTERN (har workflow ke liye standard)
+================================================================================
+1. VB6 source : EXTRAS.text me "'Object: <Form>" section se Sub/SQL extract
+2. Table check: live DB pe SELECT TOP 0 (NO-TABLE => SKIP document karo)
+3. Core first : HMS_py/core/<module>.py me parameterized-SQL writer
+                (db.next_vno for VNo, db.get_site_code/get_user for audit)
+4. UI second  : HMS_py/ui/<module>_ui.py (grid + header, offscreen-testable)
+5. Wire       : shell.py _form_registry entry (koi _coming_soon nahi)
+6. Test       : pytest unit (mock db) + test_all_modules live check
+7. Commit     : module-wise commit, README CHANGELOG update
+
+================================================================================
+EOF

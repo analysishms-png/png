@@ -1,0 +1,19 @@
+Module: MemBillPrintingModule
+Total SQL statements: 5
+================================================================================
+
+-- SQL Statement 1 --
+  loc_FF1DE7: var_B8 = CVar("SELECT  convert(Char,VNo) AS CODE, convert(Char,VNo) as Name  FROM MemBill WHERE (LOGSITE_CODE='" & MemVar_1F81078 & "') AND VDate between ") 'String
+
+-- SQL Statement 2 --
+  loc_FF1E87: var_B8 = CVar("SELECT  convert(Char,VNo) AS CODE, convert(Char,VNo) as Name  FROM MemBill WHERE (LOGSITE_CODE='" & MemVar_1F81078 & "') AND VDate between ") 'String
+
+-- SQL Statement 3 --
+  loc_FF1EFB: unk_428307.Execute "Select * from MemEnviro where LogSite_Code='" & MemVar_1F81078 & "'", var_A8, -1
+
+-- SQL Statement 4 --
+  loc_1181CBE:   Proc_6_6_F208E4(var_9C, MemVar_1F810F4, CVar("SELECT DocId As SearchCode FROM MemBill WHERE (LOGSITE_CODE='" & MemVar_1F81078 & "') AND VDate between "), var_1F4, -1)
+
+-- SQL Statement 5 --
+  loc_1181D8F:   Proc_6_6_F208E4(var_9C, MemVar_1F810F4, CVar("SELECT DocId As SearchCode FROM MemBill WHERE (LOGSITE_CODE='" & MemVar_1F81078 & "') AND VDate between "))
+

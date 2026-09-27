@@ -1,0 +1,268 @@
+================================================================================
+        ANALYSIS HMS - HOUSEKEEPING MODULE : BUG REPORT & TEST FINDINGS
+================================================================================
+Report Date   : 21-Sep-2026
+Module        : Housekeeping (Masters, Operations, Reports, Laundry)
+Environment   : Live demo application (Demo Property)
+Test Method   : Manual UI testing + Source code review (Laravel codebase)
+Tested By     : QA (Automated browser session)
+Prepared For  : Team meeting discussion
+================================================================================
+
+--------------------------------------------------------------------------------
+1. EXECUTIVE SUMMARY
+--------------------------------------------------------------------------------
+Housekeeping module ka end-to-end testing kiya (Masters + Operations + Reports
++ Laundry). Total 11 issues mile jisme:
+
+  - 2 CRITICAL   : Business date galat + negative stock allowed
+  - 4 HIGH       : Duplicate room assignment, raw SQL errors, silent failures,
+                   galat guest status report me
+  - 5 MEDIUM/LOW : Missing validation, broken URL, UI feedback missing
+
+Core flows (Room Status Board, Start/Complete Cleaning, Lost & Found,
+Cleaning Register, HK Stock Report, Amenities Report) kaam kar rahe hain,
+par data integrity aur user feedback me serious gaps hain.
+
+--------------------------------------------------------------------------------
+2. BUG LIST (SEVERITY-WISE)
+--------------------------------------------------------------------------------
+
+=== CRITICAL ===
+
+[BUG-01] Business Date Stale Hai - Saare Naye Vouchers Galat Date Par Banenge
+  Screen   : Header (saare screens) + Start Cleaning + Laundry Send
+  Kya hua  : Header me business date 17-Sep-2026 dikhta hai jabki aaj
+             21-Sep-2026 hai. Start Cleaning form aur Laundry Send form
+             dono me date field 17-Sep-2026 default me aati hai.
+  Impact   : 17 se 21 tak jo bhi cleaning/laundry/stock entries bani hain
+             wo 17-Sep ki date par record hui hongi. Reports me date filter
+             lagaoge to data galat date bucket me jayega. Night Audit ke
+             bina date roll-forward hua ya nahi, verify karna hoga.
+  Repro    : Login karo -> header date dekho (17-Sep-2026) vs system date
+             (21-Sep-2026). Phir Operations > Start Cleaning kholo -> date
+             field me bhi 17-Sep-2026.
+  Root Cause (code) : Controller ka session 'ncurdate' stale hai. Voucher
+             creation me bhi yahi use hota hai.
+  Fix      : Business date ko Night Audit ke saath auto-roll karo, ya
+             session expiry par re-init karo. Header me stale date par
+             warning banner dikhao.
+  Evidence : _bugtest/sc_after.png, _bugtest/ls_after.png
+
+[BUG-02] Negative Stock Allowed - Stock Minus Me Ja Sakta Hai
+  Screen   : Reports > HK Stock Report
+  Kya hua  : Coffee item ka Opening -45, Closing -52 hai. Floor Cleaner
+             -4.74, Glass Cleaner -2.87. System ne stock minus me hone ke
+             bawajood 7 unit aur issue kar di (HKISS-34 se HKISS-39).
+  Impact   : Data integrity issue. Stock valuation reports me negative
+             values aayengi. Audit me problem hogi.
+  Repro    : Reports > HK Stock Report -> 01-Sep se 21-Sep -> Refresh ->
+             Coffee group dekho (Opening -45.000, Bal -52.000).
+  Root Cause (code) : HouseKeeping.php (cleaning completion me HKISS stock
+             voucher banne wale block) me available-qty check NAHI hai.
+             Amenities qty directly stock issue ho jati hai chahe stock
+             0 se neeche chala jaye. Issue/save transactions me bhi koi
+             stock validation nahi mili.
+  Fix      : Stock issue par available qty check + blocking warning dalo.
+             Existing negative balances ke liye ek data-fix/adjustment
+             entry ka plan banao.
+  Evidence : _bugtest/hks_data.png (screenshot me 3 negative items)
+
+=== HIGH ===
+
+[BUG-03] Ek Room Do Housekeepers Ko Assign Ho Jata Hai (Duplicate Assignment)
+  Screen   : Operations > Room Status Board (Pending Inspections panel)
+  Kya hua  : Room 103 ke 2 assignments dikhe - ek DEMO housekeeper ko,
+             ek dusre housekeeper ko. Same room pehle se assigned ho to
+             system rokta nahi.
+  Impact   : 2 housekeepers same room clean karenge. Inspection 2 baar
+             trigger hoga. Accountability confuse hogi.
+  Extra Note (code) : Cleaning complete hone par status update ROOM par
+             hota hai (assno ignore karke, 'cleaningstatus=In Progress'
+             wali saari rows) - matlab duplicate assignments me dono
+             entries ek saath complete ho jayengi. Code comment khud
+             accept karta hai ki assno common hai.
+  Repro    : Operations > Start Cleaning -> Room 103 ko 2 alag
+             housekeepers ko assign karo -> dono save ho jate hain ->
+             Room Status Board me Room 103 2 baar dikhega.
+  Fix      : Room level par active assignment uniqueness check (DB
+             constraint ya controller me check). Ek room ka ek hi active
+             assignment ho.
+  Evidence : Room Status Board screenshot (Room 103 duplicate)
+
+[BUG-04] Cleaning Type Master - Bina Department Submit Karne Par RAW SQL Error
+  Screen   : Masters > Cleaning Type
+  Kya hua  : Cleaning Type name bhar ke, department select kiye bina
+             submit kiya to user ko poora raw database error dikhta hai:
+             "SQLSTATE[23000]: Integrity constraint violation: 1048
+             Column 'dcode' cannot be null"
+  Impact   : Unprofessional error exposure. Internal DB schema user ko
+             dikhta hai. Security bad practice.
+  Repro    : Masters > Cleaning Type -> Name bharo -> Department khali
+             chhodo -> Save -> raw SQL error screen par.
+  Root Cause (code) : Controller me server-side validation missing hai -
+             'dcode' required mark nahi hai; DB constraint seedha fail
+             hota hai aur error user tak pahunch jata hai.
+  Fix      : Request validation me 'dcode => required' + friendly error
+             message. Global exception handler me validate errors ko
+             proper JSON/alert me convert karo.
+  Evidence : _bugtest/ct_state.txt (error text captured)
+
+[BUG-05] HK Report Me Past-Departure Guests "In-House" Dikh Rahe Hain
+  Screen   : Reports > Housekeeping Report
+  Kya hua  : Jinka checkout/departure 16-18 Sep ko ho chuka hai, wo aaj
+             21-Sep ko bhi report me in-house/inventory me dikhte hain.
+             Report me departure date ka filter shayad hi lag raha ho.
+  Impact   : Housekeeping team un rooms ko bhi clean karne jayegi jo
+             actually khali/check-out ho chuke hain. Priority galat
+             set hogi.
+  Repro    : Reports > Housekeeping Report -> 01-Sep se 21-Sep range ->
+             past departure dates wale guests abhi bhi list me.
+  Fix      : Query me departure date / in-house status ka proper filter
+             lagao. Sirf aaj ke staying guests + due-out dikhao.
+  Evidence : _bugtest/hkr.png
+
+[BUG-06] Laundry Send - Submit Par Silent Failure + Unrelated Support Modal
+  Screen   : Operations > Laundry Send
+  Kya hua  : Form bhar ke submit kiya (2 attempts) - na success message,
+             na error message, na data save (Send No. wapas LAISS0005 par
+             hi raha). Sath hi submit karte hi support-ticket modal khul
+             gaya jo is form se koi lena-dena nahi hai.
+  Impact   : User ko pata hi nahi chalta ki entry save hui ya nahi.
+             Laundry contractor challan track nahi hoga. Support modal
+             auto-open user ka form bhulne par majboor karta hai.
+  Repro    : Operations > Laundry Send -> Send Date, Sent By, Challan No,
+             qty bharo -> Send -> kuch nahi hota + support modal khul
+             jata hai. Send No. next number par advance nahi hota.
+  Possible Cause : Client-side JS me submit handler kisi condition
+             (qty/stock/precondition) par chupchaap return kar raha hai,
+             aur ticket-widget ka trigger galat element par bound hai.
+  Fix      : (1) Submit handler har failure path par user-visible error
+             de. (2) Support widget ka event binding theek karo.
+             (3) Voucher prefix missing ho to clear message de (code me
+             prefix-check hai par user tak nahi pahunch raha).
+  Evidence : _bugtest/ls2.txt, _bugtest/ls4.txt (Send No. unchanged),
+             screenshots ls_after.png
+
+=== MEDIUM / LOW ===
+
+[BUG-07] Laundry Send - Item Qty Max 0 Dikh Raha Hai (Stock 0) Par Koi Guided
+         Message Nahi
+  Screen   : Operations > Laundry Send (item rows)
+  Kya hua  : HK godown me stock 0 items ke rows me qty input max=0 hai.
+             User samajh nahi pata ki aage badhne ke liye pehle stock
+             receive/issue karna hoga. (Silent fail BUG-06 se juda hua.)
+  Fix      : "Stock unavailable - pehle HK Stock issue karo" jaisa
+             inline message + item disable state.
+  Evidence : _bugtest/ls3.txt (valuemax=0 rows)
+
+[BUG-08] Lost & Found Form - Direct URL 404 Deta Hai
+  Screen   : Operations > Lost & Found
+  Kya hua  : /lostfoundform URL par 404 Not Found milta hai. Sahi route
+             /lostfound hai. Koi bhi purana bookmark/link /lostfoundform
+             par jaye to dead end.
+  Note     : Menu se sahi page khulta hai, isliye impact limited - par
+             route naming inconsistency hai.
+  Fix      : Redirect route add karo (lostfoundform -> lostfound) ya
+             purane references hatao.
+  Evidence : _bugtest/lf_blank.png (404 screenshot)
+
+[BUG-09] Lost & Found - Save Par Koi Success Feedback Nahi
+  Screen   : Operations > Lost & Found
+  Kya hua  : Entry save hoti hai (list me dikh jati hai) par koi success
+             popup/toast nahi aata. User refresh karke hi confirm kar
+             sakta hai.
+  Fix      : Save par success toast + form reset message.
+  Evidence : _bugtest test session (save OK, popup absent)
+
+[BUG-10] Floor Master - First Save Par Feedback Nahi Dikha (DataTabULATION
+         Page-2 Par Chhup Jata Hai)
+  Screen   : Masters > Floor
+  Kya hua  : Naya floor save hua (list me mila - DataTables page-2 par),
+             par screen par koi success message nahi tha, isliye pehli
+             nazar me lag raha tha ki save fail hua.
+  Fix      : Save par success toast + new entry ko table me highlight/
+             first page par le aao.
+  Evidence : _bugtest (row 18/19/20 me entries mili)
+
+[BUG-11] Start Cleaning / Cleaning Complete - Dono Par Silent UI (Koi Success
+         Message Nahi)
+  Screen   : Operations > Start Cleaning, Cleaning Entry
+  Kya hua  : Cleaning start karne par form chupchaap reset ho jata hai
+             (cleaning actually create hoti hai). Complete karne par bhi
+             koi confirmation nahi. Status sirf Room Status Board me ja
+             kar dikhta hai.
+  Impact   : User ko lagta hai click fail hua - double-submit ka risk
+             (jisse BUG-03 duplicate assignment aur badh jayega).
+  Fix      : Dono actions par success toast ("Cleaning #83 started for
+             Room 207" type) + double-submit guard.
+  Evidence : _bugtest/sc_after.png, RSB status-change verification
+
+--------------------------------------------------------------------------------
+3. JO SAHI KAAM KAR RAHA HAIN (VERIFIED OK)
+--------------------------------------------------------------------------------
+  ✅ Login & navigation (saare HK screens khul rahe hain)
+  ✅ Housekeeper Master - create + duplicate-name blocking with error
+  ✅ Floor Master - create OK (feedback issue alag, BUG-10)
+  ✅ Cleaning Type - department ke saath save OK (validation issue alag, BUG-04)
+  ✅ Room Status Board - 54 rooms, stats sahi, status filter (Occupied Dirty)
+     kaam kar raha hai
+  ✅ Start Cleaning -> In Progress -> Complete -> room status C + Inspection
+     pending - poora flow functionally OK
+  ✅ Status counts sahi update hote hain (OD 7→6, OC 3→4, Insp 6→7)
+  ✅ Cleaning Register report - data sahi render hota hai (10 rows verified,
+     duration/status columns sahi)
+  ✅ HK Stock Report - item-grouped summary + transactions render OK
+  ✅ Amenities Report - usage summary OK (rooms/pax/qty/cost)
+  ✅ Lost & Found - mandatory field validation + save OK
+  ✅ Client-side required-field validation lagti hai (L&F me verify kiya)
+
+--------------------------------------------------------------------------------
+4. DATA ISSUES (MEETING ME DISCUSS KARNE KE LIYE)
+--------------------------------------------------------------------------------
+  1. Negative stock balances (Coffee -52, Floor Cleaner -4.74, Glass
+     Cleaner -2.87) - BUG-02. In items ka opening stock/adjustment
+     entry kabhi hui hi nahi.
+  2. Business date 17-Sep par atka hai - 18-21 Sep ki saari entries
+     (agar koi hui) galat date par padi hongi - BUG-01. Data-fix chahiye
+     hoga.
+  3. Room 103 ka duplicate active assignment DB me pada hai - BUG-03.
+     Cleanup + uniqueness constraint dono chahiye.
+  4. Ek housekeeper ke assignment me multiple rooms common hai (assno 85
+     = Room 207 + 608) - ye DESIGN hai (group assignment), bug nahi -
+     par BUG-03 se combine hokar complete-all confusion create karta hai.
+
+--------------------------------------------------------------------------------
+5. SUGGESTED FIX PRIORITY (MEETING AGENDA)
+--------------------------------------------------------------------------------
+  Immediate (is week):
+    - BUG-01: Business date roll-forward fix + affected data correction
+    - BUG-02: Stock issue par qty validation (code change chhota hai)
+    - BUG-04: Cleaning Type validation (1-line fix - dcode required)
+  Short-term:
+    - BUG-03: Room assignment uniqueness
+    - BUG-05: HK Report departure filter
+    - BUG-06: Laundry Send silent fail + support modal debugging
+  Backlog (UX polish):
+    - BUG-07 se BUG-11 (feedback/toast improvements, 404 redirect)
+
+--------------------------------------------------------------------------------
+6. TEST COVERAGE SUMMARY
+--------------------------------------------------------------------------------
+  Masters Tested     : Housekeeper, Cleaning Type, Floor (+ code review:
+                       Checklist, Amenities, Service, Maintenance, Laundry
+                       masters ka save/update/delete flow code se verified)
+  Operations Tested  : Room Status Board, Start Cleaning, Cleaning Entry
+                       (complete), Lost & Found, Laundry Send
+  Reports Tested     : Housekeeping Report, Cleaning Register, HK Stock,
+                       Amenities Report, Room-wise Amenities (route OK)
+  Code Review        : HouseKeeping.php (6390 lines) ke key functions -
+                       laundrysendstore, cleaningregister/fetch,
+                       hkstockreport/fetch, roomwiseamenitiesreport,
+                       startcleaning/submit, inspection, cleaning-complete
+                       ka room status update + HKISS voucher block
+  Evidence Folder    : _bugtest/ (screenshots + captured responses)
+
+================================================================================
+END OF REPORT - Prepared for internal team discussion
+================================================================================

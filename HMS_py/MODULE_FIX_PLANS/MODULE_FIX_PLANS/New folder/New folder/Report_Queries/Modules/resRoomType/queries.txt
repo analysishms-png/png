@@ -1,0 +1,64 @@
+Module: resRoomType
+Total SQL statements: 20
+================================================================================
+
+-- SQL Statement 1 --
+  loc_13CA99F:   var_130 = "Select B.ArrDate,B.DepDate,B.GuestName,B.ResStatus From ((ViewBooking as B Left Join GuestFolio GF on GF.BookingDocid=B.DociD And GF.BookingSno=B.SNo)Left Join RoomOcc RO on RO.Docid=GF.DocId ) Where B.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 2 --
+  loc_13CAB40:     var_130 = "Select B.ArrDate,B.DepDate,B.GuestName,B.ResStatus From ((ViewBooking as B Left Join GuestFolio GF on GF.BookingDocid=B.DociD And GF.BookingSno=B.SNo)Left Join RoomOcc RO on RO.Docid=GF.DocId ) Where B.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 3 --
+  loc_13CACE1:       var_130 = "Select B.ArrDate,B.DepDate,B.GuestName,B.ResStatus From ((ViewBooking as B Left Join GuestFolio GF on GF.BookingDocid=B.DociD And GF.BookingSno=B.SNo)Left Join RoomOcc RO on RO.Docid=GF.DocId ) Where B.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 4 --
+  loc_13CAE82:         var_130 = "Select B.ArrDate,B.DepDate,B.GuestName,B.ResStatus From ((ViewBooking as B Left Join GuestFolio GF on GF.BookingDocid=B.DociD And GF.BookingSno=B.SNo)Left Join RoomOcc RO on RO.Docid=GF.DocId ) Where B.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 5 --
+  loc_13CB0E7:   unk_4AAC59.Execute "Select Name From RoomCat Where Code='" & CStr(var_B4) & "'", var_D4, -1
+
+-- SQL Statement 6 --
+  loc_1378B92:   var_140 = "Select B.ArrDate,B.DepDate,RC.Name RoomCategory,B.ResStatus,B.Adult,B.GuestName,B.RoomNo From (((ViewBooking as B Left Join GuestFolio GF on GF.BookingDocid=B.DociD And GF.BookingSno=B.SNo)Left Join RoomOcc RO on RO.Docid=GF.DocId) Left Join RoomCat RC on RC.Code=B.RoomCat And RC.Type='RO') Where B.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 7 --
+  loc_1378D17:     var_140 = "Select B.ArrDate,B.DepDate,RC.Name RoomCategory,B.ResStatus,B.Adult,B.GuestName,B.RoomNo From (((ViewBooking as B Left Join GuestFolio GF on GF.BookingDocid=B.DociD And GF.BookingSno=B.SNo)Left Join RoomOcc RO on RO.Docid=GF.DocId) Left Join RoomCat RC on RC.Code=B.RoomCat And RC.Type='RO') Where B.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 8 --
+  loc_1378E9C:       var_140 = "Select B.ArrDate,B.DepDate,RC.Name RoomCategory,B.ResStatus,B.Adult,B.GuestName,B.RoomNo From (((ViewBooking as B Left Join GuestFolio GF on GF.BookingDocid=B.DociD And GF.BookingSno=B.SNo)Left Join RoomOcc RO on RO.Docid=GF.DocId) Left Join RoomCat RC on RC.Code=B.RoomCat And RC.Type='RO') Where B.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 9 --
+  loc_1379021:         var_140 = "Select B.ArrDate,B.DepDate,RC.Name RoomCategory,B.ResStatus,B.Adult,B.GuestName,B.RoomNo From (((ViewBooking as B Left Join GuestFolio GF on GF.BookingDocid=B.DociD And GF.BookingSno=B.SNo)Left Join RoomOcc RO on RO.Docid=GF.DocId) Left Join RoomCat RC on RC.Code=B.RoomCat And RC.Type='RO') Where B.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 10 --
+  loc_13F0039: unk_4AAC59.Execute "Select * From FAEnviro", var_B8, -1
+
+-- SQL Statement 11 --
+  loc_127B881: var_98 = "Select Sum(NoRooms) As tNoRooms From RoomCat Where Type='RO' And LOGSITE_CODE='" & MemVar_1F81078 & "' AND InclCount='Y' And Code In "
+
+-- SQL Statement 12 --
+  loc_11F1518: unk_4AAC59.Execute "Select Name,Code,1 Value from RoomCat Where InclCount='Y' And LogSite_Code='" & MemVar_1F81078 & "' order by Name", var_C8, -1
+
+-- SQL Statement 13 --
+  loc_18C9792:   var_C4 = "Select RC.Code,RC.Name,RC.NoRooms,RL.Rate2 From RoomCat RC Left Join RateList RL on RC.Code=RL.RoomCat Where RC.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 14 --
+  loc_18C97E3:   var_C8 = "Select Sum(NoRooms) As tNoRooms From RoomCat Where Type='RO' And LOGSITE_CODE='" & MemVar_1F81078 & "' AND InclCount='Y' And Code In "
+
+-- SQL Statement 15 --
+  loc_18C9D75:         var_C4 = "Select Sum(NoofRooms) As tRoomBusy From ((ViewBooking as B Left Join GuestFolio GF on GF.BookingDocid=B.DociD And GF.BookingSno=B.SNo)Left Join RoomOcc RO on RO.Docid=GF.DocId ) Where B.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 16 --
+  loc_18C9E88:           var_C4 = "Select Sum(NoofRooms) As tRoomBusy From ((ViewBooking as B Left Join GuestFolio GF on GF.BookingDocid=B.DociD And GF.BookingSno=B.SNo)Left Join RoomOcc RO on RO.Docid=GF.DocId ) Where B.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 17 --
+  loc_18C9F9B:             var_C4 = "Select Sum(NoofRooms) As tRoomBusy From ((ViewBooking as B Left Join GuestFolio GF on GF.BookingDocid=B.DociD And GF.BookingSno=B.SNo)Left Join RoomOcc RO on RO.Docid=GF.DocId ) Where B.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 18 --
+  loc_18CA0AE:               var_C4 = "Select Sum(NoofRooms) As tRoomBusy From ((ViewBooking as B Left Join GuestFolio GF on GF.BookingDocid=B.DociD And GF.BookingSno=B.SNo)Left Join RoomOcc RO on RO.Docid=GF.DocId ) Where B.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 19 --
+  loc_18CA1C5:       var_D0 = "Select Count(*) As RoomBusyRO From RoomOcc Where LOGSITE_CODE='" & MemVar_1F81078 & "' AND RoomCat='" & CStr(var_124.TextMatrix))
+
+-- SQL Statement 20 --
+  loc_18CA28F:       var_C4 = "Select Count(*) As RoomBlocked From RoomBlockOut RB Inner Join RoomMast RM ON RB.RoomCode=RM.Code where RB.LOGSITE_CODE='" & MemVar_1F81078
+

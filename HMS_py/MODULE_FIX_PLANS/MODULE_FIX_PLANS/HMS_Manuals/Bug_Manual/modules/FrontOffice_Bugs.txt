@@ -1,0 +1,90 @@
+================================================================================
+   ANALYSIS HMS - FRONT OFFICE MODULE : BUG REPORT (TESTER FORMAT)
+================================================================================
+Property: Demo Property | Report Date: 21-Sep-2026 | Round: 1 + 2 (Demo entries)
+Method: Manual UI testing on live app - demo entries, empty submits, duplicates,
+        report fetches. Source code sirf root-cause confirm karne ke liye dekha.
+================================================================================
+
+TOTAL BUGS: 4
+
+--------------------------------------------------------------------------------
+[FO-01] Check In Register me same guest/booking ki 14+ duplicate rows
+Severity : HIGH
+Screen   : Reports > Check In Register (/checkinreg)
+
+Steps:
+1. Check In Register kholo
+2. From 01-Sep-2026 To 21-Sep-2026
+3. Fetch dabao
+
+Expected: Har check-in ki ek distinct row (ya guest-level grouping).
+
+Actual (BUG): Ek hi guest/GRC ki 14+ rows (har room entry ke liye). 60 rows me sirf 4-5 unique guests.
+
+Impact: Counts galat lagte hain; print me duplicates chhapte hain; report par bharosa nahi rehta.
+
+Evidence: screenshots/FO_checkinreg_data.png
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+[FO-02] Cashier Report me kuch receipts ka BillNo 'Not Found'
+Severity : HIGH
+Screen   : Reports > Cashier Report (/cashierreport)
+
+Steps:
+1. Cashier Report kholo
+2. 01-Sep se 21-Sep, Fetch
+
+Expected: Har receipt row me bill/receipt number.
+
+Actual (BUG): REC/74, REC/79, REC/77 rows me BillNo = 'Not Found'.
+
+Impact: Cashier reconciliation me in receipts ka source trace nahi hota (audit gap).
+
+Evidence: screenshots/FO_cashier_data.png
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+[FO-03] Purane URLs 404 dete hain (/walkin, /checkinregister)
+Severity : MEDIUM
+Screen   : Walk-In Check-In, Check In Register (direct URLs)
+
+Steps:
+1. Browser me /walkin ya /checkinregister kholo
+
+Expected: Page khule ya redirect ho.
+
+Actual (BUG): Dono 404. Sahi URLs: /walkincheckin, /checkinreg.
+
+Impact: Purane bookmarks/training links dead-end.
+
+Evidence: screenshots/FO_walkin_stale.png (404 render)
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+[FO-04] Guest History page par kabhi-kabhi 2 error-words visible
+Severity : LOW
+Screen   : Operations > Guest History (/guesthistory)
+
+Steps:
+1. Guest History kholo
+
+Expected: Page cleanly load ho.
+
+Actual (BUG): Page-load par state capture me 2 baar 'error' string dikhi (console/hidden element). UI kaam karta hai par yeh intermittent issue check karna chahiye.
+
+Impact: Minor - intermittent, user impact limited.
+
+--------------------------------------------------------------------------------
+
+================================================================================
+  JO SAHI KAAM KAR RAHA HAIN (VERIFIED)
+================================================================================
+  [OK] Business Source master - create OK, success popup sahi
+  [OK] Business Source duplicate - properly block hota hai ('Name already exists!')
+  [OK] Charge Master - empty submit par required-field validation sahi
+  [OK] Walk-In form - validation sahi, dates current (21-Sep)
+  [OK] In-House Room Status - page load hota hai (slow render, dekha gaya)
+  [OK] Reports (Check-In Reg, Cashier) - data fetch + render OK
+
+================================================================================
+END OF FRONT OFFICE BUG REPORT
+================================================================================

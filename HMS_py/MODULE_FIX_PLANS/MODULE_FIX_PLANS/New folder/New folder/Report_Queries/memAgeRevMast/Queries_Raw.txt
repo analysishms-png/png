@@ -1,0 +1,25 @@
+Module: memAgeRevMast
+Total SQL statements: 7
+================================================================================
+
+-- SQL Statement 1 --
+  loc_EC4055: var_10C = "Select DISTINCT (MR.MemCat+'**'+Convert(Varchar(11),MR.AppDate,103)) AS Code,MC.Name as Category,Convert(Varchar(11),MR.AppDate,106) As AppDate FROM (MemAgeRevWise MR Left Join MemCatMast MC On MR.MemCat=MC.Code) Where (MR.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 2 --
+  loc_143ECD6:     var_98 = "Insert Into MemAgeRevWise (MemCat,AppDate,RevCode,SValue,PerOrAmt," & "FrAge,ToAge,U_Name,U_EntDt,U_AE,Site_Code,LogSite_Code) "
+
+-- SQL Statement 3 --
+  loc_1139EF6: var_C0 = "SELECT MemCatMast.Code, MemCatMast.Name FROM MemCatMast Where (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO') ORDER BY MemCatMast.Name"
+
+-- SQL Statement 4 --
+  loc_1139F61: var_AC = "SELECT MembershipRevMast.Code, MembershipRevMast.Description As Name FROM MembershipRevMast Where (LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 5 --
+  loc_1139FDD: var_AC = "Select DISTINCT (MR.MemCat+'**'+Convert(Varchar(11),MR.AppDate,103)) AS SearchCode,SITE_CODE,LOGSITE_CODE From MemAgeRevWise MR Where (MR.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 6 --
+  loc_131F275:   var_94 = "Select MemCatMast.Code AS CatCode , MemCatMast.Name AS CatName , MR.U_Name,MR.U_EntDt, MR.U_AE,MembershipRevMast.Code As RevCode, MembershipRevMast.Description, MR.AppDate , MR.SValue , MR.PerOrAmt, MR.FrAge, MR.ToAge From ((MemAgeRevWise MR Left Join MemCatMast On MR.MemCat = MemCatMast.Code) LEFT JOIN MembershipRevMast ON MR.RevCode = MembershipRevMast.Code) Where MR.Site_Code='" & MemVar_1F81070
+
+-- SQL Statement 7 --
+  loc_FC0E55: Call 0.Method_Proc_271_44_FC0F700 (CInt(0), var_98, var_9C, "Select Count(*) From MemAgeRevWise Where (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO') and (MemCat='", var_130, -1)
+

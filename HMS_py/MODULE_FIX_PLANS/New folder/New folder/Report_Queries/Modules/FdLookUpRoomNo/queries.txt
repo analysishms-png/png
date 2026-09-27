@@ -1,0 +1,73 @@
+Module: FdLookUpRoomNo
+Total SQL statements: 23
+================================================================================
+
+-- SQL Statement 1 --
+  loc_122BD23: unk_47DCB8.Execute "SELECT * FROM ENVIRO WHERE LOGSITE_CODE='" & MemVar_1F81078 & "'", var_B4, -1
+
+-- SQL Statement 2 --
+  loc_122BE7D: var_D0 = CVar("SELECT Count(*) FROM RoomOcc WHERE (LOGSITE_CODE='" & MemVar_1F81078 & "') and Type Not IN ('O','C')  AND (CHKINDATE<") 'String
+
+-- SQL Statement 3 --
+  loc_122BFA7: var_D0 = CVar("SELECT Count(*) FROM RoomBlockOut WHERE (LOGSITE_CODE='" & MemVar_1F81078 & "') and Type ='O' And (FromDate = ") 'String
+
+-- SQL Statement 4 --
+  loc_122C05A: unk_47DCB8.Execute "SELECT Count(*)From RoomOcc Left Join roommast on roomocc.RoomNo=Roommast.code where roomocc.type not in ('O','C') and roommast.roomstat='D' and roommast.type='RO'", var_B4, -1
+
+-- SQL Statement 5 --
+  loc_122C0D2: unk_47DCB8.Execute "SELECT Count(*)From RoomOcc Left Join roommast on roomocc.RoomNo=Roommast.code where roomocc.type not in ('O','C') and roommast.roomstat='C' and roommast.type='RO'", var_B4, -1
+
+-- SQL Statement 6 --
+  loc_122C14A: unk_47DCB8.Execute "SELECT Count(*) FROM RoomMast where type='RO' and inclcount='Y'", var_B4, -1
+
+-- SQL Statement 7 --
+  loc_114F3AB: unk_47DCB8.Execute "SELECT * FROM ROOMCAT WHERE LOGSITE_CODE='" & MemVar_1F81078 & "'", var_B8, -1
+
+-- SQL Statement 8 --
+  loc_114F410:   var_94 = Proc_6_37_E618F4(CVar(var_90.Item("Code")), "Select max(RoomCAt.Name) as RoomType,Sum(NoofRooms) as  Rooms from ViewBooking as Booking INNER join RoomCat on Booking.RoomCAt=RoomCAt.Code  where bOOKING.ROOMCAT='", var_1EC, -1)
+
+-- SQL Statement 9 --
+  loc_114F422:   var_C8 = var_1F0 & "SELECT * FROM ROOMCAT WHERE LOGSITE_CODE='" & MemVar_1F81078 & "' AND Cancel='N' and BOOKING.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 10 --
+  loc_1099D95: var_F4 = "Select RF.Name As RoomFeature from Roommast1 R Left Join RoomFeature RF On R.RoomFeat=RF.code Where (R.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 11 --
+  loc_1315DDF:   var_A8 = "SELECT RoomCat.Name, RoomCat.Code FROM RoomMast Inner JOIN RoomCat ON RoomMast.RoomCat = RoomCat.Code where (RoomMast.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 12 --
+  loc_14793D7: var_114 = "SELECT Distinct RoomOcc.adult as NoOfPax,GuestFolio.rodisc as Discount,RoomMast.Code AS SearchCode, RoomMast.Code AS RoomNo, RoomMast.Name AS Quot,"
+
+-- SQL Statement 13 --
+  loc_14794A2: var_190 = "Select * from RoomBlockOut where (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO') and Type In ('O','M') And RoomCode='"
+
+-- SQL Statement 14 --
+  loc_1479900: var_2E4 = "Select IsNull(Max(Name),'') from roommast where (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO') and code='" & var_94
+
+-- SQL Statement 15 --
+  loc_1015A82: unk_47DCB8.Execute "delete from Dispcolor where [index]=" & CStr(Index) & " and Logsite_Code='" & MemVar_1F81078 & "'", var_B8, -1
+
+-- SQL Statement 16 --
+  loc_1015AD6: var_D4 = "Insert into DispColor([Index],[Color],Detail,Site_Code,U_EntDt,U_AE,LogSite_Code) values(" & CStr(Index) & ",'" & CStr(CLng(var_A8.Color))
+
+-- SQL Statement 17 --
+  loc_F6230A: unk_47DCB8.Execute "Select * from DispColor", var_A8, -1
+
+-- SQL Statement 18 --
+  loc_16AB195: var_A0 = "SELECT roommast.*, RoomCat.Name AS RoomCategory, RoomCat.ShortName FROM roommast INNER JOIN RoomCat ON (roommast.Type = RoomCat.Type) AND (roommast.RoomCat = RoomCat.Code) WHERE (ROOMMAST.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 19 --
+  loc_16AB1D4: var_A0 = "Select RoomOcc.dOCID,RoomOcc.FolioNo,RoomOcc.Vtype,RoomOcc.Site_Code,RoomOcc.VPrefix,RoomOcc.GuestProf,RoomOcc.RoomCat,RoomOcc.RoomType,RoomOcc.RoomNo,RoomOcc.RateCode,RoomOcc.RoomRate,GuestProf.Name,GuestFolio.mFolioNo from RoomOcc Inner Join GuestFolio On GuestFolio.DocId=RoomOcc.DocId left join GuestProf on RoomOcc.Guestprof=Guestprof.code where (ROOMOCC.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 20 --
+  loc_16AB273: Proc_6_6_F208E4(var_C4, MemVar_1F810EC, CVar("Select * from RoomBlockOut where (LOGSITE_CODE='" & MemVar_1F81078 & "') AND Type='O' And "), var_130)
+
+-- SQL Statement 21 --
+  loc_16ABBD0:               var_EC = CVar("Select Rate2 from ratelist where (LOGSITE_CODE='" & MemVar_1F81078 & "') and RoomNo='") & Me.Recordset15.Fields.Item("Code").Value 
+
+-- SQL Statement 22 --
+  loc_16ABC96:               var_10C = (CVar("Select Rate2 from ratelist where (LOGSITE_CODE='" & MemVar_1F81078 & "') and RoomNo='") + Me.Recordset15.Fields.Item("Code").Value)
+
+-- SQL Statement 23 --
+  loc_16ABD03:               var_DC = CVar("Select Rate2 from ratelist where (LOGSITE_CODE='" & MemVar_1F81078 & "') and COde='*' and RoomNo='") 'String
+

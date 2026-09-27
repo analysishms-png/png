@@ -1,0 +1,72 @@
+MAIN SETUP MODULE FIX PLAN
+==========================
+
+VB6 logic extracted from legacy setup patterns:
+- Department and area/country/state/city masters are driven by TopCtrl-style master forms.
+- Room Category and Room Master use code/name validation and category links.
+- Voucher type and enviro settings are considered operational configuration, not raw finance mutation.
+- The legacy app heavily relies on configuration values like CheckOut type, guest parameters,
+  voucher prefixes, and printer/report temp paths.
+
+Scope:
+- Country / State / City / Area
+- Room category / room master
+- Plan / package / season
+- Company / venue / department / outlet
+- Godown / room features / voucher type / guest parameters
+- Printer / enviro settings / report/temp folder mapping
+
+Primary Files:
+- HMS_py/core/general_setup.py
+- HMS_py/core/enviro.py
+- HMS_py/core/roomcategory.py
+- HMS_py/core/roommaster.py
+- HMS_py/core/depart.py
+- HMS_py/core/venue.py
+- HMS_py/core/companymaster.py
+- HMS_py/core/plans.py
+- HMS_py/ui/general_setup_ui.py
+- HMS_py/ui/p2_masters.py
+- HMS_py/ui/enviro_ui.py
+
+Crystal / print pages and names:
+- Country / State / City / Area / RoomCat / RoomMast / PlanPackMast / SeasonMast / CompanyMaster
+- DepartMast / OutLetMast / VenueMast / Godown / Voucher Type / GuestParam / Enviro / Printing Setup
+- Print temp setup: Report folder, Temp folder, Printer mapping from Analysis.ini; forms frmPrintModule, frmMod_Print
+- Crystal report families: rRepHouse, rRepHousePreview, rInventRepView, rFomRepView depending on setup/report context
+
+VB6 behavior to preserve:
+1. Setup masters use consistent code + name validation and limit values to live DB fields.
+2. Enviro values are split into operational and protected financial values.
+3. Printer/report paths come from Analysis.ini and environment config, not a hard-coded local path.
+4. Department and RoomMaster references should be valid before creation of dependent objects.
+
+Known Missing / Risky Logic:
+1. Enviro read/write access is too broad unless explicitly allowlisted.
+2. Printing setup must follow Analysis.ini and live values; avoid hardcoded assumptions.
+3. Room feature and godown masters need safe CRUD and duplicate checks.
+4. Department / venue / company master must validate live table names and fields.
+5. Settings screens must protect financial fields and keep non-operational values read-only.
+
+Required Fixes:
+1. Parse settings from Analysis.ini and use that as the source for printer/temp/report paths.
+2. Add allowlist in enviro logic for editable operational flags only.
+3. Add duplicate checks for code/name in masters before insert/update.
+4. Add safe DB field selection using live schema rather than guessed column names.
+5. Keep restricted finance parameters read-only even when opened via config screens.
+
+Implementation Steps:
+1. Recheck live schema for Enviro, RoomFeature, Godown, VoucherType, GuestParam, RoomMast, RoomCat.
+2. Map all settings to a small allowed list.
+3. Add tests for:
+   - duplicate code rejection
+   - read-only finance setting protection
+   - valid printer/temp path loading
+   - safe no-op for missing table
+4. Validate UI shell opening without crashing when no config table rows exist.
+
+Expected Result:
+- Setup modules remain stable, safe, and aligned to DB reality.
+- Printing and enviro paths are consistent across the application.
+- No accidental modification of financial configuration fields.
+

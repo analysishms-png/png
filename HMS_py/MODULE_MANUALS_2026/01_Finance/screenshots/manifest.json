@@ -1,0 +1,69 @@
+{
+  "module": "01_Finance",
+  "generated_at": "2026-09-25T11:46:20",
+  "sidebar": "finance",
+  "items": [
+    {
+      "leaf": "Ledger Accounts Entry",
+      "layer": "masters",
+      "file": "10_masters_Ledger_Accounts_Entry.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "Group Accounts Entry",
+      "layer": "masters",
+      "file": "20_masters_Group_Accounts_Entry.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "Global Narration",
+      "layer": "masters",
+      "file": "30_masters_Global_Narration.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "T.D.S.Category Entry",
+      "layer": "masters",
+      "file": "40_masters_T.D.S.Category_Entry.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "Voucher Entry",
+      "layer": "operations",
+      "file": "50_operations_Voucher_Entry.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "Bank Reconciliation",
+      "layer": "operations",
+      "file": "60_operations_Bank_Reconciliation.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "Ledger Adjustment",
+      "layer": "operations",
+      "file": "70_operations_Ledger_Adjustment.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "Trial Balance",
+      "layer": "reports",
+      "file": "80_reports_Trial_Balance.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "Ledger",
+      "layer": "reports",
+      "file": "90_reports_Ledger.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "Cash Book",
+      "layer": "reports",
+      "file": "100_reports_Cash_Book.png",
+      "status": "ok"
+    }
+  ],
+  "failed": [],
+  "shell": "00_shell_module.png"
+}

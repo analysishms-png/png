@@ -1,0 +1,10 @@
+Module: FrmChangeSite
+Total SQL statements: 2
+================================================================================
+
+-- SQL Statement 1 --
+  loc_F9FACB: Proc_6_91_EF1950(CStr("SELECT Site_CODE , Site_Desc FROM SITE Where CompCode='" & Trim(MemVar_1F81128) & "' ORDER BY Site_Desc"), var_EC)
+
+-- SQL Statement 2 --
+  loc_F9FB4D: Me.Open "Select S.Site_Code as SearchCode,S.Site_Desc From SITE S Where CompCode='" & Trim(MemVar_1F81128) & "' Order by S.Site_Desc", CVar(MemVar_1F81044), 3
+

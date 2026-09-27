@@ -1,0 +1,48 @@
+LINKS & VIDEOS (eZee / eZee FrontDesk / eZee Optimus)
+=====================================================
+
+OFFICIAL / LIVE SITES
+---------------------
+- eZee Absolute (PMS):            https://www.ezeeabsolute.com/
+- eZee FrontDesk (PMS):           https://www.ezeefrontdesk.com/  (ab Yanolja page pe redirect hota hai)
+- eZee Optimus (Restaurant POS):  https://www.ezeeoptimus.com/
+- Yanolja Cloud Solution:         https://www.yanoljacloudsolution.com/
+- Optimus official brochure PDF:  https://www.ezeeoptimus.com/wp-content/themes/optimus/eZee-Optimus.pdf
+                                  (download karke ezee_research\features\ me save kiya hai)
+
+WAYBACK SOURCES (is folder ki images yahan se aayi)
+---------------------------------------------------
+- FrontDesk screenshots page:  web.archive.org/web/20260521111928/https://www.ezeefrontdesk.com/screenshots.php
+- eZee Absolute screenshots:   web.archive.org/web/20240516101207/https://www.ezeeabsolute.com/screenshots.php
+- Optimus features page:       web.archive.org/web/20190722063747/https://www.ezeeoptimus.com/features.php
+- Optimus home:                web.archive.org/web/20260227174250/https://www.ezeeoptimus.com/
+
+FRESHDESK KNOWLEDGE BASE (Kaise-kya hota hai — feature flow)
+-------------------------------------------------------------
+- SPLIT BILL BY SEAT (Restaurant POS):
+      https://yanoljacloudsolution.freshdesk.com/en/support/solutions/articles/9000275381-split-bill-by-seat-in-restaurant-pos
+- TRANSFER FOLIO CHARGES TO OTHER ROOM (FrontDesk):
+      https://cmezee.freshdesk.com/en/support/solutions/articles/9000259089-how-to-transfer-folio-charges-amount-to-other-room-in-ezee-frontdesk-7-0-
+
+YOUTUBE (demo + tutorials)
+---------------------------
+- Channel (Yanolja Cloud Solution):  https://www.youtube.com/@yanoljacloudsolution
+- Playlist - eZee Optimus, Restaurant POS: Tutorials:
+      https://www.youtube.com/playlist?list=PLWSy6qQkwpMmXdT8zcrrmbPZCPAAWVNZn
+      (is me "How to Take and Manage Dine-In Order in eZee Optimus" jaisi tutorials hain)
+- eZee Optimus Cloud Restaurant Software Overview:
+      https://www.youtube.com/watch?v=hFQZ64nVtJA
+- How to use eZee Optimus Training 1 (full feature navigation):
+      https://www.youtube.com/watch?v=BXr6PFU-qQA
+- Optimus Playlist (Powersoft):      https://www.youtube.com/playlist?list=PLnmE7ruMhMw6QGrAQFawhLuMg-nADBNKl
+
+EAGAR TIPS (search karne ke liye, wapas Google/Youtube pe):
+- "eZee Absolute hotel management software features" 
+- "eZee FrontDesk PMS module" 
+- "eZee Absolute split bill POS"
+- "eZee FrontDesk changelog"  (https://release.ezeetechnosys.com/category/ezee-absolute/)
+- "Yanolja cloud property management system review"
+
+MOVILE APPS (agar demo karna ho):
+- Optimus Tablet POS (Play Store):  https://play.google.com/store/apps/details?id=com.ezeetechnosys.optimus
+- RapidServe (order taking):        https://play.google.com/store/apps/details?id=com.ezeetechnosys.ezeeoptimus

@@ -1,0 +1,36 @@
+================================================================================
+   ANALYSIS HMS - MEMBERS MANAGEMENT MODULE : BUG REPORT (TESTER FORMAT)
+================================================================================
+Property: Demo Property | Report Date: 21-Sep-2026 | Round: 1 + 2 (Demo entries)
+Method: Manual UI testing on live app - demo entries, empty submits, duplicates,
+        report fetches. Source code sirf root-cause confirm karne ke liye dekha.
+================================================================================
+
+TOTAL BUGS: 1
+
+--------------------------------------------------------------------------------
+[MEM-01] Member Master - bahut saare optional dropdowns hain, koi group/section heading nahi
+Severity : LOW
+Screen   : Members > Member Master
+
+Steps:
+1. Member Master form kholo
+
+Expected: Itne saare fields (30+) sections me grouped hone chahiye (Personal/Address/Membership).
+
+Actual (BUG): Ek hi lamba form - Family Member/Address tabs neeche chhupe hain. Naya user confuse hota hai.
+
+Impact: Training time badhta hai; data-entry mistakes possible.
+
+Evidence: screenshots/MEM2_empty.png
+--------------------------------------------------------------------------------
+
+================================================================================
+  JO SAHI KAAM KAR RAHA HAIN (VERIFIED)
+================================================================================
+  [OK] Member Master form load OK (photo upload, signature, family grid sab render hote hain)
+  [OK] Membership date default current (21-Sep) sahi
+
+================================================================================
+END OF MEMBERS MANAGEMENT BUG REPORT
+================================================================================

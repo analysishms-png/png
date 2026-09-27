@@ -21,11 +21,13 @@ from PyQt6.QtWidgets import (QApplication, QDialog, QFormLayout, QHBoxLayout,
 from PyQt6.QtCore import Qt
 
 from HMS_py.core import plans
+from HMS_py.ui.desktop_style import apply_desktop_surface, mark_desktop_action
 
 
 class PlanMasterForm(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
+        apply_desktop_surface(self, "desktopPlanMaster")
         self.setWindowTitle("Plan Master (CompMast port) - HMS_py")
         self.resize(640, 460)
         self.state = "Idle"          # Idle | Add | Edit
@@ -68,10 +70,12 @@ class PlanMasterForm(QDialog):
         self.btnExit = QPushButton("Exit")
         for b in (self.btnNew, self.btnEdit, self.btnDelete, self.btnSave,
                   self.btnCancel, self.btnExit):
+            mark_desktop_action(b)
             btns.addWidget(b)
         root.addLayout(btns)
 
         self.lblState = QLabel("State: Idle")
+        self.lblState.setObjectName("desktopStateLabel")
         root.addWidget(self.lblState)
 
         self.btnNew.clicked.connect(self._on_new)

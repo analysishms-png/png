@@ -1,0 +1,235 @@
+Module: frmCompany
+Total SQL statements: 77
+================================================================================
+
+-- SQL Statement 1 --
+  loc_147D814: unk_564F5F.Execute "select * from usermast order by user_name", var_108, -1
+
+-- SQL Statement 2 --
+  loc_147D859:   unk_564F5F.Execute "insert into usermast(USER_NAME,PASSWD,LABEL,ShortName) values('SA','\','1','SA')", var_108, -1
+
+-- SQL Statement 3 --
+  loc_147D87A:   unk_564F5F.Execute "select * from usermast order by user_name", var_108, -1
+
+-- SQL Statement 4 --
+  loc_147D8A5: unk_564FFA.Execute "Select * from Enviro", var_108, -1
+
+-- SQL Statement 5 --
+  loc_126A981:   var_F0 = "if exists (select * from dbo.sysobjects where id = object_id(N'[dbo].[RoomOccDet]') and OBJECTPROPERTY(id, N'IsView') = 1) " & " drop view [dbo].[RoomOccDet]"
+
+-- SQL Statement 6 --
+  loc_126A9AC:   var_F0 = "CREATE VIEW dbo.RoomOccDet AS SELECT  RO.DocId, RO.SNo, RO.FolioNo, RO.Vtype, RO.Site_Code, RO.Vprefix, RO.GuestProf, RO.RoomCat, RO.RoomType, RO.RoomNo, RO.RateCode, RO.RoomRate, " & "RO.ChkInDate, RO.ChkInTime, RO.Adult, RO.Children, RO.DepDate, RO.DepTime, RO.ChkOutDate, RO.ChkOutTime, RO.Type, RO.U_Name, RO.U_EntDt, RO.U_AE, "
+
+-- SQL Statement 7 --
+  loc_126AA57:   var_F0 = "if exists (select * from dbo.sysobjects where id = object_id(N'[dbo].[SunTransaction]') and OBJECTPROPERTY(id, N'IsView') = 1) " & " drop view [dbo].[SunTransaction]"
+
+-- SQL Statement 8 --
+  loc_126AA82:   var_F0 = "CREATE VIEW [SunTransaction] AS SELECT SUM(SunTran.Amount) + SUM(SunTranH.Amount) AS Amt,MAX(SunTranH.SValue) SValue,MAX(SunTranH.DispName) DispName,SunTranH.DocId,SunTranH.Sno,SunTranH.Vtype,SunTranH.VNo, " & "SunTranH.Vdate,SunTranH.PartyCode,SunTranH.SunCode,SunTranH.ROff,SunTran.RestCode,SunTran.SunAppDate,SunTran.RevCode FROM SunTran INNER JOIN SunTranH ON SunTran.Sno = SunTranH.Sno AND SunTran.DocId = SunTranH.DocId "
+
+-- SQL Statement 9 --
+  loc_126AAB8:   var_F0 = "if Not exists (select * from dbo.sysobjects where id = object_id(N'[dbo].[eInvoiceBill1]') and OBJECTPROPERTY(id, N'IsTable') = 1) " & "CREATE TABLE [dbo].[eInvoiceBill1]([UserGSTIN] [varchar](15) NOT NULL,[DocId] [varchar](21) NOT NULL,[TranDtls_TaxSch] [varchar](5) NULL,[TranDtls_SupTyp] [varchar](5) NULL,[TranDtls_RegRev] [varchar](2) NULL,[TranDtls_EcmGstin] [varchar](15) NULL,[TranDtls_IgstOnIntra] [varchar](2) NULL,[DocDtls_Typ] [varchar](11) NOT NULL,[DocDtls_No] [varchar](16) NOT NULL,[DocDtls_Dt] [smalldatetime] NULL,"
+
+-- SQL Statement 10 --
+  loc_126AB48:   var_F0 = "if Not exists (select * from dbo.sysobjects where id = object_id(N'[dbo].[eInvoiceBill2]') and OBJECTPROPERTY(id, N'IsTable') = 1) " & "CREATE TABLE [dbo].[eInvoiceBill2]([DocId] [varchar](21) NOT NULL,[SlNo] [varchar](6) NOT NULL,[PrdDesc] [varchar](100) NULL,[IsServc] [varchar](1) NULL,[HsnCd] [varchar](8) NULL,[Barcde] [varchar](30) NULL,[Qty] [float] NULL,[FreeQty] [float] NULL,"
+
+-- SQL Statement 11 --
+  loc_126AB6B:   var_104 = var_100 & "WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]) ON [PRIMARY]"
+
+-- SQL Statement 12 --
+  loc_1917F4D:   unk_564F5F.Execute "select COUNT(*) from userMast", var_BC, -1
+
+-- SQL Statement 13 --
+  loc_1917F9E:     unk_564F5F.Execute "insert into userMAST (USER_NAME,PASSWD,LABEL) values('SA','\','1')", var_BC, -1
+
+-- SQL Statement 14 --
+  loc_1917FBF:     unk_564F5F.Execute "insert into user1(USER_NAME,FORM_CODE,PARAM_STR) select 'SA',code,'AEDP' from module", var_BC, -1
+
+-- SQL Statement 15 --
+  loc_1917FED:   Call 0.Method_btnapplyNew_UnknownEvent_90 (CInt(0), var_C0, "SELECT * FROM USERMAST WHERE USER_NAME=", var_128, -1)
+
+-- SQL Statement 16 --
+  loc_1918337:     unk_564F5F.Execute "Select isnull(AllowDtChng,'') from UserMast where User_Name='" & MemVar_1F810C8 & "'", var_BC, -1
+
+-- SQL Statement 17 --
+  loc_1918390:     Proc_6_16_EA44E0(var_BC, MemVar_1F810C8, "SELECT User1.* FROM User1 LEFT JOIN User_Module ON User_Module.SrNo=User1.SrNo WHERE User1.User_Name=", var_118, -1, var_88)
+
+-- SQL Statement 18 --
+  loc_1918497:     var_88.ToolTipText = "Select Company"
+
+-- SQL Statement 19 --
+  loc_1918558:     unk_564F5F.Execute CStr("Select * from company " & IIf((var_BC <> "SA"), var_128 & ")", vbNullString) & " order by STart_dt Desc"), var_204, -1
+
+-- SQL Statement 20 --
+  loc_1918F83:   unk_564F5F.Execute CStr("select * from company where comp_code='" & Me.Fields.Item("Comp_Code").Value & "'"), var_128, -1
+
+-- SQL Statement 21 --
+  loc_1919BD5:   unk_564F5F.Execute "select backcolor from usermast where (user_name='" & MemVar_1F810C8 & "')", var_BC, -1
+
+-- SQL Statement 22 --
+  loc_1919D72:   Proc_6_16_EA44E0(var_BC, MemVar_1F81078, "Select * from enviro WHERE LogSITE_CODE=", var_118, -1, var_88, "Property Site :   " & MemVar_1F81174)
+
+-- SQL Statement 23 --
+  loc_1919EAA:   unk_564F5F.Execute "select Count(*) from information_schema.columns where table_name = 'MemEnviro' And column_name='CardExpDate'", var_BC, -1
+
+-- SQL Statement 24 --
+  loc_1919F14:     unk_564F5F.Execute "Alter Table MemEnviro Add CardExpDate DateTime", var_BC, -1
+
+-- SQL Statement 25 --
+  loc_1919F7D:     unk_564F5F.Execute "Update MemEnviro Set CardExpDate=(Select Max(kdate) From FaEnviro)", var_BC, -1
+
+-- SQL Statement 26 --
+  loc_1919F9E:     unk_564F5F.Execute "Alter Table FaEnviro Drop CONSTRAINT [DF_FaEnviro_KDate]", var_BC, -1
+
+-- SQL Statement 27 --
+  loc_1919FBF:     unk_564F5F.Execute "Alter Table FaEnviro Drop Column kdate", var_BC, -1
+
+-- SQL Statement 28 --
+  loc_191A001:     unk_564F5F.Execute "Update Company Set Comp_Id=(Select Left(IsNull(Max(SerialKeyNo),''),10) From Company)", var_BC, -1
+
+-- SQL Statement 29 --
+  loc_191A022:     unk_564F5F.Execute "Update Company Set SerialKeyNo=''", var_BC, -1
+
+-- SQL Statement 30 --
+  loc_191A06D:   unk_564F5F.Execute "Select * from Company", var_BC, -1
+
+-- SQL Statement 31 --
+  loc_191A1C2:     unk_564F5F.Execute "select * from MemEnviro", var_BC, -1
+
+-- SQL Statement 32 --
+  loc_191A400:   unk_564F5F.Execute "Select Count(*) from dbo.sysobjects where id = object_id(N'[dbo].[eInvoiceEnviro]') and OBJECTPROPERTY(id, N'IsTable') = 1", var_BC, -1
+
+-- SQL Statement 33 --
+  loc_191A460:     unk_564F5F.Execute "select sum([rows]) from sys.partitions where object_id=object_id('eInvoiceEnviro') and index_id in (0,1)", var_BC, -1
+
+-- SQL Statement 34 --
+  loc_191A4C0:       unk_564F5F.Execute "Select IsNull(ASPId,'') from eInvoiceEnviro", var_BC, -1
+
+-- SQL Statement 35 --
+  loc_191A51D:   unk_564F5F.Execute "Update PlanMast SET RoomTaxStru=RevMast.TaxStru FROM PlanMast LEFT JOIN RoomCat ON RoomCat.Code = PlanMast.RoomCat LEFT JOIN RevMast ON RevMast.Code = RoomCat.RevCode WHERE IsNull(Planmast.RoomTaxStru,'')=''", var_BC, -1
+
+-- SQL Statement 36 --
+  loc_191A53E:   unk_564F5F.Execute "UPDATE RoomOcc SET RoomTaxStru=Q.TaxStru FROM RoomOcc INNER JOIN (SELECT DocId+CAST(SNo AS VARCHAR) DocIdS,RoomOcc.RoomRate,RevMast.TaxStru FROM RoomOcc Inner Join RoomCat On RoomCat.Code=RoomOcc.RoomCat Inner Join Revmast On RoomCat.Revcode=Revmast.Code WHERE IsNull(RoomOcc.RoomTaxStru,'')='') Q ON DocId+CAST(SNo AS VARCHAR)=Q.DocIdS", var_BC, -1
+
+-- SQL Statement 37 --
+  loc_191A55F:   unk_564F5F.Execute "UPDATE GrpBookingDetails SET RoomTaxStru=Q.TaxStru FROM GrpBookingDetails INNER JOIN (SELECT BookingDocId+CAST(SNo AS VARCHAR) DocIdS,RevMast.TaxStru FROM GrpBookingDetails Inner Join RoomCat On RoomCat.Code=GrpBookingDetails.RoomCat Inner Join Revmast On RoomCat.Revcode=Revmast.Code WHERE IsNull(GrpBookingDetails.RoomTaxStru,'')='') Q ON BookingDocId+CAST(SNo AS VARCHAR)=Q.DocIdS", var_BC, -1
+
+-- SQL Statement 38 --
+  loc_191A580:   unk_564F5F.Execute "Delete From GuestFolioProfDetail Where Docid=''", var_BC, -1
+
+-- SQL Statement 39 --
+  loc_191A5A1:   unk_564F5F.Execute "Update ItemMast Set MRP=IsNull(MRP,0) Where MRP Is Null", var_BC, -1
+
+-- SQL Statement 40 --
+  loc_191A5C2:   unk_564F5F.Execute "Update ItemRate Set MRP=IsNull(MRP,0) Where MRP Is Null", var_BC, -1
+
+-- SQL Statement 41 --
+  loc_191A5E3:   unk_564F5F.Execute "Update Stock Set MRP=IsNull(MRP,0) Where MRP Is Null", var_BC, -1
+
+-- SQL Statement 42 --
+  loc_191A604:   unk_564F5F.Execute "Update StockLog Set MRP=IsNull(MRP,0) Where MRP Is Null", var_BC, -1
+
+-- SQL Statement 43 --
+  loc_191A625:   unk_564F5F.Execute "Update SplitStock Set MRP=IsNull(MRP,0) Where MRP Is Null", var_BC, -1
+
+-- SQL Statement 44 --
+  loc_191A646:   unk_564F5F.Execute "Update RevMast Set Active=IsNull(Active,'') Where Active Is Null", var_BC, -1
+
+-- SQL Statement 45 --
+  loc_191A667:   unk_564F5F.Execute "Update RevMast Set TaxInc=IsNull(TaxInc,'No') Where TaxInc Is Null", var_BC, -1
+
+-- SQL Statement 46 --
+  loc_191A688:   unk_564F5F.Execute "Update Sale1 Set AU_Name=IsNull(U_Name,''),AU_EntDt=U_EntDt Where IsNull(AU_Name,'')=''", var_BC, -1
+
+-- SQL Statement 47 --
+  loc_191A6A9:   unk_564F5F.Execute "Update Sale1Log Set AU_Name=IsNull(U_Name,''),AU_EntDt=U_EntDt Where IsNull(AU_Name,'')=''", var_BC, -1
+
+-- SQL Statement 48 --
+  loc_191A6CA:   unk_564F5F.Execute "Update SplitSale1 Set AU_Name=IsNull(U_Name,''),AU_EntDt=U_EntDt Where IsNull(AU_Name,'')=''", var_BC, -1
+
+-- SQL Statement 49 --
+  loc_191A6EB:   unk_564F5F.Execute "Update Paycharge Set AU_Name=IsNull(U_Name,''),AU_EntDt=U_EntDt Where IsNull(AU_Name,'')=''", var_BC, -1
+
+-- SQL Statement 50 --
+  loc_191A70C:   unk_564F5F.Execute "Update PaychargeLog Set AU_Name=IsNull(U_Name,''),AU_EntDt=U_EntDt Where IsNull(AU_Name,'')=''", var_BC, -1
+
+-- SQL Statement 51 --
+  loc_191A72D:   unk_564F5F.Execute "Update GuestReward Set Total=Q.Total,DiscAmt=Q.DiscAmt,RestCode=Q.RestCode,SchemeCode='',SaleUpTo=0,RPointOnAmt=0,RewardValue=0,RedeemValue=0 From (Select S1.Total,S1.DiscAmt,S1.RestCode,G.DocId From GuestReward G Inner Join Sale1 S1 On G.DocId=S1.DocId)Q  Where GuestReward.DocId=Q.DocId And IsNull(GuestReward.RestCode,'')=''", var_BC, -1
+
+-- SQL Statement 52 --
+  loc_191A74E:   unk_564F5F.Execute "Update SmartCardRegistration Set RewardBal=IsNull(RewardBal,0),RewardSale=IsNull(RewardSale,0),RewardPoint=IsNull(RewardPoint,0),RedeemPoint=IsNull(RedeemPoint,0) Where RedeemPoint Is Null", var_BC, -1
+
+-- SQL Statement 53 --
+  loc_191A76D:   var_C8 = "Update Depart Set KOTAtNightAudit=(Select IsNull(Max(KOTAtNightAudit),'') From Enviro Where LogSite_Code='" & MemVar_1F81078
+
+-- SQL Statement 54 --
+  loc_191A7A5:   unk_564F5F.Execute "Update GuestProf Set FOM=1 Where Code In (Select GuestProf From Booking) And FOM Is Null", var_BC, -1
+
+-- SQL Statement 55 --
+  loc_191A7C6:   unk_564F5F.Execute "Update GuestProf Set FOM=1 Where Code In (Select GuestProf From GuestFolio) And FOM Is Null", var_BC, -1
+
+-- SQL Statement 56 --
+  loc_191A7E7:   unk_564F5F.Execute "Update GuestProf Set FOM=1 Where Code In (Select GuestProf From GuestFolioProfDetail) And FOM Is Null", var_BC, -1
+
+-- SQL Statement 57 --
+  loc_191A808:   unk_564F5F.Execute "Update GuestProf Set POS=1 Where Code In (Select CustCode From GuestReward) And POS Is Null", var_BC, -1
+
+-- SQL Statement 58 --
+  loc_191A829:   unk_564F5F.Execute "Update GuestProf Set FOM=ISNULL(FOM,0)", var_BC, -1
+
+-- SQL Statement 59 --
+  loc_191A84A:   unk_564F5F.Execute "Update GuestProf Set POS=ISNULL(POS,0)", var_BC, -1
+
+-- SQL Statement 60 --
+  loc_191A86B:   unk_564F5F.Execute "Update MarketSeg Set Active=ISNULL(Active,'')", var_BC, -1
+
+-- SQL Statement 61 --
+  loc_191A88C:   unk_564F5F.Execute "Update BussSource Set Active=ISNULL(Active,'')", var_BC, -1
+
+-- SQL Statement 62 --
+  loc_191A8AD:   unk_564F5F.Execute "Update RoomDiscount Set Adult=ISNULL(Adult,1)", var_BC, -1
+
+-- SQL Statement 63 --
+  loc_191A8CE:   unk_564F5F.Execute "Update Item Set CommodityCode=ItemMast.CommodityCode From Item,ItemMast Where Item.Code=ItemMast.Code And Item.CommodityCode IS Null", var_BC, -1
+
+-- SQL Statement 64 --
+  loc_191A8ED:   var_C8 = "Update Depart Set CoverMandatory=(Select IsNull(Max(CoversMandatory),'') From Enviro Where LogSite_Code='" & MemVar_1F81078
+
+-- SQL Statement 65 --
+  loc_191A923:   var_C8 = "Update Depart Set MobileNoMandatory=(Select IsNull(Max(MobileNoMandatory),'') From Enviro Where LogSite_Code='" & MemVar_1F81078
+
+-- SQL Statement 66 --
+  loc_191A9BE:   unk_564F5F.Execute "Update ItemRate Set Party=ISNULL(Party,'')", var_BC, -1
+
+-- SQL Statement 67 --
+  loc_191A9DF:   unk_564F5F.Execute "Update SunTranFacility set Vtype='FACL' Where Vtype='8'", var_BC, -1
+
+-- SQL Statement 68 --
+  loc_191AA00:   unk_564F5F.Execute "Update FacilityBill1 Set FacilityBill1.LocationCode=Q.LocationCode From (Select FacilityBill.DocId,FacilityBill.LocationCode From FacilityBill)Q  Where DocId1=Q.Docid And IsNull(FacilityBill1.LocationCode,'')=''", var_BC, -1
+
+-- SQL Statement 69 --
+  loc_FFA217:   unk_564F5F.Execute CStr("DELETE FROM COMPANY WHERE COMP_CODE='" & Me.Fields.Item("Comp_Code").Value & "'"), var_10C, -1
+
+-- SQL Statement 70 --
+  loc_FFA27B:   var_EC = "DELETE FROM user2 WHERE COMP_CODE='" & Me.Fields.Item("Comp_Code").Value & "'" 
+
+-- SQL Statement 71 --
+  loc_15B1206:   Call 0.Method_Proc_4_32_15B1F400 (CInt(3), var_98, "select count(*) from company where comp_code='", var_13C, -1)
+
+-- SQL Statement 72 --
+  loc_15B12D2:   Call 0.Method_Proc_4_32_15B1F400 (CInt(5), var_98, var_A0, "INSERT INTO COMPANY (SName,Comp_Code,Comp_Name,Address1,Address2,City,Pin,LstDate,CstDate,Phone,CYear,PYear,Start_Dt,End_Dt,LstNo,CstNo,CentralData_Path,FAX,FGLNo,SerialKeyNo,SiteCode,SiteName,SiteCodeDisplay) VALUES ('")
+
+-- SQL Statement 73 --
+  loc_15B18B3:   Call 0.Method_Proc_4_32_15B1F400 (CInt(5), var_98, var_A0, "UPDATE COMPANY SET SName='")
+
+-- SQL Statement 74 --
+  loc_15B1D50:   var_100 = "insert into user2(user_name,comp_code,param_str) values("
+
+-- SQL Statement 75 --
+  loc_110BC20:     MsgBox(CVar(" Software expired !" & vbCrLf & "Update Serial Key. Contact to Software Vender."), &H10, var_CC, var_DC, var_118)
+
+-- SQL Statement 76 --
+  loc_110BC82:   var_DC = "Update Serial Key. Contact to Software Vender. Software will expire in " & DateDiff("d", MemVar_1F810EC, DateAdd("d", CDbl(&H2D), var_F4), 1, 1) 
+
+-- SQL Statement 77 --
+  loc_1347DC4: unk_564F5F.Execute "select code,Name,KOTYN from depart where outletYN='Y'", var_CC, -1
+

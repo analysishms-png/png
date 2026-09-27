@@ -1,0 +1,597 @@
+{
+ "module": "BANQUET MODULE",
+ "subtitle": "Master · Operations · Reports · Appendix",
+ "property": "Property: Demo Property",
+ "version": "Training Manual for Banquet Sales & Operations",
+ "header": "Analysis HMS — Banquet Module Training Manual",
+ "footerText": "Analysis HMS Banquet Training Manual | Demo Property",
+ "output": "HMS_Manuals/Banquet/Banquet_Module_Training_Manual.docx",
+ "imageRoot": ".",
+ "theme": {
+  "color": "AD1457",
+  "dark": "880E4F",
+  "light": "FCE4EC"
+ },
+ "sections": [
+  {
+   "title": "1. Introduction & Module Overview",
+   "intro": "Banquet module weddings, conferences, parties aur corporate events ka complete lifecycle manage karta hai — enquiry se lekar final billing tak.\n\nAnalysis HMS me Banquet flow: Enquiry aayi → Venue availability check → Follow-up → Booking confirm (advance ke saath) → Function sheet (kitchen/service ko) → Event execute → Proforma/Invoice → Final Billing + Outstanding follow-up.\n\nBANQUET EVENT LIFECYCLE:\nInquiry → Follow-up → Booking (BEO - Banquet Event Order) → Function Sheet → Event Day → Billing → Payment Follow-up",
+   "subsections": [
+    {
+     "title": "Module Sections Overview",
+     "table": {
+      "headers": [
+       "Section",
+       "Purpose",
+       "Key Screens"
+      ],
+      "rows": [
+       [
+        "MASTER (Main Setup)",
+        "Venues, events, menus",
+        "Venue Master, Events, Venue Features, Menu Items, Banquet Parameter, Catalog Master"
+       ],
+       [
+        "OPERATION",
+        "Enquiry to billing",
+        "Venue Availability, Booking Inquiry, Banquet Booking, Venue Status, Banquet Billing, Follow-up, Proforma, Advance List"
+       ],
+       [
+        "REPORTS",
+        "Sales & operations",
+        "Sales Register, Cashier Report, Daily Function Sheet, Outstanding, Company/Item-wise Sale"
+       ],
+       [
+        "TAX",
+        "GST compliance",
+        "Tax Reports"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Banquet Data Flow (Technical Understanding)",
+     "table": {
+      "headers": [
+       "Aap kya karte ho",
+       "Database",
+       "Kya hota hai"
+      ],
+      "rows": [
+       [
+        "Inquiry record",
+        "bookinginquiry",
+        "Guest, date, venue, expected pax, status"
+       ],
+       [
+        "Follow-up",
+        "booking_follow_ups",
+        "Har call/meeting ka note + next follow-up date"
+       ],
+       [
+        "Booking confirm",
+        "booking + bookingdetail",
+        "BEO — venue, menu, timing, rates"
+       ],
+       [
+        "Menu/plan",
+        "bookingplandetails",
+        "Selected menu packages"
+       ],
+       [
+        "Billing",
+        "hallsale1/hallsale2",
+        "Banquet bill — venue + F&B + taxes"
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "2. Master Module — Venue & Menu Setup",
+   "subsections": [
+    {
+     "title": "2.1 Venue Master & Features",
+     "navPath": "Main Setup ▶ Banquet ▶ Venue Master / Venue Features",
+     "screenshot": "HMS_Manuals/Banquet/screenshots/03_Master/01_Venue_Master.png",
+     "paragraph": "Banquet halls/spaces define karo — capacity (float/theatre/round table), features (projector, stage, green room), per-venue charges. Venue Availability aur Booking isi master se chalti hai.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Venue Name",
+        "Grand Hall / Conference Room A / Lawn"
+       ],
+       [
+        "Capacity",
+        "Float / Theatre / U-shape / Round table capacity"
+       ],
+       [
+        "Features",
+        "Attached features — projector, sound, parking"
+       ],
+       [
+        "Venue Charges",
+        "Hall rent (half-day/full-day slots)"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "2.2 Events & Menu Setup",
+     "navPath": "Main Setup ▶ Banquet ▶ Events / Menu Items",
+     "screenshot": "HMS_Manuals/Banquet/screenshots/03_Master/02b_Events_Master.png",
+     "caption": "Events Master — banquet event types",
+     "paragraph": "Event types (Wedding, Birthday, Conference, Kitty) aur banquet menu packages (Veg/Non-veg per plate rates). Booking me event type + menu package select hota hai.",
+     "table": {
+      "headers": [
+       "Setup",
+       "Fields"
+      ],
+      "rows": [
+       [
+        "Events",
+        "Event name, description"
+       ],
+       [
+        "Menu Category",
+        "Veg Starter / Main Course / Dessert etc."
+       ],
+       [
+        "Menu Items",
+        "Dish name, category, per-plate rate"
+       ],
+       [
+        "Banquet Parameter",
+        "Tax rules, service charge %, advance %, cancellation policy days"
+       ],
+       [
+        "Catalog Master",
+        "Printable catalog/packages for clients"
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "3. Operations Module — Enquiry to Billing",
+   "subsections": [
+    {
+     "title": "3.1 Venue Availability",
+     "navPath": "Banquet ▶ Operation ▶ Venue Availability",
+     "screenshot": "HMS_Manuals/Banquet/screenshots/01_Operations/01_Venue_Availability.png",
+     "paragraph": "Date range dalo — kaunsa venue kaunsi date ko free/booked. Client ne date poochhi to pehle yahin check karo. Tentative bookings bhi dikhengi.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "From–To Date",
+        "Availability period"
+       ],
+       [
+        "Venue Grid",
+        "Per date per venue — Free / Tentative / Confirmed"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.2 Booking Inquiry & Follow-up",
+     "navPath": "Banquet ▶ Operation ▶ Booking Inquiry / Inquiry follow up",
+     "screenshot": "HMS_Manuals/Banquet/screenshots/01_Operations/02_Booking_Inquiry.png",
+     "paragraph": "Har inquiry record karo — client, event type, date, expected guests, budget. Follow-up screen me har call ka note + next follow-up date. Sales team isi se leads convert karti hai.",
+     "table": {
+      "headers": [
+       "Field",
+       "Description"
+      ],
+      "rows": [
+       [
+        "Client + Contact",
+        "Name, mobile, email"
+       ],
+       [
+        "Event + Date",
+        "Kaunsa event, kab, kis venue ki interest"
+       ],
+       [
+        "Expected Pax",
+        "Kitne guests expect"
+       ],
+       [
+        "Status",
+        "Hot / Warm / Cold / Converted / Lost"
+       ],
+       [
+        "Follow-up",
+        "Last note + next follow-up date (reminder list)"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.3 Banquet Booking (BEO) — Core Screen",
+     "navPath": "Banquet ▶ Operation ▶ Banquet Booking",
+     "screenshot": "HMS_Manuals/Banquet/screenshots/01_Operations/03_Banquet_Booking.png",
+     "paragraph": "Confirmed booking ka master document — Banquet Event Order. Venue, date, timing, menu package, per-plate rate, hall charges, advance terms, cancellation policy — sab ek jagah. BEO print kitchen/service teams ko jata hai.",
+     "table": {
+      "headers": [
+       "Section",
+       "Fields"
+      ],
+      "rows": [
+       [
+        "Client Details",
+        "Booking party, bill-to company, contact"
+       ],
+       [
+        "Event Details",
+        "Event type, venue, date, timing (setup to end)"
+       ],
+       [
+        "Menu/Pax",
+        "Menu package, guaranteed pax, rate per plate"
+       ],
+       [
+        "Charges",
+        "Venue charges, F&B, extra services (deco, DJ)"
+       ],
+       [
+        "Advance",
+        "Advance % / amount, mode, receipt"
+       ],
+       [
+        "Terms",
+        "Cancellation policy, payment schedule"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.4 Venue Status & Daily Function Sheet",
+     "navPath": "Banquet ▶ Operation ▶ Venue Status | Reports ▶ Daily Function Sheet",
+     "screenshot": "HMS_Manuals/Banquet/screenshots/01_Operations/04_Venue_Status.png",
+     "paragraph": "Venue Status: aaj/ise hafte ka live position. Daily Function Sheet: aaj ke events ki full detail — venue, timings, menu, pax, contact person. Ye sheet kitchen, service, housekeeping sabko morning me milti hai.",
+     "table": {
+      "headers": [
+       "Sheet Column",
+       "Use"
+      ],
+      "rows": [
+       [
+        "Venue + Timing",
+        "Kahan, kab setup/start/end"
+       ],
+       [
+        "Event + Pax",
+        "Kya event, kitne guests"
+       ],
+       [
+        "Menu",
+        "Kya serve hoga"
+       ],
+       [
+        "Contact",
+        "Kaunsa person site pe handle karega"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "3.5 Proforma Invoice & Advance List",
+     "navPath": "Banquet ▶ Operation ▶ Performa Invoice / Advance List",
+     "screenshot": "HMS_Manuals/Banquet/screenshots/01_Operations/07_Proforma_Invoice.png",
+     "paragraph": "Proforma Invoice: event se pehle client ko estimate/advance request. Advance List: kaunse booking pe kitna advance mila — pending advances follow-up.",
+     "steps": [
+      "Booking select karo → Proforma generate",
+      "Estimated amounts + advance due print karo",
+      "Advance aaye to entry karo — Advance List me track hoga"
+     ]
+    },
+    {
+     "title": "3.6 Banquet Billing (Final Bill)",
+     "navPath": "Banquet ▶ Operation ▶ Banquet Billing",
+     "screenshot": "HMS_Manuals/Banquet/screenshots/01_Operations/05_Banquet_Billing.png",
+     "paragraph": "Event ke baad final bill — actual pax, extra items, venue charges, GST, minus advances. Company events pe bill city ledger me jata hai (credit), retail pe cash/UPI settle.",
+     "steps": [
+      "Booking no. load karo",
+      "Actual pax/extra items update karo",
+      "Advance adjust karo",
+      "Tax calculate (parameter ke hisaab se)",
+      "Bill print / city ledger me post karo"
+     ]
+    }
+   ]
+  },
+  {
+   "title": "4. Reports Module",
+   "subsections": [
+    {
+     "title": "4.1 Available Reports",
+     "navPath": "Banquet ▶ Reports",
+     "screenshot": "HMS_Manuals/Banquet/screenshots/02_Reports/03_Daily_Function_Sheet.png",
+     "caption": "Daily Function Sheet",
+     "table": {
+      "headers": [
+       "Report",
+       "Kya dikhata hai"
+      ],
+      "rows": [
+       [
+        "Sales Register",
+        "Date-wise banquet revenue — bookings billed"
+       ],
+       [
+        "Cashier Report",
+        "Banquet counter ka cash/UPI/card collection"
+       ],
+       [
+        "Daily Function Sheet",
+        "Aaj ke events — complete run sheet"
+       ],
+       [
+        "Booking Inquiry Detail",
+        "Leads funnel — kaunsi inquiry kaise chal rahi"
+       ],
+       [
+        "OutStanding Report",
+        "Unpaid bills — company wise pending amounts"
+       ],
+       [
+        "Company Wise Sale",
+        "Corporate clients ka banquet revenue"
+       ],
+       [
+        "Item Wise Sales",
+        "Menu item wise sale — kya zyada bikta hai"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "4.2 Tax Reports",
+     "navPath": "Banquet ▶ Tax Report",
+     "screenshot": "HMS_Manuals/Banquet/screenshots/02_Reports/04_Outstanding_Report.png",
+     "caption": "Outstanding Report (bill detail ke saath)",
+     "paragraph": "Banquet ka GST report — venue rent (18%) aur catering (5% without accommodation rule) ka slab-wise breakup. GSTR filing ke liye accountant use karta hai.",
+     "table": {
+      "headers": [
+       "Report",
+       "Use"
+      ],
+      "rows": [
+       [
+        "Tax Reports",
+        "Bill-wise CGST/SGST detail — filing data"
+       ]
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "title": "5. Complete Screens Gallery — Banquet (All Captured Screens)",
+   "intro": "Ye gallery Banquet module ki SAARI captured screens dikhati hai jo main sections me detail me cover nahi hui. Training ke baad revision ke liye — trainee har screen pehle dekh chuka hoga, yahan ek jagah pura reference hai.",
+   "subsections": [
+    {
+     "title": "G.01 01_Operations — 06 Inquiry Followup",
+     "screenshot": "HMS_Manuals/Banquet/screenshots/01_Operations/06_Inquiry_Followup.png",
+     "para": "Live system se captured screen. Complete reference ke liye gallery me included — fields aur operations ke detail ke liye respective section dekho."
+    },
+    {
+     "title": "G.02 01_Operations — 08 Advance List",
+     "screenshot": "HMS_Manuals/Banquet/screenshots/01_Operations/08_Advance_List.png",
+     "para": "Live system se captured screen. Complete reference ke liye gallery me included — fields aur operations ke detail ke liye respective section dekho."
+    },
+    {
+     "title": "G.03 02_Reports — 01 Sales Register",
+     "screenshot": "HMS_Manuals/Banquet/screenshots/02_Reports/01_Sales_Register.png",
+     "para": "Live system se captured screen. Complete reference ke liye gallery me included — fields aur operations ke detail ke liye respective section dekho."
+    },
+    {
+     "title": "G.04 02_Reports — 02 Cashier Report",
+     "screenshot": "HMS_Manuals/Banquet/screenshots/02_Reports/02_Cashier_Report.png",
+     "para": "Live system se captured screen. Complete reference ke liye gallery me included — fields aur operations ke detail ke liye respective section dekho."
+    },
+    {
+     "title": "G.05 02_Reports — 05 Companywise Sale",
+     "screenshot": "HMS_Manuals/Banquet/screenshots/02_Reports/05_Companywise_Sale.png",
+     "para": "Live system se captured screen. Complete reference ke liye gallery me included — fields aur operations ke detail ke liye respective section dekho."
+    },
+    {
+     "title": "G.06 02_Reports — 06 Itemwise Sales",
+     "screenshot": "HMS_Manuals/Banquet/screenshots/02_Reports/06_Itemwise_Sales.png",
+     "para": "Live system se captured screen. Complete reference ke liye gallery me included — fields aur operations ke detail ke liye respective section dekho."
+    },
+    {
+     "title": "G.07 03_Master — 02 Events",
+     "screenshot": "HMS_Manuals/Banquet/screenshots/03_Master/02_Events.png",
+     "para": "Live system se captured screen. Complete reference ke liye gallery me included — fields aur operations ke detail ke liye respective section dekho."
+    },
+    {
+     "title": "G.08 03_Master — 03 Menu Category",
+     "screenshot": "HMS_Manuals/Banquet/screenshots/03_Master/03_Menu_Category.png",
+     "para": "Live system se captured screen. Complete reference ke liye gallery me included — fields aur operations ke detail ke liye respective section dekho."
+    },
+    {
+     "title": "G.09 03_Master — 04 Menu Items",
+     "screenshot": "HMS_Manuals/Banquet/screenshots/03_Master/04_Menu_Items.png",
+     "para": "Live system se captured screen. Complete reference ke liye gallery me included — fields aur operations ke detail ke liye respective section dekho."
+    },
+    {
+     "title": "G.10 03_Master — 05 Banquet Parameter",
+     "screenshot": "HMS_Manuals/Banquet/screenshots/03_Master/05_Banquet_Parameter.png",
+     "para": "Live system se captured screen. Complete reference ke liye gallery me included — fields aur operations ke detail ke liye respective section dekho."
+    },
+    {
+     "title": "G.11 00_Login — 01 Login Page",
+     "screenshot": "HMS_Manuals/Banquet/screenshots/00_Login/01_Login_Page.png",
+     "para": "Live system se captured screen — complete reference gallery ka hissa."
+    }
+   ]
+  },
+  {
+   "title": "6. Appendix — Training Reference",
+   "subsections": [
+    {
+     "title": "Banquet Team Workflow",
+     "table": {
+      "headers": [
+       "Stage",
+       "Activity",
+       "Screen"
+      ],
+      "rows": [
+       [
+        "Inquiry aayi",
+        "Record karo + venue availability check",
+        "Booking Inquiry / Venue Availability"
+       ],
+       [
+        "Follow-up",
+        "Har call ka note + next date set",
+        "Inquiry follow up"
+       ],
+       [
+        "Confirm hui",
+        "Booking (BEO) banao + advance lo",
+        "Banquet Booking"
+       ],
+       [
+        "Event se 1 din pehle",
+        "Function sheet distribute karo",
+        "Daily Function Sheet"
+       ],
+       [
+        "Event day",
+        "Venue status live dekho",
+        "Venue Status"
+       ],
+       [
+        "Event ke baad",
+        "Final billing + advance adjust",
+        "Banquet Billing"
+       ],
+       [
+        "Monthly",
+        "Outstanding follow-up calls",
+        "Outstanding Report"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Common Scenarios (Training Q&A)",
+     "table": {
+      "headers": [
+       "Scenario",
+       "Kya karo"
+      ],
+      "rows": [
+       [
+        "Do clients same venue same date maange",
+        "Pehle aayi booking ko priority; doosre ko alternate venue/date — tentative block ho sakta hai"
+       ],
+       [
+        "Guest count kam/zyada ho gaya",
+        "Billing me actual pax; guaranteed pax se kam hua to parameter rule lagta hai"
+       ],
+       [
+        "Advance cash aayi",
+        "Booking form me advance entry — receipt print"
+       ],
+       [
+        "Client bill company ke naam chahiye",
+        "Booking me Bill To = Company; billing pe city ledger post"
+       ],
+       [
+        "Event cancel ho gayi",
+        "Booking cancel + cancellation policy ke hisaab se advance adjustment note"
+       ],
+       [
+        "Extra services bill me add karni (DJ/deco)",
+        "Booking/Billing me extra service line item — rate ke saath"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Troubleshooting",
+     "table": {
+      "headers": [
+       "Issue",
+       "Cause",
+       "Solution"
+      ],
+      "rows": [
+       [
+        "Venue availability me booked dikha",
+        "Tentative/confirmed booking hai",
+        "Venue Status me kisne book kiya dekho"
+       ],
+       [
+        "Function sheet print nahi ho raha",
+        "Booking incomplete",
+        "Venue/menu/timing fields verify karo"
+       ],
+       [
+        "Billing me menu rates missing",
+        "Menu package not mapped",
+        "Menu Items me rates set karo / booking me package select"
+       ],
+       [
+        "Advance bill me adjust nahi hui",
+        "Advance doosri booking pe",
+        "Advance List me booking no. verify karo"
+       ],
+       [
+        "Tax rate galat",
+        "Parameter wrong",
+        "Banquet Parameter me tax rules sahi karo"
+       ]
+      ]
+     }
+    },
+    {
+     "title": "Contact & Support",
+     "table": {
+      "headers": [
+       "Contact",
+       "Details"
+      ],
+      "rows": [
+       [
+        "Website",
+        "https://analysishms.com"
+       ],
+       [
+        "Support Email",
+        "support@analysishms.com"
+       ],
+       [
+        "Phone",
+        "+91 9161380170"
+       ],
+       [
+        "Training Login",
+        "Apna assigned User ID aur Password use karo"
+       ],
+       [
+        "Software Version",
+        "Analysis HMS "
+       ]
+      ]
+     }
+    }
+   ]
+  }
+ ]
+}

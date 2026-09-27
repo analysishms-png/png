@@ -1,0 +1,25 @@
+Module: FrmLostFound
+Total SQL statements: 7
+================================================================================
+
+-- SQL Statement 1 --
+  loc_10D8050:   var_F8 = "Delete From LostFoundDetail Where Code='" & Me.Fields.Item("SCode").Value & "'" 
+
+-- SQL Statement 2 --
+  loc_F0E206: MemVar_1F810E4 = "Select Code AS SCode, Description,FArea AS [Item Lost/Found Area] FROM LostFoundDetail"
+
+-- SQL Statement 3 --
+  loc_106A691: unk_430B24.Execute "SELECT FDate,FTime,FArea,FindBy,Description,UName1,Status FROM LostFoundDetail Order BY Code", var_BC, -1
+
+-- SQL Statement 4 --
+  loc_13CC7F6:   var_9C = "Select IsNull(Max(CAST(SUBSTRING(Code,3,6) AS INT)),1)+1 AS MyCode From LostFoundDetail where Site_Code='" & MemVar_1F81070
+
+-- SQL Statement 5 --
+  loc_13CC93A:   var_9C = "Insert Into LostFoundDetail(Code,FDate,FTime,FArea,AppValue,Description,FindBy,FFDate,FFTime,FPlace,UName1,Status,Site_Code,U_EntDt,U_AE,LogSite_Code) " & "Values('"
+
+-- SQL Statement 6 --
+  loc_13CCC57:   Proc_183_7_EA8F98(var_B0, var_C4, "UPDATE LostFoundDetail SET FDate=")
+
+-- SQL Statement 7 --
+  loc_F00153: var_8C = "SELECT Code AS Scode,FDate,FTime,FArea,Description,Appvalue,FindBy,FFDate,FFTime,FPlace,UName1,Status,Site_Code,LogSite_code FROM LostFoundDetail Where (LOGSITE_CODE='" & MemVar_1F81078
+

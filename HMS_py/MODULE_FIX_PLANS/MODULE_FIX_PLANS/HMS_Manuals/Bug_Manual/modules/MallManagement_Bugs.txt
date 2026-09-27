@@ -1,0 +1,53 @@
+================================================================================
+   ANALYSIS HMS - MALL MANAGEMENT MODULE : BUG REPORT (TESTER FORMAT)
+================================================================================
+Property: Demo Property | Report Date: 21-Sep-2026 | Round: 1 + 2 (Demo entries)
+Method: Manual UI testing on live app - demo entries, empty submits, duplicates,
+        report fetches. Source code sirf root-cause confirm karne ke liye dekha.
+================================================================================
+
+TOTAL BUGS: 2
+
+--------------------------------------------------------------------------------
+[MALL-01] Floor dropdowns me shop-naam mixed ('LIQUOR LAND(19)', 'SHOP NO.1')
+Severity : MEDIUM
+Screen   : Mall > Lease Agreement / Shop Master (floor dropdowns)
+
+Steps:
+1. Lease Agreement kholo
+2. Floor dropdown kholo
+
+Expected: Floor list me sirf floors.
+
+Actual (BUG): 21 options me shops bhi floor ke roop me aa rahe hain.
+
+Impact: Galat floor select ho sakta hai; master data ganda.
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+[MALL-02] MR Entry - Challan No./Inv. No. disabled jab tak Type select na ho (acha hai) par koi hint nahi
+Severity : LOW
+Screen   : Mall > MR Entry (/mrentry)
+
+Steps:
+1. MR Entry kholo, Type select karne se pehle Challan No. dekho
+
+Expected: Disabled fields par tooltip/hint: 'Pehle Type select karo'.
+
+Actual (BUG): Fields grey hain par koi hint nahi - user samajh nahi pata aage kya kare.
+
+Impact: Minor UX.
+
+Evidence: screenshots/MALL2_mr_empty.png (Type validation sahi hai)
+--------------------------------------------------------------------------------
+
+================================================================================
+  JO SAHI KAAM KAR RAHA HAIN (VERIFIED)
+================================================================================
+  [OK] Lease Agreement - friendly validation ('Please select a Tenant.')
+  [OK] MR Entry - Type required validation sahi
+  [OK] Shop Master load OK
+
+================================================================================
+END OF MALL MANAGEMENT BUG REPORT
+================================================================================

@@ -1,0 +1,16 @@
+Module: FrmClaimEntry
+Total SQL statements: 4
+================================================================================
+
+-- SQL Statement 1 --
+  loc_EFF9A0: unk_440AA3.Execute "SELECT  Code AS Scode,FDate,Ftime,FArea,FindBy,Description,UName1,ClaimedBy,ContactNo,OtherDetail,DeliveredBy,DDate,Status FROM LostFoundDetail Order BY Code", var_BC, -1
+
+-- SQL Statement 2 --
+  loc_11417C4:           var_D4 = "SELECT  Code AS Scode,FDate,Ftime,FArea,FindBy,Description,UName1,ClaimedBy,ContactNo,OtherDetail,DeliveredBy,DDate,Status FROM LostFoundDetail WHERE FDate Between "
+
+-- SQL Statement 3 --
+  loc_1141885:           var_D4 = "SELECT  Code AS Scode,FDate,Ftime,FArea,FindBy,Description,UName1,ClaimedBy,ContactNo,OtherDetail,DeliveredBy,DDate,Status FROM LostFoundDetail WHERE FDate Between "
+
+-- SQL Statement 4 --
+  loc_1235B18: var_1A4 = "UPDATE LostFoundDetail SET Status='Delivered', DDate=" & var_AC & ", ClaimedBy='" & Trim(CVar(var_8C)) & "',ContactNo='" & Trim(CVar(var_174)) 
+

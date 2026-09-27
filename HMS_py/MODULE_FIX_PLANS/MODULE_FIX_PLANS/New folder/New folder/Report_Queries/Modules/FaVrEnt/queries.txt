@@ -1,0 +1,352 @@
+Module: FaVrEnt
+Total SQL statements: 116
+================================================================================
+
+-- SQL Statement 1 --
+  loc_12970BE:         var_124 = "SELECT AgRefNo AS RefNo,MIN(V_dATE) as VDate,RTRIM(CAST(ABS(ISNULL(SUM(Cr),0)-ISNULL(SUM(Dr),0)) AS VARCHaR(11)))+' '+CASE WHEN ISNULL(SUM(Cr),0)-ISNULL(SUM(Dr),0)>0 THEN'Cr' WHEN ISNULL(SUM(Cr),0)-ISNULL(SUM(Dr),0)<0 THEN 'Dr' ELSE '' END AS Balance FROM ledgerRef WHERE AGREFTYPE IN ('Advance','New Ref','Ag.Ref.') AND SUBCODE='" & CStr(Me.FGrid1.TextMatrix))
+
+-- SQL Statement 2 --
+  loc_1297162:         var_124 = "SELECT AgRefNo AS RefNo,MIN(V_dATE) as VDate,RTRIM(CAST(ABS(ISNULL(SUM(Cr),0)-ISNULL(SUM(Dr),0)) AS VARCHAR(11)))+' '+CASE WHEN ISNULL(SUM(Cr),0)-ISNULL(SUM(Dr),0)>0 THEN 'Cr' WHEN ISNULL(SUM(Cr),0)-ISNULL(SUM(Dr),0)<0 THEN 'Dr' ELSE ''  END AS Balance FROM ledgerRef WHERE AGREFTYPE IN ('Advance','New Ref','Ag.Ref.') AND SUBCODE='" & CStr(var_BC)
+
+-- SQL Statement 3 --
+  loc_174FEAC:       Call 0.Method_TxtCr_KeyDown0 (KeyCode, var_CC, var_100, "Select max(L.DocId) AS DI,MAX(V_SNo) AS VS,MAX(L.V_Type) AS VT,MAX(L.V_Prefix) AS VP,MAX(L.V_No) AS VN,MAX(L.V_Date) AS VD,MAX(AmtDr) As Amount,MAX(L.Narration) AS NARR,MAX(SG.Name) As PartyName,L.SubCode,IsNull(Sum(CR),0) AS TSum,MAX(LEDGERM.Narration) AS MNARR,MAX(L.AgRefNo) AS AgRefNom FROM ((Ledger L Left Join SubGroup SG on SG.SubCode=L.CONTRASub) LEFT JOIN LEDGERAdj ON  (L.SUBCODE = LedgerAdj.SUBCODE) AND (L.V_SNo = LedgerAdj.V_SNo2) AND (L.DocId = LedgerAdj.DocId2)) LEFT JOIN LEDGERM ON LEDGERM.DOCID=L.DOCID Where L.SubCode='", var_DC, -1)
+
+-- SQL Statement 4 --
+  loc_1750012:           var_114 = CVar("Select IsNull(Sum(CR),0) AS TSum FROM LEDGERAdj WHERE SUBCODE='" & var_100 & "' AND DocID1='") & Me.Fields.Item("DocID").Value 
+
+-- SQL Statement 5 --
+  loc_175112D:         var_100 = "SELECT TDSCAT.* FROM TDSCAT LEFT JOIN SUBGROUP ON SUBGROUP.TDS_CATG=TDSCAT.CODE WHERE (TDSCAT.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 6 --
+  loc_1753ADC:       Call 0.Method_TxtDr_KeyDown0 (KeyCode, var_C8, var_FC, "Select max(L.DocId) AS DI,MAX(V_SNo) AS VS,MAX(L.V_Type) AS VT,MAX(L.V_Prefix) AS VP,MAX(L.V_No) AS VN,MAX(L.V_Date) AS VD,MAX(AmtCr) As Amount,MAX(L.Narration) AS NARR,MAX(SG.Name) As PartyName,L.SubCode,IsNull(Sum(CR),0) AS TSum,MAX(LEDGERM.Narration) AS MNARR,MAX(L.AgRefNo) AS AgRefNom FROM ((Ledger L Left Join SubGroup SG on SG.SubCode=L.CONTRASub) LEFT JOIN LEDGERAdj ON (L.SUBCODE=LedgerAdj.SUBCODE) AND (L.V_SNo=LedgerAdj.V_SNo1) AND (L.DocId=LedgerAdj.DocId1)) LEFT JOIN LEDGERM ON LEDGERM.DOCID=L.DOCID Where L.SubCode='", var_D8, -1)
+
+-- SQL Statement 7 --
+  loc_1753C42:           var_110 = CVar("Select IsNull(Sum(CR),0) AS TSum FROM LEDGERAdj WHERE SUBCODE='" & var_FC & "' AND DocID2='") & Me.Fields.Item("DocID").Value 
+
+-- SQL Statement 8 --
+  loc_1754D78:         var_FC = "SELECT TDSCAT.* FROM TDSCAT LEFT JOIN SUBGROUP ON SUBGROUP.TDS_CATG=TDSCAT.CODE WHERE (TDSCAT.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 9 --
+  loc_1492941:   var_124 = "SELECT SUBGROUP.NAME,LEDGER.SubCode,LEDGER.Narration,LEDGER.AmtCr FROM (LEDGER LEFT JOIN SUBGROUP ON SUBGROUP.SUBCODE=LEDGER.SUBCODE) LEFT JOIN VOUCHER_TYPE ON VOUCHER_TYPE.V_tYPE=LEDGER.V_TYPE WHERE LEDGER.DOCID='"
+
+-- SQL Statement 10 --
+  loc_14929BF:   var_124 = "SELECT SUBGROUP.NAME,LEDGER.SubCode,LEDGER.Narration,LEDGER.AmtDr FROM (LEDGER LEFT JOIN SUBGROUP ON SUBGROUP.SUBCODE=LEDGER.SUBCODE) LEFT JOIN VOUCHER_TYPE ON VOUCHER_TYPE.V_tYPE=LEDGER.V_TYPE WHERE LEDGER.DOCID='"
+
+-- SQL Statement 11 --
+  loc_1492A3A: var_124 = "SELECT SUBGROUP.NAME,LEDGER.SubCode,LEDGER.Narration,LEDGER.AmtCr,SUBGROUP.groupcode,SUBGROUP.ChequeType FROM ((LEDGER LEFT JOIN SUBGROUP ON SUBGROUP.SUBCODE=LEDGER.SUBCODE)  LEFT JOIN acgroup ON SUBGROUP.groupcode=acgroup.groupcode) LEFT JOIN VOUCHER_TYPE ON VOUCHER_TYPE.V_tYPE=LEDGER.V_TYPE WHERE LEDGER.DOCID='"
+
+-- SQL Statement 12 --
+  loc_1285532:     Call 0.Method_TxtVtYpe_Validate0 (0, var_9C, var_A0, "SELECT * FROM VOUCHER_TYPE WHERE V_TYPE='")
+
+-- SQL Statement 13 --
+  loc_FB986C:   MsgBox("Select Voucher Type", &H40, CVar(var_9C), var_DC, var_FC)
+
+-- SQL Statement 14 --
+  loc_FB98EC:   Proc_183_43_EF0924("SELECT distinct v_no FROM LEDGER where v_type='" & CStr(Me.DataCombo3.BoundText) & "' ORDER BY v_no", var_108, "v_no")
+
+-- SQL Statement 15 --
+  loc_FB9962:   Proc_183_43_EF0924("SELECT distinct v_no FROM LEDGER where v_type='" & var_9C & "' ORDER BY v_no", var_108, "v_no", var_118)
+
+-- SQL Statement 16 --
+  loc_13A474A: Proc_6_16_EA44E0(var_CC, MemVar_1F81078, "Select * from enviro WHERE LogSITE_CODE=", var_100)
+
+-- SQL Statement 17 --
+  loc_13A4817: var_10C = "SELECT V_TYPE,DESCRIPTION FROM VOUCHER_TYPE WHERE Category='FA' AND SITE_CODE='" & MemVar_1F81070 & "' AND LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 18 --
+  loc_13A48BE: var_10C = "SELECT V_TYPE,DESCRIPTION FROM VOUCHER_TYPE WHERE Category='FA' AND SITE_CODE='" & MemVar_1F81070 & "' AND LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 19 --
+  loc_13A4954: var_10C = "SELECT V_TYPE,DESCRIPTION FROM VOUCHER_TYPE WHERE Category='FA' AND SITE_CODE='" & MemVar_1F81070 & "' AND LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 20 --
+  loc_13A49A1: unk_5C1C26.Execute "SELECT * FROM FAENVIRO WHERE LOGSITE_CODE='" & MemVar_1F81078 & "'", var_CC, -1
+
+-- SQL Statement 21 --
+  loc_13A4AE7:     var_98 = "Select SubCode,NameWithCity AS Name,GNAME AS GROUPNAME,GroupCode,MAINGRCODES, RTRIM(ISNULL(ADD1,''))+','+RTRIM(ISNULL(ADD2,''))+RTRIM(ISNULL(ADD3,''))+RTRIM(ISNULL(CityName,'')) AS NameWithADDR,ISNULL(FNAME,'') AS FatherName From ViewSubgroup " & var_90
+
+-- SQL Statement 22 --
+  loc_13A4AEE:     var_CC = CVar("SELECT * FROM FAENVIRO WHERE LOGSITE_CODE='" & MemVar_1F81078 & " and (ACTIVEYN=1 OR ACTIVEYN IS NULL) order by Name") 'String
+
+-- SQL Statement 23 --
+  loc_13A4B4E:     var_98 = "Select SubCode,Name,GNAME AS GROUPNAME,GroupCode,MAINGRCODES, RTRIM(ISNULL(ADD1,''))+','+RTRIM(ISNULL(ADD2,''))+RTRIM(ISNULL(ADD3,''))+RTRIM(ISNULL(CityName,'')) AS NameWithADDR,ISNULL(FNAME,'') AS FatherName From ViewSubgroup " & var_90
+
+-- SQL Statement 24 --
+  loc_13A4B55:     var_CC = CVar("SELECT * FROM FAENVIRO WHERE LOGSITE_CODE='" & MemVar_1F81078 & " and (ACTIVEYN=1 OR ACTIVEYN IS NULL) order by Name") 'String
+
+-- SQL Statement 25 --
+  loc_13A4BC3: var_98 = "Select SubCode,Name,GNAME AS GROUPNAME,GroupCode,MAINGRCODES,'' AS NameWithADDR From ViewSubgroup WHERE NATURE='T.D.S.' " & var_94
+
+-- SQL Statement 26 --
+  loc_13A4C35: var_E0 = CVar("SELECT DOCID,SITE_CODE,LOGSITE_CODE FROM LEDGERM WHERE LOGSITE_CODE='" & MemVar_1F81078 & "' AND V_DATE BETWEEN ") 'String
+
+-- SQL Statement 27 --
+  loc_13A4D44:   var_110 = "SELECT DOCID FROM LastVoucher where SITE_cODE='" & MemVar_1F81070 & "' AND LOGSITE_CODE='" & MemVar_1F81078 & "' AND U_Name='"
+
+-- SQL Statement 28 --
+  loc_13A4DCE:     If ("SELECT DOCID FROM LastVoucher where SITE_cODE='" & MemVar_1F81070 <> vbNullString) Then
+
+-- SQL Statement 29 --
+  loc_F8A0CD:   var_8C = "SELECT * FROM FAENVIRO WHERE LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 30 --
+  loc_17DE794:                               Call 0.Method_arg_1E8 (var_98, var_A4, var_A0, "SELECT CreditLimit,NATURE FROM SUBGROUP WHERE SUBCODE=", var_11C, -1)
+
+-- SQL Statement 31 --
+  loc_17DED7D:                                 Call 0.Method_arg_1E8 (var_98, var_A4, var_A0, "SELECT CreditLimit,NATURE FROM SUBGROUP WHERE SUBCODE=", var_11C, -1)
+
+-- SQL Statement 32 --
+  loc_13FAB46:   Proc_183_9_EA21B8(var_D0, MemVar_1F810C8, "SELECT LV.*,DESCRIPTION,NCAT FROM LastVoucher LV LEFT JOIN VOUCHER_tYPE VT ON Vt.V_TYPE=LV.V_TYPE where User_Name=", var_1E0)
+
+-- SQL Statement 33 --
+  loc_13FADB9:   Proc_183_9_EA21B8(var_D0, MemVar_1F810C8, "SELECT LV.*,DESCRIPTION,NCAT FROM LastVoucher LV LEFT JOIN VOUCHER_tYPE VT ON Vt.V_TYPE=LV.V_TYPE where User_Name=", var_1A0)
+
+-- SQL Statement 34 --
+  loc_13FAFCC:     var_C0 = "SELECT VT.Description,VT.NCat,VT.V_Type,VP.Prefix FROM VOUCHER_tYPE AS VT INNER JOIN Voucher_Prefix AS VP ON (VT.Site_Code=VP.Site_Code) AND (VT.LogSite_Code=VP.LogSite_Code) AND (VT.V_Type=VP.V_Type) where VT.SITE_CODE='" & MemVar_1F81070
+
+-- SQL Statement 35 --
+  loc_152C8E9: var_EC = "SELECT * FROM LEDGERTDS WHERE DOCID='" & Me.Fields.Item("DocID").Value 
+
+-- SQL Statement 36 --
+  loc_152CE3B:       unk_5C1C26.Execute CStr("SELECT * FROM LEDGERTDS WHERE DOCID='" & Me.Fields.Item("DocID").Value & "'"), var_130, -1
+
+-- SQL Statement 37 --
+  loc_152CEC5:         unk_5C1C26.Execute CStr("SELECT * FROM LEDGER WHERE DOCID='" & var_9C.Fields.Item("TDSDocId").Value & "'"), var_130, -1
+
+-- SQL Statement 38 --
+  loc_152D17E:         unk_5C1C26.Execute CStr("DELETE FROM LEDGER WHERE DOCID='" & var_9C.Fields.Item("TDSDocId").Value & "'"), var_130, -1
+
+-- SQL Statement 39 --
+  loc_152D1FB:       unk_5C1C26.Execute CStr("SELECT * FROM LEDGER WHERE DOCID='" & Me.Fields.Item("DocID").Value & "'"), var_130, -1
+
+-- SQL Statement 40 --
+  loc_152D4B7:       unk_5C1C26.Execute CStr("DELETE FROM LEDGER  WHERE DOCID='" & Me.Fields.Item("DocID").Value & "'"), var_130, -1
+
+-- SQL Statement 41 --
+  loc_152D529:       unk_5C1C26.Execute CStr("DELETE FROM LEDGERM WHERE DocID='" & Me.Fields.Item("DocID").Value & "'"), var_130, -1
+
+-- SQL Statement 42 --
+  loc_152D5D5:       unk_5C1C26.Execute CStr("DELETE FROM LEDGERADJ WHERE DocID1='" & Me.Fields.Item("DocID").Value & "' OR DocID2='" & var_130 & "'"), var_1EC, -1
+
+-- SQL Statement 43 --
+  loc_152D651:       unk_5C1C26.Execute CStr("DELETE FROM LEDGERREF WHERE DocID='" & Me.Fields.Item("DocID").Value & "'"), var_130, -1
+
+-- SQL Statement 44 --
+  loc_152D6B5:       var_10C = "DELETE FROM LEDGERTDS WHERE DocID='" & Me.Fields.Item("DocID").Value & "'" 
+
+-- SQL Statement 45 --
+  loc_1045DCB:   var_8C = "Select SubCode,NameWithCity AS Name,GNAME AS GROUPNAME,GroupCode,MAINGRCODES From ViewSubgroup WHERE (LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 46 --
+  loc_1045E2B:   var_8C = "Select SubCode,Name,GNAME AS GROUPNAME,GroupCode,MAINGRCODES From ViewSubgroup WHERE (LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 47 --
+  loc_10C346E:     var_8C = "Select SubCode,NameWithCity AS Name,GNAME AS GROUPNAME,GroupCode,MAINGRCODES, RTRIM(ISNULL(ADD1,''))+','+RTRIM(ISNULL(ADD2,''))+RTRIM(ISNULL(ADD3,''))+RTRIM(ISNULL(CityName,'')) AS NameWithADDR,ISNULL(FNAME,'') AS FatherName From ViewSubgroup " & var_88
+
+-- SQL Statement 48 --
+  loc_10C34AB:     var_8C = "Select SubCode,Name,GNAME AS GROUPNAME,GroupCode,MAINGRCODES, RTRIM(ISNULL(ADD1,''))+','+RTRIM(ISNULL(ADD2,''))+RTRIM(ISNULL(ADD3,''))+RTRIM(ISNULL(CityName,'')) AS NameWithADDR,ISNULL(FNAME,'') AS FatherName From ViewSubgroup " & var_88
+
+-- SQL Statement 49 --
+  loc_10C3538:     var_8C = "Select SubCode,NameWithCity AS Name,GNAME AS GROUPNAME,GroupCode,MAINGRCODES, RTRIM(ISNULL(ADD1,''))+','+RTRIM(ISNULL(ADD2,''))+RTRIM(ISNULL(ADD3,''))+RTRIM(ISNULL(CityName,'')) AS NameWithADDR,ISNULL(FNAME,'') AS FatherName From ViewSubgroup " & var_88
+
+-- SQL Statement 50 --
+  loc_10C3575:     var_8C = "Select SubCode,Name,GNAME AS GROUPNAME,GroupCode,MAINGRCODES, RTRIM(ISNULL(ADD1,''))+','+RTRIM(ISNULL(ADD2,''))+RTRIM(ISNULL(ADD3,''))+RTRIM(ISNULL(CityName,'')) AS NameWithADDR,ISNULL(FNAME,'') AS FatherName From ViewSubgroup " & var_88
+
+-- SQL Statement 51 --
+  loc_10C363A: var_8C = "SELECT * FROM FAENVIRO WHERE LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 52 --
+  loc_127EC10:       Call 0.Method_TxtCrDr_Validate0 (0, var_A0, var_158, "SELECT SubGroup.Name,VOUCHER_TYPE.* FROM VOUCHER_TYPE LEFT JOIN SubGroup ON VOUCHER_TYPE.DefaultCrAC = SubGroup.SubCode WHERE VOUCHER_TYPE.V_TYPE='")
+
+-- SQL Statement 53 --
+  loc_127EDB8:       Call 0.Method_TxtCrDr_Validate0 (0, var_A0, var_158, "SELECT SubGroup.Name,VOUCHER_TYPE.* FROM VOUCHER_TYPE LEFT JOIN SubGroup ON VOUCHER_TYPE.DefaultDrAC = SubGroup.SubCode WHERE VOUCHER_TYPE.V_TYPE='")
+
+-- SQL Statement 54 --
+  loc_117626D:   var_D0 = "SELECT * FROM LEDGERTDS WHERE DOCID='" & Me.Fields.Item("DocID").Value 
+
+-- SQL Statement 55 --
+  loc_1176483:         var_F4 = Proc_183_2_E5315C(CVar(var_A0), "SELECT * FROM LEDGERTDS WHERE DOCID='", var_D0, var_138)
+
+-- SQL Statement 56 --
+  loc_122165C:   Call 0.Method_VchDt_Validate8 (var_98, "SELECT EDATE,SDATE FROM DateLock WHERE CODE='", var_C0)
+
+-- SQL Statement 57 --
+  loc_1094197:     Call 0.Method_TxtCHno_LostFocus0 (Index, var_8C, var_D4, "SELECT COUNT(*) FROM LEDGER WHERE Chq_No='", var_A0, -1)
+
+-- SQL Statement 58 --
+  loc_1094266:     Call 0.Method_TxtCHno_LostFocus0 (Index, var_8C, var_D4, "SELECT COUNT(*) FROM LEDGER WHERE Chq_No='", var_134, -1)
+
+-- SQL Statement 59 --
+  loc_FC5C77:   Call 0.Method_TxtGlb_GotFocus0 (0, var_90, var_98, "SELECT Narration FROM VOUCHER_tYPE WHERE V_tYPE=")
+
+-- SQL Statement 60 --
+  loc_F8BEC7:   unk_5C1E23.Execute "SELECT DOCID,SITE_CODE,LOGSITE_CODE FROM LEDGERM WHERE DOCID='" & mDocId & "'", var_AC, -1
+
+-- SQL Statement 61 --
+  loc_12FAAA8: var_B4 = "SELECT LEDGER.*,SUBGROUP.NAME FROM (LEDGER LEFT JOIN SUBGROUP ON SUBGROUP.SUBCODE=LEDGER.SUBCODE) LEFT JOIN VOUCHER_tYPE ON VOUCHER_tYPE.V_TYPE=LEDGER.V_tYPE " & CStr(CVar(Me.TXTVDATE2) & CVar(MemVar_1F81070) & "' AND VOUCHER_TYPE.LOGSITE_CODE='" & CVar(MemVar_1F81078) & "'")
+
+-- SQL Statement 62 --
+  loc_19B1CAF:   unk_5C1C26.Execute "SELECT SUBCODE,SUM(CURR_BAL) AS CURRBAL FROM SUBGROUPCURRBAL GROUP BY SUBCODE ORDER BY SUBCODE", var_D8, -1
+
+-- SQL Statement 63 --
+  loc_19B1EF6:       var_AC = "SELECT LEDGER.*,NameWithCity AS Name FROM (LEDGER LEFT JOIN ViewSubgroup ON ViewSubgroup.SUBCODE=LEDGER.SUBCODE) LEFT JOIN VOUCHER_TYPE ON VOUCHER_TYPE.V_tYPE=LEDGER.V_TYPE WHERE VOUCHER_TYPE.SITE_CODE='" & MemVar_1F81070
+
+-- SQL Statement 64 --
+  loc_19B1F8D:       var_AC = "SELECT LEDGER.*,SUBGROUP.NAME FROM (LEDGER LEFT JOIN SUBGROUP ON SUBGROUP.SUBCODE=LEDGER.SUBCODE) LEFT JOIN VOUCHER_TYPE ON VOUCHER_TYPE.V_tYPE=LEDGER.V_TYPE WHERE VOUCHER_TYPE.SITE_CODE='" & MemVar_1F81070
+
+-- SQL Statement 65 --
+  loc_19B2299:       var_AC = "SELECT LEDGERM.*,VOUCHER_TYPE.NCAT FROM LEDGERM LEFT JOIN VOUCHER_TYPE ON VOUCHER_TYPE.V_tYPE=LEDGERM.V_TYPE WHERE VOUCHER_TYPE.SITE_CODE='" & MemVar_1F81070
+
+-- SQL Statement 66 --
+  loc_19B27DF:           var_EC = "SELECT * FROM LEDGERADJ WHERE DOCID1='"
+
+-- SQL Statement 67 --
+  loc_19B2AD3:           var_EC = "SELECT * FROM LEDGERADJ WHERE DOCID2='"
+
+-- SQL Statement 68 --
+  loc_19B2DC4:         var_EC = "SELECT * FROM LedgerRef WHERE DOCID='"
+
+-- SQL Statement 69 --
+  loc_19B318F:         var_EC = "SELECT LEDGERTDS.*,SUBGROUP.NAME AS TDSNAME FROM LEDGERTDS LEFT JOIN SUBGROUP ON SUBGROUP.SUBCODE=LEDGERTDS.TDSCODE WHERE DOCID='"
+
+-- SQL Statement 70 --
+  loc_19B36EF:           var_164 = "SELECT * FROM LEDGER WHERE DOCID='" & Me.Recordset15.Fields.Item("TDSDocId").Value & "' AND V_SNo=" & var_90.Fields.Item("TDSV_Sno").Value 
+
+-- SQL Statement 71 --
+  loc_1675AC2:       var_C8 = "SELECT MAX(V_NO) as vno from ledger WHERE V_TYPE='" & Me.Recordset15.Fields.Item("V_Type").Value 
+
+-- SQL Statement 72 --
+  loc_131A44E: var_9C = "Select VT.V_Type,VT.DESCRIPTION,VP.Prefix,VP.Date_From,VP.Start_Srl_No,Number_Method,Separate_Narr,Common_Narr,NCAT,ChqNo,ChqDt,ClgDt,LTRIM(RTRIM(VT.V_Type))+'-'+LTRIM(RTRIM(VP.Prefix)) as SearchCode,VT.DefaultCrAc,VT.DefaultDrAC,VT.FirstDrCr From Voucher_Prefix VP right join Voucher_Type VT on VT.V_Type=VP.V_Type Where VT.NCAT='" & global_120
+
+-- SQL Statement 73 --
+  loc_131A7C4:     var_BC = "Select SubCode,NameWithCity AS Name,GNAME AS GROUPNAME,GroupCode,MAINGRCODES, RTRIM(ISNULL(ADD1,''))+','+RTRIM(ISNULL(ADD2,''))+RTRIM(ISNULL(ADD3,''))+RTRIM(ISNULL(CityName,'')) AS NameWithADDR,ISNULL(FNAME,'') AS FatherName From ViewSubgroup WHERE GroupCode NOT IN (SELECT GROUPCODE FROM Voucher_Exclude WHERE DR='Y' AND V_tYPE="
+
+-- SQL Statement 74 --
+  loc_131A855:     var_BC = "Select SubCode,Name,GNAME AS GROUPNAME,GroupCode,MAINGRCODES, RTRIM(ISNULL(ADD1,''))+','+RTRIM(ISNULL(ADD2,''))+RTRIM(ISNULL(ADD3,''))+RTRIM(ISNULL(CityName,'')) AS NameWithADDR,ISNULL(FNAME,'') AS FatherName From ViewSubgroup WHERE GroupCode NOT IN (SELECT GROUPCODE FROM Voucher_Exclude WHERE DR='Y' AND V_tYPE="
+
+-- SQL Statement 75 --
+  loc_131A936:     var_BC = "Select SubCode,NameWithCity AS Name,GNAME AS GROUPNAME,GroupCode,MAINGRCODES, RTRIM(ISNULL(ADD1,''))+','+RTRIM(ISNULL(ADD2,''))+RTRIM(ISNULL(ADD3,''))+RTRIM(ISNULL(CityName,'')) AS NameWithADDR,ISNULL(FNAME,'') AS FatherName From ViewSubgroup WHERE GroupCode NOT IN (SELECT GROUPCODE FROM Voucher_Exclude WHERE CR='Y' AND V_tYPE="
+
+-- SQL Statement 76 --
+  loc_131A9C7:     var_BC = "Select SubCode,Name,GNAME AS GROUPNAME,GroupCode,MAINGRCODES, RTRIM(ISNULL(ADD1,''))+','+RTRIM(ISNULL(ADD2,''))+RTRIM(ISNULL(ADD3,''))+RTRIM(ISNULL(CityName,'')) AS NameWithADDR,ISNULL(FNAME,'') AS FatherName From ViewSubgroup WHERE GroupCode NOT IN (SELECT GROUPCODE FROM Voucher_Exclude WHERE CR='Y' AND V_tYPE="
+
+-- SQL Statement 77 --
+  loc_12DC494:   var_150 = "SELECT * FROM VOUCHER_TYPE WHERE SITE_CODE='" & MemVar_1F81070 & "' AND LOGSITE_CODE='" & MemVar_1F81078 & "' AND V_TYPE='"
+
+-- SQL Statement 78 --
+  loc_1B2451A:   unk_5C1C26.Execute "SELECT COUNT(*) FROM LEDGERM WHERE DocId='" & var_B0 & "'", var_148, -1
+
+-- SQL Statement 79 --
+  loc_1B245DB:     var_E8 = "SELECT COUNT(*) FROM LEDGERM WHERE DocId='" & var_B0
+
+-- SQL Statement 80 --
+  loc_1B24697: Call 0.Method_Proc_185_171_1B28BA40 (0, var_F0, var_E8, "SELECT * FROM Voucher_Include WHERE V_TYPE='", var_148, -1, var_108)
+
+-- SQL Statement 81 --
+  loc_1B24AB4:     unk_5C1C26.Execute CStr("SELECT GROUPCODE FROM SUBGROUP WHERE SUBCODE=" & var_188), var_1A8, -1
+
+-- SQL Statement 82 --
+  loc_1B24EF7:   unk_5C1C26.Execute "SELECT COUNT(*) FROM LEDGERM WHERE DocId='" & var_B0 & "'", var_148, -1
+
+-- SQL Statement 83 --
+  loc_1B24FB8:     var_E8 = "SELECT COUNT(*) FROM LEDGERM WHERE DocId='" & var_B0
+
+-- SQL Statement 84 --
+  loc_1B2515C:   var_E8 = "SELECT * FROM VOUCHER_TYPE WHERE NCAT='TDS' AND site_Code='" & MemVar_1F81070
+
+-- SQL Statement 85 --
+  loc_1B2537D:     var_104 = "SELECT Max(V_NO) AS VNO FROM LEDGER WHERE V_TYPE='" & var_D8 & "' AND V_PREFIX='" & Me.LblVPrefix.Caption & "' AND SITE_CODE='"
+
+-- SQL Statement 86 --
+  loc_1B25562:   unk_5C1C26.Execute CStr("SELECT * FROM LEDGER WHERE DocId='" & Me.Fields.Item("DocID").Value & "'"), var_188, -1
+
+-- SQL Statement 87 --
+  loc_1B257B5:   unk_5C1C26.Execute CStr("DELETE FROM LEDGER WHERE DocId='" & Me.Fields.Item("DocID").Value & "'"), var_188, -1
+
+-- SQL Statement 88 --
+  loc_1B257DE:   var_1CC = "SELECT TDSCODE,TDSAMT,V_DATE,GROUPCODE,TDSDRCODE,TDSDocId FROM LEDGERTDS LEFT JOIN SUBGROUP ON LEDGERTDS.TDSCODE=SUBGROUP.SUBCODE WHERE DOCID='"
+
+-- SQL Statement 89 --
+  loc_1B25AAA:       unk_5C1C26.Execute CStr("DELETE FROM LEDGER WHERE DOCID='" & var_8C.Fields.Item("TDSDocId").Value & "'"), var_188, -1
+
+-- SQL Statement 90 --
+  loc_1B25B27:     unk_5C1C26.Execute CStr("DELETE FROM LEDGERTDS WHERE DocId='" & Me.Fields.Item("DocID").Value & "'"), var_188, -1
+
+-- SQL Statement 91 --
+  loc_1B25C76:       unk_5C1C26.Execute CStr("SELECT GROUPCODE,GROUPNATURE FROM SUBGROUP WHERE SUBCODE='" & var_168 & "'"), var_1A8, -1
+
+-- SQL Statement 92 --
+  loc_1B25F48:         var_E8 = "INSERT INTO LEDGER (DocId,V_SNo,V_Type,V_No,v_Prefix,Site_Code,V_Date,SubCode,AmtCr,AmtDr,ContraSub,Narration,U_Name,U_EntDt,U_AE,Chq_No,Chq_Date,Clg_Date,AgRefNo,GROUPCODE,GROUPNATURE,LOGSITE_CODE) VALUES ('" & var_B0
+
+-- SQL Statement 93 --
+  loc_1B26C54:     var_E8 = "INSERT INTO LedgerM (DocId,V_Type,v_Prefix,V_No,Site_Code,V_Date,Narration,U_Name,U_EntDt,U_AE,LOGSITE_CODE) VALUES ('" & var_B0
+
+-- SQL Statement 94 --
+  loc_1B26DFB:     var_10C = "UPDATE VOUCHER_Prefix SET Start_Srl_No=" & CStr(var_120.Tag) & " WHERE V_Type='" & var_100
+
+-- SQL Statement 95 --
+  loc_1B27003:     var_1A8 = CVar("UPDATE LedgerM SET DocId='" & var_B0 & "',V_Type='" & var_F4 & "',v_Prefix=") & var_158 & ",V_No=" & CVar(var_290.Text) 
+
+-- SQL Statement 96 --
+  loc_1B271E0:   Call 0.Method_Proc_185_171_1B28BA40 (0, var_F0, var_F4, "SELECT COUNT(*) FROM LastVoucher WHERE User_Name='" & MemVar_1F810C8 & "' AND V_Type='", var_148, -1, var_108)
+
+-- SQL Statement 97 --
+  loc_1B2722D:   1 = var_120.Item(CVar("UPDATE LedgerM SET DocId='" & var_B0 & "',V_Type='" & var_F4 & "',v_Prefix=") & var_158)
+
+-- SQL Statement 98 --
+  loc_1B2729A:     Proc_183_8_EAA7F8(var_148, var_D0, CVar("UPDATE LastVoucher Set DOCID='" & var_B0 & "',Last_Ent_Date="))
+
+-- SQL Statement 99 --
+  loc_1B273EA:     var_E8 = "INSERT INTO LastVoucher (User_Name,V_Type,Last_Ent_Date,DOCID,U_Name,U_EntDt,SITE_CODE,LOGSITE_CODE) Values ('" & MemVar_1F810C8
+
+-- SQL Statement 100 --
+  loc_1B27529:   unk_5C1C26.Execute "DELETE FROM LEDGERAdj WHERE DocId1='" & var_B0 & "' OR DocId2='" & var_B0 & "'", var_148, -1
+
+-- SQL Statement 101 --
+  loc_1B275CC:         var_1CC = "INSERT INTO LEDGERADJ (DOCID1,V_SNO1,DOCID2,V_SNO2,CR,SUBCODE,U_Name,U_EntDt,U_AE,SITE_CODE,LOGSITE_CODE) VALUES ('"
+
+-- SQL Statement 102 --
+  loc_1B2780E:         var_E8 = "INSERT INTO LEDGERADJ (DOCID1,V_SNO1,DOCID2,V_SNO2,CR,SUBCODE,U_Name,U_EntDt,U_AE,SITE_CODE,LOGSITE_CODE) VALUES ('" & var_B0
+
+-- SQL Statement 103 --
+  loc_1B27A5F:   unk_5C1C26.Execute "DELETE FROM LedgerRef WHERE DocId='" & var_B0 & "'", var_148, -1
+
+-- SQL Statement 104 --
+  loc_1B27AA6:     unk_5C1C26.Execute "SELECT MAX(ID) AS MaxId FROM LedgerRef", var_148, -1
+
+-- SQL Statement 105 --
+  loc_1B27B4F:       var_F4 = "INSERT INTO LedgerRef (ID,DOCID,V_SNO,DR,CR,SUBCODE,U_Name,U_EntDt,U_AE,AgRefType,AgRefNo,DueDate,V_dATE,SITE_CODE,LOGSITE_CODE) VALUES (" & CStr(var_AA)
+
+-- SQL Statement 106 --
+  loc_1B27EBD:       var_E8 = "INSERT INTO LEDGERTDS (DocId,V_SNo,TDSCode,TDSDrCode,TDSYN,ONAMT,TDS,TDSAMT,TDSPOST,TDSDocId,TDSV_SNo,V_dATE,v_Prefix,Site_Code,U_Name,U_EntDt,U_AE,LOGSITE_CODE) VALUES ('" & var_B0
+
+-- SQL Statement 107 --
+  loc_1B2827A:       unk_5C1C26.Execute CStr("SELECT GROUPCODE,GROUPNATURE FROM SUBGROUP WHERE SUBCODE='" & var_158 & "'"), var_198, -1
+
+-- SQL Statement 108 --
+  loc_1B283E1:         var_E8 = "INSERT INTO LEDGER (DocId,V_SNo,V_Type,V_No,v_Prefix,Site_Code,V_Date,SubCode,AmtCr,AmtDr,ContraSub,Narration,U_Name,U_EntDt,U_AE,LOGSITE_CODE) VALUES ('" & var_E0
+
+-- SQL Statement 109 --
+  loc_1B28697:       var_168 = "SELECT GROUPCODE,GROUPNATURE FROM SUBGROUP WHERE SUBCODE='" & var_158 
+
+-- SQL Statement 110 --
+  loc_1B2881E:         var_E8 = "INSERT INTO LEDGER (DocId,V_SNo,V_Type,V_No,v_Prefix,Site_Code,V_Date,SubCode,AmtCr,AmtDr,ContraSub,Narration,U_Name,U_EntDt,U_AE,LOGSITE_CODE) VALUES ('" & var_E0
+
+-- SQL Statement 111 --
+  loc_F20438: unk_5C1C26.Execute "Insert Into LedgerLog Select * From Ledger Where DocId ='" & arg_C & "'", var_AC, -1
+
+-- SQL Statement 112 --
+  loc_F2046E: unk_5C1C26.Execute "Insert Into LedgerMLog Select * From LedgerM Where DocId ='" & arg_C & "'", var_AC, -1
+
+-- SQL Statement 113 --
+  loc_F20494: var_88 = "Update LedgerLog Set SeqNo=(Select Max(IsNull(SeqNo,0))+1 From LedgerLog Where DocId ='" & arg_C
+
+-- SQL Statement 114 --
+  loc_F204A9: var_B8 = "Insert Into LedgerMLog Select * From LedgerM Where DocId ='" & arg_C & "') Where DocId ='" & arg_C & "' And IsNull(SeqNo,0)=0"
+
+-- SQL Statement 115 --
+  loc_F204DC: var_88 = "Update LedgerMLog Set SeqNo=(Select Max(IsNull(SeqNo,0))+1 From LedgerMLog Where DocId ='" & arg_C
+
+-- SQL Statement 116 --
+  loc_F204F1: var_B8 = "Insert Into LedgerMLog Select * From LedgerM Where DocId ='" & arg_C & "') Where DocId ='" & arg_C & "' And IsNull(SeqNo,0)=0"
+

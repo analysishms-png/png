@@ -1,0 +1,330 @@
+HMS MASTER IMPLEMENTATION & DEBUG PLAN
+=====================================
+
+Project Root: C:\Users\LENOVO\Desktop\serialkey\PROJECT_REPAIR - Copy\HMS_py
+Date: 2026-09-19
+
+Purpose:
+This file is the master implementation plan for the next repair round.
+Front Office module has been completed (guest profile update flow and checkout settlement accuracy validated).
+It maps each VB6 logic family to the matching Python file and gives the exact
+order for debugging, implementation, and validation.
+
+CORE RULES
+----------
+1. DB schema is source of truth.
+2. VB6 forms and event logic are behavior reference.
+3. If a table does not exist in the live DB, do not invent it.
+4. Every fix must be followed by a focused regression test.
+5. Every module must be validated before claiming it is stable.
+
+IMPLEMENTATION FLOW
+-------------------
+1. Map VB6 object and event name.
+2. Map exact Python file(s).
+3. Inspect live DB tables/columns used by the flow.
+4. Reproduce the bug or missing logic.
+5. Add/extend regression test.
+6. Implement minimal fix.
+7. Run focused tests.
+8. Only then move to next module.
+
+MODULE-WISE MAPPING
+-------------------
+
+A. FRONT OFFICE
+VB6 objects:
+- GuestProfile
+- GuestFolio
+- Booking
+- fdCheckIn
+- FdCheckOut
+- FdReSetlement
+- fdPaymentCharge
+- fdDisplayFolio
+- fdDisplayFolioSumm
+- FdRoomDisplay
+- FdRoomOcc
+- HRoomCheckOutClearance
+
+Python targets:
+- HMS_py/core/guestprof.py
+- HMS_py/core/reservation.py
+- HMS_py/core/checkin.py
+- HMS_py/core/checkout.py
+- HMS_py/core/folio.py
+- HMS_py/core/roomstatus.py
+- HMS_py/ui/frontoffice.py
+- HMS_py/ui/checkout_ui.py
+- HMS_py/ui/folio_ui.py
+- HMS_py/ui/roomstatus_ui.py
+
+VB6 logic to preserve:
+- GuestProf change cascades to GuestFolio and RoomOcc.
+- Booking -> CheckIn -> RoomOcc -> Folio lifecycle.
+- CheckOut validates room variation, checkout type, and balance.
+- Payment receive uses PayCharge with GuestProf + FolioNo + Vtype.
+- Reverse checkout restores previous room and folio state.
+
+Debug priority:
+1. Guest profile update flow
+2. Checkout settlement accuracy
+3. Reverse checkout restoration
+4. Live RoomOcc and PayCharge consistency
+
+B. MAIN SETUP / GENERAL SETUP
+VB6 objects:
+- Country
+- State
+- City
+- Area
+- RoomCat
+- RoomMast
+- PlanPackMast
+- SeasonMast
+- CompanyMaster
+- DepartMast
+- OutLetMast
+- VenueMast
+- FrmRoomFeatureMast
+- Godown
+- Voucher Type
+- Enviro
+- GuestParamMast
+- frmPrintModule
+- frmMod_Print
+
+Python targets:
+- HMS_py/core/country.py
+- HMS_py/core/state.py
+- HMS_py/core/city.py
+- HMS_py/core/area.py
+- HMS_py/core/roomcategory.py
+- HMS_py/core/roommaster.py
+- HMS_py/core/plans.py
+- HMS_py/core/seasonmaster.py
+- HMS_py/core/companymaster.py
+- HMS_py/core/depart.py
+- HMS_py/core/venue.py
+- HMS_py/core/general_setup.py
+- HMS_py/core/enviro.py
+- HMS_py/ui/p2_masters.py
+- HMS_py/ui/general_setup_ui.py
+- HMS_py/ui/enviro_ui.py
+
+VB6 logic to preserve:
+- Setup masters have strict code/name validation.
+- Enviro values split into operational and protected financial fields.
+- Printing setup reads from Analysis.ini + temp folder + printer values.
+- Room and department references must be valid before use.
+
+Debug priority:
+1. Enviro allowlist logic
+2. Printer temp path integrity
+3. Duplicate-code checks in masters
+4. Safe no-op for missing config table
+
+C. FINANCE / MASTER DATA
+VB6 objects:
+- FrmTaxMast
+- FrmTaxStruMast
+- FrmPayTypeMast
+- FrmMarketSeg
+- FrmBusinessSrc
+- FrmGuestStat
+- FrmForeignExMast
+- FaReports
+- FaRepView
+- FaVtype
+- FaMagic
+- FaFind
+- FaGlobeNarr
+- FaTaxVoucher
+
+Python targets:
+- HMS_py/core/taxmaster.py
+- HMS_py/core/taxstru.py
+- HMS_py/core/paymenttype.py
+- HMS_py/core/marketsegment.py
+- HMS_py/core/businesssource.py
+- HMS_py/core/gueststatus.py
+- HMS_py/core/forexmaster.py
+- HMS_py/core/ledger.py
+- HMS_py/core/acgroup.py
+- HMS_py/core/fixcharge.py
+- HMS_py/ui/finance_masters_ui.py
+
+VB6 logic to preserve:
+- Payment type values must match allowed modes used by receipt/settlement logic.
+- MarketSeg / BussSource / GuestStatus map to live DB names.
+- Tax structure and forex data are used in billing logic.
+- Financial settings must be protected against unsafe edits.
+
+Debug priority:
+1. Payment type validation
+2. Tax structure integrity
+3. Forex and account references
+4. Report access and print setup
+
+D. POS / KOT / NIGHT AUDIT
+VB6 objects:
+- RsKOTEntry
+- RsPOSDisplay
+- RsMenuItemEntry
+- RsTouchScreen
+- POSBillPrint
+- RSSaleBill
+- NightAuditRR_Click
+- MatRep_Click
+- MatVatR_Click
+- frmReNightAudit
+- NightAuditLR
+- FrmNAMessageA/B/C
+
+Python targets:
+- HMS_py/core/pos.py
+- HMS_py/core/pos_entry.py
+- HMS_py/core/pos_masters.py
+- HMS_py/core/nightaudit.py
+- HMS_py/core/reports.py
+- HMS_py/ui/pos_masters_ui.py
+- HMS_py/ui/kot_entry.py
+- HMS_py/ui/pos_na.py
+
+VB6 logic to preserve:
+- POS revenue grouped by RestCode + RevCode.
+- Night audit checks pending KOTs and unsettled bills before posting.
+- Report selection uses index/hex mapping.
+- Duplicate posting must be skipped.
+
+Debug priority:
+1. NightAuditRR / MatRep / MatVatR mapping
+2. Duplicate PPOS posting prevention
+3. Outlet and revenue validation
+4. Temp/report path safety
+
+E. INVENTORY / STOCK
+VB6 objects:
+- FrmStockTransfer
+- RsStoreRecEntry
+- RsKitchenStk
+- FrmItemMast
+- FrmItemCatMast
+- FrmItemGroupMast
+- PIndent
+- pPOrder
+- pMREntry
+- FrmStockTransfer
+
+Python targets:
+- HMS_py/core/inventory.py
+- HMS_py/ui/inventory.py
+- HMS_py/core/depart.py
+
+VB6 logic to preserve:
+- Transfer is paired and must reconcile source/destination movement.
+- Stock issue/receipt must validate qty and document linkage.
+- Material report names must match VB6 names.
+- No fabricated stock tables.
+
+Debug priority:
+1. BMTC transfer logic
+2. Balance validation before issue
+3. Stock register/report consistency
+4. Duplicate transfer lines
+
+F. HR / MEMBERS / BANQUET
+VB6 objects:
+- prAttend
+- PrEmployee
+- PrHoliday
+- prSalCreate
+- MembershipMast
+- MemberModule
+- SmartCardMast
+- HallBooking
+- HallBill
+- CateringBooking
+- VenueMast
+- BanqAvailability
+- resBanq
+
+Python targets:
+- HMS_py/core/hr_masters.py
+- HMS_py/core/members_masters.py
+- HMS_py/core/banquet_masters.py
+- HMS_py/ui/hr_members_ui.py
+- HMS_py/ui/banquet_masters_ui.py
+
+VB6 logic to preserve:
+- Only map live tables.
+- Treat missing banquet/member transaction tables as blocked.
+- Keep masters working when operational tables are absent.
+
+Debug priority:
+1. DB table existence check
+2. Safe blocked/no-op behavior
+3. Master-level CRUD only
+4. UI stability when table missing
+
+G. DATABASE / UTILITY STABILITY
+VB6 objects:
+- Analysis.ini config access
+- print/temp/printer configuration
+- global DB connection
+- shared report preview module
+
+Python targets:
+- HMS_py/core/db.py
+- HMS_py/main.py
+- HMS_py/Analysis.ini
+- HMS_py/tools/*
+
+VB6 logic to preserve:
+- All path values are read from configuration, not hardcoded.
+- Report/temp/printer values must be safe and consistent.
+- App should start cleanly in headless environments.
+
+Debug priority:
+1. root config path resolution
+2. report/temp folder creation
+3. DB failure messages
+4. utility script compatibility
+
+NEXT REPAIR ORDER
+-----------------
+1. Main Setup + Printer/Enviro setup
+2. Finance masters
+3. POS + Night Audit + Reports
+4. Inventory stock transfer / issues / receipt
+5. HR / Members / Banquet blocked modules
+6. DB utility stabilization
+
+REQUIRED ARTIFACTS PER MODULE
+----------------------------
+For each module debug pass create:
+- bug description
+- VB6 object names
+- Python file names
+- live DB table check
+- missing logic list
+- minimal fix plan
+- focused regression test(s)
+- validate command
+
+EXAMPLE OF A CORRECT DEBUG PASS
+------------------------------
+Module: POS Night Audit Report mapping
+VB6 object: NightAuditRR_Click
+Python target: HMS_py/core/nightaudit.py
+Live evidence: report cases use indexes 0..&HC
+Bug: lambda returned instead of executed mapping
+Fix: call mapped function and return correct metadata
+Test: 0x0A -> FOCC Report and known report names
+Validation: pytest HMS_py/tests/unit/test_core_validation.py -q
+
+FINAL STATUS GOAL
+-----------------
+The application should be stable, DB-safe, and behaviorally close to VB6,
+while using Python-safe validation, allowlists, and explicit blocked statuses
+for missing tables.

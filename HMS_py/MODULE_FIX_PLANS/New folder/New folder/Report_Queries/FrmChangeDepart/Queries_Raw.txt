@@ -1,0 +1,13 @@
+Module: FrmChangeDepart
+Total SQL statements: 3
+================================================================================
+
+-- SQL Statement 1 --
+  loc_F5C49A:   unk_423934.Execute "Select RestType,BackColor From Depart Where Code='" & CStr(var_9C) & "'", var_9C, -1
+
+-- SQL Statement 2 --
+  loc_F23A82: Proc_6_91_EF1950("SELECT CODE ,NAME FROM Depart Where OutletYN<>'Y' and RestType='House Keeping' ORDER BY NAME", var_8C)
+
+-- SQL Statement 3 --
+  loc_F23ADB: Me.Open "Select R.Code as SearchCode,R.Name  From Depart R Where OutletYN<>'Y' and RestType='House Keeping' Order by R.Name", CVar(MemVar_1F81044), 3
+

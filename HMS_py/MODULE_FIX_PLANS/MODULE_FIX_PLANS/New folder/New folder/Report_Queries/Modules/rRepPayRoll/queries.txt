@@ -1,0 +1,217 @@
+Module: rRepPayRoll
+Total SQL statements: 71
+================================================================================
+
+-- SQL Statement 1 --
+  loc_1278006:   MsgBox(CVar("Select " & CStr(var_C8)), &H40, var_16C, var_17C, var_18C)
+
+-- SQL Statement 2 --
+  loc_14DEC76:   unk_4C92E9.Execute "Select '' As O,Name,Code From EmpCategory Order By Name", var_B8, -1
+
+-- SQL Statement 3 --
+  loc_14DEE0F:   var_148 = "Select Distinct '' as O,G.Name As Department,G.Code From GodownMast G iNNER join Employee E on E.Department=G.Code Where (G.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 4 --
+  loc_14DEE4D:     unk_4C92E9.Execute "Select '' As O,Name,Code From EmpCategory Order By Name", var_B8, -1
+
+-- SQL Statement 5 --
+  loc_14DF003:       unk_4C92E9.Execute "Select '' As O,Name,Code From EmpCategory Order By Name", var_B8, -1
+
+-- SQL Statement 6 --
+  loc_14DF187:       Call Proc_311_43_1219450(1, "Select '' as O,Name As EmployeeName,Code From Employee Order by Name")
+
+-- SQL Statement 7 --
+  loc_14DF2FE:         var_148 = "Select Distinct '' as O,G.Name As Department,G.Code From GodownMast G iNNER join Employee E on E.Department=G.Code Where (G.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 8 --
+  loc_14DF313:         Call Proc_311_43_1219450(1, "Select '' as O,Name As EmployeeName,Code From Employee Order by Name")
+
+-- SQL Statement 9 --
+  loc_14DF5BD:             Call Proc_311_43_1219450(1, "Select '' as O,Name As Employee,Code From Employee Order by Name")
+
+-- SQL Statement 10 --
+  loc_14DF755:               Call Proc_311_43_1219450(1, "Select '' as O,Name As Employee,Code From Employee Order by Name")
+
+-- SQL Statement 11 --
+  loc_14DF941:                 Call Proc_311_43_1219450(1, "Select '' as O,Name As Employee,Code From Employee Order by Name")
+
+-- SQL Statement 12 --
+  loc_14DFA3D:                   Call Proc_311_43_1219450(1, "Select '' as O,Name As Employee,Code From Employee Order by Name")
+
+-- SQL Statement 13 --
+  loc_12386DA: var_88 = " Select E.Name as EmployeeName, E.F_Name,E.Joining_Date,Case When IsNull(S.Emp_Basic,0)<>0 Then IsNull(S.Emp_Basic,0) Else E.Basic END Basic,E.BankAcNo,S.Work_Day,S.CL,S.Leave,S.Sunday,S.Holiday,S.Absent,S.Income_Tax,S.Medical,S.Loan,S.Loan_Bal,S.Adv_Bal,S.Basic as CalBasic, EMPCategory.Name As CatDesc,S.DA as CalDA,S.HRA,S.LTA,S.Other_Allow,S.Other_Deduc,S.Conveyance as CalConv,S.PF,S.ESI,S.Advance,S.Net_Salary as NetSalary,S.Medical,Desig.Name As Designation,S.OverTime,S.OverTimeAmt,G.Name Department From (((Employee E Right Join Salary S on E.Code = S.Emp_Code) Left Join EMPCategory ON E.Category = EMPCategory.Code) Left Join Desig ON E.Designation = Desig.Code Left Join GoDownMast G ON E.Department = G.Code) " & var_8C
+
+-- SQL Statement 14 --
+  loc_115D635: var_F0 = " Select E.Name as EmployeeName, E.F_Name,E.Joining_Date,E.PF As EmpPF,E.PF_Code,S.Basic as CalBasic,Desig.Name As DesigDesc,S.DA as CalDA,S.PF As CalPF,S.Net_Salary as NetSalary From ((Employee E Left Join Salary S on E.Code = S.Emp_Code) Left Join Desig ON E.Designation = Desig.Code) " & var_94
+
+-- SQL Statement 15 --
+  loc_11D00AB: var_E8 = "SELECT E.Code As EmpCode,E.Name As EmpName,E.F_Name,E.Joining_Date,EmpCategory.Name As CatDesc,S.Work_Day,S.CL,S.Leave,S.Sunday,S.Holiday,S.Absent,G.Name Department FROM ((Employee E LEFT JOIN EmpCategory ON E.Category=EmpCategory.Code) Left Join Salary S on E.Code = S.Emp_Code Left Join GoDownMast G ON E.Department = G.Code) " & var_8C
+
+-- SQL Statement 16 --
+  loc_15CBE5C: Proc_6_6_F208E4(var_134, var_B8, "select code As EmpCode,name As EmpName,F_Name As FName,OP_Loan,OP_Advance from employee Where Joining_Date<=", 1, var_184, var_134)
+
+-- SQL Statement 17 --
+  loc_15CBF40:       var_164 = "Select IIF(isnull(sum(amount)),0,sum(amount)) as loan From Loan Where Emp_Code='" & var_124.Item(var_F0).Value & "' and V_Type='LO' and V_Date<" 
+
+-- SQL Statement 18 --
+  loc_15CC000:       var_144 = "SELECT IIF(isnull(sum(amount)),0,sum(amount)) as loanret FROM LOAN WHERE Emp_Code='" & var_90.Fields.Item("EmpCode").Value 
+
+-- SQL Statement 19 --
+  loc_15CC0C9:       var_144 = "SELECT IIF(isnull(sum(amount)),0,sum(amount)) as ADVA FROM LOAN WHERE Emp_Code='" & var_90.Fields.Item("EmpCode").Value 
+
+-- SQL Statement 20 --
+  loc_15CC192:       var_144 = "SELECT IIF(isnull(sum(amount)),0,sum(amount)) as ARET FROM LOAN WHERE Emp_Code='" & var_90.Fields.Item("EmpCode").Value 
+
+-- SQL Statement 21 --
+  loc_15CC26B:       var_144 = "SELECT IIF(isnull(sum(amount)),0,sum(amount)) as loan FROM LOAN WHERE Emp_Code='" & var_90.Fields.Item("EmpCode").Value 
+
+-- SQL Statement 22 --
+  loc_15CC35A:       var_144 = "SELECT IIF(isnull(sum(amount)),0,sum(amount)) as loanret FROM LOAN WHERE Emp_Code='" & var_90.Fields.Item("EmpCode").Value 
+
+-- SQL Statement 23 --
+  loc_15CC449:       var_144 = "SELECT IIF(isnull(sum(amount)),0,sum(amount)) as ADVA FROM LOAN WHERE Emp_Code='" & var_90.Fields.Item("EmpCode").Value 
+
+-- SQL Statement 24 --
+  loc_15CC538:       var_144 = "SELECT IIF(isnull(sum(amount)),0,sum(amount)) as ARET FROM LOAN WHERE Emp_Code='" & var_90.Fields.Item("EmpCode").Value 
+
+-- SQL Statement 25 --
+  loc_15CC62E:         var_164 = "Select isnull(sum(amount),0) as loan From Loan Where Emp_Code='" & var_90.Fields.Item("EmpCode").Value & "' and V_Type='LO' and V_Date<" 
+
+-- SQL Statement 26 --
+  loc_15CC6F7:         var_164 = "SELECT isnull(sum(amount),0) as loanret FROM LOAN WHERE Emp_Code='" & var_90.Fields.Item("EmpCode").Value & "' and V_Type IN ('LR','LR1') and v_date<" 
+
+-- SQL Statement 27 --
+  loc_15CC7C0:         var_164 = "SELECT isnull(sum(amount),0) as ADVA FROM LOAN WHERE Emp_Code='" & var_90.Fields.Item("EmpCode").Value & "' and V_Type='ADE' and v_date<" 
+
+-- SQL Statement 28 --
+  loc_15CC889:         var_164 = "SELECT isnull(sum(amount),0) as ARET FROM LOAN WHERE Emp_Code='" & var_90.Fields.Item("EmpCode").Value & "' and V_Type IN ('AR1','AR2') and v_date<" 
+
+-- SQL Statement 29 --
+  loc_15CC962:         var_164 = "SELECT isnull(sum(amount),0) as loan FROM LOAN WHERE Emp_Code='" & var_90.Fields.Item("EmpCode").Value & "' and V_Type='LO' and V_DATE>=" 
+
+-- SQL Statement 30 --
+  loc_15CCA51:         var_164 = "SELECT isnull(sum(amount),0) as loanret FROM LOAN WHERE Emp_Code='" & var_90.Fields.Item("EmpCode").Value & "' and V_Type IN ('LR','LR1') and V_DATE>=" 
+
+-- SQL Statement 31 --
+  loc_15CCB40:         var_164 = "SELECT isnull(sum(amount),0) as ADVA FROM LOAN WHERE Emp_Code='" & var_90.Fields.Item("EmpCode").Value & "' and V_Type='ADE' and V_DATE>=" 
+
+-- SQL Statement 32 --
+  loc_15CCC1E:         var_100 = "SELECT isnull(sum(amount),0) as ARET FROM LOAN WHERE Emp_Code='"
+
+-- SQL Statement 33 --
+  loc_1676FC4: unk_4C92E9.Execute CStr("select code As EmpCode,name As EmpName,OP_Loan,op_Advance from Employee Where Joining_Date<=" & var_134 & CVar(var_8C)), var_100, -1
+
+-- SQL Statement 34 --
+  loc_16770C2:         var_124 = "Select IIF(isnull(sum(amount)),0,sum(amount)) as loan From Loan Where Emp_Code='" & var_90.Fields.Item("EmpCode").Value 
+
+-- SQL Statement 35 --
+  loc_16771B2:         var_124 = "SELECT IIF(isnull(sum(amount)),0,sum(amount)) as loanret From Loan WHERE Emp_Code='" & var_90.Fields.Item("EmpCode").Value 
+
+-- SQL Statement 36 --
+  loc_16772DF:           var_124 = "Select IIF(isnull(sum(amount)),0,sum(amount)) as loan From Loan Where Emp_Code='" & var_90.Fields.Item(var_BC).Value 
+
+-- SQL Statement 37 --
+  loc_16773CF:           var_124 = "SELECT IIF(isnull(sum(amount)),0,sum(amount)) as loanret From Loan WHERE Emp_Code='" & var_90.Fields.Item("EmpCode").Value 
+
+-- SQL Statement 38 --
+  loc_1677510:           var_134 = "Select isnull(sum(amount),0) as loan From Loan Where Emp_Code='" & var_90.Fields.Item(var_BC).Value & "' and V_Type='ADE' and V_Date<" 
+
+-- SQL Statement 39 --
+  loc_1677600:           var_134 = "SELECT isnull(sum(amount),0) as loanret From Loan WHERE Emp_Code='" & var_90.Fields.Item("EmpCode").Value & "' and V_Type IN ('AR1','AR2') and V_Date<" 
+
+-- SQL Statement 40 --
+  loc_167772D:             var_134 = "Select isnull(sum(amount),0) as loan From Loan Where Emp_Code='" & var_90.Fields.Item(var_BC).Value & "' and V_Type='LO' and V_Date<" 
+
+-- SQL Statement 41 --
+  loc_167781D:             var_134 = "SELECT isnull(sum(amount),0) as loanret From Loan WHERE Emp_Code='" & var_90.Fields.Item("EmpCode").Value & "' and V_Type IN ('LR','LR1') and V_Date<" 
+
+-- SQL Statement 42 --
+  loc_1677963:         var_CC = "SELECT V_DATE,Emp_Code,SUM(IIF(V_TYPE IN ('ADE'),Amount,-Amount)) AS mBal,SUM(IIF(V_TYPE IN ('ADE'),Amount,0)) AS mAmt,SUM(IIF(V_TYPE IN ('ADE'),Installment,0)) AS mLInstall,SUM(IIF(V_TYPE IN ('ADE'),0,Amount)) AS mRefund FROM LOAN WHERE V_TYPE IN('ADE','AR1','AR2') AND EMP_CODE='"
+
+-- SQL Statement 43 --
+  loc_1677974:         var_134 = "SELECT isnull(sum(amount),0) as loanret From Loan WHERE Emp_Code='" & var_90.Fields.Item(var_BC).Value & "' AND V_DATE>=" 
+
+-- SQL Statement 44 --
+  loc_1677AB2:           var_CC = "SELECT V_DATE,Emp_Code,SUM(IIF(V_TYPE IN ('LO'),Amount,-Amount)) AS mBal,SUM(IIF(V_TYPE IN ('LO'),Amount,0)) AS mAmt,SUM(IIF(V_TYPE IN ('LO'),Installment,0)) AS mLInstall,SUM(IIF(V_TYPE IN ('LO'),0,Amount)) AS mRefund FROM LOAN WHERE V_TYPE IN('LO','LR','LR1') AND EMP_CODE='"
+
+-- SQL Statement 45 --
+  loc_1677AC3:           var_134 = "SELECT isnull(sum(amount),0) as loanret From Loan WHERE Emp_Code='" & var_90.Fields.Item(var_BC).Value & "' AND V_DATE>=" 
+
+-- SQL Statement 46 --
+  loc_1677C0C:           var_CC = "SELECT V_DATE,Emp_Code,mBal=SUM(CASE V_TYPE WHEN 'ADE' THEN Amount ELSE -Amount END),mAmt=SUM(CASE V_TYPE WHEN 'ADE' THEN Amount ELSE 0 END),mLInstall=SUM(CASE V_TYPE WHEN 'ADE' THEN Installment ELSE 0 END),mRefund=SUM(CASE V_TYPE WHEN 'ADE' THEN 0 ELSE Amount END) FROM LOAN WHERE V_TYPE IN('ADE','AR1','AR2') AND EMP_CODE='"
+
+-- SQL Statement 47 --
+  loc_1677C1D:           var_134 = "SELECT isnull(sum(amount),0) as loanret From Loan WHERE Emp_Code='" & var_90.Fields.Item(var_BC).Value & "' AND V_DATE>=" 
+
+-- SQL Statement 48 --
+  loc_1677D5B:             var_CC = "SELECT V_DATE,Emp_Code,mBal=SUM(CASE V_TYPE WHEN 'LO' THEN Amount ELSE -Amount END),mAmt=SUM(CASE V_TYPE WHEN 'LO' THEN Amount ELSE 0 END),mLInstall=SUM(CASE V_TYPE WHEN 'LO' THEN Installment ELSE 0 END),mRefund=SUM(CASE V_TYPE WHEN 'LO' THEN 0 ELSE Amount END) FROM LOAN WHERE V_TYPE IN('LO','LR','LR1') AND EMP_CODE='"
+
+-- SQL Statement 49 --
+  loc_1677D6C:             var_134 = "SELECT isnull(sum(amount),0) as loanret From Loan WHERE Emp_Code='" & var_90.Fields.Item(var_BC).Value & "' AND V_DATE>=" 
+
+-- SQL Statement 50 --
+  loc_1677FDA:       var_134 = ("SELECT isnull(sum(amount),0) as loanret From Loan WHERE Emp_Code='" & var_90.Fields.Item("OP_Loan").Value - CVar(var_A0))
+
+-- SQL Statement 51 --
+  loc_16781BC:       var_134 = ("SELECT isnull(sum(amount),0) as loanret From Loan WHERE Emp_Code='" & var_90.Fields.Item(var_BC).Value - CVar(var_A0))
+
+-- SQL Statement 52 --
+  loc_1678404:         var_154 = ("SELECT isnull(sum(amount),0) as loanret From Loan WHERE Emp_Code='" & var_90.Fields.Item("mAmt").Value - var_134)
+
+-- SQL Statement 53 --
+  loc_167845C:   Call 0.Method_arg_50 (var_108, var_AC, var_100, var_100, "SELECT isnull(sum(amount),0) as loanret From Loan WHERE Emp_Code='" & var_90.Fields.Item("mAmt").Value, var_100)
+
+-- SQL Statement 54 --
+  loc_16144A9: Proc_6_6_F208E4(var_13C, CVar(CStr(var_108)), var_E4, CVar(CLng(1)), "select code As EmpCode,name As EmpName,OP_Loan,op_Advance from Employee Where Joining_Date<=", var_E4, CVar(CLng(1)))
+
+-- SQL Statement 55 --
+  loc_1614560:       var_C4 = "select 'OPA' as V_type,'"
+
+-- SQL Statement 56 --
+  loc_16145C0:       var_1B0 = var_C4 & CDate(MemVar_1F810F4) & var_E4 & var_F8.Item("EmpCode").Value & "' Union All " & " select 'OPL' as V_type,'" & CDate(MemVar_1F810F4) 
+
+-- SQL Statement 57 --
+  loc_1614609:       var_248 = var_1D0 & var_98.Fields.Item("EmpCode").Value & "' Union All  " & " Select V_type, V_Date,Emp_Code,SUM(Amount) AS CR,0 AS DR,max(Remark) as Rem FROM LOAN WHERE Emp_Code='" 
+
+-- SQL Statement 58 --
+  loc_16146DE:       var_448 = var_E4 & var_3B8 & CVar(var_90) & " Group By Emp_Code,V_Date,v_type" & " Union All  " & " Select V_type, V_Date,Emp_Code,0 AS CR,SUM(Amount) AS DR,max(Remark) as Rem FROM LOAN WHERE Emp_Code='" 
+
+-- SQL Statement 59 --
+  loc_1614863:         var_C4 = " select 'OPL' as V_type,'"
+
+-- SQL Statement 60 --
+  loc_16148B8:         var_190 = var_C4 & CDate(MemVar_1F810F4) & var_E4 & var_98.Fields.Item("EmpCode").Value & "' Union All  " & " Select V_type, V_Date,Emp_Code,SUM(Amount) AS CR,0 AS DR,max(Remark) as Rem FROM LOAN WHERE Emp_Code='" 
+
+-- SQL Statement 61 --
+  loc_1614A11:         var_4A0 = var_C4 & var_304 & CVar(var_90) & " Group By Emp_Code,V_Date,v_type" & " Union All " & " Select 'PBL' as V_type,'" & var_480 
+
+-- SQL Statement 62 --
+  loc_1614B50:         var_794 = var_73C & " Select V_type, V_Date,Emp_Code,0 AS CR,SUM(Amount) AS DR,max(Remark) as Rem FROM LOAN WHERE Emp_Code='" & var_98.Fields.Item("EmpCode").Value 
+
+-- SQL Statement 63 --
+  loc_1614CE3:           var_C4 = "select 'OPA' as V_type,'"
+
+-- SQL Statement 64 --
+  loc_1614D38:           var_190 = var_15C & "' Union All " & " Select V_type, V_Date,Emp_Code,SUM(Amount) AS CR,0 AS DR,max(Remark) as Rem FROM LOAN WHERE Emp_Code='" 
+
+-- SQL Statement 65 --
+  loc_1614E0D:           var_3A8 = var_E4 & var_248 & " and V_DATE<=" & var_304 & CVar(var_90) & " Group By Emp_Code,V_Date,v_type" & " Union All " & " Select 'PBA' as V_type,'" 
+
+-- SQL Statement 66 --
+  loc_1614FA2:           var_75C = var_73C & " Select V_type, V_Date,Emp_Code,0 AS CR,SUM(Amount) AS DR,max(Remark) as Rem FROM LOAN WHERE Emp_Code='" 
+
+-- SQL Statement 67 --
+  loc_1479B62: Proc_6_16_EA44E0(var_108, MemVar_1F81078, "Select * From Enviro WHERE LOGSITE_CODE=", var_138, -1)
+
+-- SQL Statement 68 --
+  loc_1479D8B: var_D4 = "Select E.Code As EmpCode,E.name As EmpName,E.F_Name As EmpFName,IsNull(E.Add1,'')+', '+IsNull(E.Add2,'') As Address,Convert(Varchar(11),E.Joining_Date,103) As DOJ,D.Name As Designation,(E.Basic+E.DA) As CurWages,Case When Datediff(yyyy,E.Joining_Date,"
+
+-- SQL Statement 69 --
+  loc_1479D9B: Proc_6_6_F208E4(var_108, var_C4, "Select * From Enviro WHERE LOGSITE_CODE=", var_A8)
+
+-- SQL Statement 70 --
+  loc_142A0AD: var_DC = "Select E.Code As EmpCode,E.name As EmpName,E.F_Name As EmpFName,Case When Datediff(yyyy,E.Birth_Date,"
+
+-- SQL Statement 71 --
+  loc_11C5F1B: var_88 = "SELECT E.Name, E.F_Name, E.ESI_Code, E.PF_Code,E.BankAcNo,E.Joining_Date,Case When IsNull(SAL.Emp_Basic,0)<>0 Then IsNull(SAL.Emp_Basic,0) Else E.Basic END Basic,E.INCREMENT, SAL.Work_Day,SAL.CL,SAL.Sunday,SAL.Holiday,SAL.Absent,SAL.Income_Tax, SAL.Leave, SAL.Basic as CalBasic,SAL.DA, SAL.HRA, SAL.Income_Tax, SAL.Other_Allow, SAL.Other_Deduc, SAL.Conveyance, SAL.Medical, SAL.LTA, SAL.PF, SAL.ESI, SAL.Loan, SAL.Advance, SAL.OVERTIME,SAL.OVERTIMEAMT,SAL.Net_Salary, SAL.Loan_Bal, SAL.Adv_Bal, Desig.Name As DesigDesc, EMPCategory.Name As CatDesc,SAL.Mth_year,SAL.Emp_Code FROM ((EMPLOYEE E Left JOIN Desig ON E.Designation = Desig.Code) left JOIN EMPCategory ON E.Category = EMPCategory.Code) left JOIN SALARY SAL ON E.Code = SAL.Emp_Code " & var_8C
+

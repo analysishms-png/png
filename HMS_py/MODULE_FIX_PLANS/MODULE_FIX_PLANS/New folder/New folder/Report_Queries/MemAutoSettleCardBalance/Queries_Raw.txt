@@ -1,0 +1,16 @@
+Module: MemAutoSettleCardBalance
+Total SQL statements: 4
+================================================================================
+
+-- SQL Statement 1 --
+  loc_EEDC9C: var_94 = "SELECT Code,Name,RestType,DiscApp FROM Depart Where Code<>'" & MemVar_1F81078 & "RS' And (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO') AND ((OutletYN='Y' and RestType<>'Banquet') OR RestType='Kitchen') ORDER BY Name"
+
+-- SQL Statement 2 --
+  loc_1218A27: var_B8 = "Select SC.Code,SC.CardNo,SC.Name,SC.SerialNo,SC.CurrBal,SC.SecurBal,S.Name MemberName,M.Name MemCategory From SmartCardRegistration SC Left Join SubGroup S On SC.MemberCode=S.SubCode Inner Join MemCatMast M On S.CompanyType=M.Code Where (SC.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 3 --
+  loc_F91B26:   var_F8 = CVar("Update SmartCardRegistration Set LastTransAmt=" & CStr(arg_18) & ",LastTransDate=") & var_C4 & ",CurrBal=0,SecurBal=0 Where Code=" 
+
+-- SQL Statement 4 --
+  loc_121F388:   MsgBox(CVar("Select " & CStr(var_B0)), &H40, var_1A0, var_1F4, var_248)
+

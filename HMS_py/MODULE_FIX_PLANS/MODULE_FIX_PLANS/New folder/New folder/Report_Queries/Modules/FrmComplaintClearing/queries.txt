@@ -1,0 +1,25 @@
+Module: FrmComplaintClearing
+Total SQL statements: 7
+================================================================================
+
+-- SQL Statement 1 --
+  loc_10C9A5A:   var_F8 = "Delete From ComplaintDetail Where Code='" & Me.Fields.Item("SCode").Value & "'" 
+
+-- SQL Statement 2 --
+  loc_F0E5AE: MemVar_1F810E4 = "SELECT  Code AS Scode,Category FROM ComplaintCategory"
+
+-- SQL Statement 3 --
+  loc_106B201: unk_4707D4.Execute "SELECT State.Code as SCode, State.Name as SName, State.ShortName as SShortName,Country.Name AS CCountry FROM State LEFT JOIN Country ON State.Country = Country.Code ORDER BY State.Name", var_BC, -1
+
+-- SQL Statement 4 --
+  loc_12FD73D:     var_1E4 = "UPDATE ComplaintDetail SET Status='Solved', ClearingDate=" & var_110 & ", ClearingPerson='" & Trim(CVar(CStr(Me.FGrid1.TextMatrix)))) 
+
+-- SQL Statement 5 --
+  loc_12FD9C4:     var_120 = "UPDATE ComplaintDetail SET Status='UnSolved', ClearingDate=NULL, ClearingPerson='',Description='" & Trim(CVar(CStr(Me.FGrid1.TextMatrix)))) 
+
+-- SQL Statement 6 --
+  loc_10316F8: unk_4707D4.Execute "SELECT  Code AS Scode,Category FROM ComplaintCategory Order BY Category", var_D4, -1
+
+-- SQL Statement 7 --
+  loc_10926DE:   var_CC = "SELECT CD.Code AS Scode,CD.Category,CD.CDate AS CDate,CD.CTime AS CTime,CD.Description AS Description,Depart.Name AS Depart,IsNull(CD.ClearingDate,"
+

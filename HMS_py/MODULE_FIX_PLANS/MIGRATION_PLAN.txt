@@ -1,0 +1,246 @@
+HMS PYTHON MIGRATION PLAN
+========================
+
+Project: HMS_py
+Root: C:\Users\LENOVO\Desktop\serialkey\PROJECT_REPAIR - Copy\HMS_py
+Date: 2026-09-19
+
+
+1. GOAL
+-------
+VB6 HMS ke asli business behavior ko Python me migrate karna hai, bina schema-se-guesstimate ke. Live SQL Server database aur VB6 source logic ko authority maan kar migrate karna hi rule hai.
+
+Rules:
+- DB is source of truth.
+- VB6 UI flow is behavior reference.
+- Agar table VB6 me hai but live DB me nahi milti, to use nahin karna; dead placeholder ya safe viewer banana.
+- Finance/accounting fields ko read-only rakhna agar live DB me sensitive fields hain.
+- Menu, permissions, setup, and print/temp/report settings ko same style me reuse karna.
+
+
+2. CORE WORKING PRINCIPLES
+--------------------------
+- All modules must be mapped to real DB tables before implementation.
+- Use Analysis.ini for path config: Server, Database, Reports, Temp, Printer.
+- Use User_Module / User1 / menu metadata for menu rights and module mapping.
+- Use safe validation and allowlists for Enviro, settings, and operational flags.
+- Keep app stable in headless mode and in SQL Server environment.
+
+
+3. VB6 TO PYTHON MODULE MAPPING
+--------------------------------
+
+A. FRONT OFFICE
+----------------
+VB6 modules:
+- frmPassword / User Information
+- frmCompany / Company Details
+- GuestProf / Guest Profile
+- CheckIn / CheckOut / Room Status / HouseKeeping
+- GuestFolio / Folio / Payment Receive / Room Charges
+- Reservation / Booking / Booking Inquiry
+
+Python mapping:
+- HMS_py/ui/shell.py
+  - LoginDialog
+  - CompanyDialog
+  - MainWindow
+- HMS_py/ui/frontoffice.py
+  - Guest profile editing/browser
+  - Check-In browser
+- HMS_py/ui/checkout_ui.py
+  - Check Out / Reverse Check Out flow
+- HMS_py/ui/roomstatus_ui.py
+  - Room Display / Housekeeping screen
+- HMS_py/ui/folio_ui.py
+  - Folio view / payment settlement / amend departure flow
+
+Status:
+- Migrated and working in the application shell.
+- Uses real DB logic with live RoomOcc and GuestFolio behavior.
+
+
+B. MAIN SETUP / GENERAL SETUP
+-----------------------------
+VB6 modules:
+- Country, State, City, Area
+- Room Category, Room Master
+- Plan Master, Package Master, Season Master
+- Company Master
+- Charge / Fixed Charge / Unit / Item
+- Department / Venue / Sundry / Narration
+- General Setup: Room Features, Godown, Voucher Environment, FA Environment
+- Tax Structure, Guest Parameters, Printing Setup / Parameters
+
+Python mapping:
+- HMS_py/ui/p2_masters.py
+  - country/state/city/area/room masters etc.
+- HMS_py/ui/general_setup_ui.py
+  - Room Features
+  - Godown / Location
+  - Voucher Type Browser
+  - Enviro / Parameter viewer
+  - Guest Parameters viewer
+  - Printing Setup / Parameters viewer
+- HMS_py/ui/taxstru_ui.py
+  - Tax Structure Master
+- HMS_py/core/general_setup.py
+  - safe CRUD and read-only config logic
+- HMS_py/core/enviro.py
+  - editable settings white-list + read-only finance fields
+
+Status:
+- Most Main Setup masters are ported and stable.
+- Printing setup is now aligned to Analysis.ini + Enviro values.
+- Missing or unsupported tables remain intentionally marked as no-op or viewer only.
+
+
+C. FINANCE / MASTER DATA
+------------------------
+VB6 modules:
+- Tax Master
+- Payment Type
+- Market Segment
+- Business Source
+- Guest Status
+- Forex Master
+- Ledger Accounts
+- Group Accounts
+
+Python mapping:
+- HMS_py/ui/finance_masters_ui.py
+- HMS_py/core/taxmaster.py
+- HMS_py/core/paymenttype.py
+- HMS_py/core/marketsegment.py
+- HMS_py/core/businesssource.py
+- HMS_py/core/gueststatus.py
+- HMS_py/core/forexmaster.py
+- HMS_py/core/ledger.py
+
+Status:
+- Migrated and integrated in shell.
+- Handles schema mismatch safely (for example MarketSeg, BussSource, GuestStat, etc).
+- Uses actual live table names and safe fallback behavior.
+
+
+D. POS (POINT OF SALE)
+----------------------
+VB6 modules:
+- Session Master
+- Scheme Master
+- Delivery Boy
+- Item Category / Menu Category
+- KOT Entry / POS Status / Sales Register / Item wise Sale
+
+Python mapping:
+- HMS_py/ui/pos_masters_ui.py
+- HMS_py/core/pos_masters.py
+- HMS_py/ui/kot_entry.py
+- HMS_py/ui/pos_na.py
+
+Status:
+- POS master screens are ported.
+- Related operational POS screens are connected, but not all report flows are exhaustive.
+
+
+E. HR / PAYROLL / MEMBERS MANAGEMENT
+------------------------------------
+VB6 modules:
+- Employee Category
+- Holiday Master
+- Employee Master
+- Member Category
+- Facility Master
+
+Python mapping:
+- HMS_py/ui/hr_members_ui.py
+- HMS_py/core/hr_masters.py
+- HMS_py/core/members_masters.py
+
+Status:
+- Ported and integrated.
+
+
+F. BANQUET / HALL / VENUE SETUP
+-------------------------------
+VB6 modules:
+- Venue Features
+- Catalog Master
+- Group Profile
+- Banquet related setup
+
+Python mapping:
+- HMS_py/ui/banquet_masters_ui.py
+- HMS_py/core/banquet_masters.py
+
+Status:
+- Ported and shell-integrated.
+
+
+4. SPECIAL MODULES AND STATUS
+-----------------------------
+- Guest History
+  - Python: HMS_py/ui/guest_history_ui.py
+  - Status: live viewer implemented; read-only DB-backed view.
+- Room Display
+  - Python: HMS_py/ui/roomstatus_ui.py
+  - Status: live rack + housekeeping screen implemented.
+- Printing Parameters / Printing Setup
+  - Python: HMS_py/core/general_setup.py + HMS_py/ui/general_setup_ui.py
+  - Status: mapped to Analysis.ini reports/temp/printer + Enviro flags.
+- Tax Structure
+  - Python: HMS_py/ui/taxstru_ui.py
+  - Status: implemented.
+
+
+5. KNOWN DB MISMATCHES HANDLED
+-----------------------------
+These were identified by live DB schema checks and fixed safely:
+- MktSegMast vs MarketSeg
+- BusSrcMast vs BussSource
+- GuestStatusMast vs GuestStatus
+- ForexMast vs ForexMaster
+- RoomMast + RoomOcc real structure versus guessed stale assumptions
+- Enviro: finance fields locked down; only operational fields are editable
+- Missing tables: kept as dead placeholders if truly absent in DB
+
+
+6. NEXT MIGRATION ORDER
+----------------------
+1. Remaining utility/report screens in VB6 that are still placeholders
+2. Additional POS operational screens and report outputs
+3. Remaining Banquet / member transactions and billing screens
+4. Final validation against live SQL Server plus smoke UI tests
+5. Stabilize shells, menu permissions, and print/report paths
+
+
+7. IMPORTANT NOTE FOR FUTURE CHANGES
+------------------------------------
+Any new port must follow this order:
+1. Identify actual VB6 form or table name.
+2. Check live SQL Server schema.
+3. Map to exact Python file(s).
+4. Write or update a focused regression test.
+5. Implement the least-risk version that matches live behavior.
+6. Run the focused unit suite before claiming the module is stable.
+
+
+8. CURRENT STATE SUMMARY
+------------------------
+- Startup is working.
+- DB config + menu shell are stable.
+- Front Office modules are migrated and live.
+- Main Setup is mostly migrated.
+- Finance modules are migrated and shell-connected.
+- POS masters are migrated.
+- Remaining work is in specialized report / utility / transaction modules.
+
+
+9. VALIDATION EVIDENCE
+----------------------
+Command used recently:
+- .\.venv\Scripts\python.exe -m pytest HMS_py\tests\unit\test_core_validation.py -q
+Result:
+- 54 passed in 0.51s
+
+This is the current project regression baseline.

@@ -1,0 +1,7 @@
+Module: RsTouchOrderPersonDetails
+Total SQL statements: 1
+================================================================================
+
+-- SQL Statement 1 --
+  loc_102F9A1:   Call 0.Method_Proc_259_22_102FB980 (CInt(0), var_C0, "Select * from guestprof Where MobileNo='")
+

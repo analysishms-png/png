@@ -1,0 +1,226 @@
+================================================================================
+STOCK IN HAND - QUERIES
+Source: HMS.bas -> Public Sub StkINHand() (form rInventRepView, line 644001)
+================================================================================
+
+Report "Stock In Hand (Stores)" 1 single query se nahi banta.
+Yeh 5 SQL queries + VB code se banta hai:
+
+    Closing Qty   = Opening Receipts - Opening Issues + Period Receipts - Period Issues
+    Closing Value = OpRec.Amt - OpIss.Amt + PerRec.Amt - PerIss.Amt
+
+NOTE: <Site> = Me.LoginSite (e.g. 'RR'), <FromDate>/<ToDate> = grid se dates.
+
+<Filters> = grid selections se append hote hain (optional):
+    And I.Type in ('<Type>')
+    And I.ItemGroup in ('<Group>')
+    And I.ItemType='Store' And S.Item in (<ItemList>)
+    And S.GODOWNCODE in (<GodownList>)
+
+--------------------------------------------------------------------------------
+MODE 1 : "Wt. Unit" (S.Unit ke saath group by)
+--------------------------------------------------------------------------------
+
+-- 1) Item Master / Main List (VDate <= ToDate)
+Select Distinct Item, I.Name As ItemName, S.Unit as IssueUnit,
+       I.MaxStock*I.ConvRatio as MaxStock, I.MinStock*I.ConvRatio as MinStock,
+       I.ReStock*I.ConvRatio as ReStock, I.Type, I.DirectSale,
+       IsNull(ItemGrp.Name,'') ItemGrpName, I.ActiveYN
+From ((Stock S iNNER Join ItemMast I On S.Item=I.Code And I.ItemType='Store')
+      Inner Join Voucher_type VT On (S.VType=VT.V_Type And S.LogSite_Code=VT.LogSite_Code))
+Left Join ItemGrp On ItemGrp.Code=I.ItemGroup
+Where S.LogSite_Code='<Site>'
+  and VDate<=<ToDate>
+  <Filters>
+  And VT.NCAT IN ('PBC','PBR','PRR','PRC','STOP','MRE','RQI','RQR','KSREC','KSISS','KMREC','KMISS')
+Order By I.Name
+
+-- 2) Opening Stock - Receipts (VDate < FromDate)
+SELECT S.Item, Sum(S.QtyRec) AS Qty, S.Unit, Sum(S.Amount) AS Amt
+FROM ((Stock S iNNER Join ItemMast I On S.Item=I.Code And I.ItemType='Store')
+      Inner Join Voucher_type VT On (S.VType=VT.V_Type And S.LogSite_Code=VT.LogSite_Code))
+Where S.LogSite_Code='<Site>'
+  and S.VDate < <FromDate>
+  <Filters>
+  And VT.NCAT IN ('PBC','PBR','STOP','MRE','RQI','KSREC','KMREC') AND S.QtyRec>0
+Group By S.Item, S.Unit HAVING Sum(S.QtyRec)>0
+
+-- 3) Opening Stock - Issues (VDate < FromDate)
+SELECT S.Item, Sum(S.QtyIss) AS Qty, S.Unit, Sum(S.Amount) AS Amt
+FROM ((Stock S Inner Join ItemMast I On S.Item=I.Code And I.ItemType='Store')
+      Inner Join Voucher_type VT On (S.VType=VT.V_Type And S.LogSite_Code=VT.LogSite_Code))
+Where S.LogSite_Code='<Site>'
+  and S.VDate < <FromDate>
+  <Filters>
+  And VT.NCAT IN ('PRR','PRC','RQR','KSISS','KMISS') AND S.QtyIss>0
+Group By S.Item, S.Unit HAVING Sum(S.QtyIss)>0
+
+-- 4) Period Receipts (VDate Between FromDate And ToDate)
+SELECT S.Item, Sum(S.QtyRec) AS Qty, S.Unit, Sum(S.Amount) AS Amt
+FROM ((Stock S Inner Join ItemMast I On S.Item=I.Code And I.ItemType='Store')
+      Inner Join Voucher_type VT On (S.VType=VT.V_Type And S.LogSite_Code=VT.LogSite_Code))
+Where S.LogSite_Code='<Site>'
+  and S.VDate Between <FromDate> And <ToDate>
+  <Filters>
+  And VT.NCAT IN ('PBC','PBR','MRE','RQI','STOP','KSREC','KMREC') AND S.QtyRec>0
+Group By S.Item, S.Unit HAVING Sum(S.QtyRec)>0
+
+-- 5) Period Issues (VDate Between FromDate And ToDate)
+SELECT S.Item, Sum(S.QtyIss) AS Qty, S.Unit, Sum(S.Amount) AS Amt
+FROM ((Stock S Inner Join ItemMast I On S.Item=I.Code And I.ItemType='Store')
+      Inner Join Voucher_type VT On (S.VType=VT.V_Type And S.LogSite_Code=VT.LogSite_Code))
+Where S.LogSite_Code='<Site>'
+  and S.VDate Between <FromDate> And <ToDate>
+  <Filters>
+  And VT.NCAT IN ('PRR','PRC','RQR','STOP','KSISS','KMISS') AND S.QtyIss>0
+Group By S.Item, S.Unit HAVING Sum(S.QtyIss)>0
+
+--------------------------------------------------------------------------------
+MODE 2 : "Purchase Unit" (ConvRatio se multiply, sirf S.Item pe group by)
+--------------------------------------------------------------------------------
+
+-- 1) Item Master / Main List
+Select Distinct Item, I.Name As ItemName, i.IssueUnit,
+       I.MaxStock*I.ConvRatio as MaxStock, I.MinStock*I.ConvRatio as MinStock,
+       I.ReStock*I.ConvRatio as ReStock, I.Type, I.DirectSale,
+       IsNull(ItemGrp.Name,'') ItemGrpName
+From ((Stock S Left Join ItemMast I On S.Item=I.Code And I.ItemType='Store')
+      Left Join Voucher_type VT On S.VType=VT.V_Type)
+Left Join ItemGrp On ItemGrp.Code=I.ItemGroup
+Where VDate<=<ToDate>
+  <Filters>
+  And VT.NCAT IN ('PBC','PBR','PRR','PRC','STOP','MRE','RQI','RQR','KSREC','KSISS','KMREC','KMISS')
+Order By I.Name
+
+-- 2) Opening Stock - Receipts (VDate < FromDate)
+SELECT S.Item, Sum(S.QtyRec*S.ConvRatio) AS Qty, Sum(S.Amount) AS Amt
+FROM ((Stock S Left Join ItemMast I On S.Item=I.Code And I.ItemType='Store')
+      Left Join Voucher_type VT On S.VType=VT.V_Type)
+Where S.VDate < <FromDate>
+  <Filters>
+  And VT.NCAT IN ('PBC','PBR','STOP','MRE','RQR','KSREC','KMREC') AND S.QtyRec>0
+Group By S.Item HAVING Sum(S.QtyRec)>0
+
+-- 3) Opening Stock - Issues (VDate < FromDate)
+SELECT S.Item, Sum(S.QtyRec*S.ConvRatio) AS Qty, Sum(S.Amount) AS Amt
+FROM ((Stock S Left Join ItemMast I On S.Item=I.Code And I.ItemType='Store')
+      Left Join Voucher_type VT On S.VType=VT.V_Type)
+Where S.VDate < <FromDate>
+  <Filters>
+  And VT.NCAT IN ('PRR','PRC','RQI','KSISS','KMISS') AND S.QtyRec>0
+Group By S.Item HAVING Sum(S.QtyRec)>0
+-- NOTE: source code mein yeh bhi QtyRec>0 hai (decompiler glitch lagta hai,
+-- logically QtyIss hona chahiye). Original code jaisa hai waisa hi rakha hai.
+
+-- 4) Period Receipts (VDate Between FromDate And ToDate)
+SELECT S.Item, Sum(S.QtyRec*S.ConvRatio) AS Qty, Sum(S.Amount) AS Amt
+FROM ((Stock S Left Join ItemMast I On S.Item=I.Code And I.ItemType='Store')
+      Left Join Voucher_type VT On S.VType=VT.V_Type)
+Where S.VDate Between <FromDate> And <ToDate>
+  <Filters>
+  And VT.NCAT IN ('PBC','PBR','MRE','RQI','STOP','KSREC','KMREC') AND S.QtyRec>0
+Group By S.Item HAVING Sum(S.QtyRec)>0
+
+-- 5) Period Issues (VDate Between FromDate And ToDate)
+SELECT S.Item, Sum(S.QtyIss) AS Qty, Sum(S.Amount) AS Amt
+FROM ((Stock S Left Join ItemMast I On S.Item=I.Code And I.ItemType='Store')
+      Left Join Voucher_type VT On S.VType=VT.V_Type)
+Where S.VDate Between <FromDate> And <ToDate>
+  <Filters>
+  And VT.NCAT IN ('PRR','PRC','RQR','STOP','KSISS','KMISS') AND S.QtyIss>0
+Group By S.Item HAVING Sum(S.QtyIss)>0
+
+--------------------------------------------------------------------------------
+NCAT category meanings (Voucher_Type table):
+  PBC, PBR  = Purchase
+  PRR, PRC  = Purchase Return
+  STOP      = Stock Transfer
+  MRE       = Material Receipt
+  RQI / RQR = Restaurant Issue / Return
+  KSREC, KSISS = Kitchen Store Receive / Issue
+  KMREC, KMISS = Kitchen Material Receive / Issue
+--------------------------------------------------------------------------------
+
+================================================================================
+SINGLE COMBINED QUERY - 01/04/2025 SE CURRENT DATE TAK
+(Item Group wise, 0 stock wale items bhi included)
+================================================================================
+
+DECLARE @FromDate datetime = '2025-04-01';   -- 01 April 2025
+DECLARE @ToDate   datetime = GETDATE();      -- current date (aaj)
+-- Fixed date chahiye to: DECLARE @ToDate datetime = '2026-09-03';
+
+WITH ItemList AS (
+    SELECT I.Code AS ItemCode,
+           I.Name AS ItemName,
+           I.Type,
+           I.IssueUnit AS Unit,
+           I.MaxStock * I.ConvRatio AS MaxStock,
+           I.MinStock * I.ConvRatio AS MinStock,
+           I.ReStock * I.ConvRatio AS ReStock,
+           I.ActiveYN,
+           ISNULL(G.Name, '') AS ItemGrpName
+    FROM ItemMast I
+    LEFT JOIN ItemGrp G ON G.Code = I.ItemGroup   -- table ka naam ITEMGRP ho to wahi use karo
+    WHERE I.ItemType = 'Store'                     -- saare store items (0 stock wale bhi)
+),
+Opening AS (
+    SELECT S.Item,
+           SUM(CASE WHEN VT.NCAT IN ('PBC','PBR','STOP','MRE','RQI','KSREC','KMREC')
+                    THEN S.QtyRec ELSE 0 END) AS OpRecQty,
+           SUM(CASE WHEN VT.NCAT IN ('PRR','PRC','RQR','KSISS','KMISS')
+                    THEN S.QtyIss ELSE 0 END) AS OpIssQty,
+           SUM(CASE WHEN VT.NCAT IN ('PBC','PBR','STOP','MRE','RQI','KSREC','KMREC')
+                    THEN S.Amount ELSE 0 END) AS OpRecAmt,
+           SUM(CASE WHEN VT.NCAT IN ('PRR','PRC','RQR','KSISS','KMISS')
+                    THEN S.Amount ELSE 0 END) AS OpIssAmt
+    FROM Stock S
+    INNER JOIN ItemMast I ON S.Item = I.Code AND I.ItemType = 'Store'
+    LEFT JOIN Voucher_type VT ON S.VType = VT.V_Type
+    -- Multi-site ho to: AND S.LogSite_Code = VT.LogSite_Code  +  WHERE me site filter
+    WHERE S.VDate < @FromDate                       -- 01/04/2025 se pehle ka opening
+    GROUP BY S.Item
+),
+Period AS (
+    SELECT S.Item,
+           SUM(CASE WHEN VT.NCAT IN ('PBC','PBR','MRE','RQI','STOP','KSREC','KMREC')
+                    THEN S.QtyRec ELSE 0 END) AS RecQty,
+           SUM(CASE WHEN VT.NCAT IN ('PRR','PRC','RQR','STOP','KSISS','KMISS')
+                    THEN S.QtyIss ELSE 0 END) AS IssQty,
+           SUM(CASE WHEN VT.NCAT IN ('PBC','PBR','MRE','RQI','STOP','KSREC','KMREC')
+                    THEN S.Amount ELSE 0 END) AS RecAmt,
+           SUM(CASE WHEN VT.NCAT IN ('PRR','PRC','RQR','STOP','KSISS','KMISS')
+                    THEN S.Amount ELSE 0 END) AS IssAmt
+    FROM Stock S
+    INNER JOIN ItemMast I ON S.Item = I.Code AND I.ItemType = 'Store'
+    LEFT JOIN Voucher_type VT ON S.VType = VT.V_Type
+    WHERE S.VDate BETWEEN @FromDate AND @ToDate     -- 01/04/2025 se aaj tak
+    GROUP BY S.Item
+)
+SELECT IL.ItemGrpName,
+       IL.ItemCode,
+       IL.ItemName,
+       IL.Unit,
+       IL.Type,
+       ISNULL(O.OpRecQty, 0) - ISNULL(O.OpIssQty, 0)          AS OpeningQty,
+       ISNULL(P.RecQty, 0)                                    AS ReceiptQty,
+       ISNULL(P.IssQty, 0)                                    AS IssueQty,
+       ISNULL(O.OpRecQty, 0) - ISNULL(O.OpIssQty, 0)
+         + ISNULL(P.RecQty, 0) - ISNULL(P.IssQty, 0)          AS ClosingQty,
+       ISNULL(O.OpRecAmt, 0) - ISNULL(O.OpIssAmt, 0)
+         + ISNULL(P.RecAmt, 0) - ISNULL(P.IssAmt, 0)          AS ClosingValue,
+       IL.MaxStock,
+       IL.MinStock,
+       IL.ReStock
+FROM ItemList IL
+LEFT JOIN Opening O ON O.Item = IL.ItemCode
+LEFT JOIN Period  P ON P.Item = IL.ItemCode
+ORDER BY IL.ItemGrpName, IL.ItemName
+
+-- NOTE:
+-- * ClosingQty 0 wale items bhi aayenge (ItemMast se LEFT JOIN kiya hai).
+-- * Jis item ki koi movement hi nahi, uski bhi row aayegi with 0.
+-- * Purchase Unit mode (ConvRatio se) chahiye to QtyRec ki jagah S.QtyRec*S.ConvRatio
+--   aur QtyIss ki jagah S.QtyIss*S.ConvRatio likh do.
+-- * NCAT lists original StkINHand code ke exact hain.
+--------------------------------------------------------------------------------

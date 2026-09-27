@@ -1,0 +1,7 @@
+Module: frmReNightAudit
+Total SQL statements: 1
+================================================================================
+
+-- SQL Statement 1 --
+  loc_F64160:   var_88 = "Update enviro set ncur=dateadd(D,-1,ncur) where Logsite_code='" & MemVar_1F81078
+

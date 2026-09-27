@@ -1,0 +1,33 @@
+EZEE ECOSYSTEM — MODULES/PRODUCTS (ek nazar me)
+================================================
+Yanolja Cloud Solutions (original: eZee Technosys) ke products:
+
+| Product            | Kya hai                                  | Hamare project se link              |
+|--------------------|------------------------------------------|-------------------------------------|
+| eZee Absolute      | PMS (hotel mgmt + modules)               | main reference project (FrontDesk+POS)|
+| eZee FrontDesk     | PMS (standalone, classic)                | PMS core reference                   |
+| eZee Optimus       | Restaurant POS / F&B mgmt                | POS module reference                 |
+| eZee Reservation   | Booking Engine (hotel website booking wid) | -                                  |
+| eZee Centrix       | Channel Manager (OTA sync)               | -                                    |
+| eZee Panorama      | Hotel Website Builder                    | -                                    |
+| eZeeMint           | Revenue Management                       | -                                    |
+| Critique           | Hotel Review/Reputation Management       | -                                    |
+| eZee Pay           | Payment Processing                       | -                                    |
+| RapidServe         | Restaurant order-taking app (mobile)     | POS app reference                    |
+
+ABSOLUTE/FRONTDESK KE MODULES (unified):
+1. Front Office: Check-in/out, Room Layout, Stay View, Walk-in, Night Audit
+2. Reservations: Booking, Group, Multi-property, CRS
+3. Housekeeping: Status, Tasks, Room assignments
+4. Maintenance: Work Orders
+5. F&B / POS: Restaurant, Bar, Banquet billing
+6. Inventory: Stock, Recipes, Purchase
+7. CRM / GRM: Guest profiles, Feedback, Campaigns
+8. Reports: Ops, Revenue, Statutory (GST), Audit
+9. Rate & Revenue Mgmt: Rate plans, Yield/allotment
+
+HAMARE PROJECT (analysishms) me kya-kya hai (quick recall):
+- Database: anal_analysis (223 tables) — users, permission, enviro_form, front office tables
+- POS views: pos_billentry.blade.php, salebillentry.blade.php
+- 431 migration files, Laravel (config/database.php default=mysql)
+- Setup abhi complete nahi hua (vendor/.env missing) — next step optional

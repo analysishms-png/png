@@ -1,0 +1,7 @@
+Module: HallAcPostChrg
+Total SQL statements: 1
+================================================================================
+
+-- SQL Statement 1 --
+  loc_F8B18D:     unk_428A50.Execute "Select PostingType from Enviro", var_C0, -1
+

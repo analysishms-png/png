@@ -1,0 +1,13 @@
+Module: FaAdjustDel
+Total SQL statements: 3
+================================================================================
+
+-- SQL Statement 1 --
+  loc_10D6D37:       var_1E0 = "Delete From LEDGERADJ Where DocId1='" & var_DC & "' AND V_SNo1=" & CStr(Me.FG1.TextMatrix)) & " AND DocId2='" & CStr(var_1D4)
+
+-- SQL Statement 2 --
+  loc_1049DEC: var_88 = "SELECT NAME,SUBCODE FROM SUBGROUP ORDER BY NAME"
+
+-- SQL Statement 3 --
+  loc_12A6A34:   unk_425E95.Execute "SELECT * FROM LEDGERADJ WHERE SUBCODE='" & var_A0 & "' AND LOGSITE_CODE='" & MemVar_1F81078 & "'", var_E0, -1
+

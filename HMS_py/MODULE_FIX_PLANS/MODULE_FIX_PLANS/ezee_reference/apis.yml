@@ -1,0 +1,102 @@
+aid: ezee
+url: https://raw.githubusercontent.com/api-evangelist/ezee/refs/heads/main/apis.yml
+name: eZee Technosys
+kind: company
+description: eZee Technosys is a hospitality technology company offering eZee Absolute
+  (cloud hotel PMS), eZee Centrix (channel manager), eZee Reservation (booking engine),
+  and eZee Optimus (restaurant POS). Its YCS Connectivity Portal exposes a
+  partner-gated HTTP API for PMS connectivity, channel manager, booking engine,
+  and POS integrations so third-party systems can sync reservations, room
+  inventory, rates, restrictions, and guest data. eZee is now part of Yanolja
+  Cloud (Yanolja Cloud Solution).
+deliveryModel:
+  model: saas
+  open_source: false
+  commercial: true
+  callable_host: true
+  label: Hosted service · you call their endpoint
+  confidence: high
+  source:
+  - openapi
+  - pricing
+  generated: '2026-08-28'
+  method: derived
+accessModel:
+  pricing: paid
+  onboarding: unknown
+  trial: false
+  try_now: false
+  public: false
+  label: Paid
+  confidence: medium
+  source:
+  - plans
+  - authentication
+  - security
+  - {url: 'https://www.ezeetechnosys.com', status: 301, note: 'declared website redirects to https://yanoljacloudsolution.com:443/ — a different registrable domain (ezeetechnosys.com -> yanoljacloudsolution.com), possible rename or acquisition (probed 2026-09-03, roadmap#169)'}
+  generated: '2026-09-03'
+  method: derived
+image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/ezee.png
+tags:
+- Hospitality
+- Hotel
+- PMS
+- Channel Manager
+- Reservations
+created: '2026-06-21'
+modified: '2026-06-21'
+specificationVersion: '0.23'
+apis:
+- aid: ezee:ezee-inventory-and-rates-api
+  name: eZee Technosys Inventory and Rates API
+  description: >-
+    The Inventory and Rates API from eZee Technosys — 1 operation(s) for inventory and rates.
+  humanURL: https://api.ezeetechnosys.com/tag/pms-connectivity/
+  baseURL: https://live.ipms247.com/pmsinterface/
+  tags:
+  - Inventory and Rates
+  properties:
+  - type: OpenAPI
+    url: openapi/ezee-inventory-and-rates-api-openapi.yml
+  - type: Documentation
+    url: https://api.ezeetechnosys.com/tag/pms-connectivity/
+  - type: Documentation
+    url: https://api.ezeetechnosys.com/
+- aid: ezee:ezee-pms-connectivity-api
+  name: eZee Technosys PMS Connectivity API
+  description: The PMS Connectivity API from eZee Technosys — 1 operation(s) for pms connectivity.
+  humanURL: https://api.ezeetechnosys.com/tag/pms-connectivity/
+  baseURL: https://live.ipms247.com/pmsinterface/
+  tags:
+  - PMS Connectivity
+  properties:
+  - type: OpenAPI
+    url: openapi/ezee-pms-connectivity-api-openapi.yml
+  - type: Documentation
+    url: https://api.ezeetechnosys.com/tag/pms-connectivity/
+  - type: Documentation
+    url: https://api.ezeetechnosys.com/
+common:
+- type: AgenticAccess
+  url: agentic-access/ezee-agentic-access.yml
+- type: TrustCenter
+  url: security/ezee-trust-center.yml
+- type: DomainSecurity
+  url: security/ezee-domain-security.yml
+- type: Authentication
+  url: authentication/ezee-authentication.yml
+- type: LinkedIn
+  url: https://www.linkedin.com/company/ezee-technosys-pvt-ltd-/
+- type: Website
+  url: https://www.ezeetechnosys.com
+- type: Documentation
+  url: https://api.ezeetechnosys.com/
+- type: Plans
+  url: plans/ezee-plans-pricing.yml
+- type: RateLimits
+  url: rate-limits/ezee-rate-limits.yml
+- type: FinOps
+  url: finops/ezee-finops.yml
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com

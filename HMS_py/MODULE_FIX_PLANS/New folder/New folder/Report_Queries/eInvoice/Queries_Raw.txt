@@ -1,0 +1,13 @@
+Module: eInvoice
+Total SQL statements: 3
+================================================================================
+
+-- SQL Statement 1 --
+  loc_159D802: Proc_6_16_EA44E0(var_BC, var_AC, "Update eInvoiceBill1 Set AckNo=", var_4E8, -1, Me.Global.App, var_AC, var_AC)
+
+-- SQL Statement 2 --
+  loc_FA1F12: unk_421757.Execute "Select Top 1 * From eInvoiceEnviro", var_AC, -1
+
+-- SQL Statement 3 --
+  loc_129C81C: úR.Connection15.Execute "Select QrCodeImage,IRN,AckNo,AckDt From eInvoiceBill1 Where DocID='" & var_8C & "'", var_FC, -1
+

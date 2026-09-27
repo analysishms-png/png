@@ -1,0 +1,16 @@
+Module: EmptyInbox
+Total SQL statements: 4
+================================================================================
+
+-- SQL Statement 1 --
+  loc_113FF19: var_CC = CVar("Select user_name as Code,user_name as Name From USERMAST where user_name<>'" & MemVar_1F810C8 & "' Order by user_name") 'String
+
+-- SQL Statement 2 --
+  loc_113FF9C: var_CC = CVar("Select user_name as Code,user_name as Name From USERMAST where user_name<>'" & MemVar_1F810C8 & "' Order by user_name") 'String
+
+-- SQL Statement 3 --
+  loc_129EF36: Call 0.Method_CmdShow_Click0 (CInt(1), var_94, var_9C, "Select * from Messaging where Sender='")
+
+-- SQL Statement 4 --
+  loc_10C4524:     unk_4314D3.Execute "Delete from Messaging where vno=" & CStr(Val(CStr(Me.FGrid.TextMatrix)))) & vbNullString, var_D4, -1
+

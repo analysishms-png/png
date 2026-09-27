@@ -1,0 +1,25 @@
+Module: FdLookUpRoom
+Total SQL statements: 7
+================================================================================
+
+-- SQL Statement 1 --
+  loc_11653A3:   var_13C = "SELECT RoomCat.Name, RoomCat.Code FROM RoomMast LEFT JOIN RoomCat ON RoomMast.RoomCat = RoomCat.Code where rOOMmaST.CODE='"
+
+-- SQL Statement 2 --
+  loc_141E9C3:   unk_42998A.Execute "Select Name from roommast where code='" & CStr(Me.FGrid1.TextMatrix)) & "'", var_118, -1
+
+-- SQL Statement 3 --
+  loc_141ED1F:     unk_42998A.Execute "Select Name from roommast where code='" & CStr(Me.FGrid1.TextMatrix)) & "'", var_118, -1
+
+-- SQL Statement 4 --
+  loc_141F07B:       unk_42998A.Execute "Select Name from roommast where code='" & CStr(Me.FGrid1.TextMatrix)) & "'", var_118, -1
+
+-- SQL Statement 5 --
+  loc_156198B: unk_42998A.Execute "Select * from roommast where Type='RO' order by COde", var_C0, -1
+
+-- SQL Statement 6 --
+  loc_15619B5: unk_42998A.Execute "Select * from RoomOcc where ChkOutDate is Null ", var_C0, -1
+
+-- SQL Statement 7 --
+  loc_15619E6: Proc_6_6_F208E4(var_C0, MemVar_1F810EC, "Select * from RoomBlockOut where Type='O' And ", var_128, -1)
+

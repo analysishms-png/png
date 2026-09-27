@@ -1,0 +1,13 @@
+Module: MemberEnviro
+Total SQL statements: 3
+================================================================================
+
+-- SQL Statement 1 --
+  loc_1381EF5:   var_C4 = "Insert Into MemEnviro(Bill_Header,Bill_Footer,Bill_PrintType,LogSite_Code,NoOfCopy,Interface,AgeParameter,MemberFacilityBilling,BillMessage,BillPayDueDate,MemberVarification,MemberVarificationInKOT,AutoMemberBilling,MemberSaleBillDiscEditable) Values ("
+
+-- SQL Statement 2 --
+  loc_13822CA:   var_1B4 = "Update MemEnviro Set Bill_Header=" & var_B4 & ",Bill_Footer=" & var_11C & ",Bill_PrintType=" & var_174 & ",NoOfCopy=" & CVar(Val(var_210)) 
+
+-- SQL Statement 3 --
+  loc_EA8EBD: Me.Recordset15.Open CVar("Select * From MemEnviro WHERE (LOGSITE_CODE='" & MemVar_1F81078 & "')"), CVar(MemVar_1F81044), 2
+

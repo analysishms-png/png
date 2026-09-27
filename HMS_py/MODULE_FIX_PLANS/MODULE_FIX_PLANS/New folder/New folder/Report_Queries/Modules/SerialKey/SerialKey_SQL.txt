@@ -1,0 +1,31 @@
+SERIAL KEY - RELATED SQL (from Company table)
+Source: Modules\frmCompany\queries.txt , Modules\frmCompany\sql_queries.txt
+=====================================================================
+
+-- SQL Statement 28 --
+loc_191A001: unk_564F5F.Execute "Update Company Set Comp_Id=(Select Left(IsNull(Max(SerialKeyNo),''),10) From Company)", var_BC, -1
+
+-- SQL Statement 29 --
+loc_191A022: unk_564F5F.Execute "Update Company Set SerialKeyNo=''", var_BC, -1
+
+-- SQL Statement 30 --
+loc_191A06D: unk_564F5F.Execute "Select * from Company", var_BC, -1
+
+-- SQL Statement 72 --  (INSERT Company - includes SerialKeyNo field)
+loc_15B12D2: Call 0.Method_Proc_4_32_15B1F400 (CInt(5), var_98, var_A0, "INSERT INTO COMPANY (SName,Comp_Code,Comp_Name,Address1,Address2,City,Pin,LstDate,CstDate,Phone,CYear,PYear,Start_Dt,End_Dt,LstNo,CstNo,CentralData_Path,FAX,FGLNo,SerialKeyNo,SiteCode,SiteName,SiteCodeDisplay) VALUES ('")
+
+-- SQL Statement 75 --  (Software expired message)
+loc_110BC20: MsgBox(CVar(" Software expired !" & vbCrLf & "Update Serial Key. Contact to Software Vender."), &H10, var_CC, var_DC, var_118)
+
+-- SQL Statement 76 --  (Expiry warning message)
+loc_110BC82: var_DC = "Update Serial Key. Contact to Software Vender. Software will expire in " & DateDiff("d", MemVar_1F810EC, DateAdd("d", CDbl(&H2D), var_F4), 1, 1)
+
+-- License validation (new user / incomplete license) - from HMS.bas
+loc_191A247:  If IsNull(CVar(var_A0.Fields.Item("CardExpDate"))) Then
+loc_191A263:    MsgBox("You are New User, Please Create License", &H40, Left("You are New User, Please Create License", &H1E), var_118, var_128)
+loc_191A273:    End
+loc_191A2B3:  If (Len(Proc_6_37_E618F4(CVar(var_88.Item("Comp_Id")), var_88)) < 4) Then
+loc_191A2D5:    MsgBox(CVar("InComplete License Information." & vbCrLf & "Contact :     Your S/w Vendor"), &H40, ...)
+loc_191A2E8:    End
+loc_191A2F3:  If (CDbl(var_A8) <= CDbl(&H1E)) Then       ' <= 30 days left warning
+loc_191A3A4:  If (var_F8 < var_9C.Fields.Item("Ncur").Value) Then  ' license expired check

@@ -481,7 +481,7 @@ class GINForm(QDialog):
         self.tbl.setRowCount(len(rows))
         self.tbl.setHorizontalHeaderLabels(["VNo", "Date", "Party", "DocId"])
         for r, i in enumerate(rows):
-            for c, v in enumerate([i["vno"], i["vdate"], i["party_name"], i["docid"]]):
+            for c, v in enumerate([i["vno"], i["vdate"], i["party"], i["docid"]]):
                 self.tbl.setItem(r, c, _dark_item(v))
 
     def set_state(self, enabled: bool):

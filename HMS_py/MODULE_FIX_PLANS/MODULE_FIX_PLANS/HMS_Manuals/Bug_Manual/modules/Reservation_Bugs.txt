@@ -1,0 +1,71 @@
+================================================================================
+   ANALYSIS HMS - RESERVATION MODULE : BUG REPORT (TESTER FORMAT)
+================================================================================
+Property: Demo Property | Report Date: 21-Sep-2026 | Round: 1 + 2 (Demo entries)
+Method: Manual UI testing on live app - demo entries, empty submits, duplicates,
+        report fetches. Source code sirf root-cause confirm karne ke liye dekha.
+================================================================================
+
+TOTAL BUGS: 3
+
+--------------------------------------------------------------------------------
+[RES-01] Past-date (August) reservations par aaj bhi 'Checkin' button active
+Severity : HIGH
+Screen   : Reservation > Reservation List (/reservationlist)
+
+Steps:
+1. Reservation List kholo
+2. Sn 13/14 wali rows dekho (ArrDate 25-Aug-2026, aaj 21-Sep)
+
+Expected: Past arrival-date wali booking par Checkin allow na ho (ya warning aaye).
+
+Actual (BUG): 25-Aug-2026 arrival wali bookings me aaj bhi 'Checkin' button active hai - us date par checkin ho sakta hai jo 1 mahina purani hai.
+
+Impact: Back-dated check-in possible - room inventory aur reports dono galat ho sakte hain.
+
+Evidence: screenshots/RES2_list.png (rows 13-14, Checkin button visible)
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+[RES-02] Cancelled bookings par bhi 'Delete' button maujood
+Severity : MEDIUM
+Screen   : Reservation > Reservation List
+
+Steps:
+1. Cancelled (Cancel=Y) rows dekho (Sn 4, 10, 11)
+2. Action buttons dekho
+
+Expected: Cancelled booking delete na ho - records audit ke liye rakhne chahiye (ya sirf admin ko allow ho).
+
+Actual (BUG): Cancelled bookings par bhi Delete button hai - booking history permanently delete ho sakti hai.
+
+Impact: Audit trail khatam ho sakta hai. Revenue/cancel reports me gaps aa sakte hain.
+
+Evidence: screenshots/RES2_list.png
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+[RES-03] Business Source dropdown load-par invalid styling
+Severity : LOW
+Screen   : Reservation > New Reservation form
+
+Steps:
+1. New reservation form kholo, Business Source dekho
+
+Expected: Load par normal dikhna chahiye.
+
+Actual (BUG): Field load-par invalid/underlined state me hai (cross-module pattern ka hissa).
+
+Impact: Cosmetic.
+
+Evidence: screenshots/RES_empty_submit.png (warna validation sahi chalti hai)
+--------------------------------------------------------------------------------
+
+================================================================================
+  JO SAHI KAAM KAR RAHA HAIN (VERIFIED)
+================================================================================
+  [OK] Reservation List - 33 bookings, sorting/actions render OK
+  [OK] New Reservation - empty submit par friendly highlight validation
+  [OK] Business Source dropdowns loaded sahi
+
+================================================================================
+END OF RESERVATION BUG REPORT
+================================================================================

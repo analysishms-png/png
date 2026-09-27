@@ -1,0 +1,4 @@
+Msg 137, Level 15, State 1, Server DESKTOP-6GGQU0K, Line 79
+Must declare the scalar variable "@src_coll".
+Msg 137, Level 15, State 2, Server DESKTOP-6GGQU0K, Line 80
+Must declare the scalar variable "@src_coll".

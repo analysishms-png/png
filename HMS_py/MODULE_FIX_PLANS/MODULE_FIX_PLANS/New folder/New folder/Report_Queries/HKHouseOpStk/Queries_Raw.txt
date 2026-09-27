@@ -1,0 +1,79 @@
+Module: HKHouseOpStk
+Total SQL statements: 25
+================================================================================
+
+-- SQL Statement 1 --
+  loc_FFCB8A: unk_49C74C.Execute "Select Description,V_Type From Voucher_Type Where V_tYPE='" & global_120 & "'", var_B4, -1
+
+-- SQL Statement 2 --
+  loc_10AB1A0:   var_F4 = "Delete From STOCK Where Docid='" & Me.Fields.Item("SearchCode").Value & "'" 
+
+-- SQL Statement 3 --
+  loc_EABEE5: var_10C = "Select Distinct Docid as SearchCode,V.Description As VType,S.VNo as VrNo,S.VDate as V_Date,R.Name as Depart From ((STOCK S Left Join Voucher_Type V On S.VType=V.V_Type) Left Join Depart R On S.RestCode=R.Code) Where V.V_Type='" & global_120
+
+-- SQL Statement 4 --
+  loc_1521A98:   Call 0.Method_TopCtrl1_UnknownEvent_160 (CInt(4), var_A4, var_AC, "Select Count(*) From STOCK Where DocID='", var_FC, -1)
+
+-- SQL Statement 5 --
+  loc_1521BB7: Call 0.Method_TopCtrl1_UnknownEvent_160 (CInt(4), var_A4, var_AC, "Delete From STOCK Where DocID='", var_FC)
+
+-- SQL Statement 6 --
+  loc_1521EE2:     var_144 = "Insert Into Stock(Docid,VNo,VDate,VType,VPrefix,Site_Code,RestCode,RoomCat,RoomType,RoomNo,Sno,Item,Unit,Qtyrec,Rate,Amount,U_Name,U_EntDt,U_AE,TOTAL) Values ('" & var_AC
+
+-- SQL Statement 7 --
+  loc_15220FC:   var_AC = "Select VT.Number_Method,VP.V_Type,VP.Date_From,VP.Prefix,VP.Start_Srl_No From Voucher_Type VT Inner Join Voucher_Prefix VP on (VT.V_Type=VP.V_Type AND VT.SITE_CODE=VP.SITE_CODE AND VP.LOGSITE_CODE=VP.LOGSITE_CODE) Where (VP.SITE_CODE='" & MemVar_1F81070
+
+-- SQL Statement 8 --
+  loc_1522291:     var_1E4 = "Update Voucher_Prefix Set Start_Srl_No=" & var_144 & " Where (SITE_CODE='" & MemVar_1F81070 & "' AND LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 9 --
+  loc_152233F:   var_AC = "SELECT COUNT(*) FROM LASTVOU WHERE UNAME='" & MemVar_1F810C8
+
+-- SQL Statement 10 --
+  loc_15223D4:     Call 0.Method_TopCtrl1_UnknownEvent_160 (CInt(4), var_A4, var_AC, "UPDATE LASTVOU  SET DOCID='")
+
+-- SQL Statement 11 --
+  loc_1522467:     Call 0.Method_arg_50 (var_144, "INSERT INTO LASTVOU (UNAME,ENAME,DOCID,Site_Code,U_EntDt,U_AE,LogSite_Code) VALUES ('" & MemVar_1F810C8 & "','", var_204)
+
+-- SQL Statement 12 --
+  loc_120905B: var_88 = "Select 'O'+Depart.ShortName From Depart Where Code='" & MemVar_1F811B8
+
+-- SQL Statement 13 --
+  loc_12090F8: var_AC = CVar("Select V_Type As Code,Description As Name,NCat From Voucher_Type Where V_TYPE='" & global_120 & "' Order by Description") 'String
+
+-- SQL Statement 14 --
+  loc_12091B0: var_9C = "Select I.Code,I.Name as Name,I.Unit,IG.Name as ItemGroup,I.LPurRate From ItemMast I left join ItemGrp IG on I.ItemGroup=IG.Code WHERE I.TYPE IN ('Store Item','Consumables') AND IG.TYPE IN ('Store Item','Consumables') And I.ItemType='Store' Order by I.Name"
+
+-- SQL Statement 15 --
+  loc_120929C: var_88 = "Select Distinct S.DocId as SearchCode,S.DocID From STOCK S WHERE VTYPE='" & global_120
+
+-- SQL Statement 16 --
+  loc_12092DD: Call 0.Method_arg_50 (var_88, "SELECT COUNT(*) FROM LASTVOU WHERE ENAME='", var_AC, -1, Me.DGRoom, var_B4, 0, var_C8)
+
+-- SQL Statement 17 --
+  loc_1209384:   Call 0.Method_arg_50 (var_88, "SELECT DOCID FROM LASTVOU WHERE ENAME='", var_AC, -1, var_B0, var_B4, 0)
+
+-- SQL Statement 18 --
+  loc_1464250:       Call 0.Method_Txt_Validate0 (CInt(4), var_98, var_A0, "Select Count(*) From STOCK Where DocID='", "Vr. No Can Not Be 0", -1)
+
+-- SQL Statement 19 --
+  loc_1395820:   var_DC = "Select S.*,D.NAME AS RestName From STOCK S LEFT JOIN DEPART D ON D.CODE=S.RESTCODE Where S.Docid='" & Me.Fields.Item("DocID").Value 
+
+-- SQL Statement 20 --
+  loc_1395950:   Call 0.Method_Proc_35_47_13960B00 (CInt(0), var_AC, var_100, "Select NCAT From Voucher_Type Where V_Type='", var_BC, -1)
+
+-- SQL Statement 21 --
+  loc_13959EE:   Call 0.Method_Proc_35_47_13960B00 (CInt(0), var_AC, var_100, "Select Description From Voucher_type Where V_Type='", var_BC, -1)
+
+-- SQL Statement 22 --
+  loc_1395C91:   var_CC = "Select S1.*,I.name as ItemName From STOCK S1 Left Join ItemMast I On S1.Item=I.Code And I.ItemType='Store' Where S1.DocId='"
+
+-- SQL Statement 23 --
+  loc_1085192:   Call 0.Method_Proc_35_48_10853C40 (CInt(4), var_B4, var_B0, "Select Count(*) From STOCK Where DocID='", var_AC, -1)
+
+-- SQL Statement 24 --
+  loc_10626F9: Me.Connection15.Execute "Select MAX(vno)AS VNO From STOCK s Where s.VType='" & var_90 & "' ", var_C0, -1
+
+-- SQL Statement 25 --
+  loc_10AC0ED:   unk_49C74C.Execute "Select Distinct DocId,VType,VNo From STOCK Where DocID='" & arg_10 & "'", var_C0, -1
+

@@ -1,0 +1,238 @@
+Module: MemFacilityBilling
+Total SQL statements: 78
+================================================================================
+
+-- SQL Statement 1 --
+  loc_11543FA:   unk_55687B.Execute CStr("Delete From Ledger Where DocId='" & Me.Fields.Item("SearchCode").Value & "'"), var_118, -1
+
+-- SQL Statement 2 --
+  loc_115446C:   unk_55687B.Execute CStr("Delete From MemBill Where DocId='" & Me.Fields.Item("SearchCode").Value & "'"), var_118, -1
+
+-- SQL Statement 3 --
+  loc_11544DE:   unk_55687B.Execute CStr("Delete From MemBill1 Where DocId='" & Me.Fields.Item("SearchCode").Value & "'"), var_118, -1
+
+-- SQL Statement 4 --
+  loc_1154550:   unk_55687B.Execute CStr("Delete From MemBill2 Where DocId='" & Me.Fields.Item("SearchCode").Value & "'"), var_118, -1
+
+-- SQL Statement 5 --
+  loc_11545B4:   var_F8 = "Delete From MemSunTran Where DocId='" & Me.Fields.Item("SearchCode").Value & "'" 
+
+-- SQL Statement 6 --
+  loc_EDC962: var_10C = "Select M.DocId As Code, M.Vno As BillNo,S.Name As MemberName,M.CardNo,M.MthYear As ForMonth, convert(Varchar(11),M.VDate,106) As BillDate From membill M Left Join SubGroup S On M.MemCode=S.SubCode Where M.VPrefix=" & MemVar_1F8112C
+
+-- SQL Statement 7 --
+  loc_F63647: unk_55687B.Execute "Select * from MemEnviro where LogSite_Code='" & MemVar_1F81078 & "'", var_B0, -1
+
+-- SQL Statement 8 --
+  loc_169C8F1: Call 0.Method_TopCtrl1_UnknownEvent_160 (CInt(4), var_94, var_9C, "Delete From Ledger Where DocId='")
+
+-- SQL Statement 9 --
+  loc_169C950: Call 0.Method_TopCtrl1_UnknownEvent_160 (CInt(4), var_94, var_9C, "Delete From MemBill Where DocId='")
+
+-- SQL Statement 10 --
+  loc_169C9AF: Call 0.Method_TopCtrl1_UnknownEvent_160 (CInt(4), var_94, var_9C, "Delete From MemBill1 Where DocId='")
+
+-- SQL Statement 11 --
+  loc_169CA0E: Call 0.Method_TopCtrl1_UnknownEvent_160 (CInt(4), var_94, var_9C, "Delete From MemBill2 Where DocId='")
+
+-- SQL Statement 12 --
+  loc_169CA6D: Call 0.Method_TopCtrl1_UnknownEvent_160 (CInt(4), var_94, var_9C, "Delete From MemSunTran Where DocId='")
+
+-- SQL Statement 13 --
+  loc_169CCFB: var_B8 = "Insert Into MemBill (DocId,vDate,Vno,Vprefix,VType,MemCode,MemCatCode,CardNo,MthYear,NetAmount,U_AE,U_Name,U_EntDt,Site_Code,LogSite_Code,BillDate,RoundOff,Amount) " & " Values ('"
+
+-- SQL Statement 14 --
+  loc_169D220:   var_B8 = "Insert Into MemBill1 (DocId,Sno,Vno,vDate,VType,Type,FacilityCode,TaxStru,AcCode,BaseAmt,TaxAmt,OutletCode,AcPosting,AcPostingYN,U_AE,U_Name,U_EntDt,Site_Code,LogSite_Code) " & " Values ('"
+
+-- SQL Statement 15 --
+  loc_169D713:     var_B8 = "Insert Into MemBill2 (DocId,Sno,Sno1,Vno,vDate,VType,FacilityCode,TaxCode,BaseAmt,TaxPer,TaxAmt,U_AE,U_Name,U_EntDt,Site_Code,LogSite_Code) " & " Values ('"
+
+-- SQL Statement 16 --
+  loc_169DA66:   var_B8 = "Insert Into MemSunTran (DocId,Sno,vDate,Vno,Vprefix,VType,SunCode,SunAmt,U_AE,U_Name,U_EntDt,Site_Code,LogSite_Code) " & " Values ('"
+
+-- SQL Statement 17 --
+  loc_169DC25:   var_9C = "Select VT.Number_Method,VP.V_Type,VP.Date_From,VP.Prefix,VP.Start_Srl_No From Voucher_Type VT Inner Join Voucher_Prefix VP on (VT.V_Type=VP.V_Type AND VT.SITE_CODE=VP.SITE_CODE AND VP.LOGSITE_CODE=VP.LOGSITE_CODE) Where (VP.SITE_CODE='" & MemVar_1F81070
+
+-- SQL Statement 18 --
+  loc_169DD7A:     var_1B0 = "Update Voucher_Prefix Set Start_Srl_No=" & CStr(var_65C) & " Where (SITE_CODE='" & MemVar_1F81070 & "' AND LOGSITE_CODE='"
+
+-- SQL Statement 19 --
+  loc_F08C8C: unk_55687B.Execute "Select AutoMemberBilling from MemEnviro where LogSite_Code='" & MemVar_1F81078 & "'", var_B4, -1
+
+-- SQL Statement 20 --
+  loc_F12FE7: Call 0.Method_CmdRefreshCategory_Click0 (CInt(0), var_8C, var_90, "Select IsNull(Max(CompanyType),'') From SubGroup Where SubCode='", var_C0, -1)
+
+-- SQL Statement 21 --
+  loc_11F28F8: var_B4 = "SELECT SubCode,subgroup.Name,CardNo,CompanyType FROM SUBGROUP INNER JOIN MEMCATMAST ON SUBGROUP.COMPANYTYPE=MEMCATMAST.CODE WHERE ActiveYN=1 And IsNull(FBilling,'')<>'N' And (COMPANYTYPE IS NOT NULL AND COMPANYTYPE<>'') and (SUBGROUP.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 22 --
+  loc_11F2982: var_C4 = CVar("Select  Code, Name From MemCatMast WHERE Corporate='N' And IsNull(FBilling,'')<>'N' AND (  LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO')  Order by Name") 'String
+
+-- SQL Statement 23 --
+  loc_11F29E3: unk_55687B.Execute "Select * from MemEnviro where LogSite_Code='" & MemVar_1F81078 & "'", var_C4, -1
+
+-- SQL Statement 24 --
+  loc_11F2A22: unk_55687B.Execute "Select * from UserPermission where UserName='" & MemVar_1F810C8 & "'", var_C4, -1
+
+-- SQL Statement 25 --
+  loc_11F2B8C: var_C4 = CVar("Select DocId As SearchCode,* From MemBill Where VPrefix=" & MemVar_1F8112C & " And (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO') Order By DocId") 'String
+
+-- SQL Statement 26 --
+  loc_10F7550: var_98 = "Select VT.Number_Method,VP.V_Type,VP.Date_From,VP.Prefix,VP.Start_Srl_No From Voucher_Type VT Inner Join Voucher_Prefix VP on (VT.V_Type=VP.V_Type AND VT.SITE_CODE=VP.SITE_CODE AND VP.LOGSITE_CODE=VP.LOGSITE_CODE) Where (VP.SITE_CODE='" & MemVar_1F81070
+
+-- SQL Statement 27 --
+  loc_1AFF9E4: var_12C = "Select * from MemEnviro where LogSite_Code='" & MemVar_1F81078
+
+-- SQL Statement 28 --
+  loc_1AFFA92: Call 0.Method_Proc_279_45_1B040100 (CInt(1), var_15C, var_12C, "Select IsNull(Max(Surcharge),'') from MemCatMast where Code='", var_150, -1)
+
+-- SQL Statement 29 --
+  loc_1AFFC55:   Call 0.Method_Proc_279_45_1B040100 (CInt(0), var_15C, var_12C, "Select DOB From SubGroup S Inner Join MemberFamily M On S.SubCode=M.SubCode And M.SNo=1 Where S.SubCode='", var_150, -1)
+
+-- SQL Statement 30 --
+  loc_1AFFD3E:     var_130 = "Select max(DOB) From SubGroup S Inner Join MemberFamily M On S.SubCode=M.SubCode And M.SNo=1 Where S.SubCode='" & var_12C
+
+-- SQL Statement 31 --
+  loc_1B0018B: var_140 = "Select Max(MB.FCCode) As FcCode,Max(MF.Name) As Facility,Sum(Amount) As Amount,Max(MF.TaxStru) As TaxStru,Max(MF.AcCode) As AcCode from (MemFacilityBilling MB Left Join MemFacilityMast MF On MB.FcCode=MF.Code) Where MthYear='"
+
+-- SQL Statement 32 --
+  loc_1B0026D: Call 0.Method_Proc_279_45_1B040100 (CInt(0), var_15C, var_12C, "Select max(RestCode) As RestCode,max(Name) As Outlet,Sum(AmtCr) As Amount from PayCharge P Left Join Depart D On P.RestCode=D.Code Where P.CompCode='")
+
+-- SQL Statement 33 --
+  loc_1B003E1: Call 0.Method_Proc_279_45_1B040100 (CInt(0), var_15C, var_12C, "Select Count(*) From MemRevenueForPeriod M Where M.MemCode='", var_150, -1)
+
+-- SQL Statement 34 --
+  loc_1B004A4:   var_12C = "Select M.* from (Select M1.MemCode,M1.Type,M1.RevCode,M1.Amount,M1.Nature,M1.AppMonth, " & "M2.Description,M2.AcountYN,M2.AcCode,M2.AcPosting,M2.TaxStru,M2.SubsDetails,M2.RefundableYN,M2.SubsChargeYN,M1.LogSite_Code From "
+
+-- SQL Statement 35 --
+  loc_1B00719:       var_12C = "Select M.* from (Select M1.MemCat,M1.RevCode,M1.Amount,M1.Nature,M1.AppMonth, " & "M2.Description,M2.AcountYN,M2.AcCode,M2.AcPosting,M2.TaxStru,M2.SubsDetails,M2.RefundableYN,M2.SubsChargeYN,M1.LogSite_Code From "
+
+-- SQL Statement 36 --
+  loc_1B00858:   var_12C = "Select M.* from (Select M1.MemCat,M1.RevCode,M1.Amount,M1.Nature,M1.AppMonth, " & "M2.Description,M2.AcountYN,M2.AcCode,M2.AcPosting,M2.TaxStru,M2.SubsDetails,M2.RefundableYN,M2.SubsChargeYN,M1.LogSite_Code From "
+
+-- SQL Statement 37 --
+  loc_1B013DA:         var_130 = "Select SValue,PerOrAmt From MemAgeRevWise Where " & CStr(CInt(DateDiff("yyyy", var_120, CDate(CDate(var_12C)), 1, 1)))
+
+-- SQL Statement 38 --
+  loc_1B027D0: var_1AC = CVar("Select isnull(Sum(AmtCr),0) From Ledger Where SubCode='" & Proc_6_37_E618F4(CVar(var_12C)) & "' And V_Type In ('CNT') And Substring(Convert(Varchar(11),V_date,106),4,3)+'/'+Substring(Convert(Varchar(11),V_date,106),8,4) In ('") 'String
+
+-- SQL Statement 39 --
+  loc_1B028BD: var_1AC = CVar("Select isnull(Sum(AmtDr),0) From Ledger Where SubCode='" & Proc_6_37_E618F4(CVar(var_12C), 1) & "' And V_Type In ('CNT') And Substring(Convert(Varchar(11),V_date,106),4,3)+'/'+Substring(Convert(Varchar(11),V_date,106),8,4) In ('") 'String
+
+-- SQL Statement 40 --
+  loc_1B029A9: Call 0.Method_Proc_279_45_1B040100 (CInt(0), var_15C, var_12C, "Select max(MeshAc) From SubGroup S Where S.SubCode='", CVar(var_12C), -1, var_164)
+
+-- SQL Statement 41 --
+  loc_1B02AA7:   var_19C = CVar("Select isnull(Sum(AmtCr),0) From Ledger Where SubCode='" & Proc_6_37_E618F4(CVar(var_12C)) & "' And V_date<") 'String
+
+-- SQL Statement 42 --
+  loc_1B02B7D:   var_19C = CVar("Select isnull(Sum(AmtDr),0) From Ledger Where SubCode='" & Proc_6_37_E618F4(CVar(var_12C), var_218) & "' And V_date<") 'String
+
+-- SQL Statement 43 --
+  loc_1B02C61:   var_160 = "Select isnull(Sum(AmtCr),0) From Ledger Where isnull(AmtCr,0)<>0 And V_Type Not In ('HPOST','MBILL','CNT') And SubCode='" & Proc_6_37_E618F4(CVar(var_12C), var_218)
+
+-- SQL Statement 44 --
+  loc_1B02F9C:   var_19C = CVar("Select isnull(Sum(AmtCr),0) From Ledger Where SubCode='" & Proc_6_37_E618F4(CVar(var_12C), var_374, var_36C) & "' And V_date<") 'String
+
+-- SQL Statement 45 --
+  loc_1B03072:   var_19C = CVar("Select isnull(Sum(AmtDr),0) From Ledger Where SubCode='" & Proc_6_37_E618F4(CVar(var_12C), 1) & "' And V_date<") 'String
+
+-- SQL Statement 46 --
+  loc_1B0317B:   var_160 = "Select isnull(Sum(AmtCr),0) From Ledger Where isnull(AmtCr,0)<>0 And V_Type Not In ('HPOST','MBILL','CNT') And SubCode='" & Proc_6_37_E618F4(CVar(var_12C), var_218)
+
+-- SQL Statement 47 --
+  loc_1B0332C:   var_19C = CVar("Select isnull(Sum(AmtCr),0) From Ledger Where SubCode='" & Proc_6_37_E618F4(CVar(var_12C), 1, 1) & "' And V_date<") 'String
+
+-- SQL Statement 48 --
+  loc_1B03402:   var_19C = CVar("Select isnull(Sum(AmtDr),0) From Ledger Where SubCode='" & Proc_6_37_E618F4(CVar(var_12C), 1) & "' And V_date<") 'String
+
+-- SQL Statement 49 --
+  loc_1B03530:   var_160 = "Select isnull(Sum(AmtCr),0) From Ledger Where isnull(AmtCr,0)<>0 And V_Type Not In ('HPOST','MBILL','CNT') And SubCode='" & Proc_6_37_E618F4(CVar(var_12C), var_218)
+
+-- SQL Statement 50 --
+  loc_1B036F9:   var_19C = CVar("Select isnull(Sum(AmtCr),0) From Ledger Where SubCode='" & Proc_6_37_E618F4(CVar(var_12C), 1, 1) & "' And V_date<") 'String
+
+-- SQL Statement 51 --
+  loc_1B037CF:   var_19C = CVar("Select isnull(Sum(AmtDr),0) From Ledger Where SubCode='" & Proc_6_37_E618F4(CVar(var_12C), 1) & "' And V_date<") 'String
+
+-- SQL Statement 52 --
+  loc_1B038AE:   var_160 = "Select isnull(Sum(AmtCr),0) From Ledger Where isnull(AmtCr,0)<>0 And V_Type Not In ('HPOST','CNT') And SubCode='" & Proc_6_37_E618F4(CVar(var_12C), var_218)
+
+-- SQL Statement 53 --
+  loc_1B039C8:   var_19C = CVar("Select isnull(Sum(AmtDr),0) From Ledger Where SubCode='" & Proc_6_37_E618F4(CVar(var_12C), var_248) & "' And V_date>=") 'String
+
+-- SQL Statement 54 --
+  loc_1B03B66:   var_19C = CVar("Select isnull(Sum(AmtCr),0) From Ledger Where SubCode='" & Proc_6_37_E618F4(CVar(var_12C), var_C8) & "' And V_date<") 'String
+
+-- SQL Statement 55 --
+  loc_1B03C3C:   var_19C = CVar("Select isnull(Sum(AmtDr),0) From Ledger Where SubCode='" & Proc_6_37_E618F4(CVar(var_12C), var_268) & "' And V_date<") 'String
+
+-- SQL Statement 56 --
+  loc_1B03D1B:   var_160 = "Select isnull(Sum(AmtCr),0) From Ledger Where isnull(AmtCr,0)<>0 And V_Type Not In ('HPOST','CNT') And SubCode='" & Proc_6_37_E618F4(CVar(var_12C), var_218)
+
+-- SQL Statement 57 --
+  loc_173F054: Call 0.Method_Proc_279_48_1740C980 (CInt(4), var_B0, var_B4, "Select Sum(BaseAmt) as BaseAmt  from MemBill1 where Type='Outlet' and Docid='", var_DC)
+
+-- SQL Statement 58 --
+  loc_173F345: Call 0.Method_Proc_279_48_1740C980 (CInt(4), var_B0, var_B4, "Select Sum(TaxAmt) as BaseAmt,max(Accode) as AcCode from MemBILL2 Inner join Revmast on revmast.code=Membill2.TaxCode Where Docid='", Now, -1, var_E0)
+
+-- SQL Statement 59 --
+  loc_173F855: Call 0.Method_Proc_279_48_1740C980 (CInt(4), var_B0, var_B4, "Select BaseAmt,MEMBILL1.AcCode,FacilityCode,Name from MemBill1 Left join MemFacilityMast on MemFacilitymast.code=Membill1.Facilitycode where Type='Facility' and Docid='", var_DC, -1, var_E0)
+
+-- SQL Statement 60 --
+  loc_173FD65: Call 0.Method_Proc_279_48_1740C980 (CInt(4), var_B0, var_B4, "Select BaseAmt,MEMBILL1.AcCode,FacilityCode from MemBill1 Left join MembershipRevMast on MembershipRevMast.code=Membill1.Facilitycode where Type='Revenue' and Docid='", var_DC, -1, var_E0)
+
+-- SQL Statement 61 --
+  loc_1740275: Call 0.Method_Proc_279_48_1740C980 (CInt(4), var_B0, var_B4, "Select IsNull(RoundOff,0) As RoundOff,MemBill.MemCode from MemBill Left join SubGroup on SubGroup.SubCode=Membill.MemCode Where Docid='", var_DC, -1, var_E0)
+
+-- SQL Statement 62 --
+  loc_174071C: Call 0.Method_Proc_279_48_1740C980 (CInt(4), var_B0, var_B4, "Select NetAmount,MemBill.MemCode,MeshAc,Vdate from MemBill Left join SubGroup on SubGroup.SubCode=Membill.MemCode Where Docid='", var_DC, -1, var_E0)
+
+-- SQL Statement 63 --
+  loc_1740852:       var_B8 = "Select isnull(Sum(AmtDr),0)-isnull(Sum(AmtCr),0) As CreditAmt From Ledger Where SubCode='" & Proc_6_37_E618F4(CVar(var_B0), var_13C & var_138)
+
+-- SQL Statement 64 --
+  loc_FF8D11: var_94 = "Select Vno From MemBill Where (LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 65 --
+  loc_19817C1:   var_100 = "Select S.Name As MemName,M.* From membill M Left Join SubGroup S On M.MemCode=S.SubCode Where M.DocId='" & Me.Fields.Item("SearchCode").Value 
+
+-- SQL Statement 66 --
+  loc_198186A:   var_100 = "Select MF.Name As Facility,M1.* From membill1 M1 Left Join MemFacilityMast MF On M1.FacilityCode=MF.Code Where M1.DocId='" & Me.Fields.Item("SearchCode").Value 
+
+-- SQL Statement 67 --
+  loc_198189D:   var_1B4 = "Select MR.Description As Facility,M1.* From membill1 M1 Left Join MembershipRevMast MR On M1.FacilityCode=MR.Code Where M1.DocId='"
+
+-- SQL Statement 68 --
+  loc_1981906:   var_2AC = "Select Case When IsNull(D.Name,'')='' Then 'Banquet' Else D.Name End As Facility,M1.* From membill1 M1 Left Join Depart D On M1.OutletCode=D.Code Where M1.DocId='"
+
+-- SQL Statement 69 --
+  loc_1981A0D:   var_100 = "Select R.Name As TaxName,M2.* From membill2 M2 Left Join RevMast R On M2.TaxCode=R.Code Where M2.DocId='" & Me.Fields.Item("SearchCode").Value 
+
+-- SQL Statement 70 --
+  loc_1981AB6:   var_100 = "Select R.Name As SunName,MS.* From memSunTran MS Left Join RevMast R On MS.SunCode=R.Code Where MS.DocId='" & Me.Fields.Item("SearchCode").Value 
+
+-- SQL Statement 71 --
+  loc_198383F:   var_3BC = "Select isnull(Sum(AmtCr),0) From Ledger Where SubCode='" & Proc_6_37_E618F4(CVar(var_88.Fields.Item(var_CC)), FGCat.DispID_10000, var_CC, FGCat.DispID_2E, var_CC, var_96, var_3D8)
+
+-- SQL Statement 72 --
+  loc_1983938:   var_3BC = "Select isnull(Sum(AmtDr),0) From Ledger Where SubCode='" & Proc_6_37_E618F4(CVar(var_88.Fields.Item("MemCode")), var_AC, var_1EC)
+
+-- SQL Statement 73 --
+  loc_1983A85:   var_3BC = "Select isnull(Sum(AmtCr),0) From Ledger Where SubCode='" & Proc_6_37_E618F4(CVar(var_88.Fields.Item("MemCode")), 1, 1, var_A4)
+
+-- SQL Statement 74 --
+  loc_1983B8E:   var_160 = CVar("Select isnull(Sum(AmtDr),0) From Ledger Where SubCode='" & Proc_6_37_E618F4(CVar(var_88.Fields.Item("MemCode")), var_AC) & "' And V_date<") 'String
+
+-- SQL Statement 75 --
+  loc_1983C82:   var_3BC = "Select isnull(Sum(AmtCr),0) From Ledger Where isnull(AmtCr,0)<>0 And V_Type Not In ('HPOST','MBILL','CNT') And SubCode='" & Proc_6_37_E618F4(CVar(var_88.Fields.Item("MemCode")), var_A4)
+
+-- SQL Statement 76 --
+  loc_14DB2A0: unk_55687B.Execute "Select Code,RoundOff from RevMast Where (LogSite_Code='" & MemVar_1F81078 & "' Or LogSite_Code='HO') Order By Name", var_DC, -1
+
+-- SQL Statement 77 --
+  loc_1834E78: var_E4 = "SELECT TS.Code,TS.Limit, TS.TaxCode, RM.Name,RM.Sundry, TS.Rate,RoundOff,TS.CONDAPP,TS.NATURE FROM TaxStru AS TS LEFT JOIN RevMast AS RM ON TS.TaxCode = RM.Code Where TS.Code='" & arg_C
+
+-- SQL Statement 78 --
+  loc_12D01CE: var_A8 = "SELECT SubCode,subgroup.Name,CardNo,CompanyType FROM SUBGROUP INNER JOIN MEMCATMAST ON SUBGROUP.COMPANYTYPE=MEMCATMAST.CODE WHERE ActiveYN=1 And (COMPANYTYPE IS NOT NULL AND COMPANYTYPE<>'') And SUBGROUP.COMPANYTYPE='" & var_8C
+

@@ -25,6 +25,7 @@ from HMS_py.core.hr_masters import EmpCatAPI, HolidayAPI, EmployeeAPI, DesigAPI
 from HMS_py.core.members_masters import MemCatAPI, FacilityAPI, MemRevAPI
 from HMS_py.ui.base_master import BaseMasterForm, Field, MasterConfig, make_delete_guard
 from HMS_py.ui import theme as _theme
+from HMS_py.ui.desktop_style import apply_desktop_surface, mark_desktop_action
 
 
 # ══════════════════════════════════════════════════════════════
@@ -121,22 +122,23 @@ def desig_config() -> MasterConfig:
 def memrev_config() -> MasterConfig:
     return MasterConfig(
         title="Revenue Master (Members) - HMS_py",
-        columns=[("Code","code"),("Description","description"),
-                 ("AcCode","accode"),("Status","status")],
+        columns=[("Code", "code"), ("Description", "desc"),
+                  ("AcCode", "accode"), ("Status", "status")],
         fields=[
-            Field("code","Revenue Code", max_len=6, required=True),
-            Field("description","Description", max_len=50, required=True),
-            Field("accode","Account Code", max_len=10),
-            Field("taxstru","Tax Structure", max_len=6),
-            Field("acposting","A/C Posting Y/N", max_len=1, default="N"),
-            Field("accountyn","Account Y/N", max_len=1, default="N"),
-            Field("refundable","Refundable Y/N", max_len=1, default="N"),
-            Field("subscharge","Subscription Charge Y/N", max_len=1, default="N"),
-            Field("subsdetails","Subscription Details", max_len=50),
-            Field("status","Status", max_len=10),
+            Field("code", "Revenue Code", max_len=6),
+            Field("desc", "Description", max_len=50, required=True),
+            Field("accode", "Account Code", max_len=8),
+            Field("taxstru", "Tax Structure", max_len=6),
+            Field("acposting", "A/C Posting", max_len=10),
+            Field("acountyn", "Account Y/N", max_len=1, default="N"),
+            Field("refundableyn", "Refundable Y/N", max_len=1, default="N"),
+            Field("subschargeyn", "Subscription Charge Y/N", max_len=1, default="N"),
+            Field("subsdetails", "Subscription Details", max_len=20),
+            Field("status", "Status", max_len=10, default="Active"),
         ],
         api=MemRevAPI,
         delete_guard=make_delete_guard("PYT"),
+        generated_pk=True,
     )
 
 
@@ -162,6 +164,7 @@ class EmployeeForm(QDialog):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        apply_desktop_surface(self, "desktopEmployeeMaster")
         self.setWindowTitle("Employee Master - HMS_py")
         self.resize(1050, 620)
         self.state = "Idle"
@@ -206,8 +209,10 @@ class EmployeeForm(QDialog):
         self.btnCancel = QPushButton("Cancel"); self.btnCancel.setToolTip("Cancel current operation")
         self.btnExit   = QPushButton("Exit");   self.btnExit.setToolTip("Close this window")
         self.lblState  = QLabel("State: Idle")
+        self.lblState.setObjectName("desktopStateLabel")
         for b in (self.btnNew, self.btnEdit, self.btnSave,
                   self.btnCancel, self.btnExit):
+            mark_desktop_action(b)
             btns.addWidget(b)
         btns.addWidget(self.lblState)
         root.addLayout(btns)
@@ -301,6 +306,22 @@ class EmployeeForm(QDialog):
         self._set_state(False)
 
 
+def _revenue_rights(user) -> set[str]:
+    username = str(user or "").strip().upper()
+    if not username:
+        return set()
+    if username == "SA":
+        return {"A", "E", "D"}
+    try:
+        from HMS_py.core import menu_help
+        if not menu_help.has_row(username, "Revenue Master"):
+            return set()
+        params = str(menu_help.rights(username, "Revenue Master") or "").upper()
+        return {right for right in "AED" if right in params}
+    except Exception:
+        return set()
+
+
 # ══════════════════════════════════════════════════════════════
 #  open helpers
 # ══════════════════════════════════════════════════════════════
@@ -314,7 +335,21 @@ def open_employee(parent=None): EmployeeForm(parent).exec()
 def open_memcat(parent=None):   _open(memcat_config, parent)
 def open_facility(parent=None): _open(facility_config, parent)
 def open_desig(parent=None):    _open(desig_config, parent)
-def open_memrev(parent=None):   _open(memrev_config, parent)
+def open_memrev(parent=None, user="SA"):
+    rights = _revenue_rights(user)
+    if not rights:
+        QMessageBox.warning(
+            parent, "Revenue Master",
+            "Revenue Master is not authorized for this user.")
+        return None
+    form = BaseMasterForm(memrev_config(), parent)
+    form.set_permissions(
+        add="A" in rights,
+        edit="E" in rights,
+        delete="D" in rights,
+    )
+    form.exec()
+    return form
 
 
 # ══════════════════════════════════════════════════════════════
@@ -324,6 +359,7 @@ def open_memrev(parent=None):   _open(memrev_config, parent)
 class HRMembersLauncher(QMainWindow):
     def __init__(self):
         super().__init__()
+        apply_desktop_surface(self, "desktopHRMembersLauncher")
         self.setWindowTitle("HMS_py - HR/Payroll + Members Masters")
         self.resize(360, 300)
         c = QWidget(); lay = QVBoxLayout(c)
@@ -338,7 +374,7 @@ class HRMembersLauncher(QMainWindow):
             if fn is None:
                 lay.addWidget(QLabel(lbl))
             else:
-                b = QPushButton(lbl); b.clicked.connect(fn); b.setToolTip(f"Open {lbl}"); lay.addWidget(b)
+                b = QPushButton(lbl); mark_desktop_action(b); b.clicked.connect(fn); b.setToolTip(f"Open {lbl}"); lay.addWidget(b)
         self.setCentralWidget(c)
 
 

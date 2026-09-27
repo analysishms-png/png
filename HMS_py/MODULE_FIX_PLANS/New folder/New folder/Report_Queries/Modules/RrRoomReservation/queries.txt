@@ -1,0 +1,547 @@
+Module: RrRoomReservation
+Total SQL statements: 181
+================================================================================
+
+-- SQL Statement 1 --
+  loc_17293C4: var_B8 = "Select NCUR,PlanCalc,RoomRateEditable,RoomIncTaxEditable,RoomServiceChargeEditable,PlanSelectionBasedOn,ReservationExpandOnSaveYN from enviro WHERE LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 2 --
+  loc_1729585: var_BC = "Select SubCode as Code,Name From SubGroup where ActiveYN=1 and (LOGSITE_CODE='" & MemVar_1F81078 & "' OR LOGSITE_CODE='HO') and (CompanyType in ('Corporate','Travel Agency') Or CompanyType In (Select Code From memcatmast Where LOGSITE_CODE='"
+
+-- SQL Statement 3 --
+  loc_17296E6: var_CC = CVar("Select CITYCODE AS Code,CITYNAME AS Name From CITY where (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO') Order by CITYName") 'String
+
+-- SQL Statement 4 --
+  loc_1729814: var_CC = CVar("Select Code,Name,Type as Flag,PayType,SaleRate,Cost From RevMast where (LOGSITE_CODE='" & MemVar_1F81078 & "' OR LOGSITE_CODE='HO') and Fieldtype in ('P') ORDER BY NAME ") 'String
+
+-- SQL Statement 5 --
+  loc_1729875: unk_5B6C29.Execute "SELECT Code,Name FROM Employee WHERE (LOGSITE_CODE='" & MemVar_1F81078 & "' OR LOGSITE_CODE='HO')  ORDER BY Name", var_CC, -1
+
+-- SQL Statement 6 --
+  loc_17299BB: var_CC = CVar("SELECT RoomOcc.DocId as Code,RoomOcc.RoomNo,RoomOcc.FolioNo From RoomOcc WHERE (LOGSITE_CODE='" & MemVar_1F81078 & "' OR LOGSITE_CODE='HO') AND roomocc.type not in ('C','O') AND CHKOUTDATE IS NULL") 'String
+
+-- SQL Statement 7 --
+  loc_1729C11: var_CC = CVar("Select CODE ,NAME  From MarketSeg WHERE Active<>'No' And (LOGSITE_CODE='" & MemVar_1F81078 & "' OR LOGSITE_CODE='HO')  Order by Name") 'String
+
+-- SQL Statement 8 --
+  loc_1729D3F: var_CC = CVar("Select CODE ,NAME  From BussSource WHERE Active<>'No' And (LOGSITE_CODE='" & MemVar_1F81078 & "' OR LOGSITE_CODE='HO') Order by Name") 'String
+
+-- SQL Statement 9 --
+  loc_1729DD5: var_F8 = CVar("Select Code, Name,total,App_Date,RoomTaxStru From PlanMast where (LOGSITE_CODE='" & MemVar_1F81078 & "' OR LOGSITE_CODE='HO') AND ActiveYn='Yes' and App_date<=") 'String
+
+-- SQL Statement 10 --
+  loc_1729FD4: var_CC = CVar("Select SubCode,Name From Subgroup where ActiveYN=1 and (LOGSITE_CODE='" & MemVar_1F81078 & "' OR LOGSITE_CODE='HO')  AND CompanyType like ('Travel Agency') Order by Name") 'String
+
+-- SQL Statement 11 --
+  loc_172A109: var_BC = "Select SubCode,Name From Subgroup where ActiveYN=1 and  (LOGSITE_CODE='" & MemVar_1F81078 & "' OR LOGSITE_CODE='HO') AND (CompanyType like ('Corporate')  Or CompanyType In (Select Code From memcatmast Where LOGSITE_CODE='"
+
+-- SQL Statement 12 --
+  loc_172A24E: var_B8 = "Select RoomMast.Code as SearchCode,RoomMast.Code as RoomNo, RoomMast.Name as Quot,RoomMast.RoomCat,Revmast.TaxStru as RoomTaxStru From RoomMast Left Join RoomCat On RoomCat.Code=RoomMast.RoomCat Left Join Revmast On RoomCat.Revcode=Revmast.Code where (RoomMast.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 13 --
+  loc_172A380: var_B8 = "Select Roomcat.Code,Roomcat.Name,Revmast.TaxStru as RoomTaxStru From RoomCat Left Join Revmast On RoomCat.Revcode=Revmast.Code WHERE (RoomCat.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 14 --
+  loc_172A403: var_B8 = "Select Roomcat.Code as SearchCode,Roomcat.Name,Revmast.TaxStru as RoomTaxStru From RoomCat Left Join Revmast On RoomCat.Revcode=Revmast.Code WHERE (RoomCat.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 15 --
+  loc_172A554: var_CC = CVar("Select Code,Name From GroupProf WHERE (LOGSITE_CODE='" & MemVar_1F81078 & "' OR LOGSITE_CODE='HO')  Order by Name") 'String
+
+-- SQL Statement 16 --
+  loc_172A689: var_CC = CVar("Select Code,Name From GuestProf WHERE (LOGSITE_CODE='" & MemVar_1F81078 & "' OR LOGSITE_CODE='HO') Order by Name") 'String
+
+-- SQL Statement 17 --
+  loc_172A6F0: unk_5B6C29.Execute "Select NCUR from enviro where LogSite_Code='" & MemVar_1F81078 & "'", var_CC, -1
+
+-- SQL Statement 18 --
+  loc_172A751: var_CC = CVar("SELECT DocId AS SearchCode,Site_Code,LogSite_Code FROM Booking WHERE LOGSITE_CODE='" & MemVar_1F81078 & "' ORDER BY BookNo") 'String
+
+-- SQL Statement 19 --
+  loc_172A851:     var_BC = "Select DocId From Booking Where (LOGSITE_CODE='" & MemVar_1F81078 & "' OR LOGSITE_CODE='HO') AND RoomType='RO' And OccRoom='"
+
+-- SQL Statement 20 --
+  loc_167D05C:   Proc_6_6_F208E4(var_B4, MemVar_1F810EC, "Update Booking Set Cancel='Y',CancelDate=")
+
+-- SQL Statement 21 --
+  loc_167D114:   Proc_6_6_F208E4(var_B4, MemVar_1F810EC, "Update GrpBookingDetails Set Cancel='Y',CancelDate=")
+
+-- SQL Statement 22 --
+  loc_167D5E3:         var_C4 = "Insert Into PayCharge (DocId,SNo,Vtype,VNo,Site_Code,VPrefix,Vdate,Vtime,GuestProf,EmpCode,CompCode,Comments,PayCode,PayType,BillAmount,AmtCr,TipAmt,RoomCat,RoomType,RoomNo,CardNo,CardHolder,ChqNo,ChqDate,ExpDate,U_Name,U_EntDt,U_AE,RestCode,ContraDocID,LogSite_Code) Values ('"
+
+-- SQL Statement 23 --
+  loc_167DCD2:           var_C4 = "Insert Into PayCharge (DocId,SNo,Vtype,VNo,Site_Code,VPrefix,Vdate,VTime,GuestProf,EmpCode,CompCode,Comments,PayCode,PayType,BillAmount,AmtDr,TipAmt,RoomCat,RoomType,RoomNo,FolioNo,CardNo,CardHolder,ChqNo,ChqDate,ExpDate,U_Name,U_EntDt,U_AE,RestCode,ContraDocID,LogSite_Code) Values ('"
+
+-- SQL Statement 24 --
+  loc_167E02E:       var_154 = "Select VT.Number_Method,VP.V_Type,VP.Date_From,VP.Prefix,VP.Start_Srl_No From Voucher_Type VT Inner Join Voucher_Prefix VP on (VT.V_Type=VP.V_Type AND VT.SITE_CODE=VP.SITE_CODE AND VP.LOGSITE_CODE=VP.LOGSITE_CODE) Where (VP.SITE_CODE='" & MemVar_1F81070
+
+-- SQL Statement 25 --
+  loc_167E0F3:         var_198 = "Update Voucher_Prefix Set Start_Srl_No=" & var_154
+
+-- SQL Statement 26 --
+  loc_167E1C7:       var_C4 = "Insert Into BookingCancelDetails (DocId,SNo,Vtype,VNo,Site_Code,VPrefix,Vdate,BookingDocID,Advance,CancelAmt,CancellationMode,U_Name,U_EntDt,U_AE,LogSite_Code) Values ('"
+
+-- SQL Statement 27 --
+  loc_167E413:       var_154 = "Select VT.Number_Method,VP.V_Type,VP.Date_From,VP.Prefix,VP.Start_Srl_No From Voucher_Type VT Inner Join Voucher_Prefix VP on (VT.V_Type=VP.V_Type AND VT.SITE_CODE=VP.SITE_CODE AND VP.LOGSITE_CODE=VP.LOGSITE_CODE) Where (VP.SITE_CODE='" & MemVar_1F81070
+
+-- SQL Statement 28 --
+  loc_167E4ED:         var_CB4 = "Update Voucher_Prefix Set Start_Srl_No=" & CStr(global_316) & " Where (SITE_CODE='" & MemVar_1F81070 & "' AND LOGSITE_CODE='"
+
+-- SQL Statement 29 --
+  loc_171A821:     var_FC = "Select ReservationCancelMsg,SendingMessageText from SMSEnviro WHERE LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 30 --
+  loc_171ABD3:     Call 0.Method_frmcmd_UnknownEvent_90 (CInt(&H2A), var_B8, var_FC, "Select count(*) from GuestFolio where BookingDocid='", var_C8, -1)
+
+-- SQL Statement 31 --
+  loc_171AC99:     Call 0.Method_frmcmd_UnknownEvent_90 (CInt(&H2A), var_B8, var_FC, "Select Sum(AmtCr) from PayCharge where RefDocid='", var_C8, -1)
+
+-- SQL Statement 32 --
+  loc_171AD43:       var_100 = "Select Sum(AmtCr) from PayCharge where RefDocid='" & var_FC
+
+-- SQL Statement 33 --
+  loc_171ADF4:       var_114 = "Insert Into BookingCancelDetails (DocId,SNo,Vtype,VNo,Site_Code,VPrefix,Vdate,BookingDocID,Advance,CancelAmt,CancellationMode,U_Name,U_EntDt,U_AE,LogSite_Code) Values ('"
+
+-- SQL Statement 34 --
+  loc_171B013:       var_FC = "Select VT.Number_Method,VP.V_Type,VP.Date_From,VP.Prefix,VP.Start_Srl_No From Voucher_Type VT Inner Join Voucher_Prefix VP on (VT.V_Type=VP.V_Type AND VT.SITE_CODE=VP.SITE_CODE AND VP.LOGSITE_CODE=VP.LOGSITE_CODE) Where (VP.SITE_CODE='" & MemVar_1F81070
+
+-- SQL Statement 35 --
+  loc_171B0F4:         var_3C4 = "Update Voucher_Prefix Set Start_Srl_No=" & var_FC & " Where (SITE_CODE='" & MemVar_1F81070 & "' AND LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 36 --
+  loc_171B181:       Proc_6_6_F208E4(var_C8, MemVar_1F810EC, "Update Booking Set Cancel='Y',CancelDate=")
+
+-- SQL Statement 37 --
+  loc_171B239:       Proc_6_6_F208E4(var_C8, MemVar_1F810EC, "Update GrpBookingDetails Set Cancel='Y',CancelDate=")
+
+-- SQL Statement 38 --
+  loc_171B3BA:         Proc_6_6_F208E4(var_C8, MemVar_1F810EC, "Update Booking Set Cancel='Y',CancelDate=")
+
+-- SQL Statement 39 --
+  loc_171B472:         Proc_6_6_F208E4(var_C8, MemVar_1F810EC, "Update GrpBookingDetails Set Cancel='Y',CancelDate=")
+
+-- SQL Statement 40 --
+  loc_171BF11:         Call 0.Method_frmcmd_UnknownEvent_90 (CInt(&H2A), var_B8, var_FC, "Update Booking Set Cancel='N',canceldate=NULL,CancelUName='' where Docid='", var_C8)
+
+-- SQL Statement 41 --
+  loc_171BF70:         Call 0.Method_frmcmd_UnknownEvent_90 (CInt(&H2A), var_B8, var_FC, "Update GrpBookingDetails Set Cancel='N',canceldate=NULL,CancelUName='' where BookingDocid='")
+
+-- SQL Statement 42 --
+  loc_171BFCF:         Call 0.Method_frmcmd_UnknownEvent_90 (CInt(&H2A), var_B8, var_FC, "Delete from BookingCancelDetails Where BookingDocId='")
+
+-- SQL Statement 43 --
+  loc_171C206:         var_114 = "SELECT Booking.DocId as SearchCode, Booking.BookNo, Booking.GuestName, CAST(Booking.VDate AS VARCHAR(11)) AS VDate, cast(Booking.ArrDate as varchar(11)) as [ArrDate], Booking.ArrTime, cast(Booking.DepDate as varchar(11)) as DepDate, Booking.DepTime, Booking.RoomNo,booking.Cancel FROM Booking WHERE Verified='N' And (Booking.VDate between "
+
+-- SQL Statement 44 --
+  loc_128E270: Call 0.Method_TopCtrl1_UnknownEvent_C0 (CInt(&H2A), var_A0, var_A4, "Select Count(*) from PayCharge where RefDocId='", var_CC, -1)
+
+-- SQL Statement 45 --
+  loc_128E336: Call 0.Method_TopCtrl1_UnknownEvent_C0 (CInt(&H2A), var_A0, var_A4, "Select Count(*) from GuestFolio where BookingDocId='", var_CC, -1)
+
+-- SQL Statement 46 --
+  loc_128E486:   unk_5B6C29.Execute CStr("Delete From Booking Where Docid='" & Me.Fields.Item("SearchCode").Value & "'"), var_138, -1
+
+-- SQL Statement 47 --
+  loc_128E4F8:   unk_5B6C29.Execute CStr("Delete From GrpBookingDetails Where BookingDocid='" & Me.Fields.Item("SearchCode").Value & "'"), var_138, -1
+
+-- SQL Statement 48 --
+  loc_128E56A:   unk_5B6C29.Execute CStr("Delete From BookingPlanDetails Where BookingDocid='" & Me.Fields.Item("SearchCode").Value & "'"), var_138, -1
+
+-- SQL Statement 49 --
+  loc_128E5DC:   unk_5B6C29.Execute CStr("Delete From BookingMore Where Docid='" & Me.Fields.Item("SearchCode").Value & "'"), var_138, -1
+
+-- SQL Statement 50 --
+  loc_128E640:   var_118 = "Delete From BookingCancelDetails  Where BookingDocid='" & Me.Fields.Item("SearchCode").Value & "'" 
+
+-- SQL Statement 51 --
+  loc_12C6007: var_8C = "SELECT Count(*) From Booking WHERE BOOKING.CANCEL='N' AND BOOKING.LOGSITE_CODE='" & MemVar_1F81078 & "' AND ((Select Count(Distinct Sno) From GrpBookingDetails Where Not Exists (Select Distinct isnull(BookingDocid,'') As BookingDocId,BookingSno As Sno from GuestFolio Where GrpBookingDetails.BookingDocId=GuestFolio.BookingDocId And GrpBookingDetails.Sno=GuestFolio.BookingSno)And IsNull(Cancel,'')<>'Y' And GrpBookingDetails.BookingDocid=Booking.DocId)>0 "
+
+-- SQL Statement 52 --
+  loc_FA2DC3: unk_5B6C29.Execute "Select NCUR from enviro where LogSite_Code='" & MemVar_1F81078 & "'", var_B0, -1
+
+-- SQL Statement 53 --
+  loc_FA2E2A: var_C8 = "SELECT Booking.DocId as SearchCode, Booking.BookNo, Booking.GuestName, CAST(Booking.VDate AS VARCHAR(11)) AS VDate, cast(Booking.ArrDate as varchar(11)) as [ArrDate], Booking.ArrTime, cast(Booking.DepDate as varchar(11)) as DepDate, Booking.DepTime, Booking.RoomNo,booking.Cancel,IsNull(Booking.RefBookNo,'') Ref_BookingId FROM Booking WHERE Isnull(Booking.Verified,'')='' And (Booking.VDate between "
+
+-- SQL Statement 54 --
+  loc_1978CE1:   Call 0.Method_TopCtrl1_UnknownEvent_160 (CInt(&H2A), var_C0, var_C8, "SELECT COUNT(*) From Booking Where Docid='", var_DC, -1)
+
+-- SQL Statement 55 --
+  loc_1978F3A:   var_C8 = "Select ReservationMsg,SendingMessageText from SMSEnviro WHERE LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 56 --
+  loc_197904A: Call 0.Method_TopCtrl1_UnknownEvent_160 (CInt(&H2A), var_C0, var_C8, "Delete From Booking Where Docid='")
+
+-- SQL Statement 57 --
+  loc_19790A9: Call 0.Method_TopCtrl1_UnknownEvent_160 (CInt(&H2A), var_C0, var_C8, "Delete From GrpBookingDetails Where BookingDocid='")
+
+-- SQL Statement 58 --
+  loc_1979108: Call 0.Method_TopCtrl1_UnknownEvent_160 (CInt(&H2A), var_C0, var_C8, "Delete From BookingPlanDetails Where BookingDocid='")
+
+-- SQL Statement 59 --
+  loc_1979167: Call 0.Method_TopCtrl1_UnknownEvent_160 (CInt(&H2A), var_C0, var_C8, "Delete From BookingMore Where Docid='")
+
+-- SQL Statement 60 --
+  loc_197998F: var_E0 = "Insert Into Booking (Docid,Vtype,BookNo,Site_Code,Vprefix,Vdate,GroupCode,ArrDate,Arrtime,DepDate,DepTime,NoDays,RoomCat,RoomType,Roomno,[Adult],[Child],NoOfRooms,RateCode,RoomRate,remarks,[Authorization],Company,GuestProf,TravelAgency,BussSource,MarketSeg,ArrFrom,Destination,BookedBy,ResMode,ResStatus,TravelMode,SplitFolio,DepositeReq,Guarantee,Cancel,GuestName,U_Name,U_EntDt,U_AE,OccRoom,PackageCode,LogSite_Code,MobNo,Faxno,Email,OtherCont,RRTaxInc,RRServiceChrg,RDisc,RSDisc,AdvDueDate,RefCode,BookStatus,RefBookNo) Values ('" & var_C8
+
+-- SQL Statement 61 --
+  loc_1979FC0:   Call 0.Method_TopCtrl1_UnknownEvent_160 (CInt(&H2A), var_C0, var_C8, "Insert Into BookingMore (Docid,Sno,Name,Site_Code,U_Name,U_EntDt,U_AE,LogSite_Code) Values ('", var_208)
+
+-- SQL Statement 62 --
+  loc_197A11C:   Call 0.Method_TopCtrl1_UnknownEvent_160 (CInt(&H2A), var_C0, var_C8, "Insert Into BookingMore (Docid,Sno,Name,Site_Code,U_Name,U_EntDt,U_AE,LogSite_Code) Values ('")
+
+-- SQL Statement 63 --
+  loc_197A278:   Call 0.Method_TopCtrl1_UnknownEvent_160 (CInt(&H2A), var_C0, var_C8, "Insert Into BookingMore (Docid,Sno,Name,Site_Code,U_Name,U_EntDt,U_AE,LogSite_Code) Values ('")
+
+-- SQL Statement 64 --
+  loc_197A3D4:   Call 0.Method_TopCtrl1_UnknownEvent_160 (CInt(&H2A), var_C0, var_C8, "Insert Into BookingMore (Docid,Sno,Name,Site_Code,U_Name,U_EntDt,U_AE,LogSite_Code) Values ('")
+
+-- SQL Statement 65 --
+  loc_197A530:   Call 0.Method_TopCtrl1_UnknownEvent_160 (CInt(&H2A), var_C0, var_C8, "Insert Into BookingMore (Docid,Sno,Name,Site_Code,U_Name,U_EntDt,U_AE,LogSite_Code) Values ('")
+
+-- SQL Statement 66 --
+  loc_197A68C:   Call 0.Method_TopCtrl1_UnknownEvent_160 (CInt(&H2A), var_C0, var_C8, "Insert Into BookingMore (Docid,Sno,Name,Site_Code,U_Name,U_EntDt,U_AE,LogSite_Code) Values ('")
+
+-- SQL Statement 67 --
+  loc_197B07C:   var_C8 = "Select VT.Number_Method,VP.V_Type,VP.Date_From,VP.Prefix,VP.Start_Srl_No From Voucher_Type VT Inner Join Voucher_Prefix VP on (VT.V_Type=VP.V_Type AND VT.SITE_CODE=VP.SITE_CODE AND VP.LOGSITE_CODE=VP.LOGSITE_CODE) Where (VP.SITE_CODE='" & MemVar_1F81070
+
+-- SQL Statement 68 --
+  loc_197B1DA:     var_1F8 = "Update Voucher_Prefix Set Start_Srl_No=" & CStr(var_13E4) & " Where (SITE_CODE='" & MemVar_1F81070 & "' AND LOGSITE_CODE='"
+
+-- SQL Statement 69 --
+  loc_1CC910B:                         var_1FC = "Select Name from RoomCat where (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO') and code IN (select RoomCat from RoomMast Where (LOGSITE_CODE='"
+
+-- SQL Statement 70 --
+  loc_1CC9214:                         var_138 = CVar("Select RoomCat from RoomMast Where (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO') and Code='") 'String
+
+-- SQL Statement 71 --
+  loc_1CC941A:                         var_144 = "SELECT MAX(mINaDV) FROM rOOMcAT WHERE (LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 72 --
+  loc_1CC9775:                           var_144 = "Select Code as SearchCode, Code as RoomNo,Name as Quot from RoomMast Where (LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 73 --
+  loc_1CC98CC:                             var_144 = "Select RoomCat.Code as RoomCatCode,RoomCAt.Name as Rcat from roommast left join RoomCat on RoomMast.RoomCAt=RoomCat.Code where (RoomMAst.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 74 --
+  loc_1CC9BBB:                             var_144 = "Select Code as SearchCode, Code as RoomNo,Name as Quot from RoomMast Where (LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 75 --
+  loc_1CC9DCC:                               var_144 = "Select Code as SearchCode, Code as RoomNo,Name as Quot from RoomMast Where (LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 76 --
+  loc_1CCA002:                             Call 0.Method_Txt_Validate0 (CInt(&HF), var_F8, var_144, "select roomcat.MinAdv from roomcat where code='", var_108, -1)
+
+-- SQL Statement 77 --
+  loc_1CCA30D:                         var_138 = CVar("Select count(*) from RoomOcc where (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO') and ") 'String
+
+-- SQL Statement 78 --
+  loc_1CCA3CB:                         var_144 = "Select sum(NoofRooms) as BusyRoom from Booking where (LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 79 --
+  loc_1CCA589:                         var_1FC = "Select Count(*) from RoomMAst where (LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 80 --
+  loc_1CCA951:                               Proc_6_16_EA44E0(var_108, MemVar_1F81078, "SELECT CHECKOUT,CHECKOUTVAR FROM ENVIRO WHERE LOGSITE_CODE=", CVar(CStr(var_138) & "' and "))
+
+-- SQL Statement 81 --
+  loc_1CCDB1D:                                                     Proc_6_16_EA44E0(var_108, MemVar_1F81078, "SELECT CHECKOUT,CHECKOUTVAR FROM ENVIRO WHERE LOGSITE_CODE=", CVar(var_1F4))
+
+-- SQL Statement 82 --
+  loc_16714FA:           var_184 = "Select Code as SearchCode, Code as RoomNo,Name as Quot from RoomMast Where RoomMast.RoomCat=" & var_140 & var_170 
+
+-- SQL Statement 83 --
+  loc_1671614:           var_128 = "Select Code as SearchCode, Code as RoomNo,Name as Quot from RoomMast Where (LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 84 --
+  loc_1671770:         unk_5B6C29.Execute "Select Code as SearchCode, Code as RoomNo,Name as Quot from RoomMast Where RoomMast.RoomCat='999999'", var_A8, -1
+
+-- SQL Statement 85 --
+  loc_1671C71:                   var_184 = "Select Code, Name,total,App_Date,RoomTaxStru From PlanMast where RoomCat=" & var_140 & " And (LOGSITE_CODE='" 
+
+-- SQL Statement 86 --
+  loc_1671D9C:                   var_1E4 = "Select Code, Name,total,App_Date,RoomTaxStru From PlanMast where RoomCat=" & var_140 & " And Adults=" & CVar(var_410) 
+
+-- SQL Statement 87 --
+  loc_1671E97:                 var_3F0 = "Select Code, Name,total,App_Date,RoomTaxStru From PlanMast where Adults=" & CStr(var_410) & " And (LOGSITE_CODE='"
+
+-- SQL Statement 88 --
+  loc_168928D:           var_2D4 = "Select * from Comp_PlanDet where companyCode='" & var_98 & "' and RoomCat='" & CStr(var_124) & "' and PLanCode='" & CStr(var_184)
+
+-- SQL Statement 89 --
+  loc_12ADA45:   Call 0.Method_FGrid2_UnknownEvent_D0 (CInt(&H2A), var_E8, var_A4, "Select count(*) from GuestFolio where BookingDocid='", var_A0, -1, var_13C)
+
+-- SQL Statement 90 --
+  loc_11DE4C2: Call 0.Method_FGrid2_UnknownEvent_100 (CInt(&H2A), var_A0, var_9C, "Select Max(Cancel) From Booking Where DocId='", var_98, -1)
+
+-- SQL Statement 91 --
+  loc_EC4BF2: Me.Open "Select Code,Name From GroupProf Order by Name", CVar(MemVar_1F81044), 2
+
+-- SQL Statement 92 --
+  loc_1301FAB:   var_BC = "SELECT GuestProf.Code, GuestProf.Name, GuestProf.Add1, GuestProf.Add2, GuestProf.Type, GuestProf.PhoneNo, GuestProf.FaxNo, GuestProf.MobileNo, GuestProf.EmailId, GuestProf.Nationality, GuestProf.BirthDate, GuestProf.Anniversary, GuestProf.Comments1, GuestProf.Comments2, GuestProf.Comments3, City.CityName, City.ZipCode, State.Name as StateName, Country.Name as CountryName , GuestStat.Name as Status FROM GuestStat RIGHT JOIN (((GuestProf LEFT JOIN City ON GuestProf.City = City.CityCode) LEFT JOIN State ON City.State = State.Code) LEFT JOIN Country ON City.Country = Country.Code) ON GuestStat.Code = GuestProf.GuestStatus  where GuestProf.Code='"
+
+-- SQL Statement 93 --
+  loc_1867010:   var_C8 = "Select RC.Code,RC.Name,RC.NoRooms,RL.Rate2 From RoomCat RC Left Join RateList RL on RC.Code=RL.RoomCat Where RC.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 94 --
+  loc_1867045:   var_C8 = "Select Sum(NoRooms) As tNoRooms From RoomCat Where LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 95 --
+  loc_18675EB:       var_C8 = "Select Sum(NoofRooms) As tRoomBusy From ((ViewBooking as B Left Join GuestFolio GF on GF.BookingDocid=B.DociD And GF.BookingSno=B.SNo)Left Join RoomOcc RO on RO.Docid=GF.DocId ) Where B.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 96 --
+  loc_1867715:       var_1AC = CVar("Select Count(*) As RoomBusyRO From RoomOcc Where LOGSITE_CODE='" & MemVar_1F81078 & "' AND RoomCat='" & CStr(var_F0) & "' And RoomType='RO' And ") 'String
+
+-- SQL Statement 97 --
+  loc_18677D8:       var_C8 = "Select Count(*) As RoomBlocked From RoomBlockOut RB Inner Join RoomMast RM ON RB.RoomCode=RM.Code where RB.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 98 --
+  loc_FF14E6:   Proc_6_6_F208E4(var_B4, MemVar_1F810EC, "Update GrpBookingDetails Set Cancel='Y',CancelDate=")
+
+-- SQL Statement 99 --
+  loc_FF15D2:     var_278 = "Update GrpBookingDetails Set Cancel='N',CancelDate=NULL,CancelUName='' Where BookingDocid='" & var_88 & "' And Sno=" & CStr(arg_10)
+
+-- SQL Statement 100 --
+  loc_164BB67: var_98 = "SELECT GF.DocId, RC.Name AS RoomCatNAme, RC.Type, RO.RoomCat,RO.RoomNo,RO.RateCode,RO.RoomRate,RO.ChkInDate,RO.ChkInTime,RO.Adult,RO.Children,RO.DepDate,RO.DepTime,RO.Type,RO.RoomTaxStru," & " GF.FolioNo,GF.Vtype,GF.Vdate,GF.Vprefix,GF.GuestProf,GP.Name,GF.Add1,GF.Add2,GP.CityName,GP.StateName,"
+
+-- SQL Statement 101 --
+  loc_164C5DE: unk_5B6C29.Execute "Select * from groupfoliomore where Docid='" & global_252 & "'", var_D4, -1
+
+-- SQL Statement 102 --
+  loc_164CAC5: var_108 = "SELECT GuestProf.Code, GuestProf.Name, GuestProf.Add1,GuestProf.ExpiresOn, GuestProf.Add2, GuestProf.Type, GuestProf.PhoneNo, GuestProf.FaxNo, GuestProf.MobileNo, GuestProf.EmailId, GuestProf.Nationality, GuestProf.BirthDate, GuestProf.Anniversary, GuestProf.Comments1, GuestProf.Comments2, GuestProf.Comments3, City.CityName, City.ZipCode, State.Name as StateName, Country.Name as CountryName , GuestStat.Name as Status FROM GuestStat RIGHT JOIN (((GuestProf LEFT JOIN City ON GuestProf.City = City.CityCode) LEFT JOIN State ON City.State = State.Code) LEFT JOIN Country ON City.Country = Country.Code) ON GuestStat.Code = GuestProf.GuestStatus  where GuestProf.Code='"
+
+-- SQL Statement 103 --
+  loc_15A076F:       var_B8 = "SELECT PlanMast.Code,PlanMast.Name,PlanMast.PercentApp,RoomTaxStru FROM PlanMast where (PlanMast.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 104 --
+  loc_15A0985:     var_14C = "Select Code,Name From FixedCharge WHERE (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO') And Code='" & CStr(Me.FGPlan.TextMatrix))
+
+-- SQL Statement 105 --
+  loc_106107F:   Proc_6_6_F208E4(var_AC, MemVar_1F810EC, "Update Booking Set Cancel='Y',CancelDate=")
+
+-- SQL Statement 106 --
+  loc_1061137:   Proc_6_6_F208E4(var_AC, MemVar_1F810EC, "Update GrpBookingDetails Set Cancel='Y',CancelDate=")
+
+-- SQL Statement 107 --
+  loc_155C393: var_A8 = "Select B.DocId,Max(B.BookNo) AS BookNo,Max(B.VDate) AS VDate,Max(B.ArrDate) AS ArrDate,Max(B.DepDate) AS DepDate,Max(B.RoomNo) AS RoomNo,Max(B.RoomRate) AS RoomRate,Max(B.Adult) AS Adult,Max(B.Child) AS Child,Max(RC.Name) As RoomType,Max(B.GuestName) AS GNAME,Max(GroupProf.Name) AS GroupName,Max(GF.Add1) AS Add1,Max(GF.Add2) AS Add2,Max(GF.PhoneNo) AS PhoneNo,Max(GF.MobileNo) AS MobileNo,Max(GF.CreditCardNo) AS CCardNo,Max(GF.ExpiresOn) AS CCExpDate,Max(City.CityName) AS CityName,Max(City.ZipCode) AS Zip,Max(State.Name) as StateName,Max(SG.NAME) AS CompanyName,Sum(PC.AmtCr) AS ADVANCE,Max(B.Guarantee) as Guarantee,Max(B.RefBookNo) as RefBookNo " & " From (((((((Booking B LEFT JOIN RoomCat RC ON B.RoomCat = RC.Code) Left Join GuestProf GF ON B.GuestProf=GF.Code) LEFT JOIN City ON GF.City = City.CityCode) LEFT JOIN State ON City.State = State.Code) LEFT JOIN SUBGROUP SG ON B.Company=SG.SubCode) LEFT JOIN GroupProf ON B.GroupCode = GroupProf.Code) Left Join PayCharge PC ON B.DocId=PC.RefDocid) "
+
+-- SQL Statement 108 --
+  loc_155C42B: Proc_6_16_EA44E0(var_E0, MemVar_1F81078, "Select ReservationPrinting From Enviro WHERE LOGSITE_CODE=", var_128, -1)
+
+-- SQL Statement 109 --
+  loc_1996617: var_F4 = "Select IsNull(max(B.RefBookNo),'') as RefBookNo,B.DocId,Max(B.BookNo) AS BookNo,Max(B.Vdate) AS ResDate,Max(B.ArrDate) AS ArrDate, " & " Max(B.DepDate) AS DepDate,Max(B.Adult) AS Adult,Max(B.Child) AS Child, "
+
+-- SQL Statement 110 --
+  loc_19966DF: Proc_6_16_EA44E0(var_140, MemVar_1F81078, "Select * From Enviro Where LogSite_Code=", var_180)
+
+-- SQL Statement 111 --
+  loc_199679E: var_F4 = Proc_6_37_E618F4(CVar(var_9C.Fields.Item("Nationality")), "Select Case When NT.Nationality='' Then NT.Name Else NT.Nationality End Nationality From Country NT Where Code='", var_160)
+
+-- SQL Statement 112 --
+  loc_1996833: var_F4 = "Select S.CONPREFIX+' '+S.CONPERSON AS ContactPerson,S.NAME AS cOMPANYnAME,S.Add1 CompAdd1,S.Add2 CompAdd2,S.Add3 CompAdd3,CC.CityName CompCity,S.GSTIN CompGSTIN,isnull(ST.Name,'') As TravelA,ST.CONPREFIX+' '+ST.CONPERSON AS TravelConPerson,ST.Add1 TravelAdd1,ST.Add2 TravelAdd2,ST.Add3 TravelAdd3,TC.CityName TravelCity,ST.GSTIN TravelGSTIN FROM " & " Booking B left joIn Subgroup S on B.Company=s.Subcode Left Join Subgroup ST on B.TravelAgency=ST.Subcode Left Join City CC On CC.CityCode=S.CityCode Left Join City TC On TC.CityCode=ST.CityCode "
+
+-- SQL Statement 113 --
+  loc_1996BA9: unk_5B6C29.Execute CStr("SELECT Count(*) FROM GRPBookingDetails WHERE BookingDocId='" & var_9C.Fields.Item("DocID").Value & "'"), var_194, -1
+
+-- SQL Statement 114 --
+  loc_1996C05:   var_160 = CVar("SELECT Max(booking.u_entdt) as Time,Max(booking.U_NAME) as U_name,IsNull(Max(booking.RefBookNo),'') as RefBookNo,Max(RC.Name) As RoomType, Max(GR.RoomDet) As RoomDet, Max(GR.Adults) As Adults, Max(GR.Childs) As Childs, IsNull(Max(GR.Tarrif),0) As Tarrif, Max(GR.IncTax) As IncTax,IsNull(Max(BP.RPackageAmt),0) MealCharge,IsNull(Max(BP.NetPackageAmount),0) As PlanTariff,Max(PlanMast.Name) PlanName,Max(GR.PLAN_Package) As PLAN_Package,Max(GR.REMARKS) As REMARKS,Max(Booking.RDisc) As RDisc,Max(Booking.RSDisc) As RSDisc,Max(PlanMast.Tariff) As [Plan],IsNull(Max(BP.PlanDiscPer),0) As PlanDiscPer,IsNull(Max(BP.PlanDiscAmt),0) As PlanDiscAmt,IsNull(Max(GR.NoDays),0) NoDays " & "FROM (GRPBookingDetails GR Left Join RoomCat RC on GR.RoomCat=RC.Code) Left Join PlanMast on GR.Plan_Package=PlanMast.code Left Join BookingPlanDetails BP On GR.BookingDocId=BP.BookingDocId And GR.SNo=BP.SNo inner join booking on booking.docid=gr.bookingdocid WHERE GR.BookingDocid='") 'String
+
+-- SQL Statement 115 --
+  loc_1996C87:   var_160 = CVar("SELECT Max(booking.u_entdt) as Time,Max(booking.U_NAME) as U_name,IsNull(Max(booking.RefBookNo),'') as RefBookNo,Max(RC.Name) As RoomType, Max(GR.RoomDet) As RoomDet, Max(GR.Adults) As Adults, Max(GR.Childs) As Childs, IsNull(Max(GR.Tarrif),0) As Tarrif, Max(GR.IncTax) As IncTax,IsNull(Max(BP.RPackageAmt),0) MealCharge,IsNull(Max(BP.NetPackageAmount),0) As PlanTariff,Max(PlanMast.Name) PlanName,Max(GR.PLAN_Package) As PLAN_Package,Max(GR.REMARKS) As REMARKS,Max(Booking.RDisc) As RDisc,Max(Booking.RSDisc) As RSDisc,Max(PlanMast.Tariff) As [Plan],IsNull(Max(BP.PlanDiscPer),0) As PlanDiscPer,IsNull(Max(BP.PlanDiscAmt),0) As PlanDiscAmt,IsNull(Max(GR.NoDays),0) NoDays " & "FROM (GRPBookingDetails GR Left Join RoomCat RC on GR.RoomCat=RC.Code) Left Join PlanMast on GR.Plan_Package=PlanMast.code Left Join BookingPlanDetails BP On GR.BookingDocId=BP.BookingDocId And GR.SNo=BP.SNo inner join booking on booking.docid=gr.bookingdocid WHERE GR.BookingDocid='") 'String
+
+-- SQL Statement 116 --
+  loc_1996F57: var_180 = "SELECT Count(*) FROM PayCharge WHERE RefDocId='" & var_9C.Fields.Item("DocID").Value & "' And VType In ('ARRES','ADRES','AWRES')" 
+
+-- SQL Statement 117 --
+  loc_1996FBA:   var_150 = "SELECT Vno as Receipt , Vdate As PayDate , AmtCr as Amount, Revmast.Name FROM PayCharge Inner Join Revmast On Revmast.Code=PayCharge.PayCode WHERE RefDocId='"
+
+-- SQL Statement 118 --
+  loc_199739E: var_180 = "SELECT Count(*) FROM PayCharge WHERE RefDocId='" & var_9C.Fields.Item("DocID").Value & "' And VType In ('ARRES','ADRES','AWRES')" 
+
+-- SQL Statement 119 --
+  loc_1997430:   var_160 = "SELECT MAX(Vno) as Receipt , Max(Vdate) As PayDate , Sum(AmtCr) as Amount FROM PayCharge WHERE RefDocId='" & var_114.Value 
+
+-- SQL Statement 120 --
+  loc_1021A40: Call 0.Method_Proc_39_115_1021C280 (CInt(&H2A), var_A0, var_A4, "Select B.DocId,B.BookNo,B.Vdate,B.ArrDate,B.DepDate,B.Cancel,B.CancelDate,day(B.CancelDate-B.Vdate) As CancelDay,B.Adult,B.Child,B.GuestName AS GNAME,GF.Add1,GF.Add2, City.CityName AS CityName,City.ZipCode AS Zip,State.Name AS StateName From (((Booking B Left Join GuestProf GF ON B.GuestProf=GF.Code) LEFT JOIN City ON GF.City = City.CityCode) LEFT JOIN State ON City.State = State.Code) Where B.DocId='")
+
+-- SQL Statement 121 --
+  loc_14517A0: Proc_6_16_EA44E0(var_CC, MemVar_1F81078, "Select ReservationPrinting AS TXT From Enviro WHERE LOGSITE_CODE=")
+
+-- SQL Statement 122 --
+  loc_1451906: Call 0.Method_Proc_39_116_14522CC0 (CInt(&H2A), var_11C, var_F0, "Select B.DocId,B.BookNo,B.Vdate,B.ArrDate,B.DepDate,B.Cancel,B.CancelDate,day(B.CancelDate-B.Vdate) As CancelDay,B.Adult,B.Child,B.GuestName AS GNAME,GF.Add1,GF.Add2, City.CityName AS CityName,City.ZipCode AS Zip,State.Name AS StateName From (((Booking B Left Join GuestProf GF ON B.GuestProf=GF.Code) LEFT JOIN City ON GF.City = City.CityCode) LEFT JOIN State ON City.State = State.Code) Where B.DocId='")
+
+-- SQL Statement 123 --
+  loc_1508EC0: Proc_6_16_EA44E0(var_D0, MemVar_1F81078, "Select CheckoutVar From Enviro WHERE LOGSITE_CODE=")
+
+-- SQL Statement 124 --
+  loc_1508F6E: Proc_6_16_EA44E0(var_D0, MemVar_1F81078, "Select ReservationPrinting From Enviro WHERE LOGSITE_CODE=", var_114, -1)
+
+-- SQL Statement 125 --
+  loc_1509001: Call 0.Method_Proc_39_117_1509D580 (CInt(&H2A), var_120, var_F4, "Select B.DocId,B.BookNo,B.Vdate,B.ArrDate,B.DepDate,B.RoomRate,B.Adult,B.Child,RM.Name As RoomName,B.GuestName AS GNAME,GF.Add1, GF.Add2, City.CityName,PM.Name AS PaymentType,City.ZipCode AS Zip,State.Name as StateName From ((((((Booking B Left Join RoomMast RM ON B.RoomNo=RM.Code) Left Join GuestProf GF ON B.GuestProf=GF.Code) LEFT JOIN City ON GF.City = City.CityCode) LEFT JOIN State ON City.State = State.Code) Left Join PayCharge PC ON B.DocId=PC.RefDocId) LEFT JOIN revMast PM ON (PC.Site_Code = PM.Site_Code) AND (PC.PayCode = PM.Code)) Where B.DocId='")
+
+-- SQL Statement 126 --
+  loc_1509099: unk_5B6C29.Execute "Select Sum(AmtCr) from PayCharge where RefDocId='" & var_120.Text & "' And VType In ('ARRES','ADRES','AWRES')", var_120.Text, -1
+
+-- SQL Statement 127 --
+  loc_F9AF30: Proc_6_6_F208E4(var_A4, MemVar_1F810F4, "SELECT Count(*) FROM Booking WHERE Verified='N' And (Booking.VDate between ", var_1E8, -1)
+
+-- SQL Statement 128 --
+  loc_1618665: var_98 = "INSERT INTO GrpBookingDetails (BookingDocId,SNO,RoomDet,Adults,Childs,Tarrif,IncTax,ServiceChrg,LogSite_Code,RoomCat,Plan_Package,Remarks,RoomNo,RateCode,U_EntDt,U_AE,ArrDate,ArrTime,NoDays,DepDate,DepTime,Cancel,CancelDate,Site_Code,U_Name,RoomTaxStru) " & "VALUES('"
+
+-- SQL Statement 129 --
+  loc_161904F:       var_98 = "INSERT INTO BookingPlanDetails (BookingDocId,SNO,Sno1,RevCode,ChrgCode,TaxInc,TaxStru,PrintOption,PostingMethod,ChargeType,FlatRate,Adult,Child,ExtraAdult,ExtraChild,NoOfDays,PlanPer,App_Date,FixRate,Site_Code,U_Name,U_EntDt,U_AE,Amount,PlanCode,PlanPkgMode,RPackageAmt,NetPackageAmount,LogSite_Code,PlanDiscPer,PlanDiscAmt,PlanDiscAppOn,IncInRoomRate,RoomRate,NetRoomRate,Comment1,Comment2,DiscAmt,NetAmt) VALUES('" & CStr(var_108)
+
+-- SQL Statement 130 --
+  loc_1D9FBF9: var_B0 = "SELECT Booking.DocId,Booking.RefBookNo,Booking.U_AE,Booking.U_Name,Booking.U_EntDt, Booking.Vtype,Booking.BussSource,BussSource.Name as Business ,booking.MarketSeg,MarketSeg.Name as Market,Booking.BookNo, Booking.Site_Code, Booking.Vprefix, Booking.VDate, Booking.GroupCode, GroupProf.Name AS GroupName, Booking.ArrDate, Booking.ArrTime,Booking.DepDate, Booking.DepTime,Booking.NoofRooms ,Booking.NoDays, Booking.RoomCat, RoomCat.Name AS RoomCatname, Booking.RoomNo, Booking.Adult, Booking.Child, Booking.RateCode, Booking.RoomRate, Booking.Remarks, Booking.[Authorization], Booking.Company,S1.Name as CompanyName, Booking.GuestProf, Booking.TravelAgency AS TravelAgencyCode, SubGroup.Name AS TravelAgency, Booking.ArrFrom as Arrcode, Booking.Destination as DestinationCode, Booking.BookedBy, Booking.ResMode, Booking.ResStatus, " & "Booking.TravelMode, Booking.SplitFolio, Booking.DepositeReq, Booking.Guarantee, Booking.CardNo, Booking.Destination,Booking.Cancel,Booking.PackageCode,Booking.RefCode,Booking.BookStatus,Booking.Verified,City.CityName as ArrFrom, City_1.CityName as Destination,OccRoom,Booking.MobNo,"
+
+-- SQL Statement 131 --
+  loc_1D9FCC8: unk_5B6C29.Execute CStr("Select * From BookingPlanDetails Where BookingDocid='" & Me.Fields.Item("SearchCode").Value & "' Order By Sno"), var_118, -1
+
+-- SQL Statement 132 --
+  loc_1DA080B:   var_B0 = Proc_6_37_E618F4(CVar(var_88.Fields.Item("PackageCode")), "Select code,Name,RoomTaxStru from PlanMast Where Code='", var_E8, -1, var_140, var_204, var_E8)
+
+-- SQL Statement 133 --
+  loc_1DA1EE5:   unk_5B6C29.Execute CStr("Select * from Bookingmore where Docid='" & Me.Fields.Item("SearchCode").Value & "'"), var_118, -1
+
+-- SQL Statement 134 --
+  loc_1DA23D6:   var_108 = "SELECT GuestProf.Code, GuestProf.Name, GuestProf.Add1,GuestProf.ExpiresOn, GuestProf.Add2, GuestProf.Type, GuestProf.PhoneNo, GuestProf.FaxNo, GuestProf.MobileNo, GuestProf.EmailId, GuestProf.Nationality, GuestProf.BirthDate, GuestProf.Anniversary, GuestProf.Comments1, GuestProf.Comments2, GuestProf.Comments3, City.CityName, City.ZipCode, State.Name as StateName, Country.Name as CountryName , GuestStat.Name as Status FROM GuestStat RIGHT JOIN (((GuestProf LEFT JOIN City ON GuestProf.City = City.CityCode) LEFT JOIN State ON City.State = State.Code) LEFT JOIN Country ON City.Country = Country.Code) ON GuestStat.Code = GuestProf.GuestStatus  where GuestProf.Code='"
+
+-- SQL Statement 135 --
+  loc_1DA29EE:     unk_5B6C29.Execute "Select Sum(AmtCr) from PayCharge where RefDocId='" & var_C8.Text & "' And VType In ('ARRES','ADRES')", var_D8, -1
+
+-- SQL Statement 136 --
+  loc_1DA2AB5:       unk_5B6C29.Execute "Select Sum(AmtCr) from PayCharge where RefDocid='" & var_C8.Text & "' And VType In ('ARRES','ADRES')", var_D8, -1
+
+-- SQL Statement 137 --
+  loc_1DA339A:   var_B0 = Proc_6_37_E618F4(CVar(var_88.Fields.Item("PackageCode")), "Select code,Name,RoomTaxStru from PlanMast Where Code='", var_E8, -1, var_140, var_20C, var_E8)
+
+-- SQL Statement 138 --
+  loc_1DA5397:   unk_5B6C29.Execute CStr("Select * from Bookingmore where Docid='" & Me.Fields.Item("SearchCode").Value & "'"), var_118, -1
+
+-- SQL Statement 139 --
+  loc_1DA5888:   var_108 = "SELECT GuestProf.Code, GuestProf.Name, GuestProf.Add1,GuestProf.ExpiresOn, GuestProf.Add2, GuestProf.Type, GuestProf.PhoneNo, GuestProf.FaxNo, GuestProf.MobileNo, GuestProf.EmailId, GuestProf.Nationality, GuestProf.BirthDate, GuestProf.Anniversary, GuestProf.Comments1, GuestProf.Comments2, GuestProf.Comments3, City.CityName, City.ZipCode, State.Name as StateName, Country.Name as CountryName , GuestStat.Name as Status FROM GuestStat RIGHT JOIN (((GuestProf LEFT JOIN City ON GuestProf.City = City.CityCode) LEFT JOIN State ON City.State = State.Code) LEFT JOIN Country ON City.Country = Country.Code) ON GuestStat.Code = GuestProf.GuestStatus  where GuestProf.Code='"
+
+-- SQL Statement 140 --
+  loc_1DA5E7F:     Call 0.Method_Proc_39_121_1DA84300 (CInt(&H2A), var_C8, var_B0, "Select Sum(AmtCr) from PayCharge where RefDocid='", var_D8, -1)
+
+-- SQL Statement 141 --
+  loc_1DA5F39:       unk_5B6C29.Execute "Select Sum(AmtCr) from PayCharge where RefDocid='" & var_C8.Text & "' And VType In ('ARRES','ADRES')", var_D8, -1
+
+-- SQL Statement 142 --
+  loc_1DA6070:   var_11C = -1 & Proc_6_37_E618F4(CVar(var_88.Fields.Item("DocID")), "Select * from GrpBookingDetails Where BookingDocid='", var_E8)
+
+-- SQL Statement 143 --
+  loc_1DA6080:   unk_5B6C29.Execute "Select Sum(AmtCr) from PayCharge where RefDocid='" & var_88.Fields.Item("DocID").Text & "' Order By Sno", var_140, 
+
+-- SQL Statement 144 --
+  loc_1DA60DD:   var_B0 = Proc_6_37_E618F4(CVar(var_C8), "Select * From BookingPlanDetails Where BookingDocid='", var_E8)
+
+-- SQL Statement 145 --
+  loc_1DA60F1:   unk_5B6C29.Execute "Select Sum(AmtCr) from PayCharge where RefDocid='" & var_C8.Text & "' Order By Sno", var_140, 
+
+-- SQL Statement 146 --
+  loc_1DA613D:   Call 0.Method_Proc_39_121_1DA84300 (CInt(&H2A), var_C8, var_B0, "Select * from GrpBookingDetails Where BookingDocid='")
+
+-- SQL Statement 147 --
+  loc_1DA615E:   unk_5B6C29.Execute "Select Sum(AmtCr) from PayCharge where RefDocid='" & var_C8.Text & "' Order By Sno", var_140, 
+
+-- SQL Statement 148 --
+  loc_1DA61A5:   Call 0.Method_Proc_39_121_1DA84300 (CInt(&H2A), var_C8, var_B0, "Select * From BookingPlanDetails Where BookingDocid='")
+
+-- SQL Statement 149 --
+  loc_1DA61C6:   unk_5B6C29.Execute "Select Sum(AmtCr) from PayCharge where RefDocid='" & var_C8.Text & "' Order By Sno", var_140, 
+
+-- SQL Statement 150 --
+  loc_1DA6480:       Call 0.Method_Proc_39_121_1DA84300 (CInt(&H2E), var_154, "Select Sum(AmtCr) from PayCharge where RefDocid='" & var_C8.Text, var_B0 & ":", 1)
+
+-- SQL Statement 151 --
+  loc_1DA6499:       var_F8 = CVar(Proc_6_37_E618F4(CVar(CVar(CLng(1)) & "Select Sum(AmtCr) from PayCharge where RefDocid='" & var_C8.Text), CVar(CLng(Txt.DispID_A)))) 'String
+
+-- SQL Statement 152 --
+  loc_1DA65ED:       Call 0.Method_Proc_39_121_1DA84300 (CInt(&H59), var_154, "Select Sum(AmtCr) from PayCharge where RefDocid='" & var_C8.Text, var_1F0, 1)
+
+-- SQL Statement 153 --
+  loc_1DA6606:       var_F8 = CVar(Proc_6_37_E618F4(CVar(CVar(CLng(Txt.DispID_A)) & "Select Sum(AmtCr) from PayCharge where RefDocid='" & var_C8.Text), var_21C)) 'String
+
+-- SQL Statement 154 --
+  loc_1DA68DD:       Call 0.Method_Proc_39_121_1DA84300 (CInt(&H58), var_C8, "Select Sum(AmtCr) from PayCharge where RefDocid='" & var_C8.Text, Txt.DispID_41, var_12C, CVar(CLng(Txt.DispID_A)), var_21C)
+
+-- SQL Statement 155 --
+  loc_1DA6908:       Call 0.Method_Proc_39_121_1DA84300 (CInt(&H59), var_154, var_1F0, "Select Sum(AmtCr) from PayCharge where RefDocid='" & var_C8.Text & ":", 1)
+
+-- SQL Statement 156 --
+  loc_1DA6AD4:     var_B0 = Proc_6_37_E618F4(CVar(var_8C.Fields.Item("RoomCat")), "Select Code,Name from RoomCat where code='", var_E8, -1, var_140, var_21C)
+
+-- SQL Statement 157 --
+  loc_1DA6D76:     var_B0 = Proc_6_37_E618F4(CVar(var_8C.Fields.Item("PLan_Package")), "Select code,Name,RoomTaxStru from PlanMast Where Code='", var_E8, -1, var_140, var_21C, var_F8)
+
+-- SQL Statement 158 --
+  loc_1DA714F:     var_11C = "Select Max(DocId) As ChkinDocid From GuestFolio Where BookingDocid='" & Proc_6_37_E618F4(CVar(var_8C.Fields.Item("BookingDocId")), var_21C, var_F8, var_F8)
+
+-- SQL Statement 159 --
+  loc_10E181C: var_94 = "Select VT.Number_Method,VP.V_Type,VP.Date_From,VP.Prefix,VP.Start_Srl_No From Voucher_Type VT Inner Join Voucher_Prefix VP on (VT.V_Type=VP.V_Type AND VT.SITE_CODE=VP.SITE_CODE AND VP.LOGSITE_CODE=VP.LOGSITE_CODE) Where (VP.SITE_CODE='" & MemVar_1F81070
+
+-- SQL Statement 160 --
+  loc_1032AB6: var_90 = "Select VT.Number_Method,VP.V_Type,VP.Date_From,VP.Prefix,VP.Start_Srl_No From Voucher_Type VT Inner Join Voucher_Prefix VP on (VT.V_Type=VP.V_Type AND VT.SITE_CODE=VP.SITE_CODE AND VP.LOGSITE_CODE=VP.LOGSITE_CODE) Where (VP.SITE_CODE='" & MemVar_1F81070
+
+-- SQL Statement 161 --
+  loc_122D962: var_94 = "SELECT Discount, DiscType FROM RoomDiscount WHERE (LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 162 --
+  loc_1D2FD24: unk_5B6C29.Execute "Select RRIncTaxDefault,RRSerChrgDefault from Enviro Where LogSite_code='" & MemVar_1F81078 & "'", var_158, -1
+
+-- SQL Statement 163 --
+  loc_1D32681:                 var_284 = "Select Count(*) From RoomMast Where type='RO' And InclCount='Y' And Code='" & CStr(Me.FGrid2.TextMatrix)) & "' And RoomCat='"
+
+-- SQL Statement 164 --
+  loc_1D32831:                 var_1E4 = "Select Count(*) From PlanMast where Code="
+
+-- SQL Statement 165 --
+  loc_1D339EF:                     unk_5B6C29.Execute "Select RoomRate,RRIncTax,RoomTaxStru From Planmast Where Code='" & var_134 & "'", var_1A4, -1
+
+-- SQL Statement 166 --
+  loc_1D33AF1:                       var_2A4 = "Select IsNull(Max(PLANAmt),0) from Comp_PlanDet where CompanyCode='" & var_134 & "' and RoomCat='" & CStr(var_184)
+
+-- SQL Statement 167 --
+  loc_1D34B1E:                         var_138 = "SELECT MULTPER,* FROM ROOMMAST WHERE (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO') and TYPE='RO' AND InclCount='Y' AND ROOMCAT='"
+
+-- SQL Statement 168 --
+  loc_1D34B7A:                         var_138 = "SELECT MULTPER FROM ROOMCAT WHERE (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO') and CODE='"
+
+-- SQL Statement 169 --
+  loc_1D34C87:                       var_184 = CVar("SELECT * FROM SEASONMAST WHERE (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO') and ") 'String
+
+-- SQL Statement 170 --
+  loc_1D34D56:                       var_134 = "SELECT * FROM RATELIST WHERE (LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 171 --
+  loc_1D35217:                         unk_5B6C29.Execute "Select * from SeasonMast1", var_158, -1
+
+-- SQL Statement 172 --
+  loc_1D3576F:                               unk_5B6C29.Execute "Select RoomRate,RRIncTax,RoomTaxStru From Planmast Where Code='" & var_134 & "'", var_1A4, -1
+
+-- SQL Statement 173 --
+  loc_1D35866:                                 var_284 = "Select IsNull(Max(PLANAmt),0) from Comp_PlanDet where CompanyCode='" & var_134 & "' and RoomCat='"
+
+-- SQL Statement 174 --
+  loc_1D3659A:                             var_134 = "Select Valid Rate Code" & vbCrLf
+
+-- SQL Statement 175 --
+  loc_1531708:       unk_5B6C29.Execute CStr("Select MinAdv from RoomCat where Code='" & var_120 & "'"), var_1C0, -1
+
+-- SQL Statement 176 --
+  loc_15317B6:         var_98 = CSng("Select MinAdv from RoomCat where Code='" & var_120 & "'")
+
+-- SQL Statement 177 --
+  loc_1A34474: var_C0 = "SELECT plan1.Code, plan1.Chrgcode, FixedCharge.Name,plan1.Revcode,plan1.TaxStru,plan1.FixRate,plan1.TaxInc, plan1.PrintOption,plan1.PostingMethod, plan1.ChargeType, plan1.FlatRate,plan1.Adult, plan1.Child, plan1.ExtraAdult, plan1.ExtraChild,Plan1.App_Date , Plan1.PlanPer, PlanMast.PercentApp,PlanMast.plan_package,Plan1.NoofDays,Plan1.PerDayAmount,Plan1.NetAmount,pLANmAST.RoomPer,PlanMast.RoomRate,PlanMast.PackageAmount,PlanMast.DiscAppYN,PlanMAst.DiscAppOn,planmast.Nights,planmast.Adults,PlanMast.Childs,PLanMast.RRIncTax,PLanMast.RoomTaxStru FROM (PlanMast Left Join plan1 on Planmast.Code=Plan1.Code) Left Join FixedCharge ON plan1.Chrgcode = FixedCharge.Code  where (PlanMast.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 178 --
+  loc_1A345BA:   var_1B0 = "Select IsNull(Max(PLANAmt),0) from Comp_PlanDet where CompanyCode='" & var_C0 & "' and RoomCat='" & CStr(var_144) & "' And PlanCode='"
+
+-- SQL Statement 179 --
+  loc_15870DC: Call 0.Method_Proc_39_142_15882540 (CInt(&H4E), var_9C, var_A0, "SELECT plan1.Code, plan1.Chrgcode, FixedCharge.Name, plan1.Revcode, plan1.TaxStru, plan1.TaxInc, plan1.PrintOption, plan1.PostingMethod, plan1.ChargeType, plan1.FlatRate, plan1.Adult, plan1.Child, plan1.ExtraAdult, plan1.ExtraChild,Plan1.App_Date,Plan1.PlanPer,Plan1.noofDays,Plan1.FixRate FROM plan1 INNER JOIN FixedCharge ON plan1.Chrgcode = FixedCharge.Code where plan1.code='")
+
+-- SQL Statement 180 --
+  loc_1B29285: var_130 = "SELECT PlanMast.Code,PlanMast.RRIncTax,PlanMast.RoomPer,PlanMast.PercentApp,PlanMast.plan_package, plan1.Chrgcode, FixedCharge.Name,plan1.Revcode, plan1.TaxStru, plan1.TaxInc, plan1.PrintOption,plan1.PostingMethod, plan1.ChargeType, plan1.FlatRate,plan1.Adult, plan1.Child, plan1.ExtraAdult, plan1.ExtraChild,Plan1.App_Date , Plan1.PlanPer,Plan1.NoofDays FROM (PlanMast left join plan1 on Planmast.Code=Plan1.Code) Left JOIN FixedCharge ON plan1.Chrgcode = FixedCharge.Code where (PlanMast.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 181 --
+  loc_115DC90: var_C8 = CVar("SELECT Discount, DiscType FROM RoomDiscount WHERE (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO') and Code='") 'String
+

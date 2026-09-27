@@ -1,0 +1,10 @@
+Module: BanqAvailability
+Total SQL statements: 2
+================================================================================
+
+-- SQL Statement 1 --
+  loc_13EE0A5: unk_481B00.Execute "Select * From FAEnviro", var_B8, -1
+
+-- SQL Statement 2 --
+  loc_1324A6D: unk_481B00.Execute "Select * from VenueMast where DepartCode='" & global_52 & "' order by name", var_108, -1
+

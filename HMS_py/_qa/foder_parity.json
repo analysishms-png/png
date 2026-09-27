@@ -1,0 +1,1760 @@
+{
+ "rows": [
+  [
+   "AccountMerg.frm",
+   "Account Merging",
+   "WIRED"
+  ],
+  [
+   "BanqAvailability.frm",
+   "Venue Availability",
+   "WIRED"
+  ],
+  [
+   "CateringBooking.frm",
+   "Catalog Selection",
+   "WIRED"
+  ],
+  [
+   "CompMast.frm",
+   "Company Master",
+   "WIRED"
+  ],
+  [
+   "CsehDemoForm.frm",
+   "CSEH Error Handling Demo",
+   "NOT-IN-REG"
+  ],
+  [
+   "DMTree.frm",
+   "Form1",
+   "NOT-IN-REG"
+  ],
+  [
+   "DepOpStk.frm",
+   "Location wise Opening Stock Entry",
+   "WIRED"
+  ],
+  [
+   "DepartMast.frm",
+   "Department Master",
+   "WIRED"
+  ],
+  [
+   "DepartSundry.frm",
+   "Outlet Bill Sundry Setting",
+   "WIRED"
+  ],
+  [
+   "EmptyInbox.frm",
+   "Inbox",
+   "WIRED"
+  ],
+  [
+   "FAFind.frm",
+   "Help.?",
+   "WIRED"
+  ],
+  [
+   "FaAdjust.frm",
+   "Adjustment Entry",
+   "WIRED"
+  ],
+  [
+   "FaAdjustDel.frm",
+   "Adjustment Delete",
+   "WIRED"
+  ],
+  [
+   "FaChqClear.frm",
+   "Cheque/DD Clearing Entry",
+   "WIRED"
+  ],
+  [
+   "FaCityMast.frm",
+   "City Master",
+   "WIRED"
+  ],
+  [
+   "FaCountryMast.frm",
+   "Country Master",
+   "WIRED"
+  ],
+  [
+   "FaCurrBalUpdate.frm",
+   "Current Balance Updation",
+   "WIRED"
+  ],
+  [
+   "FaEnvron.frm",
+   "Environment Setting",
+   "NOT-IN-REG"
+  ],
+  [
+   "FaGlobeNarr.frm",
+   "{Press <Esc> For Cancel && Exit} {Press <Enter> For Select && Exit} {Press Ctrl+S to Sort the selected Row}",
+   "NOT-IN-REG"
+  ],
+  [
+   "FaGrEnt.frm",
+   "Group Accounts Entry",
+   "WIRED"
+  ],
+  [
+   "FaMagic.frm",
+   "Magic",
+   "WIRED"
+  ],
+  [
+   "FaNarrMast.frm",
+   "Narration Master",
+   "WIRED"
+  ],
+  [
+   "FaRepView.frm",
+   "Form1",
+   "NOT-IN-REG"
+  ],
+  [
+   "FaReports.frm",
+   "ReprtForm",
+   "WIRED"
+  ],
+  [
+   "FaStateMast.frm",
+   "State Master",
+   "WIRED"
+  ],
+  [
+   "FaSubGroup.frm",
+   "Ledger Accounts Entry",
+   "WIRED"
+  ],
+  [
+   "FaTDSCat.frm",
+   "T.D.S.Category Entry",
+   "WIRED"
+  ],
+  [
+   "FaTDSCertificate.frm",
+   "T.D.S.Certificate Entry",
+   "WIRED"
+  ],
+  [
+   "FaTDSChal.frm",
+   "T.D.S.Challan Entry",
+   "WIRED"
+  ],
+  [
+   "FaTaxVoucher.frm",
+   "Expense Voucher",
+   "WIRED"
+  ],
+  [
+   "FaVrEnt.frm",
+   "Voucher Entry",
+   "WIRED"
+  ],
+  [
+   "FaVtype.frm",
+   "Define Voucher Type",
+   "NOT-IN-REG"
+  ],
+  [
+   "FacilitySundry.frm",
+   "Outlet Bill Sundry Setting",
+   "WIRED"
+  ],
+  [
+   "FdCheckOut.frm",
+   "Room Check Out",
+   "WIRED"
+  ],
+  [
+   "FdGrpCheckOut.frm",
+   "Room Check Out Entry",
+   "WIRED"
+  ],
+  [
+   "FdGrpdetCheckOut.frm",
+   "Room Check Out Entry",
+   "WIRED"
+  ],
+  [
+   "FdLookUpRoom.frm",
+   "Look Up Room",
+   "WIRED"
+  ],
+  [
+   "FdLookUpRoomNo.frm",
+   "Display Rack",
+   "WIRED"
+  ],
+  [
+   "FdReSetlement.frm",
+   "Post Charges/Payment",
+   "WIRED"
+  ],
+  [
+   "FdRevCheckOut.frm",
+   "Check Out Cancel",
+   "WIRED"
+  ],
+  [
+   "FdRoomDisplay.frm",
+   "Room View",
+   "WIRED"
+  ],
+  [
+   "FindMess.frm",
+   "",
+   "NOT-IN-REG"
+  ],
+  [
+   "Form1.frm",
+   "Form1",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmBdayLookup.frm",
+   "Form1",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmBookingInquiry.frm",
+   "Booking Inquiry",
+   "WIRED"
+  ],
+  [
+   "FrmBusinessSrc.frm",
+   "Business Source Master",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmCalender.frm",
+   "Calender",
+   "WIRED"
+  ],
+  [
+   "FrmChangeDepart.frm",
+   "Department Change Master",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmChangeKitch.frm",
+   "Kitchen Change Master",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmChangeRest.frm",
+   "Restaurant Change Master",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmChangeSite.frm",
+   "                                               Login Site ",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmChargeMast.frm",
+   "Charge Master",
+   "WIRED"
+  ],
+  [
+   "FrmClaimEntry.frm",
+   "Claim Entry",
+   "WIRED"
+  ],
+  [
+   "FrmComplaintClearing.frm",
+   "Complaint Clearance",
+   "WIRED"
+  ],
+  [
+   "FrmComplaintMast.frm",
+   "Complain Master",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmConsumMast.frm",
+   "Consumption Master",
+   "WIRED"
+  ],
+  [
+   "FrmConsumMast9999.frm",
+   "Open Item Consumption Master",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmControlPanel.frm",
+   "Control Panel",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmDataRecieving.frm",
+   "Data Recieving Window . . .",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmDeliveredItemDetail.frm",
+   "Not Delivered Item",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmDeliveryBoyMast.frm",
+   "Delivery Boy Master",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmDenomination.frm",
+   "Denomination Detail",
+   "WIRED"
+  ],
+  [
+   "FrmEventMast.frm",
+   "Event Type",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmExpense.frm",
+   "Misc.Payment / Received Entry",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmFacilityMast.frm",
+   "Form1",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmFomBillDeletion.frm",
+   "Fom Bill Delection",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmForExRec.frm",
+   "Forex Receive Entry",
+   "WIRED"
+  ],
+  [
+   "FrmForeignExMast.frm",
+   "Foreign Exchange Master",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmGrcBlank.frm",
+   "Guest Registration  Card",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmGuestAddObj.frm",
+   "Guest Address & Observation",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmGuestStat.frm",
+   "Guest Status Master",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmGuestWakeUp.frm",
+   "Register Wake up Calls",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmHallItemCatMast.frm",
+   "Category and Charge Master",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmHouGuestMsg.frm",
+   "In House Guest Message",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmHouseStatus.frm",
+   "Property Status",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmImage.frm",
+   "Image",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmInc.frm",
+   "Inconsistency Check",
+   "WIRED"
+  ],
+  [
+   "FrmItemCatMast.frm",
+   "Category/Charge Master",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmItemCatRaw.frm",
+   "Category/Charge Master",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmItemGroupMast.frm",
+   "Item Group Entry",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmItemGroupMastRaw.frm",
+   "Item Group",
+   "WIRED"
+  ],
+  [
+   "FrmItemIssuedOnCleaning.frm",
+   "Item Issued On Cleaning",
+   "WIRED"
+  ],
+  [
+   "FrmItemMast.frm",
+   "Item Entry",
+   "WIRED"
+  ],
+  [
+   "FrmItemMastRaw.frm",
+   "Item Entry (Raw)",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmJobScheduler.frm",
+   "Task Scheduler",
+   "WIRED"
+  ],
+  [
+   "FrmLocationFacilities.frm",
+   "Location Facilities",
+   "WIRED"
+  ],
+  [
+   "FrmLocationMast.frm",
+   "Location Master",
+   "WIRED"
+  ],
+  [
+   "FrmLostFound.frm",
+   "Lost && Found",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmMarketSeg.frm",
+   "Market Segment Master",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmMenuList.frm",
+   "Main Menu . . .",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmMenuRate.frm",
+   "Item Rate Entry",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmMergeCharge.frm",
+   "Room Merge",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmMeterReading.frm",
+   "Meter Reading",
+   "WIRED"
+  ],
+  [
+   "FrmMsgBox.frm",
+   "Message Box",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmNAMessageA.frm",
+   "User Information",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmNAMessageB.frm",
+   "User Information",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmNAMessageC.frm",
+   "User Information",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmNCType.frm",
+   "NC Type",
+   "WIRED"
+  ],
+  [
+   "FrmOPStock.frm",
+   "Opening Stock Entry",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmPOSBillDeletion.frm",
+   "POS Bill Deletion Entry",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmPOSBillModificationDatewise.frm",
+   "POS Bill Deletion Entry",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmPOSBillModificationItemGroupwise.frm",
+   "POS Bill Modification (Item Group Wise)",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmPOSRecycleData.frm",
+   "Recycle Outlet Data",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmPOSSaleDataTransfer.frm",
+   "POS Bill Deletion Entry",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmPackageMast.frm",
+   "Package Defination Master",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmParty.frm",
+   "Suppler Master",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmPartyLocations.frm",
+   "Party Locations",
+   "WIRED"
+  ],
+  [
+   "FrmPayTypeMast.frm",
+   "Payment Type Master",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmPlanPackMast.frm",
+   "Plan Defination Master",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmPlanTokenMast.frm",
+   "Plan Token Master",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmReceivePayment.frm",
+   "Misc.Payment / Received Entry",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmReservationStatus.frm",
+   "Reservation Status",
+   "WIRED"
+  ],
+  [
+   "FrmRevMergeCharge.frm",
+   "Reverse Transfer Room",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmRevenueWiseBudget.frm",
+   "Revenue Wise Budget",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmRoomCatMast.frm",
+   "Room Category Master",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmRoomFeatureMast.frm",
+   "Room Features Master",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmRoomMast.frm",
+   "Room  Master",
+   "WIRED"
+  ],
+  [
+   "FrmSMSEnviro.frm",
+   "Parameter Setting",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmSMSMultiType.frm",
+   "Common SMS",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmSerialiseVr.frm",
+   "Voucher Serialisation",
+   "WIRED"
+  ],
+  [
+   "FrmSmsCenterSettings.frm",
+   "SMS Center Settings",
+   "WIRED"
+  ],
+  [
+   "FrmStockTransfer.frm",
+   "Stock Transfer",
+   "WIRED"
+  ],
+  [
+   "FrmTaxMast.frm",
+   "Tax Master",
+   "WIRED"
+  ],
+  [
+   "FrmTaxStruMast.frm",
+   "Tax Structure Master",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmUnSettledBillsInfo.frm",
+   "Unsettled Bill Details",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmUploadProcess.frm",
+   "Upload Process",
+   "WIRED"
+  ],
+  [
+   "FrmUserPaymentCollection.frm",
+   "User Payment Receive Entry",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmVenueFeat.frm",
+   "VenueFeature",
+   "NOT-IN-REG"
+  ],
+  [
+   "FrmVenueMast.frm",
+   "Venue Master",
+   "WIRED"
+  ],
+  [
+   "FrmWaiterMast.frm",
+   "Server Master",
+   "WIRED"
+  ],
+  [
+   "Godown.frm",
+   "Location Master",
+   "WIRED"
+  ],
+  [
+   "GroupProfile.frm",
+   "Group Profile",
+   "WIRED"
+  ],
+  [
+   "GuestProfile.frm",
+   "Guest Profile",
+   "WIRED"
+  ],
+  [
+   "HHouseKeeping.frm",
+   "House Keeping Screen",
+   "WIRED"
+  ],
+  [
+   "HKHouseOpStk.frm",
+   "House Keeping Op. Stock Entry",
+   "WIRED"
+  ],
+  [
+   "HKIssRec.frm",
+   "Issue/Receive Entry",
+   "NOT-IN-REG"
+  ],
+  [
+   "HKRoomBlock.frm",
+   "Room Block",
+   "WIRED"
+  ],
+  [
+   "HKRoomOpStk.frm",
+   "Room Op.Stock Entry",
+   "NOT-IN-REG"
+  ],
+  [
+   "HRoomCheckOutClearance.frm",
+   "Check Out Clearance Screen",
+   "WIRED"
+  ],
+  [
+   "HWIHistory.frm",
+   "Walk In by Room History",
+   "NOT-IN-REG"
+  ],
+  [
+   "HallAcPostChrg.frm",
+   "A/C Posting",
+   "NOT-IN-REG"
+  ],
+  [
+   "HallAdvanceDepDialog.frm",
+   "Advance Recived",
+   "NOT-IN-REG"
+  ],
+  [
+   "HallBill.frm",
+   "Hall Bill Entry",
+   "NOT-IN-REG"
+  ],
+  [
+   "HallBillEstimate.frm",
+   "Banquet Estimate Bill",
+   "NOT-IN-REG"
+  ],
+  [
+   "HallBooking.frm",
+   "Banquet Booking",
+   "WIRED"
+  ],
+  [
+   "HallChefPreCosting.frm",
+   "Chef Pre-Costing",
+   "WIRED"
+  ],
+  [
+   "HallEstimate.frm",
+   "Hall Estimate Entry",
+   "NOT-IN-REG"
+  ],
+  [
+   "HallItemGroupMast.frm",
+   "Item Group Entry",
+   "NOT-IN-REG"
+  ],
+  [
+   "HallMenuCatalog.frm",
+   "Menu Catalog",
+   "NOT-IN-REG"
+  ],
+  [
+   "HallMenuItemEntry.frm",
+   " Menu Item Entry",
+   "NOT-IN-REG"
+  ],
+  [
+   "HallSundry.frm",
+   "Outlet Bill Sundry Setting",
+   "WIRED"
+  ],
+  [
+   "InHouseGuestFolio.frm",
+   "Inhouse Guest Folio",
+   "NOT-IN-REG"
+  ],
+  [
+   "Inbox.frm",
+   "Inbox",
+   "WIRED"
+  ],
+  [
+   "LockForm.frm",
+   "Form1",
+   "NOT-IN-REG"
+  ],
+  [
+   "MDIForm1.frm",
+   "&Finance",
+   "WIRED"
+  ],
+  [
+   "MemAssistant.frm",
+   "Member Assistant ",
+   "WIRED"
+  ],
+  [
+   "MemAutoSettleCardBalance.frm",
+   "Auto Settle Card Balance",
+   "WIRED"
+  ],
+  [
+   "MemBillPrintingModule.frm",
+   "Member Bill Printing",
+   "WIRED"
+  ],
+  [
+   "MemCatMast.frm",
+   "Member Category Master",
+   "NOT-IN-REG"
+  ],
+  [
+   "MemFacilityBilling.frm",
+   "Member Facility Billing",
+   "WIRED"
+  ],
+  [
+   "MemFacilityEntry.frm",
+   "Member Used Facility Entry",
+   "WIRED"
+  ],
+  [
+   "MemPaymentReceive.frm",
+   "Payment Receive Entry",
+   "WIRED"
+  ],
+  [
+   "MemRenewalEntry.frm",
+   "Member Renewal",
+   "NOT-IN-REG"
+  ],
+  [
+   "MemSelectCategory.frm",
+   "Select Member Category",
+   "NOT-IN-REG"
+  ],
+  [
+   "MemTagadaLetter.frm",
+   "Payment Due Letter Entry",
+   "WIRED"
+  ],
+  [
+   "MemVisitEntry.frm",
+   "Member Visit Entry",
+   "WIRED"
+  ],
+  [
+   "MemberEnviro.frm",
+   "Parameter Setting",
+   "NOT-IN-REG"
+  ],
+  [
+   "MemberProposedMemInf.frm",
+   "Propsed Member Information",
+   "NOT-IN-REG"
+  ],
+  [
+   "MemberSMS.frm",
+   "Generate SMS.csv",
+   "NOT-IN-REG"
+  ],
+  [
+   "MemberShipRevenueMast.frm",
+   "MemberShip Revenue Master",
+   "NOT-IN-REG"
+  ],
+  [
+   "MembershipMast.frm",
+   "Member Master",
+   "WIRED"
+  ],
+  [
+   "NewHappyHours.frm",
+   "Happy Hours [ Free Items ]",
+   "WIRED"
+  ],
+  [
+   "OutLetMast.frm",
+   "Outlet Master",
+   "NOT-IN-REG"
+  ],
+  [
+   "OutLetSundry.frm",
+   "Outlet Bill Sundry Setting",
+   "WIRED"
+  ],
+  [
+   "Outbox.frm",
+   "Intelligent Outbox",
+   "WIRED"
+  ],
+  [
+   "PIndent.frm",
+   "Indent",
+   "WIRED"
+  ],
+  [
+   "POSAdvanceDepDialog.frm",
+   "Order Booking Advance",
+   "WIRED"
+  ],
+  [
+   "POSBillReprint.frm",
+   "OutLet Bill Reprint",
+   "WIRED"
+  ],
+  [
+   "PrAttend1.frm",
+   "Attendence",
+   "NOT-IN-REG"
+  ],
+  [
+   "PrCategoryMast.frm",
+   "Category Master",
+   "WIRED"
+  ],
+  [
+   "PrDesigMast.frm",
+   "Designation Master",
+   "WIRED"
+  ],
+  [
+   "PrEmployee.frm",
+   "Employee Master",
+   "WIRED"
+  ],
+  [
+   "PrLeavench.frm",
+   "Leave Encashment",
+   "WIRED"
+  ],
+  [
+   "PrLoan.frm",
+   "Advance/Loan",
+   "NOT-IN-REG"
+  ],
+  [
+   "REPVIEW.frm",
+   "Form1",
+   "NOT-IN-REG"
+  ],
+  [
+   "RSSaleBill.frm",
+   "Sale Bill Entry",
+   "WIRED"
+  ],
+  [
+   "RSSaleBill1.frm",
+   "Sale Bill Entry",
+   "WIRED"
+  ],
+  [
+   "RSSaleBillDisplay.frm",
+   "Bill Look Up",
+   "WIRED"
+  ],
+  [
+   "RSTouchScreenSaleBill.frm",
+   "Sale Bill Entry",
+   "WIRED"
+  ],
+  [
+   "RewardPointParam1.frm",
+   "Reward Points Parameter I",
+   "WIRED"
+  ],
+  [
+   "RrLookUpGuest.frm",
+   "New Reservation By Guest Reservation History",
+   "NOT-IN-REG"
+  ],
+  [
+   "RrRoomReservation.frm",
+   "Reservation/Cancellation",
+   "WIRED"
+  ],
+  [
+   "RsAssignDelivery.frm",
+   "Member Category Wise Revenue",
+   "NOT-IN-REG"
+  ],
+  [
+   "RsBookingEntry.frm",
+   "Booking Entry",
+   "NOT-IN-REG"
+  ],
+  [
+   "RsBookingEntryAdvance.frm",
+   "Payment Entry",
+   "NOT-IN-REG"
+  ],
+  [
+   "RsGravyItemEntry.frm",
+   "Gravy Item Entry",
+   "WIRED"
+  ],
+  [
+   "RsKOTEntry.frm",
+   "KOT",
+   "NOT-IN-REG"
+  ],
+  [
+   "RsKOTTransfer.frm",
+   "KOT Transfer",
+   "WIRED"
+  ],
+  [
+   "RsKitchenMaterial.frm",
+   "Excise Invoice Cum Gate Pass",
+   "WIRED"
+  ],
+  [
+   "RsKitchenStk.frm",
+   "Stock Transfer",
+   "WIRED"
+  ],
+  [
+   "RsMenuItemEntry.frm",
+   "Menu Item Entry",
+   "NOT-IN-REG"
+  ],
+  [
+   "RsPOSCustInfo.frm",
+   "Customer Information",
+   "WIRED"
+  ],
+  [
+   "RsPOSDisplay.frm",
+   "Display Table",
+   "WIRED"
+  ],
+  [
+   "RsPOSDisplayNew.frm",
+   "Table Status",
+   "NOT-IN-REG"
+  ],
+  [
+   "RsPaymentReceice.frm",
+   "Payment Receive Entry (POS)",
+   "WIRED"
+  ],
+  [
+   "RsSaleBillSplit.frm",
+   "Split Sale Bill",
+   "WIRED"
+  ],
+  [
+   "RsSpecItemEntry.frm",
+   " Special Item Entry",
+   "NOT-IN-REG"
+  ],
+  [
+   "RsStatusScreen.frm",
+   "POS Status Screen",
+   "NOT-IN-REG"
+  ],
+  [
+   "RsStoreRecEntry.frm",
+   "Finish Material Receive Entry",
+   "WIRED"
+  ],
+  [
+   "RsTableMast.frm",
+   "Table Master",
+   "WIRED"
+  ],
+  [
+   "RsTbChange.frm",
+   "Table Transfer",
+   "NOT-IN-REG"
+  ],
+  [
+   "RsTokenEntry.frm",
+   "Token Entry",
+   "WIRED"
+  ],
+  [
+   "RsTouchDisplayTB.frm",
+   "Display Table",
+   "WIRED"
+  ],
+  [
+   "RsTouchOrderPersonDetails.frm",
+   "Customer Information",
+   "WIRED"
+  ],
+  [
+   "RsTouchScreenBookingEntry.frm",
+   "Booking Entry",
+   "NOT-IN-REG"
+  ],
+  [
+   "RsTouchScreenFAFind.frm",
+   "Frame1",
+   "NOT-IN-REG"
+  ],
+  [
+   "RsTouchScreenKOTEntry.frm",
+   "KOT Entry",
+   "WIRED"
+  ],
+  [
+   "RsTouchScreenKeyBoard.frm",
+   "Touch Screen KeyBoard",
+   "WIRED"
+  ],
+  [
+   "RsTouchScreenSteward.frm",
+   "Steward",
+   "NOT-IN-REG"
+  ],
+  [
+   "RsTouchScreenTOKENEntry.frm",
+   "KOT Entry",
+   "WIRED"
+  ],
+  [
+   "SchemeMast.frm",
+   "Scheme Master",
+   "WIRED"
+  ],
+  [
+   "SmartCardLostReIssue.frm",
+   "Smart Lost/ReIssue Entry",
+   "NOT-IN-REG"
+  ],
+  [
+   "SmartCardMast.frm",
+   "Smart Card Master",
+   "NOT-IN-REG"
+  ],
+  [
+   "SmartCardRecharge.frm",
+   "Smart Card Recharge Entry",
+   "NOT-IN-REG"
+  ],
+  [
+   "SmartCardRefund.frm",
+   "Smart Card Refund Entry",
+   "NOT-IN-REG"
+  ],
+  [
+   "SmartCardRegistration.frm",
+   "Smart Card Registration Entry",
+   "WIRED"
+  ],
+  [
+   "SundryMast.frm",
+   "Sundry Master",
+   "WIRED"
+  ],
+  [
+   "SundryVType.frm",
+   "Voucher Wise Sundry Entry",
+   "WIRED"
+  ],
+  [
+   "TelCallCodeMast.frm",
+   "Call Code Master",
+   "NOT-IN-REG"
+  ],
+  [
+   "TelCallControlMast.frm",
+   "Call Control Master",
+   "WIRED"
+  ],
+  [
+   "TelCallEntry.frm",
+   "Call Code Master",
+   "NOT-IN-REG"
+  ],
+  [
+   "TelCallTypeMast.frm",
+   "Call Type Mast",
+   "NOT-IN-REG"
+  ],
+  [
+   "TelExtensionMast.frm",
+   "Extension Master",
+   "WIRED"
+  ],
+  [
+   "Transfer.frm",
+   "Data Transfer",
+   "WIRED"
+  ],
+  [
+   "TravelAgencyPost.frm",
+   "Travel Agency Posting",
+   "WIRED"
+  ],
+  [
+   "UserMast.frm",
+   "User Master",
+   "WIRED"
+  ],
+  [
+   "UserPermission.frm",
+   "User Permissions",
+   "NOT-IN-REG"
+  ],
+  [
+   "VoucherSundrySetting.frm",
+   "Voucher Sundry Setting",
+   "NOT-IN-REG"
+  ],
+  [
+   "fdAcPostChrg.frm",
+   "Night Audit Process",
+   "WIRED"
+  ],
+  [
+   "fdAmendEntry.frm",
+   "Amend Stay",
+   "WIRED"
+  ],
+  [
+   "fdCheckIn.frm",
+   "Look Up Reservation By Guest Name",
+   "WIRED"
+  ],
+  [
+   "fdDisplayFolio.frm",
+   "Guest Ledger",
+   "WIRED"
+  ],
+  [
+   "fdDisplayFolioSumm.frm",
+   "Summerized Guest Ledger",
+   "WIRED"
+  ],
+  [
+   "fdNDAcPostChrg.frm",
+   "Posting Utility",
+   "NOT-IN-REG"
+  ],
+  [
+   "fdPaymentCharge.frm",
+   "Post Charges & Payment",
+   "WIRED"
+  ],
+  [
+   "fdPostChrg.frm",
+   "Post Charges /Payments",
+   "WIRED"
+  ],
+  [
+   "fdPrintScreen.frm",
+   "Guest Charges Summary",
+   "NOT-IN-REG"
+  ],
+  [
+   "fdRoomChange.frm",
+   "Room Change",
+   "WIRED"
+  ],
+  [
+   "fdRoomOcc.frm",
+   "Reservation Look Up Room Wise",
+   "WIRED"
+  ],
+  [
+   "fdWalkInEntry.frm",
+   "Walk In / Check In Entry",
+   "WIRED"
+  ],
+  [
+   "frmAdvanceDepDialog.frm",
+   "Advance Deposit ",
+   "WIRED"
+  ],
+  [
+   "frmBlockMast.frm",
+   "Block Master",
+   "WIRED"
+  ],
+  [
+   "frmComboMast.frm",
+   "Combo Item Master",
+   "NOT-IN-REG"
+  ],
+  [
+   "frmCompany.frm",
+   "User Information",
+   "NOT-IN-REG"
+  ],
+  [
+   "frmEnviro.frm",
+   "Parameter Settings",
+   "NOT-IN-REG"
+  ],
+  [
+   "frmFacilityBillAdv.frm",
+   "Facility Billing",
+   "WIRED"
+  ],
+  [
+   "frmFdLeaderRev.frm",
+   "Leader Revenue Allocation",
+   "NOT-IN-REG"
+  ],
+  [
+   "frmFixedChargeMast.frm",
+   "Fixed Charge Master",
+   "NOT-IN-REG"
+  ],
+  [
+   "frmFomB.frm",
+   "FOM Bill Reprint",
+   "NOT-IN-REG"
+  ],
+  [
+   "frmGodrejLockSettings.frm",
+   "Godrej Lock Settings",
+   "NOT-IN-REG"
+  ],
+  [
+   "frmGuestComments.frm",
+   "Guest Comments",
+   "WIRED"
+  ],
+  [
+   "frmGuestInfo.frm",
+   "Guest Information",
+   "NOT-IN-REG"
+  ],
+  [
+   "frmGuestParamMast.frm",
+   "Guest Parameters Master",
+   "NOT-IN-REG"
+  ],
+  [
+   "frmLockGodrejSettings.frm",
+   "Godrej Locks",
+   "WIRED"
+  ],
+  [
+   "frmMenuItemCopy.frm",
+   "Menu Item Copy",
+   "WIRED"
+  ],
+  [
+   "frmMessage.frm",
+   "User Information",
+   "NOT-IN-REG"
+  ],
+  [
+   "frmMod_Print.frm",
+   "Printing Setup",
+   "WIRED"
+  ],
+  [
+   "frmMod_Print1.frm",
+   "Printing Setup",
+   "WIRED"
+  ],
+  [
+   "frmPassword.frm",
+   "Authentication Window",
+   "NOT-IN-REG"
+  ],
+  [
+   "frmPrintModule.frm",
+   "Printing Parameters",
+   "WIRED"
+  ],
+  [
+   "frmPurEnviro.frm",
+   "Purchase Parameter",
+   "NOT-IN-REG"
+  ],
+  [
+   "frmReNightAudit.frm",
+   "Reverse Night Audit",
+   "WIRED"
+  ],
+  [
+   "frmRevGroup.frm",
+   "Revenue Group",
+   "NOT-IN-REG"
+  ],
+  [
+   "frmSeasonMast.frm",
+   "Season Master",
+   "WIRED"
+  ],
+  [
+   "frmSessionMast.frm",
+   "Session Master",
+   "WIRED"
+  ],
+  [
+   "frmTallyExport.frm",
+   "Tally Export",
+   "WIRED"
+  ],
+  [
+   "frmUnitMast.frm",
+   "Unit Master",
+   "WIRED"
+  ],
+  [
+   "frmWelcome.frm",
+   "<",
+   "NOT-IN-REG"
+  ],
+  [
+   "frmYearEnd.frm",
+   "Year End Updation",
+   "WIRED"
+  ],
+  [
+   "frmmessageKey.frm",
+   "Key Massage",
+   "WIRED"
+  ],
+  [
+   "hAdvanceDepDialog.frm",
+   "Settlement",
+   "NOT-IN-REG"
+  ],
+  [
+   "hAdvanceDepDialogSecondry.frm",
+   "Advance Deposite ",
+   "NOT-IN-REG"
+  ],
+  [
+   "kClStk.frm",
+   "Kitchen Closing Stock Entry",
+   "NOT-IN-REG"
+  ],
+  [
+   "memAgeRevMast.frm",
+   "Member Category Wise Revenue",
+   "NOT-IN-REG"
+  ],
+  [
+   "memCatChngCond.frm",
+   "Member Category Change (Conditional)",
+   "WIRED"
+  ],
+  [
+   "memCatChngEntry.frm",
+   "Out-Station Member Entry",
+   "WIRED"
+  ],
+  [
+   "memCatRevMast.frm",
+   "Member Category Wise Revenue",
+   "NOT-IN-REG"
+  ],
+  [
+   "memCategoryFacilities.frm",
+   "Category wise Facility",
+   "WIRED"
+  ],
+  [
+   "memFacilityMast.frm",
+   "Facility Master",
+   "WIRED"
+  ],
+  [
+   "memOutStationEntry.frm",
+   "Out-Station Member Entry",
+   "WIRED"
+  ],
+  [
+   "pGIss.frm",
+   "Goods Issue Entry",
+   "NOT-IN-REG"
+  ],
+  [
+   "pHappyHours.frm",
+   "Happy Hours",
+   "WIRED"
+  ],
+  [
+   "pMREntry.frm",
+   "Material Receive Entry",
+   "NOT-IN-REG"
+  ],
+  [
+   "pPBill.frm",
+   "Purchase Bill Entry",
+   "NOT-IN-REG"
+  ],
+  [
+   "pPOrder.frm",
+   "Purchase Order",
+   "WIRED"
+  ],
+  [
+   "pReqSlip.frm",
+   "Requistion Slip Entry",
+   "NOT-IN-REG"
+  ],
+  [
+   "prAttend.frm",
+   "Leave",
+   "WIRED"
+  ],
+  [
+   "prHoliday.frm",
+   "HoliDay Master",
+   "WIRED"
+  ],
+  [
+   "prOverTime.frm",
+   "Over Time",
+   "WIRED"
+  ],
+  [
+   "prSalCreate.frm",
+   "Salary Creation",
+   "WIRED"
+  ],
+  [
+   "rFaRepView.frm",
+   "Financ Report",
+   "NOT-IN-REG"
+  ],
+  [
+   "rFomRepView.frm",
+   "FomRepView",
+   "NOT-IN-REG"
+  ],
+  [
+   "rHallRepView.frm",
+   "HallRepView",
+   "NOT-IN-REG"
+  ],
+  [
+   "rInventRepView.frm",
+   "ReportForm",
+   "NOT-IN-REG"
+  ],
+  [
+   "rMemberRepView.frm",
+   "Member Report",
+   "NOT-IN-REG"
+  ],
+  [
+   "rPOSRepView.frm",
+   "Pos Report",
+   "NOT-IN-REG"
+  ],
+  [
+   "rRepHouse.frm",
+   "ReprtForm",
+   "WIRED"
+  ],
+  [
+   "rRepHousePreview.frm",
+   "ReprtForm",
+   "WIRED"
+  ],
+  [
+   "rRepPayRoll.frm",
+   "ReprtForm",
+   "WIRED"
+  ],
+  [
+   "rRepReserv.frm",
+   "ReprtForm",
+   "WIRED"
+  ],
+  [
+   "rRepTel.frm",
+   "ReprtForm",
+   "WIRED"
+  ],
+  [
+   "rRepTelPreview.frm",
+   "ReprtForm",
+   "WIRED"
+  ],
+  [
+   "repTouchDate.frm",
+   "Select Report Date",
+   "WIRED"
+  ],
+  [
+   "resBanq.frm",
+   "Reservation Look Up Room Wise",
+   "WIRED"
+  ],
+  [
+   "resGroup.frm",
+   "Group Reservation",
+   "NOT-IN-REG"
+  ],
+  [
+   "resRoomNo.frm",
+   "Reservation Look Up Room Wise",
+   "WIRED"
+  ],
+  [
+   "resRoomType.frm",
+   "Room Category Wise Reservation Look Up",
+   "NOT-IN-REG"
+  ],
+  [
+   "rrsAdvanceDepDialog.frm",
+   "Settlememt Entry",
+   "NOT-IN-REG"
+  ],
+  [
+   "rsAdvanceDepDialog.frm",
+   "Settlement",
+   "NOT-IN-REG"
+  ],
+  [
+   "rsTouchScreenAdvanceDepDialog.frm",
+   "Settlement Entry",
+   "WIRED"
+  ],
+  [
+   "salmarCompProfile.frm",
+   "Company Profile",
+   "WIRED"
+  ]
+ ],
+ "not_in_reg": [
+  "CsehDemoForm.frm",
+  "DMTree.frm",
+  "FaEnvron.frm",
+  "FaGlobeNarr.frm",
+  "FaRepView.frm",
+  "FaVtype.frm",
+  "FindMess.frm",
+  "Form1.frm",
+  "FrmBdayLookup.frm",
+  "FrmBusinessSrc.frm",
+  "FrmChangeDepart.frm",
+  "FrmChangeKitch.frm",
+  "FrmChangeRest.frm",
+  "FrmChangeSite.frm",
+  "FrmComplaintMast.frm",
+  "FrmConsumMast9999.frm",
+  "FrmControlPanel.frm",
+  "FrmDataRecieving.frm",
+  "FrmDeliveredItemDetail.frm",
+  "FrmDeliveryBoyMast.frm",
+  "FrmEventMast.frm",
+  "FrmExpense.frm",
+  "FrmFacilityMast.frm",
+  "FrmFomBillDeletion.frm",
+  "FrmForeignExMast.frm",
+  "FrmGrcBlank.frm",
+  "FrmGuestAddObj.frm",
+  "FrmGuestStat.frm",
+  "FrmGuestWakeUp.frm",
+  "FrmHallItemCatMast.frm",
+  "FrmHouGuestMsg.frm",
+  "FrmHouseStatus.frm",
+  "FrmImage.frm",
+  "FrmItemCatMast.frm",
+  "FrmItemCatRaw.frm",
+  "FrmItemGroupMast.frm",
+  "FrmItemMastRaw.frm",
+  "FrmLostFound.frm",
+  "FrmMarketSeg.frm",
+  "FrmMenuList.frm",
+  "FrmMenuRate.frm",
+  "FrmMergeCharge.frm",
+  "FrmMsgBox.frm",
+  "FrmNAMessageA.frm",
+  "FrmNAMessageB.frm",
+  "FrmNAMessageC.frm",
+  "FrmOPStock.frm",
+  "FrmPOSBillDeletion.frm",
+  "FrmPOSBillModificationDatewise.frm",
+  "FrmPOSBillModificationItemGroupwise.frm",
+  "FrmPOSRecycleData.frm",
+  "FrmPOSSaleDataTransfer.frm",
+  "FrmPackageMast.frm",
+  "FrmParty.frm",
+  "FrmPayTypeMast.frm",
+  "FrmPlanPackMast.frm",
+  "FrmPlanTokenMast.frm",
+  "FrmReceivePayment.frm",
+  "FrmRevMergeCharge.frm",
+  "FrmRevenueWiseBudget.frm",
+  "FrmRoomCatMast.frm",
+  "FrmRoomFeatureMast.frm",
+  "FrmSMSEnviro.frm",
+  "FrmSMSMultiType.frm",
+  "FrmTaxStruMast.frm",
+  "FrmUnSettledBillsInfo.frm",
+  "FrmUserPaymentCollection.frm",
+  "FrmVenueFeat.frm",
+  "HKIssRec.frm",
+  "HKRoomOpStk.frm",
+  "HWIHistory.frm",
+  "HallAcPostChrg.frm",
+  "HallAdvanceDepDialog.frm",
+  "HallBill.frm",
+  "HallBillEstimate.frm",
+  "HallEstimate.frm",
+  "HallItemGroupMast.frm",
+  "HallMenuCatalog.frm",
+  "HallMenuItemEntry.frm",
+  "InHouseGuestFolio.frm",
+  "LockForm.frm",
+  "MemCatMast.frm",
+  "MemRenewalEntry.frm",
+  "MemSelectCategory.frm",
+  "MemberEnviro.frm",
+  "MemberProposedMemInf.frm",
+  "MemberSMS.frm",
+  "MemberShipRevenueMast.frm",
+  "OutLetMast.frm",
+  "PrAttend1.frm",
+  "PrLoan.frm",
+  "REPVIEW.frm",
+  "RrLookUpGuest.frm",
+  "RsAssignDelivery.frm",
+  "RsBookingEntry.frm",
+  "RsBookingEntryAdvance.frm",
+  "RsKOTEntry.frm",
+  "RsMenuItemEntry.frm",
+  "RsPOSDisplayNew.frm",
+  "RsSpecItemEntry.frm",
+  "RsStatusScreen.frm",
+  "RsTbChange.frm",
+  "RsTouchScreenBookingEntry.frm",
+  "RsTouchScreenFAFind.frm",
+  "RsTouchScreenSteward.frm",
+  "SmartCardLostReIssue.frm",
+  "SmartCardMast.frm",
+  "SmartCardRecharge.frm",
+  "SmartCardRefund.frm",
+  "TelCallCodeMast.frm",
+  "TelCallEntry.frm",
+  "TelCallTypeMast.frm",
+  "UserPermission.frm",
+  "VoucherSundrySetting.frm",
+  "fdNDAcPostChrg.frm",
+  "fdPrintScreen.frm",
+  "frmComboMast.frm",
+  "frmCompany.frm",
+  "frmEnviro.frm",
+  "frmFdLeaderRev.frm",
+  "frmFixedChargeMast.frm",
+  "frmFomB.frm",
+  "frmGodrejLockSettings.frm",
+  "frmGuestInfo.frm",
+  "frmGuestParamMast.frm",
+  "frmMessage.frm",
+  "frmPassword.frm",
+  "frmPurEnviro.frm",
+  "frmRevGroup.frm",
+  "frmWelcome.frm",
+  "hAdvanceDepDialog.frm",
+  "hAdvanceDepDialogSecondry.frm",
+  "kClStk.frm",
+  "memAgeRevMast.frm",
+  "memCatRevMast.frm",
+  "pGIss.frm",
+  "pMREntry.frm",
+  "pPBill.frm",
+  "pReqSlip.frm",
+  "rFaRepView.frm",
+  "rFomRepView.frm",
+  "rHallRepView.frm",
+  "rInventRepView.frm",
+  "rMemberRepView.frm",
+  "rPOSRepView.frm",
+  "resGroup.frm",
+  "resRoomType.frm",
+  "rrsAdvanceDepDialog.frm",
+  "rsAdvanceDepDialog.frm"
+ ]
+}

@@ -1,0 +1,69 @@
+eZee FrontDesk (Property Management System) — MODULE-WISE FEATURES
+==================================================================
+Source: official site screenshot gallery (Wayback 2026-05-21) — har module ka screenshot
+screenshots\frontdesk\ folder me hai.
+
+1) Room Layout
+   - Interactive room plan/front-office ka visual grid
+   - Room status khud dikhata hai (Occupied/Vacant/Reserved/Dirty/Check-In-Due)
+   - Room icons par click -> stay view / reservation action khulta hai
+
+2) Stay View
+   - Guest ka full folio ek screen pe: charges, payments, balance
+   - Check-in, checkout, post charges, print invoice quick actions
+
+3) Guest Check In
+   - Reservation -> Check-in flow (arrival list se)
+   - Guest details, rate, dates, tax set
+
+4) Group Check In
+   - Ek saath multiple rooms/group reservations check-in
+   - Tour group / team handling
+
+5) Checkout Process
+   - Multi-folio / split settlement
+   - Pro-forma / estimated bill dikhata hai check-out se pehle  <- hamare "Estimated Bill" feature ka reference
+   - Payment methods assign, partial payments, transfer (house accounts)
+
+6) Charges
+   - Room charges + misc/ancillary charges posting
+   - Charge categories / per room or per guest
+
+7) Banquet
+   - Banquet booking aur enquiry handling
+
+8) Guest Feedback
+   - Guest review/feedback capture + disposition
+
+9) Guest Laundry
+   - Laundry request/order module
+
+10) Housekeeping
+    - Room status update (Clean/Dirty/Inspected/OOO)
+    - HK task management, room assign to housekeeper
+
+11) Maintenance / Work Order
+    - Maintenance request -> work order generate
+    - Assign to engineer/staff, status tracking
+
+12) Guest Relationship Management (GRM)
+    - Guest history/profile, preferences, past stays
+    - Marketing campaigns, repeat guest reports
+
+13) Revenue Management
+    - Occupancy, ADR, RevPAR trends, demand calendar
+    - Rate/availability controls
+
+14) Rate Management
+    - Rate plans, seasonal rates, day-wise rates, package rates
+    - Rate code tagging
+
+15) Profile Management
+    - Guest profile: ID scans, contact, preferences, blacklist
+
+16) Inventory View
+    - Inventory/stock availability status
+
+17) Reports
+    - Front desk reports, housekeeping reports, revenue reports, GST/excise
+    - Operator (user) login/logout audit

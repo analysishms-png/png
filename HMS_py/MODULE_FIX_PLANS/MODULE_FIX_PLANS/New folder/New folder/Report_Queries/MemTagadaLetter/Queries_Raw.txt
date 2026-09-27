@@ -1,0 +1,106 @@
+Module: MemTagadaLetter
+Total SQL statements: 34
+================================================================================
+
+-- SQL Statement 1 --
+  loc_FFA049: var_C4 = CVar("Select  Code, Name, Corporate From MemCatMast WHERE (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO')  Order by Name") 'String
+
+-- SQL Statement 2 --
+  loc_10D36B7:     var_B8 = "SELECT MTL.code as searchcode,MTL.*,SG.ConPrefix,SG.ConPerson,SG.CardNo,SG.Name as AcName,SG.Add1,SG.Add2,SG.Add3,City.CityName As City,SG.Pin,State.Name As State,SG.Phone,SG.Mobile,SG.Fax,SG.Email FROM MemTagadaLetter MTL Left Join SubGroup SG On MTL.MemCode=SG.SubCode Left Join City On SG.CityCode=City.CityCode Left Join State On City.State=State.Code where MTL.Type='" & global_52
+
+-- SQL Statement 3 --
+  loc_10D378D:       var_B8 = "SELECT MTL.code as searchcode,MTL.*,SG.ConPrefix,SG.ConPerson,SG.CardNo,SG.Name as AcName,SG.Add1,SG.Add2,SG.Add3,City.CityName As City,SG.Pin,State.Name As State,SG.Phone,SG.Mobile,SG.Fax,SG.Email FROM MemTagadaLetter MTL Left Join SubGroup SG On MTL.MemCode=SG.SubCode Left Join City On SG.CityCode=City.CityCode Left Join State On City.State=State.Code where MTL.Type='" & global_52
+
+-- SQL Statement 4 --
+  loc_101927F: var_A8 = "SELECT  convert(Char,Cast(Code As Int)) AS CODE, convert(Char,Cast(Code As int)) as Name  FROM MemTagadaletter WHERE Type='" & global_52
+
+-- SQL Statement 5 --
+  loc_1019334: var_A8 = "SELECT  convert(Char,Cast(Code As Int)) AS CODE, convert(Char,Cast(Code As int)) as Name  FROM MemTagadaletter WHERE Type='" & global_52
+
+-- SQL Statement 6 --
+  loc_F5D16F: var_90 = "SELECT MTL.code as searchcode,MTL.*,SG.ConPrefix,SG.ConPerson,SG.CardNo,SG.Name as AcName,SG.Add1,SG.Add2,SG.Add3,City.CityName As City,SG.Pin,State.Name As State,SG.Phone,SG.Mobile,SG.Fax,SG.Email FROM MemTagadaLetter MTL Left Join SubGroup SG On MTL.MemCode=SG.SubCode Left Join City On SG.CityCode=City.CityCode Left Join State On City.State=State.Code where MTL.Type='" & var_8C.Caption
+
+-- SQL Statement 7 --
+  loc_1121495: var_B0 = CVar("SELECT Code As SearchCode FROM MemTagadaLetter WHERE Type='" & Me.FrPrinting.Tag & "' And (LOGSITE_CODE='" & MemVar_1F81078 & "') AND VDate between ") 'String
+
+-- SQL Statement 8 --
+  loc_170528C:       var_EC = "Select IsNull(Max(CAST(SUBSTRING(Code,3,6) AS INT)),0)+1 AS MyCode From MemTagadaLetter where Site_Code='" & MemVar_1F81070
+
+-- SQL Statement 9 --
+  loc_17054B4:         var_EC = "Insert Into MemTagadaLetter(Code,Type,Vdate,MemCode,CurBillMonth,TillDate,DueAmt,CurMonthBillAmt,CreditAmt,BalanceTillDate,Site_Code,U_EntDt,U_Name,U_AE,LogSite_Code) " & "Values('"
+
+-- SQL Statement 10 --
+  loc_1705695:         var_114 = "Update SubGroup Set AllowCredit='N' Where SubCode='" & CStr(var_A4) & "' And (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO')"
+
+-- SQL Statement 11 --
+  loc_170586A:           var_EC = "Insert Into MemTagadaLetter(Code,Type,Vdate,MemCode,CurBillMonth,TillDate,DueAmt,CurMonthBillAmt,CreditAmt,BalanceTillDate,ContraCode,ContraType,Site_Code,U_EntDt,U_Name,U_AE,LogSite_Code) " & "Values('"
+
+-- SQL Statement 12 --
+  loc_1705A73:           var_3C0 = "Update MemTagadaLetter Set ContraCode='" & global_72 & "',ContraType='" & arg_14 & "' Where Code='" & CStr(var_A4)
+
+-- SQL Statement 13 --
+  loc_1705C3E:             var_EC = "Insert Into MemTagadaLetter(Code,Type,Vdate,MemCode,CurBillMonth,TillDate,DueAmt,CurMonthBillAmt,CreditAmt,BalanceTillDate,Site_Code,U_EntDt,U_Name,U_AE,LogSite_Code) " & "Values('"
+
+-- SQL Statement 14 --
+  loc_1705E18:             var_F8 = "Update SubGroup Set AllowCredit='N' Where SubCode='" & CStr(Me.GridSel.TextMatrix)) & "' And (LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 15 --
+  loc_1705FF5:       var_EC = "Select IsNull(Max(CAST(SUBSTRING(Code,3,6) AS INT)),0)+1 AS MyCode From MemTagadaLetter where Site_Code='" & MemVar_1F81070
+
+-- SQL Statement 16 --
+  loc_170621D:         var_EC = "Insert Into MemTagadaLetter(Code,Type,Vdate,MemCode,CurBillMonth,TillDate,DueAmt,CurMonthBillAmt,CreditAmt,BalanceTillDate,Site_Code,U_EntDt,U_Name,U_AE,LogSite_Code) " & "Values('"
+
+-- SQL Statement 17 --
+  loc_17063FE:         var_114 = "Update SubGroup Set AllowCredit='N' Where SubCode='" & CStr(var_A4) & "' And (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO')"
+
+-- SQL Statement 18 --
+  loc_17065D3:           var_EC = "Insert Into MemTagadaLetter(Code,Type,Vdate,MemCode,CurBillMonth,TillDate,DueAmt,CurMonthBillAmt,CreditAmt,BalanceTillDate,ContraCode,ContraType,Site_Code,U_EntDt,U_Name,U_AE,LogSite_Code) " & "Values('"
+
+-- SQL Statement 19 --
+  loc_17067DC:           var_3C0 = "Update MemTagadaLetter Set ContraCode='" & global_72 & "',ContraType='" & arg_14 & "' Where Code='" & CStr(var_A4)
+
+-- SQL Statement 20 --
+  loc_17069A7:             var_EC = "Insert Into MemTagadaLetter(Code,Type,Vdate,MemCode,CurBillMonth,TillDate,DueAmt,CurMonthBillAmt,CreditAmt,BalanceTillDate,Site_Code,U_EntDt,U_Name,U_AE,LogSite_Code) " & "Values('"
+
+-- SQL Statement 21 --
+  loc_1706B81:             var_F8 = "Update SubGroup Set AllowCredit='N' Where SubCode='" & CStr(Me.GridSel.TextMatrix)) & "' And (LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 22 --
+  loc_1706C9E:   MsgBox(CVar("Select " & CStr(var_A4)), &H40, var_124, var_134, var_164)
+
+-- SQL Statement 23 --
+  loc_17839E9:   var_11C = "Select L.SubCode,Max(S.ConPrefix) As ConPrefix,Max(S.ConPerson) As ConPerson,Max(S.CardNo) As CardNo,Max(S.Name) As AcName,isnull(Sum(AmtDr),0)-isnull(Sum(AmtCr),0) As Balance From Ledger L Left Join SubGroup S On L.SubCode=S.SubCode INNER JOIN MEMCATMAST MCAT ON S.COMPANYTYPE=MCAT.CODE WHERE S.ActiveYN=1 And (S.COMPANYTYPE IS NOT NULL AND S.COMPANYTYPE<>'') And S.CompanyType='" & var_118.Tag
+
+-- SQL Statement 24 --
+  loc_1783AA3:     var_AC = "Select MTL.Code,MTL.Vdate,MTL.MemCode,S.ConPrefix As ConPrefix,S.ConPerson As ConPerson,S.CardNo As CardNo,S.Name As AcName,MTL.CurBillMonth,MTL.TillDate,MTL.DueAmt,MTL.CurMonthBillAmt,MTL.CreditAmt,MTL.BalanceTillDate From MemTagadaLetter MTL Left Join SubGroup S On MTL.MemCode=S.SubCode WHERE S.AllowCredit='N' And MTL.Vdate="
+
+-- SQL Statement 25 --
+  loc_1783BBA:       var_11C = "Select L.SubCode,Max(S.ConPrefix) As ConPrefix,Max(S.ConPerson) As ConPerson,Max(S.CardNo) As CardNo,Max(S.Name) As AcName,isnull(Sum(AmtDr),0)-isnull(Sum(AmtCr),0) As Balance From Ledger L Left Join SubGroup S On L.SubCode=S.SubCode INNER JOIN MEMCATMAST MCAT ON S.COMPANYTYPE=MCAT.CODE WHERE S.ActiveYN=1 And (S.COMPANYTYPE IS NOT NULL AND S.COMPANYTYPE<>'') And S.CompanyType='" & var_118.Tag
+
+-- SQL Statement 26 --
+  loc_1783D48:     var_13C = "Select isnull(Sum(AmtDr),0) From Ledger Where SubCode='" & var_100.Fields.Item("subcode").Value & CVar(MemVar_1F81078) & CVar(var_12C.Text) 
+
+-- SQL Statement 27 --
+  loc_1783E37:     var_BC = "Select isnull(Sum(AmtCr),0) From Ledger Where isnull(AmtCr,0)<>0 And V_Type Not In ('HPOST') And SubCode='" & var_100.Fields.Item("subcode").Value 
+
+-- SQL Statement 28 --
+  loc_17845E7:       var_CC = "Select isnull(Sum(AmtDr),0) From Ledger Where SubCode='"
+
+-- SQL Statement 29 --
+  loc_17846F7:       var_BC = "Select isnull(Sum(AmtCr),0) From Ledger Where isnull(AmtCr,0)<>0 And V_Type Not In ('HPOST') And SubCode='" & var_100.Fields.Item("MemCode").Value 
+
+-- SQL Statement 30 --
+  loc_1784F4A:         var_13C = "Select isnull(Sum(AmtDr),0) From Ledger Where SubCode='" & var_100.Fields.Item("subcode").Value & var_EC & CVar(var_9C) 
+
+-- SQL Statement 31 --
+  loc_1785039:         var_BC = "Select isnull(Sum(AmtCr),0) From Ledger Where isnull(AmtCr,0)<>0 And V_Type Not In ('HPOST') And SubCode='" & var_100.Fields.Item("subcode").Value 
+
+-- SQL Statement 32 --
+  loc_1057EE5:   var_9C = "SELECT MTL.code As SerialNo,MTL.VDate As EntryDate,MTL.CurBillMonth,MTL.TillDate,MTL.DueAmt As NoticeAmt,MTL.CurMonthBillAmt,MTL.CreditAmt,MTL.BalanceTillDate As TotalDueAmt,SG.ConPrefix,SG.ConPerson,SG.CardNo,SG.Name as AcName,SG.Add1,SG.Add2,SG.Add3,City.CityName As City,SG.Pin,State.Name As State,SG.Phone,SG.Mobile,SG.Fax,SG.Email FROM MemTagadaLetter MTL Left Join SubGroup SG On MTL.MemCode=SG.SubCode Left Join City On SG.CityCode=City.CityCode Left Join State On City.State=State.Code where MTL.Code='" & arg_C
+
+-- SQL Statement 33 --
+  loc_1057F59:     var_9C = "SELECT MTL.code As SerialNo,MTL.VDate As EntryDate,MTL.CurBillMonth,MTL.ContraCode As ContraSerialNo,MTL.TillDate As ContraEntryDate,MTL.DueAmt As NoticeAmt,MTL.CurMonthBillAmt,MTL.CreditAmt,MTL.BalanceTillDate As TotalDueAmt,SG.ConPrefix,SG.ConPerson,SG.CardNo,SG.Name as AcName,SG.Add1,SG.Add2,SG.Add3,City.CityName As City,SG.Pin,State.Name As State,SG.Phone,SG.Mobile,SG.Fax,SG.Email FROM MemTagadaLetter MTL Left Join SubGroup SG On MTL.MemCode=SG.SubCode Left Join City On SG.CityCode=City.CityCode Left Join State On City.State=State.Code where MTL.Code='" & arg_C
+
+-- SQL Statement 34 --
+  loc_1057FCD:       var_9C = "SELECT MTL.code As SerialNo,MTL.VDate As EntryDate,MTL.CurBillMonth,MTL.TillDate,MTL.DueAmt As NoticeAmt,MTL.CurMonthBillAmt,MTL.CreditAmt,MTL.BalanceTillDate As TotalDueAmt,SG.ConPrefix,SG.ConPerson,SG.CardNo,SG.Name as AcName,SG.Add1,SG.Add2,SG.Add3,City.CityName As City,SG.Pin,State.Name As State,SG.Phone,SG.Mobile,SG.Fax,SG.Email FROM MemTagadaLetter MTL Left Join SubGroup SG On MTL.MemCode=SG.SubCode Left Join City On SG.CityCode=City.CityCode Left Join State On City.State=State.Code where MTL.Code='" & arg_C
+

@@ -1,0 +1,331 @@
+{
+  "module": "06_Inventory",
+  "name": "Inventory",
+  "sidebar": "inventory",
+  "generated_by": "collect_logic.py",
+  "menuhelp": {
+    "masters": [
+      {
+        "caption": "indent",
+        "caption_disp": "Indent",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "Purch",
+        "opt1": "16",
+        "opt2": "11",
+        "opt3": "12",
+        "opt4": "",
+        "code": 310
+      },
+      {
+        "caption": "look ups",
+        "caption_disp": "Look Ups",
+        "param": "",
+        "flag": "N",
+        "module": "MatLok",
+        "opt1": "16",
+        "opt2": "12",
+        "opt3": "",
+        "opt4": "",
+        "code": 320
+      },
+      {
+        "caption": "pending indent",
+        "caption_disp": "Pending Indent",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "MatStat",
+        "opt1": "16",
+        "opt2": "12",
+        "opt3": "11",
+        "opt4": "",
+        "code": 321
+      },
+      {
+        "caption": "pending m.r.",
+        "caption_disp": "Pending M.R.",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "MatStat",
+        "opt1": "16",
+        "opt2": "12",
+        "opt3": "12",
+        "opt4": "",
+        "code": 322
+      },
+      {
+        "caption": "pending purchase order",
+        "caption_disp": "Pending Purchase Order",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "MatStat",
+        "opt1": "16",
+        "opt2": "12",
+        "opt3": "13",
+        "opt4": "",
+        "code": 323
+      }
+    ],
+    "operations": [
+      {
+        "caption": "stock transfer",
+        "caption_disp": "Stock Transfer",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "Purch",
+        "opt1": "16",
+        "opt2": "11",
+        "opt3": "19",
+        "opt4": "",
+        "code": 317
+      }
+    ],
+    "reports": [],
+    "hidden": [],
+    "unclassified": [
+      {
+        "caption": "inventory",
+        "caption_disp": "Inventory",
+        "param": "",
+        "flag": "N",
+        "module": "Purchase",
+        "opt1": "16",
+        "opt2": "",
+        "opt3": "",
+        "opt4": "",
+        "code": 307
+      },
+      {
+        "caption": "operations",
+        "caption_disp": "Operations",
+        "param": "AEDP",
+        "flag": "N",
+        "module": "Matop",
+        "opt1": "16",
+        "opt2": "11",
+        "opt3": "",
+        "opt4": "",
+        "code": 308
+      },
+      {
+        "caption": "purchase order",
+        "caption_disp": "Purchase Order",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "Purch",
+        "opt1": "16",
+        "opt2": "11",
+        "opt3": "13",
+        "opt4": "",
+        "code": 311
+      },
+      {
+        "caption": "m.r. entry",
+        "caption_disp": "M.R. Entry",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "Purch",
+        "opt1": "16",
+        "opt2": "11",
+        "opt3": "14",
+        "opt4": "",
+        "code": 312
+      },
+      {
+        "caption": "purchase bill",
+        "caption_disp": "Purchase Bill",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "Purch",
+        "opt1": "16",
+        "opt2": "11",
+        "opt3": "15",
+        "opt4": "",
+        "code": 313
+      },
+      {
+        "caption": "requisition slip",
+        "caption_disp": "Requisition Slip",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "Purch",
+        "opt1": "16",
+        "opt2": "11",
+        "opt3": "16",
+        "opt4": "",
+        "code": 314
+      },
+      {
+        "caption": "stock issue on requisition",
+        "caption_disp": "Stock Issue on Requisition",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "Purch",
+        "opt1": "16",
+        "opt2": "11",
+        "opt3": "17",
+        "opt4": "",
+        "code": 315
+      },
+      {
+        "caption": "kitchen closing stock",
+        "caption_disp": "Kitchen Closing Stock",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "Purch",
+        "opt1": "16",
+        "opt2": "11",
+        "opt3": "18",
+        "opt4": "",
+        "code": 316
+      },
+      {
+        "caption": "finish material receive entry",
+        "caption_disp": "Finish Material Receive Entry",
+        "param": "",
+        "flag": "E",
+        "module": "Purch",
+        "opt1": "16",
+        "opt2": "11",
+        "opt3": "20",
+        "opt4": "",
+        "code": 16112000
+      },
+      {
+        "caption": "reports",
+        "caption_disp": "Reports",
+        "param": "AEDP",
+        "flag": "N",
+        "module": "MatReports",
+        "opt1": "16",
+        "opt2": "13",
+        "opt3": "",
+        "opt4": "",
+        "code": 324
+      },
+      {
+        "caption": "tax reports",
+        "caption_disp": "Tax Reports",
+        "param": "AEDP",
+        "flag": "N",
+        "module": "MatVat",
+        "opt1": "16",
+        "opt2": "14",
+        "opt3": "",
+        "opt4": "",
+        "code": 342
+      },
+      {
+        "caption": "vat register",
+        "caption_disp": "VAT Register",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "MatVatR",
+        "opt1": "16",
+        "opt2": "14",
+        "opt3": "11",
+        "opt4": "",
+        "code": 343
+      },
+      {
+        "caption": "vat register ii",
+        "caption_disp": "VAT Register II",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "MatVatR",
+        "opt1": "16",
+        "opt2": "14",
+        "opt3": "12",
+        "opt4": "",
+        "code": 344
+      },
+      {
+        "caption": "vat register iii",
+        "caption_disp": "VAT Register III",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "MatVatR",
+        "opt1": "16",
+        "opt2": "14",
+        "opt3": "13",
+        "opt4": "",
+        "code": 345
+      },
+      {
+        "caption": "form24 annexure-a",
+        "caption_disp": "Form24 Annexure-A",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "MatVatR",
+        "opt1": "16",
+        "opt2": "14",
+        "opt3": "14",
+        "opt4": "",
+        "code": 346
+      },
+      {
+        "caption": "form iii",
+        "caption_disp": "Form III",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "MatVatR",
+        "opt1": "16",
+        "opt2": "14",
+        "opt3": "15",
+        "opt4": "",
+        "code": 347
+      },
+      {
+        "caption": "upvat xxiv",
+        "caption_disp": "UPVAT XXIV",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "MatVatR",
+        "opt1": "16",
+        "opt2": "14",
+        "opt3": "16",
+        "opt4": "",
+        "code": 348
+      }
+    ],
+    "counts": {
+      "masters": 5,
+      "operations": 1,
+      "reports": 0,
+      "hidden": 0,
+      "other": 17,
+      "unclassified": 17
+    }
+  },
+  "registry_hits": {
+    "masters": [
+      "Indent"
+    ],
+    "operations": [
+      "GIN / Purchase Receipt",
+      "Stock Transfer"
+    ],
+    "reports": [
+      "Stock Summary",
+      "Stock Register",
+      "Purchase Register"
+    ]
+  },
+  "core_files": [
+    "inventory",
+    "purchase",
+    "item",
+    "unit",
+    "sundry"
+  ],
+  "module_names": [
+    "Purchase",
+    "Matop",
+    "Purch",
+    "MatLok",
+    "MatStat",
+    "MatReports",
+    "MatVat",
+    "MatVatR"
+  ]
+}

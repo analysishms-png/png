@@ -1,0 +1,31 @@
+Module: HallSundry
+Total SQL statements: 9
+================================================================================
+
+-- SQL Statement 1 --
+  loc_EAAF22: MemVar_1F810E4 = "Select (SP.V_Type+Space(6-len(SP.V_Type))+'**'+Convert(Varchar(11),SP.AppDate,103)) AS SearchCode,VT.Description,Convert(Varchar(11),SP.AppDate,103) As AppDate,SP.SNo,SM.Name As SundryName,SP.DispName,SP.CalcFormula,RM.Name As Revenue From (((SundryType SP Left Join Voucher_type VT On SP.V_Type=VT.V_Type) Left Join SundryMast SM On SP.SundryCode=SM.Code) Left Join RevMast RM On SP.RevCode=RM.Code) where SP.V_Type='IDC' Order by SP.AppDate,VT.Description"
+
+-- SQL Statement 2 --
+  loc_14FFE14:     var_9C = "Insert Into SundryType (V_Type,AppDate,SundryCode,SNo,DispName," & "CalcFormula,PerOrAmt,RoundOff,SValue,Limit,"
+
+-- SQL Statement 3 --
+  loc_1168C3F: var_C0 = CVar("Select Code,Name,Nature,SysYN From SundryMast Where LogSite_Code in ('" & MemVar_1F81078 & "','HO') Order By Name") 'String
+
+-- SQL Statement 4 --
+  loc_1168CC2: var_C0 = CVar("Select Code,Name,DeskCode,Type From RevMast Where LogSite_Code in ('" & MemVar_1F81078 & "','HO') And (FlagType ='POS' or FlagType  Is Null or FlagType='')  Order By Name") 'String
+
+-- SQL Statement 5 --
+  loc_1168D2B: var_CC = "Select V_Type From Voucher_Type Where LogSite_Code in ('" & MemVar_1F81078 & "','HO') And RestCode='" & global_60 & "' And NCat IN ('BBILL')"
+
+-- SQL Statement 6 --
+  loc_1168DF3: var_B0 = "Select DISTINCT (SP.V_Type+Space(6-len(SP.V_Type))+'**'+Convert(Varchar(11),SP.AppDate,103)) AS SearchCode From SundryType SP Where SP.LogSite_Code in ('" & MemVar_1F81078
+
+-- SQL Statement 7 --
+  loc_F89B98: var_94 = "Select Count(*) From SundryType Where (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO') and (V_Type='" & global_92
+
+-- SQL Statement 8 --
+  loc_143954E:   var_94 = "Select VT.Description,SP.*,SM.Name As SundryName,RM.Name As RevName From (((SundryType SP Inner Join Voucher_type VT On (SP.V_Type=VT.V_Type And SP.LogSite_Code=VT.LogSite_Code)) Inner Join SundryMast SM On SP.SundryCode=SM.Code) Left Join RevMast RM On SP.RevCode=RM.Code) Where SP.Logsite_Code='" & MemVar_1F81078
+
+-- SQL Statement 9 --
+  loc_12C74BA: var_B8 = "SELECT SF.*,SM.Name as SundryName" & " FROM SundryTypeFix SF Inner JOIN SundryMast SM ON SF.SundryCode = SM.Code" & " Where SF.LogSite_Code='"
+

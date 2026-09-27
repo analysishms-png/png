@@ -1,0 +1,462 @@
+================================================================================
+ANALYSIS HMS - FRONT OFFICE MODULE : MASTER / OPERATIONS / REPORTS LOGIC FILE
+Property: Demo Property | Session: 01-Sep-2026 to 18-Sep-2026
+Source: analysishms-master codebase (Laravel) + live analysishms.com + 1.7GB DB backup
+Purpose: Training reference - har screen/report ka INTERNAL LOGIC samjhane ke liye
+================================================================================
+
+==========================
+SECTION 1: DATA MODEL (CORE TABLES)
+==========================
+
+Front Office ka poora system 6 core tables pe khada hai. Har screen/report inhi
+me se ek ya zyada tables ko padhti (SELECT) ya likhti (INSERT/UPDATE) hai:
+
+1. guestfolio -> Master bill ledger (har check-in ka ek Docid; folio_no unique)
+ Columns: Docid, folio_no, mFoliono (merge ke liye), guestprof (FK), vdate
+ (check-in date), name, city, arrfrom, destination, purvisit, company,
+ travelagent, busssource, bookingdocid, complimentry, rodisc, remark
+ LOGIC: Saare charges/payments 'paycharge' me iske Docid (folionodocid) se
+ judte hain. mFoliono tab use hota hai jab do folio merge hote hain.
+
+2. roomocc -> Room occupancy rows (check-in ki actual room details)
+ Columns: Docid (FK=guestfolio), foliono, sno/sno1 (repeated stays), roomno,
+ newroomno (room change!), chkindate, chkintime, chkoutdate, chkouttime,
+ depdate, deptime (expected departure), adult, children, roomrate, plancode,
+ planamt, ratecode, roomcat, type ('O' = occupied, day-use bhi), chngdate
+ (room change date), reasonrchange, RRTaxInc
+ LOGIC: Check-out hone pe chkoutdate set hota hai. Isliye:
+ - IN-HOUSE guests = chkoutdate IS NULL
+ - Checked-out = chkoutdate IS NOT NULL
+ - Room change = newroomno NOT NULL aur newroomno <> roomno
+
+3. guestprof -> Guest profile (repeat guest ka ek hi profile reuse hota hai)
+ Columns: guestcode, Name, mobile_no, nationality, gender, age, id_proof,
+ idproof_no, guest_status, compliementry flag, docid link
+ LOGIC: 'Add New Profile' screen isme entry banata hai. Occupancy report
+ isse nationality/ID/gender laata hai.
+
+4. paycharge -> SAARE financial transactions (charges + payments)
+ Columns: DOCID, SNO, SNO1, FOLIONO, FOLIONODOCID, VDATE, VTYPE (RC=room
+ charge, ARRES/ADRES=advance settle, CHK=checkout bill, BANRES etc.),
+ VNO, PayCode (revenue code jaise RMCH=Room Rent), PayType (Cash/UPI/
+ Card), AmtCr (credit=charge), AmtDr (debit=payment), TipAmt, comp_code,
+ RESTCODE (FOM=Front Office desk), refdocid (settlement link), DbtChkIn,
+ U_Name, Comments
+ LOGIC: Ye table FO, POS, Banquet, Laundry sab ka common ledger hai.
+ RESTCODE batata hai kaunsa desk entry ki. Net = AmtCr - AmtDr.
+
+5. room_mast + room_cat -> Rooms aur categories
+ room_mast: rcode (room no), room_cat, type='RO' (room), InclCount ('Y'
+ matlab occupancy/inventory count me aayega), building, floor, features
+ room_cat: cat_code, Name, NoOfRoom, rate
+ LOGIC: Room Inventory report InclCount='Y' wale hi rooms ginata hai.
+
+6. Mastertables: plan_mast (plans CP/MAP/AP + tarrif), revmast (revenue heads,
+ field_type 'C'=charge/'P'=payment, Desk_code=FOM), subgroup (companies/
+ travel agents/OTA - comp_type se), busssource (market segment), gueststats
+ (guest status), rate_list (rack rates), fom_billdetail (printed bills,
+ status='Cancel' track hota hai)
+
+==========================
+SECTION 2: MASTER SCREENS - LOGIC (10 screens)
+==========================
+
+[2.1] FOM Parameter (/fomparameter, code 121211)
+PURPOSE: Poore FO module ki global settings.
+LOGIC: Ye values har check-in/checkout/bill pe apply hoti hain -
+ - Checkout time, tax inclusive flags (RRTaxInc), GRC print format,
+ - Auto folio number series, night audit lock rules
+ - Property-level policies jo Controllers constructor me padhte hain
+DB: fomparameter / companyreg tables.
+TRAINING POINT: Idhar galat setting = poori property ke bills pe effect.
+
+[2.2] Business Source (/businesssource, 121212)
+PURPOSE: Market segments (Walk-In, OTA, Corporate, Agent, Web direct...)
+DB: busssource (bcode, name, propertyid)
+LOGIC: Reservation/WalkIn form me isme se select hota hai aur guestfolio.
+busssource me store hota hai. Revenue Source Report isi ko GROUP BY karke
+har segment ka revenue nikalta hai.
+LOGIC CHAIN: busssource -> guestfolio.busssource -> paycharge(revenue) -> report
+
+[2.3] Guest Status (/gueststatus, 121213)
+PURPOSE: Guest categories (VIP, Regular, Corporate guest...)
+DB: gueststats (gcode, name)
+LOGIC: guestprof.guest_status FK. Occupancy report me GuestStatus column
+isi se aata hai (join: guestprof.guest_status = gueststats.gcode).
+
+[2.4] Charge Master (/chargemaster, 121214)
+PURPOSE: Extra charges heads (Laundry, Mini Bar, Extra Bed, Damage...)
+DB: revmast (rev_code pattern: <CODE><propertyid> e.g. LNDY103)
+LOGIC: revmast.field_type='C' (charge) aur Desk_code batata hai kaunsa
+module use karega (FOM/POS...). Front Office ke revenue columns
+Sale Summary/CheckOut Register me isi ke seq_no order me aate hain.
+SPECIAL CODES jo reports me EXCLUDE hote hain: ROFF=Round Off, DISC=Discount,
+CGSS/SGSS=GST heads, TOUT=Transfer Out, RMCH=Room Rent.
+
+[2.5] Plan Master (/planmaster, 121215)
+PURPOSE: Tariff plans - EP (room only), CP (breakfast), MAP (breakfast+dinner),
+AP (all meals)
+DB: plan_mast (pcode, name, tarrif)
+LOGIC: roomocc.plancode FK. Night Audit isse decide karta hai ki room rent ke
+saath kaunse meal charges auto-post karne hain (planamt ke hisaab se).
+Occupancy Report me 'package' column = plan_mast.name.
+
+[2.6] Room Features (/roomfeatures, 121216)
+PURPOSE: Amenity tags (Balcony, Sea View, AC...)
+DB: roomfeatures table; room_mast se link
+USE: Room availability dikhaate waqt guest ko features dikhane ke liye.
+
+[2.7] Room Category (/roomcategory, 121217)
+PURPOSE: Room types (Deluxe, Super Deluxe, Suite...)
+DB: room_cat (cat_code, Name, NoOfRoom, rate)
+LOGIC: room_mast.room_cat FK. Availability = NoOfRoom - occupied(us type ke).
+Rate list category-wise banti hai (rate_list.room_cat).
+
+[2.8] Room Master (/roommaster, 121218)
+PURPOSE: Har physical room ki entry (101, 102, 1151...)
+DB: room_mast (rcode, room_cat, type='RO', InclCount, building, floor)
+LOGIC: Room Status board aur Room Inventory isi se rooms laate hain.
+InclCount='Y' = inventory/occupancy % me count hoga. 'N' wale (jaise
+lobby-attached store) count se bahar.
+
+[2.9] Booking Source (/bookingsource, 121219)
+PURPOSE: Reservation aaye kahan se (Booking.com, MakeMyTrip, Direct call)
+DB: bookingsource / booking.bookedby
+LOGIC: 'booking' table me har reservation ka bookedby hota hai. Room Inventory
+report booking.bookedby + busssource join karke Market Segment dikhata hai.
+
+[2.10] Building Master (/buildingmaster, 121220)
+PURPOSE: Buildings/blocks (Main Wing, Annexe...)
+DB: buildingmast; room_mast.building FK
+USE: Room-wise filters, HK assignment, block-wise occupancy.
+
+==========================
+SECTION 3: OPERATIONS SCREENS - LOGIC (11 screens)
+==========================
+
+[3.1] Blank GRC (/openblankgrc, 141111)
+PURPOSE: Khali Guest Registration Card print karna (walk-in pehle likhne ke liye)
+LOGIC: Sirf print template - data nahi padhta. GRC me wahi fields hain jo
+WalkIn Check In me digitally bharte hain (naam, address, ID, dates, rate).
+
+[3.2] Walk-In Check In (/walkincheckin, 141112) - Shift+W
+PURPOSE: Bina reservation ke guest ko turant room dena. FO ka SABSE ZYADA use
+hone wala flow.
+LOGIC (CheckinController):
+ STEP 1: Room availability room_mast vs roomocc (chkoutdate IS NULL) se
+ STEP 2: Guest profile - existing guestprof search mobile no. se, mila to
+ reuse (repeat guest), na mile to naya profile insert
+ STEP 3: guestfolio INSERT (vdate=aaj, folio_no naya, busssource etc.)
+ STEP 4: roomocc INSERT (Docid FK, roomno, chkindate=NOW, roomrate, plan)
+ STEP 5: Advance liya to paycharge INSERT (VTYPE=ADRES, AmtCr, PayType)
+ STEP 6: Room status 'O' (occupied) ho jata hai - Room Status board me dikhta hai
+TRANSACTION SAFETY: Sab inserts ek DB transaction me - beech me fail hua to
+rollback (aadha folio kabhi nahi banta).
+
+[3.3] CheckIn List (/checkinlist, 141113)
+PURPOSE: Aaj (ya date range) ke saare check-ins ki list.
+LOGIC: guestfolio JOIN roomocc WHERE vdate BETWEEN fromdate AND todate.
+Columns: folio, guest, room, pax (adult+children), rate, plan, in/out datetime,
+advance (SUM paycharge.amtcr WHERE modeset!='S').
+ADVANCE ka logic: modeset='S' = settled/adjusted entries list me nahi aate.
+
+[3.4] Room Status (/roomstatus, 141114) - Shift+S
+PURPOSE: Poora hotel ka live board - kaunsa room khali, bhara, dirty, OOO.
+LOGIC: room_mast (saare rooms) LEFT JOIN roomocc (chkoutdate IS NULL).
+Jo room roomocc me nahi mila = VACANT. HK tables se cleanliness status.
+Isi board se room click karke check-in/assign karte hain.
+
+[3.5] Bill Reprint (/billreprint, 141115)
+PURPOSE: Purana printed bill dobara nikalna (guest copy kho gayi / audit copy)
+LOGIC (Reporting.php billreprintsubmit):
+ fom_billdetail table se original bill data (billno, billdate, items, taxes)
+ Read-only reprint - naya voucher NAHI banta, accounting me koi effect nahi.
+ Search: bill no / folio / guest name / barcode.
+
+[3.6] Bill Re-Settlement (/billresettle, 141116)
+PURPOSE: Settle hua bill galat mode se settle kiya tha (Card ki jagah Cash) -
+ usko undo karke dubara settle karna.
+LOGIC:
+ 1. Purani settlement ki paycharge entries reverse (AmtDr undo, refdocid link)
+ 2. Bill status wapas 'open'
+ 3. Naya settlement entry banti hai (naya VNO)
+ 4. fom_billdetail me naya bill record - purana superseded
+AUDIT: Purani entry delete NAHI hoti - reverse entry ke through trail banta
+hai (accounting best practice).
+
+[3.7] Misc Payment/Rect. (/expsheet, 141117)
+PURPOSE: Folio ke bahar ke cash transactions - petty cash, corrections,
+non-guest payments.
+LOGIC: paycharge me direct entry bina folio link ke (ya special folio).
+VTYPE rectification/expense codes. Cashier Report me 'PAYMENT RECD' ke saath
+ya alag section me dikhta hai.
+
+[3.8] Merge Folio (/mergefolio, 141118)
+PURPOSE: Ek hi guest/company ke multiple folios ko ek bill me jodna
+LOGIC:
+ 1. Target folio chuno, dusre folios ka Docid target ke mFoliono me daalo
+ 2. Saare paycharge rows ka FOLIONODOCID target Docid pe update
+ 3. roomocc rows bhi move (agar same guest ke rooms hain)
+ 4. Bill ab combined banega - ek hi settlement me
+REVERSE Merge Folio (141119): Ulta operation - mFoliono reset, paycharge
+wapas original folio Docids pe (merge ke andar ke order me).
+
+[3.9] In House Room Status (/inhoseroomstatus, 141120) - Shift+I
+PURPOSE: Abhi hotel me ruke guests ka detailed view - folio balance ke saath.
+LOGIC: roomocc (chkoutdate IS NULL) JOIN guestfolio JOIN guestprof +
+SUM(paycharge.AmtCr - AmtDr) per folio = LIVE BALANCE.
+Front desk isse checkout se pehle balance confirm karti hai.
+
+[3.10] Add New Profile (/addnewprofile, 141121)
+PURPOSE: Bina check-in ke guest profile banana (future booking ke liye)
+LOGIC: guestprof INSERT. Guest code generate hota hai jo baad me WalkIn/
+Reservation me reuse hota hai (mobile/naam se search karke).
+
+[3.11] Ammend Stay (checkinlist ke andar se)
+PURPOSE: Guest ke dates/room/rate change karna bina naya folio banaye
+LOGIC: roomocc UPDATE - depdate/bade dates, roomno, roomrate. Room change ho
+to: roomno purana rehta, newroomno set, chngdate set, sno+1 nayi row -
+isliye Room Change History possible hai.
+
+==========================
+SECTION 4: REPORTS - LOGIC (01-Sep to 18-Sep-2026 DATA KE SAATH)
+==========================
+In sabka dated data screenshots/05_Reports_Dated folder me hai.
+
+[4.1] Check In Register (/checkinreg, 141211) - DATED SCREENSHOT 01
+SOURCE: Reporting.php::fetchcheckinregdata
+QUERY LOGIC:
+ guestfolio JOIN roomocc (same Docid) JOIN guestprof
+ WHERE guestfolio.vdate BETWEEN '2026-09-01' AND '2026-09-18'
+ GROUP BY roomocc.docid, roomocc.sno1
+ ORDER BY foliono DESC
+COLUMNS LOGIC:
+ - FolioNo = CASE mFoliono=0 THEN folio_no ELSE mFoliono (merged folio
+ merged number se dikhta hai)
+ - Advance = subquery: SUM(paycharge.amtcr) WHERE folionodocid=Docid AND
+ modeset != 'S' (S=settle-adjusted advance exclude)
+ - TotalGuest = roomocc.adult + roomocc.children
+LIVE DATA (18 Sep): Guest "Anurag Kushwaha" (BAGESHWAR, Indian, 6388214612)
+ke 14+ check-ins 01-Sep-2026 ko rooms 101,102,103..1151 me, rate 2500-3000,
+checkout 03-Sep. Ek hi group leader ke multiple rooms ka pattern - group
+booking ka typical example. USER column = kaunse operator ne check-in kiya.
+USE: Daily arrivals audit, GRC compliance, group movement tracking.
+
+[4.2] Check Out Register (/report_bulkcharge, 141212) - DATED SCREENSHOT 02
+SOURCE: Reporting.php::report_bulkcharge + fetchdatabillprint
+QUERY LOGIC:
+ fom_billdetail WHERE billdate BETWEEN dates (checkout bills)
+ + paycharge revenue columns revmast (field_type='C', Desk_code='FOM')
+ EXCLUDE: ROFF, DISC, CGSS, SGSS, TOUT, RMCH filtering configurable
+FILTERS: Business source, company, travel agent (OTA/TA), payment type -
+isliye screen pe unke dropdowns load hote hain (busssource, SubGroup queries).
+USE: Kaun kitne ka ruka, kisne bill kiya, kis source se aaya.
+
+[4.3] Cashier Report (/cashierreport, 141213) - DATED SCREENSHOT 03
+SOURCE: Reporting.php::fetchcashierreportdata + fetchcashierreportdata2
+QUERY LOGIC (payment side):
+ paycharge PC JOIN revmast PY (field_type='P') JOIN roomocc RO
+ WHERE PC.RESTCODE='FOM' AND VDate BETWEEN dates
+ AND ( (VTYPE IN (ARRES,ADRES) AND DbtChkIn<>'Yes')
+ OR (VTYPE NOT IN (ARRES,ADRES) AND (refdocid IS NULL OR refdocid='')) )
+ AND VTYPE <> 'CHK'
+ NetSale = AmtCr - AmtDr
+ISKA MATLAB (plain words):
+ - Advance settlements (ARRES/ADRES) tabhi aate hain jab wo check-in pe
+ applied NA hue (DbtChkIn)
+ - refdocid linked entries = jo pehle hi kisi settlement me gayi - skip
+ (double-count na ho)
+ - CHK (checkout settlement voucher) alag query (data2) se aata hai
+MODE-WISE TOTALS: Cash/UPI/Card/Company paytype ke SUM - cashier ka din.
+USE: Shift-handover pe cash drawer vs system match karna (cash reconciliation).
+
+[4.4] Cancel Bill Details (/CancelBillDet, 141214) - DATED SCREENSHOT 04
+SOURCE: Reporting.php::fetchcancelbilldata
+QUERY LOGIC:
+ fom_billdetail WHERE status='Cancel' AND billdate BETWEEN dates
+ ORDER BY billdate, billno, u_name
+LOGIC: Jab bill cancel hota hai original record DELETE nahi hota - sirf
+status='Cancel' hota hai + cancel reason. Isliye full audit trail milta hai.
+USE: Fraud check - kaun bills cancel kar raha hai, kitni baar.
+
+[4.5] Occupancy Report (/occupancyreport, 141215) - DATED SCREENSHOT 05
+SOURCE: Reporting.php::occupancyreportData
+QUERY LOGIC (ye sabse interesting hai):
+ roomocc WHERE chkindate <= todate AND (chkoutdate >= fromdate OR chkoutdate
+ IS NULL)
+ MATLAB: Date range me "in-house THE" - chahe unka check-in pehle ka ho ya
+ checkout beech ka. Isliye ye "occupied room nights" report hai, sirf
+ check-ins nahi.
+ JOIN: room_mast (type='RO') -> category, guestfolio -> guest, guestprof ->
+ nationality/ID, plan_mast -> package, subgroup -> company/TA, busssource ->
+ market segment, rate_list -> rack rate comparison
+ DayUse = roomocc WHERE chkindate=chkoutdate=same day AND type='O'
+ GROUP BY docid, sno1 (repeat stays alag rows)
+USE: 01-18 Sep ke liye = us period me hotel ne kitne room-nights beche,
+kaunse segments se, kitne pax, average rate vs rack rate.
+
+[4.6] Expected Check Out (/expectedcheckout, 141216) - DATED SCREENSHOT 06
+SOURCE: Reporting.php::expectedcheckoutfetch
+QUERY LOGIC:
+ guestfolio JOIN roomocc
+ WHERE roomocc.chkoutdate IS NULL <- abhi bhi in-house
+ AND roomocc.depdate BETWEEN fromdate AND todate <- departure date is range me
+ ORDER BY roomocc.roomno
+LOGIC: depdate check-in ke waqt set hota hai; night audit isliye isi se
+"kal kaun jayega" list banata hai. deptime = expected checkout time.
+USE: 01-18 Sep query = us window me jaane wale saare pending departures.
+
+[4.7] Complimentary Report (/complimentaryreport, 141217) - DATED SCREENSHOT 07
+SOURCE: ReportController::complimentaryReportData
+QUERY LOGIC:
+ guestprof G JOIN roomocc R
+ WHERE G.complimentry = 'Y'
+ AND R.chkindate BETWEEN dates
+LOGIC: Guest profile pe 'complimentary' flag master se aata hai; isliye
+complimentary stay ka revenue 0/comp dikhna chahiye aur wo normal revenue
+reports me double-count NA hota (comp rooms room rate RMCH pe zero rate
+leta hai ya comp revenue code use karta hai).
+USE: Manager ke comp rooms ka record (audit point - comps sanctioned kisne).
+
+[4.8] Room Change History (/roomchangehistory, 141218) - DATED SCREENSHOT 08
+SOURCE: Reporting.php::fetchroomchangehistory
+QUERY LOGIC (self-join trick):
+ roomocc oldr LEFT JOIN roomocc newr
+ ON same folio AND newr.roomno = oldr.newroomno
+ AND oldr.roomno <> oldr.newroomno AND newr.sno > oldr.sno
+ WHERE oldr.newroomno IS NOT NULL AND <> '' AND <> oldr.roomno
+ AND oldr.chngdate BETWEEN dates
+COLUMNS: old room/type/rate/plan/pax -> new room/type/rate/plan/pax,
+changedby (u_name), reason (reasonrchange)
+LOGIC: Room change hone pe roomocc me nayi row banti hai (sno+1) aur purani
+row me newroomno likha jata hai - isliye pura chain trace hota hai.
+USE: Disputes - guest bola rate alag tha, audit me purana/new dono dikhte.
+
+[4.9] MIS Room Inventory (/roominventory, 141311) - DATED SCREENSHOT 09
+SOURCE: Reporting.php::roominventoryfetch
+QUERY LOGIC:
+ allrooms = room_mast WHERE type='RO' AND InclCount='Y' (total stock)
+ occupied = room_mast JOIN roomocc WHERE chkoutdate IS NULL
+ + guestfolio + booking.bookedby + busssource + subgroup +
+ plan_mast + MAX(rate_list.rate2) as RackRate
+ free = total - occupied (screen pe computed)
+LOGIC: Ye LIVE snapshot hai (date filters kam lagte) - aaj ka stock position.
+USE: Rooms free/dikhega, kaunsa segment bhara, rack vs actual rate gap.
+
+[4.10] MIS Sale Summary (/fomsalesummary, 141312) - DATED SCREENSHOT 10
+SOURCE: Reporting.php::fomsalesummaryData
+QUERY LOGIC:
+ revmast heads (field_type='C', Desk_code='FOM', EXCLUDE
+ ROFF/DISC/CGSS/SGSS/TOUT) as revenue COLUMNS (pivot!)
+ paycharge amounts SUM per rev_code per date range
+ + totalRooms (room_mast InclCount) se occupancy % + ADR
+ ADR = RoomRent revenue / room nights; Occupancy% = sold nights/(rooms*days)
+LOGIC: Ye ek PIVOT report hai - har revenue head ek column, rows = din.
+USE: 01-18 Sep ka day-wise revenue summary - manager ka daily dashboard.
+
+[4.11] MIS Company Contribution (/contributionreport, 141313) - DATED SCREENSHOT 11
+SOURCE: Reporting.php::fetchcontribuition
+QUERY LOGIC:
+ INPUT: year+month (vprefix, formonth) - date range se month me convert
+ type='Corporate' -> GF.company join, warna GF.travelagent
+ subgroup sg JOIN guestfolio GF JOIN paycharge p
+ ON p.folionodocid=GF.docid
+ WHERE p.vdate BETWEEN month start/end
+ AND p.paycode='RMCH' (ROOM RENT only) AND p.vtype='RC' AND p.sno=1
+ SELECT per company: day-wise SUM(CASE WHEN DAY(vdate)=1 THEN 1 ELSE 0 END)...
+LOGIC: Count = room-nights per day per company - contribution matrix.
+USE: Kaunsa company/agent kitne room nights la raha hai kis din.
+
+[4.12] MIS Guest Trail (/guesttrail, 141314) - DATED SCREENSHOT 12
+SOURCE: Reporting.php::guesttrailData
+QUERY LOGIC:
+ roomocc + guestfolio + SUM(paycharge) group by rev type:
+ RoomRent, RoomDisc, ExtraCharge, Tax, Outlet (transfer), CreditAmt
+ nights = DATEDIFF(chkoutdate, chkindate) ya (aaj - chkindate) in-house
+ tarrif = roomocc.roomrate
+LOGIC: Ek hi guest ka POORA financial trail - check-in se checkout tak
+kya-kya laga, kya discount mila, outlets se kya transfer hua.
+USE: Guest bill dispute / detail analysis.
+
+[4.13] MIS Company wise Analysis (/companywiseanalysis, 141315) - DATED SCREENSHOT 13
+SOURCE: Reporting.php::companywiseanalysis + fetch
+QUERY LOGIC:
+ subgroup (comp_type='Corporate') x guestfolio x paycharge
+ RoomNights, Guests (SUM adult), GrossRevenue, RoomRent, Outlet transfer,
+ Tax - amounts paycharge.amtdr/amtdr CASE paycode se
+USE: Company-wise yearly/period performance - corporate sales review.
+
+[4.14] MIS Revenue Source (/revenuesourcereport, 141316) - DATED SCREENSHOT 14
+SOURCE: Reporting.php::fetchrevenuesourcereport
+QUERY LOGIC (raw SQL):
+ SUM(P.RoomNights), SUM(R.NoOfGuest), SUM(P.Amount) GrossRevenue,
+ SUM(P.RoomRent), SUM(P.Outlet) TransferFromOutlet, SUM(P.Tax)
+ ADR computed = RoomRent / NULLIF(RoomNights, 0)
+ busssource ke against GROUP BY
+ paycharge CASE: paycode=RMCH -> RoomRent; paycode IN (CGSS,SGSS,...) ->
+ Tax; Outlet codes -> Outlet
+LOGIC: Business Source master (2.2) yahan phal deta hai - kaunse market
+segment se kitna revenue, kitne room nights, kya ADR.
+USE: Sales strategy - OTA vs direct vs corporate mix.
+
+[4.15] Tax: FOM Tax Detail (/fomtaxdetail, 141511) - DATED SCREENSHOT 15
+SOURCE: Reporting.php::fomtaxdetail + fetchfomtaxdata
+QUERY LOGIC:
+ paycharge WHERE paycode IN (CGSS, SGSS, luxury tax codes...)
+ AND VDate BETWEEN dates - tax amounts per voucher, per bill, per guest
+ GST slabs: 0% / 12% (room rate based - 7500 INR threshold rule)
+USE: CA ka monthly GST working - output tax on rooms.
+
+==========================
+SECTION 5: KEY CODE PATTERNS (DEVELOPER/ADVANCED TRAINER KE LIYE)
+==========================
+
+1. PERMISSION CHECK (har screen pe pehla block):
+ $permission = revokeopen(<code>); // e.g. 141211
+ if (is_null($permission) | | $permission->view == 0) -> "no permission"
+ CODE FORMAT: MMGGSS = Module(2) Group(2) Screen(2)
+ 14=Front Office | 11=Operations, 12=Reports, 13=MIS, 15=Tax
+ Menu system isi code se khulta hai (fetchsubmenu/fetchlastmenu opt1/opt2/opt3)
+
+2. MULTI-TENANCY: har query me propertyid filter (103) - multi-hotel cloud
+ architecture ka core. Kabhi bhoolna nahi ki data isolation isse hota hai.
+
+3. FINANCIAL DUALITY: paycharge me AmtCr (charges/guest ko debit) vs
+ AmtDr (payments/guest ne diya). Folio balance = SUM(AmtCr) - SUM(AmtDr).
+ Checkout allowed jab balance settle = 0.
+
+4. DATE LOGIC GOTCHA: "From-To date" ka matlab report pe depend karta hai:
+ - checkinreg: guestfolio.vdate (check-in date range)
+ - occupancy: overlap logic (chkindate<=to AND chkoutdate>=from OR null)
+ - expectedcheckout: depdate range BUT chkoutdate IS NULL
+ - cancel bill: billdate range
+ Training me ye difference samjhana ZARURI hai.
+
+5. SETTLEMENT CHAIN: ADRES/ARRES advance -> DbtChkIn flag (folio pe applied?)
+ -> CHK checkout voucher -> refdocid links settlement to bill -> cancel =
+ status change. Cashier Report isi chain ko double-count se bachata hai.
+
+6. MERGE TRAIL: mFoliono (guestfolio) + FOLIONODOCID re-point (paycharge) +
+ reverse-merge helper - kabhi physical delete nahi.
+
+==========================
+SECTION 6: TRAINING FLOW (YE ORDER ME SAMJHAO)
+==========================
+
+DAY 1 - MASTERS (Section 2): pehle data language samjho
+ Room Category -> Room Master -> Plan -> Charge Master -> Business Source
+DAY 2 - OPERATIONS (Section 3): guest lifecycle
+ Room Status -> WalkIn CheckIn -> InHouse -> Ammend Stay -> Merge Folio ->
+ Bill Re-Settlement -> Checkout (register se verify)
+DAY 3 - REPORTS (Section 4): dated reports 01-18 Sep ke saath practice
+ Har report pe: (1) Filter bharo (2) Data dekho (3) PEECHHE KA LOGIC bolo
+ (kaunsi table, kaunsa join, kaunsa date column) (4) Excel/Print nikalo
+DAY 4 - CASH & TAX: Cashier Report reconciliation + FOM Tax Detail + GST
+DAY 5 - REVISION: Training Q&A (manual Appendix me) + live demo property me
+ practice check-in se bill tak full cycle
+
+================================================================================
+END OF LOGIC FILE | Analysis HMS Front Office | Demo Property | Generated 20-Sep-2026
+Screenshots: HMS_Manuals/FrontOffice/screenshots/05_Reports_Dated/ (15 files)
+================================================================================

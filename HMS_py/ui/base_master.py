@@ -25,6 +25,7 @@ from PyQt6.QtWidgets import (QDialog, QFormLayout, QHBoxLayout, QLabel,
                              QWidget)
 
 from HMS_py.ui import theme as _theme
+from HMS_py.ui.desktop_style import apply_desktop_surface, mark_desktop_action
 
 
 @dataclass
@@ -46,16 +47,21 @@ class MasterConfig:
     pk_key: str = "code"
     delete_guard: object = None   # fn(code) -> error-str | None
     sample_prefix: str = "PYT"
+    generated_pk: bool = False
 
 
 class BaseMasterForm(QDialog):
     def __init__(self, cfg: MasterConfig, parent=None):
         super().__init__(parent)
+        apply_desktop_surface(self, "desktopMasterForm")
         self.cfg = cfg
         self.setWindowTitle(cfg.title)
         self.setMinimumSize(680, 520)
         self.resize(720, 540)
         self.state = "Idle"
+        self._can_add = True
+        self._can_edit = True
+        self._can_delete = True
         self.edit_pk = None
         self._rec_from_ui = None      # fn: ui -> record dict (set by subclass)
         self._rec_to_ui = None        # fn: record dict -> ui
@@ -174,11 +180,21 @@ class BaseMasterForm(QDialog):
         for b in (self.btnNew, self.btnEdit, self.btnDelete, self.btnSave,
                   self.btnCancel, self.btnExit):
             btn_lay.addWidget(b)
+        for button, role in (
+            (self.btnNew, "primary"),
+            (self.btnEdit, "default"),
+            (self.btnDelete, "danger"),
+            (self.btnSave, "primary"),
+            (self.btnCancel, "default"),
+            (self.btnExit, "default"),
+        ):
+            mark_desktop_action(button, role)
         btn_lay.addStretch()
         root.addWidget(btn_grp)
 
         # --- Status bar ---
         self.lblState = QLabel("Ready")
+        self.lblState.setObjectName("desktopStateLabel")
         self.lblState.setStyleSheet(
             f"font-size: 11px; color: {p['text_dim']}; padding: 4px 0; "
             f"border-top: 1px solid {p['border']};"
@@ -240,12 +256,20 @@ class BaseMasterForm(QDialog):
         p = _theme.palette()
         for e in self.edits.values():
             e.setEnabled(enabled)
-        for b in (self.btnNew, self.btnEdit, self.btnDelete):
-            b.setEnabled(not enabled)
-        for b in (self.btnSave, self.btnCancel):
-            b.setEnabled(enabled)
+        for b, allowed in (
+            (self.btnNew, self._can_add),
+            (self.btnEdit, self._can_edit),
+            (self.btnDelete, self._can_delete),
+        ):
+            b.setEnabled(allowed and not enabled)
         self.state = ("Add" if self.edit_pk is None else "Edit") if enabled \
             else "Idle"
+        can_save = enabled and (
+            (self.state == "Add" and self._can_add)
+            or (self.state == "Edit" and self._can_edit)
+        )
+        self.btnSave.setEnabled(can_save)
+        self.btnCancel.setEnabled(enabled)
         state_colors = {
             "Idle": p.get("text_dim", "#64748b"),
             "Add": p.get("success", "#059669"),
@@ -257,6 +281,21 @@ class BaseMasterForm(QDialog):
             f"font-size: 11px; color: {color}; padding: 4px 0; "
             f"border-top: 1px solid {p['border']}; font-weight: 600;"
         )
+
+    def set_permissions(self, add: bool = True, edit: bool = True,
+                        delete: bool = True):
+        self._can_add = bool(add)
+        self._can_edit = bool(edit)
+        self._can_delete = bool(delete)
+        editing = self.state in ("Add", "Edit")
+        self.btnNew.setEnabled(self._can_add and not editing)
+        self.btnEdit.setEnabled(self._can_edit and not editing)
+        self.btnDelete.setEnabled(self._can_delete and not editing)
+        self.btnSave.setEnabled(
+            editing and ((self.state == "Add" and self._can_add)
+                         or (self.state == "Edit" and self._can_edit))
+        )
+        self.btnCancel.setEnabled(editing)
 
     def _clear_fields(self):
         for f in self.cfg.fields:
@@ -285,12 +324,16 @@ class BaseMasterForm(QDialog):
 
     # ---------- handlers ----------
     def _on_new(self):
+        if not self._can_add:
+            return
         self.edit_pk = None
         self._clear_fields()
         self.set_state(True)
         next(iter(self.edits.values())).setFocus()
 
     def _on_edit(self):
+        if not self._can_edit:
+            return
         pk = self._selected_pk()
         if not pk:
             QMessageBox.information(self, "Edit",
@@ -311,10 +354,15 @@ class BaseMasterForm(QDialog):
             pk_edit.setEnabled(False)
 
     def _on_save(self):
+        if (self.state == "Add" and not self._can_add) or (
+            self.state == "Edit" and not self._can_edit
+        ):
+            return
         try:
             rec = self.record_from_ui()
             pk = rec.get(self.cfg.pk_key, "").strip()
-            if not pk:
+            generated_add = self.state == "Add" and self.cfg.generated_pk
+            if not pk and not generated_add:
                 QMessageBox.warning(self, "Validation",
                                     f"{self.cfg.pk_key.upper()} is required")
                 return
@@ -326,7 +374,7 @@ class BaseMasterForm(QDialog):
                     self.edits[f.name].setFocus()
                     return
             if self.state == "Add":
-                if self.cfg.api.exists(pk):
+                if pk and self.cfg.api.exists(pk):
                     QMessageBox.warning(self, "Validation",
                                         f"{pk} already exists")
                     return
@@ -350,6 +398,8 @@ class BaseMasterForm(QDialog):
         self.set_state(False)
 
     def _on_delete(self):
+        if not self._can_delete:
+            return
         pk = self._selected_pk()
         if not pk:
             QMessageBox.information(self, "Delete",

@@ -1,0 +1,21 @@
+{
+  "module": "12_Messaging",
+  "generated_at": "2026-09-25T13:13:19",
+  "sidebar": "extras",
+  "items": [
+    {
+      "leaf": "SMS (API)",
+      "layer": "masters",
+      "file": "10_masters_SMS_(API).png",
+      "status": "ok"
+    },
+    {
+      "leaf": "SMS (Scheduled)",
+      "layer": "operations",
+      "file": "20_operations_SMS_(Scheduled).png",
+      "status": "ok"
+    }
+  ],
+  "failed": [],
+  "shell": "00_shell_module.png"
+}

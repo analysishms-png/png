@@ -1,0 +1,52 @@
+================================================================================
+   ANALYSIS HMS - HR / PAYROLL MODULE : BUG REPORT (TESTER FORMAT)
+================================================================================
+Property: Demo Property | Report Date: 21-Sep-2026 | Round: 1 + 2 (Demo entries)
+Method: Manual UI testing on live app - demo entries, empty submits, duplicates,
+        report fetches. Source code sirf root-cause confirm karne ke liye dekha.
+================================================================================
+
+TOTAL BUGS: 2
+
+--------------------------------------------------------------------------------
+[HR-01] Designation create hota hai par SILENT - koi success message nahi
+Severity : MEDIUM
+Screen   : HR > Designation Master
+
+Steps:
+1. Designation 'QA DEMO DESIGNATION' bhar ke Submit dabao
+
+Expected: Success popup/toast: 'Designation saved'.
+
+Actual (BUG): Entry save ho gayi (list me row 1 par dikh gayi) par screen par koi message nahi aaya.
+
+Impact: User sochta hai save nahi hua - duplicate entries ka risk.
+
+Demo entry: 'Qa Demo Designation' (list me visible)
+Evidence: screenshots/HR2_des_after.png
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+[HR-02] Salary Creation - Month/Department load-par invalid
+Severity : MEDIUM
+Screen   : HR > Salary Creation
+
+Steps:
+1. Salary Creation kholo, Month/Department dekho
+
+Expected: Clean form.
+
+Actual (BUG): Dono fields load-par invalid/underlined state me.
+
+Impact: UX confusion.
+
+--------------------------------------------------------------------------------
+
+================================================================================
+  JO SAHI KAAM KAR RAHA HAIN (VERIFIED)
+================================================================================
+  [OK] Designation Master - create functionally OK (58 entries, list render sahi)
+  [OK] Salary Creation page load OK
+
+================================================================================
+END OF HR / PAYROLL BUG REPORT
+================================================================================

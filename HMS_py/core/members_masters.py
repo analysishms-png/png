@@ -256,109 +256,332 @@ class _FacilityAPI:
 FacilityAPI = _FacilityAPI()
 
 
-# ============================================================
-# Membership Revenue Master
-# Table: MembershipRevMast - Code varchar PK, Description varchar,
-#   AcountYN, ACPosting, TaxStru, SubsDetails, RefundableYN,
-#   SubsChargeYN, AcCode, Status, audit cols
-# ============================================================
-MEMREV_LIMITS = {"code": 6, "desc": 50, "taxstru": 6, "accode": 10, "status": 10}
-MEMREV_COLS = ("Code, Description, AcountYN, ACPosting, TaxStru, "
-               "SubsDetails, RefundableYN, SubsChargeYN, AcCode, Status, "
-               "U_Name, U_EntDt, U_AE")
+MEMREV_LIMITS = {
+    "code": 6,
+    "desc": 50,
+    "acountyn": 1,
+    "acposting": 10,
+    "taxstru": 6,
+    "subsdetails": 20,
+    "refundableyn": 1,
+    "subschargeyn": 1,
+    "accode": 8,
+    "status": 10,
+}
+MEMREV_COLS = (
+    "Code, Description, AcountYN, ACPosting, TaxStru, SubsDetails, "
+    "RefundableYN, SubsChargeYN, AcCode, Status, Site_Code, LogSite_Code, "
+    "U_Name, U_EntDt, U_AE"
+)
 
 
-def _map_memrev(r) -> dict:
+def _memrev_text(value) -> str:
+    return str(value if value is not None else "").strip()
+
+
+def _memrev_value(row, name: str, index: int, default=None):
     try:
-        return {"code": r.Code, "desc": (r.Description or "").strip(),
-                "acountyn": r.AcountYN or "N",
-                "acposting": r.ACPosting or "",
-                "taxstru": r.TaxStru or "",
-                "subsdetails": (r.SubsDetails or "").strip(),
-                "refundableyn": r.RefundableYN or "N",
-                "subschargeyn": r.SubsChargeYN or "N",
-                "accode": r.AcCode or "",
-                "status": r.Status or "",
-                "u_name": r.U_Name or "", "u_ae": r.U_AE or ""}
+        return getattr(row, name)
     except AttributeError:
-        c, d, ay, ap, ts, sd, ry, sy, ac, st, un, _, uae = r
-        return {"code": c, "desc": (d or "").strip(),
-                "acountyn": ay or "N", "acposting": ap or "",
-                "taxstru": ts or "", "subsdetails": (sd or "").strip(),
-                "refundableyn": ry or "N", "subschargeyn": sy or "N",
-                "accode": ac or "", "status": st or "",
-                "u_name": un or "", "u_ae": uae or ""}
+        try:
+            return row[index]
+        except (IndexError, KeyError, TypeError):
+            return default
 
 
-def memrev_list(cn=None) -> list[dict]:
-    return [_map_memrev(r) for r in db.query(
-        f"SELECT {MEMREV_COLS} FROM MembershipRevMast ORDER BY Code", cn=cn)]
+def _memrev_scope(logsite_code=None) -> str:
+    return _memrev_text(logsite_code) or SITE_CODE
 
 
-def memrev_get(code: str, cn=None) -> dict | None:
-    rows = db.query(
-        f"SELECT {MEMREV_COLS} FROM MembershipRevMast WHERE Code = ?",
-        (code,), cn=cn)
+def _memrev_read(sql: str, params=(), cn=None):
+    try:
+        return db.query(sql, params, cn=cn)
+    except Exception as exc:
+        if "invalid object name" in str(exc).lower() and "membershiprevmast" in str(exc).lower():
+            return []
+        raise
+
+
+def _map_memrev(row) -> dict:
+    return {
+        "code": _memrev_text(_memrev_value(row, "Code", 0, "")),
+        "desc": _memrev_text(_memrev_value(row, "Description", 1, "")),
+        "acountyn": _memrev_text(_memrev_value(row, "AcountYN", 2, "N")) or "N",
+        "acposting": _memrev_text(_memrev_value(row, "ACPosting", 3, "")),
+        "taxstru": _memrev_text(_memrev_value(row, "TaxStru", 4, "")),
+        "subsdetails": _memrev_text(_memrev_value(row, "SubsDetails", 5, "")),
+        "refundableyn": _memrev_text(_memrev_value(row, "RefundableYN", 6, "N")) or "N",
+        "subschargeyn": _memrev_text(_memrev_value(row, "SubsChargeYN", 7, "N")) or "N",
+        "accode": _memrev_text(_memrev_value(row, "AcCode", 8, "")),
+        "status": _memrev_text(_memrev_value(row, "Status", 9, "")),
+        "site_code": _memrev_text(_memrev_value(row, "Site_Code", 10, "")),
+        "logsite_code": _memrev_text(_memrev_value(row, "LogSite_Code", 11, "")),
+        "u_name": _memrev_text(_memrev_value(row, "U_Name", 12, "")),
+        "u_entdt": _memrev_value(row, "U_EntDt", 13),
+        "u_ae": _memrev_text(_memrev_value(row, "U_AE", 14, "")),
+    }
+
+
+def _memrev_choice(value, choices, label, default=""):
+    text = _memrev_text(value)
+    if not text and default:
+        return default
+    for choice in choices:
+        if text.casefold() == choice.casefold():
+            return choice
+    raise ValueError(f"{label} invalid")
+
+
+def _memrev_yn(value, label, default="N"):
+    text = _memrev_text(value)
+    if not text:
+        return default
+    normalized = {"YES": "Y", "NO": "N"}.get(text.upper(), text.upper())
+    if normalized not in ("Y", "N"):
+        raise ValueError(f"{label} Yes/No hona chahiye")
+    return normalized
+
+
+def validate_memrev(rec: dict) -> dict:
+    code = _memrev_text(rec.get("code"))
+    desc = _memrev_text(rec.get("desc"))
+    if not code:
+        raise ValueError("Code zaroori hai")
+    if len(code) > MEMREV_LIMITS["code"]:
+        raise ValueError("Code max 6 chars")
+    if not desc:
+        raise ValueError("Description zaroori hai")
+    if len(desc) > MEMREV_LIMITS["desc"]:
+        raise ValueError("Description max 50 chars")
+
+    account_yn = _memrev_yn(rec.get("acountyn"), "Account Y/N")
+    refundable_yn = _memrev_yn(rec.get("refundableyn"), "Refundable Y/N")
+    subs_charge_yn = _memrev_yn(rec.get("subschargeyn"), "Subscription Charge Y/N")
+    subsdetails = _memrev_choice(
+        rec.get("subsdetails"), ("Once", "Recurring"), "Subscription Details"
+    )
+    status = _memrev_choice(
+        rec.get("status"), ("Active", "Non Active"), "Status", "Active"
+    )
+    acposting = _memrev_text(rec.get("acposting"))
+    if acposting:
+        acposting = _memrev_choice(
+            acposting, ("Detailed", "Summerised"), "A/C Posting"
+        )
+    if account_yn == "Y":
+        if not _memrev_text(rec.get("accode")):
+            raise ValueError("Account Code zaroori hai")
+        if not acposting:
+            raise ValueError("A/C Posting zaroori hai")
+    else:
+        acposting = ""
+    acode = _memrev_text(rec.get("accode"))
+    if len(acode) > MEMREV_LIMITS["accode"]:
+        raise ValueError("Account Code max 8 chars")
+    taxstru = _memrev_text(rec.get("taxstru"))
+    if not taxstru:
+        raise ValueError("Tax Structure zaroori hai")
+    if len(taxstru) > MEMREV_LIMITS["taxstru"]:
+        raise ValueError("Tax Structure max 6 chars")
+    return {
+        "code": code,
+        "desc": desc,
+        "acountyn": account_yn,
+        "acposting": acposting,
+        "taxstru": taxstru,
+        "subsdetails": subsdetails,
+        "refundableyn": refundable_yn,
+        "subschargeyn": subs_charge_yn,
+        "accode": acode,
+        "status": status,
+    }
+
+
+def memrev_list(logsite_code=None, cn=None) -> list[dict]:
+    site = _memrev_scope(logsite_code)
+    rows = _memrev_read(
+        f"SELECT {MEMREV_COLS} FROM MembershipRevMast "
+        "WHERE (LogSite_Code = ? OR LogSite_Code = 'HO') ORDER BY Code",
+        (site,),
+        cn=cn,
+    )
+    return [_map_memrev(row) for row in rows]
+
+
+def memrev_get(code: str, logsite_code=None, cn=None) -> dict | None:
+    site = _memrev_scope(logsite_code)
+    rows = _memrev_read(
+        f"SELECT {MEMREV_COLS} FROM MembershipRevMast "
+        "WHERE (LogSite_Code = ? OR LogSite_Code = 'HO') AND Code = ?",
+        (site, _memrev_text(code)),
+        cn=cn,
+    )
     return _map_memrev(rows[0]) if rows else None
 
 
-def memrev_exists(code: str, cn=None) -> bool:
-    return bool(db.query(
-        "SELECT 1 FROM MembershipRevMast WHERE Code = ?", (code,), cn=cn))
+def memrev_exists(code: str, logsite_code=None, cn=None) -> bool:
+    site = _memrev_scope(logsite_code)
+    return bool(_memrev_read(
+        "SELECT 1 FROM MembershipRevMast "
+        "WHERE (LogSite_Code = ? OR LogSite_Code = 'HO') AND Code = ?",
+        (site, _memrev_text(code)),
+        cn=cn,
+    ))
+
+
+def _memrev_run_transaction(work, cn=None, commit=True):
+    own = cn is None
+    connection = cn or db.connect()
+    completed = False
+    try:
+        result = work(connection)
+        if commit:
+            connection.commit()
+        completed = True
+        return result
+    except Exception:
+        try:
+            connection.rollback()
+        except Exception:
+            pass
+        raise
+    finally:
+        if own:
+            if not commit and completed:
+                try:
+                    connection.rollback()
+                except Exception:
+                    pass
+            try:
+                connection.close()
+            except Exception:
+                pass
+
+
+def memrev_next_code(logsite_code=None, cn=None) -> str:
+    site = _memrev_scope(logsite_code)
+    rows = _memrev_read(
+        "SELECT ISNULL(MAX(CAST(SUBSTRING(Code,3,4) AS INT)),0)+1 AS MyCode "
+        "FROM MembershipRevMast WHERE Site_Code = ?",
+        (site,),
+        cn=cn,
+    )
+    value = _memrev_value(rows[0], "MyCode", 0, 1) if rows else 1
+    return f"{site}{int(value or 0):04d}"
+
+
+def _memrev_duplicate_description(description, exclude_code=None, cn=None):
+    site = _memrev_scope()
+    sql = (
+        "SELECT COUNT(*) FROM MembershipRevMast "
+        "WHERE (LogSite_Code = ? OR LogSite_Code = 'HO') "
+        "AND Description = ?"
+    )
+    params = [site, _memrev_text(description)]
+    if exclude_code is not None:
+        sql += " AND Code <> ?"
+        params.append(_memrev_text(exclude_code))
+    rows = _memrev_read(sql, tuple(params), cn=cn)
+    return bool(rows and int(_memrev_value(rows[0], 0, 0, 0) or 0))
 
 
 def memrev_insert(rec: dict, cn=None, commit=True) -> int:
-    if not rec.get("code", "").strip():
-        raise ValueError("Code zaroori hai")
-    if not rec.get("desc", "").strip():
-        raise ValueError("Description zaroori hai")
-    return db.execute(
-        "INSERT INTO MembershipRevMast (Code, Description, AcountYN, "
-        "ACPosting, TaxStru, SubsDetails, RefundableYN, SubsChargeYN, "
-        "AcCode, Status, Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code) "
-        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, getdate(), 'A', ?)",
-        (rec["code"], rec["desc"], rec.get("acountyn", "N"),
-         rec.get("acposting", ""), rec.get("taxstru", ""),
-         rec.get("subsdetails", ""), rec.get("refundableyn", "N"),
-         rec.get("subschargeyn", "N"), rec.get("accode", ""),
-         rec.get("status", ""), SITE_CODE, USER, SITE_CODE),
-        cn=cn, commit=commit)
+    def work(connection):
+        record = dict(rec)
+        if not _memrev_text(record.get("code")):
+            record["code"] = memrev_next_code(cn=connection)
+        normalized = validate_memrev(record)
+        if _memrev_duplicate_description(normalized["desc"], cn=connection):
+            raise ValueError("Description already exists")
+        db.require_absent(
+            "MembershipRevMast", "Code", normalized["code"],
+            "Membership Revenue Code", cn=connection,
+        )
+        return db.execute(
+            "INSERT INTO MembershipRevMast (Code, Description, AcountYN, "
+            "ACPosting, TaxStru, SubsDetails, RefundableYN, SubsChargeYN, "
+            "AcCode, Status, Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, getdate(), 'A', ?)",
+            (
+                normalized["code"], normalized["desc"], normalized["acountyn"],
+                normalized["acposting"], normalized["taxstru"],
+                normalized["subsdetails"], normalized["refundableyn"],
+                normalized["subschargeyn"], normalized["accode"],
+                normalized["status"], SITE_CODE, USER, SITE_CODE,
+            ),
+            cn=connection,
+            commit=False,
+        )
+
+    _memrev_run_transaction(work, cn=cn, commit=commit)
+    return 1
 
 
 def memrev_update(code: str, rec: dict, cn=None, commit=True) -> int:
-    if not rec.get("desc", "").strip():
-        raise ValueError("Description zaroori hai")
-    return db.execute(
-        "UPDATE MembershipRevMast SET Description = ?, AcountYN = ?, "
-        "ACPosting = ?, TaxStru = ?, SubsDetails = ?, RefundableYN = ?, "
-        "SubsChargeYN = ?, AcCode = ?, Status = ?, "
-        "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' WHERE Code = ?",
-        (rec["desc"], rec.get("acountyn", "N"), rec.get("acposting", ""),
-         rec.get("taxstru", ""), rec.get("subsdetails", ""),
-         rec.get("refundableyn", "N"), rec.get("subschargeyn", "N"),
-         rec.get("accode", ""), rec.get("status", ""),
-         USER, code), cn=cn, commit=commit)
+    def work(connection):
+        normalized = validate_memrev({**rec, "code": code})
+        if _memrev_duplicate_description(
+            normalized["desc"], exclude_code=code, cn=connection
+        ):
+            raise ValueError("Description already exists")
+        return db.execute(
+            "UPDATE MembershipRevMast SET Description = ?, AcountYN = ?, "
+            "ACPosting = ?, TaxStru = ?, SubsDetails = ?, RefundableYN = ?, "
+            "SubsChargeYN = ?, AcCode = ?, Status = ?, SITE_CODE = ?, "
+            "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' WHERE Code = ?",
+            (
+                normalized["desc"], normalized["acountyn"],
+                normalized["acposting"], normalized["taxstru"],
+                normalized["subsdetails"], normalized["refundableyn"],
+                normalized["subschargeyn"], normalized["accode"],
+                normalized["status"], SITE_CODE, USER, _memrev_text(code),
+            ),
+            cn=connection,
+            commit=False,
+        )
+
+    _memrev_run_transaction(work, cn=cn, commit=commit)
+    return 1
 
 
 def memrev_delete(code: str, cn=None, commit=True) -> int:
-    return db.execute(
-        "DELETE FROM MembershipRevMast WHERE Code = ?", (code,),
-        cn=cn, commit=commit)
+    def work(connection):
+        return db.execute(
+            "DELETE FROM MembershipRevMast WHERE Code = ?",
+            (_memrev_text(code),),
+            cn=connection,
+            commit=False,
+        )
+
+    return _memrev_run_transaction(work, cn=cn, commit=commit)
 
 
 class _MemRevAPI:
     LIMITS = MEMREV_LIMITS
+
     @staticmethod
-    def list_all(cn=None): return memrev_list(cn)
+    def list_all(cn=None, logsite_code=None):
+        return memrev_list(logsite_code=logsite_code, cn=cn)
+
     @staticmethod
-    def get(code, cn=None): return memrev_get(code, cn)
+    def get(code, cn=None, logsite_code=None):
+        return memrev_get(code, logsite_code=logsite_code, cn=cn)
+
     @staticmethod
-    def exists(code, cn=None): return memrev_exists(code, cn)
+    def exists(code, cn=None, logsite_code=None):
+        return memrev_exists(code, logsite_code=logsite_code, cn=cn)
+
     @staticmethod
-    def insert(rec, cn=None, commit=True): return memrev_insert(rec, cn, commit)
+    def insert(rec, cn=None, commit=True):
+        return memrev_insert(rec, cn=cn, commit=commit)
+
     @staticmethod
-    def update(code, rec, cn=None, commit=True): return memrev_update(code, rec, cn, commit)
+    def update(code, rec, cn=None, commit=True):
+        return memrev_update(code, rec, cn=cn, commit=commit)
+
     @staticmethod
-    def delete(code, cn=None, commit=True): return memrev_delete(code, cn, commit)
+    def delete(code, cn=None, commit=True):
+        return memrev_delete(code, cn=cn, commit=commit)
+
 
 MemRevAPI = _MemRevAPI()

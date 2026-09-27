@@ -1,0 +1,51 @@
+================================================================================
+   ANALYSIS HMS - FINANCE MODULE : BUG REPORT (TESTER FORMAT)
+================================================================================
+Property: Demo Property | Report Date: 21-Sep-2026 | Round: 1 + 2 (Demo entries)
+Method: Manual UI testing on live app - demo entries, empty submits, duplicates,
+        report fetches. Source code sirf root-cause confirm karne ke liye dekha.
+================================================================================
+
+TOTAL BUGS: 2
+
+--------------------------------------------------------------------------------
+[FIN-01] Ledger Account - Group Code field load-par invalid
+Severity : MEDIUM
+Screen   : Finance > Ledger Account
+
+Steps:
+1. Ledger Account kholo, Group Code dekho
+
+Expected: Clean form.
+
+Actual (BUG): Group Code load-par invalid/underlined state me.
+
+Impact: UX confusion.
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+[FIN-02] Payment Received page kabhi-kabhi poori tarah blank render hota hai
+Severity : MEDIUM
+Screen   : Finance > Payment Received (/paymentreceived)
+
+Steps:
+1. Payment Received kholo (do-teen baar kholke dekho)
+
+Expected: Page hamesha cleanly load ho.
+
+Actual (BUG): Ek baar page bilkul blank render hua (sirf header). Reload par theek hua - intermittent.
+
+Impact: User ko lagta hai system hang - support calls badh sakti hain.
+
+Evidence: screenshots/FIN_ledger_page.png (blank render)
+--------------------------------------------------------------------------------
+
+================================================================================
+  JO SAHI KAAM KAR RAHA HAIN (VERIFIED)
+================================================================================
+  [OK] Ledger Account form load + fields OK
+  [OK] Tax Master (Sundry) form load OK
+
+================================================================================
+END OF FINANCE BUG REPORT
+================================================================================

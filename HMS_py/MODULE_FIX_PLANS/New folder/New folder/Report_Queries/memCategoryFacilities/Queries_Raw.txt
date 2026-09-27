@@ -1,0 +1,28 @@
+Module: memCategoryFacilities
+Total SQL statements: 8
+================================================================================
+
+-- SQL Statement 1 --
+  loc_100B6B3: var_BC = CVar("Select Code,Name From MemCatMast Where (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO') Order by Name") 'String
+
+-- SQL Statement 2 --
+  loc_100B72F: var_AC = "Select DISTINCT (CF.MemCatCode+Space(6-len(CF.MemCatCode))+'**'+Convert(Varchar(11),CF.AppDate,103)) AS SearchCode,SITE_CODE,LOGSITE_CODE From MemCatFacility CF Where (LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 3 --
+  loc_100B736: var_BC = CVar("Select Code,Name From MemCatMast Where (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO') Order By (CF.MemCatCode+Space(6-len(CF.MemCatCode))+'**'+Convert(Varchar(11),CF.AppDate,103))") 'String
+
+-- SQL Statement 4 --
+  loc_EC15EE: var_10C = "Select DISTINCT (CF.MemCatCode+Space(6-len(CF.MemCatCode))+'**'+Convert(Varchar(11),CF.AppDate,103)) AS Code,M.Name As MemberCategory,Convert(Varchar(11),CF.AppDate,106)  As AppDate From (MemCatFacility CF Left Join MemCatMast M On CF.MemCatCode=M.Code) Where (CF.LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 5 --
+  loc_144EE7A:     var_1BC = "Insert Into MemCatFacility (MemCatCode,AppDate,FcCode,ChrgType,FixedRate,PMember,Spouse,Child,ExtraAdult,ExtraChild,U_AE,U_Name,U_EntDt,Site_Code,LogSite_Code) " & " Values ('"
+
+-- SQL Statement 6 --
+  loc_125F67A: var_90 = "Select Code,Name,FixedRate,ChargeType,PrimaryMember,Spouse,Child,AddAdult,AddChild From MemFacilityMast where ActiveYN='Y' And (LOGSITE_CODE='" & MemVar_1F81078
+
+-- SQL Statement 7 --
+  loc_FC3011: Call 0.Method_Proc_269_55_FC312C0 (CInt(0), var_98, var_9C, "Select Count(*) From MemCatFacility Where (LOGSITE_CODE='" & MemVar_1F81078 & "' or LOGSITE_CODE='HO') and (MemCatCode='", var_130, -1)
+
+-- SQL Statement 8 --
+  loc_139F8DE:   var_94 = "Select MF.*,M.Name As MemCatName,FM.Name As FacilityName From ((memCatFacility MF Left Join MemCatMast M On MF.MemCatCode=M.Code) Left Join memFacilityMast FM On MF.FcCode=FM.Code) Where MF.LogSite_Code='" & MemVar_1F81078
+

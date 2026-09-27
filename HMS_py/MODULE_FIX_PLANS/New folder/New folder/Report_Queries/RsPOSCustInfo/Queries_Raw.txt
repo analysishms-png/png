@@ -1,0 +1,13 @@
+Module: RsPOSCustInfo
+Total SQL statements: 3
+================================================================================
+
+-- SQL Statement 1 --
+  loc_13C6218:     Call 0.Method_TxtCust_Validate0 (CInt(0), var_98, "Select * from guestprof Where MobileNo='", var_11C)
+
+-- SQL Statement 2 --
+  loc_13C65A4:       unk_46240B.Execute "Select ncur from enviro", var_A8, -1
+
+-- SQL Statement 3 --
+  loc_10F9AB8: var_A4 = "Select Code As SearchCode,GUESTPROF.Name As Name,ADD1 AS Address1,ADD2 AS Address2,CITY.CITYNAME AS CityName FROM GuestProf Left Join City on City.CityCode=GuestProf.City Where (GuestProf.LOGSITE_CODE='" & MemVar_1F81078
+

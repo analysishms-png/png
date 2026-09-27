@@ -1,0 +1,35 @@
+================================================================================
+   ANALYSIS HMS - EXTRAS (Tax / General Setup) MODULE : BUG REPORT (TESTER FORMAT)
+================================================================================
+Property: Demo Property | Report Date: 21-Sep-2026 | Round: 1 + 2 (Demo entries)
+Method: Manual UI testing on live app - demo entries, empty submits, duplicates,
+        report fetches. Source code sirf root-cause confirm karne ke liye dekha.
+================================================================================
+
+TOTAL BUGS: 1
+
+--------------------------------------------------------------------------------
+[EX-01] Tax Master - Sundry/Ledger dropdowns me 115 accounts plain list me
+Severity : LOW
+Screen   : Extras > Tax Master
+
+Steps:
+1. Tax Master kholo, Ledger Account dropdown kholo
+
+Expected: 115 accounts searchable/grouped hone chahiye.
+
+Actual (BUG): Plain long list - scroll karke dhundhna padta hai (select2/search nahi laga kuch jagah).
+
+Impact: Slow data entry, galat account select hone ka risk.
+
+--------------------------------------------------------------------------------
+
+================================================================================
+  JO SAHI KAAM KAR RAHA HAIN (VERIFIED)
+================================================================================
+  [OK] Tax Master form load OK (Sundry/Ledger/Payable dropdowns populated)
+  [OK] Tax Structure page route OK
+
+================================================================================
+END OF EXTRAS (Tax / General Setup) BUG REPORT
+================================================================================
