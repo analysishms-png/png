@@ -5,8 +5,8 @@ VB6: *.frm captions + inline-SQL table evidence | Py: shell registry + core/ui s
 
 STATUS SUMMARY
 ------------------------------------------------------------------------------
-  DONE         112
-  PARTIAL      185
+  DONE         113
+  PARTIAL      184
   UI-ONLY      0
   BLOCKED-TBL  3
   MISSING      20
@@ -21,7 +21,6 @@ STATUS SUMMARY
 |---------------------|----------------------------|-----------|------|-------|----------------------------------------|
 | EmptyInbox          | Inbox                      | no        | Y    | -     | Messaging, USERMAST                    |
 | fdNDAcPostChrg      | Posting Utility            | no        | Y    | -     | Enviro, ItemMast, PayCharge, Paycharge |
-| fdPrintScreen       | Guest Charges Summary      | no        | Y    | -     | GUESTSTAT, GuestFolio, GuestProf, RevM |
 | FindMess            | (blank)                    | no        | Y    | -     | GuestMessage                           |
 | frmAdvanceDepDialog | Advance Deposit            | no        | Y    | -     | Booking, City, Employee, Enviro, Group |
 | FrmBdayLookup       | Form1                      | no        | Y    | -     | GuestProf                              |
@@ -276,6 +275,7 @@ STATUS SUMMARY
 | FdLookUpRoomNo      | Display Rack               | YES       | Y    | Y     | DispColor, Dispcolor, ENVIRO, GuestFol |
 | fdPaymentCharge     | Post Charges & Payment     | YES       | Y    | Y     | DepartPay, Employee, Enviro, GUESTFOLI |
 | fdPostChrg          | Post Charges /Payments     | YES       | Y    | Y     | Enviro, GuestFolio, GuestProf, PAYCHAR |
+| fdPrintScreen       | Guest Charges Summary      | YES       | Y    | Y     | GUESTSTAT, GuestFolio, GuestProf, RevM |
 | FdReSetlement       | Post Charges/Payment       | YES       | Y    | Y     | BillDet, DepartPay, Employee, Enviro,  |
 | FdRevCheckOut       | Check Out Cancel           | YES       | Y    | Y     | EPABX_IN, Enviro, GUESTSTAT, GuestFoli |
 | fdRoomChange        | Room Change                | YES       | Y    | Y     | Booking, Comp_PlanDet, EPABX_IN, Fixed |
@@ -388,9 +388,6 @@ STATUS SUMMARY
     ui=N core=Y
 - fdNDAcPostChrg (fdNDAcPostChrg.frm): 'Posting Utility'
     tables: Enviro, ItemMast, PayCharge, Paycharge, Stock (+3)
-    ui=N core=Y
-- fdPrintScreen (fdPrintScreen.frm): 'Guest Charges Summary'
-    tables: GUESTSTAT, GuestFolio, GuestProf, RevMast, RoomCat (+4)
     ui=N core=Y
 - FindMess (FindMess.frm): '(blank)'
     tables: GuestMessage

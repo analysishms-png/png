@@ -161,3 +161,50 @@ class TestGlobalNarration:
             finally:
                 w.close()
                 QApplication.processEvents()
+
+
+class TestGuestCharges:
+    """VB6 fdPrintScreen port (core: folio.charges_summary_*)."""
+
+    def test_core_browser_and_detail(self):
+        from HMS_py.core import folio
+        rows = folio.charges_summary_folios("")
+        assert isinstance(rows, list)
+        if not rows:
+            pytest.skip("koi folio nahi")
+        d = folio.charges_summary_detail(rows[0]["folio"])
+        assert d["folio"] == rows[0]["folio"]
+        assert abs((d["dr"] - d["cr"]) - d["net"]) < 0.011
+        for x in d["rows"]:
+            assert "revname" in x and "dr" in x and "cr" in x
+
+    def test_core_search_filter(self):
+        from HMS_py.core import folio
+        rows = folio.charges_summary_folios("")
+        if rows and rows[0]["guest"]:
+            needle = rows[0]["guest"][:4]
+            hit = folio.charges_summary_folios(needle, top=20)
+            assert isinstance(hit, list)
+
+    def test_ui_construct_select_and_close(self):
+        from HMS_py.ui.guest_charges_ui import GuestChargesWindow
+        from PyQt6.QtWidgets import QApplication
+        _qapp()
+        w = GuestChargesWindow()
+        try:
+            QApplication.processEvents()
+            if w.tbl_folios.rowCount() == 0:
+                pytest.skip("koi folio nahi")
+            w.tbl_folios.setCurrentCell(0, 0)
+            w._on_folio()
+            QApplication.processEvents()
+            assert w.tbl_charges.rowCount() > 0
+            assert "Folio" in w.lbl.text()
+        finally:
+            w.close()
+
+    def test_registry_guest_charges_wired(self):
+        from HMS_py.ui import shell
+        fn = shell._form_registry().get("Guest Charges Summary")
+        assert fn is not None, "Guest Charges Summary registry me nahi"
+        assert "coming_soon" not in repr(fn)

@@ -797,6 +797,11 @@ def _form_registry() -> dict[str, callable]:
         from HMS_py.ui import partial_forms_ui as pfui
     except ImportError:
         pfui = None
+    # Guest Charges Summary (VB6 fdPrintScreen port)
+    try:
+        from HMS_py.ui import guest_charges_ui as gchrg_ui
+    except ImportError:
+        gchrg_ui = None
     try:
         from HMS_py.ui import purchase_order_ui as purord_ui
     except ImportError:
@@ -1511,6 +1516,8 @@ def _form_registry() -> dict[str, callable]:
         "Adjustment Delete": (lambda w: pfui.open_adjustment_delete(w)) if pfui else _coming_soon("Adjustment Delete"),
         "Location wise Opening Stock Entry": (lambda w: pfui.open_location_opening_stock(w)) if pfui else _coming_soon("Location wise Opening Stock Entry"),
         "T.D.S.Category Entry": (lambda w: pfui.open_tds_category(w)) if pfui else _coming_soon("T.D.S.Category Entry"),
+        # Guest Charges Summary (VB6 fdPrintScreen)
+        "Guest Charges Summary": (lambda w: gchrg_ui.open_guest_charges(w)) if gchrg_ui else _coming_soon("Guest Charges Summary"),
         "System Config": (lambda w: syscfg_ui.open_sys_config(w)) if syscfg_ui else None,
         "Backup Data": (lambda w: dbbak_ui.open_db_backup(w)) if dbbak_ui else _coming_soon("Backup Data"),
         # Wave 5: Fd*/CheckOut batch (VB6 FdCheckOut/fdAmendEntry/...)
