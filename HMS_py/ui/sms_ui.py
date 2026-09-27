@@ -627,8 +627,9 @@ class SMSEnviroSettings(QDialog):
                                        tooltip="Test SMS API connection")
         self.btn_test.clicked.connect(self._test)
         btn_bar.addWidget(self.btn_test)
-        btn_bar.addWidget(styled_button("Close", role="danger")
-                          .clicked.connect(self.reject))
+        btn_close = styled_button("Close", role="danger")
+        btn_close.clicked.connect(self.reject)
+        btn_bar.addWidget(btn_close)
         root.addLayout(btn_bar)
 
     def _load_settings(self):

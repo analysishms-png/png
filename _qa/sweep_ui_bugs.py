@@ -13,6 +13,7 @@ v2 changes:
 """
 import inspect
 import os
+import subprocess
 import sys
 import threading
 import traceback
@@ -132,8 +133,30 @@ def _watchdog():
 
 threading.Thread(target=_watchdog, daemon=True).start()
 
+# --subprocess mode: har caption apne process me (native segfault isolate).
+# Parent in-process sweep bhi rakhta hai (fast), subprocess pass sirf
+# tab chalta hai jab --subprocess flag ho ya in-process segfault ho jaye.
+USE_SUB = "--subprocess" in sys.argv
+
 for i, (cap, fn) in enumerate(sorted(wired.items()), 1):
     _state["cap"] = cap
+    if USE_SUB:
+        r = subprocess.run(
+            [sys.executable, "-u",
+             os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                          "sweep_one_cap.py"), cap],
+            capture_output=True, text=True, timeout=180)
+        if r.returncode == 0:
+            ok += 1
+        else:
+            fail.append(cap)
+            fails[cap] = (f"exit={r.returncode} "
+                          + ((r.stderr or "").strip().splitlines()[-1][:160]
+                             if (r.stderr or "").strip() else ""))
+            print(f"  FAIL [{cap}]: {fails[cap]}")
+        if i % 50 == 0:
+            print(f"  ...{i}/{len(wired)} scanned")
+        continue
     try:
         w = fn(mw) if mw is not None else None
         # kuch entries None window return karti hain (internal forms)

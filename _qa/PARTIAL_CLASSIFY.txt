@@ -1,0 +1,194 @@
+PARTIAL BUCKET CLASSIFICATION v2 (New/Load/Show launcher evidence)
+================================================================
+
+## WIRED-ALIAS  (7)
+----------------------------------------
+FrmFacilityMast                        'Form1                         ' Revenue Master
+FrmMergeCharge                         'Room Merge                    ' Check Out
+FrmMeterReading                        'Meter Reading                 ' Location Facilities
+FrmRevMergeCharge                      'Reverse Transfer Room         ' Check Out
+Outbox                                 'Intelligent Outbox            ' EPBAX Call Report
+rFomRepView                            'FomRepView                    ' GSTR1
+RsTouchDisplayTB                       'Display Table                 ' POS Bill Reprint
+
+## LAUNCHED  (147)
+----------------------------------------
+FrmBdayLookup                          'Form1                         ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+FrmBusinessSrc                         'Business Source Master        ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+FrmChangeDepart                        'Department Change Master      ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+FrmChangeKitch                         'Kitchen Change Master         ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='StoreIssReg'
+FrmChangeRest                          'Restaurant Change Master      ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='PointOfSale'
+frmComboMast                           'Combo Item Master             ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+FrmComplaintMast                       'Complain Master               ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='HouseEnt'
+FrmConsumMast                          'Consumption Master            ' FrmItemMastRaw.frm, HMS.bas, HallMenuItemEntry.frm
+FrmConsumMast9999                      'Open Item Consumption Mast    ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+FrmControlPanel                        'Control Panel                 ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+FrmDeliveredItemDetail                 'Not Delivered Item            ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='DiscountPartyWiseReg'
+FrmDeliveryBoyMast                     'Delivery Boy Master           ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+FrmDenomination                        'Denomination Detail           ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='DeliveryStatus'
+frmEnviro                              'Parameter Settings            ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+FrmEventMast                           'Event Type                    ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='HallEnt'
+FrmExpense                             'Misc.Payment / Received En    ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+frmFixedChargeMast                     'Fixed Charge Master           ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+frmFomB                                'FOM Bill Reprint              ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+FrmFomBillDeletion                     'Fom Bill Delection            ' HMS.bas, ModuleAdd.bas | ctx='Enviro Inventry'
+FrmForeignExMast                       'Foreign Exchange Master       ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+FrmForExRec                            'Forex Receive Entry           ' HMS.bas, ModuleAdd.bas | ctx='Register Wake up Calls'
+FrmGrcBlank                            'Guest Registration  Card      ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+frmGuestInfo                           'Guest Information             ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+frmGuestParamMast                      'Guest Parameters Master       ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx=', 0, TRUNCATEONLY)'
+FrmGuestStat                           'Guest Status Master           ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+FrmGuestWakeUp                         'Register Wake up Calls        ' HMS.bas, ModuleAdd.bas
+FrmHallItemCatMast                     'Category and Charge Master    ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='BANQ'
+FrmHouGuestMsg                         'In House Guest Message        ' HMS.bas, InHouseGuestFolio.frm, ModuleAdd.bas
+FrmInc                                 'Inconsistency Check           ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+FrmItemCatMast                         'Category/Charge Master        ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+FrmItemCatRaw                          'Category/Charge Master        ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+FrmItemGroupMast                       'Item Group Entry              ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='='Finish''
+FrmItemIssuedOnCleaning                'Item Issued On Cleaning       ' HMS.bas, MDIForm1.frm
+FrmItemMast                            'Item Entry                    ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+FrmItemMastRaw                         'Item Entry (Raw)              ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+FrmJobScheduler                        'Task Scheduler                ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+FrmLostFound                           'Lost && Found                 ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+FrmMarketSeg                           'Market Segment Master         ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+frmMenuItemCopy                        'Menu Item Copy                ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+FrmMenuRate                            'Item Rate Entry               ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+FrmOPStock                             'Opening Stock Entry           ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+FrmPackageMast                         'Package Defination Master     ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='Package'
+FrmParty                               'Suppler Master                ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='CCenterMas'
+FrmPayTypeMast                         'Payment Type Master           ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+FrmPOSBillDeletion                     'POS Bill Deletion Entry       ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+FrmPOSRecycleData                      'Recycle Outlet Data           ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='PLUFile'
+FrmPOSSaleDataTransfer                 'POS Bill Deletion Entry       ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='PLUFile'
+frmPurEnviro                           'Purchase Parameter            ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+FrmRevenueWiseBudget                   'Revenue Wise Budget           ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+frmRevGroup                            'Revenue Group                 ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+FrmRoomCatMast                         'Room Category Master          ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+FrmRoomFeatureMast                     'Room Features Master          ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+FrmRoomMast                            'Room  Master                  ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+FrmSerialiseVr                         'Voucher Serialisation         ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+FrmTaxStruMast                         'Tax Structure Master          ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='GENMas'
+FrmUserPaymentCollection               'User Payment Receive Entry    ' HMS.bas, ModuleAdd.bas | ctx='Card Re-Issue'
+frmWelcome                             '<                             ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+HallAdvanceDepDialog                   'Advance Recived               ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='BANQ'
+HallBill                               'Hall Bill Entry               ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='BANQ'
+HallBillEstimate                       'Banquet Estimate Bill         ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='BANQ'
+HallItemGroupMast                      'Item Group Entry              ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='BANQ'
+HallMenuCatalog                        'Menu Catalog                  ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='BANQ'
+HallMenuItemEntry                      'Menu Item Entry               ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='BANQ'
+HKHouseOpStk                           'House Keeping Op. Stock En    ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+HKRoomOpStk                            'Room Op.Stock Entry           ' HMS.bas, ModuleAdd.bas
+HRoomCheckOutClearance                 'Check Out Clearance Screen    ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+HWIHistory                             'Walk In by Room History       ' HMS.bas, ModuleAdd.bas | ctx='And Split=''
+Inbox                                  'Inbox                         ' HMS.bas, MDIForm1.frm | ctx='Telephone Report'
+InHouseGuestFolio                      'Inhouse Guest Folio           ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='FDOMenu'
+kClStk                                 'Kitchen Closing Stock Entr    ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+memAgeRevMast                          'Member Category Wise Reven    ' HMS.bas, ModuleAdd.bas | ctx='Category wise Revenue'
+MemAssistant                           'Member Assistant              ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+MemAutoSettleCardBalance               'Auto Settle Card Balance      ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+MemberEnviro                           'Parameter Setting             ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+MemberProposedMemInf                   'Propsed Member Information    ' HMS.bas, MembershipMast.frm
+MembershipMast                         'Member Master                 ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='MemMas'
+MemberShipRevenueMast                  'MemberShip Revenue Master     ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+MemBillPrintingModule                  'Member Bill Printing          ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+memCatChngCond                         'Member Category Change (Co    ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+memCatChngEntry                        'Out-Station Member Entry      ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+memCategoryFacilities                  'Category wise Facility        ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+MemCatMast                             'Member Category Master        ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='MemMas'
+memCatRevMast                          'Member Category Wise Reven    ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+MemFacilityBilling                     'Member Facility Billing       ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+MemFacilityEntry                       'Member Used Facility Entry    ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+memOutStationEntry                     'Out-Station Member Entry      ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='MemOpr'
+MemRenewalEntry                        'Member Renewal                ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='Memb'
+MemSelectCategory                      'Select Member Category        ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+MemTagadaLetter                        'Payment Due Letter Entry      ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+MemVisitEntry                          'Member Visit Entry            ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='Memb'
+OutLetMast                             'Outlet Master                 ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='POSMas'
+pGIss                                  'Goods Issue Entry             ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+pMREntry                               'Material Receive Entry        ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+POSAdvanceDepDialog                    'Order Booking Advance         ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='& MemVar_1F921A4 &'
+POSBillReprint                         'OutLet Bill Reprint           ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+pPBill                                 'Purchase Bill Entry           ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+prAttend                               'Leave                         ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='PayOpr'
+PrAttend1                              'Attendence                    ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='PayOpr'
+pReqSlip                               'Requistion Slip Entry         ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+PrLeavench                             'Leave Encashment              ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+PrLoan                                 'Advance/Loan                  ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+prOverTime                             'Over Time                     ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+resRoomType                            'Room Category Wise Reserva    ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='PackageForecast'
+rHallRepView                           'HallRepView                   ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='BanqRep'
+rInventRepView                         'ReportForm                    ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='Matrep'
+rMemberRepView                         'Member Report                 ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='MemRpt'
+rPOSRepView                            'Pos Report                    ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='EXTSCRP'
+rRepHouse                              'ReprtForm                     ' HMS.bas, rRepHousePreview.frm | ctx='RoomStatus'
+rRepHousePreview                       'ReprtForm                     ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='HouseREP'
+rRepPayRoll                            'ReprtForm                     ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='PayRep'
+rRepReserv                             'ReprtForm                     ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='FDOForms'
+rRepTel                                'ReprtForm                     ' HMS.bas, rRepTelPreview.frm
+rRepTelPreview                         'ReprtForm                     ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='mnuTelRep'
+rsAdvanceDepDialog                     'Settlement                    ' HMS.bas, MainLib.bas | ctx='' And RestType='Production''
+RsAssignDelivery                       'Member Category Wise Reven    ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+RsBookingEntry                         'Booking Entry                 ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='No Records in Table Master'
+RsGravyItemEntry                       'Gravy Item Entry              ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='Purch'
+RsKitchenMaterial                      'Excise Invoice Cum Gate Pa    ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+RsKOTEntry                             'KOT                           ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+RsMenuItemEntry                        'Menu Item Entry               ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+RsPaymentReceice                       'Payment Receive Entry (POS    ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='DenominationDetail'
+RsPOSCustInfo                          'Customer Information          ' HMS.bas, RSSaleBill.frm, RsBookingEntry.frm
+RsPOSDisplay                           'Display Table                 ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='No Records in Table Master'
+RsPOSDisplayNew                        'Table Status                  ' HMS.bas, RsKOTEntry.frm
+RSSaleBill                             'Sale Bill Entry               ' FrmFomBillDeletion.frm, FrmPOSBillDeletion.frm, HMS.bas
+RSSaleBill1                            'Sale Bill Entry               ' HMS.bas, MDIForm1.frm | ctx='UTLL'
+RSSaleBillDisplay                      'Bill Look Up                  ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='V_Type'
+RsSpecItemEntry                        'Special Item Entry            ' HMS.bas, RSSaleBill.frm, RSSaleBill1.frm | ctx='& var_C0 &'
+RsStatusScreen                         'POS Status Screen             ' FrmHouseStatus.frm, HMS.bas, MDIForm1.frm | ctx='PointOfSale'
+RsStoreRecEntry                        'Finish Material Receive En    ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+RsTbChange                             'Table Transfer                ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+RsTokenEntry                           'Token Entry                   ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+RsTouchOrderPersonDetails              'Customer Information          ' HMS.bas, RSTouchScreenSaleBill.frm | ctx='Refund Message'
+rsTouchScreenAdvanceDepDialog          'Settlement Entry              ' HMS.bas, MainLib.bas, RSTouchScreenSaleBill.frm
+RsTouchScreenBookingEntry              'Booking Entry                 ' HMS.bas, RsTouchDisplayTB.frm | ctx='VACANT'
+RSTouchScreenSaleBill                  'Sale Bill Entry               ' HMS.bas, RsTouchDisplayTB.frm, RsTouchOrderPersonDetails.frm | ctx='VACANT'
+salmarCompProfile                      'Company Profile               ' HMS.bas, ModuleAdd.bas | ctx='GuestPayments'
+SmartCardLostReIssue                   'Smart Lost/ReIssue Entry      ' HMS.bas, ModuleAdd.bas | ctx='Card Refund'
+SmartCardMast                          'Smart Card Master             ' HMS.bas, ModuleAdd.bas | ctx='POS Recycle'
+SmartCardRecharge                      'Smart Card Recharge Entry     ' HMS.bas, ModuleAdd.bas | ctx='CashCardDebitAc'
+SmartCardRefund                        'Smart Card Refund Entry       ' HMS.bas, ModuleAdd.bas | ctx='Card Recharge'
+SmartCardRegistration                  'Smart Card Registration En    ' HMS.bas, ModuleAdd.bas
+TelCallEntry                           'Call Code Master              ' HMS.bas, ModuleAdd.bas | ctx='Validation'
+Transfer                               'Data Transfer                 ' HMS.bas, MDIForm1.frm, ModuleAdd.bas | ctx='Inconsistency Check'
+TravelAgencyPost                       'Travel Agency Posting         ' HMS.bas, MDIForm1.frm, ModuleAdd.bas
+UserPermission                         'User Permissions              ' HMS.bas, ModuleAdd.bas | ctx='Creating the ZIP at ''
+VoucherSundrySetting                   'Voucher Sundry Setting        ' HMS.bas, ModuleAdd.bas
+
+## ORPHAN  (29)
+----------------------------------------
+frmAdvanceDepDialog                    'Advance Deposit               ' ADRES
+frmCompany                             'User Information              ' 
+frmFdLeaderRev                         'Leader Revenue Allocation     ' ItemName
+FrmGuestAddObj                         'Guest Address & Observatio    ' 
+FrmHouseStatus                         'Property Status               ' 
+FrmPlanTokenMast                       'Plan Token Master             ' 
+FrmPOSBillModificationDatewise         'POS Bill Deletion Entry       ' 
+FrmPOSBillModificationItemGroupwise    'POS Bill Modification (Ite    ' 
+FrmReceivePayment                      'Misc.Payment / Received En    ' DocID
+FrmSmsCenterSettings                   'SMS Center Settings           ' 
+FrmSMSEnviro                           'Parameter Setting             ' ' And DepartCode=
+FrmSMSMultiType                        'Common SMS                    ' 
+FrmUnSettledBillsInfo                  'Unsettled Bill Details        ' RestName
+hAdvanceDepDialog                      'Settlement                    ' 
+hAdvanceDepDialogSecondry              'Advance Deposite              ' 
+HallAcPostChrg                         'A/C Posting                   ' TaxCode
+HallEstimate                           'Hall Estimate Entry           ' 
+HKIssRec                               'Issue/Receive Entry           ' 
+MemberSMS                              'Generate SMS.csv              ' 
+REPVIEW                                'Form1                         ' 
+resGroup                               'Group Reservation             ' 
+rFaRepView                             'Financ Report                 ' 
+RrLookUpGuest                          'New Reservation By Guest R    ' Code
+rrsAdvanceDepDialog                    'Settlememt Entry              ' ' AND SITE_CODE='
+RsBookingEntryAdvance                  'Payment Entry                 ' 
+RsTouchScreenSteward                   'Steward                       ' 
+SundryVType                            'Voucher Wise Sundry Entry     ' & MemVar_1F81078 &
+TelCallCodeMast                        'Call Code Master              ' Rate
+TelCallTypeMast                        'Call Type Mast                ' 

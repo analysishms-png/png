@@ -902,6 +902,50 @@ def _form_registry() -> dict[str, callable]:
         from HMS_py.ui import block_master_ui as bmst_ui
     except ImportError:
         bmst_ui = None
+    # PARTIAL-batch wiring: SMS/Inbox + KOT/Token + table display
+    try:
+        from HMS_py.ui import sms_ui as smsui
+    except ImportError:
+        smsui = None
+    try:
+        from HMS_py.ui import kot_transfer_ui as kotui
+    except ImportError:
+        kotui = None
+    # PARTIAL-batch: complaint/guest-services tabs + enviro screen
+    try:
+        from HMS_py.ui import enviro_ui as envui
+    except ImportError:
+        envui = None
+    try:
+        from HMS_py.ui import company_profile_ui as prof_ui
+    except ImportError:
+        prof_ui = None
+    try:
+        from HMS_py.ui import guest_history_ui as ghist_ui
+    except ImportError:
+        ghist_ui = None
+    try:
+        from HMS_py.ui import channel_ui as ch_ui
+    except ImportError:
+        ch_ui = None
+    try:
+        from HMS_py.ui import folio_ui as folui2
+    except ImportError:
+        folui2 = None
+    try:
+        from HMS_py.ui import user_permissions_ui as perm2_ui
+    except ImportError:
+        perm2_ui = None
+    try:
+        from HMS_py.ui import kot_entry as kot2
+    except ImportError:
+        kot2 = None
+    # VB6 MISSING-batch: frmBlockMast + RewardPointParam1 + FAFind +
+    # FrmChangeSite (tables BlockMast/RWParameter LIVE hain)
+    try:
+        from HMS_py.ui import block_master_ui as bmst_ui
+    except ImportError:
+        bmst_ui = None
 
     def _open_report(cap: str):
         """mdi leaf caption -> reports engine key (exact-match map)."""
@@ -1396,17 +1440,10 @@ def _form_registry() -> dict[str, callable]:
             "Display Table",
             "Order Booking", "Bill Lookup", "Order Booking Advance",
             "KOT Transfer", "Token Entry", "Assign Delivery", "Payment Receive",
-            "Leave", "Attendance", "Loan/Advance", "Over Time",
-            "Leave Encashment", "Salary Creation", "Member Master",
-            "Corporate Member Master", "Category wise Revenue",
-            "Category wise Facility", "Member Bill Sundry Setting",
-             "Member Age Wise Revenue",
-             "Member Select Category",
+            "Salary Creation", 
              "Rate Group Master",
-             "Open Item Consumption", "Customer History",
-            "Card Initialization", "Card Registration", "Card Recharge",
-            "Card Refund", "Card Re-Issue", "User Collection",
-            "SMS (API)", "SMS (Scheduled)", "SMS (Conditional)",
+             "Open Item Consumption", 
+            "Card Initialization",
             "Transfer (Offline)", "Transfer (Online)", "Door Locks",
             "Godrej Locks", "Cascade", "Tile Horizontal", "Tile Vertical",
             "Manage MDI", "Restaurant Change ",
@@ -1490,19 +1527,76 @@ def _form_registry() -> dict[str, callable]:
             "Recharge/Refund Entry", "Cash Card Transaction Report",
             "Cash Card Collection Summary", "Card Transaction Report",
             "Card Statement (MINI)", "Card Statement (FULL)",
-            "Card Collection Summary", "Member Visit Entry",
-            "Member Used Facility Entry", "Member Renewal Entry",
-            "Member Facility Billing", "Member Category Change Entry",
-            "Member Category Change (Conditional)", "Member Bill Printing",
-            "Member Assistant", "Outstation Member Entry",
-            "Auto Settle Card Balance", "Revenue Change Entry",
-            "Payment Due Letter Entry", "Issue/Recd. Entry",
-            "House Keeping Op.Stock Entry", "Facility Sundry Setting",
-            "Meter Reading", "Com Port Properties",
-            "SMS Center Settings", "SMS Environment Settings",
-            "Multiple SMS Type", "InBox", "OutBox",
+            "Card Collection Summary", 
              "Guest Registration", "-",
         )}),
+        # ── PARTIAL-batch wiring: VB6 forms -> existing tested openers ──
+        # (HR tabs: VB6 alag forms the, HrPayrollDialog tabs ka port)
+        "Leave": (lambda w: payroll_ui.open_hr_payroll(w)) if payroll_ui else None,
+        "Attendance": (lambda w: payroll_ui.open_hr_payroll(w)) if payroll_ui else None,
+        "Loan/Advance": (lambda w: payroll_ui.open_hr_payroll(w)) if payroll_ui else None,
+        "Over Time": (lambda w: payroll_ui.open_hr_payroll(w)) if payroll_ui else None,
+        "Leave Encashment": (lambda w: payroll_ui.open_hr_payroll(w)) if payroll_ui else None,
+        "Member Master": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
+        "Corporate Member Master": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
+        "Category wise Revenue": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
+        "Category wise Facility": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
+        "Member Age Wise Revenue": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
+        "Member Select Category": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
+        "Member Bill Printing": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
+        "Member Assistant": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
+        "Outstation Member Entry": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
+        "Member Category Change Entry": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
+        "Member Category Change (Conditional)": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
+        "Member Visit Entry": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
+        "Member Used Facility Entry": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
+        "Member Renewal Entry": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
+        "Member Facility Billing": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
+        "Auto Settle Card Balance": ((lambda w: pm.open_auto_settle_card_balance(
+            w, user=getattr(w, "user", "SA"))) if pm else None),
+        # SmartCard ops (VB6: Registration/Recharge/Refund/ReIssue forms)
+        "Card Registration": ((lambda w: pm.open_smartcard(w, user=getattr(w, "user", "SA"))) if pm else None),
+        # VB6 FrmGuestWakeUp -> guest services Wake Up tab
+        "Register Wake up Calls": ((lambda w: gsvc_ui.open_guest_services(w)) if gsvc_ui else None),
+        # VB6 HRoomCheckOutClearance -> check-out screen
+        "Check Out Clearance Screen": ((lambda w: fo2.open_checkout(w, user=w.user)) if fo2 else None),
+        # Messaging/SMS (VB6: Inbox/Outbox/Common SMS/SMS Center Settings)
+        "InBox": (lambda w: msgui.open_delete_message(w, user=getattr(w, 'user', None))) if msgui else None,
+        "OutBox": (lambda w: msgui.open_delete_message(w, user=getattr(w, 'user', None))) if msgui else None,
+        "Multiple SMS Type": (lambda w: smsui.open_sms_send(w)) if smsui else None,
+        "SMS (API)": (lambda w: smsui.open_sms_send(w)) if smsui else None,
+        "SMS (Scheduled)": (lambda w: smsui.open_sms_send(w)) if smsui else None,
+        "SMS (Conditional)": (lambda w: smsui.open_sms_send(w)) if smsui else None,
+        "SMS Center Settings": (lambda w: smsui.open_sms_send(w)) if smsui else None,
+        # VB6 FrmSMSEnviro 'Parameter Setting' -> SMSEnviroSettings dialog
+        "SMS Environment Settings": ((lambda w: smsui.SMSEnviroSettings(w).exec())
+                                     if smsui else None),
+        "Meter Reading": (lambda w: facb_ui.open_facility_billing(w)) if facb_ui else None,
+        "User Collection": (lambda w: exp_ui.open_expense(w, user=w.user)) if exp_ui else None,
+        # POS/KOT/stock tails (VB6 variants of wired forms)
+        "KOT Transfer": (lambda w: kotui.open_kot_transfer(w)) if kotui else None,
+        "Token Entry": (lambda w: kotui.open_kot_transfer(w)) if kotui else None,
+        "Table Change Entry": (lambda w: kotui.open_table_change(w)) if kotui else None,
+        "Kitchen Closing Stock": (lambda w: kclstk_ui.open_kitchen_closing_stock(w)) if kclstk_ui else _coming_soon("Kitchen Closing Stock"),
+        "Issue/Recd. Entry": (lambda w: stiss_ui.open_stock_issue(w)) if stiss_ui else _coming_soon("Issue/Recd. Entry"),
+        "House Keeping Op.Stock Entry": ((lambda w: misc_ui.open_opening_stock(w))
+                                         if misc_ui else _coming_soon("House Keeping Op.Stock Entry")),
+        "Payment Due Letter Entry": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
+        # ── PARTIAL-batch 2: VB6 form -> core-module-mapped opener ──
+        # (core module ka table LIVE hai; dialog opers tested hain)
+        "Complain Master": ((lambda w: gsvc_ui.open_guest_services(w))
+                            if gsvc_ui else None),
+        "Parameter Settings": (lambda w: envui.open_enviro(w)) if envui else None,
+        "Purchase Parameter": (lambda w: envui.open_enviro(w)) if envui else None,
+        "Parameter Setting": (lambda w: envui.open_enviro(w)) if envui else None,
+        "Company Profile": (lambda w: prof_ui.open_company_profile(w)) if prof_ui else None,
+        "Guest Information": (lambda w: ghist_ui.open_guest_history(w, user=getattr(w, 'user', 'SA'))) if ghist_ui else None,
+        "Group Reservation": ((lambda w: ch_ui.open_channel_manager(w, user=getattr(w, 'user', 'SA')))
+                              if ch_ui else None),
+        "Inhouse Guest Folio": (lambda w: folui2.open_folio(w)) if folui2 else None,
+        "User Permissions": ((lambda w: perm2_ui.open_user_permissions(w, user=getattr(w, 'user', 'SA')))
+                             if perm2_ui else None),
+        "KOT": (lambda w: kot2.open_kot_entry(w, user=getattr(w, 'user', 'SA'))) if kot2 else None,
         # VB6 frmBlockMast (House Keeping > Block Master) — BlockMast LIVE
         "Block Master": (lambda w: bmst_ui.open_block_master(w)) if bmst_ui else _coming_soon("Block Master"),
         # VB6 RewardPointParam1 (Members Mgmt) — RWParameter LIVE

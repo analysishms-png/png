@@ -596,8 +596,23 @@ def status_colors() -> dict[str, str]:
 
     Keys: success/warning/danger/neutral (base hues) + *_bg (soft cell
     tint) + *_text (readable text variant) + on_* (contrast-safe label).
+    Guaranteed complete: agar saved user-tokens me koi status family
+    missing ho (purane config) to mode defaults se backfill hota hai —
+    kot_entry.py jaise bracket-access call sites kabhi KeyError na dein.
     """
-    return {k: _active[k] for k in _STATUS_KEYS if k in _active}
+    out = {k: _active[k] for k in _STATUS_KEYS if k in _active}
+    if len(out) < len(_STATUS_KEYS):
+        defaults = status_base_defaults(_active.get("mode", "light"))
+        surf = _active.get("surface_solid", "#ffffff")
+        bg = _active.get("bg", "#ffffff")
+        for n in _STATUS_NAMES:
+            base = out.get(n) or defaults.get(n) or "#64748b"
+            out.setdefault(n, base)
+            out.setdefault(f"{n}_bg", _mix(base, surf, 0.85))
+            out.setdefault(f"{n}_text", _mix(base, bg, 0.35))
+            out.setdefault(f"on_{n}",
+                           "#111111" if _is_dark(base) else "#ffffff")
+    return out
 
 
 def status_base_defaults(mode: str = "light") -> dict[str, str]:
