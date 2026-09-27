@@ -73,6 +73,7 @@ def _qt_msg_handler(msg_type, context, message):
 qInstallMessageHandler(_qt_msg_handler)
 
 from HMS_py.core import auth, company, menu
+from HMS_py.core import menu_help as mh
 # v0.1.2 workflow cores (Room Change / KOT Transfer / Salary Create)
 from HMS_py.core import checkin as checkin_mod
 from HMS_py.core import pos as _pos_core
@@ -674,6 +675,18 @@ def _form_registry() -> dict[str, callable]:
         from HMS_py.ui import fd_forms_ui as fdui
     except ImportError:
         fdui = None
+    # Wave 6 imports (posting/settlement — VB6 fdPostChrg/fdPaymentCharge/
+    # FdReSetlement/FdRevCheckOut)
+    try:
+        from HMS_py.ui import posting_forms_ui as postui
+    except ImportError:
+        postui = None
+    # Wave 7 imports (rack/room-lookup/walk-in — VB6 fdRoomDisplay/
+    # FdLookUpRoomNo/fdRoomOcc/fdWalkInEntry)
+    try:
+        from HMS_py.ui import walkin_rack_ui as wrui
+    except ImportError:
+        wrui = None
     try:
         from HMS_py.ui import inventory as _inv
     except ImportError:
@@ -771,6 +784,10 @@ def _form_registry() -> dict[str, callable]:
         from HMS_py.ui import db_backup_ui as dbbak_ui
     except ImportError:
         dbbak_ui = None
+    try:
+        from HMS_py.ui import einvoice_ui as einv_ui
+    except ImportError:
+        einv_ui = None
     try:
         from HMS_py.ui import purchase_order_ui as purord_ui
     except ImportError:
@@ -1052,7 +1069,8 @@ def _form_registry() -> dict[str, callable]:
         "Main Setup": _open_main_setup,
         # P4-a Front Office:
         "Guest Profile": lambda w: fo.open_guestprof(w),
-        "Check In": lambda w: fo.open_checkin(w, user=w.user),
+        "Check In": (lambda w: wrui.open_walkin_entry(
+            w, user=getattr(w, 'user', 'PYADMIN'))) if wrui else _coming_soon("Check In"),
         "Check-In": lambda w: fo.open_checkin(w, user=w.user),
         "Checkin": lambda w: fo.open_checkin(w, user=w.user),
         # P5 POS + Night Audit:
@@ -1099,8 +1117,8 @@ def _form_registry() -> dict[str, callable]:
         # Wave 2: FO operational screens
         "Check Out": (lambda w: _rbac_guard("d", "Check Out")(fo2.open_checkout)(w, user=w.user)) if fo2 else None,
         "Check-Out": (lambda w: _rbac_guard("d", "Check-Out")(fo2.open_checkout)(w, user=w.user)) if fo2 else None,
-        "Checkout": (lambda w: _rbac_guard("d", "Checkout")(fo2.open_checkout)(w, user=w.user)) if fo2 else None,
-        "WalkIn CheckIn": lambda w: fo.open_checkin(w, user=w.user),
+        "Checkout": (lambda w: _rbac_guard("d", "Checkout")(fo2.open_checkout)(w, user=w.user)) if fo2 else None,            "WalkIn CheckIn": (lambda w: wrui.open_walkin_entry(
+                w, user=getattr(w, 'user', 'PYADMIN'))) if wrui else _coming_soon("WalkIn CheckIn"),
         "Reverse Check Out": (lambda w: fo2.open_checkout(w, user=w.user)) if fo2 else None,
         "Room Status": (lambda w: rs_ui.open_roomstatus(w, user=w.user)) if rs_ui else None,
         "House Keeping Screen": (lambda w: rs_ui.open_roomstatus(w, user=w.user)) if rs_ui else None,
@@ -1174,6 +1192,8 @@ def _form_registry() -> dict[str, callable]:
         "Purchase Bill": (lambda w: purbill_ui.open_purchase_bill(w)) if purbill_ui else _coming_soon("Purchase Bill"),
         "Stock Transfer": (lambda w: _inv.open_stock_transfer(w)) if _inv else None,
         "eInvoice Config": (lambda w: _inv.open_einvoice_config(w)) if _inv else None,
+        # NA menubar leaf (test_wave_c_gstr2) — browser surface report ke liye
+        "EInvoice Report": (lambda w: einv_ui.open_einvoice_browser(w)) if einv_ui else _coming_soon("EInvoice Report"),
         "Kitchen Stock Report": (lambda w: _inv.open_kitchen_stock_report(w)) if _inv else None,
         "Stock Issue": (lambda w: stiss_ui.open_stock_issue(w)) if stiss_ui else _coming_soon("Stock Issue"),
         "Stock Receive": (lambda w: strec_ui.open_stock_receive(w)) if strec_ui else _coming_soon("Stock Receive"),
@@ -1465,6 +1485,26 @@ def _form_registry() -> dict[str, callable]:
         "Voucher Entry": (lambda w: favchr_ui.open_voucher_entry(w)) if favchr_ui else None,
         "System Config": (lambda w: syscfg_ui.open_sys_config(w)) if syscfg_ui else None,
         "Backup Data": (lambda w: dbbak_ui.open_db_backup(w)) if dbbak_ui else _coming_soon("Backup Data"),
+        # Wave 5: Fd*/CheckOut batch (VB6 FdCheckOut/fdAmendEntry/...)
+        "Amend Stay": (lambda w: fdui.open_amend_stay(w)) if fdui else _coming_soon("Amend Stay"),
+        "Look Up Reservation By Guest Name": (lambda w: fdui.open_lookup_reservation(w)) if fdui else _coming_soon("Look Up Reservation By Guest Name"),
+        "Room Check Out": (lambda w: fdui.open_room_checkout(w, user=getattr(w, 'user', 'PYADMIN'))) if fdui else _coming_soon("Room Check Out"),
+        "Guest Ledger": (lambda w: fdui.open_guest_ledger(w)) if fdui else _coming_soon("Guest Ledger"),
+        "Summerized Guest Ledger": (lambda w: fdui.open_guest_ledger_summ(w)) if fdui else _coming_soon("Summerized Guest Ledger"),
+        "Room Check Out Entry": (lambda w: fdui.open_group_checkout(w, user=getattr(w, 'user', 'PYADMIN'))) if fdui else _coming_soon("Room Check Out Entry"),
+        "Room Check Out Entry (Detail)": (lambda w: fdui.open_group_detail_checkout(w, user=getattr(w, 'user', 'PYADMIN'))) if fdui else _coming_soon("Room Check Out Entry (Detail)"),
+        "Look Up Room": (lambda w: fdui.open_lookup_room(w)) if fdui else _coming_soon("Look Up Room"),
+        "Depart Sundry Setting": (lambda w: fdui.open_depart_sundry(w)) if fdui else _coming_soon("Depart Sundry Setting"),
+        # Wave 6: posting/settlement batch
+        "Post Charges /Payments": (lambda w: postui.open_post_chrg(w, user=getattr(w, 'user', 'PYADMIN'))) if postui else _coming_soon("Post Charges /Payments"),
+        "Post Charges & Payment": (lambda w: postui.open_payment_charge(w, user=getattr(w, 'user', 'PYADMIN'))) if postui else _coming_soon("Post Charges & Payment"),
+        "Post Charges/Payment": (lambda w: postui.open_re_settlement(w, user=getattr(w, 'user', 'PYADMIN'))) if postui else _coming_soon("Post Charges/Payment"),
+        "Check Out Cancel": (lambda w: postui.open_rev_checkout(w, user=getattr(w, 'user', 'PYADMIN'))) if postui else _coming_soon("Check Out Cancel"),
+        # Wave 7: rack/room-lookup/walk-in batch
+        "Room View": (lambda w: wrui.open_room_view(w)) if wrui else _coming_soon("Room View"),
+        "Display Rack": (lambda w: wrui.open_display_rack(w)) if wrui else _coming_soon("Display Rack"),
+        "Reservation Look Up Room Wise": (lambda w: wrui.open_roomocc_lookup(w)) if wrui else _coming_soon("Reservation Look Up Room Wise"),
+        "Walk In / Check In Entry": (lambda w: wrui.open_walkin_entry(w, user=getattr(w, 'user', 'PYADMIN'))) if wrui else _coming_soon("Walk In / Check In Entry"),
         # Reports Center (REPORTS_TXT / mdi leaves — read-only engine)
         **({cap: _open_report(cap)
             for cap in (_rpmod.menu_caption_map() if _rpmod else {})}),
@@ -1482,7 +1522,12 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(f"{comp['name']} {{ {comp['year']} }}")
         self.resize(1150, 720)
         self.registry = _form_registry()
-        self._menus = menu.menubar_for  # shortcut
+        # CI registry alias (VB6 captions case-insensitive the — tests +
+        # menuHelp leaves jaise 'eInvoice Config' vs 'EInvoice Report' ko
+        # safe lookup deta hai). Pre-commit hook guard bhi isko check karta hai.
+        self._reg_ci = {str(k).strip().lower(): v
+                        for k, v in self.registry.items()}
+        self._menus = mh.menubar_for  # menuHelp dynamic menubar (VB6 parity)
 
         central = QWidget()
         self._central = central
@@ -1529,9 +1574,16 @@ class MainWindow(QMainWindow):
         side_lay.setSpacing(2)
 
         self._side_buttons = []
-        for m in menu.sidebar_modules():
+        # menuHelp L1 sources pehle (VB6 menubar parity), phir legacy roots —
+        # buttons pe mod_target property (tests + _on_sidebar_click use karte hain)
+        try:
+            _side_sources = mh.sidebar_sources(user)
+        except Exception:
+            _side_sources = menu.sidebar_modules()
+        for m in _side_sources:
             b = QPushButton(f"  {m['name']}")
             b.setProperty("sidebar-btn", True)
+            b.setProperty("mod_target", m["name"])
             b.setMinimumHeight(40)
             b.setCheckable(True)
             b.setAccessibleName(m["name"])
@@ -1660,12 +1712,30 @@ class MainWindow(QMainWindow):
         self.theme_btn.setText("Dark Mode" if new_theme == "dark" else "Light Mode")
         self.theme_btn.setChecked(new_theme == "dark")
 
+    def _on_sidebar_click(self, mod_target: str, btn=None):
+        """mod_target (module name) se sidebar module open karo.
+
+        Tests + shortcuts ke liye stable API — button property se ya direct
+        module name se call ho sakta hai.
+        """
+        target = (mod_target or "").strip().lower()
+        btn = btn or next(
+            (b for b in self._side_buttons
+             if str(b.property("mod_target") or "").strip().lower() == target),
+            None)
+        if btn is not None:
+            btn.click()
+            return
+        # fallback: direct menu build (button list me na ho to bhi)
+        self._on_module({"name": mod_target}, btn)
+
     def _on_module(self, m: dict, btn: QPushButton):
         # sidebar exclusive-check (VB6 jaisa highlight)
         for other in self._side_buttons:
             if other is not btn:
                 other.setChecked(False)
-        btn.setChecked(True)
+        if btn is not None:
+            btn.setChecked(True)
 
         mb = self.menuBar()
         mb.clear()
@@ -1675,8 +1745,7 @@ class MainWindow(QMainWindow):
                 self._add_item(mm, it)
 
         self.canvas.setText(
-            f"{m['name']}\n\nTop menubar se form kholo\n"
-            f"(ported: Plan/City/Sundry/Narration/Venue/Department)")
+            f"{m['name']}\n\nTop menubar se form kholo")
         self.setWindowTitle(
             f"{self.comp['name']} {{ {self.comp['year']} }} - {m['name']}")
 
