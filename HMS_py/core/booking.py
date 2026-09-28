@@ -404,3 +404,42 @@ class BookingAPI:
 
     def delete_plan_detail(self, docid, sno, cn=None, commit=True):
         return delete_plan_detail(docid, sno, cn=cn, commit=commit)
+
+
+# ============================================================
+# Group Booking (VB6 FRONT_OFFICE_LIFECYCLE.md §1: GrpBookingDetails)
+# ============================================================
+
+def insert_group_booking(booking_docid: str, room_details: list[dict],
+                         user: str = USER, cn=None, commit: bool = True,
+                         site: str = SITE_CODE) -> int:
+    """VB6 FRONT_OFFICE_LIFECYCLE.md §1: Group bookings — GrpBookingDetails.
+    
+    VB6: 43 references to GrpBookingDetails table in decompiled code.
+    Each group booking has multiple room details.
+    
+    room_details = [{"roomno": "101", "guestname": "...", "adult": 2, ...}, ...]
+    Returns: number of GrpBookingDetails rows inserted.
+    """
+    if not room_details:
+        raise ValueError("Group booking ke liye kam se kam 1 room detail chahiye")
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        n = 0
+        for i, rd in enumerate(room_details, 1):
+            db.execute(
+                "INSERT INTO GrpBookingDetails (DocId, Sno, RoomNo, GuestName, "
+                "Adult, Child, Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, getdate(), 'A', ?)",
+                (booking_docid, i, rd.get("roomno", ""),
+                 rd.get("guestname", ""), rd.get("adult", 1),
+                 rd.get("child", 0), site, user, site),
+                cn=cn, commit=False)
+            n += 1
+        if commit:
+            cn.commit()
+        return n
+    finally:
+        if own:
+            cn.close()
