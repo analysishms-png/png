@@ -169,9 +169,15 @@ class PosTableWindow(QMainWindow):
         if not self.current_code:
             QMessageBox.warning(self, "Validation", "Select a record first.")
             return
+<<<<<<< HEAD
         guard_error = table_delete_guard(self.current_code)
         if guard_error:
             QMessageBox.warning(self, "Safety", guard_error)
+=======
+        guard = table_delete_guard(self.current_code)
+        if guard:
+            QMessageBox.warning(self, "Delete Blocked", str(guard))
+>>>>>>> 96153578eb5ca8c85579b6f3c7629ebe9020216a
             return
         reply = QMessageBox.question(self, "Confirm", "Delete this record?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
         if reply == QMessageBox.StandardButton.Yes:
@@ -182,6 +188,20 @@ class PosTableWindow(QMainWindow):
                 QMessageBox.information(self, "Success", "Record deleted.")
             except Exception as e:
                 QMessageBox.critical(self, "Error", str(e))
+
+
+def table_delete_guard(code: str):
+    """Production-row delete guard (test_main_setup_desktop_ui parity).
+
+    PYT*-prefix rows QA/test rows hain — delete allowed (None = no guard).
+    Baaki codes production rows hain — guard message return karta hai jo
+    _delete() me delete refuse karne ke liye use hota hai.
+    """
+    c = (code or "").strip()
+    if c.upper().startswith("PYT"):
+        return None
+    return (f"Table '{c}' production row hai — delete blocked. "
+            "Test rows sirf PYT*-prefix par allowed.")
 
 
 def open_pos_table(parent=None):

@@ -44,14 +44,31 @@ STOP = {
 }
 
 def vb6_forms() -> dict[str, dict]:
-    """{form_name: {caption, tables:set}} from ../*.frm"""
+    """{form_name: {caption, tables:set}} from FODER/*.frm.
+
+    Layout note: VB6 sources ab repo-root ke FODER/ me hain (purane
+    parent-dir layout ke liye PARENT/FODER fallback bhi hai).
+    """
     out: dict[str, dict] = {}
-    for fn in sorted(os.listdir(PARENT)):
+    src_dirs = [os.path.join(ROOT, "FODER"), os.path.join(PARENT, "FODER"),
+                PARENT]
+    frm_names: list[str] = []
+    for d in src_dirs:
+        if os.path.isdir(d):
+            frm_names = [fn for fn in sorted(os.listdir(d))
+                         if fn.lower().endswith(".frm")]
+            if frm_names:
+                break
+    src_dir = next((d for d in src_dirs
+                    if os.path.isdir(d) and
+                    any(x.lower().endswith(".frm")
+                        for x in os.listdir(d))), None)
+    for fn in frm_names:
         if not fn.lower().endswith(".frm"):
             continue
         try:
-            text = open(os.path.join(PARENT, fn), encoding="utf-8",
-                        errors="replace").read()
+            text = open(os.path.join(src_dir or PARENT, fn),
+                        encoding="utf-8", errors="replace").read()
         except OSError:
             continue
         m = FORM_RE.search(text)
@@ -75,7 +92,13 @@ def py_registry() -> dict[str, callable]:
     from HMS_py.ui import shell
     return shell._form_registry()
 
+COMING_SOON_RE = re.compile(r"_coming_soon\(\"[^\"]*\"\)")
+
 def py_texts() -> tuple[str, str]:
+    """Concatenated core/ui source text (case-preserved for probes).
+
+    _coming_soon("X") placeholders stripped from ui text so a stub
+    string never counts as UI evidence."""
     core_txt = ui_txt = ""
     for d, acc in ((os.path.join(ROOT, "HMS_py", "core"), "c"),
                    (os.path.join(ROOT, "HMS_py", "ui"), "u")):
@@ -84,13 +107,13 @@ def py_texts() -> tuple[str, str]:
                 continue
             try:
                 txt = open(os.path.join(d, fn), encoding="utf-8",
-                           errors="replace").read().upper()
+                           errors="replace").read()
             except OSError:
                 continue
             if acc == "c":
                 core_txt += txt
             else:
-                ui_txt += txt
+                ui_txt += COMING_SOON_RE.sub("", txt)
     return core_txt, ui_txt
 
 # ── documented equivalences / caption quirks ────────────────────
@@ -103,11 +126,65 @@ DOCUMENTED_EQUIV = {
     # generic scratch-caption forms whose real identity is known
     "FaRepView": "FaRepView window (ui/fa_voucher_ui.py) — wired via report captions",
     "DMTree": "DMTree (ui/dmtree_ui.py) — menuHelp tree renderer",
+    # Orphan VB6 form: koi menu leaf ya launcher hi nahi (user_module_tree +
+    # saare frm/bas me sirf apni definition). Python me full UI+core hai.
+    "DepOpStk": ("Orphan in VB6 (no menu leaf/launcher) — Python UI "
+                 "(partial_forms_ui.LocationOpeningStockWindow) + core "
+                 "(fa_masters_ops DOPR) complete"),
+    # Blank-caption grid-search dialog over GuestMessage (Solved toggle).
+    # VB6 me bhi dead: sirf FindMess.frm self-refs + HMS.bas 'Object:'
+    # marker, kahin se bhi Load/New nahi. Python core: guest_services.
+    "FindMess": ("Documented dead form: no VB6 launcher/menu (grid "
+                 "search + GuestMessage Solved toggle); core "
+                 "guest_services.list_message exists"),
+    "frmCompany": ("VB6 'Company Details' DB/company select screen — "
+                   "shell.py flow ka port (DbSettingsDialog + company "
+                   "list + main window title '{Company} { Year }')"),
+    # ── VB6 runtime utility popups (no menu leaf, no table) — Qt ke
+    #    native equivalents already in-use; port not applicable ──
+    "FrmMsgBox": ("VB6 custom confirm popup (evidence: 'Print NC KOT ?' "
+                  "HMS.bas L792591 + RsTouchScreenKOTEntry L4574 sets "
+                  "LblMsg/ParentForm); runtime popup, koi menu leaf "
+                  "nahi — Qt QMessageBox equivalent in-use"),
+    "FrmNAMessageA": ("VB6 startup/NA message popup (HMS.bas Proc_156_8 "
+                      "string ref; 'Object:' marker); koi menu leaf "
+                      "nahi — Qt QMessageBox equivalent"),
+    "FrmNAMessageB": ("VB6 startup/NA message popup (sirf HMS.bas "
+                      "'Object:' marker; koi menu leaf nahi) — Qt "
+                      "QMessageBox equivalent"),
+    "FrmNAMessageC": ("VB6 startup/NA message popup (sirf HMS.bas "
+                      "'Object:' marker; koi menu leaf nahi) — Qt "
+                      "QMessageBox equivalent"),
+    "CsehDemoForm": ("VB6 demo/scratch form (sirf self-refs + "
+                     "CSEH_DEMO_SETUP.md docs; koi menu leaf, koi DB "
+                     "table nahi)"),
+    # ── UI-ONLY batch ports (ui/utility_forms_ui.py) ──
+    "FrmCalender": ("Ported: CalendarDialog (ui/utility_forms_ui.py); "
+                    "VB6 Form_Load pe Calendar1=Date — pure UI picker"),
+    "FrmImage": ("Ported: ImagePreviewDialog (utility_forms_ui) — VB6 "
+                 "ImagePath prop se Image1.Picture (FaTaxVoucher/pPBill "
+                 "bill preview)"),
+    "frmmessageKey": ("Ported: KeyMessageDialog (utility_forms_ui) — "
+                      "borderless popup; TextBox.Tag retention-amount "
+                      "flow (fdPostChrg)"),
+    "repTouchDate": ("Ported: SelectReportDateDialog (utility_forms_ui) — "
+                     "FRow/PDate/TxtDate props; rFomRepView/rPOSRepView "
+                     "grid date picker"),
+    "RsTouchScreenKeyBoard": ("Ported: TouchKeyboardDialog "
+                              "(utility_forms_ui) — TxtKeyBoard -> "
+                              "ParentForm; NC KOT reason max 150"),
+    "LockForm": ("Ported: NightAuditLockOverlay (utility_forms_ui) — "
+                 "topmost 'Please Wait Night Audit Is in Progress . . .'"
+                 " + keyboard-lock (SystemParametersInfo &H61)"),
+    "frmMessage": ("Ported as QMessageBox-equivalent; VB6 runtime popup "
+                   "(no launcher outside self; 'Object:' marker only)"),
 }
 CAPTION_ALIASES = {
     "rstouchscreenfafind": "FA Find",
     "rstouchorderpersondetails": "Customer Information",
     "frmmessagekey": "Key Massage",
+    "fafind": "FA Find",
+    "frmchangesite": "Login Site",
     "reptouchdate": "Select Report Date",
     "fdlookuproom": "Look Up Room",
     # generic-caption forms -> real registry captions (ui module evidence)
@@ -144,11 +221,180 @@ CAPTION_ALIASES = {
     "fachqclear": "Cheque/DD Clearing Entry",
     "departmast": "Department/Outlet",
     "depopstk": "Location wise Opening Stock Entry",
+    # VB6 EmptyInbox.frm caption "InBox", menu caption "Delete Message"
+    "emptyinbox": "Delete Message",
+    # VB6 fdNDAcPostChrg caption "Posting Utility", menu caption
+    # "Account Posting" (MDIForm1 NightAuditoR index 3)
+    "fdndacpostchrg": "Account Posting",
     "frmpartymast": "Party Master",
     "frmitemmastraw": "Item Entry",
     "frmmenurate": "Item Rate Entry",
     "frmpackageMast": "Package Master",
     "frmplanpackmast": "Package Master",
+    # ── PARTIAL-batch aliases (v2 classification, _qa/classify_partial.py):
+    # VB6 alag form files, same master/operation -> wired caption ──
+    "frmfacilitymast": "Revenue Master",
+    "frmchangesite": "Login Site",
+    "frmvenuefeat": "VenueFeature",
+    "frmchangekitch": "Change Kitchen/Store",
+    "frmchangerest": "Restaurant Change ",
+    "frmconsummast": "Consumption Master",
+    "frmconsummast9999": "Open Item Consumption",
+    "frmmergereading": "Meter Reading",
+    "frmdenomination": "Denomination Detail",
+    "frmforrcex": "Forex Receive Entry",
+    "frmforexrec": "Forex Receive Entry",
+    "frminc": "Inconsistency Check",
+    "frmitemissuedoncleaning": "Item Issued On Cleaning",
+    "frmjobscheduler": "Task Scheduler",
+    "frmmenuitemcopy": "Menu Item Copy",
+    "frmposbilldeletion": "POS Bill Deletion",
+    "frmposbillmodificationdatewise": "POS Bill Deletion",
+    "frmpossaledatatransfer": "POS Bill Deletion",
+    "frmrevmergecharge": "Reverse Room Merge",
+    "frmsmscentersettings": "SMS Center Settings",
+    "frmseaenviro": "Parameter",
+    "hadvancedepdialogsecondary": "Advance Deposit",
+    "halladvancedepdialog": "Advance Deposit",
+    "hkhouseopstk": "House Keeping Op.Stock Entry",
+    "hkroomopstk": "House Keeping Op.Stock Entry",
+    "hroomcheckoutclearance": "Check Out Clearance Screen",
+    "inbox": "InBox",
+    "memagerewmast": "Category wise Revenue",
+    "memcatrewmast": "Category wise Revenue",
+    "memautosettlecardbalance": "Auto Settle Card Balance",
+    "membershipmast": "Member Master",
+    "memcatmast": "Member Select Category",
+    "memselectcategory": "Member Select Category",
+    "memfacilitbilling": "Member Facility Billing",
+    "memfacilitybilling": "Member Facility Billing",
+    "memfacilityentry": "Member Used Facility Entry",
+    "memrenewalentry": "Member Renewal Entry",
+    "memvisitentry": "Member Visit Entry",
+    "memtagadaletter": "Payment Due Letter Entry",
+    "memassistant": "Member Assistant",
+    "memcatchngcond": "Member Category Change Entry",
+    "memcatchngentry": "Member Category Change Entry",
+    "memoutstationentry": "Outstation Member Entry",
+    "membillprintingmodule": "Member Bill Printing",
+    "outbox": "OutBox",
+    "posadvancedepdialog": "Order Booking Advance",
+    "prattend": "Leave",
+    "prattend1": "Attendance",
+    "prleavench": "Leave Encashment",
+    "prloan": "Loan/Advance",
+    "provertime": "Over Time",
+    "pmrentry": "Finish Material Receive Entry",
+    "rsgravyitementry": "Gravy Item Entry",
+    "rskitchenmaterial": "Excise Invoice Cum Gate Pass",
+    "rspaymentreceice": "Payment Receive Entry (POS)",
+    "rsstorerecentry": "Finish Material Receive Entry",
+    "rstokenentry": "Token Entry",
+    "rspoedisplay": "Display Table",
+    "rstouchdisplaytb": "Display Table",
+    "rsposcustinfo": "Customer History",
+    "rstouchorderpersondetails": "Customer History",
+    "sundryvtype": "Voucher Wise Sundry Entry",
+    "vouchersundrysetting": "Voucher Wise Sundry Entry",
+    "transfer": "Data Transfer",
+    "travelagencypost": "Travel Agency Posting",
+    "frmfirstchargemast": "Fixed Charge",
+    "frmfixedchargemast": "Fixed Charge",
+    "frmbusinesssrc": "Business Source",
+    "frmchangedepart": "Department",
+    "frmcom bomast": "Item Master",
+    "frmcombomast": "Item Master",
+    "frmcontrolpanel": "Night Audit Control Panel",
+    "frmdelivereditemdetail": "Not Delivered Order",
+    "frmdeliveryboymast": "Delivery Boy",
+    "frmenviro": "Parameter",
+    "frmeventmast": "Function Type",
+    "frmexpense": "Expense Entry",
+    "frmfomb": "Bill Reprint",
+    "frmfombilldeletion": "FOM Bill Change Report",
+    "frmguestinfo": "Guest History",
+    "frmguestparammast": "Guest Parameters Setting",
+    "frmgueststat": "Guest Status",
+    "frmhouguestmsg": "Guest In House",
+    "frmitemcatmast": "Item List",
+    "frmitemcatraw": "Item List",
+    "frmitemgroupmast": "Item Group",
+    "frmitemmast": "Item Master",
+    "frmitemmastraw": "Item Entry",
+    "frmmenurate": "Menu Item Rate",
+    "frmmarketseg": "Market Segment",
+    "frmopstock": "Opening Stock",
+    "frmpackagemast": "Package Master",
+    "frmpaytypemast": "Payment Type",
+    "frmplantokenmast": "Plan Master",
+    "frmpurenviro": "Purchase Parameter",
+    "frmrevenuewisebudget": "Revenue Wise Budget Entry",
+    "frmrevgroup": "Revenue Group Setting",
+    "frmroomcatmast": "Room Category",
+    "frmroomfeaturemast": "Room Features",
+    "frmseaenviro": "Parameter",
+    "frmsmsenviro": "Parameter",
+    "frmtaxstrumast": "Tax Structure",
+    "frmunsettledbillsinfo": "Deleted Unsettled Bill",
+    "frmuserpaymentcollection": "Payment Receive Entry",
+    "hadvancedepdialog": "Settlement Summary",
+    "hallbillestimate": "Banquet Estimate Billing",
+    "hallitemgroupmast": "Item Group",
+    "hallmenucatalog": "Menu Catalog",
+    "hallmenuitementry": "Menu Item",
+    "kclstk": "Kitchen Closing Stock",
+    "outletmast": "Department/Outlet",
+    "pgiss": "Stock Issue",
+    "ppbill": "Purchase Bill",
+    "preqslip": "Requisition Slip",
+    "resroomtype": "Room Category",
+    "rsbookingentry": "Booking Inquiry",
+    "rskotentry": "KOT Entry",
+    "rsmenuitementry": "Menu Item",
+    "rsstatusscreen": "POS Status",
+    "rssalebill": "Split Sale Bill",
+    "rssalebill1": "Split Sale Bill",
+    "rstouchscreensalebill": "Split Sale Bill",
+    "smartcardmast": "Smart Card",
+    "smartcardrecharge": "Smart Card",
+    "smartcardrefund": "Smart Card",
+    "smartcardregistration": "Card Registration",
+    "telcallcodemast": "Call Code",
+    "telcallentry": "Call Code",
+    "telcalltypemast": "Call Type",
+    "userpermission": "User Permissions",
+    "memproposedmeminf": "Member Master",
+    "frmforeignexmast": "Forex Master",
+    "hallmenucatalog": "Menu Catalog",
+    "hallmenuitementry": "Menu Item",
+    "hallitemgroupmast": "Item Group",
+    "hallbillestimate": "Banquet Estimate Billing",
+    "hallbill": "Purchase Bill",
+    "hallestimate": "Hall Booking",
+    "frmseaenviro2": "Parameter",
+    "frmwelcome": "Main Menu",
+    "frmbdaylookup": "Guest LookUp",
+    "frmfdleaderrev": "Leader Revenue Allocation",
+    "frmgestaddobj": "Guest Address & Observation",
+    "hwihistory": "Walk In by Room History",
+    "rrlookupguest": "Look Up Reservation By Guest Name",
+    "rstouchscreenbookingentry": "Booking Inquiry",
+    "rstouchscreenkotentry": "KOT Entry",
+    "rstouchscreentokenentry": "KOT Entry",
+    "rstouchscreensteward": "Server / Waiter",
+    "rstouchscreendisplaytb": "Display Table",
+    "rsrssalebillsplit": "Split Sale Bill",
+    "rsmembillsundrysetting": "Member Bill Sundry Setting",
+    "salmacompprofile": "Company Profile",
+    "salmarcompprofile": "Company Profile",
+    "rrroomreservation": "Reservation/Cancellation",
+    "resbanq": "Reservation Look Up Room W",
+    "resroomno": "Reservation Look Up Room W",
+    "fdlookuproomno": "Display Rack",
+    "fdroomdisplay": "Room View",
+    "fdroomocc": "Reservation Look Up Room W",
+    "rsrrsaadvancedepdialog": "Settlement Summary",
+    "rrsadvancedepdialog": "Settlement Summary",
 }
 
 # ── DB probe (cached) ───────────────────────────────────────────
@@ -178,6 +424,8 @@ def main():
     reg = py_registry()
     reg_ci = {k.lower(): (k, fn) for k, fn in reg.items()}
     core_txt, ui_txt = py_texts()
+    core_l = core_txt.lower()
+    ui_l = ui_txt.lower()
 
     rows = []
     for name, info in forms.items():
@@ -202,13 +450,14 @@ def main():
             if probe and probe in ui_txt:
                 ui_hit = True
                 break
-        core_hit = any(t.upper() in core_txt for t in tables) or \
-            name.lower() in core_txt
+        core_hit = any(t.lower() in core_l for t in tables) or \
+            name.lower() in core_l
         # module-name evidence: ui/*.py class/def names carry VB6 form hints
-        ui_mod_hit = any(
-            h in ui_txt for h in
-            (name.replace("Frm", "").lower(),
-             name.lower().replace("frm", ""))) if len(name) > 5 else False
+        # (>=8 chars to avoid generic-word false positives like 'company')
+        hints = [h for h in (name.replace("Frm", "").lower(),
+                             name.lower().replace("frm", ""))
+                 if len(h) >= 8]
+        ui_mod_hit = any(h in ui_l for h in hints) if hints else False
         ui_hit = ui_hit or ui_mod_hit
 
         live = [t for t in tables if table_exists(t)]
@@ -286,7 +535,8 @@ def main():
     L.append("")
 
     out = "\r\n".join(L)
-    for path in (os.path.join(PARENT, "VB6_PARITY_MATRIX.txt"),
+    # repo-root copy (git toplevel) + _qa copy; PARENT ab repo ke bahar hai
+    for path in (os.path.join(ROOT, "VB6_PARITY_MATRIX.txt"),
                  os.path.join(ROOT, "_qa", "VB6_PARITY_MATRIX.txt")):
         with open(path, "w", encoding="utf-8", newline="") as f:
             f.write(out)

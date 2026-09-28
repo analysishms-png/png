@@ -411,8 +411,17 @@ class GlobalNarrationWindow(QMainWindow):
         self.setWindowTitle("Global Narration")
         self.resize(640, 460)
         self.selected_name = ""
+        self._picker_mode = False
         self._build()
         self._load()
+
+    def closeEvent(self, ev):
+        # picker-mode me close == QEventLoop end (VB6 'Unload Me' parity);
+        # normal mode me QMainWindow default close.
+        loop = getattr(self, "_loop", None)
+        if self._picker_mode and loop is not None:
+            loop.quit()
+        ev.accept()
 
     def _build(self):
         c = QWidget(); self.setCentralWidget(c)
@@ -423,11 +432,20 @@ class GlobalNarrationWindow(QMainWindow):
         fl.addRow("Narration:", self.txt_name)
         lay.addWidget(form)
         btns = QHBoxLayout()
-        for cap, fn in (("Add", self._add), ("Delete", self._delete),
-                        ("Exit", self.close)):
-            b = QPushButton(cap)
-            b.clicked.connect(fn)
+        self.btn_add = QPushButton("Add")
+        self.btn_add.clicked.connect(self._add)
+        self.btn_delete = QPushButton("Delete")
+        self.btn_delete.clicked.connect(self._delete)
+        self.btn_exit = QPushButton("Exit")
+        self.btn_exit.clicked.connect(self.close)
+        for b in (self.btn_add, self.btn_delete, self.btn_exit):
             btns.addWidget(b)
+        btns.addWidget(QLabel(" Search:"))
+        self.ed_search = QLineEdit()
+        self.ed_search.setPlaceholderText("type to filter... (Enter=select, Esc=cancel)")
+        self.ed_search.textChanged.connect(self._filter)
+        self.ed_search.returnPressed.connect(self._accept_selected)
+        btns.addWidget(self.ed_search)
         lay.addLayout(btns)
         self.grid = QTableWidget()
         self.grid.setEditTriggers(
@@ -476,6 +494,55 @@ class GlobalNarrationWindow(QMainWindow):
         if r >= 0:
             self.selected_name = self.grid.item(r, 0).text()
             self.statusBar().showMessage(f"Selected: {self.selected_name}")
+
+    # ---- VB6 FaGlobeNarr parity: search-box + Enter/Esc keyboard flow ----
+    def _keyPressEvent(self, ev):
+        # Form_KeyDown: Esc (0x1B) -> cancel & exit
+        from PyQt6.QtCore import Qt as _Qt
+        if ev.key() == _Qt.Key.Key_Escape:
+            self.close()
+            return
+        super().keyPressEvent(ev)
+
+    def keyPressEvent(self, ev):
+        self._keyPressEvent(ev)
+
+    def _filter(self, text: str):
+        """TxtSearch parity: type-to-filter grid rows (case-insensitive)."""
+        text = (text or "").strip().lower()
+        for r in range(self.grid.rowCount()):
+            it = self.grid.item(r, 0)
+            row_txt = (it.text() if it else "").lower()
+            self.grid.setRowHidden(r, bool(text) and text not in row_txt)
+
+    def _accept_selected(self):
+        """Enter (0x0D) parity: selected row -> selected_name + close.
+
+        Picker-mode (open_global_narration_picker) me modal result; normal
+        mode me sirf status-bar selection (purana behaviour).
+        """
+        r = self.grid.currentRow()
+        if r >= 0 and self.grid.item(r, 0) is not None:
+            self.selected_name = self.grid.item(r, 0).text()
+        self.close()
+
+    def pick_narration(self, parent=None) -> str:
+        """VB6 FaGlobeNarr as-modal-picker API.
+
+        Returns selected narration (ya '' cancel par). VB6 me parent form
+        isi se .Show vbModal karke TextMatrix value leta tha.
+        QMainWindow hai isliye QEventLoop modal-loop (QDialog.exec nahi).
+        """
+        from PyQt6.QtCore import QEventLoop
+        from PyQt6.QtCore import Qt as _Qt
+        self._picker_mode = True
+        self.btn_add.setVisible(False)
+        self.btn_delete.setVisible(False)
+        self.setWindowModality(_Qt.WindowModality.ApplicationModal)
+        self._loop = QEventLoop()
+        self.show()
+        self._loop.exec()
+        return (self.selected_name or "").strip()
 
 
 # ────────────────────────────────────────────────────────────────
@@ -1051,8 +1118,15 @@ class AdjustmentDeleteWindow(QMainWindow):
     def _load_accounts(self):
         try:
             from HMS_py.core import db
+            from HMS_py.core import company
+            site_code = company.get_site_code() or ""
+            # FIX #7: Use ACGROUP table like VB6 FaAdjust (not SubGroup)
+            # VB6: WHERE L.LOGSITE_CODE='" & MemVar_1F92078 & "' 
+            #      OR LOGSITE_CODE='HO'
             rows = db.query(
-                "SELECT SubCode, Name FROM SubGroup ORDER BY Name")
+                "SELECT GroupCode, GroupName FROM ACGROUP "
+                "WHERE LOGSITE_CODE='" + site_code + "' OR LOGSITE_CODE='HO' "
+                "ORDER BY GroupName")
             for r in rows:
                 self.cmb_acct.addItem((r[1] or "").strip(), r[0])
         except Exception as e:

@@ -330,45 +330,75 @@ def narr_delete(name: str, cn=None, commit: bool = True) -> int:
 DOPR_VTYPE = "DOPR"
 
 
-def _dep_opstk_next_vno(cn=None) -> int:
-    try:
-        rows = db.query(
-            "SELECT ISNULL(MAX(CASE WHEN ISNUMERIC(RIGHT(DocId, 6)) = 1 "
-            "THEN CAST(RIGHT(DocId, 6) AS INT) END), 0) "
-            "FROM KClStk WHERE Vtype = ?", (DOPR_VTYPE,), cn=cn)
-        return int(rows[0][0] or 0) + 1 if rows else 1
-    except Exception:
-        return 1
+def _dep_opstk_next_vno(vprefix: str, cn=None) -> int:
+    """Race-safe DOPR VNo (kitchen_clstk BUG-015 pattern).
+
+    VB6 Voucher_Prefix se leta tha, par live DB me DOPR prefix row hi
+    nahi hai (KClStk khali) - isliye table ka MAX(VNo) hi source of
+    truth, UPDLOCK+HOLDLOCK se concurrent add safe.
+    """
+    rows = db.query(
+        "SELECT MAX(VNo) FROM KClStk WITH (UPDLOCK, HOLDLOCK) "
+        "WHERE Vtype = ? AND Site_Code = ? AND Vprefix = ?",
+        (DOPR_VTYPE, SITE_CODE, vprefix), cn=cn)
+    return int(rows[0][0] or 0) + 1 if rows else 1
+
+
+def resolve_item_code(name_or_code: str, cn=None) -> str:
+    """ItemMast.Code lao (VB6 browse: S.Item=I.Code).
+
+    Accept karta hai ya to Code, ya exact Name. Nahi mila to ValueError.
+    """
+    t = (name_or_code or "").strip()
+    if not t:
+        raise ValueError("Item zaroori hai")
+    rows = db.query(
+        "SELECT TOP 1 Code FROM ItemMast WHERE Code = ? OR Name = ? "
+        "ORDER BY CASE WHEN ItemType = 'Store' THEN 0 ELSE 1 END, Code",
+        (t, t), cn=cn)
+    if not rows:
+        raise ValueError(f"Item '{t}' ItemMast me nahi mila")
+    return (rows[0][0] or "").strip()
 
 
 def dep_opstk_create(lines: list[dict], vdate, vprefix: str = "2026",
                      user: str = USER, cn=None, commit: bool = True) -> dict:
     """lines: [{"item", "godown", "qty", "unit", "remarks"}].
-    VB6 DepOpStk: Insert Into KClStk (DocId,SNo,VType,...,DepartCode=godown).
+
+    VB6 DepOpStk: Insert Into KClStk (DocId,SNo,VType,VPrefix,Site_Code,
+    VNo,VDate,DepartCode,Item,Qty,Unit,U_Name,U_EntDt,U_AE) - item
+    ItemMast.Code hota hai (stock reports S.Item=I.Code join karte hain).
+    Shared kclstk_insert use hota hai (duplicated SQL nahi).
     """
     if not lines:
         raise ValueError("At least one line required")
-    vno = _dep_opstk_next_vno(cn=cn)
-    docid = f"{DOPR_VTYPE}{vprefix}{vno:06d}"
+    from HMS_py.core import purchase
+
     own = cn is None
     cn = cn or db.connect()
     try:
+        vno = _dep_opstk_next_vno(vprefix, cn=cn)
+        # DocId = D + site(2) + VType.ljust(6) + Vprefix.ljust(4) + VNo(8)
+        docid = ("D" + SITE_CODE.ljust(2) + DOPR_VTYPE.ljust(6) +
+                 vprefix.ljust(4) + str(vno).rjust(8))[:21]
         for i, ln in enumerate(lines, 1):
-            db.execute(
-                "INSERT INTO KClStk (DocId, Sno, Vtype, VNo, Site_Code, "
-                "Vprefix, Vdate, Item, Qty, Unit, DepartCode, Remarks, "
-                "U_Name, U_EntDt, U_AE, LogSite_Code) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, GETDATE(), 'A', ?)",
-                (docid, i, DOPR_VTYPE, vno, SITE_CODE, vprefix, vdate,
-                 (ln.get("item") or "").strip(),
-                 float(ln.get("qty") or 0),
-                 (ln.get("unit") or "").strip(),
-                 (ln.get("godown") or "").strip(),
-                 (ln.get("remarks") or "").strip(),
-                 user, SITE_CODE), cn=cn, commit=False)
+            qty = float(ln.get("qty") or 0)
+            if qty <= 0:
+                raise ValueError(f"Line {i}: Qty > 0 zaroori hai")
+            item_code = resolve_item_code(ln.get("item", ""), cn=cn)
+            purchase.kclstk_insert({
+                "docid": docid, "sno": i, "vtype": DOPR_VTYPE,
+                "vno": vno, "vprefix": vprefix, "vdate": vdate,
+                "item": item_code, "qty": qty,
+                "unit": (ln.get("unit") or "").strip(),
+                "dept_code": (ln.get("godown") or "").strip(),
+                "remarks": (ln.get("remarks") or "").strip(),
+                "user": user,
+            }, cn=cn, commit=False)
         if commit:
             cn.commit()
-        return {"docid": docid, "vno": vno, "vtype": DOPR_VTYPE}
+        return {"docid": docid, "vno": vno, "vtype": DOPR_VTYPE,
+                "lines": len(lines)}
     except Exception:
         if own:
             try:
@@ -382,19 +412,30 @@ def dep_opstk_create(lines: list[dict], vdate, vprefix: str = "2026",
 
 
 def dep_opstk_list(cn=None, limit: int = 200) -> list[dict]:
-    """VB6 browse join: KClStk LEFT JOIN GodownMast ON DEPARTCODE=CODE."""
+    """VB6 browse: KClStk LEFT JOIN GodownMast + ItemMast (ItemName)."""
     rows = db.query(
         "SELECT TOP " + str(int(limit)) + " K.DocId, K.Vtype, K.VNo, "
         "CONVERT(VARCHAR(10), K.Vdate, 103), ISNULL(GM.Name, ''), "
-        "K.Item, K.Qty, K.Unit, K.Sno "
-        "FROM KClStk K LEFT JOIN GodownMast GM ON K.DepartCode = GM.Code "
+        "K.Item, ISNULL(I.Name, ''), K.Qty, K.Unit, K.Sno "
+        "FROM KClStk K "
+        "LEFT JOIN GodownMast GM ON K.DepartCode = GM.Code "
+        # ItemMast me Code RestCode-wise repeat hota hai (260 dup codes) ->
+        # plain JOIN se row fan-out. OUTER APPLY + TOP 1 se ek hi naam,
+        # Store item ko preference (VB6 kClStk.frm:735 ItemType='Store').
+        "OUTER APPLY (SELECT TOP 1 I.Name FROM ItemMast I "
+        " WHERE I.Code = K.Item "
+        " ORDER BY CASE WHEN I.ItemType = 'Store' THEN 0 ELSE 1 END, "
+        "          I.RestCode) I "
         "WHERE K.Vtype = ? ORDER BY K.VNo DESC, K.Sno",
         (DOPR_VTYPE,), cn=cn)
     return [{"docid": (r[0] or "").strip(), "vtype": (r[1] or "").strip(),
              "vno": int(r[2] or 0), "vdate": r[3] or "",
-             "location": (r[4] or "").strip(), "item": (r[5] or "").strip(),
-             "qty": float(r[6] or 0), "unit": (r[7] or "").strip(),
-             "sno": int(r[8] or 0)} for r in rows]
+             "location": (r[4] or "").strip(),
+             "item_code": (r[5] or "").strip(),
+             "item_name": (r[6] or "").strip(),
+             "item": (r[6] or r[5] or "").strip(),
+             "qty": float(r[7] or 0), "unit": (r[8] or "").strip(),
+             "sno": int(r[9] or 0)} for r in rows]
 
 
 def dep_opstk_delete(docid: str, cn=None, commit: bool = True) -> int:

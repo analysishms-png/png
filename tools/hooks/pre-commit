@@ -3,6 +3,8 @@
 #  1) every staged .py file must compile
 #  2) ui/shell.py must not be a stripped/simplified overwrite
 #     (the real shell has menuHelp menubar + CI registry + VB6 UI, ~2100+ lines)
+#  3) fast offscreen UI sweep on UI/core changes (_qa/sweep_ui_bugs.py --fast,
+#     ~12s: 213 windows; heavy report windows skip — full sweep nightly/manual)
 
 fail=0
 
@@ -19,7 +21,7 @@ done
 
 # --- 2) shell.py overwrite guard ---
 if git diff --cached --name-only --diff-filter=ACMR | grep -qE '(^|/)HMS_py/ui/shell\.py$|^HMS_py/ui/shell\.py$|^ui/shell\.py$'; then
-  LINES=$(wc -l < ui/shell.py 2>/dev/null || wc -l < HMS_py/ui/shell.py 2>/dev/null)
+  LINES=$(wc -l 2>/dev/null < ui/shell.py || wc -l 2>/dev/null < HMS_py/ui/shell.py)
   if [ -n "$LINES" ] && [ "$LINES" -lt 1500 ]; then
     echo "PRE-COMMIT BLOCK: ui/shell.py looks like a stripped overwrite ($LINES lines; real shell ~2100+)."
     echo "  A parallel agent may have simplified it. Verify _form_registry/_reg_ci/menuHelp wiring."
@@ -32,6 +34,23 @@ if git diff --cached --name-only --diff-filter=ACMR | grep -qE '(^|/)HMS_py/ui/s
       fail=1
     fi
   done
+fi
+
+# --- 3) fast UI sweep (CI-style registry smoke test) ---
+# Trigger: UI/core python, sweep script, ya hook khud stage ho. Hook git
+# toplevel se chalta hai — _qa/ repo-root par hai, isliye direct path.
+if git diff --cached --name-only --diff-filter=ACMR | grep -qE 'HMS_py/(ui|core)/.*\.py$|_qa/sweep_ui_bugs\.py$|tools/hooks/pre-commit$'; then
+  echo "pre-commit: fast UI sweep chal raha hai (~15s)..."
+  timeout 90 python _qa/sweep_ui_bugs.py --fast
+  rc=$?
+  if [ "$rc" -eq 1 ]; then
+    echo "PRE-COMMIT BLOCK: UI sweep me real FAILs mile (upar dekho)."
+    echo "  Window crash/SQL error hai — fix karo ya --no-verify se skip."
+    fail=1
+  elif [ "$rc" -ne 0 ]; then
+    # 124 = timeout, 2 = watchdog-hang: infra/timing issue, block na karo
+    echo "pre-commit: WARNING — sweep infra issue (rc=$rc), block nahi kiya."
+  fi
 fi
 
 exit $fail

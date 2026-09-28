@@ -1,0 +1,213 @@
+T.D.S. Challan Entry|Finance|E
+Voucher Entry|Finance|E
+Expense Voucher|Finance|E
+T.D.S. Certificate Entry|Finance|E
+Bank Reconciliation|Finance|E
+Cheque Cleared Register|Finance|R
+Cheque Not Cleared Register|Finance|R
+TDS Report|Finance|R
+Journal Books Log|Finance|R
+Cash Flow|Finance|R
+Fund Flow|Finance|R
+Daily Transaction Summary|Finance|R
+Non Transaction Report|Finance|R
+Reference Report|Finance|R
+A/c Check List|Finance|R
+Control Ledger|Finance|R
+Roz Namcha|Finance|R
+Trial Balance|Finance|R
+Ledger|Finance|R
+Cash Book|Finance|R
+Bank Book|Finance|R
+Journal Books|Finance|R
+Annexure|Finance|R
+Bank Register|Finance|R
+Ageing Analysis for Debtors|Finance|R
+Ageing Analysis for Creditors|Finance|R
+Outstanding Report For Debtors|Finance|R
+Outstanding Report For Creditors|Finance|R
+Detailed Trial Ledger|Finance|R
+Bill Wise Outstanding Report For Debtors|Finance|R
+Tax Master|MainSetup|E
+Tax Structure|MainSetup|E
+Payment Type|MainSetup|E
+Parameter|MainSetup|E
+Printing Parameters|MainSetup|E
+Printing Setup|MainSetup|E
+Market Segment|MainSetup|E
+Business Source|MainSetup|E
+Guest Status|MainSetup|E
+Charge Master|MainSetup|E
+Fixed Charge|MainSetup|E
+Plan Master|MainSetup|E
+Room Features|MainSetup|E
+Room Category|MainSetup|E
+Room Master|MainSetup|E
+Guest History|MainSetup|E
+Room Display|MainSetup|E
+Setup Outlet|MainSetup|E
+Outlet Bill Sundry Setting|MainSetup|E
+Server Master|MainSetup|E
+Table Master|MainSetup|E
+Item List|MainSetup|E
+Menu Group|MainSetup|E
+Menu Category|MainSetup|E
+Menu Item|MainSetup|E
+Menu Item Rate|MainSetup|E
+Session Master|MainSetup|E
+Open Item Consumption|MainSetup|E
+NC Type|MainSetup|E
+Designation Master|MainSetup|E
+Category  Master|MainSetup|E
+Holiday Master|MainSetup|E
+Employee Master|MainSetup|E
+Member Select Category|MainSetup|E
+Customer History|MainSetup|E
+Events|MainSetup|E
+Venue Features|MainSetup|E
+Venue Master|MainSetup|E
+Menu Category|MainSetup|E
+Item Group|MainSetup|E
+Menu Item|MainSetup|E
+Catalog Master|MainSetup|E
+Banquet Bill Sundry Setting|MainSetup|E
+Party Master|MainSetup|E
+Department|MainSetup|E
+Item Group|MainSetup|E
+Item Category|MainSetup|E
+Item Entry|MainSetup|E
+Purchase Sundry Setting|MainSetup|E
+Opening Stock|MainSetup|E
+Item  List|MainSetup|E
+Enviro Inventry|MainSetup|E
+Group Accounts|MainSetup|E
+Ledger Accounts|MainSetup|E
+Narration Master|MainSetup|E
+T.D.S. Category|MainSetup|E
+FA Environment|MainSetup|E
+Voucher Environment|MainSetup|E
+Year End Updation|MainSetup|E
+Current Balance Updation|MainSetup|E
+Account Merging|MainSetup|E
+Voucher Serialisation|MainSetup|E
+User Master|MainSetup|E
+Permissions|MainSetup|E
+Backup Data|MainSetup|E
+Sundry Master|MainSetup|E
+Inconsistency Check|MainSetup|E
+Year End Updation|MainSetup|E
+Menu Item Copy|MainSetup|E
+Guest LookUp|MainSetup|E
+Country Master|MainSetup|E
+State Master|MainSetup|E
+City Master|MainSetup|E
+Department|MainSetup|E
+Ledger Accounts|MainSetup|E
+Unit Master|MainSetup|E
+Task Scheduler|MainSetup|E
+Category Master|MainSetup|E
+Member Master|MainSetup|E
+Environment Settings|MainSetup|E
+Reverse Check Out|FrontOffice|E
+Plan Meal Tokens|FrontOffice|E
+Form  C|FrontOffice|E
+Tourism Form 1|FrontOffice|E
+Tourism Form 2|FrontOffice|E
+Tourism Form 5|FrontOffice|E
+Tourism Form 6|FrontOffice|E
+Tourism Form 4|FrontOffice|E
+Luxury Tax Report|FrontOffice|E
+Monthly Return|FrontOffice|E
+L.T. FORM II|FrontOffice|E
+L.T. FORM IV|FrontOffice|E
+FOM Tax Detail|FrontOffice|E
+Tax Wise Charge Detail|FrontOffice|E
+Room Type Occupancy Analysis|FrontOffice|R
+Business Source Occupancy Report|FrontOffice|R
+Plan Report|FrontOffice|R
+Complaint Master|HouseKeeping|E
+Complaint Clearance|HouseKeeping|E
+Lost / Found Entry|HouseKeeping|E
+Claim Entry|HouseKeeping|E
+House Keeping Report|HouseKeeping|R
+Indent|Inventory|E
+Purchase Order|Inventory|E
+M.R. Entry|Inventory|E
+Purchase Bill|Inventory|E
+Requisition Slip|Inventory|E
+Stock Issue on Requisition|Inventory|E
+Kitchen Closing Stock|Inventory|E
+Stock Transfer|Inventory|E
+Pending Indent|Inventory|E
+Pending M.R.|Inventory|E
+Pending Purchase Order|Inventory|E
+VAT Register|Inventory|E
+VAT Register II|Inventory|E
+VAT Register III|Inventory|E
+Form24 Annexure-A|Inventory|E
+Form III|Inventory|E
+UPVAT XXIV|Inventory|E
+Finish Material Receive Entry|Inventory|E
+Store Issue Report|Inventory|R
+Liquor Sale Report|Inventory|R
+Purchase Register|Inventory|R
+Purchase Summary|Inventory|R
+Cash/Credit Purchase|Inventory|R
+Stock Register|Inventory|R
+Stock Summary|Inventory|R
+Stock In Hand|Inventory|R
+Kitchen Stock Report I/R Basis|Inventory|R
+Excess Consumption Report|Inventory|R
+Purchase Ledger|Inventory|R
+Issue CheckList|Inventory|R
+ABC Analysis|Inventory|R
+Order Booking Advance|POS|E
+Token Entry|POS|E
+Order Booking|POS|E
+Token Entry|POS|E
+Order Booking|POS|E
+Order Booking Advance|POS|E
+Order Booking|POS|E
+Order Booking Advance|POS|E
+Order Detail Report|POS|R
+Group Wise Sale|POS|R
+Customer Detail|POS|R
+Open Item Sales|POS|R
+Void Bills|POS|R
+KOT Change Report|POS|R
+Discount Summary|POS|R
+Monthwise Sales|POS|R
+ABC  Analysis|POS|R
+Sale Summary|POS|R
+Edited Bills|POS|R
+Tax Register|POS|R
+Taxwise Details|POS|R
+Night Audit Log|NightAudit|E
+Charges Remove Log|NightAudit|E
+Upload Process|NightAudit|E
+Credit Report|NightAudit|R
+GSTR-1|NightAudit|R
+GSTR-2(3)|NightAudit|R
+GSTR-2(4A)|NightAudit|R
+GSTR-2(4B)|NightAudit|R
+Reconciliation (GSTR-2A)|NightAudit|R
+EInvoice Report|NightAudit|R
+Tally POS Report|NightAudit|R
+Leave|HR|E
+Loan/Advance|HR|E
+Over Time|HR|E
+Leave Encashment|HR|E
+Salary Creation|HR|E
+Pay Slip|HR|R
+Payroll Register|HR|R
+Loan Register|HR|R
+Loan/Advance Summary|HR|R
+Loan/Advance Ledger|HR|R
+Attendence Report|HR|R
+Gratuity Report|HR|R
+PF Statement|HR|R
+Form C|HR|R
+Auto Settle Card Balance|Other|E
+SMS (API)|Other|E
+SMS (Scheduled)|Other|E
+SMS (Conditional)|Other|E

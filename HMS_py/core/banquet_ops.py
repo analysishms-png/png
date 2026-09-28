@@ -45,9 +45,9 @@ EVIDENCE (live DB + VB6 decompiled):
 VB6 patterns: HallBooking.frm (TopCtrl), HallBill.frm, CateringBooking.frm,
 HallAdvanceDepDialog, HallEstimate.frm, HallBillEstimate.frm
 
-Document numbering: HallBook uses 'HBK' Vtype series (IBOOK/OBOOK)
-HallSale1 uses 'HSL' Vtype series (IDC=Indoor, ODC=Outdoor)
-VNo from Voucher_Type + Voucher_Prefix per RestCode
+Document numbering: HallBook uses IBOOK/OBOOK Vtypes; HallSale1 uses
+IDC/ODC Vtypes. VNo = MAX(VNo)+1 from the voucher table itself
+(Voucher_Type has no VNo/VPrefix columns - it is a type master only).
 """
 from __future__ import annotations
 
@@ -82,17 +82,22 @@ def _make_hall_docid(vtype: str, vprefix: str, vno: int) -> str:
     return "D" + SITE_CODE + vtype.ljust(6) + vprefix.ljust(4) + str(vno).rjust(8)
 
 
-def _next_vno(vtype: str, vprefix: str, cn=None) -> int:
-    """Next VNo for a VType/VPrefix from Voucher_Type.
+def _next_vno(vtype: str, vprefix: str, cn=None, table: str = "HallBook") -> int:
+    """Next VNo for a VType/VPrefix from the voucher table itself.
 
     BUG-015: race-safe (UPDLOCK/HOLDLOCK) - concurrent bookings ko same
-    number nahi milega. NOTE: Voucher_Type me Site_Code filter nahi hai
-    (VB6 pattern), isliye raw lock query yahin rakhi hai.
+    number nahi milega. Voucher_Type table me VNo/VPrefix columns NAHI
+    hain (37 cols: Category, NCat, V_Type, ...) - isliye MAX(VNo) usi
+    voucher table se lena hai jisme insert hoga (HallBook/HallSale1).
+    Site_Code filter live data pattern (hall_booking.insert_hallsale1).
     """
+    _validate = table if table in ("HallBook", "HallSale1") else None
+    if _validate is None:
+        raise ValueError(f"Unsupported voucher table: {table}")
     rows = db.query(
-        "SELECT MAX(VNo) FROM Voucher_Type WITH (UPDLOCK, HOLDLOCK) "
-        "WHERE V_Type = ? AND VPrefix = ?",
-        (vtype, vprefix), cn=cn)
+        f"SELECT MAX(VNo) FROM {table} WITH (UPDLOCK, HOLDLOCK) "
+        "WHERE Vtype = ? AND Vprefix = ? AND Site_Code = ?",
+        (vtype, vprefix, SITE_CODE), cn=cn)
     return (rows[0][0] or 0) + 1 if rows and rows[0][0] else 1
 
 
@@ -206,7 +211,7 @@ def hallbook_insert(rec: dict, cn=None, commit: bool = True) -> int:
         raise ValueError("PartyName zaroori hai")
 
     # Get next VNo
-    vno = _next_vno(vtype, VPREFIX, cn=cn)
+    vno = _next_vno(vtype, VPREFIX, cn=cn, table="HallBook")
     docid = _make_hall_docid(vtype, VPREFIX, vno)
     now = datetime.datetime.now()
 
@@ -496,6 +501,42 @@ def _calc_bill_amounts(lines: list[dict]) -> dict:
     }
 
 
+def _amounts_from_booking(booking: dict) -> dict:
+    """Fallback totals from HallBook header (HallBook1 lines empty).
+
+    VB6 HallBill.frm header-total bhi accept karta hai - live DB me
+    HallBook1 0 rows hai, isliye bill header hamesha header amounts se
+    banega. Same keys as _calc_bill_amounts.
+
+    Live data (97 bookings): Total = 0 hamesha; 33 rows me
+    Amount/NetAmount/TotalCoverRate bhara hai; baaki rows me sirf
+    GuarAtt x CoverRate. Fallback chain:
+      netamt -> total -> amount -> totalcover -> guaratt*cover_rate
+    """
+    def _num(key) -> float:
+        return float(booking.get(key, 0) or 0)
+
+    total = _num("total")
+    amount = _num("amount")
+    totalcover = _num("totalcover")
+    cover_calc = _num("guaratt") * _num("cover_rate")
+    if not total:
+        total = amount or totalcover or cover_calc
+    disc_amt = _num("discamt")
+    tax = _num("tax")
+    service = _num("service")
+    taxable = _num("taxable")
+    nontaxable = _num("nontaxable")
+    netamt = _num("netamt") or amount or (total - disc_amt + tax) or total
+    return {
+        "total": total, "discper": _num("discper"),
+        "discamt": disc_amt, "nontaxable": nontaxable, "taxable": taxable,
+        "tax": tax, "cgst": 0.0, "sgst": 0.0, "igst": 0.0,
+        "service": service,
+        "netamt": netamt,
+    }
+
+
 def hallsale1_create_from_booking(
     bookdocid: str, vtype: str, restcode: str, user: str = USER,
     cn=None, commit: bool = True
@@ -508,17 +549,24 @@ def hallsale1_create_from_booking(
     if not booking:
         raise ValueError(f"Booking {bookdocid} nahi mila")
 
-    # Get lines
-    lines = hallbook1_lines(bookdocid, cn=cn)
-    if not lines:
-        raise ValueError("Booking me koi items nahi hain")
+    # cn=None -> apna connection lo (else commit=False inserts rollback ho jaate - db.execute apne cn par hamesha rollback karta hai)
+    if cn is None:
+        cn = db.connect()
+        commit = True
 
-    # Get next VNo
-    vno = _next_vno(vtype, VPREFIX, cn=cn)
+    # Get lines. HallBook1 live me 0 rows hai, isliye header-amounts
+    # fallback zaroori - nahi to har booking pe "items nahi hain".
+    lines = hallbook1_lines(bookdocid, cn=cn)
+
+    # Get next VNo (HallSale1 table - Voucher_Type me VNo/VPrefix col nahi)
+    vno = _next_vno(vtype, VPREFIX, cn=cn, table="HallSale1")
     docid = _make_hall_docid(vtype, VPREFIX, vno)
 
-    # Calculate amounts
-    amounts = _calc_bill_amounts(lines)
+    # Calculate amounts (fallback: booking header totals)
+    if lines:
+        amounts = _calc_bill_amounts(lines)
+    else:
+        amounts = _amounts_from_booking(booking)
 
     # Insert HallSale1 header
     now = datetime.datetime.now()
@@ -533,22 +581,37 @@ def hallsale1_create_from_booking(
         "Narration", "LogSite_Code", "Narration1", "CGST", "SGST", "IGST"
     ]
 
+    # Advance bill pe booking ka AD total jata hai (VB6 HallBill: live me
+    # bill advance == booking AD total, e.g. booking 23 -> 254000).
+    adv_total = float(hall_advance_total(bookdocid, cn=cn) or 0)
+
     vals = [
         docid, vtype, vno, now.strftime("%H:%M"), SITE_CODE, VPREFIX,
         now.date(), restcode, booking["party"],
         amounts["total"], amounts["discper"], amounts["discamt"],
         amounts["nontaxable"], amounts["taxable"], amounts["tax"],
-        amounts["service"], 0.0, 0.0, amounts["netamt"],
-        booking.get("frdate", now.date()), booking.get("frtime", "00:00"),
+        amounts["service"], 0.0, 0.0,
+        float(amounts.get("roundoff", 0.0) or 0.0),   # RoundOff
+        amounts["netamt"],                             # NetAmt
+        booking.get("frdate") or now.date(),
+        booking.get("frtime") or "00:00",
         USER, now, "A",
-        booking.get("todate", now.date() + datetime.timedelta(days=1)),
-        booking.get("totime", "23:59"),
-        float(booking.get("hallrent", 0)), "",
-        int(booking.get("guaratt", 0)), float(booking.get("cover_rate", 0)),
-        float(booking.get("totalcover", 0)), 0.0, 0.0, "", now.date(),
-        "", "", "", bookdocid, "N", "", SITE_CODE, "", amounts["cgst"],
-        amounts["sgst"], amounts["igst"]
+        booking.get("todate") or (now.date() + datetime.timedelta(days=1)),
+        booking.get("totime") or "23:59",
+        float(booking.get("hallrent", 0) or 0), "",   # HallRent, Remarks
+        int(booking.get("guaratt", 0) or 0),           # NoOfPax
+        float(booking.get("cover_rate", 0) or 0),      # RatePerPax
+        float(booking.get("totalcover", 0) or 0),      # TotalPerCover
+        0.0,                                           # Amount
+        adv_total,                                     # Advance
+        booking.get("rectno") or "",                   # RectNo
+        booking.get("rectdate") or now.date(),         # rectDate
+        booking.get("cardno") or "", booking.get("cardholder") or "",
+        bookdocid, "N", "", SITE_CODE, "",
+        amounts["cgst"], amounts["sgst"], amounts["igst"],
     ]
+    assert len(vals) == len(cols), (
+        f"HallSale1 cols {len(cols)} != vals {len(vals)}")
 
     placeholders = ", ".join(["?"] * len(vals))
     sql = f"INSERT INTO HallSale1 ({', '.join(cols)}) VALUES ({placeholders})"
@@ -720,6 +783,62 @@ def hall_advance_total(bookdocid: str, cn=None) -> float:
     return float(rows[0][0] or 0.0)
 
 
+def hall_advance_receive(bookdocid: str, amount: float, paycode: str,
+                         cn=None, commit: bool = True, user: str = USER) -> dict:
+    """Advance receive against a banquet booking -> PayChargeH VType='AD'.
+
+    VB6 HallAdvanceDepDialog.frm pattern (live sample verification):
+      SNo 1: base advance (AmtCr = amount, ContraDocID = booking DocId)
+      SNo 2: KKCGSS = 2.5% of amount (ContraDocID = '')
+      SNo 3: KKSGSS = 2.5% of amount (ContraDocID = '')
+    Live example: 10001 -> 250.03 + 250.03 (2.5% each, total 5%).
+
+    Returns {"docid": ..., "vno": ..., "sno": [..]}.
+    """
+    amount = float(amount)
+    if amount <= 0:
+        raise ValueError("Amount 0 se bada hona chahiye")
+    if not paycode.strip():
+        raise ValueError("PayCode zaroori hai (Cash/Card/...)")
+
+    # cn=None -> apna connection lo (else commit=False inserts rollback ho
+    # jaate - db.execute apne cn par hamesha rollback karta hai)
+    if cn is None:
+        cn = db.connect()
+        commit = True
+
+    booking = hallbook_get(bookdocid, cn=cn)
+    if not booking:
+        raise ValueError(f"Booking {bookdocid} nahi mila")
+
+    vno = db.next_vno("PayChargeH", "AD", VPREFIX, site=SITE_CODE,
+                      vtype_col="Vtype", cn=cn)
+    docid = _make_hall_docid("AD", VPREFIX, vno)
+    cgst = round(amount * 0.025, 2)
+    sgst = round(amount * 0.025, 2)
+
+    def _ins(sno: int, pay: str, amt: float, contra: str, comments: str):
+        db.execute(
+            "INSERT INTO PayChargeH (DocId, SNo, Vtype, VNo, Site_Code, "
+            "VPrefix, Vdate, VTime, Comments, PayCode, AmtCr, AmtDr, "
+            "U_Name, U_EntDt, U_AE, RestCode, ContraDocID, LogSite_Code) "
+            "VALUES (?, ?, 'AD', ?, ?, ?, getdate(), ?, ?, ?, ?, 0, "
+            "?, getdate(), 'A', ?, ?, ?)",
+            (docid, sno, vno, SITE_CODE, VPREFIX,
+             datetime.datetime.now().strftime("%H:%M"), comments, pay,
+             amt, user, "KKBANQ", contra, SITE_CODE),
+            cn=cn, commit=False)
+
+    _ins(1, paycode, amount, bookdocid, "ADVANCE BQT PAYMENT")
+    _ins(2, CGST_CODE, cgst, "", "CGST (SALES) Adv. Agst. Banquet")
+    _ins(3, SGST_CODE, sgst, "", "SGST (SALES) Adv. Agst. Banquet")
+
+    if commit:
+        cn.commit()
+    return {"docid": docid, "vno": vno, "sno": [1, 2, 3],
+            "cgst": cgst, "sgst": sgst, "total": amount + cgst + sgst}
+
+
 # ============================================================
 # HallBill Estimate (Preview)
 # ============================================================
@@ -731,7 +850,8 @@ def hall_estimate_preview(bookdocid: str, cn=None) -> dict:
         raise ValueError(f"Booking {bookdocid} nahi mila")
 
     lines = hallbook1_lines(bookdocid, cn=cn)
-    amounts = _calc_bill_amounts(lines)
+    # HallBook1 live me 0 rows - fallback to booking header totals
+    amounts = _calc_bill_amounts(lines) if lines else _amounts_from_booking(booking)
 
     # Check existing advances
     advance = hall_advance_total(bookdocid, cn=cn)

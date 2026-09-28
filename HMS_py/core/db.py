@@ -5,6 +5,7 @@ Rules: sirf parameterized queries; schema me ZERO change.
 """
 import configparser
 import os
+from contextlib import contextmanager
 
 import pyodbc
 
@@ -220,6 +221,46 @@ def execute(sql: str, params=(), cn: pyodbc.Connection | None = None,
             except pyodbc.Error:
                 pass
             cn.close()
+
+
+@contextmanager
+def transaction(cn: pyodbc.Connection | None = None):
+    """VB6 BeginTrans/CommitTrans/RollbackTrans ka equivalent.
+
+    Multi-statement writes ko atomic banata hai — koi bhi step fail ho to
+    saare writes rollback ho jaate hain (VB6 On Error Goto ... RollbackTrans
+    pattern, dekho FaAdjust.frm TopCtrl1_UnknownEvent loc_1487774).
+
+    Usage:
+        with db.transaction() as cn:
+            ledgeradj_insert(rec, cn=cn, commit=False)
+            ledger_insert(rec2, cn=cn, commit=False)
+        # block exit par commit; exception par rollback + re-raise
+
+    Notes:
+    - commit=False ke saath core ops pass karo, warna inner op turant
+      commit kar dega aur outer rollback usse wapas nahi le sakta.
+    - Nested transaction() support: andar wala apna commit/rollback
+      nahi chalata, sirf outermost decide karta hai (VB6 jaisa).
+    """
+    own = cn is None
+    cn = cn or connect()
+    cn.autocommit = False
+    try:
+        yield cn
+        cn.commit()
+    except Exception:
+        try:
+            cn.rollback()
+        except pyodbc.Error:
+            pass
+        raise
+    finally:
+        if own:
+            try:
+                cn.close()
+            except pyodbc.Error:
+                pass
 
 
 # ============================================================

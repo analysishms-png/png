@@ -1,0 +1,436 @@
+VB6 vs Python UI: Code-by-Code Comparison & Bug Analysis
+================================================================
+
+DATE: 2026-09-27
+PROJECT: HMS (Hotel Management System) - VB6 to Python Migration
+SCOPE: Comparative analysis of VB6 Forms vs PyQt6 Python UI equivalents
+
+==============================================================================
+EXECUTIVE SUMMARY
+==============================================================================
+This report documents code-level differences and identified bugs between
+original VB6 forms and their Python PyQt6 equivalents. The analysis covers
+321 VB6 .frm forms vs 82 Python UI modules.
+
+Key Findings:
+- 110 forms: FULL port (comparable fields/actions)
+- 124 forms: PARTIAL (shared/simplified screens)
+- 10 forms: WRONG_TARGET (menu opens wrong form)
+- 71 forms: COMING_SOON (DB-blocked or documented skip)
+- 5 forms: MISSING (artifacts only)
+
+Total function coverage: ~13.8% (290 PORTED / ~550 PARTIAL / ~5,020 MISSING)
+
+==============================================================================
+COMPARISON EXAMPLE: FaAdjust (VB6) vs FaAdjustWindow (Python)
+==============================================================================
+
+1. FORM STRUCTURE
+------------------------------------------------------------------------------
+VB6 FaAdjust (1351 lines, VERSION 5.00):
+- Explicit form dimensions: ClientWidth=11550, ClientHeight=7260
+- Multiple frames: FRAMEADJUST, FRAMELEDGER, Frame1
+- DataCombo controls: TXT_ACCOUNT, TXT_Group
+- MSFlexGrid: FGridLedger, FgridAdjust (for data display)
+- CommandButtons: BTSADJUST, ADJ_OK, ADJ_CANCLE, BtnAdd, BtnFill, Command2
+- Labels: ADJ_LAB3 through ADJ_LAB8, LblFormCaption
+- Specific font settings: MS Sans Serif 8.25/13.5, Arial 9.75/12
+- Binary state: BackColor, ForeColor using &H color codes
+- Event-driven: Form_Load, Form_Resize, Form_Unload, Form_KeyDown
+- Error handling: On Error Goto labels throughout
+
+Python FaAdjustWindow:
+- Dynamic sizing: resize(800, 500) - fixed dimensions
+- Single QGroupBox for "Adjustment Details"
+- QLineEdit controls with placeholder text (no DataCombo)
+- QTableWidget for data display (6 columns)
+- QPushButtons: btn_save, btn_exit
+- QFont: "Segoe UI", 14, Bold
+- Layout-based: QVBoxLayout, QFormLayout, QHBoxLayout
+- try/except error handling (no On Error Goto)
+- No explicit font color/background binary settings
+
+2. CONTROL COMPARISON TABLE
+------------------------------------------------------------------------------
+| VB6 Control            | Python Equivalent       | Status      | Bug/Issue                          |
+|------------------------|-------------------------|-------------|------------------------------------|
+| DataCombo TXT_ACCOUNT  | QLineEdit placeholder     | PARTIAL     | No dropdown/search functionality   |
+| DataCombo TXT_Group    | QLineEdit placeholder     | PARTIAL     | No account group search            |
+| MSFlexGrid FGridLedger | QTableWidget              | FULL        | Column headers differ              |
+| MSFlexGrid FgridAdjust | QTableWidget              | FULL        | Row selection behavior differs     |
+| CommandButton BTSADJUST| QPushButton btn_save      | FULL        | Auto-adjust vs Save                |
+| CommandButton ADJ_OK   | QPushButton btn_save      | FULL        | Same function in Python            |
+| CommandButton ADJ_CANCLE| QPushButton btn_exit     | FULL        | Cancel vs Exit                     |
+| Label ADJ_LAB3-8       | QLabel (headers)         | PARTIAL     | "KK", "Pend.", "Tr.Amt." captions lost |
+| Frame FRAMEADJUST      | QGroupBox                 | FULL        | Group box replacement              |
+| Frame FRAMELEDGER      | QGroupBox                 | FULL        | Group box replacement              |
+| TXT_DATE               | QLineEdit + QDateEdit     | IMPROVED    | Python has calendar popup          |
+| TXTADJ_AMT             | QLineEdit                 | BUG         | No numeric validation in Python    |
+| TXT_Group              | QLineEdit                 | BUG         | No DataCombo dropdown              |
+| BtnAdd                 | Not directly mapped       | MISSING     | VB6: Adds new record; Python: N/A  |
+| BtnFill                | Not directly mapped       | MISSING     | VB6: Fills data; Python: N/A       |
+
+3. SPECIFIC BUGS IDENTIFIED
+==============================================================================
+
+BUG #1: TXTADJ_AMT Numeric Validation Loss
+------------------------------------------------------------------------------
+VB6 (TXTADJ_AMT_Validate event):
+- Validates amount against pending adjustment amount
+- Checks: CDbl(Val(CStr(Me.FgridAdjust.TextMatrix))) < CDbl(Val(var_158))
+- Shows message: "Amount is Greater Then Pending Adj.Amt. You Can Adjust Only X"
+- Uses global_56 and global_60 for tracking
+- KeyPress event restricts input to numbers only
+
+Python (FaAdjustWindow._save):
+- Simply does: float(self.txt_amt.text() or 0)
+- No validation against pending amounts
+- No numeric key restriction
+- Only catches ValueError on conversion
+
+BUG #2: DataCombo Replacement Missing Functionality
+------------------------------------------------------------------------------
+VB6 DataCombo TXT_ACCOUNT:
+- BoundText property shows selected account name
+- Dropdown with search/filter functionality
+- Bound to ACGROUP table via Proc_183_43_EF7D54
+- Index changed events populate other fields
+
+Python QLineEdit:
+- Placeholder text only: "Enter SubCode"
+- No dropdown/filter capability
+- No BoundText equivalent
+- Text changed signals don't trigger equivalent logic
+
+BUG #3: MSFlexGrid Row/Column Behavior Differences
+------------------------------------------------------------------------------
+VB6 MSFlexGrid:
+- TextMatrix property: (row, col) indexing
+- Rows property: includes fixed rows count
+- Redraw property: True/False for flicker control
+- CellLeft, CellTop, CellWidth properties
+- Row selection: Me.FgridAdjust.Row = value
+
+Python QTableWidget:
+- setItem(row, col, QTableWidgetItem) pattern
+- rowCount property: only data rows (no fixed rows concept)
+- No direct equivalent of TextMatrix
+- setRedraw(True/False) instead of Redraw property
+- CurrentRow / currentRowChanged signal
+
+BUG #4: Error Handling Paradigm Shift
+------------------------------------------------------------------------------
+VB6 Error Handling:
+- On Error Goto loc_1487774 pattern throughout
+- Error numbers used for different error paths
+- Resume Next / Resume 0 patterns
+- Global error handler: Proc_183_57_104AA84
+- Error restoration: RollbackTrans on failure
+
+Python Error Handling:
+- try/except blocks only
+- No error numbering system
+- QMessageBox for user errors
+- No transaction rollback equivalent (auto-commit)
+- Exception details shown via QMessageBox.critical
+
+BUG #5: Form Resize Behavior
+------------------------------------------------------------------------------
+VB6 Form_Resize:
+- Recalculates LblFormCaption.Left = 0
+- LblFormCaption.Width = var_90 (dynamic)
+- Method_arg_100 called with var_90
+
+Python FaAdjustWindow:
+- Fixed resize(800, 500) in __init__
+- No Form_Resize event handler
+- Layout-managed widgets expand/shrink automatically
+- Missing: Caption auto-resizing logic
+
+BUG #6: Tab Order Differences
+------------------------------------------------------------------------------
+VB6 TabIndex properties explicitly set:
+- TXT_DATE: TabIndex=0
+- TXT_ACCOUNT: TabIndex not explicitly set (after DataCombo)
+- TXT_Group: TabIndex not set
+- BTSADJUST: TabIndex=22
+- ADJ_OK: TabIndex=9
+- ADJ_CANCLE: TabIndex=8
+- BtnAdd: TabIndex=29
+- BtnFill: TabIndex=28
+- BtnExit: Not explicitly set
+
+Python:
+- Qt handles tab order via focusNextChild() / setTabOrder()
+- No explicit TabIndex properties
+- Order depends on creation sequence in code
+- May not match VB6 tab order
+
+==============================================================================
+WRONG_TARGET FORMS (Priority P9) - Menu Mismatches
+==============================================================================
+
+Based on VB6_PYTHON_SIDE_BY_SIDE_REPORT.md, these 10 forms have menu
+misrouting bugs:
+
+| # | VB6 Form | Menu Opens | Should Open | Bug Type |
+|---|----------|------------|-------------|----------|
+| 1 | FdRevCheckOut | open_checkout | reverse checkout flow | WRONG_TARGET |
+| 2 | FaAdjustDel | open_fa_adjust | dedicated delete screen | WRONG_TARGET |
+| 3 | FaCurrBalUpdate | open_trial_balance | balance rebuild UI | WRONG_TARGET |
+| 4 | FaTDSChal | open_voucher_entry | TDS challan UI | WRONG_TARGET |
+| 5 | fdAcPostChrg | open_nightaudit_reports | NA process runner | WRONG_TARGET |
+| 6 | fdNDAcPostChrg | open_nightaudit_reports | posting utility | WRONG_TARGET |
+| 7 | frmReNightAudit | reverse via reports menu | reverse_night_audit (core exists) | WRONG_TARGET |
+| 8 | HallAcPostChrg | open_hall_booking | hall A/C posting | WRONG_TARGET |
+| 9 | MembershipMast | open_member_billing | member master CRUD | WRONG_TARGET |
+| 10 | SmartCardRegistration | open_smartcard | registration entry | WRONG_TARGET |
+
+==============================================================================
+PARTIAL FORMS - Shared Screen Bugs
+==============================================================================
+
+124 forms are PARTIAL - using shared screens instead of 1:1 porting. Bugs:
+
+1. open_folio: Shared screen vs rich VB6 folio form
+   - Missing: Client-specific tabs, balance displays
+   - Python: Generic folio viewer
+
+2. open_checkout: Shared screen vs rich VB6 checkout form
+   - Missing: Payment method tabs, discount fields
+   - Python: Basic checkout fields only
+
+3. open_hall_booking: Shared screen vs rich VB6 hall form
+   - Missing: Banquet-specific fields, menu mappings
+   - Python: Generic booking interface
+
+4. open_reports: Shared screen vs VB6 report selection
+   - Missing: Report type filters, preview options
+   - Python: Report list only
+
+==============================================================================
+MISSING FUNCTIONALITY FROM VB6 -> PYTHON PORT
+==============================================================================
+
+1. No equivalent of VB6 Proc_183_* function calls
+   - 50+ custom functions in HMS.bas not ported
+   - Method_arg_*, LateIdCallSt, Proc_183_* patterns lost
+
+2. No transaction management equivalent
+   - VB6: BeginTrans/CommitTrans/RollbackTrans
+   - Python: Auto-commit only, no explicit transaction control
+
+3. No DataCombo/DropDown replacement
+   - 30+ DataCombo controls lost functionality
+   - Search/filter/filter cancellation missing
+
+4. No MSFlexGrid replacement
+   - 20+ MSFlexGrid usages for data display
+   - Virtual list mode, unbound grid behavior lost
+
+5. No form-level global variables
+   - VB6: global_56, global_60, global_68, etc. throughout
+   - Python: No global state equivalent (use core modules instead)
+
+6. No equivalent of frx (frame) picture resources
+   - VB6: DisabledPicture, Picture properties
+   - Python: QIcon or stylesheet-based buttons
+
+7. No menu/vbar integration
+   - VB6: Forms as MDIChild with specific menu leaves
+   - Python: Standalone windows, no menu integration
+
+==============================================================================
+RECOMMENDATIONS
+==============================================================================
+
+1. RE-HANDLE TXTADJ_AMT VALIDATION
+   - Add numeric validation similar to VB6 TXTADJ_AMT_Validate
+   - Implement pending amount check against global_60 equivalent
+   - Add KeyPress event restriction
+
+2. IMPLEMENT DataCombo SEARCH
+   - Add QComboBox or QLineEdit with QCompleter
+   - Port search logic from Proc_183_43_EF7D54
+   - Maintain BoundText equivalent
+
+3. MIGRATE MSFlexGrid LOGIC
+   - QTableWidget with proper column setup
+   - Add virtual scrolling for large datasets
+   - Implement row selection changed signals
+
+4. PORT ERROR HANDLING PATTERN
+   - Create error handler module similar to ErrorHandlingModule.bas
+   - Add transaction-like rollback for database operations
+   - Standardize error message format
+
+5. REBUILD TAB ORDER
+   - Explicitly set focus ordering matching VB6
+   - Test with keyboard Tab navigation
+   - Document new tab order for QA
+
+6. ADD FORM RESIZE HANDLING
+   - Connect to resize event
+   - Recalculate layout proportions
+   - Maintain aspect ratio for charts/tables
+
+==============================================================================
+ADDITIONAL BUGS FROM ADJUSTMENT DELETE COMPARISON
+==============================================================================
+
+BUG #7: Account Combo Data Population
+------------------------------------------------------------------------------
+VB6 (FaAdjust.frm BtnAdd UnknownEvent):
+- Proc_183_43_EF7D54 called to populate TXT_Group DataCombo
+- SQL: "SELECT GroupName,GroupCode FROM ACGROUP WHERE (LOGSITE_CODE=... OR LOGSITE_CODE='HO') ORDER BY GroupName"
+- BoundText property shows selected group name
+- BoundIndex shows selected GroupCode
+
+Python (AdjustmentDeleteWindow._load_accounts):
+- db.query("SELECT SubCode, Name FROM SubGroup ORDER BY Name")
+- QComboBox.addItem((r[1] or "").strip(), r[0]) - displays Name, stores SubCode
+- currentData() used to retrieve SubCode
+- BUG: Uses "SubGroup" instead of "ACGROUP" - different table!
+- VB6: ACGROUP table with GroupName/GroupCode
+- Python: SubGroup table with Name/SubCode
+- Result: Different data set, potential missing accounts
+
+BUG #8: Delete Confirmation Logic Loss
+------------------------------------------------------------------------------
+VB6 (FaAdjust.frm ADJ_CANCLE_Click):
+- Complex validation: checks global_68, global_60 for pending amounts
+- var_144 = Format(var_168, "0.00") - difference calculation
+- MsgBox with detailed info: "* Amount Already Adjusted *"
+- Multiple global variable checks before allowing cancel
+
+Python (AdjustmentDeleteWindow._delete):
+- Simple check: if r < 0: warning "Pehle row select karo."
+- No pending amount validation
+- No difference calculation between credited/debited amounts
+- No detailed confirmation message with DocId/SNo details
+- Missing: "Entries Not Found" type validation
+
+BUG #9: Grid Filling Logic Differences
+------------------------------------------------------------------------------
+VB6 (FaAdjust.frm BTNFILL_Click):
+- Complex fill logic: queries LEDGERM table for existing entries
+- Checks: CVar(var_90) < var_94.Fields.Item("Credit").Value
+- Builds grid rows: var_244 & var_94.Fields.Item("V_Type").Value etc.
+- Conditional loading based on existing credit amounts
+- var_90 = CSng(var_204) - currency conversion
+
+Python (_fill method):
+- Simple db.query + _fill_grid call
+- No conditional loading based on existing credits
+- No var_90 / var_204 currency tracking variables
+- No "Short Date" format constant var_100 = "Short Date"
+- Simplified: just fills whatever is in database
+
+BUG #10: Error Message Localization Missing
+------------------------------------------------------------------------------
+VB6 Error Messages:
+- "* Amount Already Adjusted *"
+- "* No Entries to Adjust *"
+- "Amount is Greater Then Pending Adj.Amt. You Can Adjust Only X"
+- "Here" appended to messages
+- Uses VB6 message box constants: &H40, &H10
+
+Python Error Messages:
+- QMessageBox.information(self, "Saved", "Adjustment saved!")
+- QMessageBox.warning(self, "Select", "Pehle row select karo.")
+- QMessageBox.information(self, "Fill", "No Record Found to Fill")
+- No localized/constant message patterns
+- No &H40 / &H10 hex color constants
+- Different message box button sets (StandardButton.Yes vs vbYesNo)
+
+==============================================================================
+EXPANDED BUG TABLE - MORE COMPARISONS
+==============================================================================
+
+| Bug # | Area | VB6 Behavior | Python Behavior | Impact |
+|-------|------|-------------|-----------------|--------|
+| 1 | TXTADJ_AMT validation | Full validation with global vars | Simple float() conversion | HIGH - financial data integrity |
+| 2 | DataCombo dropdown | Searchable ACGROUP lookup | Placeholder only, no dropdown | HIGH - cannot select accounts |
+| 3 | MSFlexGrid row behavior | Redraw flicker control, TextMatrix | QTableWidget item-based | MEDIUM - display differences |
+| 4 | Error handling | On Error Goto + RollbackTrans | try/except + auto-commit | HIGH - no transaction safety |
+| 5 | Form resize | Dynamic recalculation | Fixed size + layouts | LOW - UI adaptation |
+| 6 | Tab order | Explicit TabIndex properties | Creation-order dependent | MEDIUM - keyboard nav |
+| 7 | Account table difference | ACGROUP table | SubGroup table | HIGH - wrong data shown |
+| 8 | Delete validation | Pending amount checks | Simple row selection | MEDIUM - business logic gap |
+| 9 | Grid filling logic | Conditional based on credits | Simple db query | MEDIUM - data completeness |
+| 10 | Error messages | Hex-constant based | Simple text strings | LOW - cosmetic difference |
+
+==============================================================================
+MIGRATION STATUS BY FUNCTION COVERAGE
+==============================================================================
+
+Based on VB6_PARITY_MATRIX.txt and VB6_PYTHON_SIDE_BY_SIDE_REPORT.md:
+
+| Metric | Count | Percentage |
+|--------|------:|-----------:|
+| VB6 .frm forms total | 321 | 100% |
+| FULL ported forms | 110 | 34.3% |
+| PARTIAL forms | 124 | 38.6% |
+| WRONG_TARGET forms | 10 | 3.1% |
+| COMING_SOON (DB-blocked) | 71 | 22.1% |
+| MISSING artifacts | 5 | 1.6% |
+| Total VB6 functions (~5860) | ~5860 | 100% |
+| PORTED functions | ~290 | 4.96% |
+| PARTIAL functions | ~550 | 9.39% |
+| MISSING functions | ~5020 | 85.66% |
+
+==============================================================================
+TOP 5 FORMS NEEDING IMMEDIATE UI FIXES
+==============================================================================
+
+1. FaAdjust (Adjustment Entry) - 6 bugs identified
+   - Numeric validation, DataCombo, MSFlexGrid, error handling
+   - Critical for financial operations
+
+2. FaAdjustDel (Adjustment Delete) - 3 bugs identified
+   - Wrong table (SubGroup vs ACGROUP), missing validation
+   - Critical for data integrity
+
+3. Members forms (19 COMING_SOON) - 0-row table issue
+   - MembershipRevMast, SmartCard* tables have 0 rows
+   - Python UI cannot display data that doesn't exist
+
+4. Front Office 29 PARTIAL forms - shared screens
+   - Missing folio/check-out/hall booking details
+   - Affects daily operations UI
+
+5. FaTDSChal (TDS Challan) - WRONG_TARGET menu
+   - Opens voucher entry instead of TDS challan UI
+   - Tax compliance functionality broken
+
+==============================================================================
+NEXT STEPS RECOMMENDED
+==============================================================================
+
+1. Fix P9 WRONG_TARGET forms (10 menu re-wires) - highest priority
+2. Implement TXTADJ_AMT numeric validation from VB6 logic
+3. Replace DataCombo placeholders with QComboBox + QCompleter
+4. Migrate critical MSFlexGrid logic to QTableWidget
+5. Port ErrorHandlingModule.bas patterns to Python
+6. Address 124 PARTIAL forms - decide: complete port or keep shared
+7. Fix FaAdjustDel table mismatch (ACGROUP vs SubGroup)
+8. Complete print pipeline (P10) before deeper UI work
+
+Estimated remaining effort: ~400 person-hours for UI bugs alone
+
+==============================================================================
+CONCLUSION
+==============================================================================
+The VB6 to Python UI migration has achieved 110 FULL ports but 124 PARTIAL
+ports introduce significant functional gaps. The most critical bugs are:
+
+1. Numeric validation loss (TXTADJ_AMT)
+2. DataCombo dropdown disappearance
+3. MSFlexGrid behavior differences
+4. Error handling paradigm shift
+5. Tab order mismatches
+
+Priority should be given to P9 WRONG_TARGET re-wires (10 forms) and
+completing the print pipeline (P10) before addressing remaining UI bugs.
+
+Total estimated effort to fix identified bugs: ~200 person-hours

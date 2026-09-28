@@ -1,0 +1,53 @@
+# HMS ENVIRONMENT DISCOVERY (Phase 1)
+Date of analysis: 2026-09-28
+Working folder analyzed: HMS application folder (INI references C:\PENDRIVE\HMS\)
+
+## 1. Application folder contents (verified by directory listing)
+
+Executables:
+- HMS.exe             28,925,952 bytes  modified 2026-04-11   (current build)
+- HMS old.exe         26,509,312 bytes  modified 2023-08-05   (previous build)
+- HMSGSTzzz (2).exe   27,037,696 bytes  modified 2023-08-05   (GST build backup)
+
+Archives (likely contain source/previous versions - NOT yet extracted):
+- HMS.rar        5,188,363 bytes  (2025-08-07)
+- HMSGST.rar     4,985,672 bytes  (2019-03-01)
+- Temp.rar         130,250 bytes  (2026-02-14)
+
+Configuration:
+- Analysis.ini  [HMS] section - connection/menu/paths config (see ini_analysis.txt)
+
+Databases:
+- Data\MSSQL10_50.MSSQLSERVER\MSSQL\   -> SQL Server 2008 R2 instance data folder
+  (subfolders: Backup, DATA, FTData, JOBS, Log, repldata - DATA and Backup are EMPTY on this copy)
+- Temp\Temp.Mdb, Temp\DMEPABX.mdb, Temp\Fadata.mdb  -> MS Access (Jet 4.0) side databases
+
+Logs (runtime evidence):
+- ErrorLog.Log (20 KB, active - 2026-09-16)
+- FaLog.Log, HMSIssueList.Log, HMSACIssueList.Log, HMS_GSTRI_List.Log
+
+Crystal Reports:
+- Reports\ : 524 report files (.rpt Crystal Reports + .ttx field-definition files)
+
+Images:
+- Image\Hotel.bmp, Image\Hotellogo.bmp, Image\IdProof\, Image\PurchBill\
+- pic\ (menu/load images referenced by MDIForm_Load)
+
+Supporting DLLs/OCX:
+- acr120u.dll, SmartCard_ACR.dll, Analysis_ACR.dll  (ACR smart-card reader SDK - room key/card integration)
+- sysdm.ocx, MSCOMM32.OCX (serial comm - EPABX call accounting)
+- GSTR1_Excel_Workbook_Template_V1.5.xlsx (GST export template), tax.txt
+
+## 2. Environment notes
+
+- SQL Server data directory is bundled (MSSQL10_50 = SQL Server 2008 R2) but its DATA subfolder
+  is empty in this copy -> actual MOONData2627 database files (.mdf/.ldf) are NOT present here.
+  [UNKNOWN] Live database access blocked until .mdf/.ldf or backup provided, or a live SQL Server
+  with the DB is running. Database analysis marked BLOCKED (see database_connection.txt).
+- VB6 source (.vbp/.frm/.bas/.cls) NOT found on disk. Decompiled trace available in EXTRAS.text
+  (54,005,006 bytes). Source recovery possible from .rar archives (not yet extracted).
+
+## 3. Evidence level of this file
+[VERIFIED-CONFIG] INI values, folder structure, file sizes/dates.
+[VERIFIED-UI]     n/a yet (application not launched in this session)
+[UNKNOWN]         SQL Server live connectivity; VB6 original source.

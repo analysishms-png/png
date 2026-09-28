@@ -1,0 +1,4 @@
+Point Of Sale|17|0|0|0|N
+Garden Aroma|17|22|0|0|N
+KOT Entry|17|22|11|0|E
+Display Table|17|22|19|0|E

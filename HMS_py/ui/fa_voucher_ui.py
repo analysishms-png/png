@@ -63,9 +63,17 @@ class VoucherEntryDialog(QDialog):
         self.cmbVType.addItems(vtypes)
         self.edNarr = QLineEdit()
         self.edNarr.setPlaceholderText("Enter voucher narration...")
+        self.edNarr.setReadOnly(False)
+        btn_pick = QPushButton("...")
+        btn_pick.setToolTip("Global Narration se chuno (VB6 FaGlobeNarr)")
+        btn_pick.setMaximumWidth(36)
+        btn_pick.clicked.connect(self._pick_global_narration)
+        narr_row = QHBoxLayout()
+        narr_row.addWidget(self.edNarr, 1)
+        narr_row.addWidget(btn_pick)
         form.addRow("Voucher Date:", self.dtVdate)
         form.addRow("Voucher Type:", self.cmbVType)
-        form.addRow("Narration:", self.edNarr)
+        form.addRow("Narration:", narr_row)
         root.addLayout(form)
 
         self.tbl = QTableWidget(0, 4)
@@ -114,6 +122,17 @@ class VoucherEntryDialog(QDialog):
         r = self.tbl.currentRow()
         if r >= 0:
             self.tbl.removeRow(r)
+
+    def _pick_global_narration(self):
+        """VB6 FaVrEnt se FaGlobeNarr picker — selected narration field me."""
+        from HMS_py.ui.partial_forms_ui import (
+            open_global_narration_picker as _pick)
+        try:
+            name = _pick(self)
+        except Exception:
+            return
+        if name:
+            self.edNarr.setText(name)
 
     def _post(self):
         lines = []
@@ -356,6 +375,18 @@ def open_journal_book(parent=None):
 def open_daily_txn_summary(parent=None):
     ReportViewer(parent, title="Daily Transaction Summary",
                  fn=fv.daily_transaction_summary).exec()
+
+
+def open_global_narration_picker(parent=None) -> str:
+    """VB6 FaGlobeNarr modal-picker entry (FaVrEnt narration field ke liye).
+
+    GlobalNarrationWindow ko picker-mode me kholta hai — selected narration
+    return karta hai ('' cancel par). Sweep-safe: QDialog.exec stubbed hota
+    hai offscreen runs me.
+    """
+    from HMS_py.ui.partial_forms_ui import GlobalNarrationWindow
+    w = GlobalNarrationWindow(parent)
+    return w.pick_narration()
 
 
 if __name__ == "__main__":

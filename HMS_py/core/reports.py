@@ -230,7 +230,12 @@ REPORTS: list[dict] = [
             "menu": ["Cash Flow"],
             "cols": ["TxnDate", "Opening", "Receipts", "Payments", "Closing"],
             "sql": (
-                "WITH Dates AS (SELECT CAST(? AS date) AS d UNION ALL SELECT DATEADD(day,1,d) FROM Dates WHERE d < ?) SELECT d, ISNULL((SELECT SUM(l.AmtCr - l.AmtDr) FROM Ledger l JOIN Subgroup s ON s.SubCode = l.SubCode WHERE RTRIM(ISNULL(s.Nature,'')) IN ('Cash','Bank') AND l.V_Date < d), 0) AS Opening, ISNULL((SELECT SUM(l.AmtCr) FROM Ledger l JOIN Subgroup s ON s.SubCode = l.SubCode WHERE RTRIM(ISNULL(s.Nature,'')) IN ('Cash','Bank') AND l.V_Date = d), 0) AS Receipts, ISNULL((SELECT SUM(l.AmtDr) FROM Ledger l JOIN Subgroup s ON s.SubCode = l.SubCode WHERE RTRIM(ISNULL(s.Nature,'')) IN ('Cash','Bank') AND l.V_Date = d), 0) AS Payments, ISNULL((SELECT SUM(l.AmtCr - l.AmtDr) FROM Ledger l JOIN Subgroup s ON s.SubCode = l.SubCode WHERE RTRIM(ISNULL(s.Nature,'')) IN ('Cash','Bank') AND l.V_Date <= d), 0) AS Closing FROM Dates ORDER BY d OPTION (MAXRECURSION 0)"
+                # Perf fix (VB6 parity): correlated Ledger scans per day pe
+                # quadratic tha (10-saal range = hours-long UI freeze).
+                # Ab 2-phase: Ledger ko EK baar range-prefilter karke Cash CTE
+                # me materialize, phir per-day aggregates us chhote set pe.
+                # Same columns/results; SQL 2008 R2 compatible.
+                "WITH Dates AS (SELECT CAST(? AS date) AS d UNION ALL SELECT DATEADD(day,1,d) FROM Dates WHERE d < ?), Cash AS (SELECT l.V_Date, l.AmtCr, l.AmtDr FROM Ledger l JOIN Subgroup s ON s.SubCode = l.SubCode WHERE RTRIM(ISNULL(s.Nature,'')) IN ('Cash','Bank') AND l.V_Date BETWEEN ? AND ?), Bal AS (SELECT d, (SELECT SUM(AmtCr - AmtDr) FROM Cash WHERE V_Date < d) AS Opening, (SELECT SUM(AmtCr) FROM Cash WHERE V_Date = d) AS Receipts, (SELECT SUM(AmtDr) FROM Cash WHERE V_Date = d) AS Payments, (SELECT SUM(AmtCr - AmtDr) FROM Cash WHERE V_Date <= d) AS Closing FROM Dates) SELECT d AS TxnDate, ISNULL(Opening, 0) AS Opening, ISNULL(Receipts, 0) AS Receipts, ISNULL(Payments, 0) AS Payments, ISNULL(Closing, 0) AS Closing FROM Bal ORDER BY d OPTION (MAXRECURSION 0)"
             ),
             "note": "Day-wise cash+bank receipts/payments with running opening/closing (kanpur txt CASH_FLOW; CashBook/BankBook tables is DB me nahi — Ledger×Subgroup.Nature Cash/Bank se). Cr into Cash/Bank = receipt, Dr = payment.",
         },

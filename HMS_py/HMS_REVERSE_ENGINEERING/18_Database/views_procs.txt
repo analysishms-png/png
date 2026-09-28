@@ -1,0 +1,14 @@
+BillDet
+BillSummary
+Party_List
+RoomOccDet
+SunTransaction
+View_Booking
+ViewBooking
+ViewLedger
+ViewLedgerLog
+ViewSubgroup
+===PROCS===
+GetFieldNameAs
+GetFieldNameAsStr
+Proc_WebService

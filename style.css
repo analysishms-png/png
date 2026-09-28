@@ -1,0 +1,131 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.login-container {
+  display: flex;
+  width: 100%;
+  max-width: 420px;
+}
+
+.login-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  width: 100%;
+}
+
+.logo {
+  padding: 40px 30px 20px;
+  text-align: center;
+}
+
+.logo svg {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 12px;
+  fill: #1A73E8;
+}
+
+.logo h2 {
+  color: #1a1a1a;
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.logo p {
+  color: #65676b;
+  font-size: 14px;
+}
+
+.form-section {
+  padding: 0 30px 30px;
+}
+
+.input-group {
+  margin-bottom: 24px;
+}
+
+.input-group svg {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #8a8d93;
+  width: 20px;
+  height: 20px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 16px 16px 16px 48px;
+  border: 1px solid #d2d6db;
+  border-radius: 10px;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  color: #1a1a1a;
+  transition: border-color 0.2s;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: #1A73E8;
+  box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.15);
+}
+
+.btn-login {
+  width: 100%;
+  padding: 16px;
+  background: #1A73E8;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.2s;
+}
+
+.btn-login:hover {
+  background: #1557b0;
+}
+
+.footer-links {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 13px;
+  color: #65676b;
+}
+
+.footer-links a {
+  color: #1A73E8;
+  text-decoration: none;
+  font-weight: 500;
+  margin: 0 4px;
+}
+
+.footer-links a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 420px) {
+  .login-container {
+    padding: 20px 15px;
+  }
+}

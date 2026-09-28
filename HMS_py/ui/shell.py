@@ -73,6 +73,7 @@ def _qt_msg_handler(msg_type, context, message):
 qInstallMessageHandler(_qt_msg_handler)
 
 from HMS_py.core import auth, company, menu
+from HMS_py.core import menu_help as mh
 # v0.1.2 workflow cores (Room Change / KOT Transfer / Salary Create)
 from HMS_py.core import checkin as checkin_mod
 from HMS_py.core import pos as _pos_core
@@ -552,7 +553,7 @@ class MainSetupWorkbench(QDialog):
                 "Catalog Master", "Group Profile",
                 "NC Type", "Server / Waiter", "Shift Master",
                 "Combo Pack", "Smart Card", "Function Type",
-                 "Call Type", "Call Code", "Extension", "Happy Hours",
+                 "Call Type", "Call Code", "Extension", "Com Port Properties", "Happy Hours",
             ]),
             ("HR & Members", [
                 "Category  Master", "Holiday Master", "Employee Master",
@@ -662,8 +663,9 @@ def _form_registry() -> dict[str, callable]:
         from HMS_py.ui import taxstru_ui as tsu
         from HMS_py.ui import guest_history_ui as ghu
         from HMS_py.ui import epabx_ui as epabx
+        from HMS_py.ui import comport_ui as cport
     except ImportError:
-        pm = bm = hr = gs = tsu = ghu = epabx = None
+        pm = bm = hr = gs = tsu = ghu = epabx = cport = None
     try:
         from HMS_py.ui import pos_na as pna
         _pos = lambda w: pna.open_pos(w)
@@ -674,6 +676,18 @@ def _form_registry() -> dict[str, callable]:
         from HMS_py.ui import fd_forms_ui as fdui
     except ImportError:
         fdui = None
+    # Wave 6 imports (posting/settlement — VB6 fdPostChrg/fdPaymentCharge/
+    # FdReSetlement/FdRevCheckOut)
+    try:
+        from HMS_py.ui import posting_forms_ui as postui
+    except ImportError:
+        postui = None
+    # Wave 7 imports (rack/room-lookup/walk-in — VB6 fdRoomDisplay/
+    # FdLookUpRoomNo/fdRoomOcc/fdWalkInEntry)
+    try:
+        from HMS_py.ui import walkin_rack_ui as wrui
+    except ImportError:
+        wrui = None
     try:
         from HMS_py.ui import inventory as _inv
     except ImportError:
@@ -711,6 +725,10 @@ def _form_registry() -> dict[str, callable]:
         from HMS_py.ui import hall_booking_ui as hall_ui
     except ImportError:
         hall_ui = None
+    try:
+        from HMS_py.ui import banquet_ops_ui as banq_ui
+    except ImportError:
+        banq_ui = None
     try:
         from HMS_py.ui import hr_payroll_ui as payroll_ui
     except ImportError:
@@ -771,6 +789,30 @@ def _form_registry() -> dict[str, callable]:
         from HMS_py.ui import db_backup_ui as dbbak_ui
     except ImportError:
         dbbak_ui = None
+    try:
+        from HMS_py.ui import einvoice_ui as einv_ui
+    except ImportError:
+        einv_ui = None
+    # PARTIAL-bucket ports (FaGlobeNarr/FaTDSCat/FaGrEnt/FaSubGroup/...)
+    try:
+        from HMS_py.ui import partial_forms_ui as pfui
+    except ImportError:
+        pfui = None
+    # VB6 EmptyInbox (Finance > "Delete Message") - Messaging table port
+    try:
+        from HMS_py.ui import messaging_ui as msgui
+    except ImportError:
+        msgui = None
+    # VB6 fdNDAcPostChrg (Night Audit > "Account Posting" = Posting Utility)
+    try:
+        from HMS_py.ui import posting_utility_ui as npu_ui
+    except ImportError:
+        npu_ui = None
+    # Guest Charges Summary (VB6 fdPrintScreen port)
+    try:
+        from HMS_py.ui import guest_charges_ui as gchrg_ui
+    except ImportError:
+        gchrg_ui = None
     try:
         from HMS_py.ui import purchase_order_ui as purord_ui
     except ImportError:
@@ -855,6 +897,56 @@ def _form_registry() -> dict[str, callable]:
         from HMS_py.ui import requisition_slip_ui as reqslip_ui
     except ImportError:
         reqslip_ui = None
+    # VB6 MISSING-batch: frmBlockMast + RewardPointParam1 + FAFind +
+    # FrmChangeSite (tables BlockMast/RWParameter LIVE hain)
+    try:
+        from HMS_py.ui import block_master_ui as bmst_ui
+    except ImportError:
+        bmst_ui = None
+    # PARTIAL-batch wiring: SMS/Inbox + KOT/Token + table display
+    try:
+        from HMS_py.ui import sms_ui as smsui
+    except ImportError:
+        smsui = None
+    try:
+        from HMS_py.ui import kot_transfer_ui as kotui
+    except ImportError:
+        kotui = None
+    # PARTIAL-batch: complaint/guest-services tabs + enviro screen
+    try:
+        from HMS_py.ui import enviro_ui as envui
+    except ImportError:
+        envui = None
+    try:
+        from HMS_py.ui import company_profile_ui as prof_ui
+    except ImportError:
+        prof_ui = None
+    try:
+        from HMS_py.ui import guest_history_ui as ghist_ui
+    except ImportError:
+        ghist_ui = None
+    try:
+        from HMS_py.ui import channel_ui as ch_ui
+    except ImportError:
+        ch_ui = None
+    try:
+        from HMS_py.ui import folio_ui as folui2
+    except ImportError:
+        folui2 = None
+    try:
+        from HMS_py.ui import user_permissions_ui as perm2_ui
+    except ImportError:
+        perm2_ui = None
+    try:
+        from HMS_py.ui import kot_entry as kot2
+    except ImportError:
+        kot2 = None
+    # VB6 UI-ONLY batch: Calender/Image/KeyMassage/repTouchDate/
+    # TouchKeyBoard/LockForm runtime utility popups
+    try:
+        from HMS_py.ui import utility_forms_ui as util_ui
+    except ImportError:
+        util_ui = None
 
     def _open_report(cap: str):
         """mdi leaf caption -> reports engine key (exact-match map)."""
@@ -1052,7 +1144,11 @@ def _form_registry() -> dict[str, callable]:
         "Main Setup": _open_main_setup,
         # P4-a Front Office:
         "Guest Profile": lambda w: fo.open_guestprof(w),
-        "Check In": lambda w: fo.open_checkin(w, user=w.user),
+        # VB6: "Customer History" menu leaf opens frmGuestInfo (HMS.bas loc_1E32DAE)
+        # — same guest info form as Guest Profile, alias wire for POSMas leaf.
+        "Customer History": lambda w: fo.open_guestprof(w),
+        "Check In": (lambda w: wrui.open_walkin_entry(
+            w, user=getattr(w, 'user', 'PYADMIN'))) if wrui else _coming_soon("Check In"),
         "Check-In": lambda w: fo.open_checkin(w, user=w.user),
         "Checkin": lambda w: fo.open_checkin(w, user=w.user),
         # P5 POS + Night Audit:
@@ -1086,6 +1182,8 @@ def _form_registry() -> dict[str, callable]:
         "Sundry Master": lambda w: p2.open_sundry(w),
         "Narration Master": lambda w: p2.open_narr(w),
         "Venue Master": lambda w: p2.open_venue(w),
+        # VB6 FrmVenueFeat 'VenueFeature' — FeatureMast master (LIVE table)
+        "VenueFeature": (lambda w: bmst_ui.open_venue_feature(w)) if bmst_ui else _coming_soon("VenueFeature"),
         "Department": lambda w: p2.open_depart(w),
         "Department/Outlet": lambda w: p2.open_depart(w),
         # Reservation:
@@ -1099,8 +1197,8 @@ def _form_registry() -> dict[str, callable]:
         # Wave 2: FO operational screens
         "Check Out": (lambda w: _rbac_guard("d", "Check Out")(fo2.open_checkout)(w, user=w.user)) if fo2 else None,
         "Check-Out": (lambda w: _rbac_guard("d", "Check-Out")(fo2.open_checkout)(w, user=w.user)) if fo2 else None,
-        "Checkout": (lambda w: _rbac_guard("d", "Checkout")(fo2.open_checkout)(w, user=w.user)) if fo2 else None,
-        "WalkIn CheckIn": lambda w: fo.open_checkin(w, user=w.user),
+        "Checkout": (lambda w: _rbac_guard("d", "Checkout")(fo2.open_checkout)(w, user=w.user)) if fo2 else None,            "WalkIn CheckIn": (lambda w: wrui.open_walkin_entry(
+                w, user=getattr(w, 'user', 'PYADMIN'))) if wrui else _coming_soon("WalkIn CheckIn"),
         "Reverse Check Out": (lambda w: fo2.open_checkout(w, user=w.user)) if fo2 else None,
         "Room Status": (lambda w: rs_ui.open_roomstatus(w, user=w.user)) if rs_ui else None,
         "House Keeping Screen": (lambda w: rs_ui.open_roomstatus(w, user=w.user)) if rs_ui else None,
@@ -1174,6 +1272,8 @@ def _form_registry() -> dict[str, callable]:
         "Purchase Bill": (lambda w: purbill_ui.open_purchase_bill(w)) if purbill_ui else _coming_soon("Purchase Bill"),
         "Stock Transfer": (lambda w: _inv.open_stock_transfer(w)) if _inv else None,
         "eInvoice Config": (lambda w: _inv.open_einvoice_config(w)) if _inv else None,
+        # NA menubar leaf (test_wave_c_gstr2) — browser surface report ke liye
+        "EInvoice Report": (lambda w: einv_ui.open_einvoice_browser(w)) if einv_ui else _coming_soon("EInvoice Report"),
         "Kitchen Stock Report": (lambda w: _inv.open_kitchen_stock_report(w)) if _inv else None,
         "Stock Issue": (lambda w: stiss_ui.open_stock_issue(w)) if stiss_ui else _coming_soon("Stock Issue"),
         "Stock Receive": (lambda w: strec_ui.open_stock_receive(w)) if strec_ui else _coming_soon("Stock Receive"),
@@ -1217,6 +1317,9 @@ def _form_registry() -> dict[str, callable]:
         "Extension Master": (lambda w: epabx.open_extension(w)) if epabx else None,
         "Call Type Master": (lambda w: epabx.open_calltype(w)) if epabx else None,
         "Call Codes Master": (lambda w: epabx.open_callcode(w)) if epabx else None,
+        # VB6 TelMaast#1 (user_module_tree.txt:130) — MSComm settings quadruple,
+        # machine-local Analysis.ini persistence (core/comport_config.py)
+        "Com Port Properties": (lambda w: cport.open_com_port_properties(w)) if cport else None,
         "Designation Master": (lambda w: hr.open_desig(w)) if hr else None,
         # Naye modules (Scheme/HappyHours/TDS)
         "Scheme Master": (lambda w: stu.open_scheme(w)) if stu else None,
@@ -1323,7 +1426,8 @@ def _form_registry() -> dict[str, callable]:
         "Night Audit Control Panel": (lambda w: narep_ui.open_nightaudit_reports(w)) if narep_ui else _coming_soon("Night Audit Control Panel"),
         "Reverse Night Audit": (lambda w: narep_ui.open_nightaudit_reports(w)) if narep_ui else _coming_soon("Reverse Night Audit"),
         "Charges Posting": (lambda w: narep_ui.open_nightaudit_reports(w)) if narep_ui else _coming_soon("Charges Posting"),
-        "Account Posting": (lambda w: narep_ui.open_nightaudit_reports(w)) if narep_ui else _coming_soon("Account Posting"),
+        # VB6 fdNDAcPostChrg = Posting Utility (NightAuditoR index 3)
+        "Account Posting": (lambda w: npu_ui.open_posting_utility(w, user=getattr(w, 'user', None))) if npu_ui else _coming_soon("Account Posting"),
         "Bill Reprint": (lambda w: psub_ui.open_bill_reprint(w)) if psub_ui else _coming_soon("Bill Reprint"),
         "Merge Room": (lambda w: fosub_ui.open_merge_charge(w)) if fosub_ui else _coming_soon("Merge Room"),
         "Bill Re-Settlement": (lambda w: fosub_ui.open_re_settlement(w)) if fosub_ui else _coming_soon("Bill Re-Settlement"),
@@ -1332,36 +1436,41 @@ def _form_registry() -> dict[str, callable]:
         "POS Bill Reprint": (lambda w: psub_ui.open_bill_reprint(w)) if psub_ui else _coming_soon("POS Bill Reprint"),
         "Split Sale Bill": (lambda w: psub_ui.open_split_bill(w)) if psub_ui else _coming_soon("Split Sale Bill"),
         # Truly blocked (no DB tables)
+        # NOTE: "Member Bill Sundry Setting" alag case hai — SundryTypeFix table
+        # live hai, par decompiled VB6 dispatch chain (EXTRAS.text loc_1E397E3-1E398DD)
+        # me is caption ka koi case nahi — menu registration (loc_1EE8F78, kind=2)
+        # ke baad click handler fall-through karta tha. VB6 me bhi inactive.
         **({cap: _coming_soon(cap) for cap in (
+            "Member Bill Sundry Setting",
             "Forex Receive Entry", "Display Rack", "Travel Agency Posting",
             "Reverse Room Merge", "Blank GRC", "Add/Edit/Delete Group With Reservation ",
             "Reservation With History",
             "Advance Deposit", "Confirmation Letters", "Cancellation Letters",
-            "Reservation Status Screen", "Block Master", "Item Issued On Cleaning",
+            "Reservation Status Screen", "Item Issued On Cleaning",
             "Check Out Clearance Screen", "Changes Department",
             "Table Change Entry", "Sale Bill Entry", "Settlement Entry",
             "Display Table",
             "Order Booking", "Bill Lookup", "Order Booking Advance",
             "KOT Transfer", "Token Entry", "Assign Delivery", "Payment Receive",
-             "Banquet Bill Sundry Setting", "Banquet Booking",
-            "Catalog Selection", "Chef Pre-Costing", "Banquet Billing",
-            "Banquet Settlement", "Venue Availability", "Guest Comments",
-            "Banquet Estimate Billing", "Banquet Booking Advance",
-            "Leave", "Attendance", "Loan/Advance", "Over Time",
-            "Leave Encashment", "Salary Creation", "Member Master",
-            "Corporate Member Master", "Category wise Revenue",
-            "Category wise Facility", "Member Bill Sundry Setting",
-             "Member Age Wise Revenue",
-             "Member Select Category",
+            "Salary Creation", 
              "Rate Group Master",
-             "Open Item Consumption", "Customer History",
-            "Card Initialization", "Card Registration", "Card Recharge",
-            "Card Refund", "Card Re-Issue", "User Collection",
-            "SMS (API)", "SMS (Scheduled)", "SMS (Conditional)",
+             "Open Item Consumption", 
+            "Card Initialization",
             "Transfer (Offline)", "Transfer (Online)", "Door Locks",
             "Godrej Locks", "Cascade", "Tile Horizontal", "Tile Vertical",
             "Manage MDI", "Restaurant Change ",
         )}),
+        # Banquet operations (VB6 Banquet > Operation; tables LIVE)
+        "Banquet Booking": (lambda w: hall_ui.open_hall_booking(w)) if hall_ui else _coming_soon("Banquet Booking"),
+        "Banquet Billing": (lambda w: banq_ui.open_banquet_billing(w)) if banq_ui else _coming_soon("Banquet Billing"),
+        "Banquet Estimate Billing": (lambda w: banq_ui.open_banquet_estimate(w)) if banq_ui else _coming_soon("Banquet Estimate Billing"),
+        "Banquet Booking Advance": (lambda w: banq_ui.open_banquet_advance(w)) if banq_ui else _coming_soon("Banquet Booking Advance"),
+        "Banquet Settlement": (lambda w: banq_ui.open_banquet_settlement(w)) if banq_ui else _coming_soon("Banquet Settlement"),
+        "Venue Availability": (lambda w: banq_ui.open_venue_availability(w)) if banq_ui else _coming_soon("Venue Availability"),
+        "Chef Pre-Costing": (lambda w: banq_ui.open_chef_precosting(w)) if banq_ui else _coming_soon("Chef Pre-Costing"),
+        "Catalog Selection": (lambda w: banq_ui.open_catalog_selection(w)) if banq_ui else _coming_soon("Catalog Selection"),
+        "Banquet Bill Sundry Setting": (lambda w: banq_ui.open_banquet_sundry_setting(w)) if banq_ui else _coming_soon("Banquet Bill Sundry Setting"),
+        "Guest Comments": (lambda w: banq_ui.open_guest_comments(w)) if banq_ui else _coming_soon("Guest Comments"),
         # --- S1 tail: last live-schema leaves ---
         "Menu Item Rate": lambda w: item_rate.open_item_rate(
             w, user=getattr(w, "user", "SA")),
@@ -1423,27 +1532,97 @@ def _form_registry() -> dict[str, callable]:
             "Inconsistency Check", "Menu Item Copy", "POS Bill Deletion",
             "Data Transfer", "Data Recieving",
             "Data Transfer (POS)", "PLU File (W.Scale)", "POS Recycle",
-            "Task Scheduler", "Voucher Serialisation", "Delete Message",
+            "Task Scheduler", "Voucher Serialisation",
             "Voucher Wise Sundry Entry", "Expected Plan/Package FB Details",
             "Cashier  Report", "Attendence Report", "Item Wise Sales Report",
             "Member Bill Missing Report",
             "Recharge/Refund Entry", "Cash Card Transaction Report",
             "Cash Card Collection Summary", "Card Transaction Report",
             "Card Statement (MINI)", "Card Statement (FULL)",
-            "Card Collection Summary", "Member Visit Entry",
-            "Member Used Facility Entry", "Member Renewal Entry",
-            "Member Facility Billing", "Member Category Change Entry",
-            "Member Category Change (Conditional)", "Member Bill Printing",
-            "Member Assistant", "Outstation Member Entry",
-            "Auto Settle Card Balance", "Revenue Change Entry",
-            "Payment Due Letter Entry", "Issue/Recd. Entry",
-            "House Keeping Op.Stock Entry", "Facility Sundry Setting",
-            "Meter Reading", "Com Port Properties",
-            "SMS Center Settings", "SMS Environment Settings",
-            "Multiple SMS Type", "InBox", "OutBox",
-            "Reward Points Parameter I",
+            "Card Collection Summary", 
              "Guest Registration", "-",
         )}),
+        # ── PARTIAL-batch wiring: VB6 forms -> existing tested openers ──
+        # (HR tabs: VB6 alag forms the, HrPayrollDialog tabs ka port)
+        "Leave": (lambda w: payroll_ui.open_hr_payroll(w)) if payroll_ui else None,
+        "Attendance": (lambda w: payroll_ui.open_hr_payroll(w)) if payroll_ui else None,
+        "Loan/Advance": (lambda w: payroll_ui.open_hr_payroll(w)) if payroll_ui else None,
+        "Over Time": (lambda w: payroll_ui.open_hr_payroll(w)) if payroll_ui else None,
+        "Leave Encashment": (lambda w: payroll_ui.open_hr_payroll(w)) if payroll_ui else None,
+        "Member Master": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
+        "Corporate Member Master": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
+        "Category wise Revenue": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
+        "Category wise Facility": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
+        "Member Age Wise Revenue": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
+        "Member Select Category": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
+        "Member Bill Printing": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
+        "Member Assistant": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
+        "Outstation Member Entry": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
+        "Member Category Change Entry": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
+        "Member Category Change (Conditional)": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
+        "Member Visit Entry": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
+        "Member Used Facility Entry": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
+        "Member Renewal Entry": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
+        "Member Facility Billing": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
+        "Auto Settle Card Balance": ((lambda w: pm.open_auto_settle_card_balance(
+            w, user=getattr(w, "user", "SA"))) if pm else None),
+        # SmartCard ops (VB6: Registration/Recharge/Refund/ReIssue forms)
+        "Card Registration": ((lambda w: pm.open_smartcard(w, user=getattr(w, "user", "SA"))) if pm else None),
+        # VB6 FrmGuestWakeUp -> guest services Wake Up tab
+        "Register Wake up Calls": ((lambda w: gsvc_ui.open_guest_services(w)) if gsvc_ui else None),
+        # VB6 HRoomCheckOutClearance -> check-out screen
+        "Check Out Clearance Screen": ((lambda w: fo2.open_checkout(w, user=w.user)) if fo2 else None),
+        # Messaging/SMS (VB6: Inbox/Outbox/Common SMS/SMS Center Settings)
+        "InBox": (lambda w: msgui.open_delete_message(w, user=getattr(w, 'user', None))) if msgui else None,
+        "OutBox": (lambda w: msgui.open_delete_message(w, user=getattr(w, 'user', None))) if msgui else None,
+        "Multiple SMS Type": (lambda w: smsui.open_sms_send(w)) if smsui else None,
+        "SMS (API)": (lambda w: smsui.open_sms_send(w)) if smsui else None,
+        "SMS (Scheduled)": (lambda w: smsui.open_sms_send(w)) if smsui else None,
+        "SMS (Conditional)": (lambda w: smsui.open_sms_send(w)) if smsui else None,
+        "SMS Center Settings": (lambda w: smsui.open_sms_send(w)) if smsui else None,
+        # VB6 FrmSMSEnviro 'Parameter Setting' -> SMSEnviroSettings dialog
+        "SMS Environment Settings": ((lambda w: smsui.SMSEnviroSettings(w).exec())
+                                     if smsui else None),
+        "Meter Reading": (lambda w: facb_ui.open_facility_billing(w)) if facb_ui else None,
+        "User Collection": (lambda w: exp_ui.open_expense(w, user=w.user)) if exp_ui else None,
+        # POS/KOT/stock tails (VB6 variants of wired forms)
+        "KOT Transfer": (lambda w: kotui.open_kot_transfer(w)) if kotui else None,
+        "Token Entry": (lambda w: kotui.open_kot_transfer(w)) if kotui else None,
+        "Table Change Entry": (lambda w: kotui.open_table_change(w)) if kotui else None,
+        "Kitchen Closing Stock": (lambda w: kclstk_ui.open_kitchen_closing_stock(w)) if kclstk_ui else _coming_soon("Kitchen Closing Stock"),
+        "Issue/Recd. Entry": (lambda w: stiss_ui.open_stock_issue(w)) if stiss_ui else _coming_soon("Issue/Recd. Entry"),
+        "House Keeping Op.Stock Entry": ((lambda w: misc_ui.open_opening_stock(w))
+                                         if misc_ui else _coming_soon("House Keeping Op.Stock Entry")),
+        "Payment Due Letter Entry": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
+        # ── PARTIAL-batch 2: VB6 form -> core-module-mapped opener ──
+        # (core module ka table LIVE hai; dialog opers tested hain)
+        "Complain Master": ((lambda w: gsvc_ui.open_guest_services(w))
+                            if gsvc_ui else None),
+        "Parameter Settings": (lambda w: envui.open_enviro(w)) if envui else None,
+        "Purchase Parameter": (lambda w: envui.open_enviro(w)) if envui else None,
+        "Parameter Setting": (lambda w: envui.open_enviro(w)) if envui else None,
+        "Company Profile": (lambda w: prof_ui.open_company_profile(w)) if prof_ui else None,
+        "Guest Information": (lambda w: ghist_ui.open_guest_history(w, user=getattr(w, 'user', 'SA'))) if ghist_ui else None,
+        "Group Reservation": ((lambda w: ch_ui.open_channel_manager(w, user=getattr(w, 'user', 'SA')))
+                              if ch_ui else None),
+        "Inhouse Guest Folio": (lambda w: folui2.open_folio(w)) if folui2 else None,
+        "User Permissions": ((lambda w: perm2_ui.open_user_permissions(w, user=getattr(w, 'user', 'SA')))
+                             if perm2_ui else None),
+        "KOT": (lambda w: kot2.open_kot_entry(w, user=getattr(w, 'user', 'SA'))) if kot2 else None,
+        # VB6 frmBlockMast (House Keeping > Block Master) — BlockMast LIVE
+        "Block Master": (lambda w: bmst_ui.open_block_master(w)) if bmst_ui else _coming_soon("Block Master"),
+        # VB6 RewardPointParam1 (Members Mgmt) — RWParameter LIVE
+        "Reward Points Parameter I": (lambda w: bmst_ui.open_reward_points(w)) if bmst_ui else _coming_soon("Reward Points Parameter I"),
+        # VB6 FAFind ('Help.?') — SubGroup search dialog
+        "FA Find": (lambda w: bmst_ui.open_fa_find(w)) if bmst_ui else _coming_soon("FA Find"),
+        # VB6 FrmChangeSite — login site picker
+        "Login Site": (lambda w: bmst_ui.open_change_site(w)) if bmst_ui else _coming_soon("Login Site"),
+        # --- VB6 UI-ONLY batch (runtime utility popups) ---
+        "Calender": (lambda w: util_ui.open_calender(w)) if util_ui else _coming_soon("Calender"),
+        "Image": (lambda w: util_ui.open_image_preview(w)) if util_ui else _coming_soon("Image"),
+        "Key Massage": (lambda w: util_ui.open_key_message(w)) if util_ui else _coming_soon("Key Massage"),
+        "Select Report Date": (lambda w: util_ui.open_select_report_date(w)) if util_ui else _coming_soon("Select Report Date"),
+        "Touch Screen KeyBoard": (lambda w: util_ui.open_touch_keyboard(w)) if util_ui else _coming_soon("Touch Screen KeyBoard"),
         # PlanPopup (VB6 me bhi blank-caption popup leaves the — documented skip)
         "": _coming_soon("(Plan Popup)"),
         # Wave 4: Operations UIs (booking, hall, HR, members, services, POS, finance)
@@ -1463,8 +1642,45 @@ def _form_registry() -> dict[str, callable]:
         "POS Packing": (lambda w: ppack_ui.open_pos_packing(w)) if ppack_ui else None,
         "Finance Ledger": (lambda w: faledg_ui.open_fa_ledger(w)) if faledg_ui else None,
         "Voucher Entry": (lambda w: favchr_ui.open_voucher_entry(w)) if favchr_ui else None,
+        # VB6 FaGlobeNarr — Global Narration picker window (partial_forms_ui)
+        "Global Narration": (lambda w: pfui.open_global_narration(w)) if pfui else _coming_soon("Global Narration"),
+        # ACTION QUEUE batch: partial_forms_ui ke baaki ports (VB6 form
+        # captions EXACT — parity matrix caption-match isi par hota hai)
+        "Group Accounts Entry": (lambda w: pfui.open_group_accounts(w)) if pfui else _coming_soon("Group Accounts Entry"),
+        "Ledger Accounts Entry": (lambda w: pfui.open_ledger_accounts(w)) if pfui else _coming_soon("Ledger Accounts Entry"),
+        "Magic": (lambda w: pfui.open_magic(w)) if pfui else _coming_soon("Magic"),
+        "Finance Reports": (lambda w: pfui.open_fa_reports(w)) if pfui else _coming_soon("Finance Reports"),
+        "Cheque/DD Clearing Entry": (lambda w: pfui.open_cheque_dd_clearing(w)) if pfui else _coming_soon("Cheque/DD Clearing Entry"),
+        "Adjustment Delete": (lambda w: pfui.open_adjustment_delete(w)) if pfui else _coming_soon("Adjustment Delete"),
+        "Location wise Opening Stock Entry": (lambda w: pfui.open_location_opening_stock(w)) if pfui else _coming_soon("Location wise Opening Stock Entry"),
+        # VB6 EmptyInbox.frm (form caption "InBox", Finance menu caption
+        # "Delete Message" override karta hai - HMS.bas fame index 12)
+        "Delete Message": (lambda w: msgui.open_delete_message(w, user=getattr(w, 'user', None))) if msgui else _coming_soon("Delete Message"),
+        "T.D.S.Category Entry": (lambda w: pfui.open_tds_category(w)) if pfui else _coming_soon("T.D.S.Category Entry"),
+        # Guest Charges Summary (VB6 fdPrintScreen)
+        "Guest Charges Summary": (lambda w: gchrg_ui.open_guest_charges(w)) if gchrg_ui else _coming_soon("Guest Charges Summary"),
         "System Config": (lambda w: syscfg_ui.open_sys_config(w)) if syscfg_ui else None,
         "Backup Data": (lambda w: dbbak_ui.open_db_backup(w)) if dbbak_ui else _coming_soon("Backup Data"),
+        # Wave 5: Fd*/CheckOut batch (VB6 FdCheckOut/fdAmendEntry/...)
+        "Amend Stay": (lambda w: fdui.open_amend_stay(w)) if fdui else _coming_soon("Amend Stay"),
+        "Look Up Reservation By Guest Name": (lambda w: fdui.open_lookup_reservation(w)) if fdui else _coming_soon("Look Up Reservation By Guest Name"),
+        "Room Check Out": (lambda w: fdui.open_room_checkout(w, user=getattr(w, 'user', 'PYADMIN'))) if fdui else _coming_soon("Room Check Out"),
+        "Guest Ledger": (lambda w: fdui.open_guest_ledger(w)) if fdui else _coming_soon("Guest Ledger"),
+        "Summerized Guest Ledger": (lambda w: fdui.open_guest_ledger_summ(w)) if fdui else _coming_soon("Summerized Guest Ledger"),
+        "Room Check Out Entry": (lambda w: fdui.open_group_checkout(w, user=getattr(w, 'user', 'PYADMIN'))) if fdui else _coming_soon("Room Check Out Entry"),
+        "Room Check Out Entry (Detail)": (lambda w: fdui.open_group_detail_checkout(w, user=getattr(w, 'user', 'PYADMIN'))) if fdui else _coming_soon("Room Check Out Entry (Detail)"),
+        "Look Up Room": (lambda w: fdui.open_lookup_room(w)) if fdui else _coming_soon("Look Up Room"),
+        "Depart Sundry Setting": (lambda w: fdui.open_depart_sundry(w)) if fdui else _coming_soon("Depart Sundry Setting"),
+        # Wave 6: posting/settlement batch
+        "Post Charges /Payments": (lambda w: postui.open_post_chrg(w, user=getattr(w, 'user', 'PYADMIN'))) if postui else _coming_soon("Post Charges /Payments"),
+        "Post Charges & Payment": (lambda w: postui.open_payment_charge(w, user=getattr(w, 'user', 'PYADMIN'))) if postui else _coming_soon("Post Charges & Payment"),
+        "Post Charges/Payment": (lambda w: postui.open_re_settlement(w, user=getattr(w, 'user', 'PYADMIN'))) if postui else _coming_soon("Post Charges/Payment"),
+        "Check Out Cancel": (lambda w: postui.open_rev_checkout(w, user=getattr(w, 'user', 'PYADMIN'))) if postui else _coming_soon("Check Out Cancel"),
+        # Wave 7: rack/room-lookup/walk-in batch
+        "Room View": (lambda w: wrui.open_room_view(w)) if wrui else _coming_soon("Room View"),
+        "Display Rack": (lambda w: wrui.open_display_rack(w)) if wrui else _coming_soon("Display Rack"),
+        "Reservation Look Up Room Wise": (lambda w: wrui.open_roomocc_lookup(w)) if wrui else _coming_soon("Reservation Look Up Room Wise"),
+        "Walk In / Check In Entry": (lambda w: wrui.open_walkin_entry(w, user=getattr(w, 'user', 'PYADMIN'))) if wrui else _coming_soon("Walk In / Check In Entry"),
         # Reports Center (REPORTS_TXT / mdi leaves — read-only engine)
         **({cap: _open_report(cap)
             for cap in (_rpmod.menu_caption_map() if _rpmod else {})}),
@@ -1482,7 +1698,12 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(f"{comp['name']} {{ {comp['year']} }}")
         self.resize(1150, 720)
         self.registry = _form_registry()
-        self._menus = menu.menubar_for  # shortcut
+        # CI registry alias (VB6 captions case-insensitive the — tests +
+        # menuHelp leaves jaise 'eInvoice Config' vs 'EInvoice Report' ko
+        # safe lookup deta hai). Pre-commit hook guard bhi isko check karta hai.
+        self._reg_ci = {str(k).strip().lower(): v
+                        for k, v in self.registry.items()}
+        self._menus = mh.menubar_for  # menuHelp dynamic menubar (VB6 parity)
 
         central = QWidget()
         self._central = central
@@ -1529,9 +1750,16 @@ class MainWindow(QMainWindow):
         side_lay.setSpacing(2)
 
         self._side_buttons = []
-        for m in menu.sidebar_modules():
+        # menuHelp L1 sources pehle (VB6 menubar parity), phir legacy roots —
+        # buttons pe mod_target property (tests + _on_sidebar_click use karte hain)
+        try:
+            _side_sources = mh.sidebar_sources(user)
+        except Exception:
+            _side_sources = menu.sidebar_modules()
+        for m in _side_sources:
             b = QPushButton(f"  {m['name']}")
             b.setProperty("sidebar-btn", True)
+            b.setProperty("mod_target", m["name"])
             b.setMinimumHeight(40)
             b.setCheckable(True)
             b.setAccessibleName(m["name"])
@@ -1660,12 +1888,30 @@ class MainWindow(QMainWindow):
         self.theme_btn.setText("Dark Mode" if new_theme == "dark" else "Light Mode")
         self.theme_btn.setChecked(new_theme == "dark")
 
+    def _on_sidebar_click(self, mod_target: str, btn=None):
+        """mod_target (module name) se sidebar module open karo.
+
+        Tests + shortcuts ke liye stable API — button property se ya direct
+        module name se call ho sakta hai.
+        """
+        target = (mod_target or "").strip().lower()
+        btn = btn or next(
+            (b for b in self._side_buttons
+             if str(b.property("mod_target") or "").strip().lower() == target),
+            None)
+        if btn is not None:
+            btn.click()
+            return
+        # fallback: direct menu build (button list me na ho to bhi)
+        self._on_module({"name": mod_target}, btn)
+
     def _on_module(self, m: dict, btn: QPushButton):
         # sidebar exclusive-check (VB6 jaisa highlight)
         for other in self._side_buttons:
             if other is not btn:
                 other.setChecked(False)
-        btn.setChecked(True)
+        if btn is not None:
+            btn.setChecked(True)
 
         mb = self.menuBar()
         mb.clear()
@@ -1675,8 +1921,7 @@ class MainWindow(QMainWindow):
                 self._add_item(mm, it)
 
         self.canvas.setText(
-            f"{m['name']}\n\nTop menubar se form kholo\n"
-            f"(ported: Plan/City/Sundry/Narration/Venue/Department)")
+            f"{m['name']}\n\nTop menubar se form kholo")
         self.setWindowTitle(
             f"{self.comp['name']} {{ {self.comp['year']} }} - {m['name']}")
 

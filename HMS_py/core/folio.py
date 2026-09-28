@@ -538,6 +538,83 @@ def log_before_delete(docid: str, cn=None, user: str = USER,
     return True
 
 
+# ============================================================
+# Guest Charges Summary (VB6 fdPrintScreen — ACTION QUEUE port)
+# ============================================================
+def charges_summary_folios(q: str = "", cn=None, top: int = 100,
+                           site: str = SITE_CODE,
+                           vprefix: str = VPREFIX) -> list[dict]:
+    """Folio browser rows — fdPrintScreen ke search-LEFT-grid ka port.
+
+    VB6 SQL (frm:1619) ka live-DB parity: RoomMast×RoomOcc×GuestFolio×
+    GuestProf (+LEFT SubGroup company, +LEFT RoomCat) — GUESTSTAT join
+    hata (live DB me GUESTSTAT.Name ka data khali hai), status ke liye
+    RoomOcc.ChkOutDate presence use hota hai.
+    """
+    like = f"%{(q or '').strip()}%"
+    rows = db.query(
+        f"SELECT TOP {int(top)} "
+        "GuestFolio.FolioNo, GuestFolio.Name, ISNULL(SubGroup.Name,'') "
+        "AS Company, RoomOcc.DocId, GuestFolio.GuestProf, "
+        "GuestProf.Add1 + ' ' + GuestProf.CityName AS Addr, "
+        "RoomOcc.ChkInDate, RoomOcc.DepDate, RoomOcc.ChkOutDate "
+        "FROM (((RoomMast INNER JOIN RoomOcc ON RoomMast.Code = RoomOcc.RoomNo) "
+        "INNER JOIN GuestFolio ON RoomOcc.DocId = GuestFolio.DocId) "
+        "INNER JOIN GuestProf ON GuestFolio.GuestProf = GuestProf.Code) "
+        "LEFT JOIN SubGroup ON GuestFolio.Company = SubGroup.SubCode "
+        "WHERE GuestFolio.Site_Code = ? AND GuestFolio.VPrefix = ? "
+        "AND (GuestFolio.Name LIKE ? OR CAST(GuestFolio.FolioNo AS varchar(20)) LIKE ? "
+        "OR GuestProf.Code LIKE ?) "
+        "ORDER BY GuestFolio.FolioNo DESC",
+        (site, vprefix, like, like, like), cn=cn)
+    return [{"folio": int(r.FolioNo or 0),
+             "guest": (r.Name or "").strip(),
+             "company": (r.Company or "").strip(),
+             "docid": (r.DocId or "").strip(),
+             "guestprof": (r.GuestProf or "").strip(),
+             "addr": (r.Addr or "").strip(),
+             "arr": r.ChkInDate, "dep": r.DepDate,
+             "out": r.ChkOutDate} for r in rows]
+
+
+def charges_summary_detail(foliono: int, cn=None,
+                           site: str = SITE_CODE,
+                           vprefix: str = VPREFIX) -> dict:
+    """Ek folio ka charges summary — fdPrintScreen RIGHT grid port.
+
+    VB6 (frm:1813): per-paycode aggregate — ContraDocId filter sahi
+    ('' bhi check hota tha), aur SirName/amounts int-cast fix (VB6 me
+    string columns the). Live-DB me AmtDr/AmtCr float hain.
+    Returns {folio, guest, rows: [{revname, paycode, dr, cr}], dr, cr, net}
+    """
+    foliono = int(foliono)
+    agg = db.query(
+        "SELECT MAX(RevMast.Name) AS RevName, PC.PayCode, "
+        "SUM(PC.AmtDr) AS AmtDr, SUM(PC.AmtCr) AS AmtCr "
+        "FROM PayCharge PC LEFT JOIN RevMast ON PC.PayCode = RevMast.Code "
+        "WHERE (PC.ContraDocId IS NULL OR PC.ContraDocId = '') "
+        "AND PC.FolionoDocid = (SELECT TOP 1 DocId FROM GuestFolio "
+        "WHERE FolioNo = ? AND Site_Code = ? AND VPrefix = ? "
+        "ORDER BY DocId DESC) GROUP BY PC.PayCode",
+        (foliono, site, vprefix), cn=cn)
+    rows = []
+    for r in agg:
+        paycode = (r.PayCode or "").strip()
+        rows.append({"revname": (r.RevName or paycode or "?").strip(),
+                     "paycode": paycode,
+                     "dr": float(r.AmtDr or 0.0),
+                     "cr": float(r.AmtCr or 0.0)})
+    dr = round(sum(x["dr"] for x in rows), 2)
+    cr = round(sum(x["cr"] for x in rows), 2)
+    head = db.query(
+        "SELECT TOP 1 Name, GuestProf FROM GuestFolio "
+        "WHERE FolioNo = ? AND Site_Code = ? AND VPrefix = ? "
+        "ORDER BY DocId DESC", (foliono, site, vprefix), cn=cn)
+    guest = (head[0].Name or "").strip() if head else ""
+    return {"folio": foliono, "guest": guest, "rows": rows,
+            "dr": dr, "cr": cr, "net": round(cr - dr, 2)}
+
+
 def list_payments(cn=None, top: int = 200, site: str = SITE_CODE,
                   vprefix: str = VPREFIX) -> list:
     """Recent REC payments (VB6 fdPaymentCharge receipt register)."""

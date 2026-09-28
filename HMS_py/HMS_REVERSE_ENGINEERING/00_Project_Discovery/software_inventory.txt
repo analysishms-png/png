@@ -1,0 +1,21 @@
+# HMS SOFTWARE INVENTORY  [VERIFIED-CONFIG]
+
+Application     : HMS - Hotel Management System (single VB6 MDI executable)
+Current build   : HMS.exe (28.9 MB, 2026-04-11)
+Older builds    : HMS old.exe (2023), HMSGSTzzz (2).exe (2023)
+Likely tech     : Visual Basic 6 MDI app; ADODB (SQLNCLI.1/SQLOLEDB.1 + MSDataShape);
+                  Crystal Reports (.rpt/.ttx, 524 files); MS Access .mdb side stores
+                  (EPABX, Fadata, Temp, SaleTransfer); ACR smart-card SDK (acr120u.dll,
+                  SmartCard_ACR.dll, Analysis_ACR.dll) for key/card ops; MSCOMM32.OCX +
+                  sysdm.ocx for EPABX serial integration; Jet 4.0 provider.
+Database server : SQL Server 2008 R2 (bundled Data\MSSQL10_50.MSSQLSERVER\MSSQL folder)
+Database name   : MOONData2627 (from INI key 6; DB data files absent in this copy)
+Operating mode  : local/standalone ("LOCALHOST") - pendrive/portable deployment
+GST integration : eInvoice tables + GSTR1 Excel template present (GST-compliant build)
+
+Runtime logs found (evidence sources):
+- ErrorLog.Log   : active error log (latest 2026-09-16) - capture app exceptions + failing forms
+- FaLog.Log      : logged "Invalid object name 'LocationMast'" at Location Master Form_Load (2019)
+- HMSIssueList.Log / HMSACIssueList.Log / HMS_GSTRI_List.Log : issue lists (small)
+
+Report count: 524 files in Reports\ (Crystal Reports .rpt + .ttx definitions)
