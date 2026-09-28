@@ -121,8 +121,14 @@ class CheckOutBrowser(QDialog):
         self.btnCloseA = QPushButton("Close")
         self.btnCloseA.setToolTip("Close this window (Esc)")
         self.btnCloseA.setMinimumHeight(34)
-        for b in (self.btnCheckOut, self.btnPrintBill, self.btnRefreshA,
-                  self.btnCloseA):
+        self.btnCancelBill = QPushButton("Cancel Bill")
+        self.btnCancelBill.setToolTip("Cancel a settled bill (reversal)")
+        self.btnCancelBill.setMinimumHeight(34)
+        self.btnUnsettled = QPushButton("Unsettled Bills")
+        self.btnUnsettled.setToolTip("Show unsettled bills list")
+        self.btnUnsettled.setMinimumHeight(34)
+        for b in (self.btnCheckOut, self.btnPrintBill, self.btnCancelBill,
+                  self.btnUnsettled, self.btnRefreshA, self.btnCloseA):
             btns_active.addWidget(b)
         lay_active.addLayout(btns_active)
         self.tabs.addTab(tab_active, "Active Check-Ins")
@@ -162,6 +168,8 @@ class CheckOutBrowser(QDialog):
         # ---- signal wiring ----
         self.btnCheckOut.clicked.connect(self._do_checkout)
         self.btnPrintBill.clicked.connect(self._print_bill)
+        self.btnCancelBill.clicked.connect(self._cancel_bill)
+        self.btnUnsettled.clicked.connect(self._show_unsettled)
         self.btnRefreshA.clicked.connect(self.reload_active)
         self.btnCloseA.clicked.connect(self.reject)
         self.btnReverse.clicked.connect(self._do_reverse)
@@ -180,6 +188,35 @@ class CheckOutBrowser(QDialog):
         self.reload_checkedout()
         if start_tab:
             self.tabs.setCurrentIndex(start_tab)
+
+    def _cancel_bill(self):
+        from HMS_py.core import folio as folio_mod
+        bill_no, ok = QInputDialog.getText(self, "Cancel Bill",
+                                           "Bill Number:")
+        if not ok or not bill_no.strip():
+            return
+        try:
+            folio_mod.cancel_bill(bill_no.strip(), user=self.user)
+            QMessageBox.information(self, "Cancel Bill",
+                                    f"Bill #{bill_no} cancel ho gaya")
+            self.reload_active()
+        except Exception as e:
+            QMessageBox.critical(self, "Cancel Bill", str(e))
+
+    def _show_unsettled(self):
+        from HMS_py.core import folio as folio_mod
+        try:
+            rows = folio_mod.list_unsettled_bills()
+            if not rows:
+                QMessageBox.information(self, "Unsettled Bills",
+                                        "Koi unsettled bill nahi hai")
+                return
+            msg = "\n".join(
+                f"DocId: {r['docid']}, Balance: {r['balance']:.2f}, "
+                f"Lines: {r['lines']}" for r in rows[:20])
+            QMessageBox.information(self, "Unsettled Bills", msg)
+        except Exception as e:
+            QMessageBox.critical(self, "Unsettled Bills", str(e))
 
     # ---- data loaders ----
     def reload_active(self, keep_folio: int | None = None):
