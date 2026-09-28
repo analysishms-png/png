@@ -118,7 +118,15 @@ def create_checkin(guestprof: str, name: str, arr_date, dep_date,
                    commit: bool = True,
                    site: str = SITE_CODE, vprefix: str = "2026",
                    adult: int | None = None, children: int | None = None,
-                   ratecode: str = "", chkintime: str = "") -> int:
+                   ratecode: str = "", chkintime: str = "",
+                   plancode: str = "", planamt: float | None = None,
+                   incinrate: str = "", plandisc: float | None = None,
+                   plandiscamt: float | None = None,
+                   plandiscon: str = "",
+                   rrtaxinc: str = "", rrservicechrg: str = "",
+                   roomtarrif: float | None = None,
+                   rackrate: float | None = None,
+                   roomtaxstru: str = "") -> int:
     """Naya check-in (VB6 CHK doc-engine): DocId + FolioNo + FolioLog 'A'
     + RoomOcc row (P4-c MISSING-LOGIC FIX).
 
@@ -132,6 +140,15 @@ def create_checkin(guestprof: str, name: str, arr_date, dep_date,
     FO-7: adult/children/ratecode/chkintime RoomOcc me jaate hain
     (VB6 fdWalkInEntry Adult/Children/ChkInTime cols). Defaults:
     Adult=1, Children=0, ChkInTime=abhi ka HH:MM (hardcode nahi).
+
+    VB6 FRONT_OFFICE_LIFECYCLE.md §2: GuestFolioProfDetail insert
+    (Docid, GuestProf, mProf, U_AE, U_EntDt, U_Name, Site_Code, LogSite_Code)
+    — guest profile link. VB6 fdCheckIn.frm:942575 pattern.
+
+    VB6 FRONT_OFFICE_LIFECYCLE.md §2: Plan fields on RoomOcc
+    (Plancode, PlanAmt, IncInRate, PlanDisc, PlanDiscAmt, PlanDiscAppOn,
+    RRTaxInc, RRServiceChrg, RoomTarrif, RackRate, RoomTaxStru)
+    — VB6 fdCheckIn.frm:942284 30-col INSERT pattern.
 
     PYT-guard caller-side (UI sirf PYT* naam likhta hai; production
     check-ins VB6 EXE se hi)."""
@@ -187,21 +204,42 @@ def create_checkin(guestprof: str, name: str, arr_date, dep_date,
             (docid, folio, VTYPE, vprefix, arr_date, guestprof or "",
              name, city or "", nodays, dep_date, bookingdocid or "",
              site, user, site), cn=cn, commit=False)
-        # --- P4-c: RoomOcc row (fdRoomChange:3639 pattern, core cols;
-        # SNo=1 per folio). Vtype discrimination via GuestFolio.Vtype='CHK'.
+        # --- P4-c: RoomOcc row (fdRoomChange:3639 pattern + fdCheckIn:942284
+        # 30-col INSERT pattern). Vtype discrimination via GuestFolio.Vtype='CHK'.
         # RoomOcc.Type='I' = in-house (dashboard rack/report joins).
         # FO-7: Adult/Children/RateCode/ChkInTime caller se (defaults
         # 1/0/''/abhi) - hardcode nahi.
+        # VB6 FRONT_OFFICE_LIFECYCLE.md §2: Plan fields on RoomOcc
+        # (Plancode, PlanAmt, IncInRate, PlanDisc, PlanDiscAmt, PlanDiscAppOn,
+        # RRTaxInc, RRServiceChrg, RoomTarrif, RackRate, RoomTaxStru).
         db.execute(
             "INSERT INTO RoomOcc (DocId, SNo, FolioNo, Vtype, Site_Code, "
             "Vprefix, GuestProf, RoomNo, RateCode, ChkInDate, ChkInTime, "
             "Adult, Children, DepDate, DepTime, Type, U_Name, U_EntDt, "
-            "U_AE, LogSite_Code) "
+            "U_AE, LogSite_Code, Plancode, PlanAmt, IncInRate, PlanDisc, "
+            "PlanDiscAmt, PlanDiscAppOn, RRTaxInc, RRServiceChrg, "
+            "RoomTarrif, RackRate, RoomTaxStru) "
             "VALUES (?, 1, ?, 'CHK', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
-            "'10:00', 'I', ?, getdate(), 'A', ?)",
+            "'10:00', 'I', ?, getdate(), 'A', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (docid, folio, site, vprefix, guestprof, roomno,
              (ratecode or "").strip(), arr_date, t_in, n_adult, n_child,
-             dep_date, user, site), cn=cn, commit=False)
+             dep_date, user, site,
+             plancode or "", planamt or 0.0, incinrate or "",
+             plandisc or 0.0, plandiscamt or 0.0, plandiscon or "",
+             rrtaxinc or "", rrservicechrg or "",
+             roomtarrif or 0.0, rackrate or 0.0, roomtaxstru or ""),
+            cn=cn, commit=False)
+        # VB6 FRONT_OFFICE_LIFECYCLE.md §2: GuestFolioProfDetail insert
+        # (guest profile link). VB6 fdCheckIn.frm:942575 pattern:
+        # Insert Into GuestFolioProfDetail (Docid,GuestProf,mProf,U_AE,U_EntDt,
+        # U_Name,Site_Code,LogSite_Code)
+        if guestprof:
+            db.execute(
+                "INSERT INTO GuestFolioProfDetail (Docid, GuestProf, mProf, "
+                "U_AE, U_EntDt, U_Name, Site_Code, LogSite_Code) "
+                "VALUES (?, ?, ?, 'A', getdate(), ?, ?, ?)",
+                (docid, guestprof, guestprof, user, site, site),
+                cn=cn, commit=False)
         _log(docid, "A", user, cn, site)
         if commit:
             cn.commit()

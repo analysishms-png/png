@@ -6,13 +6,15 @@ NightAuditReportI, OccAnalysis, MarketSegAnalysis, BusinessAnalysis,
 CompanyAnalysis, TravelAgentAnalysis, FOCC Report, FoodCost,
 FBCostStatement, AgingRepDr, AgingRepCr, NightAuditReport,
 GuestChgJournalLog, GuestLedger
+
+Enhanced: Run Night Audit button with progress display (VB6 mdlNightAudit port).
 """
 from __future__ import annotations
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QTableWidget, QTableWidgetItem, QPushButton, QLabel, QGroupBox,
-    QMessageBox, QDateEdit, QHeaderView)
+    QMessageBox, QDateEdit, QHeaderView, QTextEdit, QProgressBar)
 from PyQt6.QtCore import Qt, QDate
 from PyQt6.QtGui import QColor, QFont
 from core import reports as rpmod
@@ -89,6 +91,27 @@ class NightAuditReportsWindow(QMainWindow):
         rpt_lay.addWidget(self.table)
         layout.addWidget(rpt_grp)
 
+        # Night Audit Run section
+        na_grp = QGroupBox("Run Night Audit")
+        na_lay = QVBoxLayout(na_grp)
+        self.na_progress = QProgressBar()
+        self.na_progress.setRange(0, 100)
+        self.na_progress.setValue(0)
+        self.na_progress.setTextVisible(True)
+        na_lay.addWidget(self.na_progress)
+        self.na_log = QTextEdit()
+        self.na_log.setReadOnly(True)
+        self.na_log.setMaximumHeight(120)
+        self.na_log.setPlaceholderText("Night Audit progress yahan dikhega...")
+        na_lay.addWidget(self.na_log)
+        self.btn_na = QPushButton("Run Night Audit")
+        self.btn_na.setProperty("success", True)
+        self.btn_na.setMinimumHeight(36)
+        self.btn_na.setToolTip("Run Night Audit for selected date range")
+        self.btn_na.clicked.connect(self._run_night_audit)
+        na_lay.addWidget(self.btn_na)
+        layout.addWidget(na_grp)
+
         # Buttons
         btn_lay = QHBoxLayout()
         self.btn_run = QPushButton("Run Report")
@@ -102,6 +125,36 @@ class NightAuditReportsWindow(QMainWindow):
         btn_lay.addWidget(self.btn_run)
         btn_lay.addWidget(self.btn_exit)
         layout.addLayout(btn_lay)
+
+    def _run_night_audit(self):
+        """Run Night Audit for selected date range with progress display."""
+        from HMS_py.core import nightaudit
+        date_from = self.dt_from.date().toPyDate()
+        date_to = self.dt_to.date().toPyDate()
+        if date_from > date_to:
+            QMessageBox.warning(self, "Date Error", "From date To date se badi nahi honi chahiye")
+            return
+        self.btn_na.setEnabled(False)
+        self.na_log.clear()
+        self.na_progress.setValue(0)
+        try:
+            total_days = (date_to - date_from).days + 1
+            for i in range(total_days):
+                d = date_from + __import__('datetime').timedelta(days=i)
+                self.na_log.append(f"Processing {d:%Y-%m-%d}...")
+                self.na_progress.setValue(int((i + 1) * 100 / total_days))
+                # Run NA for this date
+                result = nightaudit.run_night_audit(d, user="SA", commit=True)
+                if result.get("success"):
+                    self.na_log.append(f"  OK: {result.get('room_charges_posted', 0)} room charges, {result.get('pos_revenue_posted', 0)} POS revenue posted")
+                else:
+                    self.na_log.append(f"  Errors: {result.get('errors', [])}")
+            self.na_progress.setValue(100)
+            QMessageBox.information(self, "Night Audit Complete", f"Night Audit {date_from} to {date_to} complete ho gaya")
+        except Exception as e:
+            QMessageBox.critical(self, "Night Audit Error", str(e))
+        finally:
+            self.btn_na.setEnabled(True)
 
     def _run_report(self):
         row = self.table.currentRow()

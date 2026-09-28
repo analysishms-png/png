@@ -142,6 +142,29 @@ class CheckInBrowser(QDialog):
         ed_rate.setPlaceholderText("RateCode (optional)")
         ed_chkin = QLineEdit(datetime.datetime.now().strftime("%H:%M"))
         ed_chkin.setPlaceholderText("Check-In time HH:MM")
+        # VB6 fdCheckIn.frm:942284 Plan fields
+        ed_plan = QLineEdit("")
+        ed_plan.setPlaceholderText("Plan Code (optional)")
+        ed_planamt = QLineEdit("")
+        ed_planamt.setPlaceholderText("Plan Amount (optional)")
+        ed_incinrate = QLineEdit("")
+        ed_incinrate.setPlaceholderText("Incl in Rate (Y/N)")
+        ed_plandisc = QLineEdit("")
+        ed_plandisc.setPlaceholderText("Plan Discount %")
+        ed_plandiscamt = QLineEdit("")
+        ed_plandiscamt.setPlaceholderText("Plan Discount Amount")
+        ed_plandiscon = QLineEdit("")
+        ed_plandiscon.setPlaceholderText("Discount App On")
+        ed_rrtaxinc = QLineEdit("")
+        ed_rrtaxinc.setPlaceholderText("RR Tax Incl (Y/N)")
+        ed_rrservicechrg = QLineEdit("")
+        ed_rrservicechrg.setPlaceholderText("RR Service Charge (Y/N)")
+        ed_roomtarrif = QLineEdit("")
+        ed_roomtarrif.setPlaceholderText("Room Tariff")
+        ed_rackrate = QLineEdit("")
+        ed_rackrate.setPlaceholderText("Rack Rate")
+        ed_roomtaxstru = QLineEdit("")
+        ed_roomtaxstru.setPlaceholderText("Room Tax Structure")
         form.addRow("Guest Name (PYT*)", ed_name)
         form.addRow("GuestProf Code", ed_code)
         form.addRow("Arrival", de_arr)
@@ -152,6 +175,17 @@ class CheckInBrowser(QDialog):
         form.addRow("Children", ed_child)
         form.addRow("RateCode", ed_rate)
         form.addRow("ChkInTime", ed_chkin)
+        form.addRow("Plan Code", ed_plan)
+        form.addRow("Plan Amount", ed_planamt)
+        form.addRow("Incl in Rate", ed_incinrate)
+        form.addRow("Plan Discount %", ed_plandisc)
+        form.addRow("Plan Discount Amt", ed_plandiscamt)
+        form.addRow("Discount App On", ed_plandiscon)
+        form.addRow("RR Tax Incl", ed_rrtaxinc)
+        form.addRow("RR Service Chrg", ed_rrservicechrg)
+        form.addRow("Room Tariff", ed_roomtarrif)
+        form.addRow("Rack Rate", ed_rackrate)
+        form.addRow("Room Tax Stru", ed_roomtaxstru)
         lay = QVBoxLayout(dlg)
         lay.addLayout(form)
         brow = QHBoxLayout()
@@ -183,7 +217,18 @@ class CheckInBrowser(QDialog):
                 bookingdocid=ed_book.text().strip(), user=self.user,
                 adult=n_adult, children=n_child,
                 ratecode=ed_rate.text().strip(),
-                chkintime=ed_chkin.text().strip())
+                chkintime=ed_chkin.text().strip(),
+                plancode=ed_plan.text().strip(),
+                planamt=float(ed_planamt.text().strip() or 0) or None,
+                incinrate=ed_incinrate.text().strip(),
+                plandisc=float(ed_plandisc.text().strip() or 0) or None,
+                plandiscamt=float(ed_plandiscamt.text().strip() or 0) or None,
+                plandiscon=ed_plandiscon.text().strip(),
+                rrtaxinc=ed_rrtaxinc.text().strip(),
+                rrservicechrg=ed_rrservicechrg.text().strip(),
+                roomtarrif=float(ed_roomtarrif.text().strip() or 0) or None,
+                rackrate=float(ed_rackrate.text().strip() or 0) or None,
+                roomtaxstru=ed_roomtaxstru.text().strip())
         except ValueError as e:
             QMessageBox.warning(self, "New Check-In", str(e))
             return
