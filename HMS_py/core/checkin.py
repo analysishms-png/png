@@ -241,6 +241,11 @@ def create_checkin(guestprof: str, name: str, arr_date, dep_date,
                 (docid, guestprof, guestprof, user, site, site),
                 cn=cn, commit=False)
         _log(docid, "A", user, cn, site)
+        # VB6 CHECKIN_FIELD_MAP.md §5: staging cleanup on form close
+        # Delete GuestFolioProfDetail Where Docid='' (trace-me live dekha)
+        db.execute(
+            "DELETE FROM GuestFolioProfDetail WHERE Docid = ''",
+            cn=cn, commit=False)
         if commit:
             cn.commit()
         return folio
@@ -291,6 +296,13 @@ def move_room(folio: int, new_room: str, user: str = USER, cn=None,
         db.execute(
             "UPDATE RoomOcc SET RoomNo = ?, U_EntDt = getdate(), U_Name = ? "
             "WHERE DocId = ?", (new_room, user, rec["docid"]),
+            cn=cn, commit=False)
+        # VB6 HMS_OPERATIONS_MANUAL.md §5.3: Update GuestMessage set RoomNo
+        db.execute(
+            "UPDATE GuestMessage SET RoomNo = ?, RoomCat = "
+            "(SELECT RoomCat FROM RoomOcc WHERE DocId = ?) "
+            "WHERE FolioNo = ? AND RoomNo = ?",
+            (new_room, rec["docid"], folio, old_room),
             cn=cn, commit=False)
         # Log
         _log(rec["docid"], "R", user, cn, site)

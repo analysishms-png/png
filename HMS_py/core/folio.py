@@ -389,6 +389,69 @@ def amend_departure(folio: int, new_dep, user: str = USER, cn=None,
             cn.close()
 
 
+def merge_folio(source_folio: int, target_folio: int, user: str = USER,
+                cn=None, commit: bool = True, site: str = SITE_CODE,
+                vprefix: str = VPREFIX) -> bool:
+    """VB6 HMS_OPERATIONS_MANUAL.md §5.3: Folio/room merge.
+    
+    VB6 SQL (line 437902):
+      UPDATE GuestFolio SET mFolioNoDocId='<target>', mFolioNo=<no>
+    
+    Source folio ko target folio me merge karta hai. Source folio ke
+    charges/payments target folio ke tahat aa jaate hain.
+    """
+    src = checkin_mod.get(source_folio, cn=cn, vprefix=vprefix)
+    if not src:
+        raise ValueError(f"Source folio #{source_folio} nahi mila")
+    tgt = checkin_mod.get(target_folio, cn=cn, vprefix=vprefix)
+    if not tgt:
+        raise ValueError(f"Target folio #{target_folio} nahi mila")
+    if source_folio == target_folio:
+        raise ValueError("Source aur target folio same hain")
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        db.execute(
+            "UPDATE GuestFolio SET mFolioNoDocId = ?, mFolioNo = ?, "
+            "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' WHERE DocId = ?",
+            (tgt["docid"], target_folio, user, src["docid"]),
+            cn=cn, commit=False)
+        _log(src["docid"], "G", user, cn, site)
+        if commit:
+            cn.commit()
+        return True
+    finally:
+        if own:
+            cn.close()
+
+
+def apply_discount(folio: int, ro_disc: float = 0.0, rs_disc: float = 0.0,
+                   user: str = USER, cn=None, commit: bool = True,
+                   site: str = SITE_CODE, vprefix: str = VPREFIX) -> bool:
+    """VB6 HMS_OPERATIONS_MANUAL.md §5.3: Discount fields on GuestFolio.
+    
+    VB6 SQL (line 149517): Update GuestFolio Set RoDisc='<v>', RSDisc='<v>'
+    """
+    rec = checkin_mod.get(folio, cn=cn, vprefix=vprefix)
+    if not rec:
+        raise ValueError(f"Folio #{folio} nahi mila")
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        db.execute(
+            "UPDATE GuestFolio SET RoDisc = ?, RSDisc = ?, "
+            "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' WHERE DocId = ?",
+            (ro_disc, rs_disc, user, rec["docid"]),
+            cn=cn, commit=False)
+        _log(rec["docid"], "D", user, cn, site)
+        if commit:
+            cn.commit()
+        return True
+    finally:
+        if own:
+            cn.close()
+
+
 PAY_TYPES = {  # VB6 fdPaymentCharge combo categories (complete list)
     "KKCASH": "Cash", "KKCRED": "Company", "KKVISA": "Credit Card",
     "KK0006": "Other", "KKCHEQ": "Cheque", "KKSTFF": "Staff",
