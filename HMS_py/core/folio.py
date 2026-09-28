@@ -1003,6 +1003,38 @@ def calc_nights(docid: str, cn=None, site: str = SITE_CODE) -> int:
     return int(rows[0][0])
 
 
+# ─── Bill Print/Preview (VB6 BillDet view) ────────────────────────────────
+
+def print_bill(bill_no: str, cn=None, site: str = SITE_CODE) -> dict:
+    """VB6 BillDet view: Bill print/preview.
+    
+    VB6: BillDet view = SUM(AmtDr-AmtCr) per bill_no, join PayCharge→RoomOcc→GuestFolio.
+    Returns: {bill_no, guest, nights, lines, total, bill_amt}
+    """
+    rows = db.query(
+        "SELECT Bill_No, Bill_Amt, Folio_No, Nights FROM BillDet "
+        "WHERE Bill_No = ? AND LogSite_Code = ?",
+        (bill_no, site), cn=cn)
+    if not rows:
+        return {"bill_no": bill_no, "guest": "", "nights": 0,
+                "lines": [], "total": 0.0, "bill_amt": 0.0}
+    r = rows[0]
+    lines = db.query(
+        "SELECT SNo, PayCode, PayType, AmtDr, AmtCr, Vdate "
+        "FROM PayCharge WHERE Bill_No = ? AND Site_Code = ? ORDER BY SNo",
+        (bill_no, site), cn=cn)
+    return {
+        "bill_no": r[0] or bill_no,
+        "guest": "",
+        "nights": int(r[3] or 0),
+        "lines": [{"sno": l[0], "paycode": (l[1] or "").strip(),
+                   "paytype": (l[2] or "").strip(), "dr": float(l[3] or 0),
+                   "cr": float(l[4] or 0), "vdate": l[5]} for l in lines],
+        "total": float(r[1] or 0),
+        "bill_amt": float(r[1] or 0),
+    }
+
+
 # ─── Startup Normalization (VB6 SQL_TRACKING_RESULTS.md) ──────────────────
 
 def run_startup_normalization(cn=None, site: str = SITE_CODE) -> dict:
