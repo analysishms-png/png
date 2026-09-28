@@ -24,7 +24,8 @@ from PyQt6.QtWidgets import (QApplication, QDialog, QHBoxLayout, QLabel,
                              QMainWindow, QMessageBox, QPushButton,
                              QTableWidget, QTableWidgetItem, QVBoxLayout,
                              QWidget)
-from HMS_py.core.general_setup import RoomFeatAPI, GodownAPI, VouchCatAPI, voucher_type_list
+from HMS_py.core.general_setup import RoomFeatAPI, GodownAPI, VouchCatAPI, voucher_type_list, printing_settings_snapshot
+from HMS_py.core import db
 from HMS_py.ui.base_master import BaseMasterForm, Field, MasterConfig, make_delete_guard
 from HMS_py.ui import theme as _theme
 from HMS_py.ui.desktop_style import apply_desktop_surface, mark_desktop_action
@@ -109,7 +110,7 @@ class VoucherTypeBrowser(QDialog):
         self.tbl.setRowCount(len(rows))
         for r, rec in enumerate(rows):
             for c, k in enumerate(["vtype","category","desc",
-                                    "method","startno","short"]):
+                                   "method","startno","short"]):
                 self.tbl.setItem(r, c, _vcell(rec.get(k, "")))
         if rows: self.tbl.selectRow(0)
 
@@ -205,6 +206,7 @@ class GuestParamViewer(QDialog):
             cn.close()
 
 
+# ── Printing Settings/Parameters viewer ────────────────────────
 class PrintingSettingsViewer(QDialog):
     """VB6-style printing/report/temp configuration viewer."""
 
@@ -237,8 +239,6 @@ class PrintingSettingsViewer(QDialog):
 
     def reload(self):
         try:
-            from HMS_py.core.general_setup import printing_settings_snapshot
-            from HMS_py.core import db
             data = printing_settings_snapshot()
             rows = [
                 ("Reports Path", data.get("reports")),
@@ -257,7 +257,30 @@ class PrintingSettingsViewer(QDialog):
             QMessageBox.warning(self, "Printing Settings", f"Load error: {e}")
 
 
-# ── open helpers ──────────────────────────────────────────────
+# ── Coming Soon placeholders for PARTIAL items ─────────────────
+class _ComingSoonDialog(QDialog):
+    """Placeholder dialog for VB6 items not yet ported to Python."""
+
+    def __init__(self, title: str, item_name: str, parent=None):
+        super().__init__(parent)
+        apply_desktop_surface(self, "desktopComingSoon")
+        self.setWindowTitle(f"{title} - Coming Soon - HMS_py")
+        self.resize(500, 200)
+        root = QVBoxLayout(self)
+        root.addWidget(QLabel(f"<b>{item_name}</b> not yet ported to Python"))
+        root.addWidget(QLabel("This VB6 feature is marked as Coming Soon."))
+        btn = QPushButton("Close"); mark_desktop_action(btn); btn.clicked.connect(self.reject)
+        root.addStretch(); root.addWidget(btn, 0, Qt.AlignmentFlag.AlignRight)
+
+
+def _make_coming_soon(title: str, item_name: str):
+    """Factory for coming-soon placeholders."""
+    def open(parent=None):
+        _ComingSoonDialog(title, item_name, parent).exec()
+    return open
+
+
+# ── Open helpers ──────────────────────────────────────────────
 def _open(cfg_fn, parent=None):
     BaseMasterForm(cfg_fn(), parent).exec()
 
@@ -301,6 +324,28 @@ def vouchcat_config() -> MasterConfig:
     )
 
 
+# ── Coming Soon placeholders for General Setup PARTIAL items ────────
+def open_taxstructure(parent=None):
+    """Tax Structure - PARTIAL (not yet ported)"""
+    _make_coming_soon("Tax Structure", "Tax Structure")(parent)
+
+def open_revenuegroupparent(parent=None):
+    """Revenue Group Setting - PARTIAL (not yet ported)"""
+    _make_coming_soon("Revenue Group Setting", "Revenue Group Setting")(parent)
+
+def open_printingparameters(parent=None):
+    """Printing Parameters - PARTIAL (not yet ported)"""
+    _make_coming_soon("Printing Parameters", "Printing Parameters")(parent)
+
+def open_printing_setup(parent=None):
+    """Printing Setup - PARTIAL (not yet ported)"""
+    _make_coming_soon("Printing Setup", "Printing Setup")(parent)
+
+def open_revenuewisebudget(parent=None):
+    """Revenue Wise Budget Entry - PARTIAL (not yet ported)"""
+    _make_coming_soon("Revenue Wise Budget Entry", "Revenue Wise Budget Entry")(parent)
+
+
 # ── Standalone launcher ───────────────────────────────────────
 class GeneralSetupLauncher(QMainWindow):
     def __init__(self):
@@ -317,6 +362,11 @@ class GeneralSetupLauncher(QMainWindow):
             ("System Environment (Enviro)",    open_enviro),
             ("Guest Parameters",               open_guestparam),
             ("Printing Setup / Parameters",    open_printing),
+            ("Tax Structure",                  open_taxstructure),
+            ("Revenue Group Setting",          open_revenuegroupparent),
+            ("Printing Parameters",            open_printingparameters),
+            ("Printing Setup",                 open_printing_setup),
+            ("Revenue Wise Budget Entry",      open_revenuewisebudget),
         ):
             b = QPushButton(lbl); mark_desktop_action(b); b.clicked.connect(fn); b.setToolTip(f"Open {lbl}"); lay.addWidget(b)
         self.setCentralWidget(c)
@@ -326,6 +376,7 @@ def main() -> int:
     app = QApplication(sys.argv)
     w = GeneralSetupLauncher(); w.show()
     return app.exec()
+
 
 if __name__ == "__main__":
     raise SystemExit(main())

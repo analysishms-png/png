@@ -21,6 +21,21 @@ class FaAdjustWindow(QMainWindow):
         self.resize(800, 500)
         self._build_ui()
         self._load_data()
+        self._load_acgroup_names()
+        
+        # FIX #5: Set tab order matching VB6 TabIndex
+        # VB6 order: TXT_DATE(0) -> TXT_ACCOUNT -> TXT_Group -> BTSADJUST(22) -> ADJ_OK(9) -> ADJ_CANCLE(8)
+        # Create logical tab sequence
+        self.setTabOrder(self.txt_docid1, self.txt_docid2)
+        self.setTabOrder(self.txt_docid2, self.txt_sno1)
+        self.setTabOrder(self.txt_sno1, self.txt_docid1)
+        self.setTabOrder(self.txt_docid1, self.txt_sno2)
+        self.setTabOrder(self.txt_sno2, self.txt_amt)
+        self.setTabOrder(self.txt_amt, self.txt_subcode)
+        self.setTabOrder(self.txt_subcode, self.btn_save)
+        self.setTabOrder(self.btn_save, self.btn_exit)
+        self.setTabOrder(self.btn_exit, self.table)
+        self.setTabOrder(self.table, self.txt_docid1)
 
     def _build_ui(self):
         central = QWidget(); self.setCentralWidget(central)
@@ -36,26 +51,25 @@ class FaAdjustWindow(QMainWindow):
         self.txt_sno1 = QLineEdit(); self.txt_sno1.setPlaceholderText("Debit SNo")
         self.txt_docid2 = QLineEdit(); self.txt_docid2.setPlaceholderText("Credit DocId")
         self.txt_sno2 = QLineEdit(); self.txt_sno2.setPlaceholderText("Credit SNo")
-        self.txt_amt = QLineEdit(); self.txt_amt.setPlaceholderText("Amount")
+        self.txt_amt = QLineEdit(); self.txt_amt.setPlaceholderText("Amount (0.00)")
+        self.txt_amt.setValidator(None)
+        from PyQt6.QtGui import QDoubleValidator, QValidator
+        val = QDoubleValidator(0.0, 9999999999.99, 2, self.txt_amt)
+        val.setNotation(QDoubleValidator.Notation.StandardNotation)
+        self.txt_amt.setValidator(val)
         self.txt_subcode = QLineEdit(); self.txt_subcode.setPlaceholderText("SubCode")
-        # FIX #2: QComboBox + QCompleter for account search (like VB6 DataCombo)
-        from PyQt6.QtWidgets import QCompleter
-        from PyQt6.QtCore import QStringListModel
-        # Hardcoded account list (matching VB6 ACGROUP data) until get_acgroup_list() in core
-        test_accounts = [
-            {"code": "100", "name": "Cash"},
-            {"code": "101", "name": "Bank"},
-            {"code": "102", "name": "Customer"},
-            {"code": "103", "name": "Vendor"},
-            {"code": "104", "name": "Expense"},
-            {"code": "105", "name": "Asset"},
-        ]
+        # FIX #2 (BUG #2): real ACGROUP search — VB6 DataCombo TXT_ACCOUNT
+        # bound to ACGROUP via Proc_183_43_EF7D54 (name dikhao, code rakho).
+        # QCompleter on live acgroup_list() — no hardcoded fallback.
+        self._acgroup_map: dict[str, dict] = {}
+        self._acgroup_names: list[str] = []
+        self._load_acgroup_names()
         model = QStringListModel()
-        names = [a["name"] for a in test_accounts]
-        model.setStringList(names)
+        model.setStringList(self._acgroup_names)
         self.txt_subcode.setPlaceholderText("SubCode/Group Name")
         completer = QCompleter(model)
         completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+        completer.setFilterMode(Qt.MatchFlag.MatchContains)
         self.txt_subcode.setCompleter(completer)
         self.txt_subcode.textChanged.connect(self._on_subcode_change)
         self.txt_agref = QLineEdit(); self.txt_agref.setPlaceholderText("Adjustment Reference")
@@ -80,6 +94,23 @@ class FaAdjustWindow(QMainWindow):
         layout.addLayout(btn_lay)
 
         self.table = QTableWidget()
+
+    def _load_acgroup_names(self):
+        """BUG #2 fix: live ACGROUP list (VB6 Proc_183_43_EF7D54 equivalent).
+        VB6 SQL: SELECT GroupName,GroupCode FROM ACGROUP
+                 WHERE (LOGSITE_CODE=? OR LOGSITE_CODE='HO') ORDER BY GroupName
+        """
+        from HMS_py.core import fa_masters_ops as fmo
+        try:
+            accounts = fmo.acgroup_list()
+        except Exception:
+            accounts = []
+        self._acgroup_map = {}
+        for a in accounts:
+            self._acgroup_map[(a.get("name") or "").strip()] = a
+            self._acgroup_map[(a.get("code") or "").strip()] = a
+        self._acgroup_names = sorted(
+            {(a.get("name") or "").strip() for a in accounts if a.get("name")})
         self.table.setColumnCount(6)
         self.table.setHorizontalHeaderLabels(
             ["DocId1", "SNo1", "DocId2", "SNo2", "Amount", "SubCode"])
@@ -100,12 +131,47 @@ class FaAdjustWindow(QMainWindow):
 
     def _save(self):
         try:
+            # BUG #1 fix (VB6 TXTADJ_AMT_Validate parity):
+            # 1) numeric-only, non-empty amount (VB6 KeyPress filter)
+            amt_text = self.txt_amt.text().strip()
+            if not amt_text:
+                QMessageBox.warning(self, "Adjustment", "Amount zaroori hai")
+                self.txt_amt.setFocus()
+                return
+            try:
+                amt = float(amt_text)
+            except ValueError:
+                QMessageBox.warning(self, "Adjustment",
+                                    "Sirf numeric values allowed")
+                self.txt_amt.setFocus()
+                return
+            if amt <= 0:
+                QMessageBox.warning(self, "Adjustment",
+                                    "Amount zero se bada hona chahiye")
+                self.txt_amt.setFocus()
+                return
+            docid2 = self.txt_docid2.text().strip()
+            try:
+                sno2 = int(self.txt_sno2.text() or 0)
+            except ValueError:
+                QMessageBox.warning(self, "Adjustment", "Credit SNo numeric hona chahiye")
+                return
+            # 2) pending-adjustment check — VB6: CDbl(FgridAdjust.TextMatrix)
+            #     < CDbl(var_158) -> "Amount is Greater Then Pendng Adj.Amt..."
+            #     (FaAdjust.frm loc_117E543-117E6A9); core FA-12 adj_pending.
+            pending_amt = falo.adj_pending(docid2, sno2)
+            if amt > pending_amt:
+                msg = (f" Amount is Greater Then Pendng Adj.Amt. "
+                       f"You Can Adjust Only {pending_amt:.2f} Here")
+                QMessageBox.warning(self, "Adjustment", msg)
+                self.txt_amt.setFocus()
+                return
             falo.ledgeradj_insert({
                 "docid1": self.txt_docid1.text().strip(),
                 "v_sno1": int(self.txt_sno1.text() or 0),
-                "docid2": self.txt_docid2.text().strip(),
-                "v_sno2": int(self.txt_sno2.text() or 0),
-                "cr": float(self.txt_amt.text() or 0),
+                "docid2": docid2,
+                "v_sno2": sno2,
+                "cr": amt,
                 "subcode": self.txt_subcode.text().strip(),
                 "agrefno": self.txt_agref.text().strip(),
             })
@@ -144,6 +210,17 @@ class FaAdjustWindow(QMainWindow):
         # If no match, reset placeholder
         self.txt_subcode.setPlaceholderText("SubCode/Group Name")
         self.txt_subcode.setToolTip("")
+
+    def resizeEvent(self, event):
+        """Like VB6 Form_Resize - recalculate caption width based on form width."""
+        # VB6: Me.LblFormCaption.Left = CDbl(0)
+        # VB6: Me.LblFormCaption.Width = var_90 (form width)
+        # Python equivalent: maintain proportional layout
+        central = self.centralWidget()
+        if central:
+            central.setMinimumWidth(self.width())
+            central.setMinimumHeight(max(self.height() * 0.8, 400))
+        super().resizeEvent(event)
 
 
 class FaChqClearWindow(QMainWindow):

@@ -1732,6 +1732,41 @@ class MainWindow(QMainWindow):
         topbar.addSpacing(12)
         root.addLayout(topbar)
 
+        # VB6 purple module-row + sub-row bars (live evidence: B032 module
+        # menus, B033 Operations sub-row, B058 Reservation row). QMenuBar
+        # upar wali tests/accessibility ke liye aise hi rehti hai; ye bars
+        # VB6 jaisi navigation deti hain. Active button = yellow text.
+        self._crumb = {"module": None, "group": None, "leaf": None}
+        self._groups = []
+        self.mod_row = QFrame()
+        self.mod_row.setObjectName("vbModRow")
+        self._mod_lay = QHBoxLayout(self.mod_row)
+        self._mod_lay.setContentsMargins(4, 2, 4, 2)
+        self._mod_lay.setSpacing(2)
+        self._mod_buttons: list = []
+        root.addWidget(self.mod_row)
+        self.sub_row = QFrame()
+        self.sub_row.setObjectName("vbSubRow")
+        self._sub_lay = QHBoxLayout(self.sub_row)
+        self._sub_lay.setContentsMargins(4, 0, 4, 2)
+        self._sub_lay.setSpacing(2)
+        self._sub_buttons: list = []
+        root.addWidget(self.sub_row)
+        self.mod_row.setStyleSheet(
+            "QFrame#vbModRow { background: transparent; }"
+            "QPushButton[vbBar='mod'] { background: #6d28d9; color: white;"
+            " border: 1px solid #4c1d95; padding: 6px 14px; font-weight: 700; }"
+            "QPushButton[vbBar='mod']:hover { background: #7c3aed; }"
+            "QPushButton[vbBar='mod'][active='true'] { color: yellow; }")
+        self.sub_row.setStyleSheet(
+            "QFrame#vbSubRow { background: transparent; }"
+            "QPushButton[vbBar='sub'] { background: #7c3aed; color: white;"
+            " border: 1px solid #4c1d95; padding: 5px 12px; font-weight: 600; }"
+            "QPushButton[vbBar='sub']:hover { background: #8b5cf6; }"
+            "QPushButton[vbBar='sub'][active='true'] { color: yellow; }"
+            "QPushButton[vbBar='sub']:disabled { background: #4c1d95;"
+            " color: #c4b5fd; }")
+
         body = QHBoxLayout()
         body.setSpacing(0)
         body.setContentsMargins(0, 0, 0, 0)
@@ -1916,10 +1951,120 @@ class MainWindow(QMainWindow):
             for it in grp["items"]:
                 self._add_item(mm, it)
 
+        # VB6 purple module row (B032/B059 evidence): module click ke baad
+        # sirf module row dikhti hai; sub-row group click par aati hai.
+        groups = self._menus(m["name"], self.user)
+        self._groups = groups
+        self._crumb = {"module": m["name"], "group": None, "leaf": None}
+        self._clear_lay(self._mod_lay)
+        self._clear_lay(self._sub_lay)
+        self._mod_buttons = []
+        self._sub_buttons = []
+        for grp in groups:
+            gb = QPushButton(grp["name"])
+            gb.setProperty("vbBar", "mod")
+            gb.setProperty("active", False)
+            gb.clicked.connect(
+                lambda _, gg=grp: self._on_group(m["name"], gg))
+            self._mod_buttons.append(gb)
+            self._mod_lay.addWidget(gb)
+        self._mod_lay.addStretch(1)
+
         self.canvas.setText(
             f"{m['name']}\n\nTop menubar se form kholo")
         self.setWindowTitle(
             f"{self.comp['name']} {{ {self.comp['year']} }} - {m['name']}")
+
+    @staticmethod
+    def _clear_lay(lay):
+        while lay.count():
+            item = lay.takeAt(0)
+            w = item.widget()
+            if w is not None:
+                w.setParent(None)
+                w.deleteLater()
+
+    def _on_group(self, module: str, grp: dict):
+        """VB6 module-row click: sub-row bharo (B033 evidence)."""
+        for b in self._mod_buttons:
+            is_active = (b.text() == grp["name"])
+            b.setProperty("active", is_active)
+            b.style().unpolish(b)
+            b.style().polish(b)
+        self._crumb["group"] = grp["name"]
+        self._crumb["leaf"] = None
+        self._clear_lay(self._sub_lay)
+        self._sub_buttons = []
+        for it in grp.get("items", []):
+            lb = QPushButton(it["name"])
+            lb.setProperty("vbBar", "sub")
+            lb.setProperty("active", False)
+            opener = self.registry.get(it["name"])
+            if it.get("children"):
+                menu = QMenu(it["name"], self)
+                if opener:
+                    act = menu.addAction(it["name"])
+                    act.triggered.connect(
+                        lambda _, fn=opener: self.open_leaf(
+                            module, grp["name"], it["name"], fn))
+                    menu.addSeparator()
+                for ch in it["children"]:
+                    self._add_leaf_action(menu, module, grp["name"], ch)
+                lb.clicked.connect(
+                    lambda _, mm=menu, bb=lb: mm.popup(
+                        bb.mapToGlobal(bb.rect().bottomLeft())))
+            elif opener:
+                leaf = it["name"]
+                lb.clicked.connect(
+                    lambda _, fn=opener, lf=leaf: self.open_leaf(
+                        module, grp["name"], lf, fn))
+            else:
+                lb.setEnabled(False)   # phase-wise judenga (menubar jaisa)
+                lb.setToolTip("phase-wise judenga")
+            self._sub_buttons.append(lb)
+            self._sub_lay.addWidget(lb)
+        self._sub_lay.addStretch(1)
+        self.canvas.setText(f"[{module} > {grp['name']}]")
+
+    def _add_leaf_action(self, menu, module: str, group: str, it: dict):
+        if it.get("children"):
+            sub = menu.addMenu(it["name"])
+            for ch in it["children"]:
+                self._add_leaf_action(sub, module, group, ch)
+            return
+        act = menu.addAction(it["name"])
+        opener = self.registry.get(it["name"])
+        if opener:
+            leaf = it["name"]
+            act.triggered.connect(
+                lambda _, fn=opener, lf=leaf: self.open_leaf(
+                    module, group, lf, fn))
+        else:
+            act.setEnabled(False)
+
+    def open_leaf(self, module: str, group: str, leaf: str, opener):
+        """Purple sub-row / menu leaf kholo + breadcrumb track karo.
+
+        VB6 live evidence: child caption `[Module > Group > Screen]`
+        (B034/B036/B062). Dialogs apna title khud rakhte hain; ye crumb
+        canvas + MainWindow.crumb_title() ke liye source of truth hai —
+        naye/edited opener isse apna title banayein.
+        """
+        self._crumb = {"module": module, "group": group, "leaf": leaf}
+        for b in self._sub_buttons:
+            is_active = (b.text() == leaf)
+            b.setProperty("active", is_active)
+            b.style().unpolish(b)
+            b.style().polish(b)
+        self.canvas.setText(f"[{module} > {group} > {leaf}]")
+        opener(self)
+
+    def crumb_title(self, leaf: str | None = None) -> str:
+        """`[Module > Group > Leaf]` breadcrumb (VB6 child-caption parity)."""
+        c = self._crumb
+        leaf = leaf or c.get("leaf") or ""
+        parts = [c.get("module") or "", c.get("group") or "", leaf]
+        return "[" + " > ".join(p for p in parts if p) + "]"
 
     def _add_item(self, parent_menu, it: dict):
         opener = self.registry.get(it["name"])

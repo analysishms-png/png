@@ -16,6 +16,8 @@ DEFAULT_CONFIG = {
     "database": "Moondata2627",
     "reports": r"C:\Drive\HMS2526\Reports",
     "temp": r"C:\Drive\HMS2526\Temp",
+    "backup": r"C:\Backup",
+    "image": r"C:\Drive\HMS2526\Image",
     "company": "KK",
     "site": "Kanpur",
     "modules": None,
@@ -63,8 +65,9 @@ def load_config(ini_path: str | None = None) -> dict:
         return dict(DEFAULT_CONFIG)
     hms = cp["HMS"]
     # VB6 numbered keys (evidence: Analysis.ini decoded):
-    #   1=server, 2=reports path, 3=temp path, 6=database,
-    #   7=company code (KK), 8=site (Kanpur), 9=sidebar modules (#-list)
+    #   1=server, 2=reports path, 3=temp path, 4=printer flag, 5=backup path,
+    #   6=database, 7=company code (KK), 8=site (Kanpur), 9=sidebar modules
+    #   (#-list), 10=image path.
     def g(i):
         return hms.get(str(i), "").strip()
     modules = [m.strip() for m in g(9).split("#") if m.strip()]
@@ -73,8 +76,10 @@ def load_config(ini_path: str | None = None) -> dict:
             "reports": g(2) or DEFAULT_CONFIG["reports"],
             "temp": g(3) or DEFAULT_CONFIG["temp"],
             "printer": g(4) or "Prn",
+            "backup": g(5) or DEFAULT_CONFIG["backup"],
             "company": g(7) or DEFAULT_CONFIG["company"],
             "site": g(8) or DEFAULT_CONFIG["site"],
+            "image": g(10) or DEFAULT_CONFIG["image"],
             "modules": modules or None}
 
 
@@ -131,15 +136,29 @@ def ensure_paths(cfg: dict | None = None) -> dict:
 
 def connect(cfg: dict | None = None) -> pyodbc.Connection:
     """Same DB jisme VB6 HMS.exe judta hai (trusted connection).
-    Driver: SQL Server Native Client 10.0 (VB6 wahi use karta hai -
-    varchar codepage differences se bachne ke liye; fallback SQL Server)."""
+
+    Driver chain (pehla jo load ho):
+    1. SQL Server Native Client 10.0 — VB6 wahi use karta hai (varchar
+       codepage differences se bachne ke liye).
+    2. ODBC Driver 17 for SQL Server — modern fallback (2008 R2 se
+       encryption ke bina judta hai).
+    3. ODBC Driver 18 for SQL Server — TrustServerCertificate=yes ke saath
+       (purane SQL Server ka self-signed cert warna handshake rok deta hai).
+    4. SQL Server — legacy fallback.
+    """
     global CONN_STR
     cfg = cfg or load_config()
-    for drv in ("SQL Server Native Client 10.0", "SQL Server"):
+    drivers = ["SQL Server Native Client 10.0",
+               "ODBC Driver 17 for SQL Server",
+               "ODBC Driver 18 for SQL Server",
+               "SQL Server"]
+    for drv in drivers:
         try:
+            extra = (";TrustServerCertificate=yes"
+                     if drv == "ODBC Driver 18 for SQL Server" else "")
             CONN_STR = (f"DRIVER={{{drv}}};SERVER={cfg['server']};"
                         f"DATABASE={cfg['database']};"
-                        f"Trusted_Connection=yes;")
+                        f"Trusted_Connection=yes{extra};")
             cn = pyodbc.connect(CONN_STR, timeout=5)
             # B017 fix: dead-process orphan transactions DB ko block kar
             # rahe the (GodownMast LCK). Query timeout + lock-timeout se
