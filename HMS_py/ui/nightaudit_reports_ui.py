@@ -110,6 +110,11 @@ class NightAuditReportsWindow(QMainWindow):
         self.btn_na.setToolTip("Run Night Audit for selected date range")
         self.btn_na.clicked.connect(self._run_night_audit)
         na_lay.addWidget(self.btn_na)
+        self.btn_norm = QPushButton("Run Normalization")
+        self.btn_norm.setMinimumHeight(36)
+        self.btn_norm.setToolTip("Run VB6 startup normalization batch (10 SQL statements)")
+        self.btn_norm.clicked.connect(self._run_normalization)
+        na_lay.addWidget(self.btn_norm)
         layout.addWidget(na_grp)
 
         # Buttons
@@ -155,6 +160,19 @@ class NightAuditReportsWindow(QMainWindow):
             QMessageBox.critical(self, "Night Audit Error", str(e))
         finally:
             self.btn_na.setEnabled(True)
+
+    def _run_normalization(self):
+        from HMS_py.core import folio as folio_mod
+        self.btn_norm.setEnabled(False)
+        try:
+            results = folio_mod.run_startup_normalization()
+            msg = "\n".join(f"{k}: {v}" for k, v in results.items())
+            QMessageBox.information(self, "Normalization Complete",
+                                    f"Startup normalization done:\n{msg}")
+        except Exception as e:
+            QMessageBox.critical(self, "Normalization Error", str(e))
+        finally:
+            self.btn_norm.setEnabled(True)
 
     def _run_report(self):
         row = self.table.currentRow()
