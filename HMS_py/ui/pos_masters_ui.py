@@ -18,6 +18,7 @@ from HMS_py.core.pos_masters import (SessionAPI, SchemeAPI, DelBoyAPI, ItemCatAP
                                        NCTypeAPI, WaiterAPI, ShiftAPI, ComboAPI)
 from HMS_py.core.smartcard import SmartCardAPI
 from HMS_py.ui.base_master import BaseMasterForm, Field, MasterConfig, make_delete_guard
+from HMS_py.ui.desktop_style import make_vb6_header
 
 
 # ── Session Master ────────────────────────────────────────────
@@ -329,6 +330,7 @@ class POSMastersLauncher(QMainWindow):
         self.setWindowTitle("HMS_py - POS Setup Masters")
         self.resize(340, 220)
         c = QWidget(); lay = QVBoxLayout(c)
+        lay.addWidget(make_vb6_header("POS Setup Masters"))
         for lbl, fn in (
             ("Session Master (POS)",      open_session),
             ("Scheme Master (Promotions)", open_scheme),

@@ -8,6 +8,7 @@ from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
 from PyQt6.QtCore import Qt, QDate
 from PyQt6.QtGui import QColor, QFont
 from core import db
+from ui.desktop_style import make_vb6_header
 from ui.theme import palette
 
 
@@ -23,10 +24,7 @@ class BillReprintWindow(QMainWindow):
     def _build_ui(self):
         central = QWidget(); self.setCentralWidget(central)
         layout = QVBoxLayout(central)
-        title = QLabel("POS Bill Reprint")
-        title.setFont(QFont("Segoe UI", 14, QFont.Weight.Bold))
-        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(title)
+        layout.addWidget(make_vb6_header("POS Bill Reprint"))
 
         search_lay = QHBoxLayout()
         self.dt_from = QDateEdit(); self.dt_from.setCalendarPopup(True)
@@ -96,10 +94,7 @@ class SplitBillWindow(QMainWindow):
     def _build_ui(self):
         central = QWidget(); self.setCentralWidget(central)
         layout = QVBoxLayout(central)
-        title = QLabel("Split Sale Bill")
-        title.setFont(QFont("Segoe UI", 14, QFont.Weight.Bold))
-        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(title)
+        layout.addWidget(make_vb6_header("Split Sale Bill"))
 
         form = QGroupBox("Split Details")
         form_lay = QFormLayout(form)

@@ -22,6 +22,7 @@ from PyQt6.QtWidgets import (QComboBox, QDateEdit, QDialog, QFormLayout,
 from HMS_py.core import db, folio
 from HMS_py.ui import theme as _theme
 from HMS_py.ui import print_preview as _pp
+from HMS_py.ui.desktop_style import make_vb6_header as _vb6_hdr
 
 
 def _fill(table: QTableWidget, headers: list, rows: list):
@@ -44,6 +45,8 @@ class FolioBrowser(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         v = QVBoxLayout(self)
+        # VB6-hybrid chrome: blue gradient header + cream title strip
+        v.addWidget(_vb6_hdr("Folio / Check-Out"))
         top = QHBoxLayout()
         self.lblTitle = QLabel("In-House Folios")
         top.addWidget(self.lblTitle)
