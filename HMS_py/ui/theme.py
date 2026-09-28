@@ -53,6 +53,22 @@ DEFAULTS: dict[str, str] = {
     "sidebar_bottom": "#0d4f60",
     "sidebar_text": "#ffffff",
     "sidebar_border": "#0a3d4a",
+    # VB6 shell chrome — production screenshots se pixel-sampled
+    # (010_CompanyDetails_Grid.png: header #2496d2; 014_Main_Menu_AfterLogin.png:
+    # strip teal face #54a0a0, dark #003232, highlight #cfe0e0)
+    "vb_header_top": "#3aa7e0",
+    "vb_header_bottom": "#1f7fb8",
+    "vb_accent": "#2496d2",
+    "vb_accent_hover": "#1b7ab0",
+    "vb_header_text": "#fdfdd0",
+    "vb_panel": "#f7fafc",
+    "vb_field_border": "#8fb3cc",
+    "strip_face": "#54a0a0",
+    "strip_face_hover": "#6ab2b2",
+    "strip_checked": "#2e6b6b",
+    "strip_border": "#0b3d3d",
+    "strip_bg": "#ffffff",
+    "strip_text": "#ffffff",
 }
 
 # ============================================================ presets
@@ -167,7 +183,11 @@ def _resolve(tokens: dict[str, str]) -> dict[str, str]:
     for k in ("accent", "accent_hover", "bg", "surface_solid", "text",
               "text_dim", "blob1", "blob2", "blob3", "blob4",
               "header_grad_top", "header_grad_bottom", "bg_style", "bg_image_path",
-              "sidebar_top", "sidebar_bottom", "sidebar_text", "sidebar_border"):
+              "sidebar_top", "sidebar_bottom", "sidebar_text", "sidebar_border",
+              "vb_header_top", "vb_header_bottom", "vb_accent",
+              "vb_accent_hover", "vb_header_text", "vb_panel",
+              "vb_field_border", "strip_face", "strip_face_hover",
+              "strip_checked", "strip_border", "strip_bg", "strip_text"):
         v = tokens.get(k)
         if v:
             t[k] = v
@@ -518,6 +538,84 @@ QPushButton#themeToggle:hover {{
 QPushButton#themeToggle:checked {{
     background: {t['accent']}; color: {t['on_accent']};
 }}
+
+/* ── VB6 shell chrome (hybrid: VB6 layout parity + modern polish) ──
+   Production screenshots se pixel-sampled: login/company header #2496d2,
+   left strip teal module buttons (#54a0a0 face, #003232 dark border). */
+QLabel[vbHeader="true"] {{
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 {t['vb_header_top']}, stop:1 {t['vb_header_bottom']});
+    color: {t['vb_header_text']};
+    font-size: 15px; font-weight: bold;
+    padding: 10px 16px; letter-spacing: 0.5px;
+}}
+QLabel[vbHeaderSub="true"] {{
+    background: transparent;
+    color: {t['text_dim']};
+    font-size: 11px; font-weight: 600;
+}}
+QLabel[vbSectionLabel="true"] {{
+    background: transparent; color: {t['text_dim']};
+    font-size: 11px; font-weight: bold;
+}}
+QPushButton[vbPrimary="true"] {{
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 {t['vb_header_top']}, stop:1 {t['vb_accent']});
+    color: #ffffff; border: 1px solid {t['vb_accent_hover']};
+    border-radius: 7px; font-weight: bold; font-size: 13px;
+    padding: 9px 22px; min-height: 22px;
+}}
+QPushButton[vbPrimary="true"]:hover {{
+    background: {t['vb_accent_hover']};
+}}
+QPushButton[vbPrimary="true"]:pressed {{
+    background: {t['accent_soft']};
+}}
+QPushButton[vbGhost="true"] {{
+    background: {t['glass_tint']}; color: {t['text_dim']};
+    border: 1px solid {t['border']};
+    border-radius: 7px; font-size: 12px;
+    padding: 8px 18px; min-height: 20px;
+}}
+QPushButton[vbGhost="true"]:hover {{
+    border-color: {t['vb_accent']}; color: {t['text']};
+}}
+QPushButton[vbWarn="true"] {{
+    background: {t['glass_tint']}; color: {t['warning']};
+    border: 1px solid {t['warning']}; border-radius: 7px;
+    font-size: 12px; font-weight: 600; padding: 8px 18px;
+}}
+QPushButton[vbWarn="true"]:hover {{ background: {t['warning_bg']}; }}
+QFrame[vbCard="true"] {{
+    background: {t['surface']};
+    border: 1px solid {t['border']};
+    border-radius: {R + 2}px;
+}}
+/* Left module strip — VB6: ~107px white strip, teal 3D buttons */
+QFrame[moduleStrip="true"] {{
+    background: {t['strip_bg']};
+    border-right: 1px solid {t['border']};
+}}
+QPushButton[strip-btn="true"] {{
+    background: {t['strip_face']};
+    color: {t['strip_text']};
+    border: 1px solid {t['strip_border']};
+    border-bottom: 3px solid {t['strip_border']};
+    border-radius: 6px;
+    padding: 8px 4px;
+    font-size: 11px; font-weight: bold;
+}}
+QPushButton[strip-btn="true"]:hover {{
+    background: {t['strip_face_hover']};
+}}
+QPushButton[strip-btn="true"]:checked {{
+    background: {t['strip_checked']};
+    border-bottom-width: 1px;
+    padding-top: 10px;
+}}
+QPushButton[strip-btn="true"]:checked:hover {{
+    background: {t['strip_checked']};
+}}
 """
 
 
@@ -664,7 +762,11 @@ def save_tokens(tokens: dict[str, str]) -> None:
             "header_grad_top", "header_grad_bottom", "glass_opacity",
             "radius", "success", "warning", "danger", "neutral",
             "sidebar_top", "sidebar_bottom", "sidebar_text",
-            "sidebar_border", "bg_style", "bg_image_path")
+            "sidebar_border", "bg_style", "bg_image_path",
+            "vb_header_top", "vb_header_bottom", "vb_accent",
+            "vb_accent_hover", "vb_header_text", "vb_panel",
+            "vb_field_border", "strip_face", "strip_face_hover",
+            "strip_checked", "strip_border", "strip_bg", "strip_text")
     s.setValue("tokens", json.dumps({k: tokens.get(k, "") for k in keep}))
     s.sync()
 
