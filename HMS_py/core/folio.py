@@ -914,3 +914,150 @@ def amount_to_words(amount: float) -> str:
         result += f" and {dec_part} Paise"
     result += " Only"
     return result.strip()
+
+
+# ─── Unsettled Bills (VB6 FrmUnSettledBillsInfo) ─────────────────────────
+
+def list_unsettled_bills(cn=None, site: str = SITE_CODE,
+                         vprefix: str = VPREFIX) -> list[dict]:
+    """VB6 FrmUnSettledBillsInfo: Un-settled bills list.
+    
+    Query: PayCharge WHERE SettleDate IS NULL AND Bill_No IS NULL
+    AND ModeSet<>'S' grouped by FolioNoDocid.
+    """
+    rows = db.query(
+        "SELECT FolioNoDocid, SUM(AmtDr - AmtCr) AS Balance, "
+        "COUNT(*) AS Lines FROM PayCharge "
+        "WHERE SettleDate IS NULL AND Bill_No IS NULL AND ModeSet <> 'S' "
+        "AND Site_Code = ? AND VPrefix = ? "
+        "GROUP BY FolioNoDocid ORDER BY Balance DESC",
+        (site, vprefix), cn=cn)
+    return [{"docid": (r[0] or "").strip(), "balance": float(r[1] or 0),
+             "lines": int(r[2] or 0)} for r in rows]
+
+
+# ─── Cancel Bill (VB6 CancelBillDet + TempPosDel staging) ─────────────────
+
+def cancel_bill(bill_no: str, user: str = USER, cn=None,
+                commit: bool = True, site: str = SITE_CODE) -> bool:
+    """VB6 CancelBillDet: Settle reversal.
+    
+    1. UPDATE FOMBillDetails SET Status='CANCEL'
+    2. UPDATE PayCharge SET SettleDate=NULL, Bill_No=NULL
+    3. TempPosDel staging insert (VB6 pattern)
+    """
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        db.execute(
+            "UPDATE FOMBillDetails SET Status = 'CANCEL', "
+            "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' "
+            "WHERE Bill_No = ? AND SiteCode = ?",
+            (user, bill_no, site), cn=cn, commit=False)
+        db.execute(
+            "UPDATE PayCharge SET SettleDate = NULL, Bill_No = NULL, "
+            "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' "
+            "WHERE Bill_No = ? AND Site_Code = ?",
+            (user, bill_no, site), cn=cn, commit=False)
+        # VB6 TempPosDel staging for cancelled bills
+        db.execute(
+            "INSERT INTO TempPosDel (Bill_No, Site_Code, U_Name, U_EntDt, "
+            "U_AE, LogSite_Code) VALUES (?, ?, ?, getdate(), 'A', ?)",
+            (bill_no, site, user, site), cn=cn, commit=False)
+        if commit:
+            cn.commit()
+        return True
+    finally:
+        if own:
+            cn.close()
+
+
+# ─── PayChargeLog Audit (VB6 pattern: copy before settle/cancel) ──────────
+
+def log_paycharge_to_paychargelog(docid: str, cn=None,
+                                  site: str = SITE_CODE) -> bool:
+    """VB6 pattern: INSERT INTO PayChargeLog SELECT * FROM PayCharge
+    WHERE DocId=? — audit trail before settle/cancel.
+    """
+    rows = db.query(
+        "SELECT 1 FROM PayCharge WHERE DocId = ? AND Site_Code = ?",
+        (docid, site), cn=cn)
+    if not rows:
+        return False
+    db.execute(
+        "INSERT INTO PayChargeLog SELECT * FROM PayCharge WHERE DocId = ?",
+        (docid,), cn=cn, commit=True)
+    return True
+
+
+# ─── Nights Calculation (VB6 BillDet view) ────────────────────────────────
+
+def calc_nights(docid: str, cn=None, site: str = SITE_CODE) -> int:
+    """VB6 BillDet: Nights = MAX(ChkOutDate) - MIN(Vdate) from RoomOcc."""
+    rows = db.query(
+        "SELECT DATEDIFF(day, MIN(Vdate), MAX(ChkOutDate)) "
+        "FROM RoomOcc WHERE DocId = ? AND Site_Code = ?",
+        (docid, site), cn=cn)
+    if not rows or rows[0][0] is None:
+        return 0
+    return int(rows[0][0])
+
+
+# ─── Startup Normalization (VB6 SQL_TRACKING_RESULTS.md) ──────────────────
+
+def run_startup_normalization(cn=None, site: str = SITE_CODE) -> dict:
+    """VB6 startup normalization batch (SQL_TRACKING_RESULTS.md:19-29).
+    
+    10-statement batch:
+    1. UPDATE Sale1 SET AU_Name=IsNull(U_Name,'')
+    2. UPDATE Sale1Log SET AU_Name=IsNull(U_Name,'')
+    3. UPDATE SplitSale1 SET AU_Name=IsNull(U_Name,'')
+    4. UPDATE Paycharge SET AU_Name=IsNull(U_Name,'')
+    5. UPDATE PaychargeLog SET AU_Name=IsNull(U_Name,'')
+    6. UPDATE SmartCardRegistration SET RewardBal=...
+    7. UPDATE Depart SET KOTAtNightAudit=...
+    8. UPDATE GuestProf SET FOM=1 WHERE Code IN (SELECT GuestProf FROM Booking)
+    9. UPDATE PlanMast SET RoomTaxStru=RevMast.TaxStru
+    10. UPDATE RoomOcc SET RoomTaxStru=Q.TaxStru
+    11. Delete From GuestFolioProfDetail Where Docid=''
+    """
+    results = {}
+    statements = [
+        ("sale1_au", "UPDATE Sale1 SET AU_Name = ISNULL(U_Name, '') "
+         "WHERE AU_Name IS NULL"),
+        ("sale1log_au", "UPDATE Sale1Log SET AU_Name = ISNULL(U_Name, '') "
+         "WHERE AU_Name IS NULL"),
+        ("splitsale1_au", "UPDATE SplitSale1 SET AU_Name = ISNULL(U_Name, '') "
+         "WHERE AU_Name IS NULL"),
+        ("paycharge_au", "UPDATE Paycharge SET AU_Name = ISNULL(U_Name, '') "
+         "WHERE AU_Name IS NULL"),
+        ("paychargelog_au", "UPDATE PaychargeLog SET AU_Name = ISNULL(U_Name, '') "
+         "WHERE AU_Name IS NULL"),
+        ("smartcard_reward", "UPDATE SmartCardRegistration SET RewardBal = "
+         "ISNULL(RewardBal, 0) WHERE RewardBal IS NULL"),
+        ("depart_kot_na", "UPDATE Depart SET KOTAtNightAudit = "
+         "ISNULL(KOTAtNightAudit, 'No') WHERE KOTAtNightAudit IS NULL"),
+        ("guestprof_fom", "UPDATE GuestProf SET FOM = 1 WHERE Code IN "
+         "(SELECT GuestProf FROM Booking)"),
+        ("planmast_taxstru", "UPDATE PlanMast SET RoomTaxStru = RevMast.TaxStru "
+         "FROM PlanMast INNER JOIN RevMast ON PlanMast.Code = RevMast.Code"),
+        ("roomocc_taxstru", "UPDATE RoomOcc SET RoomTaxStru = Q.TaxStru "
+         "FROM RoomOcc INNER JOIN (SELECT RoomCat.Code, RevMast.TaxStru "
+         "FROM RoomCat INNER JOIN RevMast ON RoomCat.Revcode = RevMast.Code) Q "
+         "ON RoomOcc.RoomCat = Q.Code"),
+        ("gfpd_cleanup", "DELETE FROM GuestFolioProfDetail WHERE Docid = ''"),
+    ]
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        for name, sql in statements:
+            try:
+                n = db.execute(sql, cn=cn, commit=False)
+                results[name] = n
+            except Exception as e:
+                results[name] = f"skip: {e}"
+        cn.commit()
+        return results
+    finally:
+        if own:
+            cn.close()

@@ -753,7 +753,7 @@ def main() -> int:
     w(f"D5b. VB6 control EVENT handlers missing  [n={len(evt_missing)}]"
       f"  (Cmd*_Click / Chk*_KeyDown etc.)")
     w("     NOTE: python me ye event-handler ki tarah nahi, direct button-callback/"
-      w"lambda se hote hain - isliye naam-match fail hota hai, functionality")
+      "lambda se hote hain - isliye naam-match fail hota hai, functionality")
     w("     Section A (form parity) se check karo.")
     line = "   "
     for nm in evt_missing:

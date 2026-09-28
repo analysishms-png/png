@@ -26,6 +26,10 @@ Security findings cross-referenced in SECURITY_REMEDIATION_NOTE_SRN-001.md (F-1.
 - Severity: LOW-MEDIUM (transient? repeated 4 times)
 - Possible cause: query mixes GROUP BY with ORDER BY on non-aggregated column.
 - Evidence level: [VERIFIED-SQL]
+- PYTHON PORT STATUS 2026-09-28: core/sundry_type.py::list_entries me is class
+  ka bug NAHI hai (query me GROUP BY absent, plain ORDER BY valid). Evidence note
+  code me added — VB6-only bug, python port me replicate nahi hota. No code change
+  required.
 
 ## BUG-003
 - Module: Payroll / Salary posting (PayCharge)
