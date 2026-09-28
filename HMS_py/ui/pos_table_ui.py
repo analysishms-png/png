@@ -169,15 +169,9 @@ class PosTableWindow(QMainWindow):
         if not self.current_code:
             QMessageBox.warning(self, "Validation", "Select a record first.")
             return
-<<<<<<< HEAD
         guard_error = table_delete_guard(self.current_code)
         if guard_error:
-            QMessageBox.warning(self, "Safety", guard_error)
-=======
-        guard = table_delete_guard(self.current_code)
-        if guard:
-            QMessageBox.warning(self, "Delete Blocked", str(guard))
->>>>>>> 96153578eb5ca8c85579b6f3c7629ebe9020216a
+            QMessageBox.warning(self, "Delete Blocked", str(guard_error))
             return
         reply = QMessageBox.question(self, "Confirm", "Delete this record?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
         if reply == QMessageBox.StandardButton.Yes:

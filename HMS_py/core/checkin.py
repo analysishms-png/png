@@ -451,6 +451,10 @@ def delete_checkin(folio: int, user: str = USER, cn=None,
             "FolioNo = ?", (site, vprefix, folio), cn=cn, commit=False)
         db.execute("DELETE FROM RoomOcc WHERE DocId = ?",
                    (rows[0][1],), cn=cn, commit=False)
+        # GuestFolioProfDetail bhi delete karo (PK Docid+GuestProf) —
+        # warna folio number reuse par PK_GuestFolioProfDtl violation hota hai.
+        db.execute("DELETE FROM GuestFolioProfDetail WHERE Docid = ?",
+                   (rows[0][1],), cn=cn, commit=False)
         # VB6 deletion also removes the folio's charge/payment rows
         # (link by FolioNoDocid, plus legacy FolioNo fallback rows).
         db.execute(
