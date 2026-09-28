@@ -103,6 +103,9 @@ sheet(wb, "DB_DICTIONARY", ["Table","Purpose","Module","Primary Key","Related (F
 mrows = [[m, len(n), "Documented in 19_VB6_Logic/vb6_form_inventory.md"] for m, n in forms.items()]
 sheet(wb, "MODULE_COVERAGE", ["Module","Form Count","Doc Reference"], mrows, [26, 12, 52])
 
-wb.save("HMS_REVERSE_ENGINEERING/22_Final_Manual/MASTER_SCREEN_INVENTORY.xlsx")
-wb.save("HMS_REVERSE_ENGINEERING/22_Final_Manual/MASTER_DATABASE_DICTIONARY.xlsx")
+import os
+_OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "22_Final_Manual")
+os.makedirs(_OUT, exist_ok=True)
+wb.save(os.path.join(_OUT, "MASTER_SCREEN_INVENTORY.xlsx"))
+wb.save(os.path.join(_OUT, "MASTER_DATABASE_DICTIONARY.xlsx"))
 print("Inventories saved OK")

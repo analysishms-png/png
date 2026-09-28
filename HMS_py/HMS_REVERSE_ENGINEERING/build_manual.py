@@ -269,5 +269,8 @@ for a in [
 ]:
     B(a)
 
-doc.save("HMS_REVERSE_ENGINEERING/22_Final_Manual/HMS_Complete_Reverse_Engineering_Manual.docx")
+import os
+_OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "22_Final_Manual")
+os.makedirs(_OUT, exist_ok=True)
+doc.save(os.path.join(_OUT, "HMS_Complete_Reverse_Engineering_Manual.docx"))
 print("Manual saved OK")
