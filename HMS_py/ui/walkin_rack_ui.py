@@ -400,6 +400,40 @@ class WalkInEntryWindow(QMainWindow, _StatusBar):
         self.spin_child = QComboBox()
         self.spin_child.addItems(["0", "1", "2", "3"])
         stay_form.addRow("Children", self.spin_child)
+        # VB6 fdCheckIn.frm:942284 Plan fields
+        self.txt_plancode = QLineEdit()
+        self.txt_plancode.setPlaceholderText("Plan code, optional")
+        stay_form.addRow("Plan Code", self.txt_plancode)
+        self.txt_planamt = QLineEdit()
+        self.txt_planamt.setPlaceholderText("Plan amount, optional")
+        stay_form.addRow("Plan Amount", self.txt_planamt)
+        self.txt_incinrate = QLineEdit()
+        self.txt_incinrate.setPlaceholderText("Incl in Rate (Y/N)")
+        stay_form.addRow("Incl in Rate", self.txt_incinrate)
+        self.txt_plandisc = QLineEdit()
+        self.txt_plandisc.setPlaceholderText("Plan discount %, optional")
+        stay_form.addRow("Plan Discount %", self.txt_plandisc)
+        self.txt_plandiscamt = QLineEdit()
+        self.txt_plandiscamt.setPlaceholderText("Plan discount amount, optional")
+        stay_form.addRow("Plan Discount Amt", self.txt_plandiscamt)
+        self.txt_plandiscon = QLineEdit()
+        self.txt_plandiscon.setPlaceholderText("Discount app on, optional")
+        stay_form.addRow("Discount App On", self.txt_plandiscon)
+        self.txt_rrtaxinc = QLineEdit()
+        self.txt_rrtaxinc.setPlaceholderText("RR Tax Incl (Y/N)")
+        stay_form.addRow("RR Tax Incl", self.txt_rrtaxinc)
+        self.txt_rrservicechrg = QLineEdit()
+        self.txt_rrservicechrg.setPlaceholderText("RR Service Charge (Y/N)")
+        stay_form.addRow("RR Service Chrg", self.txt_rrservicechrg)
+        self.txt_roomtarrif = QLineEdit()
+        self.txt_roomtarrif.setPlaceholderText("Room tariff, optional")
+        stay_form.addRow("Room Tariff", self.txt_roomtarrif)
+        self.txt_rackrate = QLineEdit()
+        self.txt_rackrate.setPlaceholderText("Rack rate, optional")
+        stay_form.addRow("Rack Rate", self.txt_rackrate)
+        self.txt_roomtaxstru = QLineEdit()
+        self.txt_roomtaxstru.setPlaceholderText("Room tax structure, optional")
+        stay_form.addRow("Room Tax Stru", self.txt_roomtaxstru)
 
         self.guest_page = QFrame()
         self.guest_page.setObjectName("formPage")
@@ -691,7 +725,18 @@ class WalkInEntryWindow(QMainWindow, _StatusBar):
                 bookingdocid=self.txt_booking.text().strip(), user=self.user,
                 adult=int(self.spin_adult.currentText()),
                 children=int(self.spin_child.currentText()),
-                ratecode=self.txt_rate.text().strip())
+                ratecode=self.txt_rate.text().strip(),
+                plancode=self.txt_plancode.text().strip(),
+                planamt=float(self.txt_planamt.text().strip() or 0) or None,
+                incinrate=self.txt_incinrate.text().strip(),
+                plandisc=float(self.txt_plandisc.text().strip() or 0) or None,
+                plandiscamt=float(self.txt_plandiscamt.text().strip() or 0) or None,
+                plandiscon=self.txt_plandiscon.text().strip(),
+                rrtaxinc=self.txt_rrtaxinc.text().strip(),
+                rrservicechrg=self.txt_rrservicechrg.text().strip(),
+                roomtarrif=float(self.txt_roomtarrif.text().strip() or 0) or None,
+                rackrate=float(self.txt_rackrate.text().strip() or 0) or None,
+                roomtaxstru=self.txt_roomtaxstru.text().strip())
             rec = checkin.get(fno) or {}
             self.lbl_done.setText(
                 f"Checked-in: folio #{fno}, room "

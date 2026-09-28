@@ -300,8 +300,10 @@ def from_booking(booking_docid: str, user: str = USER, cn=None,
     try:
         # Ek hi transaction: checkin + FolioLog (create_checkin 'A' log
         # khud likhta hai) — atomic conversion.
+        # VB6 FRONT_OFFICE_LIFECYCLE.md §1: Booking.RoomNo -> RoomOcc.RoomNo
         return checkin_mod.create_checkin(
             "", name, arr, dep, bookingdocid=(b[0] or "").strip(),
+            roomno=(b[4] or "").strip(),
             user=user, cn=cn, commit=commit, site=site, vprefix=vprefix)
     finally:
         if own:

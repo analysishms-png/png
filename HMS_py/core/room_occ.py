@@ -169,6 +169,51 @@ def update(docid: str, sno: int, rec: dict, cn=None, commit: bool = True,
     return get_by_docid(docid, cn=cn)
 
 
+def update_room_plan(docid: str, sno: int, roomno: str,
+                     plancode: str = "", planamt: float | None = None,
+                     incinrate: str = "", plandisc: float | None = None,
+                     plandiscamt: float | None = None,
+                     plandiscon: str = "",
+                     rrtaxinc: str = "", rrservicechrg: str = "",
+                     roomtarrif: float | None = None,
+                     rackrate: float | None = None,
+                     roomtaxstru: str = "",
+                     user: str = USER, cn=None, commit: bool = True,
+                     site: str = SITE_CODE) -> dict:
+    """VB6 FRONT_OFFICE_LIFECYCLE.md §2: Plan update after entry.
+    
+    VB6 SQL (fdCheckIn.frm:942284):
+      Update RoomOcc Set PlanCode='<c>',PlanAmt=<a>,IncInRate='<y>',
+      PlanDisc=<d>,PlanDiscAmt=<da>,PlanDiscAppOn='<on>',
+      RRTaxInc='<y>',RRServiceChrg='<y>',RoomTarrif=<r>,RackRate=<r>,
+      RoomTaxStru='<s>',U_EntDt=<now>,U_AE='E'
+      where Sno=<sno> And DocId='<id>' and Site_Code='<site>' and RoomNO='<room>'
+    
+    Returns: updated RoomOcc record
+    """
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        db.execute(
+            "UPDATE RoomOcc SET PlanCode = ?, PlanAmt = ?, IncInRate = ?, "
+            "PlanDisc = ?, PlanDiscAmt = ?, PlanDiscAppOn = ?, "
+            "RRTaxInc = ?, RRServiceChrg = ?, RoomTarrif = ?, RackRate = ?, "
+            "RoomTaxStru = ?, U_Name = ?, U_EntDt = getdate(), U_AE = 'E' "
+            "WHERE DocId = ? AND SNo = ? AND Site_Code = ? AND RoomNo = ?",
+            (plancode or "", planamt or 0.0, incinrate or "",
+             plandisc or 0.0, plandiscamt or 0.0, plandiscon or "",
+             rrtaxinc or "", rrservicechrg or "",
+             roomtarrif or 0.0, rackrate or 0.0, roomtaxstru or "",
+             user, docid, sno, site, roomno),
+            cn=cn, commit=False)
+        if commit:
+            cn.commit()
+        return get_by_docid(docid, cn=cn)
+    finally:
+        if own:
+            cn.close()
+
+
 def delete(docid: str, cn=None, commit: bool = True) -> int:
     return db.execute(
         "DELETE FROM RoomOcc WHERE DocId = ?", (docid,), cn=cn, commit=commit)

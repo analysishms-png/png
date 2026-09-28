@@ -720,12 +720,48 @@ def run_night_audit(date_from, date_to=None, user: str = USER,
             total_skipped += pos_result["skipped"]
             pos_posted += pos_result["posted"]
 
+            # VB6 NIGHT_AUDIT_FLOW.md §B: Room status roll (occupied -> Dirty)
+            try:
+                room_status_roll(current, user, cn=cn, commit=False)
+            except Exception as e:
+                errors.append(f"{current}: room status roll fail: {e}")
+
+            # VB6 NIGHT_AUDIT_FLOW.md §C: Due-out extension
+            try:
+                due_out_extension(current, user, cn=cn, commit=False)
+            except Exception as e:
+                errors.append(f"{current}: due-out extension fail: {e}")
+
+            # VB6 NIGHT_AUDIT_FLOW.md §D: Split-bill staging cleanup
+            try:
+                split_bill_cleanup(current, user, cn=cn, commit=False)
+            except Exception as e:
+                errors.append(f"{current}: split-bill cleanup fail: {e}")
+
+            # VB6 NIGHT_AUDIT_FLOW.md §D: Voucher serial renumber
+            try:
+                voucher_serial_renumber(current, user, cn=cn, commit=False)
+            except Exception as e:
+                errors.append(f"{current}: voucher renumber fail: {e}")
+
             # Log NA entry
             end_time = datetime.datetime.now()
             _log_night_audit(current, current, start_time, end_time, user, cn=cn, commit=False)
 
             dates_processed.append(current)
             current += datetime.timedelta(days=1)
+
+        # VB6 NIGHT_AUDIT_FLOW.md §D: Token reset (once after all dates)
+        try:
+            token_reset(user, cn=cn, commit=False)
+        except Exception as e:
+            errors.append(f"token reset fail: {e}")
+
+        # VB6 NIGHT_AUDIT_FLOW.md §D: Business date roll (NCur + 1)
+        try:
+            roll_business_date(user, cn=cn, commit=False)
+        except Exception as e:
+            errors.append(f"business date roll fail: {e}")
 
         if commit:
             cn.commit()
@@ -1202,6 +1238,45 @@ def voucher_serial_renumber(vdate, user: str = USER, cn=None,
         if commit:
             cn.commit()
         return {"renumbered": n}
+    finally:
+        if own:
+            cn.close()
+
+
+# ============================================================
+# Business Date Roll (VB6 NIGHT_AUDIT_FLOW.md §D)
+# ============================================================
+
+def roll_business_date(user: str = USER, cn=None, commit: bool = True) -> dict:
+    """VB6 NIGHT_AUDIT_FLOW.md §D: Business date roll forward.
+    
+    VB6 SQL (mdlNightAudit, line ~228850):
+      Update enviro set ncur=<next date>, ImprestAmount=0
+      where Logsite_code='<site>'
+    
+    Returns: {'from_date': old_date, 'to_date': new_date}
+    """
+    rows = db.query(
+        "SELECT [NCur] FROM Enviro WHERE LogSite_Code = ? OR "
+        "LogSite_Code = 'HO'", (SITE_CODE,), cn=cn)
+    if not rows:
+        raise ValueError("Enviro NCur nahi mila")
+    ncur = rows[0][0]
+    if ncur is None:
+        raise ValueError("Enviro NCur NULL hai (roll possible nahi)")
+    ncur_d = ncur.date() if isinstance(ncur, datetime.datetime) else ncur
+    new_d = ncur_d + datetime.timedelta(days=1)
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        db.execute(
+            "UPDATE Enviro SET [NCur] = ?, ImprestAmount = 0, "
+            "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' "
+            "WHERE LogSite_Code = ?",
+            (new_d, user, SITE_CODE), cn=cn, commit=False)
+        if commit:
+            cn.commit()
+        return {"from_date": ncur_d, "to_date": new_d, "user": user}
     finally:
         if own:
             cn.close()

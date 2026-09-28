@@ -165,9 +165,13 @@ def do_checkout(folio: int, user: str = USER, cn=None,
     own = cn is None
     cn_use = cn or db.connect()
     try:
+        # VB6 FRONT_OFFICE_LIFECYCLE.md §6: Update RoomOcc set
+        # CHKOUTDATE, CHKOUTTIME, IncInRate, PlanDisc, PlanDiscAmt
         db.execute(
             "UPDATE RoomOcc SET ChkOutDate = getdate(), ChkOutTime = CONVERT(varchar(5), getdate(), 108), "
-            "ChkoutUser = ?, Type = 'O', U_Name = ?, U_EntDt = getdate(), U_AE = 'E' "
+            "ChkoutUser = ?, Type = 'O', U_Name = ?, U_EntDt = getdate(), U_AE = 'E', "
+            "IncInRate = ISNULL(IncInRate, ''), PlanDisc = ISNULL(PlanDisc, 0), "
+            "PlanDiscAmt = ISNULL(PlanDiscAmt, 0) "
             "WHERE Site_Code = ? AND Vprefix = ? AND FolioNo = ? AND ChkOutDate IS NULL",
             (user, user, site, vprefix, folio),
             cn=cn_use, commit=False)
