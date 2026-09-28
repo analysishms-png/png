@@ -20,10 +20,10 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor, QFont, QShortcut, QKeySequence
-from PyQt6.QtWidgets import (QApplication, QDialog, QHBoxLayout, QLabel,
-                             QMessageBox, QPushButton, QSplitter,
-                             QTableWidget, QTableWidgetItem, QVBoxLayout,
-                             QWidget, QTabWidget)
+from PyQt6.QtWidgets import (QApplication, QDialog, QHBoxLayout,
+                             QInputDialog, QLabel, QMessageBox, QPushButton,
+                             QSplitter, QTableWidget, QTableWidgetItem,
+                             QVBoxLayout, QWidget, QTabWidget)
 
 from HMS_py.core import checkout, expenseentry
 from HMS_py.ui import theme as _theme
