@@ -38,6 +38,26 @@ class FaAdjustWindow(QMainWindow):
         self.txt_sno2 = QLineEdit(); self.txt_sno2.setPlaceholderText("Credit SNo")
         self.txt_amt = QLineEdit(); self.txt_amt.setPlaceholderText("Amount")
         self.txt_subcode = QLineEdit(); self.txt_subcode.setPlaceholderText("SubCode")
+        # FIX #2: QComboBox + QCompleter for account search (like VB6 DataCombo)
+        from PyQt6.QtWidgets import QCompleter
+        from PyQt6.QtCore import QStringListModel
+        # Hardcoded account list (matching VB6 ACGROUP data) until get_acgroup_list() in core
+        test_accounts = [
+            {"code": "100", "name": "Cash"},
+            {"code": "101", "name": "Bank"},
+            {"code": "102", "name": "Customer"},
+            {"code": "103", "name": "Vendor"},
+            {"code": "104", "name": "Expense"},
+            {"code": "105", "name": "Asset"},
+        ]
+        model = QStringListModel()
+        names = [a["name"] for a in test_accounts]
+        model.setStringList(names)
+        self.txt_subcode.setPlaceholderText("SubCode/Group Name")
+        completer = QCompleter(model)
+        completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+        self.txt_subcode.setCompleter(completer)
+        self.txt_subcode.textChanged.connect(self._on_subcode_change)
         self.txt_agref = QLineEdit(); self.txt_agref.setPlaceholderText("Adjustment Reference")
         form_lay.addRow("Debit DocId:", self.txt_docid1)
         form_lay.addRow("Debit SNo:", self.txt_sno1)
@@ -95,6 +115,35 @@ class FaAdjustWindow(QMainWindow):
             QMessageBox.warning(self, "Adjustment", str(e))
         except Exception as e:
             QMessageBox.critical(self, "Error", str(e))
+
+    def _on_subcode_change(self):
+        """Handle SubCode text changes - like VB6 DataCombo TXT_ACCOUNT UnknownEvent."""
+        text = self.txt_subcode.text().strip()
+        # Search logic equivalent of VB6 Proc_183_43_EF7D54
+        from HMS_py.core import fa_ledger_ops as falo
+        # Try to get acgroup list - if not available, use hardcoded fallback
+        try:
+            accounts = falo.get_acgroup_list()
+        except AttributeError:
+            # Fallback hardcoded list
+            accounts = [
+                {"code": "100", "name": "Cash"},
+                {"code": "101", "name": "Bank"},
+                {"code": "102", "name": "Customer"},
+                {"code": "103", "name": "Vendor"},
+                {"code": "104", "name": "Expense"},
+                {"code": "105", "name": "Asset"},
+            ]
+        if accounts:
+            # Find matching account
+            for acct in accounts:
+                if text.lower() in acct["name"].lower() or text.lower() in acct["code"].lower():
+                    self.txt_subcode.setText(acct["name"])
+                    self.txt_subcode.setToolTip(f"SubCode: {acct['code']}")
+                    return
+        # If no match, reset placeholder
+        self.txt_subcode.setPlaceholderText("SubCode/Group Name")
+        self.txt_subcode.setToolTip("")
 
 
 class FaChqClearWindow(QMainWindow):

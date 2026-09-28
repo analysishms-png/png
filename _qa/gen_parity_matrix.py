@@ -158,6 +158,26 @@ DOCUMENTED_EQUIV = {
     "CsehDemoForm": ("VB6 demo/scratch form (sirf self-refs + "
                      "CSEH_DEMO_SETUP.md docs; koi menu leaf, koi DB "
                      "table nahi)"),
+    # ── UI-ONLY batch ports (ui/utility_forms_ui.py) ──
+    "FrmCalender": ("Ported: CalendarDialog (ui/utility_forms_ui.py); "
+                    "VB6 Form_Load pe Calendar1=Date — pure UI picker"),
+    "FrmImage": ("Ported: ImagePreviewDialog (utility_forms_ui) — VB6 "
+                 "ImagePath prop se Image1.Picture (FaTaxVoucher/pPBill "
+                 "bill preview)"),
+    "frmmessageKey": ("Ported: KeyMessageDialog (utility_forms_ui) — "
+                      "borderless popup; TextBox.Tag retention-amount "
+                      "flow (fdPostChrg)"),
+    "repTouchDate": ("Ported: SelectReportDateDialog (utility_forms_ui) — "
+                     "FRow/PDate/TxtDate props; rFomRepView/rPOSRepView "
+                     "grid date picker"),
+    "RsTouchScreenKeyBoard": ("Ported: TouchKeyboardDialog "
+                              "(utility_forms_ui) — TxtKeyBoard -> "
+                              "ParentForm; NC KOT reason max 150"),
+    "LockForm": ("Ported: NightAuditLockOverlay (utility_forms_ui) — "
+                 "topmost 'Please Wait Night Audit Is in Progress . . .'"
+                 " + keyboard-lock (SystemParametersInfo &H61)"),
+    "frmMessage": ("Ported as QMessageBox-equivalent; VB6 runtime popup "
+                   "(no launcher outside self; 'Object:' marker only)"),
 }
 CAPTION_ALIASES = {
     "rstouchscreenfafind": "FA Find",

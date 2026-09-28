@@ -448,6 +448,199 @@ def post_pos_revenue_for_date(vdate, vprefix: str = VYEAR,
 
 
 # ============================================================
+# A/C Posting driver (VB6 fdNDAcPostChrg "Posting Utility")
+# ============================================================
+
+def _pos_revenue_range(date_from, date_to, cn=None) -> list[dict]:
+    """VB6 Proc_96_16 (summary) source: SunTran grouped over a date range.
+
+    get_pos_revenue ka range version - ek row per RestCode+RevCode poore
+    window ke liye (aggregated), vs daily ke per-date rows.
+    """
+    rows = db.query(
+        "SELECT SUM(SunTran.Amount) AS RevAmt, SunTran.RevCode, SunTran.RestCode, "
+        "MAX(Depart.Name) AS Outlet, MAX(Depart.ShortName) AS DShortName, "
+        "MAX(RevMast.Name) AS RevenueName, MAX(SunTran.SunCode) AS SundryCode "
+        "FROM SunTran LEFT JOIN RevMast ON SunTran.RevCode = RevMast.Code "
+        "LEFT JOIN Depart ON SunTran.RestCode = Depart.Code "
+        "WHERE SunTran.Vdate BETWEEN ? AND ? AND SunTran.RevCode IS NOT NULL "
+        "AND SunTran.RevCode <> '' AND SunTran.SunCode <> 'SNET' "
+        "AND SunTran.LogSite_Code = ? "
+        "AND Depart.RestType IN ('Outlet', 'Room Service') "
+        "AND SunTran.DelFlag <> 'D' "
+        "GROUP BY SunTran.RestCode, SunTran.RevCode "
+        "ORDER BY SunTran.RestCode",
+        (date_from, date_to, SITE_CODE), cn=cn)
+    out = []
+    for r in rows:
+        amt = float(r[0] or 0)
+        if amt != 0:
+            out.append({
+                "revcode": r[1] or "", "restcode": r[2] or "",
+                "vdate": date_to, "outlet": (r[3] or "").strip(),
+                "dshortname": (r[4] or "").strip(),
+                "revname": (r[5] or "").strip(),
+                "sundrycode": r[6] or "", "amount": amt,
+            })
+    return out
+
+
+def _post_pos_revenue_range(date_from, date_to, vprefix: str = VYEAR,
+                            user: str = USER, cn=None,
+                            commit: bool = True) -> dict:
+    """Summary PPOS insert (VB6 Proc_96_16): poore range ka grouped amount
+    ek Vdate (= date_to) par; pehle se posted combo skip."""
+    revenues = _pos_revenue_range(date_from, date_to, cn=cn)
+    if not revenues:
+        return {"posted": 0, "skipped": 0}
+    vno = _next_vno(VTYPE_PPOS, vprefix, cn=cn)
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        posted = skipped = 0
+        for rev in revenues:
+            existing = db.query(
+                "SELECT 1 FROM PayCharge WHERE Vtype = ? AND Vdate = ? "
+                "AND RestCode = ? AND RevCode = ? AND Site_Code = ? "
+                "AND VPrefix = ?",
+                (VTYPE_PPOS, date_to, rev["restcode"], rev["revcode"],
+                 SITE_CODE, vprefix), cn=cn)
+            if existing:
+                skipped += 1
+                continue
+            docid = _make_ppos_docid(vprefix, vno)
+            db.execute(
+                "INSERT INTO PayCharge (DocId, SNo, Vtype, VNo, Site_Code, "
+                "VPrefix, Vdate, GuestProf, Comments, PayCode, FolioNo, "
+                "RoomNo, AmtDr, U_Name, U_EntDt, U_AE, LogSite_Code) "
+                "VALUES (?, ?, 'PPOS', ?, ?, ?, ?, '', '', ?, 0, '', ?, ?, "
+                "getdate(), 'A', ?)",
+                (docid, 1, vno, SITE_CODE, vprefix, date_to, rev["revcode"],
+                 rev["amount"], user, SITE_CODE),
+                cn=cn, commit=False)
+            posted += 1
+            vno += 1
+        if commit:
+            cn.commit()
+        return {"posted": posted, "skipped": skipped}
+    finally:
+        if own:
+            cn.close()
+
+
+def account_posting(date_from, date_to=None, mode: str | None = None,
+                    user: str = USER, cn=None, commit: bool = True,
+                    vprefix: str = VYEAR, progress=None) -> dict:
+    """A/C Posting driver (VB6 fdNDAcPostChrg.TopCtrl1_UnknownEvent_16).
+
+    VB6: Enviro.Postingtype = 'Daily Bill wise Posting' -> har date ke liye
+    Proc_96_14 (room charges + POS revenue) with progress bar; warna ek baar
+    Proc_96_16 (aggregated POS summary over the range).
+    Python mapping:
+      daily   -> per date: post_room_charges_for_date +
+                 post_pos_revenue_for_date (grouped by RevCode/RestCode)
+      summary -> per date room charges (folio-wise, kabhi per-date hi hai) +
+                 ek hi grouped SunTran insert (_post_pos_revenue_range)
+                 Vdate = date_to par.
+    progress: optional callable(done, total, date) - VB6 lblDisplay
+    ("A/C Posting For Date <d>") jaisa UI feedback.
+    Returns: {mode, dates, room_posted, room_skipped, pos_posted,
+              pos_skipped, errors}
+    """
+    if date_to is None:
+        date_to = date_from
+    d1, d2 = date_from, date_to
+    if d1 > d2:
+        raise ValueError("Please check Posting Dates (From > To)")
+    if mode is None:
+        try:
+            mode = get_night_audit_flags(cn=cn).get("posting_type") or ""
+        except Exception:
+            mode = ""
+    daily = str(mode).strip().lower() == "daily bill wise posting"
+    n = (d2 - d1).days + 1
+    res = {"mode": mode or ("Daily Bill wise Posting" if daily else "Summary"),
+           "dates": n, "room_posted": 0, "room_skipped": 0,
+           "pos_posted": 0, "pos_skipped": 0, "errors": []}
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        for i in range(n):
+            d = d1 + datetime.timedelta(days=i)
+            if progress:
+                progress(i + 1, n, d)
+            r = post_room_charges_for_date(d, vprefix, user=user, cn=cn,
+                                           commit=False)
+            res["room_posted"] += int(r.get("posted") or 0)
+            res["room_skipped"] += int(r.get("skipped") or 0)
+            res["errors"].extend(r.get("errors") or [])
+            p = (post_pos_revenue_for_date(d, vprefix, user=user, cn=cn,
+                                           commit=False) if daily
+                 else {"posted": 0, "skipped": 0})
+            res["pos_posted"] += int(p.get("posted") or 0)
+            res["pos_skipped"] += int(p.get("skipped") or 0)
+        if not daily:
+            p = _post_pos_revenue_range(d1, d2, vprefix, user=user, cn=cn,
+                                        commit=False)
+            res["pos_posted"] += int(p.get("posted") or 0)
+            res["pos_skipped"] += int(p.get("skipped") or 0)
+        if commit:
+            cn.commit()
+        return res
+    except Exception:
+        if own:
+            try:
+                cn.rollback()
+            except Exception:
+                pass
+        raise
+    finally:
+        if own:
+            cn.close()
+
+
+def rename_bill_no(old_bill: str, new_bill: str, cn=None,
+                   commit: bool = True) -> int:
+    """VB6 fdNDAcPostChrg Cmd index 3:
+    Update PayCharge Set bill_no='<new>' where bill_no='<old>'.
+    Returns rows updated."""
+    old = str(old_bill or "").strip()
+    new = str(new_bill or "").strip()
+    if not old or not new:
+        raise ValueError("Old aur New Bill No dono zaroori hain")
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        # PayCharge.Bill_No varchar(8) hai -> over-length VB6 me bhi
+        # 8152 truncation deta; pehle hi saaf error do.
+        rows = db.query(
+            "SELECT CHARACTER_MAXIMUM_LENGTH FROM INFORMATION_SCHEMA.COLUMNS "
+            "WHERE TABLE_NAME = 'PayCharge' AND COLUMN_NAME = 'Bill_No'",
+            cn=cn)
+        maxlen = int(rows[0][0]) if rows and rows[0][0] else None
+        if maxlen and len(new) > maxlen:
+            raise ValueError(f"New Bill No {maxlen} character se chhota "
+                             "hona chahiye")
+        cur = cn.cursor()
+        cur.execute("UPDATE PayCharge SET bill_no = ? WHERE bill_no = ?",
+                    (new, old))
+        n = cur.rowcount if cur.rowcount and cur.rowcount > 0 else 0
+        if commit:
+            cn.commit()
+        return n
+    except Exception:
+        if own:
+            try:
+                cn.rollback()
+            except Exception:
+                pass
+        raise
+    finally:
+        if own:
+            cn.close()
+
+
+# ============================================================
 # Main Night Audit Process
 # ============================================================
 

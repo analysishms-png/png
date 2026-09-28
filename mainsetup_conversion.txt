@@ -1,0 +1,404 @@
+======================================================================
+VB6 MAINSETUP → PYTHON PORT CONVERSION REPORT
+======================================================================
+
+COVERAGE SUMMARY
+----------------------------------------------------------------------
+Total VB6 mainsetup items: 132
+  FULL (Python implemented): 67 (50.8%)
+  PARTIAL (Python exists but incomplete): 55
+  MISSING (No Python equivalent): 3
+  COMING_SOON (Documented skip): 7
+
+DETAILED STATUS BY ITEM
+----------------------------------------------------------------------
+  Account Merging: PARTIAL
+  Backup Data: PARTIAL
+  Banquet Bill Sundry Setting: PARTIAL
+  Business Source: FULL
+  Call Code: FULL
+  Call Codes Master: PARTIAL
+  Call Control Master: PARTIAL
+  Call Type Master: FULL
+  Catalog Master: FULL
+  Category Master: FULL
+  Category wise Facility: PARTIAL
+  Category wise Revenue: PARTIAL
+  Charge Master: FULL
+  City Master: FULL
+  Com Port Properties: PARTIAL
+  Combo Pack: FULL
+  Company Master: FULL
+  Consumption Master: PARTIAL
+  Corporate Member Master: PARTIAL
+  Country Master: FULL
+  Current Balance Updation: PARTIAL
+  Customer History: PARTIAL
+  Data Recieving: PARTIAL
+  Data Transfer: PARTIAL
+  Data Transfer (POS): PARTIAL
+  Delete Message: PARTIAL
+  Delivery Boy: FULL
+  Department: FULL
+  Designation Master: FULL
+  Employee Master: FULL
+  Enviro Inventry: PARTIAL
+  Environment Settings: FULL
+  Events: FULL
+  Extension: FULL
+  Extension Master: FULL
+  FA Environment: FULL
+  Facility Master: FULL
+  Fixed Charge: FULL
+  Forex Master: FULL
+  Group Accounts: FULL
+  Group Profile: FULL
+  Guest BirthDates/Anniversary: PARTIAL
+  Guest History: PARTIAL
+  Guest LookUp: COMING_SOON
+  Guest Parameters Setting: COMING_SOON
+  Guest Status: FULL
+  Happy Hours: PARTIAL
+  Happy Hours [ Free Items ]: PARTIAL
+  Holiday Master: FULL
+  Inconsistency Check: PARTIAL
+  Item Category: PARTIAL
+  Item Entry: FULL
+  Item Group: FULL
+  Item List: FULL
+  Ledger Accounts: FULL
+  Location Master: PARTIAL
+  Market Segment: FULL
+  Member Age Wise Revenue: MISSING
+  Member Bill Sundry Setting: MISSING
+  Member Master: FULL
+  Member Select Category: MISSING
+  Menu Category: FULL
+  Menu Group: FULL
+  Menu Item: PARTIAL
+  Menu Item Copy: PARTIAL
+  Menu Item Rate: FULL
+  NC Type: FULL
+  Narration Master: PARTIAL
+  Open Item Consumption: COMING_SOON
+  Opening Balance Updation: PARTIAL
+  Opening Stock: PARTIAL
+  Outlet Bill Sundry Setting: PARTIAL
+  PLU File (W.Scale): COMING_SOON
+  POS Bill Deletion: PARTIAL
+  POS Recycle: PARTIAL
+  Package Master: FULL
+  Parameter: PARTIAL
+  Party Master: PARTIAL
+  Payment Type: FULL
+  Permissions: COMING_SOON
+  Plan Master: FULL
+  Printing Parameters: PARTIAL
+  Printing Setup: PARTIAL
+  Purchase Sundry Setting: PARTIAL
+  Rate Group Master: PARTIAL
+  Revenue Group Setting: PARTIAL
+  Revenue Master: FULL
+  Revenue Wise Budget Entry: PARTIAL
+  Room Category: FULL
+  Room Display: COMING_SOON
+  Room Features: FULL
+  Room Master: FULL
+  Sale MIS Customized: PARTIAL
+  Scheme Master: FULL
+  Season Master: FULL
+  Server Master: FULL
+  Session Master: FULL
+  Setup Outlet: FULL
+  Shift Master: FULL
+  State Master: FULL
+  Sundry Master: COMING_SOON
+  T.D.S. Category: PARTIAL
+  Table Master: PARTIAL
+  Task Scheduler: PARTIAL
+  Tax Master: FULL
+  Tax Structure: PARTIAL
+  Unit Master: PARTIAL
+  Update Database Nulls: PARTIAL
+  User Master: PARTIAL
+  User Permissions (Advanced): PARTIAL
+  Venue Features: FULL
+  Venue Master: FULL
+  Voucher Environment: FULL
+  Voucher Serialisation: PARTIAL
+  Voucher Wise Sundry Entry: PARTIAL
+  Year End Updation: PARTIAL
+
+GROUP-WISE BREAKDOWN
+----------------------------------------------------------------------
+
+Group: Front Office
+  Total VB6 items: 19
+  FULL: 17
+  PARTIAL: 1
+  MISSING: 0
+  Coming Soon: 1
+    - Country Master: FULL
+    - State Master: FULL
+    - City Master: FULL
+    - Market Segment: FULL
+    - Business Source: FULL
+    - Guest Status: FULL
+    - Charge Master: FULL
+    - Fixed Charge: FULL
+    - Package Master: FULL
+    - Plan Master: FULL
+    - Season Master: FULL
+    - Room Features: FULL
+    - Room Category: FULL
+    - Room Master: FULL
+    - Company Master: FULL
+    - Forex Master: FULL
+    - Guest History: PARTIAL
+    - Group Profile: FULL
+    - Room Display: COMING_SOON
+
+Group: General Setup
+  Total VB6 items: 8
+  FULL: 2
+  PARTIAL: 6
+  MISSING: 0
+  Coming Soon: 0
+    - Tax Master: FULL
+    - Tax Structure: PARTIAL
+    - Payment Type: FULL
+    - Parameter: PARTIAL
+    - Revenue Group Setting: PARTIAL
+    - Printing Parameters: PARTIAL
+    - Printing Setup: PARTIAL
+    - Revenue Wise Budget Entry: PARTIAL
+
+Group: Point of Sale
+  Total VB6 items: 19
+  FULL: 11
+  PARTIAL: 7
+  MISSING: 0
+  Coming Soon: 1
+    - Setup Outlet: FULL
+    - Outlet Bill Sundry Setting: PARTIAL
+    - Server Master: FULL
+    - Table Master: PARTIAL
+    - Item List: FULL
+    - Menu Group: FULL
+    - Menu Category: FULL
+    - Menu Item: PARTIAL
+    - Menu Item Rate: FULL
+    - Rate Group Master: PARTIAL
+    - Session Master: FULL
+    - Open Item Consumption: COMING_SOON
+    - Scheme Master: FULL
+    - Happy Hours: PARTIAL
+    - Happy Hours [ Free Items ]: PARTIAL
+    - Combo Pack: FULL
+    - NC Type: FULL
+    - Customer History: PARTIAL
+    - Delivery Boy: FULL
+
+Group: Members Mgmt
+  Total VB6 items: 11
+  FULL: 5
+  PARTIAL: 3
+  MISSING: 3
+  Coming Soon: 0
+    - Category Master: FULL
+    - Member Master: FULL
+    - Corporate Member Master: PARTIAL
+    - Revenue Master: FULL
+    - Facility Master: FULL
+    - Category wise Revenue: PARTIAL
+    - Category wise Facility: PARTIAL
+    - Member Bill Sundry Setting: MISSING
+    - Environment Settings: FULL
+    - Member Age Wise Revenue: MISSING
+    - Member Select Category: MISSING
+
+Group: Banquet
+  Total VB6 items: 8
+  FULL: 6
+  PARTIAL: 2
+  MISSING: 0
+  Coming Soon: 0
+    - Events: FULL
+    - Venue Features: FULL
+    - Venue Master: FULL
+    - Menu Category: FULL
+    - Item Group: FULL
+    - Menu Item: PARTIAL
+    - Catalog Master: FULL
+    - Banquet Bill Sundry Setting: PARTIAL
+
+Group: Inventory
+  Total VB6 items: 12
+  FULL: 5
+  PARTIAL: 7
+  MISSING: 0
+  Coming Soon: 0
+    - Party Master: PARTIAL
+    - Department: FULL
+    - Item Group: FULL
+    - Item Category: PARTIAL
+    - Item Entry: FULL
+    - Consumption Master: PARTIAL
+    - Purchase Sundry Setting: PARTIAL
+    - Location Master: PARTIAL
+    - Opening Stock: PARTIAL
+    - Item List: FULL
+    - Shift Master: FULL
+    - Enviro Inventry: PARTIAL
+
+Group: HR/Payroll
+  Total VB6 items: 4
+  FULL: 4
+  PARTIAL: 0
+  MISSING: 0
+  Coming Soon: 0
+    - Designation Master: FULL
+    - Category Master: FULL
+    - Holiday Master: FULL
+    - Employee Master: FULL
+
+Group: EPABX
+  Total VB6 items: 7
+  FULL: 4
+  PARTIAL: 3
+  MISSING: 0
+  Coming Soon: 0
+    - Com Port Properties: PARTIAL
+    - Call Type Master: FULL
+    - Extension Master: FULL
+    - Call Codes Master: PARTIAL
+    - Call Control Master: PARTIAL
+    - Call Code: FULL
+    - Extension: FULL
+
+Group: Finance
+  Total VB6 items: 15
+  FULL: 7
+  PARTIAL: 8
+  MISSING: 0
+  Coming Soon: 0
+    - Group Accounts: FULL
+    - Ledger Accounts: FULL
+    - Narration Master: PARTIAL
+    - T.D.S. Category: PARTIAL
+    - FA Environment: FULL
+    - Voucher Environment: FULL
+    - Opening Balance Updation: PARTIAL
+    - Year End Updation: PARTIAL
+    - Current Balance Updation: PARTIAL
+    - Country Master: FULL
+    - State Master: FULL
+    - City Master: FULL
+    - Delete Message: PARTIAL
+    - Account Merging: PARTIAL
+    - Voucher Serialisation: PARTIAL
+
+Group: Utility
+  Total VB6 items: 29
+  FULL: 6
+  PARTIAL: 18
+  MISSING: 0
+  Coming Soon: 5
+    - User Master: PARTIAL
+    - Permissions: COMING_SOON
+    - Update Database Nulls: PARTIAL
+    - Backup Data: PARTIAL
+    - Account Merging: PARTIAL
+    - Guest Parameters Setting: COMING_SOON
+    - Sundry Master: COMING_SOON
+    - Voucher Wise Sundry Entry: PARTIAL
+    - Sale MIS Customized: PARTIAL
+    - Guest BirthDates/Anniversary: PARTIAL
+    - Inconsistency Check: PARTIAL
+    - Year End Updation: PARTIAL
+    - Data Transfer: PARTIAL
+    - Data Recieving: PARTIAL
+    - Menu Item Copy: PARTIAL
+    - POS Bill Deletion: PARTIAL
+    - Guest LookUp: COMING_SOON
+    - Country Master: FULL
+    - State Master: FULL
+    - City Master: FULL
+    - Company Master: FULL
+    - Department: FULL
+    - Ledger Accounts: FULL
+    - Data Transfer (POS): PARTIAL
+    - PLU File (W.Scale): COMING_SOON
+    - User Permissions (Advanced): PARTIAL
+    - POS Recycle: PARTIAL
+    - Unit Master: PARTIAL
+    - Task Scheduler: PARTIAL
+
+PYTHON IMPLEMENTATION MAP (VB6 → Python path)
+----------------------------------------------------------------------
+  Business Source                → HMS_py.core.fm.open_businesssource
+  Call Code                      → HMS_py.ui.epabx.open_callcode
+  Call Type Master               → HMS_py.ui.epabx.open_calltype
+  Catalog Master                 → HMS_py.ui.bm.open_catalog
+  Category Master                → HMS_py.ui.hr.open_empcat
+  Charge Master                  → HMS_py.ui.p2_masters.open_fixcharge
+  City Master                    → HMS_py.ui.p2_masters.open_city
+  Combo Pack                     → HMS_py.ui.pm.open_combo
+  Company Master                 → HMS_py.ui.p2_masters.open_companymaster
+  Country Master                 → HMS_py.ui.p2_masters.open_country
+  Delivery Boy                   → HMS_py.ui.pm.open_delboy
+  Department                     → HMS_py.ui.gs.open_depart
+  Designation Master             → HMS_py.ui.hr.open_desig
+  Employee Master                → HMS_py.ui.hr.open_employee
+  Environment Settings           → HMS_py.ui.gs.open_guestparam
+  Events                         → HMS_py.ui.bm.open_func_type
+  Extension                      → HMS_py.ui.epabx.open_extension
+  Extension Master               → HMS_py.ui.epabx.open_extension
+  FA Environment                 → HMS_py.ui.fa_envui.open_fa_environment
+  Facility Master                → HMS_py.ui.hr.open_facility
+  Fixed Charge                   → HMS_py.ui.p2_masters.open_fixcharge
+  Forex Master                   → HMS_py.core.fm.open_forexmaster
+  Group Accounts                 → HMS_py.ui.p2_masters.open_acgroup
+  Group Profile                  → HMS_py.ui.bm.open_groupprof
+  Guest Status                   → HMS_py.core.fm.open_gueststatus
+  Holiday Master                 → HMS_py.ui.hr.open_holiday
+  Item Entry                     → HMS_py.ui._inv.open_indent_ui
+  Item Group                     → HMS_py.ui.p2_masters.open_acgroup
+  Item List                      → HMS_py.ui._inv.open_inv
+  Ledger Accounts                → HMS_py.core.fm.open_ledger
+  Market Segment                 → HMS_py.core.fm.open_marketsegment
+  Member Master                  → HMS_py.ui.hr.open_employee
+  Menu Category                  → HMS_py.ui.pm.open_itemcat
+  Menu Group                     → HMS_py.ui.pm.open_itemcat
+  Menu Item Rate                 → HMS_py.ui.item_rate_ui.open_item_rate
+  NC Type                        → HMS_py.ui.pm.open_nctype
+  Package Master                 → HMS_py.ui.p2_masters.open_packagemaster
+  Parameter                      → HMS_py.ui.gs.open_enviro
+  Payment Type                   → HMS_py.core.fm.open_paymenttype
+  Plan Master                    → HMS_py.ui.p2_masters.open_planmaster
+  Revenue Master                 → HMS_py.ui.hr.open_memrev
+  Room Category                  → HMS_py.ui.p2_masters.open_roomcategory
+  Room Features                  → HMS_py.ui.gs.open_roomfeature
+  Room Master                    → HMS_py.ui.p2_masters.open_roommaster
+  Scheme Master                  → HMS_py.ui.pm.open_scheme
+  Season Master                  → HMS_py.ui.p2_masters.open_seasonmaster
+  Server Master                  → HMS_py.ui.pm.open_waiter
+  Session Master                 → HMS_py.ui.pm.open_session
+  Setup Outlet                   → HMS_py.ui.gs.open_depart
+  Shift Master                   → HMS_py.ui.pm.open_shift
+  State Master                   → HMS_py.ui.p2_masters.open_state
+  Tax Master                     → HMS_py.core.fm.open_taxmaster
+  Tax Structure                  → HMS_py.ui.tsu.open_taxstru
+  Venue Features                 → HMS_py.ui.bm.open_venfeature
+  Venue Master                   → HMS_py.ui.bm.open_venue
+  Voucher Environment            → HMS_py.ui.gs.open_vouchertype
+
+MISSING ITEMS (no Python equivalent)
+----------------------------------------------------------------------
+  - Member Age Wise Revenue
+  - Member Bill Sundry Setting
+  - Member Select Category
+
+======================================================================
+END OF REPORT
+======================================================================

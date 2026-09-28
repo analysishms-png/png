@@ -1,0 +1,366 @@
+VB6 to Python UI Fix Plan: Priority & Code Examples
+================================================================
+
+Based on VB6_PYTHON_UI_BUGS.txt analysis
+Generated: 2026-09-27
+
+==============================================================================
+PRIORITY 1: CRITICAL - Fix Financial Validation Bugs
+==============================================================================
+
+FIX #1: TXTADJ_AMT Numeric Validation (from VB6 TXTADJ_AMT_Validate)
+
+VB6 Logic (FaAdjust.frm lines 1060-1135):
+- Validates amount against pending adjustment amount (global_60)
+- Checks: CDbl(Val(CStr(Me.FgridAdjust.TextMatrix))) < CDbl(Val(var_158))
+- Shows: "Amount is Greater Then Pending Adj.Amt. You Can Adjust Only X"
+- Uses global_56 for adjustment tracking
+- KeyPress event restricts to numeric input only
+
+Python Fix (fa_sub_forms_ui.py FaAdjustWindow._save method):
+
+```python
+def _save(self):
+    try:
+        # NEW: Numeric validation like VB6
+        amt_text = self.txt_amt.text().strip()
+        if not amt_text:
+            QMessageBox.warning(self, "Input", "Amount zaroori hai")
+            return
+        
+        # Only allow numeric input (like VB6 KeyPress)
+        try:
+            amt = float(amt_text)
+        except ValueError:
+            QMessageBox.warning(self, "Input", "Sirf numeric values allowed")
+            self.txt_amt.setFocus()
+            return
+        
+        # Check against pending amount (equivalent of global_60)
+        # In Python, we need to track this from the table data
+        # equivalent of: CDbl(Val(CStr(Me.FgridAdjust.TextMatrix)))
+        pending_amt = 0.0  # TODO: Get from equivalent of FgridAdjust row data
+        
+        if amt > pending_amt:
+            # Show VB6-equivalent message
+            msg = (f"Amount is Greater Then Pending Adj.Amt. "
+                   f"You Can Adjust Only {pending_amt:.2f}")
+            QMessageBox.warning(self, "Adjustment", msg)
+            return
+        
+        # Proceed with save
+        falo.ledgeradj_insert({
+            "docid1": self.txt_docid1.text().strip(),
+            "v_sno1": int(self.txt_sno1.text() or 0),
+            "docid2": self.txt_docid2.text().strip(),
+            "v_sno2": int(self.txt_sno2.text() or 0),
+            "cr": amt,
+            "subcode": self.txt_subcode.text().strip(),
+            "agrefno": self.txt_agref.text().strip(),
+        })
+        QMessageBox.information(self, "Saved", "Adjustment saved!")
+        self._load_data()
+    except Exception as e:
+        QMessageBox.critical(self, "Error", str(e))
+```
+
+==============================================================================
+PRIORITY 2: HIGH - Fix DataCombo Dropdown Loss
+==============================================================================
+
+FIX #2: Replace QLineEdit Placeholder with QComboBox + QCompleter
+
+VB6 Behavior:
+- DataCombo TXT_ACCOUNT shows selected account name
+- Dropdown with search/filter from ACGROUP table
+- BoundText shows name, BoundIndex shows code
+- TXT_Group_UnknownEvent populates account dropdown
+
+Python Fix (fa_sub_forms_ui.py - add to FaAdjustWindow._build_ui):
+
+```python
+# Replace the subcode QLineEdit with QComboBox search
+from PyQt6.QtWidgets import QCompleter
+from PyQt6.QtCore import QStringListModel
+
+# In _build_ui method, replace:
+# self.txt_subcode = QLineEdit(); self.txt_subcode.setPlaceholderText("SubCode")
+# with:
+
+# Load account names from core (equivalent of Proc_183_43_EF7D54)
+from HMS_py.core import fa_ledger_ops as falo
+accounts = falo.get_acgroup_list()  # Must create this function
+
+self.txt_subcode = QLineEdit()
+self.txt_subcode.setPlaceholderText("SubCode/Group Name")
+
+# Create completer for dropdown search
+model = QStringListModel()
+names = [r["name"] for r in accounts] if accounts else []
+model.setStringList(names)
+completer = QCompleter(model)
+completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+self.txt_subcode.setCompleter(completer)
+
+# When text changes, populate equivalent of BoundText
+self.txt_subcode.textChanged.connect(self._on_subcode_change)
+
+def _on_subcode_change(self):
+    text = self.txt_subcode.text().strip()
+    # Search logic equivalent of VB6 Proc_183_43_EF7D54
+    # Find matching ACGROUP entry and set appropriate data
+    for acct in accounts:
+        if text.lower() in acct["name"].lower() or text.lower() in acct["code"].lower():
+            self.txt_subcode.setText(acct["name"])
+            self.txt_subcode.setToolTip(f"SubCode: {acct['code']}")
+            return
+    # If no match, clear and show placeholder
+    self.txt_subcode.setPlaceholderText("SubCode/Group Name")
+    self.txt_subcode.setToolTip("")
+```
+
+==============================================================================
+PRIORITY 3: HIGH - Fix Table Mismatch (ACGROUP vs SubGroup)
+==============================================================================
+
+FIX #3: Correct Table Usage in Adjustment Delete Window
+
+VB6 Uses: ACGROUP table (from FaAdjust.frm BtnAdd UnknownEvent)
+Python Uses: SubGroup table (from AdjustmentDeleteWindow._load_accounts)
+
+The bug: `_load_accounts` queries `SubGroup` but VB6 uses `ACGROUP`
+
+Python Fix (partial_forms_ui.py - AdjustmentDeleteWindow._load_accounts):
+
+```python
+def _load_accounts(self):
+    try:
+        from HMS_py.core import db
+        # FIX: Use ACGROUP table like VB6, not SubGroup
+        rows = db.query(
+            "SELECT GroupCode, GroupName FROM ACGROUP "
+            "WHERE LOGSITE_CODE='" + MemVar_1F92078 + "' OR LOGSITE_CODE='HO' "
+            "ORDER BY GroupName")
+        for r in rows:
+            self.cmb_acct.addItem((r[1] or "").strip(), r[0])
+    except Exception as e:
+        self.statusBar().showMessage(f"Account load error: {e}")
+```
+
+==============================================================================
+PRIORITY 4: MEDIUM - Fix Error Handling Pattern
+==============================================================================
+
+FIX #4: Port VB6 On Error Goto Pattern to Python
+
+VB6 Pattern (FaAdjust.frm Form_Load):
+- On Error Goto loc_1328954
+- Error restoration with RollbackTrans
+- Global error handler: Proc_183_57_104AA84
+- Specific error numbers for different paths
+
+Python Fix - Create error_handler.py module:
+
+```python
+# HMS_py/core/error_handler.py
+
+import traceback
+from PyQt6.QtWidgets import QMessageBox
+
+class ErrorHandler:
+    """Port of VB6 error handling pattern to Python."""
+    
+    def __init__(self, parent=None):
+        self.parent = parent
+        self.error_count = 0
+        self.last_error = None
+    
+    def handle(self, error_obj, context="", rollback=False):
+        """Handle error like VB6 On Error Goto."""
+        self.error_count += 1
+        self.last_error = error_obj
+        
+        # Format error message like VB6
+        err_msg = f"Error {self.error_count}: {context}"
+        if hasattr(error_obj, '__str__'):
+            err_msg += f" - {str(error_obj)}"
+        
+        # Show message like VB6 MsgBox
+        QMessageBox.critical(self.parent or "", "Error", err_msg)
+        
+        # Log traceback like VB6 error handler
+        log = traceback.format_exc()
+        # Write to log file or monitoring system
+        
+        # Rollback if needed (equivalent of RollbackTrans)
+        if rollback:
+            # Call equivalent of unk_4D7B20.RollbackTrans
+            pass
+        
+        # Call error handler equivalent of Proc_183_57_104AA84
+        self._log_error(log)
+        
+        return False
+    
+    def _log_error(self, log_text):
+        """Log error like VB6 Proc_183_57_104AA84."""
+        # Implementation depends on logging setup
+        pass
+```
+
+Usage in UI code:
+```python
+from HMS_py.core.error_handler import ErrorHandler
+
+# In _save method:
+try:
+    falo.ledgeradj_insert({...})
+except Exception as e:
+    eh = ErrorHandler(self)
+    eh.handle(e, "ledgeradj_insert", rollback=True)
+```
+
+==============================================================================
+PRIORITY 5: MEDIUM - Fix Tab Order
+==============================================================================
+
+FIX #5: Explicit Tab Order Matching VB6
+
+VB6 TabIndex properties (FaAdjust.frm lines 11-38):
+- TXT_DATE: TabIndex=0
+- TXT_ACCOUNT: TabIndex not explicit (after DataCombo)
+- Various buttons: TabIndex 8-29
+
+Python Fix - Set tab order explicitly in FaAdjustWindow.__init__:
+
+```python
+def __init__(self, parent=None):
+    super().__init__(parent)
+    self.setWindowTitle("Ledger Adjustment Entry")
+    self.resize(800, 500)
+    self._build_ui()
+    self._load_data()
+    
+    # FIX: Set tab order matching VB6 TabIndex
+    # VB6 order: TXT_DATE(0) -> TXT_ACCOUNT -> TXT_Group -> BTSADJUST(22) -> ADJ_OK(9) -> ADJ_CANCLE(8)
+    # Create logical tab sequence
+    self.setTabOrder(self.txt_date, self.txt_account)
+    self.setTabOrder(self.txt_account, self.txt_group)
+    self.setTabOrder(self.txt_group, self.btn_save)
+    self.setTabOrder(self.btn_save, self.btn_exit)
+    self.setTabOrder(self.btn_exit, self.table)
+```
+
+==============================================================================
+PRIORITY 6: LOW - Form Resize Handling
+==============================================================================
+
+FIX #6: Add Form Resize Event
+
+VB6 Form_Resize (FaAdjust.frm lines 1025-1034):
+- Recalculates LblFormCaption properties
+- Maintains caption width based on form width
+
+Python Fix - Connect to resize event:
+
+```python
+def __init__(self, parent=None):
+    super().__init__(parent)
+    self.setWindowTitle("Ledger Adjustment Entry")
+    self.resize(800, 500)
+    self._build_ui()
+    self._load_data()
+    
+    # FIX: Connect resize event like VB6 Form_Resize
+    self.resizeEvent = self._on_resize
+
+def _on_resize(self, event):
+    """Like VB6 Form_Resize - recalculate caption."""
+    # VB6: Me.LblFormCaption.Left = CDbl(0)
+    # VB6: Me.LblFormCaption.Width = var_90 (form width)
+    # Python equivalent:
+    self central_widget().setMinimumWidth(self.width())
+    self central_widget().setMinimumHeight(self.height() * 0.8)
+    # Re-layout if needed
+    QWidget.resizeEvent(self, event)
+```
+
+==============================================================================
+IMPLEMENTATION ROADMAP
+==============================================================================
+
+| Phase | Focus | Estimated Effort | Target Forms |
+|-------|-------|-----------------|--------------|
+| **P1** | Critical bugs (validation, DataCombo, table) | ~120 hrs | FaAdjust, FaAdjustDel |
+| **P2** | Error handling porting | ~80 hrs | All forms |
+| **P3** | Tab order & resize fixes | ~60 hrs | 30+ forms |
+| **P4** | Partial → Full port decisions | ~100 hrs | 124 partial forms |
+| **P5** | WRONG_TARGET menu re-wires (P9) | ~40 hrs | 10 forms |
+
+Total estimated: ~400 person-hours for UI bug fixes
+
+==============================================================================
+QUICK START CHECKLIST
+==============================================================================
+
+□ 1. Add numeric validation to TXTADJ_AMT (FIX #1)
+□ 2. Replace QLineEdit with QComboBox + QCompleter for accounts (FIX #2)
+□ 3. Fix ACGROUP vs SubGroup table usage (FIX #3)
+□ 4. Create error_handler.py module (FIX #4)
+□ 5. Set explicit tab orders in all forms (FIX #5)
+□ 6. Add resize events to main forms (FIX #6)
+□ 7. Test keyboard navigation (Tab key)
+□ 8. Test financial data entry validation
+□ 9. Verify account selection dropdown works
+□ 10. Document all changes in migration log
+
+==============================================================================
+TEST PLAN
+==============================================================================
+
+Test Case 1: Numeric Validation
+- Enter "abc" in TXTADJ_AMT → Warning "Sirf numeric values allowed"
+- Enter "100.50" → Accepts (if within pending amount)
+- Enter "50" when pending is "30" → Warning about exceeding pending
+
+Test Case 2: Account Selection
+- Type "A" in SubCode field → Dropdown shows accounts starting with "A"
+- Select account → SubCode field fills with correct code
+- Clear field → Placeholder returns
+
+Test Case 3: Tab Order
+- Press Tab → Focus moves: date → account → group → save → exit → table
+- Shift+Tab → Reverse order
+- No skipped fields
+
+Test Case 4: Error Handling
+- Trigger database error → QMessageBox with error details
+- Error logged to file/traceback
+- No crash, form remains accessible
+
+==============================================================================
+FILES TO MODIFY
+==============================================================================
+
+1. HMS_py/ui/fa_sub_forms_ui.py - FaAdjustWindow class
+   - Add numeric validation in _save
+   - Replace QLineEdit with QComboBox + QCompleter
+   - Fix tab order
+   - Add resize event handling
+
+2. HMS_py/ui/partial_forms_ui.py - AdjustmentDeleteWindow class
+   - Fix _load_accounts to use ACGROUP table
+   - Add proper data population
+
+3. HMS_py/core/error_handler.py - NEW FILE
+   - Port VB6 error handling pattern
+   - Centralized error management
+
+4. HMS_py/core/fa_ledger_ops.py - Add missing functions
+   - get_acgroup_list() - equivalent of Proc_183_43_EF7D54
+   - Other Proc_183_* function ports
+
+5. All UI .py files - Consistent changes
+   - Tab order setup in __init__
+   - Resize event connections
+   - Error handling patterns

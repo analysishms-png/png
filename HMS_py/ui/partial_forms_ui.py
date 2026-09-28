@@ -1118,8 +1118,15 @@ class AdjustmentDeleteWindow(QMainWindow):
     def _load_accounts(self):
         try:
             from HMS_py.core import db
+            from HMS_py.core import company
+            site_code = company.get_site_code() or ""
+            # FIX #7: Use ACGROUP table like VB6 FaAdjust (not SubGroup)
+            # VB6: WHERE L.LOGSITE_CODE='" & MemVar_1F92078 & "' 
+            #      OR LOGSITE_CODE='HO'
             rows = db.query(
-                "SELECT SubCode, Name FROM SubGroup ORDER BY Name")
+                "SELECT GroupCode, GroupName FROM ACGROUP "
+                "WHERE LOGSITE_CODE='" + site_code + "' OR LOGSITE_CODE='HO' "
+                "ORDER BY GroupName")
             for r in rows:
                 self.cmb_acct.addItem((r[1] or "").strip(), r[0])
         except Exception as e:

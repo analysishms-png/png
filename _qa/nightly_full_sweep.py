@@ -45,7 +45,10 @@ def run_full_sweep(budget_s: int, fast: bool = False) -> tuple[int, str, list[di
     log_path = os.path.join(LOGDIR, f"nightly_{ts}.log")
 
     env = dict(os.environ, PYTHONUNBUFFERED="1")
-    cmd = [sys.executable, "-u", SWEEP] + (["--fast"] if fast else [])
+    # --subprocess: har caption apne process me -- Qt-offscreen teardown ka
+    # RANDOM segfault (non-deterministic, exit 3221225477) results ko
+    # kharab nahi karega (sweep_one_cap.py os._exit guard use karta hai).
+    cmd = [sys.executable, "-u", SWEEP] +         (["--fast"] if fast else []) + ["--subprocess"]
     t0 = datetime.datetime.now()
     with open(log_path, "w", encoding="utf-8") as log:
         try:

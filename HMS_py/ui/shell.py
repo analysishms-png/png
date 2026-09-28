@@ -553,7 +553,7 @@ class MainSetupWorkbench(QDialog):
                 "Catalog Master", "Group Profile",
                 "NC Type", "Server / Waiter", "Shift Master",
                 "Combo Pack", "Smart Card", "Function Type",
-                 "Call Type", "Call Code", "Extension", "Happy Hours",
+                 "Call Type", "Call Code", "Extension", "Com Port Properties", "Happy Hours",
             ]),
             ("HR & Members", [
                 "Category  Master", "Holiday Master", "Employee Master",
@@ -663,8 +663,9 @@ def _form_registry() -> dict[str, callable]:
         from HMS_py.ui import taxstru_ui as tsu
         from HMS_py.ui import guest_history_ui as ghu
         from HMS_py.ui import epabx_ui as epabx
+        from HMS_py.ui import comport_ui as cport
     except ImportError:
-        pm = bm = hr = gs = tsu = ghu = epabx = None
+        pm = bm = hr = gs = tsu = ghu = epabx = cport = None
     try:
         from HMS_py.ui import pos_na as pna
         _pos = lambda w: pna.open_pos(w)
@@ -940,12 +941,12 @@ def _form_registry() -> dict[str, callable]:
         from HMS_py.ui import kot_entry as kot2
     except ImportError:
         kot2 = None
-    # VB6 MISSING-batch: frmBlockMast + RewardPointParam1 + FAFind +
-    # FrmChangeSite (tables BlockMast/RWParameter LIVE hain)
+    # VB6 UI-ONLY batch: Calender/Image/KeyMassage/repTouchDate/
+    # TouchKeyBoard/LockForm runtime utility popups
     try:
-        from HMS_py.ui import block_master_ui as bmst_ui
+        from HMS_py.ui import utility_forms_ui as util_ui
     except ImportError:
-        bmst_ui = None
+        util_ui = None
 
     def _open_report(cap: str):
         """mdi leaf caption -> reports engine key (exact-match map)."""
@@ -1143,6 +1144,9 @@ def _form_registry() -> dict[str, callable]:
         "Main Setup": _open_main_setup,
         # P4-a Front Office:
         "Guest Profile": lambda w: fo.open_guestprof(w),
+        # VB6: "Customer History" menu leaf opens frmGuestInfo (HMS.bas loc_1E32DAE)
+        # — same guest info form as Guest Profile, alias wire for POSMas leaf.
+        "Customer History": lambda w: fo.open_guestprof(w),
         "Check In": (lambda w: wrui.open_walkin_entry(
             w, user=getattr(w, 'user', 'PYADMIN'))) if wrui else _coming_soon("Check In"),
         "Check-In": lambda w: fo.open_checkin(w, user=w.user),
@@ -1313,6 +1317,9 @@ def _form_registry() -> dict[str, callable]:
         "Extension Master": (lambda w: epabx.open_extension(w)) if epabx else None,
         "Call Type Master": (lambda w: epabx.open_calltype(w)) if epabx else None,
         "Call Codes Master": (lambda w: epabx.open_callcode(w)) if epabx else None,
+        # VB6 TelMaast#1 (user_module_tree.txt:130) — MSComm settings quadruple,
+        # machine-local Analysis.ini persistence (core/comport_config.py)
+        "Com Port Properties": (lambda w: cport.open_com_port_properties(w)) if cport else None,
         "Designation Master": (lambda w: hr.open_desig(w)) if hr else None,
         # Naye modules (Scheme/HappyHours/TDS)
         "Scheme Master": (lambda w: stu.open_scheme(w)) if stu else None,
@@ -1429,7 +1436,12 @@ def _form_registry() -> dict[str, callable]:
         "POS Bill Reprint": (lambda w: psub_ui.open_bill_reprint(w)) if psub_ui else _coming_soon("POS Bill Reprint"),
         "Split Sale Bill": (lambda w: psub_ui.open_split_bill(w)) if psub_ui else _coming_soon("Split Sale Bill"),
         # Truly blocked (no DB tables)
+        # NOTE: "Member Bill Sundry Setting" alag case hai — SundryTypeFix table
+        # live hai, par decompiled VB6 dispatch chain (EXTRAS.text loc_1E397E3-1E398DD)
+        # me is caption ka koi case nahi — menu registration (loc_1EE8F78, kind=2)
+        # ke baad click handler fall-through karta tha. VB6 me bhi inactive.
         **({cap: _coming_soon(cap) for cap in (
+            "Member Bill Sundry Setting",
             "Forex Receive Entry", "Display Rack", "Travel Agency Posting",
             "Reverse Room Merge", "Blank GRC", "Add/Edit/Delete Group With Reservation ",
             "Reservation With History",
@@ -1605,6 +1617,12 @@ def _form_registry() -> dict[str, callable]:
         "FA Find": (lambda w: bmst_ui.open_fa_find(w)) if bmst_ui else _coming_soon("FA Find"),
         # VB6 FrmChangeSite — login site picker
         "Login Site": (lambda w: bmst_ui.open_change_site(w)) if bmst_ui else _coming_soon("Login Site"),
+        # --- VB6 UI-ONLY batch (runtime utility popups) ---
+        "Calender": (lambda w: util_ui.open_calender(w)) if util_ui else _coming_soon("Calender"),
+        "Image": (lambda w: util_ui.open_image_preview(w)) if util_ui else _coming_soon("Image"),
+        "Key Massage": (lambda w: util_ui.open_key_message(w)) if util_ui else _coming_soon("Key Massage"),
+        "Select Report Date": (lambda w: util_ui.open_select_report_date(w)) if util_ui else _coming_soon("Select Report Date"),
+        "Touch Screen KeyBoard": (lambda w: util_ui.open_touch_keyboard(w)) if util_ui else _coming_soon("Touch Screen KeyBoard"),
         # PlanPopup (VB6 me bhi blank-caption popup leaves the — documented skip)
         "": _coming_soon("(Plan Popup)"),
         # Wave 4: Operations UIs (booking, hall, HR, members, services, POS, finance)

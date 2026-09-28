@@ -5,9 +5,9 @@ VB6: *.frm captions + inline-SQL table evidence | Py: shell registry + core/ui s
 
 STATUS SUMMARY
 ------------------------------------------------------------------------------
-  DONE         231
-  PARTIAL      79
-  UI-ONLY      7
+  DONE         240
+  PARTIAL      77
+  UI-ONLY      0
   BLOCKED-TBL  3
   MISSING      0
   TOTAL        320
@@ -66,11 +66,11 @@ STATUS SUMMARY
 | POSBillReprint      | OutLet Bill Reprint        | no        | Y    | -     | Bill, City, DEPART, Depart, ENVIRO (+3 |
 | REPVIEW             | Form1                      | no        | Y    | -     |                                        |
 | rFaRepView          | Financ Report              | no        | Y    | -     | ACGROUP, AcGroup, Budget, City, DAYS ( |
-| rFomRepView         | FomRepView                 | no        | Y    | -     | Arrival, BOM, BOOKING, Bill, BillDet ( |
+| rFomRepView         | FomRepView                 | YES       | Y    | -     | Arrival, BOM, BOOKING, Bill, BillDet ( |
 | rHallRepView        | HallRepView                | no        | Y    | -     | BookingDetail, Depart, FAEnviro, Funct |
 | rInventRepView      | ReportForm                 | no        | Y    | -     | City, Depart, Enviro, FAEnviro, Gin (+ |
 | rMemberRepView      | Member Report              | no        | Y    | -     | City, Country, Depart, FAEnviro, Ledge |
-| rPOSRepView         | Pos Report                 | no        | Y    | -     | AssignDelivery, BOM, DEPART, DeliveryB |
+| rPOSRepView         | Pos Report                 | YES       | Y    | -     | AssignDelivery, BOM, DEPART, DeliveryB |
 | rRepHouse           | ReprtForm                  | no        | Y    | -     | ComplaintCategory, Depart, ItemMast, R |
 | rRepHousePreview    | ReprtForm                  | no        | Y    | -     | ComplaintCategory, Depart, FAEnviro, I |
 | rRepPayRoll         | ReprtForm                  | no        | Y    | -     | Desig, EMPCategory, EmpCategory, Emplo |
@@ -83,7 +83,6 @@ STATUS SUMMARY
 | RsGravyItemEntry    | Gravy Item Entry           | no        | Y    | -     | BOM, Depart, Item, ItemCatMast, ItemGr |
 | RsKitchenMaterial   | Excise Invoice Cum Gate Pa | no        | Y    | -     | Depart, Enviro, GodownMast, ITEMRATE,  |
 | RsPaymentReceice    | Payment Receive Entry (POS | no        | Y    | -     | Depart, Employee, Enviro, GuestFolio,  |
-| RsPOSCustInfo       | Customer Information       | YES       | Y    | -     | City, GuestProf, SmartCardRegistration |
 | RsPOSDisplay        | Display Table              | no        | Y    | -     | Depart, DispColor, Dispcolor, Enviro,  |
 | RsPOSDisplayNew     | Table Status               | no        | Y    | -     | Depart, DispColor, Dispcolor, GuestPro |
 | RSSaleBillDisplay   | Bill Look Up               | no        | Y    | -     | DEPART, Depart, ITEMMAST, ItemCatMast, |
@@ -91,7 +90,6 @@ STATUS SUMMARY
 | RsStoreRecEntry     | Finish Material Receive En | YES       | Y    | -     | Depart, Enviro, GodownMast, ITEMRATE,  |
 | RsTbChange          | Table Transfer             | YES       | Y    | -     | Depart, KOT, Kot, RoomMast, WAITER (+1 |
 | RsTouchDisplayTB    | Display Table              | no        | Y    | -     | Depart, DispColor, Dispcolor, Enviro,  |
-| RsTouchOrderPersonDetails | Customer Information       | YES       | Y    | -     | guestprof                              |
 | rsTouchScreenAdvanceDepDialog | Settlement Entry           | no        | Y    | -     | DepartPay, Employee, Enviro, GuestFoli |
 | SmartCardLostReIssue | Smart Lost/ReIssue Entry   | no        | Y    | -     | MemberFamily, SmartCardMaster, SmartCa |
 | SundryVType         | Voucher Wise Sundry Entry  | no        | Y    | -     | Depart, SundryMast, SundryType, ViewSu |
@@ -106,13 +104,6 @@ STATUS SUMMARY
 
 | VB6 form            | Caption                    | Python UI | Core | Wired | Tables (live) |
 |---------------------|----------------------------|-----------|------|-------|----------------------------------------|
-| FrmCalender         | Calender                   | YES       | -    | -     |                                        |
-| FrmImage            | Image                      | YES       | -    | -     |                                        |
-| frmMessage          | User Information           | YES       | -    | -     |                                        |
-| frmmessageKey       | Key Massage                | YES       | -    | -     |                                        |
-| LockForm            | Form1                      | YES       | -    | -     |                                        |
-| repTouchDate        | Select Report Date         | YES       | -    | -     |                                        |
-| RsTouchScreenKeyBoard | Touch Screen KeyBoard      | YES       | -    | -     |                                        |
 
 
 ==============================================================================
@@ -197,6 +188,8 @@ STATUS SUMMARY
 | frmBlockMast        | Block Master               | YES       | Y    | Y     | BlockMast                              |
 | FrmBookingInquiry   | Booking Inquiry            | YES       | Y    | Y     | Booking, BookingDetail, BookingInquiry |
 | FrmBusinessSrc      | Business Source Master     | YES       | Y    | Y     | BussSource                             |
+| FrmCalender         | Calender                   | YES       | -    | Y     |                                        |
+|                     | note: Ported: CalendarDialog (ui/utility_forms_ui.py); VB6 Form_Load pe Calendar1=Date — pure UI picker |
 | FrmChangeDepart     | Department Change Master   | YES       | Y    | Y     | Depart                                 |
 | FrmChangeSite       | Login Site                 | YES       | -    | Y     |                                        |
 | FrmChargeMast       | Charge Master              | YES       | Y    | Y     | RevMast, SubGroup, Subgroup, TaxStru,  |
@@ -226,6 +219,8 @@ STATUS SUMMARY
 | FrmGuestStat        | Guest Status Master        | YES       | Y    | Y     | GuestStat, gueststat                   |
 | FrmGuestWakeUp      | Register Wake up Calls     | YES       | Y    | Y     | City, EPABX_IN, GuestFolio, GuestStat, |
 | FrmHouGuestMsg      | In House Guest Message     | YES       | Y    | Y     | City, GuestFolio, GuestMessage, GuestS |
+| FrmImage            | Image                      | YES       | -    | Y     |                                        |
+|                     | note: Ported: ImagePreviewDialog (utility_forms_ui) — VB6 ImagePath prop se Image1.Picture (FaTaxVoucher/pPBill bill preview) |
 | FrmItemCatMast      | Category/Charge Master     | YES       | Y    | Y     | Depart, ItemCatMast, PayCharge, RevMas |
 | FrmItemCatRaw       | Category/Charge Master     | YES       | Y    | Y     | Depart, Enviro, ItemCatMast, PayCharge |
 | FrmItemGroupMast    | Item Group Entry           | YES       | Y    | Y     | Depart, ItemGrp, itemgrp               |
@@ -237,6 +232,10 @@ STATUS SUMMARY
 | FrmMenuList         | Main Menu . . .            | no        | -    | -     |                                        |
 |                     | note: Dynamic sidebar (menuHelp tree) — VB6 'Main Menu' ka port |
 | FrmMenuRate         | Item Rate Entry            | YES       | Y    | Y     | Depart, ItemCatMast, ItemGrp, ItemMast |
+| frmMessage          | User Information           | YES       | -    | -     |                                        |
+|                     | note: Ported as QMessageBox-equivalent; VB6 runtime popup (no launcher outside self; 'Object:' marker only) |
+| frmmessageKey       | Key Massage                | YES       | -    | Y     |                                        |
+|                     | note: Ported: KeyMessageDialog (utility_forms_ui) — borderless popup; TextBox.Tag retention-amount flow (fdPostChrg) |
 | FrmMeterReading     | Meter Reading              | YES       | Y    | Y     | FMReading, FMReading1, FacilityMast, L |
 | frmMod_Print        | Printing Setup             | YES       | Y    | Y     | Depart, PRINTERSETUP, PrintMast, Print |
 | frmMod_Print1       | Printing Setup             | YES       | Y    | Y     | Depart, PRINTERSETUP, PrintMast, Print |
@@ -300,6 +299,8 @@ STATUS SUMMARY
 | Inbox               | Inbox                      | YES       | Y    | Y     | Messaging                              |
 | InHouseGuestFolio   | Inhouse Guest Folio        | YES       | Y    | Y     | Booking, City, EPABX_IN, EmailSMSForwa |
 | kClStk              | Kitchen Closing Stock Entr | YES       | Y    | Y     | DateLock, Depart, GODOWNMAST, GodownMa |
+| LockForm            | Form1                      | YES       | -    | -     |                                        |
+|                     | note: Ported: NightAuditLockOverlay (utility_forms_ui) — topmost 'Please Wait Night Audit Is in Progress . . .' + keyboard-lock (SystemParametersInfo &H61) |
 | MemAssistant        | Member Assistant           | YES       | Y    | Y     | AcGroup, CATEGORY, City, Country, Ledg |
 | MemAutoSettleCardBalance | Auto Settle Card Balance   | YES       | Y    | Y     | Depart, MemCatMast, SmartCardRegistrat |
 | MemberEnviro        | Parameter Setting          | YES       | Y    | Y     | MemEnviro                              |
@@ -338,6 +339,8 @@ STATUS SUMMARY
 | PrLoan              | Advance/Loan               | YES       | Y    | Y     | Depart, Desig, EMPLOYEE, Employee, Env |
 | prOverTime          | Over Time                  | YES       | Y    | Y     | Depart, Desig, Employee, OVERTIME, Ove |
 | prSalCreate         | Salary Creation            | YES       | Y    | Y     | Attend, Depart, Desig, EmpCategory, Em |
+| repTouchDate        | Select Report Date         | YES       | -    | Y     |                                        |
+|                     | note: Ported: SelectReportDateDialog (utility_forms_ui) — FRow/PDate/TxtDate props; rFomRepView/rPOSRepView grid date picker |
 | resBanq             | Reservation Look Up Room W | YES       | Y    | Y     | Booking, FAEnviro, GuestFolio, GuestPr |
 | resGroup            | Group Reservation          | YES       | Y    | Y     | Booking, BussSource, CITY, City, Count |
 | resRoomNo           | Reservation Look Up Room W | YES       | Y    | Y     | Booking, FAEnviro, GuestFolio, GuestPr |
@@ -351,14 +354,18 @@ STATUS SUMMARY
 | RsKOTEntry          | KOT                        | YES       | Y    | Y     | DEPART, Depart, Depart1, ENVIRO, Email |
 | RsKOTTransfer       | KOT Transfer               | YES       | Y    | Y     | Depart, GuestProf, KOT, Kot, ROOMOCC ( |
 | RsMenuItemEntry     | Menu Item Entry            | YES       | Y    | Y     | BOM, Depart, Item, ItemCatMast, ItemGr |
+| RsPOSCustInfo       | Customer Information       | YES       | Y    | Y     | City, GuestProf, SmartCardRegistration |
 | RSSaleBill          | Sale Bill Entry            | YES       | Y    | Y     | CashRegData, City, DEPART, Depart, Dep |
 | RSSaleBill1         | Sale Bill Entry            | YES       | Y    | Y     | DEPART, Depart, Enviro, GuestFolio, IT |
 | RsSaleBillSplit     | Split Sale Bill            | YES       | Y    | Y     | CashRegData, DEPART, Depart, Enviro, G |
 | RsStatusScreen      | POS Status Screen          | YES       | Y    | Y     | Depart, KOT, LocationMast, MemFacility |
 | RsTableMast         | Table Master               | YES       | Y    | Y     | DEPART, Depart, RoomMast, roommast     |
 | RsTokenEntry        | Token Entry                | YES       | Y    | Y     | Depart, ENVIRO, Enviro, FreeItemDetail |
+| RsTouchOrderPersonDetails | Customer Information       | YES       | Y    | Y     | guestprof                              |
 | RsTouchScreenBookingEntry | Booking Entry              | YES       | Y    | Y     | DEPART, Depart, ItemCatMast, ItemGrp,  |
 | RsTouchScreenFAFind | Frame1                     | YES       | -    | Y     |                                        |
+| RsTouchScreenKeyBoard | Touch Screen KeyBoard      | YES       | -    | Y     |                                        |
+|                     | note: Ported: TouchKeyboardDialog (utility_forms_ui) — TxtKeyBoard -> ParentForm; NC KOT reason max 150 |
 | RsTouchScreenKOTEntry | KOT Entry                  | YES       | Y    | Y     | Depart, ENVIRO, Enviro, GuestProf, Ite |
 | RSTouchScreenSaleBill | Sale Bill Entry            | YES       | Y    | Y     | BillData, Cash, CashRegData, DEPART, D |
 | RsTouchScreenSteward | Steward                    | YES       | Y    | Y     | KOT, MemCatMast, SubGroup, Waiter      |
@@ -533,7 +540,7 @@ STATUS SUMMARY
     ui=N core=Y
 - rFomRepView (rFomRepView.frm): 'FomRepView'
     tables: Arrival, BOM, BOOKING, Bill, BillDet (+119)
-    ui=N core=Y
+    ui=YES core=Y
 - rHallRepView (rHallRepView.frm): 'HallRepView'
     tables: BookingDetail, Depart, FAEnviro, FunctionType, HallBook (+24)
     ui=N core=Y
@@ -545,7 +552,7 @@ STATUS SUMMARY
     ui=N core=Y
 - rPOSRepView (rPOSRepView.frm): 'Pos Report'
     tables: AssignDelivery, BOM, DEPART, DeliveryBoy, Depart (+61)
-    ui=N core=Y
+    ui=YES core=Y
 - rRepHouse (rRepHouse.frm): 'ReprtForm'
     tables: ComplaintCategory, Depart, ItemMast, RoomMast
     ui=N core=Y
@@ -582,9 +589,6 @@ STATUS SUMMARY
 - RsPaymentReceice (RsPaymentReceice.frm): 'Payment Receive Entry (POS)'
     tables: Depart, Employee, Enviro, GuestFolio, LEDGERADJ (+14)
     ui=N core=Y
-- RsPOSCustInfo (RsPOSCustInfo.frm): 'Customer Information'
-    tables: City, GuestProf, SmartCardRegistration, enviro, guestprof
-    ui=YES core=Y
 - RsPOSDisplay (RsPOSDisplay.frm): 'Display Table'
     tables: Depart, DispColor, Dispcolor, Enviro, GuestProf (+12)
     ui=N core=Y
@@ -606,9 +610,6 @@ STATUS SUMMARY
 - RsTouchDisplayTB (RsTouchDisplayTB.frm): 'Display Table'
     tables: Depart, DispColor, Dispcolor, Enviro, KOT (+10)
     ui=N core=Y
-- RsTouchOrderPersonDetails (RsTouchOrderPersonDetails.frm): 'Customer Information'
-    tables: guestprof
-    ui=YES core=Y
 - rsTouchScreenAdvanceDepDialog (rsTouchScreenAdvanceDepDialog.frm): 'Settlement Entry'
     tables: DepartPay, Employee, Enviro, GuestFolio, MemEnviro (+12)
     ui=N core=Y
