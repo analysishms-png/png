@@ -162,7 +162,7 @@ def insert_draft(guest_name: str, arr_date, dep_date, adults: int = 1,
     bookno = next_bookno(cn=cn, site=site)
     docid = make_docid(site, VPREFIX, bookno, vtype=VTYPE)
     nodays = max((dep_date - arr_date).days, 1)
-    # 27 columns == 27 placeholders (explicit; count-mismatch bugfix)
+    # VB6 FRONT_OFFICE_LIFECYCLE.md §1: 56-col INSERT pattern
     sql = """
         INSERT INTO Booking (
             DocId, Vtype, BookNo, Site_Code, Vprefix,
@@ -170,14 +170,24 @@ def insert_draft(guest_name: str, arr_date, dep_date, adults: int = 1,
             NoDays, Adult, Child, NoofRooms, RoomRate,
             Remarks, Cancel, GuestName, U_Name, U_EntDt,
             U_AE, LogSite_Code, MobNo, Email, FaxNo,
-            OtherCont, ResStatus)
+            OtherCont, ResStatus, GroupCode, RoomCat, RoomType,
+            Roomno, RateCode, Company, GuestProf, TravelAgency,
+            BussSource, MarketSeg, ArrFrom, Destination, BookedBy,
+            ResMode, TravelMode, SplitFolio, DepositeReq, Guarantee,
+            OccRoom, PackageCode, RRTaxInc, RRServiceChrg,
+            RDisc, RSDisc, AdvDueDate, RefCode, BookStatus, RefBookNo)
         VALUES (
             ?, ?, ?, ?, ?,
             getdate(), ?, '10:00', ?, '10:00',
             ?, ?, 0, ?, ?,
             ?, 'N', ?, ?, getdate(),
             'A', ?, '', '', '',
-            '', 'Confirm')"""
+            '', 'Confirm', '', '', '',
+            '', '', '', '', '',
+            '', '', '', '', '',
+            '', '', '', '', '',
+            '', '', '', '', '',
+            '', '', '', '')"""
     params = (docid, VTYPE, bookno, site, VPREFIX,
               arr_date, dep_date,
               nodays, adults, rooms, rate,
