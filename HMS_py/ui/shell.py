@@ -24,14 +24,19 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))))
 
 # Suppress propagateSizeHints() warning (harmless on Windows platform plugin)
+# BUG FIX: yahan warnings.showwarning ka PROPER 6-arg signature chahiye —
+# pehle 3-arg qInstallMessageHandler-style fn assign tha, jo kisi bhi
+# runtime Python warning (DeprecationWarning etc.) par TypeError deta tha.
 _original_showWarning = warnings.showwarning
-def _qt_message_handler(msg_type, context, message):
-    if "propagateSizeHints" in message:
+def _showwarning(message, category, filename, lineno,
+                 file=None, line=None):
+    text = str(message)
+    if "propagateSizeHints" in text:
         return          # swallow – harmless
-    if "Cannot find font" in message:
+    if "Cannot find font" in text:
         return          # handled by QT_QPA_FONTDIR above
-    _original_showWarning(msg_type, context, message)
-warnings.showwarning = _qt_message_handler
+    _original_showWarning(message, category, filename, lineno, file, line)
+warnings.showwarning = _showwarning
 
 from PyQt6.QtWidgets import (QApplication, QDialog, QFormLayout, QGridLayout,
                              QHBoxLayout, QLabel, QLineEdit, QMainWindow,
@@ -240,37 +245,50 @@ class LoginDialog(QDialog):
         self.setWindowTitle("User Information")
         self.setFixedSize(420, 448)
         self.user = ""
+        # VB6 full-desktop parity: white app bg + embedded blue panel
+        # (screenshot 001_Login_Screen_Fresh.png)
+        self.setProperty("vbDesktop", True)
 
         root = QVBoxLayout(self)
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(0)
 
         # VB6 header: blue gradient + cream '{ Company Name }' title
-        # (screenshots/01_Login_Security/001_Login_Screen_Fresh.png)
         header = QLabel("{  Company Name  }")
         header.setProperty("vbHeader", True)
         header.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header.setFixedHeight(52)
         root.addWidget(header)
 
-        # VB6 blue panel card — modern: surface card + rounded corners
+        # White app surface (VB6 white client area)
+        white = QFrame()
+        white.setStyleSheet("background: #ffffff;")
+        wlay = QVBoxLayout(white)
+        wlay.setContentsMargins(28, 24, 28, 16)
+        wlay.setSpacing(12)
+        root.addWidget(white, 1)
+
+        # VB6 blue panel (embedded card: title + fields + Login btn)
         body = QFrame()
-        body.setProperty("vbCard", True)
+        body.setProperty("vbPanel", True)
         lay = QVBoxLayout(body)
-        lay.setContentsMargins(40, 24, 40, 20)
+        lay.setContentsMargins(32, 24, 32, 20)
         lay.setSpacing(12)
+        wlay.addWidget(body)
 
         lbl_title = QLabel("User Information")
         lbl_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         f_title = QFont("Segoe UI", 15)
         f_title.setBold(True)
         lbl_title.setFont(f_title)
-        lbl_title.setStyleSheet("color: #1d3d5d; background: transparent;")
+        lbl_title.setStyleSheet("color: #fdfdd0; background: transparent;")
         lay.addWidget(lbl_title)
 
-        # User (VB6 label alignment)
+        # User
         lbl_u = QLabel("User Name")
-        lbl_u.setProperty("vbSectionLabel", True)
+        lbl_u.setStyleSheet(
+            "color: #fdfdd0; font-size: 12px; font-weight: bold; "
+            "background: transparent;")
         lay.addWidget(lbl_u)
         self.txtUser = QLineEdit()
         self.txtUser.setPlaceholderText("User Name...")
@@ -279,7 +297,9 @@ class LoginDialog(QDialog):
 
         # Password
         lbl_p = QLabel("Password")
-        lbl_p.setProperty("vbSectionLabel", True)
+        lbl_p.setStyleSheet(
+            "color: #fdfdd0; font-size: 12px; font-weight: bold; "
+            "background: transparent;")
         lay.addWidget(lbl_p)
         self.txtPass = QLineEdit()
         self.txtPass.setPlaceholderText("Password...")
@@ -289,35 +309,37 @@ class LoginDialog(QDialog):
 
         lay.addSpacing(6)
 
-        # VB6 button pair: Login + Un Load (captions VB6 jaise)
+        # VB6 button pair: Login (in-panel white) + Un Load (below panel)
         self.btnLogin = QPushButton("Login")
-        self.btnLogin.setProperty("vbPrimary", True)
+        self.btnLogin.setStyleSheet(
+            "QPushButton { background: #ffffff; color: #1d3d5d; "
+            "font-weight: bold; font-size: 13px; border: none; "
+            "border-radius: 7px; padding: 9px 22px; }\n"
+            "QPushButton:hover { background: #eaf4fd; }")
         self.btnLogin.setFixedHeight(42)
         lay.addWidget(self.btnLogin)
 
         self.btnUnLoad = QPushButton("Un Load")
         self.btnUnLoad.setProperty("vbGhost", True)
-        self.btnUnLoad.setFixedHeight(38)
-        lay.addWidget(self.btnUnLoad)
+        self.btnUnLoad.setFixedHeight(36)
+        wlay.addWidget(self.btnUnLoad)
 
         self.lblMsg = QLabel("")
         self.lblMsg.setWordWrap(True)
         self.lblMsg.setStyleSheet("color: #ef4444; font-weight: bold; background: transparent; font-size: 11px;")
         self.lblMsg.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        lay.addWidget(self.lblMsg)
+        wlay.addWidget(self.lblMsg)
 
-        root.addWidget(body, 1)
-
-        # VB6 gray status strip + DB status + settings button
+        # DB status + settings button (bottom strip)
         self.lblDb = QLabel("")
         self.lblDb.setStyleSheet("color: #666680; font-size: 10px; padding: 4px;")
         self.lblDb.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        root.addWidget(self.lblDb)
+        wlay.addWidget(self.lblDb)
 
         self.btnDb = QPushButton("Database Settings")
         self.btnDb.setProperty("vbGhost", True)
         self.btnDb.setFixedHeight(30)
-        root.addWidget(self.btnDb)
+        wlay.addWidget(self.btnDb)
         self._note_shown = False
 
         self.btnLogin.clicked.connect(self._do_login)
@@ -370,6 +392,9 @@ class CompanyDialog(QDialog):
         self.setFixedSize(580, 420)
         self.user = user
         self.selected = None
+        # VB6 full-desktop parity: gray MDI desktop + floating white grid
+        # (screenshot 010_CompanyDetails_Grid.png: bg #636363)
+        self.setProperty("vbDesktop", True)
 
         root = QVBoxLayout(self)
         root.setContentsMargins(0, 0, 0, 0)
@@ -383,7 +408,10 @@ class CompanyDialog(QDialog):
         header.setFixedHeight(52)
         root.addWidget(header)
 
-        # VB6: light panel pe white grid (gray desktop bg) — modern:
+        # Gray desktop gap (VB6 MDI client area vibe)
+        root.addSpacing(18)
+
+        # VB6: floating white grid window on gray desktop — modern:
         # surface card + subtle border
         body = QFrame()
         body.setProperty("vbCard", True)

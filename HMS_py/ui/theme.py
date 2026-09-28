@@ -591,6 +591,20 @@ QFrame[vbCard="true"] {{
     border: 1px solid {t['border']};
     border-radius: {R + 2}px;
 }}
+/* VB6 frmCompany/frmPassword: gray desktop pe embedded blue panel
+   (screenshot 010_CompanyDetails_Grid.png: bg #636363, panel #2496d2) */
+QFrame[vbPanel="true"] {{
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 {t['vb_header_top']}, stop:1 {t['vb_accent']});
+    border: 1px solid {t['vb_accent_hover']};
+    border-radius: 10px;
+}}
+QFrame[vbPanel="true"] QLabel {{
+    background: transparent; color: {t['vb_header_text']};
+}}
+QFrame[vbDesktop="true"], QDialog[vbDesktop="true"] {{
+    background: #636363;
+}}
 /* Left module strip — VB6: ~107px white strip, teal 3D buttons */
 QFrame[moduleStrip="true"] {{
     background: {t['strip_bg']};
