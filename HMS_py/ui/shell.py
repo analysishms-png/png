@@ -730,6 +730,10 @@ def _form_registry() -> dict[str, callable]:
     except ImportError:
         memb_ui = None
     try:
+        from HMS_py.ui import member_master_ui as membmast_ui
+    except ImportError:
+        membmast_ui = None
+    try:
         from HMS_py.ui import member_environment_ui as member_env_ui
     except ImportError:
         member_env_ui = None
@@ -1512,6 +1516,7 @@ def _form_registry() -> dict[str, callable]:
         "Tally Export(XML)": (lambda w: tally_ui.open_tally_export(w)) if tally_ui else _coming_soon("Tally Export(XML)"),
         # Misc sub-forms (Opening Stock, Sundry Master, Restaurant Master)
         "Opening Stock": (lambda w: misc_ui.open_opening_stock(w)) if misc_ui else _coming_soon("Opening Stock"),
+        "Party Master": (lambda w: misc_ui.open_party_master(w, user=getattr(w, "user", "SA"))) if misc_ui else _coming_soon("Party Master"),
         "Sundry Master": (lambda w: misc_ui.open_sundry_master(w)) if misc_ui else _coming_soon("Sundry Master"),
         "Menu Item Copy": (lambda w: pm.open_menu_item_copy(w, user=getattr(w, "user", "SA"))) if pm else _coming_soon("Menu Item Copy"),
         "Restaurant Master": (lambda w: misc_ui.open_restaurant_master(w)) if misc_ui else _coming_soon("Restaurant Master"),
@@ -1523,7 +1528,6 @@ def _form_registry() -> dict[str, callable]:
         "Pending M.R.": (lambda w: reqslip_ui.open_requisition_slip(w)) if reqslip_ui else _coming_soon("Pending M.R."),
         # --- S1 tail: blocked tables (click par documented VB6-style message) ---
         **({cap: _coming_soon(cap) for cap in (
-             "Party Master",
             "Purchase Sundry Setting", "Enviro Inventry",
             "Finish Material Receive Entry", "Excise Invoice Cum Gate Pass",
             "Pending Purchase Order",
@@ -1548,8 +1552,9 @@ def _form_registry() -> dict[str, callable]:
         "Loan/Advance": (lambda w: payroll_ui.open_hr_payroll(w)) if payroll_ui else None,
         "Over Time": (lambda w: payroll_ui.open_hr_payroll(w)) if payroll_ui else None,
         "Leave Encashment": (lambda w: payroll_ui.open_hr_payroll(w)) if payroll_ui else None,
-        "Member Master": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
-        "Corporate Member Master": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
+        # VB6 MemMas idx1 -> MembershipMast (member master CRUD), billing nahi
+        "Member Master": (lambda w: membmast_ui.open_member_master(w, user=getattr(w, 'user', 'SA'))) if membmast_ui else _coming_soon("Member Master"),
+        "Corporate Member Master": (lambda w: membmast_ui.open_corporate_member_master(w, user=getattr(w, 'user', 'SA'))) if membmast_ui else _coming_soon("Corporate Member Master"),
         "Category wise Revenue": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
         "Category wise Facility": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
         "Member Age Wise Revenue": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,

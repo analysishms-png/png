@@ -409,6 +409,258 @@ def open_restaurant_master(parent=None):
     return w
 
 
+# ─── Party Master (VB6: FrmParty) ───────────────────────────────────
+class PartyMasterWindow(QMainWindow):
+    """Supplier master — SubGroup NATURE='Supplier' (VB6 FrmParty).
+    Grid + Add/Edit dialog + delete (balance-guard ke saath)."""
+
+    COLS = ["SubCode", "Name", "Under Group", "City", "Phone",
+            "Mobile", "GSTIN", "Active"]
+
+    def __init__(self, parent=None, user="SA"):
+        super().__init__(parent)
+        self.setWindowTitle("Party Master (Suppliers)")
+        self.resize(960, 560)
+        self._user = user
+        self._build_ui()
+        self._reload()
+
+    def _build_ui(self):
+        from HMS_py.core import party_master as pm
+        central = QWidget(); self.setCentralWidget(central)
+        layout = QVBoxLayout(central)
+        title = QLabel("Party Master — Suppliers (SubGroup)")
+        title.setFont(QFont("Segoe UI", 14, QFont.Weight.Bold))
+        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(title)
+
+        search_lay = QHBoxLayout()
+        self.txt_search = QLineEdit()
+        self.txt_search.setPlaceholderText("Search name / code...")
+        self.txt_search.textChanged.connect(self._filter)
+        search_lay.addWidget(QLabel("Search:"))
+        search_lay.addWidget(self.txt_search, 1)
+        layout.addLayout(search_lay)
+
+        self.table = QTableWidget(0, len(self.COLS))
+        self.table.setHorizontalHeaderLabels(self.COLS)
+        self.table.horizontalHeader().setSectionResizeMode(
+            QHeaderView.ResizeMode.ResizeToContents)
+        self.table.setSelectionBehavior(
+            QTableWidget.SelectionBehavior.SelectRows)
+        self.table.setSelectionMode(QTableWidget.SelectionMode.SingleSelection)
+        self.table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        layout.addWidget(self.table, 1)
+
+        btn_lay = QHBoxLayout()
+        self.btn_add = QPushButton("Add")
+        self.btn_edit = QPushButton("Edit")
+        self.btn_del = QPushButton("Delete")
+        self.btn_del.setProperty("role", "danger")
+        self.btn_exit = QPushButton("Exit")
+        self.btn_add.clicked.connect(self._add)
+        self.btn_edit.clicked.connect(self._edit)
+        self.btn_del.clicked.connect(self._delete)
+        self.btn_exit.clicked.connect(self.close)
+        btn_lay.addWidget(self.btn_add); btn_lay.addWidget(self.btn_edit)
+        btn_lay.addWidget(self.btn_del); btn_lay.addStretch()
+        btn_lay.addWidget(self.btn_exit)
+        layout.addLayout(btn_lay)
+
+    def _reload(self):
+        from HMS_py.core import party_master as pm
+        try:
+            self._rows = pm.list_suppliers()
+        except Exception as e:
+            QMessageBox.critical(self, "Error", str(e)); return
+        self._filter()
+
+    def _filter(self):
+        q = self.txt_search.text().strip().lower() \
+            if hasattr(self, "txt_search") else ""
+        rows = [r for r in self._rows
+                if not q or q in r["name"].lower()
+                or q in r["subcode"].lower()]
+        t = self.table
+        t.setRowCount(len(rows))
+        for i, r in enumerate(rows):
+            vals = [r["subcode"], r["name"], r["undergroup"], r["city"],
+                    r["phone"], r["mobile"], r["gstin"], r["active"]]
+            for j, v in enumerate(vals):
+                t.setItem(i, j, _cell(v))
+        self._shown = rows
+
+    def _selected(self):
+        row = self.table.currentRow()
+        if 0 <= row < len(getattr(self, "_shown", [])):
+            return self._shown[row]
+        return None
+
+    def _dialog(self, rec):
+        """Add (rec=None) / Edit dialog. Returns dict ya None."""
+        from PyQt6.QtWidgets import (QCheckBox, QComboBox, QDialog,
+                                     QDialogButtonBox, QDoubleSpinBox,
+                                     QFormLayout, QSpinBox)
+        from HMS_py.core import party_master as pm
+        dlg = QDialog(self)
+        dlg.setWindowTitle("Add Supplier" if rec is None
+                           else f"Edit {rec['subcode']}")
+        form = QFormLayout(dlg)
+        txt_name = QLineEdit(); txt_name.setText(rec["name"] if rec else "")
+        cmb_grp = QComboBox()
+        try:
+            groups = pm.list_groups()
+        except Exception:
+            groups = []
+        for g in groups:
+            cmb_grp.addItem(f"{g['code']} - {g['name']}", g["code"])
+        if rec:
+            idx = next((i for i, g in enumerate(groups)
+                        if g["code"] == rec["groupcode"]), -1)
+            if idx >= 0:
+                cmb_grp.setCurrentIndex(idx)
+        txt_person = QLineEdit(); txt_person.setText(rec["conperson"] if rec else "")
+        txt_add1 = QLineEdit(); txt_add1.setText(rec["add1"] if rec else "")
+        txt_add2 = QLineEdit(); txt_add2.setText(rec["add2"] if rec else "")
+        txt_add3 = QLineEdit(); txt_add3.setText(rec["add3"] if rec else "")
+        cmb_city = QComboBox(); cmb_city.addItem("-", "")
+        try:
+            cities = pm.list_cities()
+        except Exception:
+            cities = []
+        for c in cities:
+            cmb_city.addItem(c["name"], c["code"])
+        if rec:
+            idx = next((i for i, c in enumerate(cities)
+                        if c["code"] == rec["citycode"]), -1)
+            if idx >= 0:
+                cmb_city.setCurrentIndex(idx)
+        txt_phone = QLineEdit(); txt_phone.setText(rec["phone"] if rec else "")
+        txt_mobile = QLineEdit(); txt_mobile.setText(rec["mobile"] if rec else "")
+        txt_email = QLineEdit(); txt_email.setText(rec["email"] if rec else "")
+        txt_gstin = QLineEdit(); txt_gstin.setText(rec["gstin"] if rec else "")
+        txt_pan = QLineEdit(); txt_pan.setText(rec["panno"] if rec else "")
+        spn_climit = QDoubleSpinBox(); spn_climit.setRange(0, 1e10)
+        spn_climit.setDecimals(2)
+        spn_climit.setValue(float(rec["creditlimit"]) if rec else 0.0)
+        spn_cdays = QSpinBox(); spn_cdays.setRange(0, 3650)
+        spn_cdays.setValue(int(rec["creditdays"]) if rec else 0)
+        txt_remark = QLineEdit(); txt_remark.setText(rec["remark"] if rec else "")
+        chk_active = QCheckBox("Active"); chk_active.setChecked(
+            rec["active"] if rec else True)
+        form.addRow("Name*:", txt_name)
+        form.addRow("Under Group*:", cmb_grp)
+        form.addRow("Contact Person:", txt_person)
+        form.addRow("Address 1:", txt_add1)
+        form.addRow("Address 2:", txt_add2)
+        form.addRow("Address 3:", txt_add3)
+        form.addRow("City:", cmb_city)
+        form.addRow("Phone:", txt_phone)
+        form.addRow("Mobile:", txt_mobile)
+        form.addRow("Email:", txt_email)
+        form.addRow("GSTIN:", txt_gstin)
+        form.addRow("PAN:", txt_pan)
+        form.addRow("Credit Limit:", spn_climit)
+        form.addRow("Credit Days:", spn_cdays)
+        form.addRow("Remark:", txt_remark)
+        form.addRow("", chk_active)
+        bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok
+                              | QDialogButtonBox.StandardButton.Cancel)
+        bb.accepted.connect(dlg.accept); bb.rejected.connect(dlg.reject)
+        form.addRow(bb)
+        if dlg.exec() != QDialog.DialogCode.Accepted:
+            return None
+        return {"name": txt_name.text().strip(),
+                "groupcode": cmb_grp.currentData() or "",
+                "conperson": txt_person.text().strip(),
+                "add1": txt_add1.text().strip(),
+                "add2": txt_add2.text().strip(),
+                "add3": txt_add3.text().strip(),
+                "citycode": cmb_city.currentData() or "",
+                "phone": txt_phone.text().strip(),
+                "mobile": txt_mobile.text().strip(),
+                "email": txt_email.text().strip(),
+                "gstin": txt_gstin.text().strip(),
+                "panno": txt_pan.text().strip(),
+                "creditlimit": spn_climit.value(),
+                "creditdays": spn_cdays.value(),
+                "remark": txt_remark.text().strip(),
+                "active": chk_active.isChecked()}
+
+    def _add(self):
+        from HMS_py.core import party_master as pm
+        data = self._dialog(None)
+        if not data:
+            return
+        try:
+            code = pm.save_party("", data["name"], data["groupcode"],
+                                 conperson=data["conperson"],
+                                 add1=data["add1"], add2=data["add2"],
+                                 add3=data["add3"], citycode=data["citycode"],
+                                 phone=data["phone"], mobile=data["mobile"],
+                                 email=data["email"], gstin=data["gstin"],
+                                 panno=data["panno"],
+                                 creditlimit=data["creditlimit"],
+                                 creditdays=data["creditdays"],
+                                 remark=data["remark"],
+                                 active=data["active"], user=self._user)
+        except Exception as e:
+            QMessageBox.critical(self, "Error", str(e)); return
+        QMessageBox.information(self, "Done",
+                                f"Supplier {code} add ho gaya.")
+        self._reload()
+
+    def _edit(self):
+        from HMS_py.core import party_master as pm
+        rec = self._selected()
+        if not rec:
+            return
+        full = pm.get_party(rec["subcode"]) or rec
+        data = self._dialog(full)
+        if not data:
+            return
+        try:
+            pm.save_party(rec["subcode"], data["name"], data["groupcode"],
+                          conperson=data["conperson"],
+                          add1=data["add1"], add2=data["add2"],
+                          add3=data["add3"], citycode=data["citycode"],
+                          phone=data["phone"], mobile=data["mobile"],
+                          email=data["email"], gstin=data["gstin"],
+                          panno=data["panno"],
+                          creditlimit=data["creditlimit"],
+                          creditdays=data["creditdays"],
+                          remark=data["remark"],
+                          active=data["active"], user=self._user)
+        except Exception as e:
+            QMessageBox.critical(self, "Error", str(e)); return
+        QMessageBox.information(self, "Done", f"{rec['subcode']} update.")
+        self._reload()
+
+    def _delete(self):
+        from HMS_py.core import party_master as pm
+        rec = self._selected()
+        if not rec:
+            return
+        reply = QMessageBox.question(
+            self, "Confirm",
+            f"Supplier {rec['name']} ({rec['subcode']}) delete karein?\n"
+            "Balance hone par delete block hoga.")
+        if reply != QMessageBox.StandardButton.Yes:
+            return
+        try:
+            pm.delete_party(rec["subcode"])
+        except Exception as e:
+            QMessageBox.critical(self, "Error", str(e)); return
+        QMessageBox.information(self, "Done", "Delete ho gaya.")
+        self._reload()
+
+
+def open_party_master(parent=None, user="SA"):
+    w = PartyMasterWindow(parent, user=user)
+    w.show()
+    return w
+
+
 # ─── Standalone test ────────────────────────────────────────────────
 if __name__ == "__main__":
     import sys as _sys
