@@ -22,7 +22,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor, QFont, QShortcut, QKeySequence
 from PyQt6.QtWidgets import (QApplication, QDialog, QGroupBox, QHBoxLayout,
-                             QLabel, QMessageBox, QPushButton,
+                             QLabel, QMessageBox, QPushButton, QComboBox,
                              QTableWidget, QTableWidgetItem, QVBoxLayout)
 
 from HMS_py.core import roomstatus
@@ -332,6 +332,76 @@ class RoomStatusForm(QDialog):
 
 def open_roomstatus(parent=None, user: str = "SA"):
     RoomStatusForm(parent, user=user).exec()
+
+
+class RoomTypeLookupDialog(QDialog):
+    """VB6 resRoomType: "Room Category Wise Reservation Look Up".
+
+    Category combo + room grid (Room/Status/Guest/Folio), read-only —
+    room_rack() reuse karta hai (VB6 Display Rack wali status precedence).
+    """
+
+    COLS = ("Room", "Status", "Guest", "Folio")
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Room Category Wise Reservation Look Up")
+        self.resize(640, 460)
+        root = QVBoxLayout(self)
+        top = QHBoxLayout()
+        top.addWidget(QLabel("Room Category"))
+        self.cmb_cat = QComboBox()
+        self.cmb_cat.currentIndexChanged.connect(lambda _: self.reload())
+        top.addWidget(self.cmb_cat, 1)
+        btn_close = QPushButton("Close")
+        btn_close.clicked.connect(self.reject)
+        top.addWidget(btn_close)
+        root.addLayout(top)
+        self.tbl = QTableWidget(0, len(self.COLS))
+        self.tbl.setHorizontalHeaderLabels(list(self.COLS))
+        self.tbl.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        self.tbl.setSelectionBehavior(
+            QTableWidget.SelectionBehavior.SelectRows)
+        self.tbl.horizontalHeader().setStretchLastSection(True)
+        self.tbl.setAlternatingRowColors(True)
+        root.addWidget(self.tbl)
+        self.lbl = QLabel("")
+        root.addWidget(self.lbl)
+        self._rooms = []
+        self._load()
+
+    def _load(self):
+        try:
+            self._rooms = roomstatus.room_rack()
+        except Exception as e:
+            QMessageBox.critical(self, "Room Category Lookup", f"DB error: {e}")
+            return
+        cats = sorted({(r.get("cat") or "").strip() for r in self._rooms
+                       if (r.get("cat") or "").strip()})
+        self.cmb_cat.blockSignals(True)
+        self.cmb_cat.clear()
+        self.cmb_cat.addItems(cats)
+        self.cmb_cat.blockSignals(False)
+        self.reload()
+
+    def reload(self):
+        cat = self.cmb_cat.currentText().strip()
+        rows = [r for r in self._rooms
+                if (r.get("cat") or "").strip() == cat] if cat else []
+        colors, texts = _status_palette()
+        self.tbl.setRowCount(len(rows))
+        for i, r in enumerate(rows):
+            st = r.get("status", "")
+            vals = [r.get("roomno", ""), st, r.get("guest", ""),
+                    r.get("folio") or ""]
+            for j, v in enumerate(vals):
+                it = _cell(v, colors.get(st, ""), texts.get(st, ""))
+                self.tbl.setItem(i, j, it)
+        self.lbl.setText(f"{len(rows)} room(s) in category '{cat or '-'}'")
+
+
+def open_roomtype_lookup(parent=None):
+    RoomTypeLookupDialog(parent).exec()
 
 
 def main() -> int:

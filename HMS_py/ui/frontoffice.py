@@ -92,7 +92,7 @@ class CheckInBrowser(QDialog):
         root.addWidget(self._empty_label)
 
         self.lblState = QLabel(
-            "State: Idle | New = PYT* test check-in (VB6 CHK doc-engine: "
+            "State: Idle | New = real check-in (VB6 CHK doc-engine: "
             "DocId 21-char + FolioNo + FolioLog)")
         root.addWidget(self.lblState)
 
@@ -118,11 +118,14 @@ class CheckInBrowser(QDialog):
         self.reload()
 
     def _new(self):
+        # VB6 fdWalkInEntry parity: khali form, koi prefilled test data nahi.
+        # (Pehle "PYT CheckIn Guest"/"KK0002" prefill tha — production me
+        #  galti se test-naam save ho sakta tha.)
         dlg = QDialog(self)
-        dlg.setWindowTitle("New Check-In (PYT test-data)")
+        dlg.setWindowTitle("New Check-In")
         dlg.setModal(True)
         form = QFormLayout()
-        ed_name = QLineEdit("PYT CheckIn Guest")
+        ed_name = QLineEdit("")
         ed_name.setMaxLength(50)
         ed_name.setPlaceholderText("Guest full name (required)")
         ed_code = QLineEdit("")
@@ -130,7 +133,7 @@ class CheckInBrowser(QDialog):
         de_arr = QDateEdit(QDate.currentDate()); de_arr.setCalendarPopup(True)
         de_dep = QDateEdit(QDate.currentDate().addDays(1))
         de_dep.setCalendarPopup(True)
-        ed_city = QLineEdit("KK0002")
+        ed_city = QLineEdit("")
         ed_city.setPlaceholderText("City code (e.g. KK0002)")
         ed_book = QLineEdit("")
         ed_book.setPlaceholderText("BookingDocId (optional, Reservation se)")
@@ -142,7 +145,7 @@ class CheckInBrowser(QDialog):
         ed_rate.setPlaceholderText("RateCode (optional)")
         ed_chkin = QLineEdit(datetime.datetime.now().strftime("%H:%M"))
         ed_chkin.setPlaceholderText("Check-In time HH:MM")
-        form.addRow("Guest Name (PYT*)", ed_name)
+        form.addRow("Guest Name*", ed_name)
         form.addRow("GuestProf Code", ed_code)
         form.addRow("Arrival", de_arr)
         form.addRow("Departure", de_dep)
