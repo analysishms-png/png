@@ -1,0 +1,411 @@
+{
+  "module": "09_NightAudit",
+  "name": "Night Audit",
+  "sidebar": "night audit",
+  "generated_by": "collect_logic.py",
+  "menuhelp": {
+    "masters": [],
+    "operations": [
+      {
+        "caption": "night audit log",
+        "caption_disp": "Night Audit Log",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "NightAuditLR",
+        "opt1": "19",
+        "opt2": "13",
+        "opt3": "11",
+        "opt4": "",
+        "code": 472
+      }
+    ],
+    "reports": [
+      {
+        "caption": "occupancy analysis",
+        "caption_disp": "Occupancy Analysis",
+        "param": "***P",
+        "flag": "R",
+        "module": "NightAuditRR",
+        "opt1": "19",
+        "opt2": "12",
+        "opt3": "16",
+        "opt4": "",
+        "code": 460
+      },
+      {
+        "caption": "gstr-1",
+        "caption_disp": "GSTR-1",
+        "param": "***P",
+        "flag": "R",
+        "module": "NightAuditGSTR",
+        "opt1": "19",
+        "opt2": "14",
+        "opt3": "11",
+        "opt4": "",
+        "code": 19141100
+      },
+      {
+        "caption": "gstr-2",
+        "caption_disp": "GSTR-2(3)",
+        "param": "***P",
+        "flag": "R",
+        "module": "NightAuditGSTR",
+        "opt1": "19",
+        "opt2": "14",
+        "opt3": "12",
+        "opt4": "",
+        "code": 19141200
+      },
+      {
+        "caption": "gstr-2",
+        "caption_disp": "GSTR-2(4A)",
+        "param": "***P",
+        "flag": "R",
+        "module": "NightAuditGSTR",
+        "opt1": "19",
+        "opt2": "14",
+        "opt3": "13",
+        "opt4": "",
+        "code": 19141300
+      },
+      {
+        "caption": "gstr-2",
+        "caption_disp": "GSTR-2(4B)",
+        "param": "***P",
+        "flag": "R",
+        "module": "NightAuditGSTR",
+        "opt1": "19",
+        "opt2": "14",
+        "opt3": "14",
+        "opt4": "",
+        "code": 19141400
+      },
+      {
+        "caption": "credit report",
+        "caption_disp": "Credit Report",
+        "param": "***P",
+        "flag": "R",
+        "module": "NightAuditGSTR",
+        "opt1": "19",
+        "opt2": "12",
+        "opt3": "24",
+        "opt4": "",
+        "code": 19122400
+      },
+      {
+        "caption": "reconciliation",
+        "caption_disp": "Reconciliation (GSTR-2A)",
+        "param": "***P",
+        "flag": "R",
+        "module": "NightAuditGSTR",
+        "opt1": "19",
+        "opt2": "14",
+        "opt3": "15",
+        "opt4": "",
+        "code": 19141500
+      },
+      {
+        "caption": "einvoice report",
+        "caption_disp": "EInvoice Report",
+        "param": "***P",
+        "flag": "R",
+        "module": "NightAuditMenu",
+        "opt1": "19",
+        "opt2": "12",
+        "opt3": "25",
+        "opt4": "",
+        "code": 19122500
+      }
+    ],
+    "hidden": [],
+    "unclassified": [
+      {
+        "caption": "night audit",
+        "caption_disp": "Night Audit",
+        "param": "",
+        "flag": "N",
+        "module": "NightAudit",
+        "opt1": "19",
+        "opt2": "",
+        "opt3": "",
+        "opt4": "",
+        "code": 446
+      },
+      {
+        "caption": "operation",
+        "caption_disp": "Operation",
+        "param": "",
+        "flag": "N",
+        "module": "NightAudito",
+        "opt1": "19",
+        "opt2": "11",
+        "opt3": "",
+        "opt4": "",
+        "code": 447
+      },
+      {
+        "caption": "guest audit ledger",
+        "caption_disp": "Guest Audit Ledger",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "NightAuditoR",
+        "opt1": "19",
+        "opt2": "11",
+        "opt3": "11",
+        "opt4": "",
+        "code": 448
+      },
+      {
+        "caption": "charges posting",
+        "caption_disp": "Charges Posting",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "NightAuditoR",
+        "opt1": "19",
+        "opt2": "11",
+        "opt3": "12",
+        "opt4": "",
+        "code": 449
+      },
+      {
+        "caption": "night audit process",
+        "caption_disp": "Night Audit Process",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "NightAuditoR",
+        "opt1": "19",
+        "opt2": "11",
+        "opt3": "13",
+        "opt4": "",
+        "code": 450
+      },
+      {
+        "caption": "account posting",
+        "caption_disp": "Account Posting",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "NightAuditoR",
+        "opt1": "19",
+        "opt2": "11",
+        "opt3": "14",
+        "opt4": "",
+        "code": 451
+      },
+      {
+        "caption": "reverse night audit",
+        "caption_disp": "Reverse Night Audit",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "NightAuditoR",
+        "opt1": "19",
+        "opt2": "11",
+        "opt3": "16",
+        "opt4": "",
+        "code": 453
+      },
+      {
+        "caption": "reports",
+        "caption_disp": "Reports",
+        "param": "",
+        "flag": "N",
+        "module": "NightAuditR",
+        "opt1": "19",
+        "opt2": "12",
+        "opt3": "",
+        "opt4": "",
+        "code": 454
+      },
+      {
+        "caption": "daily report",
+        "caption_disp": "Daily Report",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "NightAuditRR",
+        "opt1": "19",
+        "opt2": "12",
+        "opt3": "11",
+        "opt4": "",
+        "code": 455
+      },
+      {
+        "caption": "guest trail",
+        "caption_disp": "Guest Trail",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "NightAuditRR",
+        "opt1": "19",
+        "opt2": "12",
+        "opt3": "14",
+        "opt4": "",
+        "code": 458
+      },
+      {
+        "caption": "checkout analysis",
+        "caption_disp": "Checkout Analysis",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "NightAuditRR",
+        "opt1": "19",
+        "opt2": "12",
+        "opt3": "15",
+        "opt4": "",
+        "code": 459
+      },
+      {
+        "caption": "market segment analysis",
+        "caption_disp": "Market Segment Analysis",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "NightAuditRR",
+        "opt1": "19",
+        "opt2": "12",
+        "opt3": "17",
+        "opt4": "",
+        "code": 461
+      },
+      {
+        "caption": "business source analysis",
+        "caption_disp": "Business Source Analysis",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "NightAuditRR",
+        "opt1": "19",
+        "opt2": "12",
+        "opt3": "18",
+        "opt4": "",
+        "code": 462
+      },
+      {
+        "caption": "company analysis",
+        "caption_disp": "Company Analysis",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "NightAuditRR",
+        "opt1": "19",
+        "opt2": "12",
+        "opt3": "19",
+        "opt4": "",
+        "code": 463
+      },
+      {
+        "caption": "focc report",
+        "caption_disp": "FOCC Report",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "NightAuditRR",
+        "opt1": "19",
+        "opt2": "12",
+        "opt3": "21",
+        "opt4": "",
+        "code": 465
+      },
+      {
+        "caption": "food costing report",
+        "caption_disp": "Food Costing Report",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "NightAuditRR",
+        "opt1": "19",
+        "opt2": "12",
+        "opt3": "22",
+        "opt4": "",
+        "code": 466
+      },
+      {
+        "caption": "fb cost statement",
+        "caption_disp": "FB Cost Statement",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "NightAuditRR",
+        "opt1": "19",
+        "opt2": "12",
+        "opt3": "23",
+        "opt4": "",
+        "code": 467
+      },
+      {
+        "caption": "log",
+        "caption_disp": "Log",
+        "param": "",
+        "flag": "N",
+        "module": "NightAuditL",
+        "opt1": "19",
+        "opt2": "13",
+        "opt3": "",
+        "opt4": "",
+        "code": 471
+      },
+      {
+        "caption": "charges remove log",
+        "caption_disp": "Charges Remove Log",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "NightAuditLR",
+        "opt1": "19",
+        "opt2": "13",
+        "opt3": "12",
+        "opt4": "",
+        "code": 473
+      },
+      {
+        "caption": "gst reports",
+        "caption_disp": "GST Reports",
+        "param": "",
+        "flag": "N",
+        "module": "NightAuditGST",
+        "opt1": "19",
+        "opt2": "14",
+        "opt3": "",
+        "opt4": "",
+        "code": 19140000
+      },
+      {
+        "caption": "upload process",
+        "caption_disp": "Upload Process",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "NightAuditGSTR",
+        "opt1": "19",
+        "opt2": "14",
+        "opt3": "16",
+        "opt4": "",
+        "code": 19141600
+      }
+    ],
+    "counts": {
+      "masters": 0,
+      "operations": 1,
+      "reports": 8,
+      "hidden": 0,
+      "other": 21,
+      "unclassified": 21
+    }
+  },
+  "registry_hits": {
+    "masters": [],
+    "operations": [
+      "Night Audit Log"
+    ],
+    "reports": [
+      "Occupancy Analysis"
+    ]
+  },
+  "core_files": [
+    "nightaudit",
+    "year_end",
+    "guest_folio",
+    "folio"
+  ],
+  "module_names": [
+    "NightAudit",
+    "NightAudito",
+    "NightAuditoR",
+    "NightAuditR",
+    "NightAuditRR",
+    "NightAuditL",
+    "NightAuditLR",
+    "NightAuditGST",
+    "NightAuditGSTR",
+    "NightAuditMenu"
+  ]
+}

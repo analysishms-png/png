@@ -180,7 +180,10 @@ def save_stay(code: str, sno: int, rec: dict, user: str = USER,
                 "VisaIssAuth = ?, Extension = ?, VisaDuration = ?, "
                 "Site_Code = ?, U_Name = ?, U_EntDt = getdate(), "
                 "U_AE = 'E', LogSite_Code = ? WHERE Code = ? AND Sno = ?",
-                (*params[2:], SITE_CODE, user, SITE_CODE, code, sno),
+                (*params[2:], code, sno),
+                # params[2:] = SerialNo..VisaDuration + Site_Code, U_Name,
+                # LogSite_Code (34 total, upar wale SET order ke saath —
+                # pehle SITE/user double-supply the -> 37 vs 34 crash)
                 cn=cn, commit=False)
         else:
             db.execute(
@@ -194,7 +197,11 @@ def save_stay(code: str, sno: int, rec: dict, user: str = USER,
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
                 "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
                 "getdate(), 'A', ?)",
-                (*params, SITE_CODE), cn=cn, commit=False)
+                (*params,), cn=cn, commit=False)  # 34 params = 34 markers
+                # params ka aakhri SITE_CODE hi LogSite_Code hai; pehle
+                # (*params, SITE_CODE) se ek extra duplicate ja raha tha
+                # -> parameter-count crash har insert pe (unit fake ne
+                # pakda nahi, live smoke ne pakda)
         # VB6 loc_1C38965: CFORM Start_Srl_No consume/update
         if serialno and not exists:
             db.execute(

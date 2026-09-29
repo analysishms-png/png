@@ -1,0 +1,114 @@
+{
+  "module": "13_MembersMgmt",
+  "name": "Members Mgmt",
+  "sidebar": "extras",
+  "generated_by": "collect_logic.py",
+  "menuhelp": {
+    "masters": [
+      {
+        "caption": "member select category",
+        "caption_disp": "Member Select Category",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "MemMas",
+        "opt1": "12",
+        "opt2": "14",
+        "opt3": "20",
+        "opt4": "",
+        "code": 12142000
+      },
+      {
+        "caption": "category master",
+        "caption_disp": "Category Master",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "MemMas",
+        "opt1": "12",
+        "opt2": "14",
+        "opt3": "11",
+        "opt4": "",
+        "code": 92
+      },
+      {
+        "caption": "member master",
+        "caption_disp": "Member Master",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "MemMas",
+        "opt1": "12",
+        "opt2": "14",
+        "opt3": "12",
+        "opt4": "",
+        "code": 93
+      },
+      {
+        "caption": "environment settings",
+        "caption_disp": "Environment Settings",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "MemMas",
+        "opt1": "12",
+        "opt2": "14",
+        "opt3": "19",
+        "opt4": "",
+        "code": 100
+      }
+    ],
+    "operations": [],
+    "reports": [],
+    "hidden": [],
+    "unclassified": [
+      {
+        "caption": "members mgmt",
+        "caption_disp": "Members Mgmt",
+        "param": "",
+        "flag": "N",
+        "module": "Mem",
+        "opt1": "12",
+        "opt2": "14",
+        "opt3": "",
+        "opt4": "",
+        "code": 91
+      },
+      {
+        "caption": "auto settle card balance",
+        "caption_disp": "Auto Settle Card Balance",
+        "param": "AEDP",
+        "flag": "E",
+        "module": "MemOpr",
+        "opt1": "23",
+        "opt2": "",
+        "opt3": "11",
+        "opt4": "",
+        "code": 23001100
+      }
+    ],
+    "counts": {
+      "masters": 4,
+      "operations": 0,
+      "reports": 0,
+      "hidden": 0,
+      "other": 2,
+      "unclassified": 2
+    }
+  },
+  "registry_hits": {
+    "masters": [
+      "Member Select Category"
+    ],
+    "operations": [
+      "Member Billing"
+    ],
+    "reports": []
+  },
+  "core_files": [
+    "members_masters",
+    "member_billing",
+    "facility_billing"
+  ],
+  "module_names": [
+    "Mem",
+    "MemMas",
+    "MemOpr"
+  ]
+}

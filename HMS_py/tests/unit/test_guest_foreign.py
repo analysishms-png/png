@@ -97,6 +97,28 @@ def test_delete_stay_scoped(monkeypatch):
     assert execs[0][1] == ("KK003139", 3)
 
 
+def test_insert_update_param_count_matches_markers(monkeypatch):
+    """Live-smoke regression (round-6): INSERT/UPDATE me param-count
+    == marker-count hona chahiye (pehle 35-vs-34 / 37-vs-34 crash)."""
+    execs = []
+    _apply(monkeypatch, _fake_query(exists_count=1, serial=77))
+    monkeypatch.setattr(db, "execute",
+                        lambda sql, params=None, cn=None, commit=False:
+                        execs.append((sql, params)) or 1)
+    guest_foreign.save_stay("KK003139", 2, {"name": "Y"})
+    upd = next(e for e in execs if e[0].startswith("UPDATE GuestProfFor"))
+    assert upd[0].count("?") == len(upd[1]), "UPDATE param mismatch"
+    _apply(monkeypatch, _fake_query(exists_count=0, cform=17))
+    execs.clear()
+    monkeypatch.setattr(db, "execute",
+                        lambda sql, params=None, cn=None, commit=False:
+                        execs.append((sql, params)) or 1)
+    guest_foreign.save_stay("KK003139", 0, {"name": "X"})
+    ins = next(e for e in execs if e[0].startswith("INSERT INTO GuestProfFor"))
+    assert ins[0].count("?") == len(ins[1]), "INSERT param mismatch"
+    assert len(ins[1]) == 34
+
+
 def test_next_serial_falls_back_to_max(monkeypatch):
     _apply(monkeypatch, _fake_query(cform=0))
     assert guest_foreign.next_serial() == 42

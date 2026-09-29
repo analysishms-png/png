@@ -668,6 +668,10 @@ def _form_registry() -> dict[str, callable]:
         from HMS_py.ui import fd_forms_ui as fdui
     except ImportError:
         fdui = None
+    try:
+        from HMS_py.ui import smartcard_txn_ui as sct
+    except ImportError:
+        sct = None
     # Wave 6 imports (posting/settlement — VB6 fdPostChrg/fdPaymentCharge/
     # FdReSetlement/FdRevCheckOut)
     try:
@@ -1255,6 +1259,12 @@ def _form_registry() -> dict[str, callable]:
         "Setup Outlet":      (lambda w: p2.open_depart(w)) if p2 else None,
         "Outlet Bill Sundry Setting": ((lambda w: fdui.open_depart_sundry(w))
                                        if fdui else None),
+        # FacilitySundry.frm port (V_Type='FACL') - VB6 dispatcher
+        # ModuleAdd.bas:5278 'New FacilitySundry' se khulta tha, par yahan
+        # registry me tha hi nahi (BUG-012 correction).
+        "Facility Sundry Setting": ((lambda w: fdui.open_facility_sundry(w))
+                                    if fdui else _coming_soon(
+                                        "Facility Sundry Setting")),
         # Wave 3: EPABX masters
         "Call Type":         (lambda w: epabx.open_calltype(w)) if epabx else None,
         "Call Code":         (lambda w: epabx.open_callcode(w)) if epabx else None,
@@ -1461,7 +1471,7 @@ def _form_registry() -> dict[str, callable]:
             "Table Change Entry", "Sale Bill Entry", "Settlement Entry",
             "Display Table",
             "Order Booking", "Bill Lookup", "Order Booking Advance",
-            "KOT Transfer", "Token Entry", "Assign Delivery", "Payment Receive",
+            "KOT Transfer", "Token Entry", "Payment Receive",
             "Salary Creation", 
              "Rate Group Master",
              "Open Item Consumption", 
@@ -1551,8 +1561,7 @@ def _form_registry() -> dict[str, callable]:
             "Member Bill Missing Report",
             "Recharge/Refund Entry", "Cash Card Transaction Report",
             "Cash Card Collection Summary", "Card Transaction Report",
-            "Card Statement (MINI)", "Card Statement (FULL)",
-            "Card Collection Summary", 
+            "Card Collection Summary",
              "Guest Registration", "-",
         )}),
         # ── PARTIAL-batch wiring: VB6 forms -> existing tested openers ──
@@ -1582,6 +1591,14 @@ def _form_registry() -> dict[str, callable]:
             w, user=getattr(w, "user", "SA"))) if pm else None),
         # SmartCard ops (VB6: Registration/Recharge/Refund/ReIssue forms)
         "Card Registration": ((lambda w: pm.open_card_registration(w, user=getattr(w, "user", "SA"))) if pm else None),
+        # VB6 MDIForm1.EXTSCOP Index 3/4/5 -> SmartCardRecharge/Refund/LostReIssue
+        "Card Recharge": ((lambda w: sct.open_card_recharge(w, user=getattr(w, "user", "SA"))) if sct else None),
+        "Card Refund": ((lambda w: sct.open_card_refund(w, user=getattr(w, "user", "SA"))) if sct else None),
+        "Card Re-Issue": ((lambda w: sct.open_card_re_issue(w, user=getattr(w, "user", "SA"))) if sct else None),
+    # Card statements: VB6 ModuleAdd.bas:2493/2497 -> Proc_275_18/22.
+    # (pehle _coming_soon list me the - SmartCardLedger live hai to port kiya)
+    "Card Statement (MINI)": ((lambda w: sct.open_card_statement_mini(w, user=getattr(w, "user", "SA"))) if sct else None),
+    "Card Statement (FULL)": ((lambda w: sct.open_card_statement_full(w, user=getattr(w, "user", "SA"))) if sct else None),
         # VB6 FrmGuestWakeUp -> guest services Wake Up tab
         "Register Wake up Calls": ((lambda w: gsvc_ui.open_guest_services(w)) if gsvc_ui else None),
         # VB6 HRoomCheckOutClearance -> check-out screen
@@ -1650,6 +1667,9 @@ def _form_registry() -> dict[str, callable]:
         "POS Sales": (lambda w: psale_ui.open_pos_sales(w)) if psale_ui else None,
         "POS Stock": (lambda w: pstock_ui.open_pos_stock(w)) if pstock_ui else None,
         "POS Delivery": (lambda w: pdel_ui.open_pos_delivery(w)) if pdel_ui else None,
+        # VB6 RsAssignDelivery (ModuleAdd.bas:3854) - alag form, alag caption;
+        # POS Delivery se shared UI.
+        "Assign Delivery": (lambda w: pdel_ui.open_pos_delivery(w)) if pdel_ui else _coming_soon("Assign Delivery"),
         "POS Happy Hours": (lambda w: phappy_ui.open_pos_happy(w)) if phappy_ui else None,
         "POS Table": (lambda w: ptable_ui.open_pos_table(w)) if ptable_ui else None,
         "Table Master": (lambda w: ptable_ui.open_pos_table(w)) if ptable_ui else None,

@@ -118,11 +118,18 @@ def capacity_list(venue: str = "", cn=None) -> list[dict]:
             cap = str(int(float(cap)))
         except (ValueError, TypeError):
             cap = cap.strip()
+        # PicPath live me IMAGE (varbinary) column hai — bytes ko utf-8
+        # path-text me decode karo (VB6 pic load path hi store karta tha)
+        pic = r.PicPath
+        if isinstance(pic, (bytes, bytearray, memoryview)):
+            pic = bytes(pic).split(b"\x00")[0].decode("utf-8", "replace").strip()
+        else:
+            pic = (str(pic) if pic is not None else "").strip()
         out.append({"venuecode": (r.VenueCode or "").strip(),
                     "capacity": cap,
                     "seating": float(r.Seating or 0),
                     "floating": float(r.Floating or 0),
-                    "picpath": (r.PicPath or "").strip(),
+                    "picpath": pic,
                     "u_ae": (r.U_AE or "").strip()})
     return out
 
@@ -142,6 +149,8 @@ def capacity_upsert(venuecode: str, capacity: str, seating: float,
     capacity = str(capacity or "").strip()
     if not capacity:
         raise ValueError("Capacity zaroori hai (number ya tier name)")
+    # PicPath IMAGE (varbinary) hai — text path ko bytes me likho
+    picpath_bytes = (picpath or "").encode("utf-8") if picpath else None
     if not exists(venuecode, cn=cn):
         raise ValueError(f"Venue {venuecode} VenueMast me nahi hai")
     own = cn is None
@@ -157,7 +166,7 @@ def capacity_upsert(venuecode: str, capacity: str, seating: float,
                 "UPDATE VenueCapacity SET Seating = ?, Floating = ?, "
                 "PicPath = ?, U_EntDt = getdate(), U_AE = 'E' "
                 "WHERE VenueCode = ? AND Capacity = ?",
-                (float(seating), float(floating), picpath,
+                (float(seating), float(floating), picpath_bytes,
                  venuecode, capacity), cn=cn, commit=False)
         else:
             db.execute(
@@ -166,7 +175,7 @@ def capacity_upsert(venuecode: str, capacity: str, seating: float,
                 "LogSite_Code) VALUES (?, ?, ?, ?, ?, ?, getdate(), "
                 "'A', ?)",
                 (venuecode, capacity, float(seating),
-                 float(floating), picpath, SITE_CODE, SITE_CODE),
+                 float(floating), picpath_bytes, SITE_CODE, SITE_CODE),
                 cn=cn, commit=False)
         if commit:
             cn.commit()

@@ -1,0 +1,23 @@
+site=KK CFORM before=0
+PASS guest.insert_new_stay sno=1 serial=18
+PASS guest.readback 
+PASS guest.update_preserves_serial serial=18
+PASS guest.update_readback 
+PASS guest.delete 
+PASS venue.upsert_string_capacity 
+PASS venue.update_same_key 
+PASS venue.delete 
+PASS comp.save_3_sections 
+PASS comp.replace_delete_reinsert 
+PASS comp.delete_pack 
+PASS departpay.set_for_paycode n=3
+PASS departpay.banq_auto_row 
+PASS departpay.set_allowed_remove 
+PASS departpay.set_allowed_add 
+PASS departpay.grid_shape 
+PASS plan.insert_with_child revname=MEAL CHARGE
+PASS plan.update_replace 
+PASS plan.delete 
+PASS cform_counter_restored before=0 after=0
+
+=== 20/20 PASS ===

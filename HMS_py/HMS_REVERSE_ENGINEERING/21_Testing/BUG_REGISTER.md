@@ -173,9 +173,10 @@ Security findings cross-referenced in SECURITY_REMEDIATION_NOTE_SRN-001.md (F-1.
     `Point of Sale`, `Operations`/`Operation`, `POS Operations`,
     `Utility`, `SMS`, `Send SMS`, `Reward Points`, `Reports`, `Sstup`
     (VB6 typo), `....`.
-  * **[VERIFIED-VB6] missing ports** — VB6 me form hai, Python me nahi:
-    `Revenue Change Entry` (MDIForm1.frm:2461, parent Operations/MemOpr),
-    `Facility Sundry Setting` (MDIForm1.frm:2565, parent Operations/MallMgmt),
+  * **[VERIFIED-VB6] missing ports** — VB6 me form/dispatcher case hai,
+    Python me nahi (status round-7 ke baad):
+    `Revenue Change Entry` (**DEAD** — dispatcher me case hi nahi, dekho
+    neeche RE-CORRECTED), `Facility Sundry Setting` (**PORTED round-6**),
     `Card Recharge` (MDIForm1.frm:2736 → `SmartCardRecharge.frm`),
     `Card Refund` (MDIForm1.frm:2740 → `SmartCardRefund.frm`),
     `Card Re-Issue` (MDIForm1.frm:2744 → `SmartCardLostReIssue.frm`).
@@ -186,6 +187,96 @@ Security findings cross-referenced in SECURITY_REMEDIATION_NOTE_SRN-001.md (F-1.
   ya allow-list me jaaye; silent no-op allowed nahi.
 - Severity: LOW (each), MEDIUM as a class (menu dead-end).
 - Evidence level: [VERIFIED-CODE] + [VERIFIED-VB6]
+- **REVISED + RESOLVED (2026-09-29, round-5)** — "5 missing ports" ka
+  classification galat tha, VB6 source padhkar correct kiya:
+  * **[VERIFIED-VB6] `Revenue Change Entry` VB6 me bhi dead hai**:
+    `MDIForm1.MemOpr` Index 9, `Visible = 0`, aur `MemOpr_Click` me case 9
+    hai hi nahi (handled: 0,1,2,3,4,5,6,11); caption dispatcher
+    (`ModuleAdd.bas::Proc_165_2_1E4B100`, **128 `Loop Until`**) me bhi
+    `"Revenue Change Entry"` ka koi case **nahi** -> click par kuch nahi
+    khulta. Ab bhi allow-list me, reason documented.
+  * **teeno card screens port ho gaye** — `ui/smartcard_txn_ui.py`
+    (`RechargeDialog` / `RefundDialog` / `ReIssueDialog`), registry keys
+    `Card Recharge` / `Card Refund` / `Card Re-Issue` (VB6
+    `MDIForm1.EXTSCOP` Index 3/4/5 -> `ModuleAdd.bas:2470/2476/2482` ->
+    `SmartCardRecharge` / `SmartCardRefund` / `SmartCardLostReIssue`).
+    Allow-list se teeno remove kiye; nayi guard
+    `tests/unit/test_card_txn_ui.py::test_registry_resolves_all_three_card_txn_leaves`.
+- **RE-CORRECTED (2026-09-29, round-6)** — round-5 me `Facility Sundry
+  Setting` ko bhi "VB6 me dead" likha gaya tha, **wo galat tha**:
+  * Static `MDIForm1.MallMgmt` Index 6 indeed `Visible = 0` + `MallMgmt_Click()`
+    body `Exit Sub` hai — par VB6 ka **asli menu-open path** wo static control
+    nahi, **caption dispatcher** hai: `ModuleAdd.bas::Proc_165_2_1E4B100` me
+    `Loop Until (var_188 = "Facility Sundry Setting")`
+    -> `Set var_90 = New FacilitySundry` -> `.Show` (**ModuleAdd.bas:5278**).
+    `FacilitySundry.frm` bhi live hai (2813 lines, caption
+    "Outlet Bill Sundry Setting"), aur uski saari tables
+    (`SundryMast` 19 / `SundryType` 118 / `SundryTypeFix` 9 / `RevMast` 174 /
+    `Enviro.SundryPassword`) live DB me **maujood + bhari hui**.
+  * Python side `ui/fd_forms_ui.py::open_facility_sundry` pehle se maujood
+    tha (`FacilitySundryWindow`, `kind='facility'` -> `V_Type='FACL'`) par
+    **registry me koi key hi nahi thi** -> leaf no-op.
+  * Fix: `ui/shell.py` me `"Facility Sundry Setting"` -> `fdui.open_facility_sundry`;
+    allow-list se hata diya; guards
+    `test_facility_sundry_setting_is_a_real_opener` +
+    `test_facility_sundry_still_in_menu_tree`.
+- **PORTED (2026-09-29, round-7)** — `Assign Delivery` leaf jo round-6 ke
+  stub audit me **STUB with VB6 source** tha, wo bhi isi class ka member tha:
+  * VB6 dispatcher case `ModuleAdd.bas:3854` ->
+    `New RsAssignDelivery` (form ka caption "Member Category Wise Revenue"
+    = stale, VB6 bhi isi tarah tha).
+  * Fix: `ui/shell.py` blocked `_coming_soon` tuple se hataya ->
+    `pdel_ui.open_pos_delivery`; naya port `core/pos_delivery.py::
+    unassigned_bills/browse_assignments/delivery_boys/assign_bill` +
+    `ui/pos_delivery_ui.py` (2 tabs).
+    Guards: `tests/unit/test_pos_delivery_ui.py` (3) +
+    `tests/database/test_pos_delivery.py` (4).
+  * Round-7 triage me aur decide hua: `Data Transfer`/
+    `Transfer (Offline)`/`Transfer (Online)`/`Data Transfer (POS)` =
+    Jet `.mdb` file-exchange utility (NOT portable); `Item Issued On
+    Cleaning` = 2 table ABSENT; `Data Recieving` = dispatcher case hi nahi
+    (DEAD, allow-list candidate).
+- Remaining unresolved (headers/junk wale) = intentional.
+
+## BUG-026 (SmartCardRegistration INSERT me VALUES off-by-one)
+- Module: `core/smartcard_ops.py::insert_reg`
+- Evidence [VERIFIED-SQL]: `VALUES (?,?,?,?,?,?,?,?,?,?,getdate(),'A',?,?,?,0,?,?)`
+  me `getdate()` **11th** position par tha jabki `U_Name` 11th column hai ->
+  `U_EntDt` (datetime) ko `'A'` milta tha aur INSERT hamesha fail hota tha:
+  `pyodbc.DataError ('22007', ... Conversion failed when converting date
+  and/or time from character string)`. Matlab **Card Registration ka koi
+  bhi naya insert kabhi kaam nahi kar raha tha** (silent CRUD hole).
+- Also: `SmartCardReIssueDetail.Trans_Id` ek **IDENTITY** column hai, par
+  `insert_reissue` explicit `Trans_Id` value likh raha tha ->
+  `23000 ... Cannot insert explicit value for identity column ... (544)`.
+  Saath hi `SELECT SCOPE_IDENTITY()` alag cursor/batch me **NULL** deta hai
+  (naya scope) -> `@@IDENTITY` use kiya.
+- Fix (2026-09-29, round-5): `insert_reg` VALUES me 11 `?` before
+  `getdate()`; `insert_reissue` se `Trans_Id` column drop + `@@IDENTITY`.
+  Regression: `tests/database/test_smartcard_txn.py` (9 tests) jo pehli
+  baar ye dono INSERT path exercise karte hain.
+- Severity: HIGH (card registration/re-issue data hi write nahi ho raha tha).
+- Evidence level: [VERIFIED-SQL]
+- Status: FIXED (suite 739 pass).
+
+## BUG-027 (auto_settle_card ka ledger row VB6 rollup ke against tha)
+- Module: `core/smartcard_ops.py::auto_settle_card`
+- Evidence [VERIFIED-VB6] + [VERIFIED-SQL]: VB6 `MemAutoSettleCardBalance`
+  `Proc_275_17(..., "Refund", ...)` call karta hai -> `VType='RCARD'`,
+  `Type='RCARDC'/'RCARDS'`, **`AmtDr`**. Authoritative rollup
+  (`SmartCardRecharge.frm:890`) hai:
+  `CurrBal = Sum(AmtCr) - Sum(AmtDr)` over `Type IN ('RCARDC','CARDEXP')`,
+  `SecurBal = ...` over `Type='RCARDS'`.
+  Python pehle `VType='ASB'`, `Type='Refund'`, **`AmtCr`** likh raha tha ->
+  rollup me contribute hi nahi karta, aur galti se karta bhi to balance
+  *badha* deta. `secur_settle='R'` (DGRestType 'R' = reverse, security
+  rehta hai) par bhi `SecurBal=0` kar raha tha.
+- Fix (2026-09-29, round-5): RCARD/RCARDC/RCARDS + `AmtDr` + `Voucher_Prefix`
+  se asli DocId/VNo; `'R'` mode me `SecurBal` preserve.
+  Regression: `test_auto_settle_card_posts_rcard_rows_not_generic_refund`,
+  `test_auto_settle_card_secur_reverse_keeps_security_balance`.
+- Severity: MEDIUM (wrong accounting sign, settle ke baad rollup mismatch).
+- Evidence level: [VERIFIED-VB6] + [VERIFIED-SQL]
 
 ## KNOWN ISSUES LISTS (vendor/site notes)
 - HMSIssueList.Log (2019), HMSACIssueList.Log (2020), HMS_GSTRI_List.Log (2021):

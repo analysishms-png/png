@@ -1,0 +1,27 @@
+{
+  "module": "08_Banquet",
+  "generated_at": "2026-09-25T12:49:17",
+  "sidebar": "banquet",
+  "items": [
+    {
+      "leaf": "Venue Master",
+      "layer": "masters",
+      "file": "10_masters_Venue_Master.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "Banquet Booking",
+      "layer": "operations",
+      "file": "20_operations_Banquet_Booking.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "Banquet Taxwise Details",
+      "layer": "reports",
+      "file": "30_reports_Banquet_Taxwise_Details.png",
+      "status": "skipped_messagebox"
+    }
+  ],
+  "failed": [],
+  "shell": "00_shell_module.png"
+}

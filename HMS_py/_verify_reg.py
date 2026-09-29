@@ -12,5 +12,8 @@ def state(v):
 for cap in ["KOT Transfer", "Menu Item Copy", "Inconsistency Check",
             "Check Out Clearance Screen", "Display Rack", "Reverse Room Merge",
             "Forex Receive Entry", "Multiple SMS Type", "Table Change Entry",
-            "Sale Bill Entry", "Settlement Entry", "Token Entry"]:
+            "Sale Bill Entry", "Settlement Entry", "Token Entry",
+            # round-6 additions
+            "Facility Sundry Setting", "Card Statement (MINI)",
+            "Card Statement (FULL)"]:
     print(f"{cap!r:38s} -> {state(reg.get(cap))}")

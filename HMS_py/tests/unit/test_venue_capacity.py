@@ -72,13 +72,33 @@ def test_upsert_insert_branch_keeps_string_capacity(monkeypatch):
     monkeypatch.setattr(db, "execute",
                         lambda sql, params=None, cn=None, commit=False:
                         execs.append((sql, params)) or 1)
-    venue.capacity_upsert("UMA", "Informal", 200.0, 200.0, user="T")
+    venue.capacity_upsert("UMA", "Informal", 200.0, 200.0, "pic/x.png",
+                          user="T")
     ins = [e for e in execs if e[0].startswith("INSERT INTO VenueCapacity")]
     assert len(ins) == 1
     assert ins[0][1][1] == "Informal"          # capacity string pass-through
+    # PicPath live me IMAGE (varbinary) hai — bytes me convert hona chahiye
+    assert ins[0][1][4] == b"pic/x.png"
     # U_Name col live table me NAHI hai — invariant
     assert "U_Name" not in ins[0][0]
     assert "U_EntDt" in ins[0][0] and "'A'" in ins[0][0]
+    # live-smoke regression: marker-count == param-count
+    assert ins[0][0].count("?") == len(ins[0][1])
+
+
+def test_capacity_list_decodes_image_picpath(monkeypatch):
+    """PicPath IMAGE col se read: bytes -> utf-8 path-text."""
+    def fake_query(sql, params=None, cn=None):
+        if "FROM VenueCapacity" in sql:
+            return [SimpleNamespace(VenueCode="UMA", Capacity="Informal",
+                                    Seating=200.0, Floating=200.0,
+                                    PicPath=b"pics/hall.png",
+                                    U_AE="A")]
+        return []
+
+    _apply(monkeypatch, query=fake_query)
+    rows = venue.capacity_list("UMA")
+    assert rows[0]["picpath"] == "pics/hall.png"
 
 
 def test_upsert_update_branch_scoped_to_key(monkeypatch):

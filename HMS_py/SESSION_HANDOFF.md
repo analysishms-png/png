@@ -355,9 +355,156 @@ member/smartcard wale parallel-agent ke in-flight).
   KK0002→2 allowed. Suite: **618 unit passed**. Backlog update:
   PARITY_BACKLOG.md me Tier-1 sab DONE marked.
 
+## 2g. ROUND 6 (2026-09-29) — menu-stub audit + BUG-012 re-correction + 2 card statements
+
+**Suite: 767 passed / 0 failed** (`pytest -q -p no:cacheprovider`);
+`_verify_reg.py` EXIT=0; `compileall core ui tests` OK. Commit nahi kiya.
+
+### (a) BUG-012 dobara correction — `Facility Sundry Setting` dead NAHI tha
+Round-5 me likha tha ki `MDIForm1.MallMgmt(6)` `Visible=0` + `MallMgmt_Click()`
+= `Exit Sub` → VB6 me dead. **Galat**: VB6 ka asli open-path wo static control
+nahi, **caption dispatcher** hai —
+`ModuleAdd.bas::Proc_165_2_1E4B100` (128 `Loop Until`) me
+`Loop Until (var_188 = "Facility Sundry Setting")` →
+`Set var_90 = New FacilitySundry` → `.Show` (**line 5278**).
+- `FacilitySundry.frm` (2813 lines) live hai; uski saari tables live DB me
+  bhari hui: `SundryMast` 19 / `SundryType` 118 / `SundryTypeFix` 9 /
+  `RevMast` 174 / `Enviro.SundryPassword`.
+- Python me `ui/fd_forms_ui.py::open_facility_sundry` (kind=`facility`,
+  `V_Type='FACL'`) **pehle se tha**, par registry me koi key hi nahi thi →
+  leaf silently no-op.
+- Fix: `ui/shell.py` me `"Facility Sundry Setting"` → `fdui.open_facility_sundry`;
+  allow-list se hataya; guards `test_facility_sundry_setting_is_a_real_opener`
+  + `test_facility_sundry_still_in_menu_tree`. BUG_REGISTER me
+  "RE-CORRECTED" note. Sirf `Revenue Change Entry` genuinely dead hai
+  (dispatcher me 128 cases me bhi uska case nahi).
+
+### (b) Menu-stub audit (temp `_audit_menu_stubs.py` — ab delete)
+Har leaf ko `core.menu.roots()/menubar_for()` se nikal kar registry
+classification (REAL/STUB/NONE) + fuzzy match against `FODER/*.frm|*.bas`:
+```
+TOTAL leaves=487  REAL=394  STUB=71 (65 unique)  NONE=22 (18 unique)
+```
+- NONE = sab headers/junk + `Revenue Change Entry` → allow-list me justified.
+- STUB me jinke paas VB6 source hai (11): `Assign Delivery`,
+  `Data Recieving`, `Data Transfer`/(POS)/(Offline)/(Online),
+  `Excise Invoice Cum Gate Pass`, `Item Issued On Cleaning`,
+  `POS Bill Deletion`, `Travel Agency Posting` (+ junk `Reports`).
+  Inme se zyadatar shell ke "blocked tables" list me pehle se document hain
+  (`_qa/probe_coming_soon_tables.py`: `ForexRecv`/`ForexReceipt`, `SMSLog`/
+  `SMSType`, `Sale` = ABSENT).
+- **Conclusion: menu→registry gap class ab CLOSED** (koi unresolved leaf nahi,
+  `test_every_menu_leaf_resolves_to_an_opener` green).
+
+### (c) Card Statement (MINI/FULL) port — `SmartCardLedger` live hai
+VB6 routing `ModuleAdd.bas:2493/2497`:
+- `Card Statement (MINI)` → `ModuleSmartCard.Proc_275_18` —
+  `SmartCardLedger ⨝ SmartCardRegistration ⨝ MemberFamily ⨝ SubGroup`,
+  `Type IN ('RCARDC','RCARDS','CARDEXP')` + `LogSite_Code` + **ek din**,
+  `ORDER BY U_EntDt`; SELECT 13 cols (`Relationship/Member/PreBalance/…`).
+- `Card Statement (FULL)` → `Proc_275_22` — sirf `Code = <card>`, koi type
+  filter nahi, 9 cols, style **106** (`dd mon yyyy`) vs MINI style **103**.
+- Dono pehle `Proc_275_12` card-verification (reader scan) lete hain →
+  Python me `pick_card()` (Code/SerialNo).
+- **VB6 ka ek bug avoid kiya**: `SCL.Vdate='dd/mm/yyyy'` equality se
+  `getdate()` (time-part) rows kabhi match nahi hotin → is port me din-bhar
+  ka range (`>= din AND < din+1`). (BUG-002 jaisa safe-fix, documented.)
+- Naya: `core/smartcard_ops.card_statement(code, mini, vdate, cn, limit, site)`
+  + `ui/smartcard_txn_ui.CardStatementDialog` (Select Card / date (MINI only)
+  / Show / CSV) + openers `open_card_statement_mini` / `_full`; `ui/shell.py`
+  registry keys, `_coming_soon` list se dono captions remove.
+
+### (d) New tests (+6) → 767
+- `tests/database/test_smartcard_txn.py` **+2**: MINI/FULL column+filter
+  parity (WCARDC MINI me nahi, FULL me hai), `vdate` range filter,
+  `Scan Card First` / `Not Registered` validations.
+- `tests/unit/test_card_txn_ui.py` **+2**: registry real-opener (not
+  `_coming_soon`), dialog construct (MINI date input / FULL nahi).
+- `tests/unit/test_shell_opener_refs.py` **+2**: Facility Sundry opener +
+  menu-tree presence (BUG-012 regression).
+
+**Uncommitted (commit nahi kiya)**: round-4/5 files + `ui/shell.py`,
+`ui/smartcard_txn_ui.py`, `core/smartcard_ops.py`,
+`ui/fd_forms_ui.py`(wire only), `tests/unit/test_shell_opener_refs.py`,
+`tests/unit/test_card_txn_ui.py`, `tests/database/test_smartcard_txn.py`,
+`BUG_REGISTER.md`, `SESSION_HANDOFF.md`, `_verify_reg.py`.
+
+## 2h. ROUND 7 (2026-09-29) - `Assign Delivery` menu leaf port (STUB #1)
+
+**Suite: 780 passed / 0 failed**; `_verify_reg.py` EXIT=0; commit nahi kiya.
+
+### (a) Feasibility triage - 10 STUB leaves (VB6 source wale)
+Har leaf ka dispatcher case + frm ki SQL/dependency check kiya:
+
+| leaf | VB6 form | status |
+|---|---|---|
+| `Assign Delivery` | `RsAssignDelivery.frm` (1830 ln) | **PORTED round-7** |
+| `Travel Agency Posting` | `TravelAgencyPost.frm` (2077 ln) | portable (sab table live) |
+| `POS Bill Deletion` | `FrmPOSBillDeletion.frm` (1607 ln) | portable (KOT/PayCharge case-only) |
+| `Item Issued On Cleaning` | `FrmItemIssuedOnCleaning.frm` | **BLOCKED**: `DepartWiseItemIssueList`, `Location` ABSENT |
+| `Data Transfer` / `Transfer (Offline)` / `Transfer (Online)` | `Transfer.frm` (3171 ln) | **NOT portable**: Jet `.mdb` file-exchange utility (`App.Path\Transfer\Template.mdb`, `C:\TEMPZZZZ.MDB`, ODBC `HotelTrans`) |
+| `Data Transfer (POS)` | `FrmPOSSaleDataTransfer.frm` | same `.mdb` dependency |
+| `Excise Invoice Cum Gate Pass` | `ModuleAdd.bas:3126` -> `RsKitchenMaterial` | frm present, baad me |
+| `Data Recieving` | **koi dispatcher case nahi** (sirf MDIForm1 caption) | dead - allow-list candidate |
+
+### (b) `RsAssignDelivery` ka asli kaam
+Form caption **"Member Category Wise Revenue"** = stale; dispatcher
+(`ModuleAdd.bas:3854`) ise `Assign Delivery` leaf se kholta hai. Flow:
+1. **Unassigned picker** (`loc_141E214`): `Sale1` (ya `SplitSale1` jab
+   `Enviro.MultiBillGeneration='Yes'` + dept `AutoSplit`) `LEFT JOIN
+   AssignDelivery` + `INNER JOIN Voucher_Type`, `ISNULL(AD.DeliBoy,'')=''`,
+   `VTYPE='B'+Depart.ShortName`, `Order By S.DOCID`.
+2. **Insert** (`loc_14BB527`): har selected row ke liye
+   `Insert Into AssignDelivery (DocId,Vtype,VNo,Vprefix,Vdate,Ddate,RestCode,
+   DeliBoy,BillAmt,Remark,U_Name,U_EntDt,U_AE,Site_Code,LogSite_Code)`.
+3. **Browse** (`loc_109E614`): `AssignDelivery JOIN Voucher_Type JOIN
+   DeliveryBoy` + date-range + `V_Type='B'+ShortName`.
+4. **Delete** (`loc_115A697`), **DeliveryBoy list** (`loc_141E86D`,
+   `LOGSITE_CODE='<site>' OR 'HO'`).
+
+Live DB evidence: `Sale1` 12686 rows (12685 unassigned), depts `KKRS/KKM001/
+KKM009/KKE001/KKG001` ke VType `BRS/BMM/BMTC/BES/BGA` `Voucher_Type` me
+maujood, `Enviro.MultiBillGeneration=''` (-> Sale1 path), `DeliveryBoy`/
+`AssignDelivery` **khali**.
+
+### (c) Port (files)
+- `core/pos_delivery.py` **+**: `depart_vtype`, `use_split_table`,
+  `unassigned_bills`, `browse_assignments`, `delivery_boys`, `assign_bill`
+  (duplicate-guard ke saath) - VB6 SQL docstrings me.
+  Safe-fix: VB6 `VDate='dd/mm/yyyy'` equality ki jagah din-bhar range
+  (BUG-002 jaisa, documented).
+  `browse_assignments` ka DeliveryBoy join **LEFT** hai (VB6 loc_13749A5
+  variant) - warna khali master ke chalte browser hamesha khaali dikhta.
+- `ui/pos_delivery_ui.py` **rewrite**: 2 tabs - `Assign Bills` (VB6
+  unassigned picker + delivery-boy combo + Assign Selected) +
+  `Assigned (Browser)` (VB6 browse + Mark Delivered + Delete).
+  Class/`open_pos_delivery` naam wahi (registry "POS Delivery" bhi isi ko
+  kholti hai). DeliveryBoy combo **editable** (live master 0 rows).
+- `ui/shell.py`: `"Assign Delivery"` blocked `_coming_soon` tuple se hataya,
+  registry me real opener (`ModuleAdd.bas:3854` comment).
+
+### (d) Tests (+7) -> 780
+- `tests/database/test_pos_delivery.py` **+4**: `'B'+ShortName` parity,
+  split-flag, VB6 SQL shape + order + date-range, assign -> picker se gayab
+  -> duplicate guard -> browse -> delete roundtrip (rollback-safe).
+- `tests/unit/test_pos_delivery_ui.py` **+3**: registry real-opener,
+  core/UI exports, offscreen 2-tab construction.
+
 ## 2b. NEXT SESSION — kya bacha
 
 ### Aage ke ideas
+- **STUB triage ke baad bache portable leaves** (round-7 me table+SQL
+  check ho chuka hai, port baaki):
+  1. `Travel Agency Posting` -> `TravelAgencyPost.frm` (2077 ln; Travel1/
+     Travel2/LEDGER/Voucher_Prefix live) - **agla candidate**.
+  2. `POS Bill Deletion` -> `FrmPOSBillDeletion.frm` (1607 ln; KOT/PayCharge
+     case-only match) - destructive hai, port se pehle confirmation.
+  3. `Excise Invoice Cum Gate Pass` -> dispatcher `New RsKitchenMaterial`
+     (frm check karna).
+  Non-portable/blocked (re-touch mat): `Data Transfer` + `Transfer
+  (Offline)/(Online)` + `Data Transfer (POS)` = Jet `.mdb` file-exchange
+  utility; `Item Issued On Cleaning` = 2 table ABSENT; `Data Recieving` =
+  koi dispatcher case nahi (dead).
 - BUG_REGISTER.md ke document-only bugs (001/005/006/007/009/010) ko
   implementation notes se update karna.
 - **HallAcPostChrg** (VB6 "A/C Posting", From/To Date + Night Audit button)
@@ -413,14 +560,27 @@ member/smartcard wale parallel-agent ke in-flight).
 - Probes: `_qa/probe_*.py` (DB schema evidence)
 - Bug register: `HMS_REVERSE_ENGINEERING/21_Testing/BUG_REGISTER.md`
   (BUG-011 = ACGROUPCURRBAL path-code/orphan rows; BUG-012 = menu leaf gap
-  (rev: 2 dead-in-VB6 + 3 ported); BUG-026 = insert_reg off-by-one +
+  (rev-2: 1 dead-in-VB6 `Revenue Change Entry` + 4 ported — Facility Sundry
+  Setting, Card Recharge/Refund/Re-Issue); BUG-026 = insert_reg off-by-one +
   identity; BUG-027 = auto_settle ledger sign/type)
+- Facility sundry: `ui/fd_forms_ui.py::_SundryBase/FacilitySundryWindow`
+  (kind=`facility`, V_Type='FACL') + `core/sundry_type.py` + registry
+  `"Facility Sundry Setting"`
+- **Assign Delivery (VB6 RsAssignDelivery)**: `core/pos_delivery.py::
+  depart_vtype / use_split_table / unassigned_bills / browse_assignments /
+  delivery_boys / assign_bill` + `ui/pos_delivery_ui.py::
+  PosDeliveryDialog` (2 tabs) + registry keys `Assign Delivery` and
+  `POS Delivery`
 - CurrBal rebuild: `core/fa_ledger_ops.py::rebuild_currbal` + `_acgroup_chain`
 - Member master: `core/fa_masters_ops.py::member_*` + `ui/member_master_ui.py`
 - Card txn core: `core/smartcard_ops.py::recharge_card / refund_card /
   waive_off_all / reissue_card / _card_docid / auto_settle_card`
 - Card txn UI: `ui/smartcard_txn_ui.py` (Recharge/Refund/ReIssueDialog,
-  `pick_card`) + shell registry keys `Card Recharge`/`Card Refund`/`Card Re-Issue`
+  `pick_card`, `CardStatementDialog`) + shell registry keys
+  `Card Recharge`/`Card Refund`/`Card Re-Issue`/
+  `Card Statement (MINI)`/`Card Statement (FULL)`
+- Card statement core: `core/smartcard_ops.py::card_statement` (VB6
+  Proc_275_18/22 SQL parity)
 - **Guest foreigner**: `core/guest_foreign.py::save_stay/list_foreign_stays/
   next_serial/delete_stay` + `ui/guest_lookup_ui.py::_open_foreign`
 - **Venue capacity**: `core/venue.py::capacity_list/upsert/delete` +

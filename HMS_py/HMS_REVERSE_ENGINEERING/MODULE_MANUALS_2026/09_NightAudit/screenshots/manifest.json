@@ -1,0 +1,21 @@
+{
+  "module": "09_NightAudit",
+  "generated_at": "2026-09-25T12:55:18",
+  "sidebar": "night audit",
+  "items": [
+    {
+      "leaf": "Night Audit Log",
+      "layer": "operations",
+      "file": "10_operations_Night_Audit_Log.png",
+      "status": "ok"
+    },
+    {
+      "leaf": "Occupancy Analysis",
+      "layer": "reports",
+      "file": "20_reports_Occupancy_Analysis.png",
+      "status": "ok"
+    }
+  ],
+  "failed": [],
+  "shell": "00_shell_module.png"
+}
