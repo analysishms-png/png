@@ -226,6 +226,220 @@ def open_ledger(parent=None):
     _open(ledger_config, parent)
 
 
+# ---- Plan Defination Master (VB6 FrmPlanPackMast) ----
+def open_plan_definition(parent=None, user="SA"):
+    """VB6 FrmPlanPackMast (Standard-mode Plan definition):
+    header (name/total/percent/roomper) + Plan1 charge-lines grid with
+    FixedCharge picker + VB6 code-gen. Child CRUD packagemaster.py se
+    (delete-then-reinsert, already tested)."""
+    from PyQt6.QtWidgets import (QCheckBox, QComboBox, QDialog,
+                                 QDoubleSpinBox, QFormLayout, QHBoxLayout,
+                                 QHeaderView, QLabel, QLineEdit, QMessageBox,
+                                 QPushButton, QTableWidget, QTableWidgetItem,
+                                 QVBoxLayout)
+    from HMS_py.core import packagemaster, plan_definition as pd
+
+    dlg = QDialog(parent)
+    dlg.setWindowTitle("Plan Defination Master - HMS_py")
+    dlg.resize(760, 560)
+    lay = QVBoxLayout(dlg)
+
+    sel = QHBoxLayout()
+    sel.addWidget(QLabel("Plan:"))
+    cmb_plan = QComboBox()
+    try:
+        for p in packagemaster.list_all(plan_package="Plan"):
+            cmb_plan.addItem(f"{p['name']} ({p['code']})", p["code"])
+    except Exception as e:
+        QMessageBox.critical(dlg, "Error", str(e))
+    btn_load = QPushButton("Load")
+    btn_new = QPushButton("New Plan")
+    sel.addWidget(cmb_plan, 1); sel.addWidget(btn_load); sel.addWidget(btn_new)
+    lay.addLayout(sel)
+
+    form = QFormLayout()
+    txt_code = QLineEdit(); txt_code.setReadOnly(True)
+    txt_name = QLineEdit(); txt_name.setMaxLength(25)
+    spn_total = QDoubleSpinBox(); spn_total.setRange(0, 1e9); spn_total.setDecimals(2)
+    chk_pct = QCheckBox("Percent App (RoomPer % of room rate)")
+    spn_roomper = QDoubleSpinBox(); spn_roomper.setRange(0, 100); spn_roomper.setDecimals(2)
+    form.addRow("Code:", txt_code)
+    form.addRow("Name*:", txt_name)
+    form.addRow("Total:", spn_total)
+    form.addRow(chk_pct)
+    form.addRow("Room Per (%):", spn_roomper)
+    lay.addLayout(form)
+
+    lay.addWidget(QLabel("Plan1 charge lines (ChrgCode FixedCharge se "
+                         "aata hai — RevCode/amounts editable):"))
+    tbl = QTableWidget(0, 6, dlg)
+    tbl.setHorizontalHeaderLabels(
+        ["ChrgCode", "RevCode", "FlatRate", "Adult", "Child", "NoOfDays"])
+    tbl.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+    lay.addWidget(tbl, 1)
+
+    brow = QHBoxLayout()
+    brow.addWidget(QLabel("FixedCharge:"))
+    cmb_fc = QComboBox()
+    try:
+        for fc in pd.list_fixed_charges():
+            cmb_fc.addItem(f"{fc['name']} ({fc['code']})", fc["code"])
+    except Exception:
+        pass
+    btn_addline = QPushButton("+ Add Line")
+    btn_rmline = QPushButton("- Remove")
+    brow.addWidget(cmb_fc, 1); brow.addWidget(btn_addline); brow.addWidget(btn_rmline)
+    lay.addLayout(brow)
+
+    btns = QHBoxLayout()
+    btn_save = QPushButton("Save (replace)")
+    btn_save.setProperty("role", "warning")
+    btn_del = QPushButton("Delete Plan")
+    btn_del.setProperty("role", "danger")
+    btn_close = QPushButton("Close")
+    btns.addWidget(btn_save); btns.addWidget(btn_del)
+    btns.addStretch(); btns.addWidget(btn_close)
+    lay.addLayout(btns)
+
+    def _new_code():
+        try:
+            txt_code.setText(pd.next_plan_code())
+        except Exception as e:
+            QMessageBox.critical(dlg, "Error", str(e))
+
+    def _load():
+        code = cmb_plan.currentData()
+        if not code:
+            return
+        rec = packagemaster.get(code, plan_package="Plan")
+        if not rec:
+            return
+        txt_code.setText(rec["code"])
+        txt_name.setText(rec["name"])
+        spn_total.setValue(float(rec.get("total") or 0))
+        pct = str(rec.get("percent_app") or "").strip().lower() == "yes"
+        chk_pct.setChecked(pct)
+        spn_roomper.setValue(float(rec.get("room_per") or 0))
+        tbl.setRowCount(0)
+        for r in pd.get_plan_display(code):
+            row = tbl.rowCount(); tbl.insertRow(row)
+            for col, val in enumerate([r["chrgcode"], r["revcode"],
+                                       f"{r['flatrate']:g}", r["adult"],
+                                       r["child"], r["nodays"]]):
+                tbl.setItem(row, col, QTableWidgetItem(str(val)))
+
+    def _new():
+        txt_code.clear(); txt_name.clear()
+        spn_total.setValue(0); chk_pct.setChecked(False)
+        spn_roomper.setValue(0); tbl.setRowCount(0)
+        _new_code()
+
+    def _addline():
+        code = cmb_fc.currentData()
+        if not code:
+            return
+        row = tbl.rowCount(); tbl.insertRow(row)
+        tbl.setItem(row, 0, QTableWidgetItem(code))
+        for col in range(1, 6):
+            tbl.setItem(row, col, QTableWidgetItem(""))
+
+    def _rmline():
+        row = tbl.currentRow()
+        if row >= 0:
+            tbl.removeRow(row)
+
+    def _cellv(r, c):
+        it = tbl.item(r, c)
+        return it.text().strip() if it else ""
+
+    def _save():
+        code = txt_code.text().strip()
+        name = txt_name.text().strip()
+        if not code or not name:
+            QMessageBox.warning(dlg, "Input",
+                                "Code aur Name zaroori hain (New Plan dabao ya Load)")
+            return
+        try:
+            pd.validate_percent_app(chk_pct.isChecked(), spn_roomper.value())
+            rows = []
+            for r in range(tbl.rowCount()):
+                if not _cellv(r, 0):
+                    continue
+                rows.append({
+                    "ChrgCode": _cellv(r, 0),
+                    "RevCode": _cellv(r, 1),
+                    "FlatRate": float(_cellv(r, 2) or 0),
+                    "Adult": int(float(_cellv(r, 3) or 0)),
+                    "Child": int(float(_cellv(r, 4) or 0)),
+                    "NoOfDays": int(float(_cellv(r, 5) or 0)),
+                    "TaxInc": "Yes", "TaxStru": "", "PrintOption": "",
+                    "PostingMethod": "", "ChargeType": "",
+                    "ExtraAdult": 0, "ExtraChild": 0,
+                    "PlanPer": 0, "PerDayAmount": 0, "NetAmount": 0,
+                    "FixRate": ""})
+        except (ValueError, TypeError) as e:
+            QMessageBox.warning(dlg, "Input", str(e)); return
+        rec = {"code": code, "name": name,
+               "total": spn_total.value(),
+               "percent_app": "Yes" if chk_pct.isChecked() else "No",
+               "room_per": spn_roomper.value(),
+               "active": "Y"}
+        existing = packagemaster.exists(code, plan_package="Plan")
+        if QMessageBox.question(
+                dlg, "Confirm",
+                f"Plan {code} {'update' if existing else 'create'} karein?\n"
+                f"({len(rows)} Plan1 lines, purani replace hongi)") \
+                != QMessageBox.StandardButton.Yes:
+            return
+        try:
+            packagemaster.save_with_children(
+                rec, plan_rows=rows, token_rows=None,
+                mode="update" if existing else "insert", kind="Plan")
+        except Exception as e:
+            QMessageBox.critical(dlg, "Error", str(e)); return
+        QMessageBox.information(dlg, "Done", f"Plan {code} save ho gaya.")
+        # reload combo + select
+        cmb_plan.blockSignals(True); cmb_plan.clear()
+        for p in packagemaster.list_all(plan_package="Plan"):
+            cmb_plan.addItem(f"{p['name']} ({p['code']})", p["code"])
+        idx = next((i for i in range(cmb_plan.count())
+                    if cmb_plan.itemData(i) == code), -1)
+        if idx >= 0:
+            cmb_plan.setCurrentIndex(idx)
+        cmb_plan.blockSignals(False)
+        _load()
+
+    def _delete():
+        code = txt_code.text().strip()
+        if not code:
+            return
+        if QMessageBox.question(
+                dlg, "Confirm", f"Plan {code} + Plan1 lines delete karein?") \
+                != QMessageBox.StandardButton.Yes:
+            return
+        try:
+            packagemaster.delete(code)
+        except Exception as e:
+            QMessageBox.critical(dlg, "Error", str(e)); return
+        QMessageBox.information(dlg, "Done", "Plan delete ho gaya.")
+        cmb_plan.blockSignals(True); cmb_plan.clear()
+        for p in packagemaster.list_all(plan_package="Plan"):
+            cmb_plan.addItem(f"{p['name']} ({p['code']})", p["code"])
+        cmb_plan.blockSignals(False)
+        txt_code.clear(); txt_name.clear(); tbl.setRowCount(0)
+
+    btn_load.clicked.connect(_load)
+    btn_new.clicked.connect(_new)
+    btn_addline.clicked.connect(_addline)
+    btn_rmline.clicked.connect(_rmline)
+    btn_save.clicked.connect(_save)
+    btn_del.clicked.connect(_delete)
+    btn_close.clicked.connect(dlg.reject)
+    if cmb_plan.count():
+        _load()
+    dlg.exec()
+
+
 # ---- Outlet Paycodes (VB6 FrmPayTypeMast DepartPay grid) ----
 def open_outlet_paycodes(parent=None, user="SA"):
     """Per-paycode outlet-allowed grid (VB6 FrmPayTypeMast):
@@ -334,6 +548,7 @@ class FinanceMastersLauncher(QMainWindow):
         for label, fn in (
             ("Tax Master", open_taxmaster),
             ("Payment Type Master", open_paymenttype),
+            ("Plan Defination Master", open_plan_definition),
             ("Outlet Paycodes (DepartPay)", open_outlet_paycodes),
             ("Market Segment Master", open_marketsegment),
             ("Business Source Master", open_businesssource),

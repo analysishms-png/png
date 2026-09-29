@@ -1205,6 +1205,9 @@ def _form_registry() -> dict[str, callable]:
         # Outlet Paycodes (VB6 FrmPayTypeMast DepartPay grid — per-paycode
         # outlet allow-list; re-settlement/charge combos isi se filter)
         "Outlet Paycodes": (lambda w: fm.open_outlet_paycodes(w, user=getattr(w, "user", "SA"))) if fm else None,
+        # Plan Defination Master (VB6 FrmPlanPackMast — Standard-mode
+        # plan definition; Advanced mode p2.open_planmaster already REAL)
+        "Plan Defination Master": (lambda w: fm.open_plan_definition(w, user=getattr(w, "user", "SA"))) if fm else None,
         "Market Segment": (lambda w: fm.open_marketsegment(w)) if fm else None,
         "Business Source": (lambda w: fm.open_businesssource(w)) if fm else None,
         "Guest Status": (lambda w: fm.open_gueststatus(w)) if fm else None,
