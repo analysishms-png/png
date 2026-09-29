@@ -490,21 +490,114 @@ maujood, `Enviro.MultiBillGeneration=''` (-> Sale1 path), `DeliveryBoy`/
 - `tests/unit/test_pos_delivery_ui.py` **+3**: registry real-opener,
   core/UI exports, offscreen 2-tab construction.
 
+## 2i. ROUND 8 (2026-09-29) — `Travel Agency Posting` menu leaf port (STUB #2)
+
+### (a) VB6 reverse-engineering (`FODER\TravelAgencyPost.frm`, 2077 ln)
+- Dispatcher: `ModuleAdd.bas:3186` -> `New TravelAgencyPost`.
+- **VType = `"PRAP"`** (`loc_11340D4: global_60 = "PRAP"`), live me
+  `Voucher_Type.Description = 'Travel Agency Posting'`, `Number_Method='Automatic'`.
+- **Agency list** (`loc_1134036`): `Select SubCode As Code,Name From Subgroup
+  where ActiveYN=1 And (LOGSITE_CODE=.. or ='HO') and CompanyType like
+  ('Travel Agency') Order by Name` -> live **6 rows**.
+- **Fill SQL** (`loc_1441116`, verbatim port):
+  `SELECT SG.Commission, B.TravelAgent, B.NoDays, RoomOcc.RoomRate, B.GuestProf,
+   GF.Name AS GuestName, RoomOcc.ChkInDate, ChkInTime, DepDate, DepTime,
+   ChkOutDate, ChkOutTime, RoomOcc.Type FROM ((GuestFolio B LEFT JOIN GuestProf GF
+   ON B.GuestProf=GF.Code) LEFT JOIN SubGroup SG ON B.TravelAgent=SG.SubCode)
+   RIGHT JOIN RoomOcc ON B.DocId=RoomOcc.DocId WHERE B.TravelAgent='..' AND
+   B.VDate>='..' AND B.VDate<='..'`
+- **Grid = 9 cols** (`loc_1167E9B FGrid.Cols=9` + header captions
+  `loc_1167EE4-116819C`):
+  `0 Sr.No | 1 Guest (width 0, hidden) | 2 Name | 3 No.Days | 4 Room Rate |
+  5 Total | 6 Comm.% | 7 Commission | 8 Post`
+  - fill math: `Total = NoDays × RoomRate` (`loc_1441795`),
+    `Comm.% = SubGroup.Commission` (`loc_14417F3`),
+    `Commission = Total × Comm%/100` (`loc_14418B1`), `Post = ''` (khali —
+    user ko 'Y' type karna padta hai).
+  - edit: col6 (Comm.%) type karne par col7 recompute (`loc_FFCF0C`); col8 me
+    'Y' type karne par Post='Y' (`loc_10E62F8`).
+- **Nights** (`loc_1441361-14416A2`): Type `'O'` = `DATEDIFF(day, ChkIn, ChkOut)`;
+  Type `'C'` = same **minus 1** (`loc_144158C: var_110 - 1`); Type `''`/other =
+  `DATEDIFF(day, ChkIn, DepDate)`. Live `RoomOcc.Type`: O=11040, C=421, ''=2.
+- **Validation** (`Proc_78_44_10A40E4`, `loc_10A3E39`), exact messages:
+  - `Select Count(*) From Travel1 Where DocID='..'` > 0 -> **"Duplicate Serial No."**
+  - Post='Y' row ka `Comm.%` = 0 -> **"Commission% is Zero"**
+  - koi Post='Y' row nahi -> **"No Posting to Save."**
+- **Commission A/c** (`loc_15CB4B4`): `Select CommissionAc From Enviro where
+  CommissionAc<>'' and LOGSITE_CODE=..`; empty -> **"Please Set CommissionAC in
+  Enviro"**. Live = **`KKCOMM`**.
+- **Save** (`loc_15CB2D0`) order: 3× DELETE (Travel1/Travel2/Ledger by DocID) ->
+  `INSERT Travel1(DocID,VType,VPrefix,Site_Code,VNo,VDate,FromDate,ToDate,
+  TravelAgency,U_Name,U_EntDt,U_AE,LogSite_Code)` ->
+  per Post='Y' row `INSERT Travel2(DocId,SNo,VType,VPrefix,Site_Code,VNo,VDate,
+  Guest,NoDays,RoomRate,Total,Commission,CommPer,...)` (SNo = grid Sr.No) ->
+  **2× `INSERT INTO LEDGER`** (V_SNo 1: SubCode=agency/ContraSub=CommissionAc;
+  V_SNo 2: SubCode=CommissionAc/ContraSub=agency; narration
+  `Travel Agency Posting From Date <d1> To Date <d2>`) ->
+  `UPDATE Voucher_Prefix SET Start_Srl_No=<naya VNo>` -> CommitTrans.
+- **Numbering** (`Proc_78_45_115D0B8`): Voucher_Prefix+Voucher_Type join,
+  `Date_From<=vdate ORDER BY Date_From DESC`; Automatic -> `Start_Srl_No+1`,
+  Manual -> user VNo; DocId 21-char (`D + site(2) + type(5) + prefix(5) + vno(8)`).
+- **Search** (`loc_EC7992`): `Travel1 T1 INNER JOIN SubGroup SG ON
+  T1.TravelAgency=SG.SubCode where LOGSITE_CODE=.. or 'HO' Order by DocID,VNo`.
+- **Load** (`loc_137CEAC`/`loc_137D2BE`): Travel1 + Travel2(+GuestProf.Name);
+  loaded rows hamesha `Post='Y'` (`loc_137D6B4`).
+- **Delete** (`loc_1250ED8`): 3× DELETE by DocID.
+
+### (b) Deviation notes (docstring me bhi)
+- **[SAFE-FIX]** VB6 `B.VDate <= d2` (d2 midnight) same-day evening check-in
+  miss karta -> `B.VDate < DATEADD(day,1,?)` (din's documented safe-fix).
+- **[DECOMPILE-UNCERTAIN]** helper `Proc_6_122_14E77A8` ka return recover nahi
+  hua; Type='C' ka `-1` adjustment source me dikhta hai -> wahi rakha (0-clamp).
+- **[DECOMPILE-AMBIGUOUS]** Ledger amounts decompile me dono taraf literal `0`
+  dikhe; structure (`var_A0` = sum of col7 commission jo warna unused) se
+  **agency Cr + CommissionAc Dr** final (standard "commission payable" convention).
+- VB6 seedha `INSERT INTO LEDGER` karta hai — LedgerM/CurrBal/LedgerLog
+  update nahi (FaVrEnt wale POST se alag) → faithful yahan bhi.
+
+### (c) Port (files)
+- **`core/travel_post.py`** (naya): `VTYPE='PRAP'`, `GRID_COLS` + `COL_*` consts,
+  `FILL_SQL`/`AGENCY_SQL`/`COMMISSION_AC_SQL`/`SEARCH_SQL`, `agency_list`,
+  `commission_ac`, `_as_date`, `_nights`, `fill_guests`, `recompute`,
+  `validate_rows`, `_number_window`, `next_number`, `make_docid`, `save_post`,
+  `_vno_for_docid`, `search_list`, `load_post`, `delete_post`, `doc_exists`.
+- **`ui/travel_post_ui.py`** (naya): `TravelAgencyPostDialog` (header grid +
+  `&Fill/&Save/&Delete/&Search/&New/&Close`, 9-col grid, col1 hidden,
+  col6 double-click -> Comm.% input + col7 recompute, col8 double-click -> Post
+  toggle, search popup table, `_load` by DocId), `open_travel_agency_posting`.
+- `ui/shell.py`: import `travel_post_ui as tpost_ui`; registry key
+  `"Travel Agency Posting"` add kiya; blocked-tuple se hata diya.
+
+### (d) Tests (+13) -> 795
+- `tests/database/test_travel_post.py` **+9**: VType/grid-9-col/21-char DocId,
+  agency list (live 6) vs SQL count, `Enviro.CommissionAc`, fill SQL + math +
+  Post='' + date guards, `_nights` teen type branches, validation messages,
+  `next_number` (prefix 2026, vno 1), save roundtrip (Travel1/Travel2/SNo
+  1..n/balanced 2-row Ledger/`Start_Srl_No` consume/search/load Post='Y'/
+  delete), duplicate-serial guard.
+- `tests/unit/test_travel_post_ui.py` **+4**: registry real-opener, core/UI
+  exports, offscreen construction (9 headers, col1 hidden, agencies loaded,
+  `_commac` set), offline grid edit + recompute.
+
+### (e) Verification
+`795 passed`, `_verify_reg.py` EXIT=0 (`Travel Agency Posting` -> REAL),
+`compileall core ui tests` OK. Temp probes `_probe_travel{,2,3,4}.py` delete.
+
 ## 2b. NEXT SESSION — kya bacha
 
 ### Aage ke ideas
 - **STUB triage ke baad bache portable leaves** (round-7 me table+SQL
   check ho chuka hai, port baaki):
-  1. `Travel Agency Posting` -> `TravelAgencyPost.frm` (2077 ln; Travel1/
-     Travel2/LEDGER/Voucher_Prefix live) - **agla candidate**.
-  2. `POS Bill Deletion` -> `FrmPOSBillDeletion.frm` (1607 ln; KOT/PayCharge
-     case-only match) - destructive hai, port se pehle confirmation.
-  3. `Excise Invoice Cum Gate Pass` -> dispatcher `New RsKitchenMaterial`
-     (frm check karna).
+  1. `POS Bill Deletion` -> `FrmPOSBillDeletion.frm` (1607 ln; KOT/PayCharge
+     case-only match) - **agla candidate**, destructive hai (bills delete)
+     to port se pehle user confirmation.
+  2. `Excise Invoice Cum Gate Pass` -> dispatcher `New RsKitchenMaterial`
+     (frm check karna - excise/GST logic + tables confirm karo).
   Non-portable/blocked (re-touch mat): `Data Transfer` + `Transfer
   (Offline)/(Online)` + `Data Transfer (POS)` = Jet `.mdb` file-exchange
   utility; `Item Issued On Cleaning` = 2 table ABSENT; `Data Recieving` =
   koi dispatcher case nahi (dead).
+  (Done: `Assign Delivery` round-7, `Travel Agency Posting` round-8.)
 - BUG_REGISTER.md ke document-only bugs (001/005/006/007/009/010) ko
   implementation notes se update karna.
 - **HallAcPostChrg** (VB6 "A/C Posting", From/To Date + Night Audit button)
@@ -572,6 +665,13 @@ maujood, `Enviro.MultiBillGeneration=''` (-> Sale1 path), `DeliveryBoy`/
   PosDeliveryDialog` (2 tabs) + registry keys `Assign Delivery` and
   `POS Delivery`
 - CurrBal rebuild: `core/fa_ledger_ops.py::rebuild_currbal` + `_acgroup_chain`
+- **Travel Agency Posting (VB6 TravelAgencyPost)**: `core/travel_post.py::
+  VTYPE='PRAP' / GRID_COLS / agency_list / commission_ac / _nights /
+  fill_guests / recompute / validate_rows / next_number / make_docid /
+  save_post / search_list / load_post / delete_post` +
+  `ui/travel_post_ui.py::TravelAgencyPostDialog` (9-col grid; col6 Comm.%
+  edit -> col7 recompute, col8 Post toggle) + registry key
+  `Travel Agency Posting`
 - Member master: `core/fa_masters_ops.py::member_*` + `ui/member_master_ui.py`
 - Card txn core: `core/smartcard_ops.py::recharge_card / refund_card /
   waive_off_all / reissue_card / _card_docid / auto_settle_card`

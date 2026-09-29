@@ -15,5 +15,7 @@ for cap in ["KOT Transfer", "Menu Item Copy", "Inconsistency Check",
             "Sale Bill Entry", "Settlement Entry", "Token Entry",
             # round-6 additions
             "Facility Sundry Setting", "Card Statement (MINI)",
-            "Card Statement (FULL)"]:
+            "Card Statement (FULL)",
+            # round-7/8 additions
+            "Assign Delivery", "Travel Agency Posting"]:
     print(f"{cap!r:38s} -> {state(reg.get(cap))}")

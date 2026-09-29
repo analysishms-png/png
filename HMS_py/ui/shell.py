@@ -762,6 +762,10 @@ def _form_registry() -> dict[str, callable]:
     except ImportError:
         pdel_ui = None
     try:
+        from HMS_py.ui import travel_post_ui as tpost_ui
+    except ImportError:
+        tpost_ui = None
+    try:
         from HMS_py.ui import pos_happy_ui as phappy_ui
     except ImportError:
         phappy_ui = None
@@ -1462,7 +1466,7 @@ def _form_registry() -> dict[str, callable]:
         # ke baad click handler fall-through karta tha. VB6 me bhi inactive.
         **({cap: _coming_soon(cap) for cap in (
             "Member Bill Sundry Setting",
-            "Forex Receive Entry", "Display Rack", "Travel Agency Posting",
+            "Forex Receive Entry", "Display Rack",
             "Blank GRC", "Add/Edit/Delete Group With Reservation ",
             "Reservation With History",
             "Advance Deposit", "Confirmation Letters", "Cancellation Letters",
@@ -1670,6 +1674,8 @@ def _form_registry() -> dict[str, callable]:
         # VB6 RsAssignDelivery (ModuleAdd.bas:3854) - alag form, alag caption;
         # POS Delivery se shared UI.
         "Assign Delivery": (lambda w: pdel_ui.open_pos_delivery(w)) if pdel_ui else _coming_soon("Assign Delivery"),
+        # VB6 TravelAgencyPost (ModuleAdd.bas:3186) - Travel1/Travel2 + 2 LEDGER rows.
+        "Travel Agency Posting": (lambda w: tpost_ui.open_travel_agency_posting(w, user=getattr(w, "user", None))) if tpost_ui else _coming_soon("Travel Agency Posting"),
         "POS Happy Hours": (lambda w: phappy_ui.open_pos_happy(w)) if phappy_ui else None,
         "POS Table": (lambda w: ptable_ui.open_pos_table(w)) if ptable_ui else None,
         "Table Master": (lambda w: ptable_ui.open_pos_table(w)) if ptable_ui else None,

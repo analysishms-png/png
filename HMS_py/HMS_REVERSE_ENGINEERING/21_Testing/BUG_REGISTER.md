@@ -174,7 +174,7 @@ Security findings cross-referenced in SECURITY_REMEDIATION_NOTE_SRN-001.md (F-1.
     `Utility`, `SMS`, `Send SMS`, `Reward Points`, `Reports`, `Sstup`
     (VB6 typo), `....`.
   * **[VERIFIED-VB6] missing ports** — VB6 me form/dispatcher case hai,
-    Python me nahi (status round-7 ke baad):
+    Python me nahi (status round-8 ke baad):
     `Revenue Change Entry` (**DEAD** — dispatcher me case hi nahi, dekho
     neeche RE-CORRECTED), `Facility Sundry Setting` (**PORTED round-6**),
     `Card Recharge` (MDIForm1.frm:2736 → `SmartCardRecharge.frm`),
@@ -236,6 +236,22 @@ Security findings cross-referenced in SECURITY_REMEDIATION_NOTE_SRN-001.md (F-1.
     Jet `.mdb` file-exchange utility (NOT portable); `Item Issued On
     Cleaning` = 2 table ABSENT; `Data Recieving` = dispatcher case hi nahi
     (DEAD, allow-list candidate).
+- **PORTED (2026-09-29, round-8)** — `Travel Agency Posting` leaf (round-7
+  triage ka "agla candidate") bhi isi class ka member tha:
+  * VB6 dispatcher case `ModuleAdd.bas:3186` -> `New TravelAgencyPost`
+    (VType `"PRAP"`, `Voucher_Type.Description='Travel Agency Posting'`).
+  * Fix: `ui/shell.py` blocked `_coming_soon` tuple se hataya ->
+    `tpost_ui.open_travel_agency_posting`; naya port
+    `core/travel_post.py` (agency_list/commission_ac/fill_guests/validate_rows/
+    next_number/save_post/search_list/load_post/delete_post) +
+    `ui/travel_post_ui.py` (9-col grid; col6 `Comm.%` edit -> col7
+    `Commission` recompute, col8 `Post` toggle).
+  * Guards: `tests/unit/test_travel_post_ui.py` (4) +
+    `tests/database/test_travel_post.py` (9, incl. balanced 2-row LEDGER post,
+    `Voucher_Prefix.Start_Srl_No` consume, duplicate-serial guard).
+  * Do decompile-ambiguity notes core docstring + SESSION_HANDOFF §2i me:
+    `Proc_6_122` nights helper return (Type='C' par `-1` ke saath) aur
+    LEDGER amount literals (agency Cr + `Enviro.CommissionAc` Dr maana gaya).
 - Remaining unresolved (headers/junk wale) = intentional.
 
 ## BUG-026 (SmartCardRegistration INSERT me VALUES off-by-one)
