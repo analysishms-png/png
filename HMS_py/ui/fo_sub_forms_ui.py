@@ -445,8 +445,7 @@ class ReSettlementWindow(QMainWindow):
         newg = QGroupBox("New settlement")
         nl = QHBoxLayout(newg)
         self.cmb_paycode = QComboBox()
-        for code, label in _PAY_TYPES.items():
-            self.cmb_paycode.addItem(f"{label} ({code})", code)
+        self._fill_paycodes()
         self.spn_amount = QDoubleSpinBox(); self.spn_amount.setRange(0, 1_000_000_000)
         self.spn_amount.setDecimals(2); self.spn_amount.setMinimumWidth(140)
         self.txt_comment = QLineEdit(); self.txt_comment.setPlaceholderText("BY CASH / BY UPI...")
@@ -476,6 +475,25 @@ class ReSettlementWindow(QMainWindow):
         btn_lay.addWidget(self.btn_settle); btn_lay.addWidget(self.btn_exit)
         layout.addLayout(btn_lay)
 
+    def _fill_paycodes(self):
+        """VB6 FdReSetlement loc_14633E7: Check Out parent se khulne par
+        paycodes DepartPay (restcode='<site>Fom') se aate hain; fallback
+        full PAY_TYPES list (direct-open branch VB6 loc_1463488)."""
+        from HMS_py.core import depart_pay as dp
+        try:
+            rows = dp.fom_allowed_paycodes()
+            for r in rows:
+                if not r["paycode"]:
+                    continue
+                label = r["name"] or r["paycode"]
+                self.cmb_paycode.addItem(
+                    f"{label} ({r['paycode']})", r["paycode"])
+        except Exception:
+            pass
+        if self.cmb_paycode.count() == 0:
+            for code, label in _PAY_TYPES.items():
+                self.cmb_paycode.addItem(f"{label} ({code})", code)
+
     def _load(self):
         q = self.txt_folio.text().strip()
         if not q:
@@ -503,8 +521,7 @@ class ReSettlementWindow(QMainWindow):
         self.btn_settle.setEnabled(bool(self._pending))
 
     def _add_line(self):
-        item = self.cmb_paycode.currentItem()
-        code = item.data(Qt.ItemDataRole.UserRole) if item else "KKCASH"
+        code = self.cmb_paycode.currentData()
         amt = self.spn_amount.value()
         if amt <= 0:
             QMessageBox.warning(self, "Input", "Amount > 0 hona chahiye"); return

@@ -14,6 +14,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))))
 
+from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QPushButton,
                              QVBoxLayout, QWidget)
 
@@ -225,6 +226,103 @@ def open_ledger(parent=None):
     _open(ledger_config, parent)
 
 
+# ---- Outlet Paycodes (VB6 FrmPayTypeMast DepartPay grid) ----
+def open_outlet_paycodes(parent=None, user="SA"):
+    """Per-paycode outlet-allowed grid (VB6 FrmPayTypeMast):
+    paycode chuno -> departments checkbox grid -> save (delete+reinsert).
+    Re-settlement/charge-posting combos is data se filter hote hain."""
+    from PyQt6.QtWidgets import (QComboBox, QDialog, QHBoxLayout,
+                                 QHeaderView, QLabel, QMessageBox,
+                                 QTableWidget, QTableWidgetItem,
+                                 QVBoxLayout)
+    from HMS_py.core import depart_pay as dp
+
+    dlg = QDialog(parent)
+    dlg.setWindowTitle("Outlet Paycodes (DepartPay) - HMS_py")
+    dlg.resize(620, 520)
+    lay = QVBoxLayout(dlg)
+    lay.addWidget(QLabel("Paycode ki outlet allow-list (VB6 "
+                         "FrmPayTypeMast DepartPay grid). BANQ row "
+                         "VB6 ki tarah auto rahegi."))
+    top = QHBoxLayout()
+    top.addWidget(QLabel("Pay Type (RevMast):"))
+    cmb = QComboBox()
+    try:
+        for p in paymenttype.list_all():
+            cmb.addItem(f"{p['name']} ({p['code']})", p["code"])
+    except Exception as e:
+        QMessageBox.critical(dlg, "Error", str(e))
+    top.addWidget(cmb, 1)
+    btn_load = QPushButton("Load")
+    top.addWidget(btn_load)
+    lay.addLayout(top)
+
+    tbl = QTableWidget(0, 2, dlg)
+    tbl.setHorizontalHeaderLabels(["Allowed", "Outlet / Department"])
+    tbl.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+    tbl.horizontalHeader().setSectionResizeMode(
+        QHeaderView.ResizeMode.Stretch)
+    lay.addWidget(tbl, 1)
+
+    bottom = QHBoxLayout()
+    btn_save = QPushButton("Save (replace)")
+    btn_save.setProperty("role", "warning")
+    btn_close = QPushButton("Close")
+    bottom.addWidget(btn_save)
+    bottom.addStretch()
+    bottom.addWidget(btn_close)
+    lay.addLayout(bottom)
+
+    def _fill():
+        code = cmb.currentData()
+        if not code:
+            return
+        rows = dp.outlet_grid_for_paycode(code)
+        tbl.setRowCount(len(rows))
+        for i, r in enumerate(rows):
+            it_chk = QTableWidgetItem("Y" if r["allowed"] else "-")
+            it_chk.setData(Qt.ItemDataRole.UserRole, r["code"])
+            tbl.setItem(i, 0, it_chk)
+            tbl.setItem(i, 1, QTableWidgetItem(r["name"]))
+
+    def _toggle():
+        row = tbl.currentRow()
+        if row < 0:
+            return
+        it = tbl.item(row, 0)
+        it.setText("Y" if it.text() != "Y" else "-")
+
+    def _save():
+        code = cmb.currentData()
+        if not code:
+            return
+        sel = [tbl.item(i, 0).data(Qt.ItemDataRole.UserRole)
+               for i in range(tbl.rowCount())
+               if tbl.item(i, 0).text() == "Y"]
+        if QMessageBox.question(
+                dlg, "Confirm",
+                f"{code} ki outlet-list replace karein?\n"
+                f"({len(sel)} outlets selected)") \
+                != QMessageBox.StandardButton.Yes:
+            return
+        try:
+            n = dp.set_for_paycode(code, sel, user=user)
+        except Exception as e:
+            QMessageBox.critical(dlg, "Error", str(e))
+            return
+        QMessageBox.information(
+            dlg, "Done", f"{n} outlet rows save ho gayi (BANQ included).")
+        _fill()
+
+    btn_load.clicked.connect(_fill)
+    tbl.doubleClicked.connect(_toggle)
+    btn_save.clicked.connect(_save)
+    btn_close.clicked.connect(dlg.reject)
+    if cmb.count():
+        _fill()
+    dlg.exec()
+
+
 # ---- standalone launcher ----
 class FinanceMastersLauncher(QMainWindow):
     def __init__(self):
@@ -236,6 +334,7 @@ class FinanceMastersLauncher(QMainWindow):
         for label, fn in (
             ("Tax Master", open_taxmaster),
             ("Payment Type Master", open_paymenttype),
+            ("Outlet Paycodes (DepartPay)", open_outlet_paycodes),
             ("Market Segment Master", open_marketsegment),
             ("Business Source Master", open_businesssource),
             ("Guest Status Master", open_gueststatus),
