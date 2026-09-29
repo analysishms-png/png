@@ -176,10 +176,9 @@ def do_checkout(folio: int, user: str = USER, cn=None,
             (user, user, site, vprefix, folio),
             cn=cn_use, commit=False)
 
-        log_rows = db.query(
-            "SELECT MAX(Id) FROM FolioLog WHERE LogSite_Code = ?",
-            (site,), cn=cn_use)
-        logid = (log_rows[0][0] or 0) + 1 if log_rows and log_rows[0][0] else 1
+        # BUG-003/004: race-safe Id (UPDLOCK/HOLDLOCK) - db.py central helper.
+        logid = db.next_serial("FolioLog", "Id", "LogSite_Code = ?", (site,),
+                               cn=cn_use)
         db.execute(
             "INSERT INTO FolioLog (Id, FolionoDocid, Flag, Site_Code, "
             "U_Name, U_EntDt, U_AE, LogSite_Code) "
@@ -248,10 +247,9 @@ def reverse_checkout(folio: int, user: str = USER, cn=None,
             "SiteCode = ? AND Status = 'SETTLE'",
             (user, folio, site), cn=cn_use, commit=False)
 
-        log_rows = db.query(
-            "SELECT MAX(Id) FROM FolioLog WHERE LogSite_Code = ?",
-            (site,), cn=cn_use)
-        logid = (log_rows[0][0] or 0) + 1 if log_rows and log_rows[0][0] else 1
+        # BUG-003/004: race-safe Id (UPDLOCK/HOLDLOCK) - db.py central helper.
+        logid = db.next_serial("FolioLog", "Id", "LogSite_Code = ?", (site,),
+                               cn=cn_use)
         db.execute(
             "INSERT INTO FolioLog (Id, FolionoDocid, Flag, Site_Code, "
             "U_Name, U_EntDt, U_AE, LogSite_Code) "

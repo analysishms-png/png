@@ -25,9 +25,12 @@ VPREFIX = "2026"
 
 
 def next_billno(cn=None) -> int:
+    # BUG-003/004: race-safe (UPDLOCK/HOLDLOCK) - inline hint (next_folio
+    # pattern) kyunki Bill_No varchar hai (CAST counter, next_serial nahi).
     rows = db.query(
         "SELECT MAX(Cast(Bill_No As Int)) FROM FOMBillDetails "
-        "WHERE LogSite_Code = ?", (SITE_CODE,), cn=cn)
+        "WITH (UPDLOCK, HOLDLOCK) WHERE LogSite_Code = ?",
+        (SITE_CODE,), cn=cn)
     return (rows[0][0] or 0) + 1 if rows and rows[0][0] else 1
 
 
@@ -151,9 +154,9 @@ def settle_folio(folio: int, user: str = USER, cn=None, commit: bool = True,
 
 
 def _log(docid: str, flag: str, user: str, cn, site: str = SITE_CODE):
-    rows = db.query("SELECT MAX(Id) FROM FolioLog WHERE LogSite_Code = ?",
-                    (site,), cn=cn)
-    logid = (rows[0][0] or 0) + 1 if rows and rows[0][0] else 1
+    # BUG-003/004: race-safe Id (UPDLOCK/HOLDLOCK) - db.py central helper.
+    logid = db.next_serial("FolioLog", "Id", "LogSite_Code = ?", (site,),
+                           cn=cn)
     db.execute(
         "INSERT INTO FolioLog (Id, FolionoDocid, Flag, Site_Code, "
         "U_Name, U_EntDt, U_AE, LogSite_Code) "
@@ -198,10 +201,10 @@ def post_room_charge(folio: int, amount: float, roomno: str = "",
         # BUG-015: race-safe VNo (UPDLOCK/HOLDLOCK) - concurrent posts ko
         # same number nahi milega. Same cn: lock INSERT commit tak hold.
         vno = db.next_vno("PayCharge", "RC", vprefix, site=site, cn=cn)
-        srows = db.query(
-            "SELECT MAX(SNo) FROM PayCharge WHERE FolioNo = ? AND "
-            "Site_Code = ?", (folio, site), cn=cn)
-        base_sno = (srows[0][0] or 0) if srows and srows[0][0] else 0
+        # BUG-003/004: race-safe SNo (UPDLOCK/HOLDLOCK) - base = current max.
+        base_sno = db.next_serial("PayCharge", "SNo",
+                                  "FolioNo = ? AND Site_Code = ?",
+                                  (folio, site), cn=cn) - 1
         today = datetime.date.today()
 
         def _pc(sno, paycode, amt):
@@ -507,10 +510,10 @@ def receive_payment(folio: int, amount: float, paycode: str = "KKCASH",
             raise ValueError(
                 f"Unknown paycode '{paycode}' (known: " +
                 ", ".join(sorted(PAY_TYPES)) + ")")
-        srows = db.query(
-            "SELECT MAX(SNo) FROM PayCharge WHERE FolioNo = ? AND "
-            "Site_Code = ?", (folio, site), cn=cn)
-        base_sno = (srows[0][0] or 0) if srows and srows[0][0] else 0
+        # BUG-003/004: race-safe SNo (UPDLOCK/HOLDLOCK) - base = current max.
+        base_sno = db.next_serial("PayCharge", "SNo",
+                                  "FolioNo = ? AND Site_Code = ?",
+                                  (folio, site), cn=cn) - 1
         today = datetime.date.today()
         if chqdate == "":
             chqdate = None

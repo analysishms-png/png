@@ -212,10 +212,9 @@ def _log(docid: str, flag: str, user: str, cn, site: str = SITE_CODE):
     """BookingLog write - HMS.bas ka EXACT pattern:
     Max(Id)+1 (else 1); columns (Id,Bookingdocid,Flag,Site_Code,
     U_Name,U_EntDt,U_AE,LogSite_Code); U_EntDt=Now."""
-    rows = db.query(
-        "SELECT MAX(Id) FROM BookingLog WHERE LogSite_Code = ?",
-        (site,), cn=cn)
-    logid = (rows[0][0] or 0) + 1 if rows and rows[0][0] else 1
+    # BUG-003/004: race-safe Id (UPDLOCK/HOLDLOCK) - db.py central helper.
+    logid = db.next_serial("BookingLog", "Id", "LogSite_Code = ?", (site,),
+                           cn=cn)
     db.execute(
         "INSERT INTO BookingLog (Id, Bookingdocid, Flag, Site_Code, "
         "U_Name, U_EntDt, U_AE, LogSite_Code) "

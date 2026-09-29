@@ -109,10 +109,9 @@ def search(term: str, site: str = SITE_CODE, cn=None,
 def insert(rec: dict, cn=None, commit: bool = True,
            site: str = SITE_CODE, user: str = USER) -> dict:
     _validate(rec)
-    sno_rows = db.query(
-        "SELECT MAX(SNo) FROM RoomOcc WHERE DocId = ?",
-        (rec.get("docid", ""),), cn=cn)
-    sno = (sno_rows[0][0] or 0) + 1 if sno_rows and sno_rows[0][0] else 1
+    # BUG-003/004: race-safe SNo (UPDLOCK/HOLDLOCK) - db.py central helper.
+    sno = db.next_serial("RoomOcc", "SNo", "DocId = ?",
+                         (rec.get("docid", ""),), cn=cn)
     db.execute(
         "INSERT INTO RoomOcc (DocId, SNo, FolioNo, Vtype, Site_Code, "
         "Vprefix, GuestProf, RoomCat, RoomType, RoomNo, RateCode, "

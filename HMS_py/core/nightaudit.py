@@ -132,10 +132,10 @@ def _next_vno(vtype: str, vprefix: str, cn=None) -> int:
 
 
 def _next_sno(foliono: int, cn=None) -> int:
-    rows = db.query(
-        "SELECT MAX(SNo) FROM PayCharge WHERE FolioNo = ? AND Site_Code = ?",
-        (foliono, SITE_CODE), cn=cn)
-    return (rows[0][0] or 0) + 1 if rows and rows[0][0] else 1
+    # BUG-003/004: race-safe SNo (UPDLOCK/HOLDLOCK) - db.py central helper.
+    return db.next_serial("PayCharge", "SNo",
+                          "FolioNo = ? AND Site_Code = ?",
+                          (foliono, SITE_CODE), cn=cn)
 
 
 def _make_rc_docid(vprefix: str, vno: int) -> str:
