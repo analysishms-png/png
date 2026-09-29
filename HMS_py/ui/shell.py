@@ -1422,6 +1422,7 @@ def _form_registry() -> dict[str, callable]:
         "Account Posting": (lambda w: npu_ui.open_posting_utility(w, user=getattr(w, 'user', None))) if npu_ui else _coming_soon("Account Posting"),
         "Bill Reprint": (lambda w: psub_ui.open_bill_reprint(w)) if psub_ui else _coming_soon("Bill Reprint"),
         "Merge Room": (lambda w: fosub_ui.open_merge_charge(w)) if fosub_ui else _coming_soon("Merge Room"),
+        "Reverse Room Merge": (lambda w: fosub_ui.open_reverse_room_merge(w)) if fosub_ui else _coming_soon("Reverse Room Merge"),
         "Bill Re-Settlement": (lambda w: fosub_ui.open_re_settlement(w)) if fosub_ui else _coming_soon("Bill Re-Settlement"),
         "Look Up Rooms": (lambda w: fosub_ui.open_room_lookup(w)) if fosub_ui else _coming_soon("Look Up Rooms"),
         "Look Up Room types": (lambda w: fosub_ui.open_room_lookup(w)) if fosub_ui else _coming_soon("Look Up Room types"),
@@ -1435,7 +1436,7 @@ def _form_registry() -> dict[str, callable]:
         **({cap: _coming_soon(cap) for cap in (
             "Member Bill Sundry Setting",
             "Forex Receive Entry", "Display Rack", "Travel Agency Posting",
-            "Reverse Room Merge", "Blank GRC", "Add/Edit/Delete Group With Reservation ",
+            "Blank GRC", "Add/Edit/Delete Group With Reservation ",
             "Reservation With History",
             "Advance Deposit", "Confirmation Letters", "Cancellation Letters",
             "Reservation Status Screen", "Item Issued On Cleaning",
