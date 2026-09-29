@@ -1,0 +1,153 @@
+Step|Timestamp|Screen|Action|Result|Screenshot|Related Code|Related SQL
+001|09:38:56|User Information|Capture login screen|OK|001_Login_Screen.png|frmPassword Form_Load 147D994|
+002|09:38:57|User Information|Click Enable Virtual Keyboard|Toggled ON|002_Login_VirtualKeyboard_ON|ChkKeyboard control|
+002|09:39:53|User Information|Toggle virtual keyboard OFF|Caption was Disable -> clicked||ChkKeyboard|
+005|09:41:07|User Information|Locate login fields|user@top250 pass@top231||Me.txt array index mapping|
+004|09:41:10|MsgBox|Login with dummy user|Dialog: 'Login'|004_Login_InvalidUser_MsgBox|Invalid User @191806D|
+006|10:02:04|User Information|Type credentials (masked)|Typed SA/******||USERMAST select @1917FED|
+006|10:02:07|MsgBox|Login attempt|ERROR DIALOG: 'Login'|006_Login_Error||
+009|10:03:03|User Information|Type credentials corrected order|SA into upper, pwd into lower|||
+010|10:03:12|User Information|Company selection|Visible|010_CompanyGrid.png|company select @1918558|
+010|10:04:11|Company Details|Company grid captured||010_CompanyDetails_Grid.png|Label22/btnapply @1918470-1918497|Select * from company order by STart_dt Desc
+014|10:06:59|HMS MDI|Main dashboard captured|OK|014_Main_Menu_AfterLogin.png|MDIForm_Load 141D204|
+T01|10:12:22|MDI TopBar|Click tab pos 1 (Finance)|x=796 y=500|TopBar_01_Finance.png|INI key9 order|
+T02|10:12:24|MDI TopBar|Click tab pos 2 (MainSetup)|x=788 y=500|TopBar_02_MainSetup.png|INI key9 order|
+T03|10:12:26|MDI TopBar|Click tab pos 3 (Reservation)|x=780 y=500|TopBar_03_Reservation.png|INI key9 order|
+T04|10:12:28|MDI TopBar|Click tab pos 4 (FrontOffice)|x=772 y=500|TopBar_04_FrontOffice.png|INI key9 order|
+T05|10:12:29|MDI TopBar|Click tab pos 5 (HouseKeeping)|x=764 y=500|TopBar_05_HouseKeeping.png|INI key9 order|
+T06|10:12:31|MDI TopBar|Click tab pos 6 (Inventory)|x=756 y=500|TopBar_06_Inventory.png|INI key9 order|
+T07|10:12:33|MDI TopBar|Click tab pos 7 (POS)|x=748 y=500|TopBar_07_POS.png|INI key9 order|
+T08|10:12:34|MDI TopBar|Click tab pos 8 (Banquet)|x=740 y=500|TopBar_08_Banquet.png|INI key9 order|
+T09|10:12:36|MDI TopBar|Click tab pos 9 (NightAudit)|x=732 y=500|TopBar_09_NightAudit.png|INI key9 order|
+T10|10:12:38|MDI TopBar|Click tab pos 10 (HRPayroll)|x=724 y=500|TopBar_10_HRPayroll.png|INI key9 order|
+T11|10:12:39|MDI TopBar|Click tab pos 11 (EPABX)|x=716 y=500|TopBar_11_EPABX.png|INI key9 order|
+T12|10:12:41|MDI TopBar|Click tab pos 12 (Messaging)|x=708 y=500|TopBar_12_Messaging.png|INI key9 order|
+T13|10:12:43|MDI TopBar|Click tab pos 13 (Members)|x=700 y=500|TopBar_13_Members.png|INI key9 order|
+T14|10:12:44|MDI TopBar|Click tab pos 14 (Sales)|x=692 y=500|TopBar_14_Sales.png|INI key9 order|
+T15|10:12:46|MDI TopBar|Click tab pos 15 (Mall)|x=684 y=500|TopBar_15_Mall.png|INI key9 order|
+014|10:13:27|HMS MDI|Restored+maximized, dashboard captured|OK|014_Main_Menu_AfterLogin.png|MDIForm_Load 141D204|
+014|10:14:42|HMS MDI|Dashboard (maximized)|OK|014_Main_Menu_AfterLogin.png|MDIForm_Load 141D204|
+T01|10:14:43|MDI TopBar|Tab Finance clicked|children=[]|TopBar_01_Finance.png|INI key9 order|
+T02|10:14:45|MDI TopBar|Tab MainSetup clicked|children=[]|TopBar_02_MainSetup.png|INI key9 order|
+T03|10:14:47|MDI TopBar|Tab Reservation clicked|children=[]|TopBar_03_Reservation.png|INI key9 order|
+T04|10:14:48|MDI TopBar|Tab FrontOffice clicked|children=[]|TopBar_04_FrontOffice.png|INI key9 order|
+T05|10:14:50|MDI TopBar|Tab HouseKeeping clicked|children=[]|TopBar_05_HouseKeeping.png|INI key9 order|
+T06|10:14:51|MDI TopBar|Tab Inventory clicked|children=[]|TopBar_06_Inventory.png|INI key9 order|
+T07|10:14:53|MDI TopBar|Tab POS clicked|children=[]|TopBar_07_POS.png|INI key9 order|
+T08|10:14:54|MDI TopBar|Tab Banquet clicked|children=[]|TopBar_08_Banquet.png|INI key9 order|
+T09|10:14:56|MDI TopBar|Tab NightAudit clicked|children=[]|TopBar_09_NightAudit.png|INI key9 order|
+T10|10:14:57|MDI TopBar|Tab HRPayroll clicked|children=[]|TopBar_10_HRPayroll.png|INI key9 order|
+T11|10:14:59|MDI TopBar|Tab EPABX clicked|children=[]|TopBar_11_EPABX.png|INI key9 order|
+T12|10:15:01|MDI TopBar|Tab Messaging clicked|children=[]|TopBar_12_Messaging.png|INI key9 order|
+T13|10:15:02|MDI TopBar|Tab Members clicked|children=[]|TopBar_13_Members.png|INI key9 order|
+T14|10:15:04|MDI TopBar|Tab Sales clicked|children=[]|TopBar_14_Sales.png|INI key9 order|
+T15|10:15:05|MDI TopBar|Tab Mall clicked|children=[]|TopBar_15_Mall.png|INI key9 order|
+C2|10:52:12|Front Office|Slot 1 click|no window||TopBarLib|
+C2|10:52:15|Front Office|Open menu slot 2|window='Front Office > Operations > Room Status'|C2_Front_Office__Operations__Room_Statu.png|TopBarLib slot 2/5|
+C2|10:52:20|Front Office|Open menu slot 3|window='Front Office > Operations > Expense Entry'|C2_Front_Office__Operations__Expense_En.png|TopBarLib slot 3/5|
+C2|10:52:25|Front Office|Open menu slot 4|window='Front Office > Operations > Display Rack'|C2_Front_Office__Operations__Display_Ra.png|TopBarLib slot 4/5|
+C2|10:52:30|Front Office|Open menu slot 5|window='Front Office > Operations > Bill Reprint'|C2_Front_Office__Operations__Bill_Repri.png|TopBarLib slot 5/5|
+C2|10:53:43|Reservation|Slot 1 click|no window||TopBarLib|
+C2|10:53:46|Reservation|Open menu slot 2|window='Reservation > Operations > Look Up Room types'|C2_Reservation__Operations__Look_Up_Roo.png|TopBarLib slot 2/4|
+C2|10:53:51|Reservation|Open menu slot 3|window='Reservation > Operations > Look Up Rooms'|C2_Reservation__Operations__Look_Up_Roo.png|TopBarLib slot 3/4|
+C2|10:53:57|Reservation|Open menu slot 4|window='Reservation > Operations > Reservation With History'|C2_Reservation__Operations__Reservation.png|TopBarLib slot 4/4|
+C2|10:54:06|Night Audit|Slot 1 click|no window||TopBarLib|
+C2|10:54:09|Night Audit|Open menu slot 2|window='Night Audit > GST Reports > GSTR-2(3)'|C2_Night_Audit__GST_Reports__GSTR-23.png|TopBarLib slot 2/5|
+C2|10:54:15|Night Audit|Open menu slot 3|window='Night Audit > GST Reports > GSTR-2(4A)'|C2_Night_Audit__GST_Reports__GSTR-24A.png|TopBarLib slot 3/5|
+C2|10:54:20|Night Audit|Open menu slot 4|window='Night Audit > GST Reports > GSTR-2(4B)'|C2_Night_Audit__GST_Reports__GSTR-24B.png|TopBarLib slot 4/5|
+C2|10:54:26|Night Audit|Open menu slot 5|window='Night Audit > GST Reports > Reconciliation (GSTR-2A)'|C2_Night_Audit__GST_Reports__Reconcilia.png|TopBarLib slot 5/5|
+C2|10:55:02|Finance|Slot 1 click|no window||TopBarLib|
+C2|10:55:06|Finance|Open menu slot 2|window='Finance > Transaction > Voucher Entry'|C2_Finance__Transaction__Voucher_Entry.png|TopBarLib slot 2/2|
+C2|10:55:14|Main Setup|Slot 1 click|no window||TopBarLib|
+C2|10:55:17|Main Setup|Open menu slot 2|window='Main Setup > General Setup > Tax Structure'|C2_Main_Setup__General_Setup__Tax_Struc.png|TopBarLib slot 2/9|
+C2|10:55:23|Main Setup|Open menu slot 3|window='Main Setup > General Setup > Payment Type'|C2_Main_Setup__General_Setup__Payment_T.png|TopBarLib slot 3/9|
+C2|10:55:29|Main Setup|Open menu slot 4|window='Main Setup > General Setup > Parameter'|C2_Main_Setup__General_Setup__Parameter.png|TopBarLib slot 4/9|
+C2|10:55:35|Main Setup|Open menu slot 5|window='Main Setup > General Setup > Printing Parameters'|C2_Main_Setup__General_Setup__Printing_.png|TopBarLib slot 5/9|
+C2|10:55:43|House Keeping|Slot 1 click|no window||TopBarLib|
+C2|10:55:46|House Keeping|Slot 2 click|no window||TopBarLib|
+C2|10:55:50|House Keeping|Slot 3 click|no window||TopBarLib|
+C2|10:55:56|Inventory|Open menu slot 1|window='Complaint Clearance'|C2_Complaint_Clearance.png|TopBarLib slot 1/5|
+C2|10:56:01|Inventory|Slot 2 click|no window||TopBarLib|
+C2|10:56:05|Inventory|Open menu slot 3|window='House Keeping > Operations > Complaint Clearance'|C2_House_Keeping__Operations__Complaint.png|TopBarLib slot 3/5|
+C2|10:56:11|Inventory|Open menu slot 4|window='House Keeping > Operations > Claim Entry'|C2_House_Keeping__Operations__Claim_Ent.png|TopBarLib slot 4/5|
+C2|10:56:16|Inventory|Open menu slot 5|window='House Keeping > Operations > House Keeping Screen'|C2_House_Keeping__Operations__House_Kee.png|TopBarLib slot 5/5|
+C2|10:56:24|Point Of Sale|Slot 1 click|no window||TopBarLib|
+C2|10:56:27|Point Of Sale|Open menu slot 2|window='Point Of Sale > POS Reports > Payment Receive Entry (POS)'|C2_Point_Of_Sale__POS_Reports__Payment_.png|TopBarLib slot 2/9|
+C2|10:56:33|Point Of Sale|Open menu slot 3|window='Point Of Sale > POS Reports > Sales Register'|C2_Point_Of_Sale__POS_Reports__Sales_Re.png|TopBarLib slot 3/9|
+C2|10:56:39|Point Of Sale|Open menu slot 4|window='Point Of Sale > POS Reports > Stewardwise Sale'|C2_Point_Of_Sale__POS_Reports__Stewardw.png|TopBarLib slot 4/9|
+C2|10:56:45|Point Of Sale|Open menu slot 5|window='Point Of Sale > POS Reports > Table wise Sale'|C2_Point_Of_Sale__POS_Reports__Table_wi.png|TopBarLib slot 5/9|
+C2|10:56:53|Banquet|Slot 1 click|no window||TopBarLib|
+C2|10:56:56|Banquet|Open menu slot 2|window='Banquet > Operation > Banquet Booking'|C2_Banquet__Operation__Banquet_Booking.png|TopBarLib slot 2/4|
+C2|10:57:02|Banquet|Open menu slot 3|window='Banquet > Operation > Catalog Selection'|C2_Banquet__Operation__Catalog_Selectio.png|TopBarLib slot 3/4|
+C2|10:57:08|Banquet|Open menu slot 4|window='Banquet > Operation > Chef Pre-Costing'|C2_Banquet__Operation__Chef_Pre-Costing.png|TopBarLib slot 4/4|
+C2|10:57:16|HR/Payroll|Slot 1 click|no window||TopBarLib|
+C2|10:57:20|HR/Payroll|Open menu slot 2|window='HR/Payroll > Operations > Loan/Advance'|C2_HRPayroll__Operations__LoanAdvance.png|TopBarLib slot 2/2|
+C2|10:57:28|EXTRAs|Slot 1 click|no window||TopBarLib|
+C3|11:25:04|05_Front_Office|Slot 1|no window||TopBarLib slot|
+C3|11:25:06|05_Front_Office|Open slot 2|window='Front Office > Operations > Room Status'|C3_02_Front_Office__Operations__Room_S.png|TopBarLib slot 2|
+C3|11:25:09|05_Front_Office|Open slot 3|window='Front Office > Operations > Expense Entry'|C3_03_Front_Office__Operations__Expens.png|TopBarLib slot 3|
+C3|11:25:12|05_Front_Office|Open slot 4|window='Front Office > Operations > Display Rack'|C3_04_Front_Office__Operations__Displa.png|TopBarLib slot 4|
+C3|11:25:14|05_Front_Office|Open slot 5|window='Front Office > Operations > Bill Reprint'|C3_05_Front_Office__Operations__Bill_R.png|TopBarLib slot 5|
+C3|11:25:26|04_Reservation|Slot 1|no window||TopBarLib slot|
+C3|11:25:28|04_Reservation|Open slot 2|window='Reservation > Operations > Look Up Room types'|C3_02_Reservation__Operations__Look_Up.png|TopBarLib slot 2|
+C3|11:25:31|04_Reservation|Open slot 3|window='Reservation > Operations > Look Up Rooms'|C3_03_Reservation__Operations__Look_Up.png|TopBarLib slot 3|
+C3|11:25:34|04_Reservation|Open slot 4|window='Reservation > Operations > Reservation With History'|C3_04_Reservation__Operations__Reserva.png|TopBarLib slot 4|
+C3S1|11:26:04|05_Front_Office|Slot1 double-click|window='Front Office > Operations > WalkIn CheckIn'|C3_S1_Front_Office__Operations__WalkIn.png|TopBarLib slot1|
+C3S1|11:26:11|04_Reservation|Slot1 double-click|window='Reservation > Operations > Reservation/Cancellation'|C3_S1_Reservation__Operations__Reserva.png|TopBarLib slot1|
+C3S1|11:26:19|10_Night_Audit|Slot1 double-click|window='Night Audit > GST Reports > GSTR-1'|C3_S1_Night_Audit__GST_Reports__GSTR-1.png|TopBarLib slot1|
+C3S1|11:26:26|03_Finance|Slot1 double-click|window='Finance > Transaction > Voucher Entry'|C3_S1_Finance__Transaction__Voucher_En.png|TopBarLib slot1|
+C3S1|11:26:33|02_Main_Setup|Slot1 double-click|window='Main Setup > General Setup > Tax Master'|C3_S1_Main_Setup__General_Setup__Tax_M.png|TopBarLib slot1|
+C3S1|11:26:41|06_House_Keeping|Slot1 double-click|window='House Keeping > Operations > Complaint Master'|C3_S1_House_Keeping__Operations__Compl.png|TopBarLib slot1|
+C3S1|11:26:48|07_Inventory|Slot1 double-click|window='Inventory > Operations > Indent'|C3_S1_Inventory__Operations__Indent.png|TopBarLib slot1|
+C3S1|11:26:56|08_POS|Slot1 double-click|window='Point Of Sale > POS Reports > Payment Receive Entry'|C3_S1_Point_Of_Sale__POS_Reports__Paym.png|TopBarLib slot1|
+C3S1|11:27:03|09_Banquet|Slot1 double-click|window='Banquet > Operation > Booking Inquiry'|C3_S1_Banquet__Operation__Booking_Inqu.png|TopBarLib slot1|
+C3S1|11:27:11|11_HR_Payroll|Slot1 double-click|window='HR/Payroll > Operations > Leave'|C3_S1_HRPayroll__Operations__Leave.png|TopBarLib slot1|
+P4|11:42:52|Messaging|In Box click|window='Inbox'|C3_INBOX_Inbox.png|EXTRAs strip In Box|
+P4|11:42:57|Dashboard|Property Status click|window='Property Status'|C3_PROPSTAT_Property_Status.png|EXTRAs strip|
+C3|11:43:32|03_Finance|Slot 1|no window||TopBarLib slot|
+C3|11:43:33|03_Finance|Open slot 2|window='Finance > Transaction > Expense Voucher'|C3_02_Finance__Transaction__Expense_Vo.png|TopBarLib slot 2|
+C3|11:43:45|02_Main_Setup|Slot 1|no window||TopBarLib slot|
+C3|11:43:47|02_Main_Setup|Open slot 2|window='Main Setup > General Setup > Tax Structure'|C3_02_Main_Setup__General_Setup__Tax_S.png|TopBarLib slot 2|
+C3|11:43:50|02_Main_Setup|Open slot 3|window='Main Setup > General Setup > Payment Type'|C3_03_Main_Setup__General_Setup__Payme.png|TopBarLib slot 3|
+C3|11:43:53|02_Main_Setup|Open slot 4|window='Main Setup > General Setup > Parameter'|C3_04_Main_Setup__General_Setup__Param.png|TopBarLib slot 4|
+C3|11:43:56|02_Main_Setup|Open slot 5|window='Main Setup > General Setup > Printing Parameters'|C3_05_Main_Setup__General_Setup__Print.png|TopBarLib slot 5|
+C3|11:44:00|02_Main_Setup|Open slot 6|window='Main Setup > General Setup > Printing Setup'|C3_06_Main_Setup__General_Setup__Print.png|TopBarLib slot 6|
+C3|11:44:09|02_Main_Setup|Slot 7|no window||TopBarLib slot|
+C3|11:44:16|02_Main_Setup|Slot 8|no window||TopBarLib slot|
+C3|11:44:24|02_Main_Setup|Slot 9|no window||TopBarLib slot|
+C3|11:44:34|11_HR_Payroll|Slot 1|no window||TopBarLib slot|
+C3|11:44:35|11_HR_Payroll|Open slot 2|window='HR/Payroll > Operations > Loan/Advance'|C3_02_HRPayroll__Operations__LoanAdvan.png|TopBarLib slot 2|
+C3|11:44:47|07_Inventory|Slot 1|no window||TopBarLib slot|
+C3|11:44:49|07_Inventory|Open slot 2|window='Inventory > Operations > Purchase Order'|C3_02_Inventory__Operations__Purchase_.png|TopBarLib slot 2|
+C3|11:44:52|07_Inventory|Open slot 3|window='Inventory > Operations > M.R. Entry'|C3_03_Inventory__Operations__MR_Entry.png|TopBarLib slot 3|
+C3|11:44:55|07_Inventory|Open slot 4|window='Inventory > Operations > Purchase Bill'|C3_04_Inventory__Operations__Purchase_.png|TopBarLib slot 4|
+C3|11:45:07|13_Messaging|Slot 1|no window||TopBarLib slot|
+P4|11:45:38|02_Main_Setup|Setup slot 7 dblclick|window='Main Setup > Utility > Menu Item Copy'|C3_S7_Main_Setup__Utility__Menu_Item_C.png|TopBarLib|
+P4|11:45:43|02_Main_Setup|Setup slot 8 dblclick|window='Main Setup > Utility > Guest LookUp'|C3_S8_Main_Setup__Utility__Guest_LookU.png|TopBarLib|
+P4|11:45:44|02_Main_Setup|Setup slot 8 dblclick|window='Main Setup > Utility > Guest LookUp'|C3_S8_Main_Setup__Utility__Guest_LookU.png|TopBarLib|
+P4|11:46:41|03_Finance|slot1 dblclick|window='Finance > Transaction > Voucher Entry'|C3_S1_Finance__Transaction__Voucher_En.png|TopBarLib|
+P4|11:46:48|11_HR_Payroll|slot1 dblclick|window='HR/Payroll > Operations > Leave'|C3_S1_HRPayroll__Operations__Leave.png|TopBarLib|
+C3|12:03:46|06_House_Keeping|Open slot 1|window='Complain Master'|C3_01_Complain_Master.png|TopBarLib slot 1|
+C3|12:03:56|06_House_Keeping|Slot 2|no window||TopBarLib slot|
+C3|12:04:03|06_House_Keeping|Slot 3|no window||TopBarLib slot|
+C3|12:04:14|08_POS|Slot 1|no window||TopBarLib slot|
+C3|12:04:21|08_POS|Slot 2|no window||TopBarLib slot|
+C3|12:04:28|08_POS|Slot 3|no window||TopBarLib slot|
+C3|12:04:36|08_POS|Slot 4|no window||TopBarLib slot|
+C3|12:04:43|08_POS|Slot 5|no window||TopBarLib slot|
+C3|12:04:53|09_Banquet|Slot 1|no window||TopBarLib slot|
+C3|12:05:01|09_Banquet|Slot 2|no window||TopBarLib slot|
+C3|12:05:08|09_Banquet|Slot 3|no window||TopBarLib slot|
+C3|12:05:16|09_Banquet|Slot 4|no window||TopBarLib slot|
+C3|12:05:23|09_Banquet|Slot 5|no window||TopBarLib slot|
+P5|12:06:47|06_House_Keeping|slot3 dblclick|window='House Keeping > Operations > Complaint Clearance'|C3_P5S3_House_Keeping__Operations__Compl.png|TopBarLib|
+P5|12:07:29|08_POS|slot1 click+dbl|window='Point Of Sale > POS Reports > Payment Receive Entry'|C3_P5B1_Point_Of_Sale__POS_Reports__Paym.png|TopBarLib|
+P5|12:08:09|08_POS|slot5 dblclick|window='Point Of Sale > Hight Way point > Sale Bill Entry'|C3_P5C5_Point_Of_Sale__Hight_Way_point__.png|TopBarLib|
+P5|12:08:13|08_POS|slot6 dblclick|window='Point Of Sale > Hight Way point > Settlement Entry'|C3_P5C6_Point_Of_Sale__Hight_Way_point__.png|TopBarLib|
+P5|12:08:18|08_POS|slot7 dblclick|window='Point Of Sale > Hight Way point > POS Bill Reprint'|C3_P5C7_Point_Of_Sale__Hight_Way_point__.png|TopBarLib|
+P5|12:08:20|08_POS|slot7 dblclick|window='Point Of Sale > Hight Way point > POS Bill Reprint'|C3_P5C7_Point_Of_Sale__Hight_Way_point__.png|TopBarLib|
+P5|12:09:06|08_POS|slot8 dblclick|window='Point Of Sale > MOON TEA CAFE > Bill Lookup'|C3_P5D8_Point_Of_Sale__MOON_TEA_CAFE__Bi.png|TopBarLib|
+P5|12:09:22|09_Banquet|slot7 dblclick|window='Bill Look Up'|C3_P5D7_Bill_Look_Up.png|TopBarLib|
+P6|12:20:41|13_Messaging|slot1 click-seq|window='EXTRAs > SMS > Sstup > SMS (API)'|C3_P6S1_EXTRAs__SMS__Sstup__SMS_API.png|TopBarLib|
+RBAC|12:40:47|Login|Deepak login attempt|typed ******|||
+RBAC|12:40:51|Login|Deepak attempt failed|MSG: Invalid Password|RBAC_Deepak_LoginError.png||

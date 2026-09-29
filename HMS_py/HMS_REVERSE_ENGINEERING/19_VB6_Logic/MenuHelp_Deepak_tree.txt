@@ -1,0 +1,157 @@
+Main Setup|12|0|0|0|N
+Front Office|12|12|0|0|N
+Company Master|12|12|25|0|E
+Reservation|13|0|0|0|N
+Operations|13|11|0|0|N
+Reservation/Cancellation|13|11|11|0|E
+Look Up Room types|13|11|13|0|E
+Look Up Rooms|13|11|14|0|E
+Reservation With History|13|11|15|0|E
+Advance Deposit|13|11|16|0|E
+Confirmation Letters|13|11|17|0|E
+Cancellation Letters|13|11|18|0|E
+Registration Card|13|11|19|0|E
+Reservation Status Screen|13|11|20|0|E
+Reservation Status Report|13|12|0|0|N
+Reservation Status|13|12|11|0|R
+Reservation Status Arrival|13|12|12|0|R
+Arrival List|13|12|16|0|R
+Advance Recd. Report|13|13|0|0|N
+Advance Recd.|13|13|11|0|R
+Advance Recd. Arrival|13|13|12|0|R
+M.I.S.|13|14|0|0|N
+7-730 Days Forecast|13|14|11|0|E
+23 Day Room Availability Forecast|13|14|12|0|E
+23 Day Room Type Availability Forecast|13|14|13|0|E
+Package Forecast|13|14|14|0|E
+Front Office|14|0|0|0|N
+Operations|14|11|0|0|N
+WalkIn CheckIn|14|11|11|0|E
+Room Status|14|11|12|0|E
+Expense Entry|14|11|13|0|E
+Display Rack|14|11|15|0|E
+Bill Reprint|14|11|18|0|E
+Merge Room|14|11|20|0|E
+Bill Re-Settlement|14|11|21|0|E
+Reverse Room Merge|14|11|22|0|E
+GRC Printing|14|11|24|0|E
+Blank GRC|14|11|25|0|E
+Reports|14|12|0|0|N
+Instant House Count|14|12|11|0|R
+Room Inventory|14|12|12|0|R
+Charge Payment Detail|14|12|16|0|R
+Payments By Cashier|14|12|17|0|R
+Cashier Report|14|12|18|0|R
+Settlement Report|14|12|19|0|R
+Cancel Bill Details|14|12|20|0|R
+Room Change History|14|12|21|0|R
+FOM Sales Register|14|12|23|0|R
+Room Wise Plan Detail|14|12|24|0|R
+Occupancy Report|14|12|26|0|R
+Bill Change Report|14|12|27|0|R
+Check Out Register|14|12|28|0|R
+Check In Register|14|12|29|0|R
+Expected Check Out|14|12|30|0|R
+Guest Extra Charges|14|12|32|0|R
+Checked In Guest Detail|14|12|33|0|R
+Room Rent Audit Report|14|12|34|0|R
+Sales Report|14|12|35|0|R
+Guest Payments|14|12|36|0|R
+M.I.S.|14|14|0|0|N
+Occupancy Display|14|14|11|0|R
+Guest wise Analysis|14|14|12|0|R
+Company wise Analysis|14|14|13|0|R
+Guestwise Charges Detail|14|14|14|0|R
+Room Occupancy|14|14|15|0|R
+Room Type Occupancy|14|14|16|0|R
+Room Wise Room Revenue|14|14|17|0|R
+Occupancy Analysis|14|14|18|0|R
+Company wise Nights|14|14|19|0|R
+Revenue During the stay|14|14|20|0|R
+House Keeping|15|0|0|0|N
+Operations|15|12|0|0|N
+House Keeping Screen|15|12|17|0|E
+Point Of Sale|17|0|0|0|N
+POS Reports|17|17|0|0|N
+Sales Register|17|17|11|0|R
+Stewardwise Sale|17|17|12|0|R
+Table wise Sale|17|17|13|0|R
+Settlement Summary|17|17|14|0|R
+KOT Wise Details|17|17|15|0|R
+Cover Analysis|17|17|17|0|R
+Pending KOT|17|17|18|0|R
+Item wise Sale|17|17|19|0|R
+Deleted Unsettled Bill|17|17|20|0|R
+NC KOT Detail|17|17|21|0|R
+NC KOT Summary|17|17|24|0|R
+Banquet|18|0|0|0|N
+Operation|18|12|0|0|N
+Booking Inquiry|18|12|11|0|E
+Banquet Booking|18|12|12|0|E
+Catalog Selection|18|12|13|0|E
+Chef Pre-Costing|18|12|14|0|E
+Banquet Billing|18|12|15|0|E
+Venue Availability|18|12|17|0|E
+Guest Comments|18|12|18|0|E
+Banquet Estimate Billing|18|12|19|0|E
+Banquet Booking Advance|18|12|20|0|E
+Reports|18|13|0|0|N
+Sales Register|18|13|11|0|R
+OutStanding Report|18|13|12|0|R
+Party wise OutStanding|18|13|13|0|R
+Cashier  Report|18|13|14|0|R
+Booking Inquiry Detail|18|13|15|0|R
+Settlement  Report|18|13|16|0|R
+Daily Function Sheet|18|13|17|0|R
+Item Wise Sales Report|18|13|18|0|R
+Company Wise Sale Report|18|13|19|0|R
+Function Wise Item Detail|18|13|20|0|R
+MIS|18|14|0|0|N
+Cover Analysis|18|14|11|0|R
+Collection Summary|18|14|12|0|R
+Tax Report|18|15|0|0|N
+Tax Report|18|15|11|0|R
+Tax Summary|18|15|12|0|R
+Banquet Taxwise Details|18|15|13|0|E
+Night Audit|19|0|0|0|N
+Operation|19|11|0|0|N
+Guest Audit Ledger|19|11|11|0|E
+Charges Posting|19|11|12|0|E
+Night Audit Process|19|11|13|0|E
+Account Posting|19|11|14|0|E
+Reverse Night Audit|19|11|16|0|E
+Reports|19|12|0|0|N
+Daily Report|19|12|11|0|E
+Guest Trail|19|12|14|0|E
+Checkout Analysis|19|12|15|0|E
+Occupancy Analysis|19|12|16|0|R
+Market Segment Analysis|19|12|17|0|E
+Business Source Analysis|19|12|18|0|E
+Company Analysis|19|12|19|0|E
+FOCC Report|19|12|21|0|E
+Food Costing Report|19|12|22|0|E
+FB Cost Statement|19|12|23|0|E
+ROOM SERVICE|17|20|0|0|N
+KOT Entry|17|20|11|0|E
+Sale Bill Entry|17|20|13|0|E
+POS Bill Reprint|17|20|15|0|E
+Display Table|17|20|17|0|E
+KOT Transfer|17|20|21|0|E
+LAUNDRY|15|14|0|0|N
+Laundry Memo|15|14|13|0|E
+Memo Reprint|15|14|14|0|E
+Payment Receive Entry|17|17|30|0|E
+Payment Receive Entry (POS)|17|17|31|0|E
+Bill Wise Adjustment Report|17|17|32|0|R
+Payment Receive|17|20|23|0|E
+Garden Aroma|17|22|0|0|N
+KOT Entry|17|22|11|0|E
+Table Change Entry|17|22|12|0|E
+KOT Transfer|17|22|13|0|E
+Sale Bill Entry|17|22|15|0|E
+Settlement Entry|17|22|16|0|E
+POS Bill Reprint|17|22|17|0|E
+Split Sale Bill|17|22|18|0|E
+Display Table|17|22|19|0|E
+Bill Lookup|17|22|22|0|E
+Payment Receive|17|22|23|0|E

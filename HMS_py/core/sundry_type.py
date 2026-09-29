@@ -51,7 +51,15 @@ def vtype_for(kind: str, site: str = SITE_CODE) -> str:
 
 
 def list_entries(kind: str, cn=None, top: int = 500) -> list[dict]:
-    """VB6 frm:1442 4-table JOIN display, Order by AppDate, VT.Description."""
+    """VB6 frm:1442 4-table JOIN display, Order by AppDate, VT.Description.
+
+    BUG-002 note: VB6 runtime me 'SundryType.AppDate invalid in ORDER BY'
+    error aata tha kyunki VB6 query me GROUP BY tha + ORDER BY non-aggregated
+    col. Is port me GROUP BY nahi hai, to plain ORDER BY SP.AppDate, SP.SNo
+    SQL Server me valid hai — VB6 ka yeh bug yahan replicate nahi hota.
+    (Evidence: HMS_REVERSE_ENGINEERING/21_Testing/BUG_REGISTER.md BUG-002,
+    ErrorLog.Log 05-06/Jul/2017.)
+    """
     vt = vtype_for(kind)
     rows = db.query(
         "SELECT TOP (?) SP.V_Type, CONVERT(varchar(11), SP.AppDate, 103), "

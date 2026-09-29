@@ -102,9 +102,9 @@ def make_docid(site: str, vprefix: str, folio: int) -> str:
 
 def _log(docid: str, flag: str, user: str, cn, site: str = SITE_CODE):
     """FolioLog write - FolioLog 8-col schema (BookingLog pattern)."""
-    rows = db.query("SELECT MAX(Id) FROM FolioLog WHERE LogSite_Code = ?",
-                    (site,), cn=cn)
-    logid = (rows[0][0] or 0) + 1 if rows and rows[0][0] else 1
+    # BUG-003/004: race-safe Id (UPDLOCK/HOLDLOCK) - db.py central helper.
+    logid = db.next_serial("FolioLog", "Id", "LogSite_Code = ?", (site,),
+                           cn=cn)
     db.execute(
         "INSERT INTO FolioLog (Id, FolionoDocid, Flag, Site_Code, "
         "U_Name, U_EntDt, U_AE, LogSite_Code) "
@@ -118,7 +118,15 @@ def create_checkin(guestprof: str, name: str, arr_date, dep_date,
                    commit: bool = True,
                    site: str = SITE_CODE, vprefix: str = "2026",
                    adult: int | None = None, children: int | None = None,
-                   ratecode: str = "", chkintime: str = "") -> int:
+                   ratecode: str = "", chkintime: str = "",
+                   plancode: str = "", planamt: float | None = None,
+                   incinrate: str = "", plandisc: float | None = None,
+                   plandiscamt: float | None = None,
+                   plandiscon: str = "",
+                   rrtaxinc: str = "", rrservicechrg: str = "",
+                   roomtarrif: float | None = None,
+                   rackrate: float | None = None,
+                   roomtaxstru: str = "") -> int:
     """Naya check-in (VB6 CHK doc-engine): DocId + FolioNo + FolioLog 'A'
     + RoomOcc row (P4-c MISSING-LOGIC FIX).
 
@@ -132,6 +140,15 @@ def create_checkin(guestprof: str, name: str, arr_date, dep_date,
     FO-7: adult/children/ratecode/chkintime RoomOcc me jaate hain
     (VB6 fdWalkInEntry Adult/Children/ChkInTime cols). Defaults:
     Adult=1, Children=0, ChkInTime=abhi ka HH:MM (hardcode nahi).
+
+    VB6 FRONT_OFFICE_LIFECYCLE.md §2: GuestFolioProfDetail insert
+    (Docid, GuestProf, mProf, U_AE, U_EntDt, U_Name, Site_Code, LogSite_Code)
+    — guest profile link. VB6 fdCheckIn.frm:942575 pattern.
+
+    VB6 FRONT_OFFICE_LIFECYCLE.md §2: Plan fields on RoomOcc
+    (Plancode, PlanAmt, IncInRate, PlanDisc, PlanDiscAmt, PlanDiscAppOn,
+    RRTaxInc, RRServiceChrg, RoomTarrif, RackRate, RoomTaxStru)
+    — VB6 fdCheckIn.frm:942284 30-col INSERT pattern.
 
     PYT-guard caller-side (UI sirf PYT* naam likhta hai; production
     check-ins VB6 EXE se hi)."""
@@ -187,22 +204,48 @@ def create_checkin(guestprof: str, name: str, arr_date, dep_date,
             (docid, folio, VTYPE, vprefix, arr_date, guestprof or "",
              name, city or "", nodays, dep_date, bookingdocid or "",
              site, user, site), cn=cn, commit=False)
-        # --- P4-c: RoomOcc row (fdRoomChange:3639 pattern, core cols;
-        # SNo=1 per folio). Vtype discrimination via GuestFolio.Vtype='CHK'.
+        # --- P4-c: RoomOcc row (fdRoomChange:3639 pattern + fdCheckIn:942284
+        # 30-col INSERT pattern). Vtype discrimination via GuestFolio.Vtype='CHK'.
         # RoomOcc.Type='I' = in-house (dashboard rack/report joins).
         # FO-7: Adult/Children/RateCode/ChkInTime caller se (defaults
         # 1/0/''/abhi) - hardcode nahi.
+        # VB6 FRONT_OFFICE_LIFECYCLE.md §2: Plan fields on RoomOcc
+        # (Plancode, PlanAmt, IncInRate, PlanDisc, PlanDiscAmt, PlanDiscAppOn,
+        # RRTaxInc, RRServiceChrg, RoomTarrif, RackRate, RoomTaxStru).
         db.execute(
             "INSERT INTO RoomOcc (DocId, SNo, FolioNo, Vtype, Site_Code, "
             "Vprefix, GuestProf, RoomNo, RateCode, ChkInDate, ChkInTime, "
             "Adult, Children, DepDate, DepTime, Type, U_Name, U_EntDt, "
-            "U_AE, LogSite_Code) "
+            "U_AE, LogSite_Code, Plancode, PlanAmt, IncInRate, PlanDisc, "
+            "PlanDiscAmt, PlanDiscAppOn, RRTaxInc, RRServiceChrg, "
+            "RoomTarrif, RackRate, RoomTaxStru) "
             "VALUES (?, 1, ?, 'CHK', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
-            "'10:00', 'I', ?, getdate(), 'A', ?)",
+            "'10:00', 'I', ?, getdate(), 'A', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (docid, folio, site, vprefix, guestprof, roomno,
              (ratecode or "").strip(), arr_date, t_in, n_adult, n_child,
-             dep_date, user, site), cn=cn, commit=False)
+             dep_date, user, site,
+             plancode or "", planamt or 0.0, incinrate or "",
+             plandisc or 0.0, plandiscamt or 0.0, plandiscon or "",
+             rrtaxinc or "", rrservicechrg or "",
+             roomtarrif or 0.0, rackrate or 0.0, roomtaxstru or ""),
+            cn=cn, commit=False)
+        # VB6 FRONT_OFFICE_LIFECYCLE.md §2: GuestFolioProfDetail insert
+        # (guest profile link). VB6 fdCheckIn.frm:942575 pattern:
+        # Insert Into GuestFolioProfDetail (Docid,GuestProf,mProf,U_AE,U_EntDt,
+        # U_Name,Site_Code,LogSite_Code)
+        if guestprof:
+            db.execute(
+                "INSERT INTO GuestFolioProfDetail (Docid, GuestProf, mProf, "
+                "U_AE, U_EntDt, U_Name, Site_Code, LogSite_Code) "
+                "VALUES (?, ?, ?, 'A', getdate(), ?, ?, ?)",
+                (docid, guestprof, guestprof, user, site, site),
+                cn=cn, commit=False)
         _log(docid, "A", user, cn, site)
+        # VB6 CHECKIN_FIELD_MAP.md §5: staging cleanup on form close
+        # Delete GuestFolioProfDetail Where Docid='' (trace-me live dekha)
+        db.execute(
+            "DELETE FROM GuestFolioProfDetail WHERE Docid = ''",
+            cn=cn, commit=False)
         if commit:
             cn.commit()
         return folio
@@ -253,6 +296,13 @@ def move_room(folio: int, new_room: str, user: str = USER, cn=None,
         db.execute(
             "UPDATE RoomOcc SET RoomNo = ?, U_EntDt = getdate(), U_Name = ? "
             "WHERE DocId = ?", (new_room, user, rec["docid"]),
+            cn=cn, commit=False)
+        # VB6 HMS_OPERATIONS_MANUAL.md §5.3: Update GuestMessage set RoomNo
+        db.execute(
+            "UPDATE GuestMessage SET RoomNo = ?, RoomCat = "
+            "(SELECT RoomCat FROM RoomOcc WHERE DocId = ?) "
+            "WHERE FolioNo = ? AND RoomNo = ?",
+            (new_room, rec["docid"], folio, old_room),
             cn=cn, commit=False)
         # Log
         _log(rec["docid"], "R", user, cn, site)
@@ -412,6 +462,10 @@ def delete_checkin(folio: int, user: str = USER, cn=None,
             "DELETE FROM GuestFolio WHERE Site_Code = ? AND Vprefix = ? AND "
             "FolioNo = ?", (site, vprefix, folio), cn=cn, commit=False)
         db.execute("DELETE FROM RoomOcc WHERE DocId = ?",
+                   (rows[0][1],), cn=cn, commit=False)
+        # GuestFolioProfDetail bhi delete karo (PK Docid+GuestProf) —
+        # warna folio number reuse par PK_GuestFolioProfDtl violation hota hai.
+        db.execute("DELETE FROM GuestFolioProfDetail WHERE Docid = ?",
                    (rows[0][1],), cn=cn, commit=False)
         # VB6 deletion also removes the folio's charge/payment rows
         # (link by FolioNoDocid, plus legacy FolioNo fallback rows).

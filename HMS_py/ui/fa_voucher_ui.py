@@ -377,6 +377,105 @@ def open_daily_txn_summary(parent=None):
                  fn=fv.daily_transaction_summary).exec()
 
 
+# ============================================================
+# Current Balance Updation (VB6 FaCurrBalUpdate.frm)
+# ============================================================
+def open_currbal_update(parent=None, user: str = "SA"):
+    """Financial Setup > Current Balance Updation (VB6 FaCurrBalUpdate).
+
+    Command1_Click ka rebuild: LEDGER sums se SUBGROUPCURRBAL +
+    ACGROUPCURRBAL (MainGrCode chain) dobara banata hai.
+    Core: HMS_py.core.fa_ledger_ops.rebuild_currbal.
+    """
+    from PyQt6.QtWidgets import QCheckBox, QGroupBox
+
+    from HMS_py.core import fa_ledger_ops as flo
+    from HMS_py.core import fa_masters_ops as fmo
+
+    dlg = QDialog(parent)
+    dlg.setWindowTitle("Current Balance Updation - HMS_py")
+    dlg.resize(620, 400)
+    root = QVBoxLayout(dlg)
+
+    info = QLabel(
+        "Rebuild = SUBGROUPCURRBAL / ACGROUPCURRBAL ko LEDGER ke "
+        "SUM(AmtDr)-SUM(AmtCr) se dobara compute karta hai\n"
+        "(VB6 FaCurrBalUpdate Command1: zero -> re-post -> commit).")
+    info.setWordWrap(True)
+    root.addWidget(info)
+
+    grp = QGroupBox("Scope")
+    fl = QFormLayout(grp)
+    chk_one = QCheckBox("Sirf ek A/C (selected account)")
+    cmb_ac = QComboBox()
+    cmb_ac.setEnabled(False)
+    fl.addRow(chk_one)
+    fl.addRow("A/C:", cmb_ac)
+    root.addWidget(grp)
+
+    status = QLabel("Ready.")
+    status.setWordWrap(True)
+    root.addWidget(status)
+
+    def _load_accounts():
+        cmb_ac.clear()
+        try:
+            for r in fmo.subgroup_list(limit=5000):
+                cmb_ac.addItem(f"{r['code']} - {r['name']}", r["code"])
+        except Exception as e:
+            status.setText(f"A/C list error: {e}")
+
+    def _toggle():
+        cmb_ac.setEnabled(chk_one.isChecked())
+
+    def _rebuild():
+        sub = cmb_ac.currentData() if chk_one.isChecked() else None
+        if chk_one.isChecked() and not sub:
+            QMessageBox.warning(dlg, "Current Balance Updation",
+                                "Koi A/C select nahi hua")
+            return
+        if QMessageBox.question(
+                dlg, "Current Balance Updation",
+                "Current balances rebuild karein?\n"
+                "(Sabhi SUBGROUP/ACGROUP Curr_Bal Ledger se recompute "
+                "honge — transaction nahi badlega.)") != \
+                QMessageBox.StandardButton.Yes:
+            return
+        status.setText("Rebuild chal raha hai...")
+        from PyQt6.QtWidgets import QApplication
+        QApplication.processEvents()
+        try:
+            res = flo.rebuild_currbal(sub)
+        except ValueError as e:
+            status.setText(str(e))
+            QMessageBox.information(dlg, "Current Balance Updation", str(e))
+            return
+        except Exception as e:
+            status.setText(f"Rebuild error: {e}")
+            QMessageBox.critical(dlg, "Error", str(e))
+            return
+        msg = ("Opening Balance Updation Has been Completed\n"
+               f"A/C rows: {res['subgroups']}\nGroup rows: {res['groups']}"
+               f"\nScope: {res['subcode']}")
+        status.setText(msg.replace("\n", " | "))
+        QMessageBox.information(dlg, "Current Balance Updation", msg)
+
+    chk_one.toggled.connect(_toggle)
+    btns = QHBoxLayout()
+    b_run = QPushButton("Update Balances")
+    b_run.clicked.connect(_rebuild)
+    b_close = QPushButton("Close")
+    b_close.clicked.connect(dlg.reject)
+    btns.addWidget(b_run)
+    btns.addWidget(b_close)
+    btns.addStretch(1)
+    root.addLayout(btns)
+    root.addStretch(1)
+
+    _load_accounts()
+    dlg.exec()
+
+
 def open_global_narration_picker(parent=None) -> str:
     """VB6 FaGlobeNarr modal-picker entry (FaVrEnt narration field ke liye).
 

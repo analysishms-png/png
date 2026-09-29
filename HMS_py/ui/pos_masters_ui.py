@@ -232,6 +232,99 @@ def open_smartcard(parent=None, user: str = "SA"):
     _open(smartcard_config, parent, user)
 
 
+# ── Card Registration (VB6 SmartCardRegistration.frm) ──────────
+def _reg_record(rec: dict) -> dict:
+    """BaseMasterForm string-fields -> smartcard_ops typed record."""
+    out = dict(rec)
+    for k in ("cashamt", "securityamt", "rewardbal"):
+        if k in out and out[k] not in (None, ""):
+            try:
+                out[k] = float(out[k])
+            except (TypeError, ValueError):
+                out[k] = 0.0
+    return out
+
+
+class _CardRegistrationAPI:
+    """BaseMasterForm API adapter over core.smartcard_ops registration CRUD.
+
+    VB6 SmartCardRegistration.frm (Members > Card Registration) alag table
+    SmartCardRegistration pe kaam karta hai — SmartCardMaster (open_smartcard)
+    se independent.
+    """
+
+    @staticmethod
+    def list_all(cn=None, limit=1000):
+        from HMS_py.core import smartcard_ops as sc
+        return sc.list_all_reg(cn=cn, limit=limit)
+
+    @staticmethod
+    def get(code, cn=None):
+        from HMS_py.core import smartcard_ops as sc
+        return sc.get_reg(code, cn=cn)
+
+    @staticmethod
+    def exists(code, cn=None):
+        from HMS_py.core import smartcard_ops as sc
+        return sc.get_reg(code, cn=cn) is not None
+
+    @staticmethod
+    def insert(rec, cn=None, commit=True):
+        from HMS_py.core import smartcard_ops as sc
+        return sc.insert_reg(_reg_record(rec), cn=cn, commit=commit)
+
+    @staticmethod
+    def update(code, rec, cn=None, commit=True):
+        from HMS_py.core import smartcard_ops as sc
+        return sc.update_reg(code, _reg_record(rec), cn=cn, commit=commit)
+
+    @staticmethod
+    def delete(code, cn=None, commit=True):
+        from HMS_py.core import smartcard_ops as sc
+        return sc.delete_reg(code, cn=cn, commit=commit)
+
+
+def card_registration_config() -> MasterConfig:
+    return MasterConfig(
+        title="Card Registration - HMS_py",
+        columns=[("Code", "code"), ("Card Type", "cardtype"),
+                 ("Card No", "cardno"), ("Name", "name"),
+                 ("Phone", "phone"), ("Blocked", "blockedyn"),
+                 ("Curr Bal", "currbal"), ("Member", "membercode")],
+        fields=[
+            Field("code", "Card Code", max_len=6, required=True),
+            Field("cardtype", "Card Type", max_len=6),
+            Field("cardno", "Card No", max_len=20),
+            Field("name", "Name", max_len=40, required=True),
+            Field("addr", "Address", max_len=60),
+            Field("phone", "Phone", max_len=20),
+            Field("cashamt", "Cash Amount", default="0"),
+            Field("securityamt", "Security Amount", default="0"),
+            Field("blockedyn", "Blocked Y/N", max_len=1, default="N"),
+            Field("serialno", "Serial No", max_len=20),
+            Field("membercode", "Member Code", max_len=10),
+            Field("rewardbal", "Reward Balance", default="0"),
+        ],
+        api=_CardRegistrationAPI,
+        delete_guard=make_delete_guard("PYT"),
+    )
+
+
+def open_card_registration(parent=None, user: str = "SA"):
+    """VB6 SmartCardRegistration -> registration entry (CRUD).
+
+    open_smartcard (SmartCardMaster) se alag: ye SmartCardRegistration
+    table par chalta hai — VB6 menu leaf "Card Registration".
+    """
+    cfg = card_registration_config()
+    form_name = cfg.title.split(" - ", 1)[0].strip()
+    if not menu_core.menu_name_allowed(form_name, user):
+        QMessageBox.warning(parent, "Access denied",
+                            f"{form_name} ko aapke user rights mein nahi hai.")
+        return
+    BaseMasterForm(cfg, parent).exec()
+
+
 # ── Auto Settle Card Balance (VB6 MemAutoSettleCardBalance.frm port) ──
 def open_auto_settle_card_balance(parent=None, user: str = "SA"):
     """Pending-balance cards grid + Settle (VB6 Fill/CmdSave pattern).
@@ -320,6 +413,118 @@ def open_auto_settle_card_balance(parent=None, user: str = "SA"):
     btn_settle.clicked.connect(_settle)
     btn_close.clicked.connect(dlg.reject)
     _fill()
+    dlg.exec()
+
+
+# ── Menu Item Copy (VB6 frmMenuItemCopy) ──────────────────────
+def open_menu_item_copy(parent=None, user="SA"):
+    """Menu items ko ek outlet se dusre me copy karo (VB6 frmMenuItemCopy).
+    Sirf wo items dikhte hain jo target me abhi nahi hain; copy ItemMast +
+    ItemRate (latest source rate) dono banata hai."""
+    from PyQt6.QtCore import Qt
+    from PyQt6.QtWidgets import (QComboBox, QDialog, QHBoxLayout, QHeaderView,
+        QLabel, QMessageBox, QPushButton, QTableWidget, QTableWidgetItem,
+        QVBoxLayout)
+    from HMS_py.core import menu_item_copy as mic
+
+    dlg = QDialog(parent)
+    dlg.setWindowTitle("Menu Item Copy - HMS_py")
+    dlg.resize(780, 560)
+    lay = QVBoxLayout(dlg)
+
+    lay.addWidget(QLabel("Source se target outlet me menu items copy karo "
+                         "(jo target me abhi nahi hain)."))
+    top = QHBoxLayout()
+    top.addWidget(QLabel("From:"))
+    cmb_from = QComboBox()
+    top.addWidget(cmb_from, 1)
+    top.addWidget(QLabel("To:"))
+    cmb_to = QComboBox()
+    top.addWidget(cmb_to, 1)
+    lay.addLayout(top)
+
+    tbl = QTableWidget(0, 5, dlg)
+    tbl.setHorizontalHeaderLabels(["", "Code", "Item", "Group", "Category"])
+    tbl.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+    tbl.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+    tbl.horizontalHeader().setSectionResizeMode(
+        QHeaderView.ResizeMode.ResizeToContents)
+    lay.addWidget(tbl, 1)
+
+    status = QLabel("")
+    lay.addWidget(status)
+
+    bottom = QHBoxLayout()
+    btn_load = QPushButton("Load Items")
+    btn_copy = QPushButton("Copy Selected")
+    btn_copy.setProperty("role", "warning")
+    btn_close = QPushButton("Close")
+    bottom.addWidget(btn_load); bottom.addStretch()
+    bottom.addWidget(btn_copy); bottom.addWidget(btn_close)
+    lay.addLayout(bottom)
+
+    def _fill_outlets():
+        for o in mic.list_outlets():
+            label = f"{o['name']} ({o['code']})"
+            cmb_from.addItem(label, o["code"])
+            cmb_to.addItem(label, o["code"])
+        if cmb_to.count() > 1:
+            cmb_to.setCurrentIndex(1)
+
+    def _load():
+        f = cmb_from.currentData(); t = cmb_to.currentData()
+        if not f or not t:
+            QMessageBox.information(dlg, "Input", "Dono outlets chuno"); return
+        if f == t:
+            QMessageBox.information(dlg, "Input",
+                                    "Source aur target alag hone chahiye"); return
+        try:
+            rows = mic.list_copyable_items(f, t)
+        except Exception as e:
+            QMessageBox.critical(dlg, "Error", str(e)); return
+        tbl.setRowCount(0)
+        for r in rows:
+            row = tbl.rowCount()
+            tbl.insertRow(row)
+            chk = QTableWidgetItem()
+            chk.setFlags(chk.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+            chk.setCheckState(Qt.CheckState.Unchecked)
+            tbl.setItem(row, 0, chk)
+            for col, v in enumerate([r["itemcode"], r["itemname"],
+                                     r["groupname"], r["itemcatname"]], 1):
+                tbl.setItem(row, col, QTableWidgetItem(v))
+        status.setText(f"{len(rows)} item(s) copyable: {f} -> {t}")
+
+    def _copy():
+        f = cmb_from.currentData(); t = cmb_to.currentData()
+        picked = []
+        for row in range(tbl.rowCount()):
+            it = tbl.item(row, 0)
+            if it and it.checkState() == Qt.CheckState.Checked:
+                picked.append(tbl.item(row, 1).text())
+        if not picked:
+            QMessageBox.information(dlg, "Copy",
+                                    "Koi item select (checkbox) nahi hua")
+            return
+        reply = QMessageBox.question(dlg, "Confirm",
+            f"{len(picked)} item(s) ko {t} me copy karein?")
+        if reply != QMessageBox.StandardButton.Yes:
+            return
+        try:
+            res = mic.copy_items(f, t, picked, user=user)
+        except Exception as e:
+            QMessageBox.critical(dlg, "Error", str(e)); return
+        msg = f"{len(res['copied'])} item(s) copied (ItemMast + ItemRate)"
+        if res["skipped"]:
+            msg += ("\nSkipped (already exist/invalid): "
+                    + ", ".join(res["skipped"][:8]))
+        QMessageBox.information(dlg, "Done", msg)
+        _load()
+
+    btn_load.clicked.connect(_load)
+    btn_copy.clicked.connect(_copy)
+    btn_close.clicked.connect(dlg.reject)
+    _fill_outlets()
     dlg.exec()
 
 

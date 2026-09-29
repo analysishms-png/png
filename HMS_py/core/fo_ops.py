@@ -321,6 +321,112 @@ def merge_charge(from_room: str, to_room: str, user: str = USER,
 
 
 # ------------------------------------------------------------
+# Reverse Room Merge (VB6 FrmRevMergeCharge.cmdTransferCharge)
+# ------------------------------------------------------------
+def list_merge_children(master_room: str, site: str = SITE_CODE,
+                        cn=None) -> list[dict]:
+    """Master folio se linked child rooms (GuestFolio.mFolioNoDocid = master).
+
+    Reverse Room Merge grid: har child ke saath uske current open room aur
+    abhi master folio par pade charges ki count."""
+    m = open_folio_by_room(master_room, site, cn=cn)
+    if not m:
+        raise ValueError(f"Master room {master_room} pe koi in-house guest nahi")
+    rows = db.query(
+        "SELECT gf.DocId, gf.FolioNo, gf.Name, gf.GuestProf, "
+        "(SELECT TOP 1 RTRIM(ro.RoomNo) FROM RoomOcc ro WHERE ro.DocId = "
+        "gf.DocId AND ro.ChkOutDate IS NULL) AS RoomNo, "
+        "(SELECT COUNT(*) FROM PayCharge pc WHERE pc.FolioNoDocid = ? "
+        "AND pc.RelatedFolioNoDocId = gf.DocId) AS ChargeCount "
+        "FROM GuestFolio gf WHERE RTRIM(gf.mFolioNoDocid) = ? "
+        "ORDER BY gf.FolioNo", (m["docid"], m["docid"]), cn=cn)
+    return [{"docid": (r.DocId or "").strip(), "folio": int(r.FolioNo or 0),
+             "name": (r.Name or "").strip(),
+             "guestprof": (r.GuestProf or "").strip(),
+             "room": (r.RoomNo or "").strip() if r.RoomNo else "",
+             "charges": int(r.ChargeCount or 0)} for r in rows]
+
+
+def reverse_merge_charge(master_room: str, child_room: str,
+                         user: str = USER, site: str = SITE_CODE,
+                         cn=None, commit: bool = True) -> dict:
+    """Merged (master) folio se ek child room ko alag karo — uske charges
+    wapas uske apne folio par le jao.
+
+    VB6 FrmRevMergeCharge.cmdTransferCharge ka 3-step reverse
+    (FrmMergeCharge/merge_charge ka inverse, decompiled loc_14BDF88..14BE2E6):
+      1. PayCharge: child ke master-folio par pade rows wapas child folio par
+         + RelatedFolio markers clear
+         (VB6: UPDATE PayCharge SET FolioNoDocid='<child>', FolioNo=<child>,
+          RelatedFolioNo=0, RelatedFolioNoDocId='' WHERE ... FolioNoDocid=
+          '<master>' — python port me child rows RelatedFolioNoDocId se
+          identify hoti hain)
+      2. GuestFolio: child unlink (mFolioNoDocid='', mFolioNo=0)
+         (VB6: UPDATE GuestFolio SET mFolioNoDocid='', mFolioNo=0 WHERE
+          MFolioNoDocid='<master>' And Docid='<child>')
+      3. Agar master ke paas koi linked child/charge na bache to master ke
+         RelatedFolio + mFolioNo markers bhi clear
+         (VB6 Me.Source empty case, loc_14BE258..14BE2E6).
+
+    Returns dict(rows_moved, folio_child, folio_master, master_cleared)."""
+    m = open_folio_by_room(master_room, site, cn=cn)
+    c = open_folio_by_room(child_room, site, cn=cn)
+    if not m:
+        raise ValueError(f"Master room {master_room} pe koi in-house guest nahi")
+    if not c:
+        raise ValueError(f"Child room {child_room} pe koi in-house guest nahi")
+    if m["docid"] == c["docid"]:
+        raise ValueError("Master aur child same folio nahi ho sakte")
+    link = db.query(
+        "SELECT RTRIM(ISNULL(mFolioNoDocid, '')) FROM GuestFolio "
+        "WHERE DocId = ?", (c["docid"],), cn=cn)
+    if not link or (link[0][0] or "") != m["docid"]:
+        raise ValueError(f"Room {child_room} ka folio master {master_room} "
+                         "se merged nahi hai")
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        n1 = db.execute(
+            "UPDATE PayCharge SET FolioNoDocid = ?, FolioNo = ?, "
+            "RelatedFolioNo = 0, RelatedFolioNoDocId = '', U_Name = ?, "
+            "U_EntDt = getdate(), U_AE = 'E' "
+            "WHERE FolioNoDocid = ? AND RelatedFolioNoDocId = ?",
+            (c["docid"], c["folio"], user, m["docid"], c["docid"]),
+            cn=cn, commit=False)
+        n2 = db.execute(
+            "UPDATE GuestFolio SET mFolioNoDocid = '', mFolioNo = 0, "
+            "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' "
+            "WHERE DocId = ? AND RTRIM(ISNULL(mFolioNoDocid, '')) = ?",
+            (user, c["docid"], m["docid"]), cn=cn, commit=False)
+        master_cleared = False
+        still = db.query(
+            "SELECT "
+            "(SELECT COUNT(*) FROM GuestFolio WHERE "
+            "RTRIM(ISNULL(mFolioNoDocid, '')) = ?) + "
+            "(SELECT COUNT(*) FROM PayCharge WHERE FolioNoDocid = ? AND "
+            "ISNULL(RelatedFolioNoDocId, '') <> '') AS N",
+            (m["docid"], m["docid"]), cn=cn)
+        if not still or int(still[0][0] or 0) == 0:
+            master_cleared = True
+            db.execute(
+                "UPDATE PayCharge SET RelatedFolioNo = 0, "
+                "RelatedFolioNoDocId = '', U_Name = ?, U_EntDt = getdate(), "
+                "U_AE = 'E' WHERE FolioNoDocid = ?",
+                (user, m["docid"]), cn=cn, commit=False)
+            db.execute(
+                "UPDATE GuestFolio SET mFolioNoDocid = '', mFolioNo = 0, "
+                "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' WHERE DocId = ?",
+                (user, m["docid"]), cn=cn, commit=False)
+        if commit:
+            cn.commit()
+        return {"rows_moved": n1 + n2, "folio_child": c["folio"],
+                "folio_master": m["folio"], "master_cleared": master_cleared}
+    finally:
+        if own:
+            cn.close()
+
+
+# ------------------------------------------------------------
 # Re-Settlement (VB6 FdReSetlement)
 # ------------------------------------------------------------
 def list_settlements(docid: str, site: str = SITE_CODE, cn=None) -> list[dict]:

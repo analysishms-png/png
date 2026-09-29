@@ -25,9 +25,12 @@ VPREFIX = "2026"
 
 
 def next_billno(cn=None) -> int:
+    # BUG-003/004: race-safe (UPDLOCK/HOLDLOCK) - inline hint (next_folio
+    # pattern) kyunki Bill_No varchar hai (CAST counter, next_serial nahi).
     rows = db.query(
         "SELECT MAX(Cast(Bill_No As Int)) FROM FOMBillDetails "
-        "WHERE LogSite_Code = ?", (SITE_CODE,), cn=cn)
+        "WITH (UPDLOCK, HOLDLOCK) WHERE LogSite_Code = ?",
+        (SITE_CODE,), cn=cn)
     return (rows[0][0] or 0) + 1 if rows and rows[0][0] else 1
 
 
@@ -151,9 +154,9 @@ def settle_folio(folio: int, user: str = USER, cn=None, commit: bool = True,
 
 
 def _log(docid: str, flag: str, user: str, cn, site: str = SITE_CODE):
-    rows = db.query("SELECT MAX(Id) FROM FolioLog WHERE LogSite_Code = ?",
-                    (site,), cn=cn)
-    logid = (rows[0][0] or 0) + 1 if rows and rows[0][0] else 1
+    # BUG-003/004: race-safe Id (UPDLOCK/HOLDLOCK) - db.py central helper.
+    logid = db.next_serial("FolioLog", "Id", "LogSite_Code = ?", (site,),
+                           cn=cn)
     db.execute(
         "INSERT INTO FolioLog (Id, FolionoDocid, Flag, Site_Code, "
         "U_Name, U_EntDt, U_AE, LogSite_Code) "
@@ -198,10 +201,10 @@ def post_room_charge(folio: int, amount: float, roomno: str = "",
         # BUG-015: race-safe VNo (UPDLOCK/HOLDLOCK) - concurrent posts ko
         # same number nahi milega. Same cn: lock INSERT commit tak hold.
         vno = db.next_vno("PayCharge", "RC", vprefix, site=site, cn=cn)
-        srows = db.query(
-            "SELECT MAX(SNo) FROM PayCharge WHERE FolioNo = ? AND "
-            "Site_Code = ?", (folio, site), cn=cn)
-        base_sno = (srows[0][0] or 0) if srows and srows[0][0] else 0
+        # BUG-003/004: race-safe SNo (UPDLOCK/HOLDLOCK) - base = current max.
+        base_sno = db.next_serial("PayCharge", "SNo",
+                                  "FolioNo = ? AND Site_Code = ?",
+                                  (folio, site), cn=cn) - 1
         today = datetime.date.today()
 
         def _pc(sno, paycode, amt):
@@ -300,8 +303,10 @@ def from_booking(booking_docid: str, user: str = USER, cn=None,
     try:
         # Ek hi transaction: checkin + FolioLog (create_checkin 'A' log
         # khud likhta hai) — atomic conversion.
+        # VB6 FRONT_OFFICE_LIFECYCLE.md §1: Booking.RoomNo -> RoomOcc.RoomNo
         return checkin_mod.create_checkin(
             "", name, arr, dep, bookingdocid=(b[0] or "").strip(),
+            roomno=(b[4] or "").strip(),
             user=user, cn=cn, commit=commit, site=site, vprefix=vprefix)
     finally:
         if own:
@@ -387,6 +392,69 @@ def amend_departure(folio: int, new_dep, user: str = USER, cn=None,
             cn.close()
 
 
+def merge_folio(source_folio: int, target_folio: int, user: str = USER,
+                cn=None, commit: bool = True, site: str = SITE_CODE,
+                vprefix: str = VPREFIX) -> bool:
+    """VB6 HMS_OPERATIONS_MANUAL.md §5.3: Folio/room merge.
+    
+    VB6 SQL (line 437902):
+      UPDATE GuestFolio SET mFolioNoDocId='<target>', mFolioNo=<no>
+    
+    Source folio ko target folio me merge karta hai. Source folio ke
+    charges/payments target folio ke tahat aa jaate hain.
+    """
+    src = checkin_mod.get(source_folio, cn=cn, vprefix=vprefix)
+    if not src:
+        raise ValueError(f"Source folio #{source_folio} nahi mila")
+    tgt = checkin_mod.get(target_folio, cn=cn, vprefix=vprefix)
+    if not tgt:
+        raise ValueError(f"Target folio #{target_folio} nahi mila")
+    if source_folio == target_folio:
+        raise ValueError("Source aur target folio same hain")
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        db.execute(
+            "UPDATE GuestFolio SET mFolioNoDocId = ?, mFolioNo = ?, "
+            "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' WHERE DocId = ?",
+            (tgt["docid"], target_folio, user, src["docid"]),
+            cn=cn, commit=False)
+        _log(src["docid"], "G", user, cn, site)
+        if commit:
+            cn.commit()
+        return True
+    finally:
+        if own:
+            cn.close()
+
+
+def apply_discount(folio: int, ro_disc: float = 0.0, rs_disc: float = 0.0,
+                   user: str = USER, cn=None, commit: bool = True,
+                   site: str = SITE_CODE, vprefix: str = VPREFIX) -> bool:
+    """VB6 HMS_OPERATIONS_MANUAL.md §5.3: Discount fields on GuestFolio.
+    
+    VB6 SQL (line 149517): Update GuestFolio Set RoDisc='<v>', RSDisc='<v>'
+    """
+    rec = checkin_mod.get(folio, cn=cn, vprefix=vprefix)
+    if not rec:
+        raise ValueError(f"Folio #{folio} nahi mila")
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        db.execute(
+            "UPDATE GuestFolio SET RoDisc = ?, RSDisc = ?, "
+            "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' WHERE DocId = ?",
+            (ro_disc, rs_disc, user, rec["docid"]),
+            cn=cn, commit=False)
+        _log(rec["docid"], "D", user, cn, site)
+        if commit:
+            cn.commit()
+        return True
+    finally:
+        if own:
+            cn.close()
+
+
 PAY_TYPES = {  # VB6 fdPaymentCharge combo categories (complete list)
     "KKCASH": "Cash", "KKCRED": "Company", "KKVISA": "Credit Card",
     "KK0006": "Other", "KKCHEQ": "Cheque", "KKSTFF": "Staff",
@@ -442,10 +510,10 @@ def receive_payment(folio: int, amount: float, paycode: str = "KKCASH",
             raise ValueError(
                 f"Unknown paycode '{paycode}' (known: " +
                 ", ".join(sorted(PAY_TYPES)) + ")")
-        srows = db.query(
-            "SELECT MAX(SNo) FROM PayCharge WHERE FolioNo = ? AND "
-            "Site_Code = ?", (folio, site), cn=cn)
-        base_sno = (srows[0][0] or 0) if srows and srows[0][0] else 0
+        # BUG-003/004: race-safe SNo (UPDLOCK/HOLDLOCK) - base = current max.
+        base_sno = db.next_serial("PayCharge", "SNo",
+                                  "FolioNo = ? AND Site_Code = ?",
+                                  (folio, site), cn=cn) - 1
         today = datetime.date.today()
         if chqdate == "":
             chqdate = None
@@ -849,3 +917,182 @@ def amount_to_words(amount: float) -> str:
         result += f" and {dec_part} Paise"
     result += " Only"
     return result.strip()
+
+
+# ─── Unsettled Bills (VB6 FrmUnSettledBillsInfo) ─────────────────────────
+
+def list_unsettled_bills(cn=None, site: str = SITE_CODE,
+                         vprefix: str = VPREFIX) -> list[dict]:
+    """VB6 FrmUnSettledBillsInfo: Un-settled bills list.
+    
+    Query: PayCharge WHERE SettleDate IS NULL AND Bill_No IS NULL
+    AND ModeSet<>'S' grouped by FolioNoDocid.
+    """
+    rows = db.query(
+        "SELECT FolioNoDocid, SUM(AmtDr - AmtCr) AS Balance, "
+        "COUNT(*) AS Lines FROM PayCharge "
+        "WHERE SettleDate IS NULL AND Bill_No IS NULL AND ModeSet <> 'S' "
+        "AND Site_Code = ? AND VPrefix = ? "
+        "GROUP BY FolioNoDocid ORDER BY Balance DESC",
+        (site, vprefix), cn=cn)
+    return [{"docid": (r[0] or "").strip(), "balance": float(r[1] or 0),
+             "lines": int(r[2] or 0)} for r in rows]
+
+
+# ─── Cancel Bill (VB6 CancelBillDet + TempPosDel staging) ─────────────────
+
+def cancel_bill(bill_no: str, user: str = USER, cn=None,
+                commit: bool = True, site: str = SITE_CODE) -> bool:
+    """VB6 CancelBillDet: Settle reversal.
+    
+    1. UPDATE FOMBillDetails SET Status='CANCEL'
+    2. UPDATE PayCharge SET SettleDate=NULL, Bill_No=NULL
+    3. TempPosDel staging insert (VB6 pattern)
+    """
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        db.execute(
+            "UPDATE FOMBillDetails SET Status = 'CANCEL', "
+            "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' "
+            "WHERE Bill_No = ? AND SiteCode = ?",
+            (user, bill_no, site), cn=cn, commit=False)
+        db.execute(
+            "UPDATE PayCharge SET SettleDate = NULL, Bill_No = NULL, "
+            "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' "
+            "WHERE Bill_No = ? AND Site_Code = ?",
+            (user, bill_no, site), cn=cn, commit=False)
+        # VB6 TempPosDel staging for cancelled bills
+        db.execute(
+            "INSERT INTO TempPosDel (Bill_No, Site_Code, U_Name, U_EntDt, "
+            "U_AE, LogSite_Code) VALUES (?, ?, ?, getdate(), 'A', ?)",
+            (bill_no, site, user, site), cn=cn, commit=False)
+        if commit:
+            cn.commit()
+        return True
+    finally:
+        if own:
+            cn.close()
+
+
+# ─── PayChargeLog Audit (VB6 pattern: copy before settle/cancel) ──────────
+
+def log_paycharge_to_paychargelog(docid: str, cn=None,
+                                  site: str = SITE_CODE) -> bool:
+    """VB6 pattern: INSERT INTO PayChargeLog SELECT * FROM PayCharge
+    WHERE DocId=? — audit trail before settle/cancel.
+    """
+    rows = db.query(
+        "SELECT 1 FROM PayCharge WHERE DocId = ? AND Site_Code = ?",
+        (docid, site), cn=cn)
+    if not rows:
+        return False
+    db.execute(
+        "INSERT INTO PayChargeLog SELECT * FROM PayCharge WHERE DocId = ?",
+        (docid,), cn=cn, commit=True)
+    return True
+
+
+# ─── Nights Calculation (VB6 BillDet view) ────────────────────────────────
+
+def calc_nights(docid: str, cn=None, site: str = SITE_CODE) -> int:
+    """VB6 BillDet: Nights = MAX(ChkOutDate) - MIN(Vdate) from RoomOcc."""
+    rows = db.query(
+        "SELECT DATEDIFF(day, MIN(Vdate), MAX(ChkOutDate)) "
+        "FROM RoomOcc WHERE DocId = ? AND Site_Code = ?",
+        (docid, site), cn=cn)
+    if not rows or rows[0][0] is None:
+        return 0
+    return int(rows[0][0])
+
+
+# ─── Bill Print/Preview (VB6 BillDet view) ────────────────────────────────
+
+def print_bill(bill_no: str, cn=None, site: str = SITE_CODE) -> dict:
+    """VB6 BillDet view: Bill print/preview.
+    
+    VB6: BillDet view = SUM(AmtDr-AmtCr) per bill_no, join PayCharge→RoomOcc→GuestFolio.
+    Returns: {bill_no, guest, nights, lines, total, bill_amt}
+    """
+    rows = db.query(
+        "SELECT Bill_No, Bill_Amt, Folio_No, Nights FROM BillDet "
+        "WHERE Bill_No = ? AND LogSite_Code = ?",
+        (bill_no, site), cn=cn)
+    if not rows:
+        return {"bill_no": bill_no, "guest": "", "nights": 0,
+                "lines": [], "total": 0.0, "bill_amt": 0.0}
+    r = rows[0]
+    lines = db.query(
+        "SELECT SNo, PayCode, PayType, AmtDr, AmtCr, Vdate "
+        "FROM PayCharge WHERE Bill_No = ? AND Site_Code = ? ORDER BY SNo",
+        (bill_no, site), cn=cn)
+    return {
+        "bill_no": r[0] or bill_no,
+        "guest": "",
+        "nights": int(r[3] or 0),
+        "lines": [{"sno": l[0], "paycode": (l[1] or "").strip(),
+                   "paytype": (l[2] or "").strip(), "dr": float(l[3] or 0),
+                   "cr": float(l[4] or 0), "vdate": l[5]} for l in lines],
+        "total": float(r[1] or 0),
+        "bill_amt": float(r[1] or 0),
+    }
+
+
+# ─── Startup Normalization (VB6 SQL_TRACKING_RESULTS.md) ──────────────────
+
+def run_startup_normalization(cn=None, site: str = SITE_CODE) -> dict:
+    """VB6 startup normalization batch (SQL_TRACKING_RESULTS.md:19-29).
+    
+    10-statement batch:
+    1. UPDATE Sale1 SET AU_Name=IsNull(U_Name,'')
+    2. UPDATE Sale1Log SET AU_Name=IsNull(U_Name,'')
+    3. UPDATE SplitSale1 SET AU_Name=IsNull(U_Name,'')
+    4. UPDATE Paycharge SET AU_Name=IsNull(U_Name,'')
+    5. UPDATE PaychargeLog SET AU_Name=IsNull(U_Name,'')
+    6. UPDATE SmartCardRegistration SET RewardBal=...
+    7. UPDATE Depart SET KOTAtNightAudit=...
+    8. UPDATE GuestProf SET FOM=1 WHERE Code IN (SELECT GuestProf FROM Booking)
+    9. UPDATE PlanMast SET RoomTaxStru=RevMast.TaxStru
+    10. UPDATE RoomOcc SET RoomTaxStru=Q.TaxStru
+    11. Delete From GuestFolioProfDetail Where Docid=''
+    """
+    results = {}
+    statements = [
+        ("sale1_au", "UPDATE Sale1 SET AU_Name = ISNULL(U_Name, '') "
+         "WHERE AU_Name IS NULL"),
+        ("sale1log_au", "UPDATE Sale1Log SET AU_Name = ISNULL(U_Name, '') "
+         "WHERE AU_Name IS NULL"),
+        ("splitsale1_au", "UPDATE SplitSale1 SET AU_Name = ISNULL(U_Name, '') "
+         "WHERE AU_Name IS NULL"),
+        ("paycharge_au", "UPDATE Paycharge SET AU_Name = ISNULL(U_Name, '') "
+         "WHERE AU_Name IS NULL"),
+        ("paychargelog_au", "UPDATE PaychargeLog SET AU_Name = ISNULL(U_Name, '') "
+         "WHERE AU_Name IS NULL"),
+        ("smartcard_reward", "UPDATE SmartCardRegistration SET RewardBal = "
+         "ISNULL(RewardBal, 0) WHERE RewardBal IS NULL"),
+        ("depart_kot_na", "UPDATE Depart SET KOTAtNightAudit = "
+         "ISNULL(KOTAtNightAudit, 'No') WHERE KOTAtNightAudit IS NULL"),
+        ("guestprof_fom", "UPDATE GuestProf SET FOM = 1 WHERE Code IN "
+         "(SELECT GuestProf FROM Booking)"),
+        ("planmast_taxstru", "UPDATE PlanMast SET RoomTaxStru = RevMast.TaxStru "
+         "FROM PlanMast INNER JOIN RevMast ON PlanMast.Code = RevMast.Code"),
+        ("roomocc_taxstru", "UPDATE RoomOcc SET RoomTaxStru = Q.TaxStru "
+         "FROM RoomOcc INNER JOIN (SELECT RoomCat.Code, RevMast.TaxStru "
+         "FROM RoomCat INNER JOIN RevMast ON RoomCat.Revcode = RevMast.Code) Q "
+         "ON RoomOcc.RoomCat = Q.Code"),
+        ("gfpd_cleanup", "DELETE FROM GuestFolioProfDetail WHERE Docid = ''"),
+    ]
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        for name, sql in statements:
+            try:
+                n = db.execute(sql, cn=cn, commit=False)
+                results[name] = n
+            except Exception as e:
+                results[name] = f"skip: {e}"
+        cn.commit()
+        return results
+    finally:
+        if own:
+            cn.close()

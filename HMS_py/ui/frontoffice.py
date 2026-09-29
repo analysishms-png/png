@@ -16,8 +16,9 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))))
 
 from PyQt6.QtWidgets import (QDateEdit, QDialog, QFormLayout, QHBoxLayout,
-                             QLabel, QLineEdit, QMessageBox, QPushButton,
-                             QTableWidget, QTableWidgetItem, QVBoxLayout)
+                             QInputDialog, QLabel, QLineEdit, QMessageBox,
+                             QPushButton, QTableWidget, QTableWidgetItem,
+                             QVBoxLayout)
 from PyQt6.QtCore import QDate, Qt
 from PyQt6.QtGui import QColor
 
@@ -103,13 +104,20 @@ class CheckInBrowser(QDialog):
         self.btnRefresh.setToolTip("Reload check-in list from database (F5)")
         self.btnClose = QPushButton("Close")
         self.btnClose.setToolTip("Close this window (Esc)")
-        for b in (self.btnNew, self.btnRefresh, self.btnClose):
+        self.btnMerge = QPushButton("Merge Folio")
+        self.btnMerge.setToolTip("Merge selected folio into target folio")
+        self.btnDiscount = QPushButton("Apply Discount")
+        self.btnDiscount.setToolTip("Apply room/service discount on selected folio")
+        for b in (self.btnNew, self.btnRefresh, self.btnMerge,
+                  self.btnDiscount, self.btnClose):
             btns.addWidget(b)
         root.addLayout(btns)
 
         self.btnNew.clicked.connect(self._new)
         self.btnRefresh.clicked.connect(lambda: self.reload())
         self.btnClose.clicked.connect(self.reject)
+        self.btnMerge.clicked.connect(self._merge_folio)
+        self.btnDiscount.clicked.connect(self._apply_discount)
 
         from PyQt6.QtGui import QShortcut, QKeySequence
         QShortcut(QKeySequence("Ctrl+N"), self, activated=self._new)
@@ -145,6 +153,29 @@ class CheckInBrowser(QDialog):
         ed_rate.setPlaceholderText("RateCode (optional)")
         ed_chkin = QLineEdit(datetime.datetime.now().strftime("%H:%M"))
         ed_chkin.setPlaceholderText("Check-In time HH:MM")
+        # VB6 fdCheckIn.frm:942284 Plan fields
+        ed_plan = QLineEdit("")
+        ed_plan.setPlaceholderText("Plan Code (optional)")
+        ed_planamt = QLineEdit("")
+        ed_planamt.setPlaceholderText("Plan Amount (optional)")
+        ed_incinrate = QLineEdit("")
+        ed_incinrate.setPlaceholderText("Incl in Rate (Y/N)")
+        ed_plandisc = QLineEdit("")
+        ed_plandisc.setPlaceholderText("Plan Discount %")
+        ed_plandiscamt = QLineEdit("")
+        ed_plandiscamt.setPlaceholderText("Plan Discount Amount")
+        ed_plandiscon = QLineEdit("")
+        ed_plandiscon.setPlaceholderText("Discount App On")
+        ed_rrtaxinc = QLineEdit("")
+        ed_rrtaxinc.setPlaceholderText("RR Tax Incl (Y/N)")
+        ed_rrservicechrg = QLineEdit("")
+        ed_rrservicechrg.setPlaceholderText("RR Service Charge (Y/N)")
+        ed_roomtarrif = QLineEdit("")
+        ed_roomtarrif.setPlaceholderText("Room Tariff")
+        ed_rackrate = QLineEdit("")
+        ed_rackrate.setPlaceholderText("Rack Rate")
+        ed_roomtaxstru = QLineEdit("")
+        ed_roomtaxstru.setPlaceholderText("Room Tax Structure")
         form.addRow("Guest Name*", ed_name)
         form.addRow("GuestProf Code", ed_code)
         form.addRow("Arrival", de_arr)
@@ -155,6 +186,17 @@ class CheckInBrowser(QDialog):
         form.addRow("Children", ed_child)
         form.addRow("RateCode", ed_rate)
         form.addRow("ChkInTime", ed_chkin)
+        form.addRow("Plan Code", ed_plan)
+        form.addRow("Plan Amount", ed_planamt)
+        form.addRow("Incl in Rate", ed_incinrate)
+        form.addRow("Plan Discount %", ed_plandisc)
+        form.addRow("Plan Discount Amt", ed_plandiscamt)
+        form.addRow("Discount App On", ed_plandiscon)
+        form.addRow("RR Tax Incl", ed_rrtaxinc)
+        form.addRow("RR Service Chrg", ed_rrservicechrg)
+        form.addRow("Room Tariff", ed_roomtarrif)
+        form.addRow("Rack Rate", ed_rackrate)
+        form.addRow("Room Tax Stru", ed_roomtaxstru)
         lay = QVBoxLayout(dlg)
         lay.addLayout(form)
         brow = QHBoxLayout()
@@ -186,7 +228,18 @@ class CheckInBrowser(QDialog):
                 bookingdocid=ed_book.text().strip(), user=self.user,
                 adult=n_adult, children=n_child,
                 ratecode=ed_rate.text().strip(),
-                chkintime=ed_chkin.text().strip())
+                chkintime=ed_chkin.text().strip(),
+                plancode=ed_plan.text().strip(),
+                planamt=float(ed_planamt.text().strip() or 0) or None,
+                incinrate=ed_incinrate.text().strip(),
+                plandisc=float(ed_plandisc.text().strip() or 0) or None,
+                plandiscamt=float(ed_plandiscamt.text().strip() or 0) or None,
+                plandiscon=ed_plandiscon.text().strip(),
+                rrtaxinc=ed_rrtaxinc.text().strip(),
+                rrservicechrg=ed_rrservicechrg.text().strip(),
+                roomtarrif=float(ed_roomtarrif.text().strip() or 0) or None,
+                rackrate=float(ed_rackrate.text().strip() or 0) or None,
+                roomtaxstru=ed_roomtaxstru.text().strip())
         except ValueError as e:
             QMessageBox.warning(self, "New Check-In", str(e))
             return
@@ -197,6 +250,48 @@ class CheckInBrowser(QDialog):
             f"State: Idle | Check-In #{folio} ho gaya (DocId "
             f"{checkin.make_docid(checkin.SITE_CODE, '2026', folio)})")
         self.reload(keep_folio=folio)
+
+    def _merge_folio(self):
+        from HMS_py.core import folio as folio_mod
+        row = self.tbl.currentRow()
+        if row < 0:
+            QMessageBox.warning(self, "Merge Folio", "Pehle folio select karo")
+            return
+        source_folio = int(self.tbl.item(row, 0).text())
+        target, ok = QInputDialog.getInt(self, "Merge Folio",
+                                          "Target folio number:")
+        if not ok:
+            return
+        try:
+            folio_mod.merge_folio(source_folio, target, user=self.user)
+            QMessageBox.information(self, "Merge Folio",
+                                    f"Folio #{source_folio} ko #{target} me merge kar diya")
+            self.reload()
+        except Exception as e:
+            QMessageBox.critical(self, "Merge Folio", str(e))
+
+    def _apply_discount(self):
+        from HMS_py.core import folio as folio_mod
+        row = self.tbl.currentRow()
+        if row < 0:
+            QMessageBox.warning(self, "Apply Discount", "Pehle folio select karo")
+            return
+        folio_no = int(self.tbl.item(row, 0).text())
+        ro_disc, ok1 = QInputDialog.getDouble(self, "Apply Discount",
+                                              "Room Discount %:", 0, 0, 100, 2)
+        if not ok1:
+            return
+        rs_disc, ok2 = QInputDialog.getDouble(self, "Apply Discount",
+                                              "Service Discount %:", 0, 0, 100, 2)
+        if not ok2:
+            return
+        try:
+            folio_mod.apply_discount(folio_no, ro_disc, rs_disc, user=self.user)
+            QMessageBox.information(self, "Apply Discount",
+                                    f"Folio #{folio_no} pe discount apply ho gaya")
+            self.reload()
+        except Exception as e:
+            QMessageBox.critical(self, "Apply Discount", str(e))
 
     def reload(self, keep_folio: int | None = None):
         rows = checkin.list_checkins()

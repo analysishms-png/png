@@ -1,0 +1,524 @@
+13|3||GST Reports
+13|1|GST Reports|GST Reports
+13|1|GST Reports|GST Reports
+13|1|GST Reports|GST Reports
+13|1|GST Reports|GST Reports
+B|0|Transaction|Expense Voucher
+10|1|Reports|Store Issue Report
+E|1|M.I.S.|Room Type Occupancy Analysis
+13|1|Reports|Credit Report
+10|1|Reports|Liquor Sale Report
+11|0|POS Reports|Payment Receive Entry (POS)
+13|1|GST Reports|Payment Receive Entry (POS)
+13|0|GST Reports|Upload Process
+11|1|POS Reports|Bill Wise Adjustment Report
+E|1|M.I.S.|Plan Report
+E|1|M.I.S.|Business Source Occupancy Report
+C|0|Members Mgmt|Member Select Category
+17|0|Operations|Auto Settle Card Balance
+B|1|Reports|Journal Books Log
+B|4||Financial Setup
+B|3||Transaction
+B|0|Transaction|Voucher Entry
+B|0|Transaction|Adjustment Entry
+B|0|Transaction|Delete Adjustment Entry
+B|0|Transaction|Bank Reconciliation
+B|0|Transaction|T.D.S. Challan Entry
+B|0|Transaction|T.D.S. Certificate Entry
+B|0|Transaction|Expense Voucher
+B|3||Reports
+B|1|Reports|Day Book
+B|1|Reports|Trial Balance
+B|1|Reports|Ledger
+B|1|Reports|Interest Ledger
+B|1|Reports|Cash Book
+B|1|Reports|Bank Book
+B|1|Reports|Journal Books
+B|1|Reports|Annexure
+B|1|Reports|Bank Register
+B|1|Reports|Ageing Analysis for Debtors
+B|1|Reports|Ageing Analysis for Creditors
+B|1|Reports|Cheque Cleared Register
+B|1|Reports|Cheque Not Cleared Register
+B|1|Reports|Detailed Trial Ledger
+B|1|Reports|Bill Wise Outstanding Report For Debtors
+B|1|Reports|Day  Book
+C|4||Main Setup
+C|3||General Setup
+C|0|General Setup|Tax Master
+C|0|General Setup|Tax Structure
+C|0|General Setup|Payment Type
+C|0|General Setup|Parameter
+C|0|General Setup|Revenue Group Setting
+C|0|General Setup|Printing Parameters
+C|0|General Setup|Printing Setup
+C|2|General Setup|Revenue Wise Budget Entry
+C|3||Front Office Setup
+C|0|Front Office Setup|Country Master
+C|0|Front Office Setup|State Master
+C|0|Front Office Setup|City Master
+C|0|Front Office Setup|Market Segment
+C|0|Front Office Setup|Business Source
+C|0|Front Office Setup|Guest Status
+C|0|Front Office Setup|Charge Master
+C|0|Front Office Setup|Fixed Charge
+C|0|Front Office Setup|Package Master
+C|0|Front Office Setup|Plan Master
+C|0|Front Office Setup|Season Master
+C|0|Front Office Setup|Room Features
+C|0|Front Office Setup|Room Category
+C|0|Front Office Setup|Room Master
+C|0|Front Office Setup|Company Master
+C|0|Front Office Setup|Forex Master
+C|0|Front Office Setup|Guest History
+C|0|Front Office Setup|Room Display
+C|3||Point of Sale Setup
+C|0|Point of Sale Setup|Item List
+C|0|Point of Sale Setup|Scheme Master
+C|0|Point of Sale Setup|Server Master
+C|0|Point of Sale Setup|Setup Outlet
+C|0|Point of Sale Setup|Table Master
+C|0|Point of Sale Setup|Menu Group
+C|0|Point of Sale Setup|Menu Category
+C|0|Point of Sale Setup|Menu Item
+C|0|Point of Sale Setup|Outlet Bill Sundry Setting
+C|0|Point of Sale Setup|Menu Item Rate
+C|0|Point of Sale Setup|Session Master
+C|0|Point of Sale Setup|Open Item Consumption
+C|0|Point of Sale Setup|Happy Hours
+C|0|Point of Sale Setup|Happy Hours [ Fee Items ]
+C|0|Point of Sale Setup|Combo Pack
+C|0|Point of Sale Setup|NC Type
+C|0|Point of Sale Setup|Customer History
+C|3||Banquet
+C|0|Indoor Catering|Events
+C|0|Indoor Catering|Venue Features
+C|0|Indoor Catering|Venue Master
+C|0|Indoor Catering|Menu Category
+C|0|Indoor Catering|Item Group
+C|0|Indoor Catering|Menu Item
+C|0|Indoor Catering|Catalog Master
+C|0|Indoor Catering|Banquet Bill Sundry Setting
+C|3|Main Setup|Members Mgmt Setup
+C|0|Members Mgmt Setup|Category Master
+C|0|Members Mgmt Setup|Member Master
+C|0|Members Mgmt Setup|Corporate Member Master
+C|0|Members Mgmt Setup|Revenue Master
+C|0|Members Mgmt Setup|Facility Master
+C|0|Members Mgmt Setup|Category wise Revenue
+C|0|Members Mgmt Setup|Category wise Facility
+C|2|Members Mgmt Setup|Member Bill Sundry Setting
+C|0|Members Mgmt Setup|Environment Settings
+C|0|Members Mgmt Setup|Member Age Wise Revenue
+C|3|Main Setup|Material Mgmt Setup
+C|0|Material Mgmt Setup|Party Master
+C|0|Material Mgmt Setup|Department
+C|0|Material Mgmt Setup|Item Group
+C|0|Material Mgmt Setup|Item Category
+C|0|Material Mgmt Setup|Item Entry
+C|2|Material Mgmt Setup|Consumption Master
+C|0|Material Mgmt Setup|Purchase Sundry Setting
+C|0|Material Mgmt Setup|Opening Stock
+C|0|Material Mgmt Setup|Item  List
+C|0|Material Mgmt Setup|Enviro Inventry
+C|3|Main Setup|PayRoll Setup
+C|0|PayRoll Setup|Designation Master
+C|0|PayRoll Setup|Category Master
+C|0|PayRoll Setup|Holiday Master
+C|0|PayRoll Setup|Employee Master
+C|3|Main Setup|EPABX Setup
+C|0|EPABX Setup|Call Type Master
+C|0|EPABX Setup|Extension Master
+C|0|EPABX Setup|Call Codes Master
+C|3|Main Setup|Financial Setup
+C|0|Financial Setup|Group Accounts
+C|0|Financial Setup|Ledger Accounts
+C|0|Financial Setup|Narration Master
+C|0|Financial Setup|T.D.S. Category
+C|0|Financial Setup|FA Environment
+C|0|Financial Setup|Voucher Environment
+C|0|Financial Setup|Year End Updation
+C|0|Financial Setup|Current Balance Updation
+C|0|Financial Setup|Country Master
+C|0|Financial Setup|State Master
+C|0|Financial Setup|City Master
+C|0|Financial Setup|Delete Message
+C|0|Financial Setup|Account Merging
+C|0|Financial Setup|Voucher Serialisation
+C|3|Main Setup|Utility
+C|0|Utility|User Master
+C|0|Utility|Permissions
+C|0|Utility|Backup Data
+C|0|Utility|Sundry Master
+C|0|Utility|Inconsistency Check
+C|0|Utility|Year End Updation
+C|2|Utility|Data Transfer
+C|0|Utility|Menu Item Copy
+C|2|Utility|POS Bill Deletion
+C|0|Utility|Guest B'Day/Anniversary LookUp
+C|0|Utility|Country Master
+C|0|Utility|State Master
+C|0|Utility|City Master
+C|0|Utility|Company Master
+C|0|Utility|Department
+C|0|Utility|Ledger Accounts
+C|2|Utility|Data Transfer (POS)
+C|2|Utility|PLU File (W.Scale)
+C|2|Utility|POS Recycle
+C|0|Utility|Unit Master
+D|4||Reservation
+D|3||Reservation Operations
+D|0|Reservation Operations|Reservation/Cancellation
+D|0|Reservation Operations|Look Up Room types
+D|0|Reservation Operations|Look Up Rooms
+D|0|Reservation Operations|Reservation with History
+D|0|Reservation Operations|Advance Deposit
+D|0|Reservation Operations|Confirmation Letters
+D|0|Reservation Operations|Cancellation Letters
+D|0|Reservation Operations|Registration Card
+D|0|Reservation Operations|Reservation Status Screen
+D|3||Reservation Status Report
+D|1|Reservation Status Report|Reservation Status
+D|1|Reservation Status Report|Reservation Status Arrival
+D|1|Reservation Status Report|Reservation Status Arrival
+D|1|Reservation Status Report|Arrival List
+D|3||Advance Recd. Report
+D|1|Advance Recd. Report|Advance Recd.
+D|1|Advance Recd. Report|Advance Recd. Arrival
+D|1|Advance Recd. Report|Advance Recd. Arrival
+D|3||M.I.S.
+D|0|M.I.S.|M.I.S.
+D|0|M.I.S.|23 Day Room Availability Forecast
+D|0|M.I.S.|23 Day Room Type Availability Forecast
+D|0|M.I.S.|Package Forecast
+E|4||Front Desk
+E|3||Front Desk Operations
+E|0|Front Desk Operations|WalkIn CheckIn
+E|0|Front Desk Operations|Room Status
+E|0|Front Desk Operations|Expense Entry
+E|0|Front Desk Operations|Forex Receive Entry
+E|0|Front Desk Operations|Display Rack
+E|0|Front Desk Operations|House Keeping Screen
+E|0|Front Desk Operations|Travel Agency Posting
+E|0|Front Desk Operations|Bill Reprint
+E|0|Front Desk Operations|Reverse Check Out
+E|0|Front Desk Operations|Merge Room
+E|0|Front Desk Operations|Merge Room
+E|0|Front Desk Operations|Reverse Room Merge
+E|3||Reports
+E|1|Reports|Instant House Count
+E|1|Reports|Room Inventory
+E|1|Reports|Guest In House
+E|1|Reports|House Keeping Report
+E|2|Reports|Arrival & Departure List
+E|1|Reports|Charge Payment Detail
+E|1|Reports|Payments By Cashier
+E|1|Reports|Cashier Report
+E|1|Reports|Settlement Report
+E|1|Reports|Cancel Bill Details
+E|1|Reports|Room Change History
+E|1|Reports|Arrival And Departure Register
+E|1|Reports|FOM Sales Register
+E|1|Reports|Room Wise Plan Detail
+E|1|Reports|Expected Plan/Package F&B Details
+E|1|Reports|Occupancy Report
+E|1|Reports|Company wise Nights
+E|1|Reports|Revenue During the stay
+E|1|Reports|Bill Change Report
+E|1|Reports|Check In Register
+E|1|Reports|Expected Check Out
+E|1|Reports|GRC Printing
+E|1|Reports|Check Out Register
+E|1|Reports|Extra Charges During Stay
+E|1|Reports|Plan Meal Tokens
+E|1|Reports|FOM Tax Detail
+E|1|Reports|Checked In Guest Detail
+E|1|Reports|Room Rent Audit Report
+E|1|Reports|Sales Report
+E|1|Reports|Tax Wise Charge Detail
+E|3||Tourism Forms
+E|1|Tourism Forms|Form  C
+E|1|Tourism Forms|Tourism Form 1
+E|1|Tourism Forms|Tourism Form 2
+E|1|Tourism Forms|Tourism Form 5
+E|1|Tourism Forms|Tourism Form 5
+E|1|Tourism Forms|Tourism Form 6
+E|1|Tourism Forms|Tourism Form 4
+E|1|Tourism Forms|Luxury Tax Report
+E|2|Tourism Forms|Monthly Return
+E|3||M.I.S.
+E|1|M.I.S.|Occupancy Display
+E|1|M.I.S.|Guest wise Analysis
+E|1|M.I.S.|Company wise Analysis
+E|1|M.I.S.|Revenue During the stay
+E|1|M.I.S.|Room Occupancy
+E|1|M.I.S.|Room Type Occupancy
+E|1|M.I.S.|Room Wise Room Revenue
+F|4||House Keeping
+F|3||Transactions
+F|0|Setup|Block Master
+F|3||Transactions
+F|0|Transactions|Complaint Master
+F|0|Transactions|Complaint Clearance
+F|0|Transactions|Lost / Found Entry
+F|0|Transactions|Claim Entry
+F|2|Transactions|House Keeping Op.Stock Entry
+F|0|Transactions|Issue/Recd. Entry
+F|0|Transactions|House Keeping Screen
+F|0|Transactions|Item Issued On Cleaning
+F|0|Transactions|Check Out Clearance Screen
+F|0|Transactions|Room Block
+F|3||Reports
+F|1|Reports|Room Status Report
+F|1|Reports|Complaint Detail
+10|4||Material Mgmt
+10|3||Transactions
+10|0|Transactions|Gravy Item Entry
+10|0|Transactions|Indent
+10|0|Transactions|Purchase Order
+10|0|Transactions|M.R. Entry
+10|0|Transactions|Purchase Bill
+10|0|Transactions|Requisition Slip
+10|0|Transactions|Stock Issue on Requisition
+10|0|Transactions|Kitchen Closing Stock
+10|0|Transactions|Stock Transfer
+10|0|Transactions|Finish Material Receive Entry
+10|0|Transactions|Excise Invoice Cum Gate Pass
+10|3||Reports
+10|1|Reports|Kitchen Stock Report I/R Basis
+10|1|Reports|Purchase Register
+10|1|Reports|Purchase Summary
+10|1|Reports|Cash/Credit Purchase
+10|1|Reports|Stock Register
+10|1|Reports|Stock Summary
+10|1|Reports|Stock In Hand
+10|1|Reports|Excess Consumption Report
+10|1|Reports|Store Issue Register
+10|1|Reports|Indent Register
+10|1|Reports|Purchase Order Register
+10|1|Reports|Daily Store Issue Reports
+10|1|Reports|VAT Register
+10|1|Reports|Purchase Ledger
+10|1|Reports|Issue CheckList
+10|1|Reports|M.R. Register
+10|1|Reports|Stock Summary P/S Basis
+10|1|Reports|ABC Analysis
+10|1|Reports|Production Report I/R Basis
+10|1|Reports|VAT Register II
+10|1|Reports|VAT Register III
+10|1|Reports|VAT Register III
+10|1|Reports|Form III
+10|1|Reports|UPVAT XXIV
+11|4||Point Of Sale
+11|2||Restaurant Change
+11|0||POS Status
+11|2||POS Operations
+11|2|POS Operations|KOT Entry
+11|2|POS Operations|Table Change Entry
+11|2|POS Operations|Sale Bill Entry
+11|2|POS Operations|Settlement Entry
+11|2|POS Operations|POS Bill Reprint
+11|2|POS Operations|Split Sale Bill
+11|2|POS Operations|Display Table
+11|2|POS Operations|Order Booking
+11|2|POS Operations|Bill Lookup
+11|2|POS Operations|Order Booking Advance
+11|2|POS Operations|KOT Transfer
+11|2|POS Operations|Token Entry
+11|3||POS Reports
+11|1|POS Reports|Sales Register
+11|1|POS Reports|Stewardwise Sale
+11|1|POS Reports|Tablewise Sales
+11|1|POS Reports|Settlement Summary
+11|1|POS Reports|Tax Report
+11|1|POS Reports|KOT Wise Details
+11|1|POS Reports|Discount Register
+11|1|POS Reports|Cover Analysis
+11|1|POS Reports|Pending KOT
+11|1|POS Reports|Item wise Sale
+11|1|POS Reports|Deleted Unsettled Bill
+11|1|POS Reports|NC KOT Detail
+11|1|POS Reports|Sales Day Book
+11|1|POS Reports|Tax Register
+11|1|POS Reports|Order Detail Report
+11|1|POS Reports|Taxwise Details
+11|1|POS Reports|NC KOT Summary
+11|1|POS Reports|Discount Register (PartyWise)
+11|1|POS Reports|Not Delivered Order
+11|1|POS Reports|Group Wise Sale
+11|1|POS Reports|Customer Detail
+11|0|POS Reports|Denomination Detail
+11|3||POS M.I.S.
+11|1|POS M.I.S.|Collection Summary
+11|1|POS M.I.S.|Open Item Sales
+11|1|POS M.I.S.|Void Bills
+11|1|POS M.I.S.|KOT Change Report
+11|1|POS M.I.S.|Tax Summary
+11|1|POS M.I.S.|Discount Summary
+11|1|POS M.I.S.|Monthwise Sales
+11|1|POS M.I.S.|ABC  Analysis
+11|1|POS M.I.S.|Sale Summary
+11|1|POS M.I.S.|Tax Invoice Detail
+11|1|POS M.I.S.|Edited Bills
+12|4||Banquet
+12|0|Indoor Catering|Banquet Operation
+12|0|Indoor Catering|Booking Inquiry
+12|0|Indoor Catering|Banquet Booking
+12|0|Indoor Catering|Catalog Selection
+12|0|Indoor Catering|Catalog Selection
+12|0|Indoor Catering|Banquet Billing
+12|2|Indoor Catering|Banquet Settlement
+12|0|Indoor Catering|Venue Availability
+12|0|Indoor Catering|Guest Comments
+12|0|Indoor Catering|Banquet Estimate Billing
+12|0|Indoor Catering|Banquet Booking Advance
+12|0|Indoor Catering|Reports
+12|1|Indoor Catering|Sales Register
+12|1|Indoor Catering|OutStanding Report
+12|1|Indoor Catering|Party wise OutStanding
+12|1|Indoor Catering|Cashier  Report
+12|1|Indoor Catering|Booking Inquiry Detail
+12|1|Indoor Catering|Settlement  Report
+12|1|Indoor Catering|Daily Function Sheet
+12|1|Indoor Catering|Item Wise Sales Report
+12|1|Indoor Catering|Company Wise Sale Report
+12|1|Indoor Catering|Function Wise Item Detail
+12|0|Indoor Catering|Banquet Reports (MIS)
+12|1|Indoor Catering|Cover Analysis
+12|1|Indoor Catering|Collection Summary
+12|0|Indoor Catering|Banquet Tax Reports
+12|1|Indoor Catering|Tax Report
+12|1|Indoor Catering|Tax Summary
+12|1|Indoor Catering|Banquet Taxwise Details
+12|3||OutDoor Catering
+12|0|OutDoor Catering|Venue Master
+12|0|OutDoor Catering|Menu Category
+12|0|OutDoor Catering|Item Group
+12|0|OutDoor Catering|Menu Item
+12|0|OutDoor Catering|Banquet Bill Sundry Setting
+12|0|OutDoor Catering|Operation
+12|0|OutDoor Catering|Booking Inquiry
+12|0|OutDoor Catering|Banquet Booking
+12|0|OutDoor Catering|Catalog Selection
+12|0|OutDoor Catering|Catalog Selection
+12|0|OutDoor Catering|Banquet Billing
+12|2|OutDoor Catering|Banquet Settlement
+12|0|OutDoor Catering|Venue Availability
+12|0|OutDoor Catering|Guest Comments
+12|0|OutDoor Catering|Banquet Estimate Billing
+12|0|OutDoor Catering|Banquet Booking Advance
+12|0|OutDoor Catering|Reports
+12|1|OutDoor Catering|Sales Register
+12|1|OutDoor Catering|OutStanding Report
+12|1|OutDoor Catering|Party wise OutStanding
+12|1|OutDoor Catering|Cashier  Report
+12|1|OutDoor Catering|Booking Inquiry Detail
+12|1|OutDoor Catering|Settlement  Report
+12|1|OutDoor Catering|Daily Function Sheet
+12|1|OutDoor Catering|Item Wise Sales Report
+12|1|OutDoor Catering|Company Wise Sale Report
+12|1|OutDoor Catering|Function Wise Item Detail
+12|0|OutDoor Catering|Banquet Reports (MIS)
+12|1|OutDoor Catering|Cover Analysis
+12|1|OutDoor Catering|Collection Summary
+12|0|OutDoor Catering|Banquet Tax Reports
+12|1|OutDoor Catering|Tax Report
+12|1|OutDoor Catering|Tax Summary
+12|1|OutDoor Catering|Banquet Taxwise Details
+13|4||Night Audit
+13|0||Night Audit Process
+13|0||Reverse Night Audit
+13|1||Daily Report
+13|1||Daily Report
+13|0||Charges Posting
+13|1||Room Inventory
+13|1||Charge Payment Detail
+13|1||Guest Trail
+13|1||Occupancy Analysis
+13|1||Market Segment Analysis
+13|1||Business Source Analysis
+13|1||Company Analysis
+13|1||Travel Agent Analysis
+13|1||Guest Audit Ledger
+13|1||Charges Remove Log
+13|1||FOCC Report
+13|1||Checkout Analysis
+13|0||Account Posting
+13|1||Food Costing Report
+13|1||Revenue Analysis
+13|1||F&&B Cost Statement
+13|1||Budget Analysis
+13|1||Night Audit Log
+13|1||Ageing Analysis (Debtors)
+13|1||Ageing Analysis (Creditors)
+14|4||PayRoll
+14|0||Leave Entry
+14|0||Loan/Advance Entry
+14|0||Salary Creation
+14|0||Leave Encashment
+14|0||Over Time Entry
+14|0||Over Time Entry
+14|1||Attendence Report
+14|1||Pay Slip
+14|1||Loan Register
+14|1||Loan Advance Summary
+14|1||Payroll Register
+14|1||PF Statement
+14|1||Loan/Advance Ledger
+14|1||Form C
+14|1||Gratuity Report
+15|4||EPABX
+15|1||EPBAX Call Report
+16|4||Messaging
+16|0||InBox
+16|0||OutBox
+17|4||Members Mgmt
+17|3||Operations
+17|0|Operations|Member Visit Entry
+17|2|Operations|Member Renewal Entry
+17|0|Operations|Member Used Facility Entry
+17|0|Operations|Member Facility Billing
+17|0|Operations|Member Bill Printing
+17|0|Operations|Member Assistant
+17|0|Operations|Outstation Member Entry
+17|0|Operations|Member Category Change Entry
+17|0|Operations|Payment Receive Entry
+17|0|Operations|Revenue Change Entry
+17|0|Operations|Payment Due Letter Entry
+17|0|Operations|Member Category Change (Conditional)
+17|3||Reports
+17|1|Reports|Member Visit Details
+17|1|Reports|Member Mailing Labels
+17|1|Reports|Member Bill Missing Report
+17|1|Reports|Member Sales Register
+17|1|Reports|Member Ledger
+17|1|Reports|Member Tax Report
+17|1|Reports|Payment Due Letter Report
+17|1|Reports|Member Birthday/Anniversary Details
+18|4||SMS
+18|3||General Setup
+18|0|General Setup|SMS Center Settings
+18|0|General Setup|SMS Environment Settings
+18|3||Send SMS
+18|0|Send SMS|Multiple SMS Type
+19|4||Mall Management
+19|3||Operations
+19|0|Operations|Operations
+19|0|Operations|Facility Master
+19|0|Operations|Location Facilities
+19|0|Operations|Party Locations
+19|0|Operations|Meter Reading
+19|0|Operations|Facility Billing
+19|2|Operations|Facility Sundry Setting
+19|3||Reports
+19|1|Reports|Facility Bill Register
+1A|4||Smart Card
+1A|0||Registration Entry
+1A|0||Recharge/Refund Entry
+1A|0||Recharge/Refund Entry
+1A|1||Cash Card Transaction Report
+1A|1||Cash Card Collection Summary
+1A|1||Card Status Report
+2E|2||Windows
+2F|2||Exit
+32|2||MDI

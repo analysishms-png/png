@@ -23,8 +23,9 @@ def list_family(subcode, cn=None, limit=500):
 
 
 def insert_family(rec, cn=None, commit=True, site=SITE_CODE, user=USER):
-    sno_rows = db.query("SELECT MAX(SNo) FROM MemberFamily WHERE SubCode = ?", (rec.get("subcode",""),), cn=cn)
-    sno = (sno_rows[0][0] or 0) + 1 if sno_rows and sno_rows[0][0] else 1
+    # BUG-003/004: race-safe SNo (UPDLOCK/HOLDLOCK) - db.py central helper.
+    sno = db.next_serial("MemberFamily", "SNo", "SubCode = ?",
+                         (rec.get("subcode",""),), cn=cn)
     db.execute(
         "INSERT INTO MemberFamily (SubCode,SNo,Relationship,Name,Gender,DOB,Phone,Mobile,Email,Site_Code,LogSite_Code,U_Name,U_EntDt,U_AE)"
         " VALUES (?,?,?,?,?,?,?,?,?,?,?,getdate(),'A',?)",
@@ -64,8 +65,8 @@ def get_membill(docid, cn=None):
 
 
 def insert_membill(rec, cn=None, commit=True, site=SITE_CODE, user=USER):
-    vno_rows = db.query("SELECT MAX(vno) FROM MemBill WHERE Site_Code = ?", (site,), cn=cn)
-    vno = (vno_rows[0][0] or 0) + 1 if vno_rows and vno_rows[0][0] else 1
+    # BUG-003/004: race-safe vno (UPDLOCK/HOLDLOCK) - db.py central helper.
+    vno = db.next_serial("MemBill", "vno", "Site_Code = ?", (site,), cn=cn)
     vprefix = rec.get("vprefix", "2026")
     docid = ("D" + site.ljust(2) + "MB".ljust(6) + str(vprefix).ljust(4) + str(vno).rjust(8))[:21]
     db.execute(

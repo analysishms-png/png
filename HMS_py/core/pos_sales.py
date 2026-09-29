@@ -664,3 +664,109 @@ class _SaleBillAPI:
             stock_lines, close_kot_docids, cn, commit)
 
 SaleBillAPI = _SaleBillAPI()
+
+
+# ============================================================
+# SplitSale1/SplitSale2 Staging (VB6 HMS_OPERATIONS_MANUAL.md §5.7)
+# ============================================================
+
+def split_sale1_insert(rec: dict, cn=None, commit: bool = True,
+                       site: str = SITE_CODE) -> int:
+    """VB6 SplitSale1 staging row insert (split-bill header).
+    
+    VB6: SplitSale1 table — split bill staging for AutoSplit departments.
+    """
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        n = db.execute(
+            "INSERT INTO SplitSale1 (DocId, Vtype, VNo, Site_Code, Vprefix, "
+            "Vdate, RestCode, NetAmt, U_Name, U_EntDt, U_AE, LogSite_Code) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, getdate(), 'A', ?)",
+            (rec.get("docid", ""), rec.get("vtype", "BMM"),
+             rec.get("vno", 0), site, rec.get("vprefix", "2026"),
+             rec.get("vdate"), rec.get("restcode", ""),
+             rec.get("netamt", 0.0), rec.get("u_name", USER), site),
+            cn=cn, commit=False)
+        if commit:
+            cn.commit()
+        return n
+    finally:
+        if own:
+            cn.close()
+
+
+def split_sale2_insert(rec: dict, cn=None, commit: bool = True,
+                       site: str = SITE_CODE) -> int:
+    """VB6 SplitSale2 staging row insert (split-bill detail lines).
+    
+    VB6: SplitSale2 table — split bill item lines.
+    """
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        n = db.execute(
+            "INSERT INTO SplitSale2 (DocId, Sno, Item, Qty, Rate, Amount, "
+            "Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, getdate(), 'A', ?)",
+            (rec.get("docid", ""), rec.get("sno", 1), rec.get("item", ""),
+             rec.get("qty", 1), rec.get("rate", 0.0), rec.get("amount", 0.0),
+             site, rec.get("u_name", USER), site),
+            cn=cn, commit=False)
+        if commit:
+            cn.commit()
+        return n
+    finally:
+        if own:
+            cn.close()
+
+
+def sale1log_insert(rec: dict, cn=None, commit: bool = True,
+                    site: str = SITE_CODE) -> int:
+    """VB6 Sale1Log audit row insert.
+    
+    VB6: Sale1Log table — sale audit trail.
+    """
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        n = db.execute(
+            "INSERT INTO Sale1Log (DocId, Vtype, VNo, Vdate, RestCode, "
+            "NetAmt, U_Name, U_EntDt, U_AE, LogSite_Code) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, getdate(), 'A', ?)",
+            (rec.get("docid", ""), rec.get("vtype", "BMM"),
+             rec.get("vno", 0), rec.get("vdate"), rec.get("restcode", ""),
+             rec.get("netamt", 0.0), rec.get("u_name", USER), site),
+            cn=cn, commit=False)
+        if commit:
+            cn.commit()
+        return n
+    finally:
+        if own:
+            cn.close()
+
+
+def pos_sbill_insert(rec: dict, cn=None, commit: bool = True,
+                     site: str = SITE_CODE) -> int:
+    """VB6 POS_SBill print-record insert.
+    
+    VB6: POS_SBill table — POS bill print staging.
+    """
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        n = db.execute(
+            "INSERT INTO POS_SBill (DocId, Vtype, VNo, Vdate, RestCode, "
+            "NetAmt, Bill_No, U_Name, U_EntDt, U_AE, LogSite_Code) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, getdate(), 'A', ?)",
+            (rec.get("docid", ""), rec.get("vtype", "BMM"),
+             rec.get("vno", 0), rec.get("vdate"), rec.get("restcode", ""),
+             rec.get("netamt", 0.0), rec.get("bill_no", ""),
+             rec.get("u_name", USER), site),
+            cn=cn, commit=False)
+        if commit:
+            cn.commit()
+        return n
+    finally:
+        if own:
+            cn.close()

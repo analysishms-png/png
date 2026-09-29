@@ -403,3 +403,50 @@ def next_vno(table: str, vtype: str, vprefix: str, site: str | None = None,
             except pyodbc.Error:
                 pass
             cn.close()
+
+
+def next_serial(table: str, column: str, where_sql: str = "",
+                where_params: tuple = (), cn: pyodbc.Connection | None = None,
+                commit: bool = False) -> int:
+    """Race-safe MAX(col)+1 for SNo/Id/vno counters (BUG-003/004).
+
+    next_vno ka bhai: jinka koi Vtype/Vprefix filter nahi hota (FolioLog Id,
+    per-folio PayCharge SNo, MemBill vno, RoomOcc SNo) unke liye.
+    UPDLOCK+HOLDLOCK range lock transaction end tak hold karta hai - do
+    concurrent users ko same number nahi milega. Caller INSERT isi cn par
+    kare (lock INSERT commit tak hold rahe).
+
+    Args:
+        table/column: validated identifiers (SQL injection guard)
+        where_sql/where_params: optional param-bound filter
+            (e.g. "FolioNo = ? AND Site_Code = ?", (folio, site))
+        cn: apna connection - transaction atomicity ke liye ZAROORI
+        commit: True => commit immediately.
+    Returns: MAX(col)+1 (khali table par 1).
+    """
+    from HMS_py.core.db import _validate_identifier
+    _validate_identifier(table, "table")
+    _validate_identifier(column, "column")
+    own = cn is None
+    cn = cn or connect()
+    try:
+        cur = cn.cursor()
+        sql = (f"SELECT MAX([{column}]) FROM [{table}] "
+               f"WITH (UPDLOCK, HOLDLOCK)")
+        params: tuple = ()
+        if where_sql:
+            sql += " WHERE " + where_sql
+            params = tuple(where_params)
+        cur.execute(sql, params)
+        row = cur.fetchone()
+        val = int(row[0] or 0) + 1 if row and row[0] is not None else 1
+        if commit:
+            cn.commit()
+        return val
+    finally:
+        if own:
+            try:
+                cn.rollback()
+            except pyodbc.Error:
+                pass
+            cn.close()
