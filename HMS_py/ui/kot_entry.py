@@ -28,6 +28,7 @@ from HMS_py.core import db, pos
 from HMS_py.ui.base_master import make_delete_guard
 from HMS_py.ui import theme as _theme
 from HMS_py.ui import print_preview as _pp
+from HMS_py.ui.desktop_style import make_vb6_header as _vb6_header
 
 
 class KOTEntryForm(QDialog):
@@ -50,6 +51,9 @@ class KOTEntryForm(QDialog):
         self._tax_codes = []
 
         root = QVBoxLayout(self)
+
+        # VB6-hybrid chrome: blue gradient header + cream title strip
+        root.addWidget(_vb6_header("KOT Entry"))
 
         # ---- Header fields ----
         header_wrap = QWidget()

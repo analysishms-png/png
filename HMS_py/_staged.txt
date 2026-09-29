@@ -1,4 +1,13 @@
-b4805f5 Add settlement flow: unsettled_bills, cancel_bill, paycharge_log audit, calc_nights, startup_normalization
-95c485c SundryType save-flow + pytest coverage for Wave 5-7 windows
-b4805f5 Add settlement flow: unsettled_bills, cancel_bill, paycharge_log audit, calc_nights, startup_normalization
-END
+On branch codex/main-setup-parity
+Your branch is ahead of 'origin/codex/main-setup-parity' by 1 commit.
+  (use "git push" to publish your local commits)
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   _staged.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")
+EXIT=1
+f5b6585 commity
+4487548 Add Merge Folio and Apply Discount UI buttons with handlers

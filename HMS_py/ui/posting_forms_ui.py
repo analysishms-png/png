@@ -41,6 +41,7 @@ from PyQt6.QtWidgets import (QApplication, QComboBox, QHBoxLayout, QLabel,
                              QVBoxLayout, QWidget)
 
 from HMS_py.core import checkout, folio, roomstatus
+from HMS_py.ui.desktop_style import make_vb6_header
 from HMS_py.ui.theme import palette
 
 
@@ -67,9 +68,8 @@ def _fill_grid(grid: QTableWidget, headers: list[str], rows: list[list]):
 
 
 def _title(text: str) -> QLabel:
-    lbl = QLabel(text)
-    lbl.setStyleSheet("font-size:14pt; font-weight:bold; color:#1a3c6e;")
-    return lbl
+    """VB6-hybrid chrome: blue gradient header + cream title strip."""
+    return make_vb6_header(text)
 
 
 def _msgbox_err(w, e: Exception):

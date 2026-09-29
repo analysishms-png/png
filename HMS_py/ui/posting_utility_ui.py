@@ -33,15 +33,13 @@ from PyQt6.QtWidgets import (QApplication, QDateEdit, QFormLayout, QGroupBox,
                              QVBoxLayout, QWidget)
 
 from HMS_py.core import nightaudit as na
+from HMS_py.ui.desktop_style import make_vb6_header
 from HMS_py.ui.theme import palette
 
 
 def _title(text: str) -> QLabel:
-    lab = QLabel(text)
-    lab.setFont(QFont("Segoe UI", 13, QFont.Weight.Bold))
-    lab.setAlignment(Qt.AlignmentFlag.AlignCenter)
-    lab.setStyleSheet("color:#000080; background:#d4d0c8; padding:4px;")
-    return lab
+    """VB6-hybrid chrome: blue gradient header + cream title strip."""
+    return make_vb6_header(text)
 
 
 class PostingUtilityWindow(QMainWindow):

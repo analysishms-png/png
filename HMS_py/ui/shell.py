@@ -24,14 +24,19 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))))
 
 # Suppress propagateSizeHints() warning (harmless on Windows platform plugin)
+# BUG FIX: yahan warnings.showwarning ka PROPER 6-arg signature chahiye —
+# pehle 3-arg qInstallMessageHandler-style fn assign tha, jo kisi bhi
+# runtime Python warning (DeprecationWarning etc.) par TypeError deta tha.
 _original_showWarning = warnings.showwarning
-def _qt_message_handler(msg_type, context, message):
-    if "propagateSizeHints" in message:
+def _showwarning(message, category, filename, lineno,
+                 file=None, line=None):
+    text = str(message)
+    if "propagateSizeHints" in text:
         return          # swallow – harmless
-    if "Cannot find font" in message:
+    if "Cannot find font" in text:
         return          # handled by QT_QPA_FONTDIR above
-    _original_showWarning(msg_type, context, message)
-warnings.showwarning = _qt_message_handler
+    _original_showWarning(message, category, filename, lineno, file, line)
+warnings.showwarning = _showwarning
 
 from PyQt6.QtWidgets import (QApplication, QDialog, QFormLayout, QGridLayout,
                              QHBoxLayout, QLabel, QLineEdit, QMainWindow,
@@ -231,113 +236,110 @@ class DbSettingsDialog(QDialog):
 
 # ---------------------------------------------------------------- login
 class LoginDialog(QDialog):
-    """Modern login dialog - dark card style."""
+    """VB6 'User Information' login — hybrid: VB6 layout parity (blue
+    gradient header, User Name/Password labels, Login/Un Load buttons)
+    + modern polish (radius, hover)."""
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("HMS Login")
+        self.setWindowTitle("User Information")
         self.setFixedSize(420, 448)
         self.user = ""
+        # VB6 full-desktop parity: white app bg + embedded blue panel
+        # (screenshot 001_Login_Screen_Fresh.png)
+        self.setProperty("vbDesktop", True)
 
         root = QVBoxLayout(self)
         root.setContentsMargins(0, 0, 0, 0)
+        root.setSpacing(0)
 
-        # Header
-        header = QWidget()
-        header.setFixedHeight(80)
-        header.setStyleSheet("background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #7c3aed, stop:1 #a855f7); border-top-left-radius: 12px; border-top-right-radius: 12px;")
-        hl = QVBoxLayout(header)
-        hl.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        app_name = QLabel("HMS")
-        app_name.setFont(QFont("Segoe UI", 22, QFont.Weight.Bold))
-        app_name.setStyleSheet("color: white; background: transparent;")
-        app_name.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        hl.addWidget(app_name)
+        # VB6 header: blue gradient + cream '{ Company Name }' title
+        header = QLabel("{  Company Name  }")
+        header.setProperty("vbHeader", True)
+        header.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        header.setFixedHeight(52)
         root.addWidget(header)
 
-        # Card body
-        body = QWidget()
-        body.setStyleSheet("background: #2a2a3c; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;")
-        lay = QVBoxLayout(body)
-        lay.setContentsMargins(40, 24, 40, 20)
-        lay.setSpacing(12)
+        # White app surface (VB6 white client area)
+        white = QFrame()
+        white.setStyleSheet("background: #ffffff;")
+        wlay = QVBoxLayout(white)
+        wlay.setContentsMargins(28, 24, 28, 16)
+        wlay.setSpacing(12)
+        root.addWidget(white, 1)
 
-        lbl_title = QLabel("Sign in to your account")
-        lbl_title.setFont(QFont("Segoe UI", 11))
-        lbl_title.setStyleSheet("color: #8888aa; background: transparent;")
+        # VB6 blue panel (embedded card: title + fields + Login btn)
+        body = QFrame()
+        body.setProperty("vbPanel", True)
+        lay = QVBoxLayout(body)
+        lay.setContentsMargins(32, 24, 32, 20)
+        lay.setSpacing(12)
+        wlay.addWidget(body)
+
+        lbl_title = QLabel("User Information")
         lbl_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        f_title = QFont("Segoe UI", 15)
+        f_title.setBold(True)
+        lbl_title.setFont(f_title)
+        lbl_title.setStyleSheet("color: #fdfdd0; background: transparent;")
         lay.addWidget(lbl_title)
 
         # User
         lbl_u = QLabel("User Name")
-        lbl_u.setStyleSheet("color: #b0b0cc; font-size: 11px; font-weight: bold; background: transparent;")
+        lbl_u.setStyleSheet(
+            "color: #fdfdd0; font-size: 12px; font-weight: bold; "
+            "background: transparent;")
         lay.addWidget(lbl_u)
         self.txtUser = QLineEdit()
-        self.txtUser.setPlaceholderText("Enter username...")
+        self.txtUser.setPlaceholderText("User Name...")
         self.txtUser.setMinimumHeight(38)
         lay.addWidget(self.txtUser)
 
         # Password
         lbl_p = QLabel("Password")
-        lbl_p.setStyleSheet("color: #b0b0cc; font-size: 11px; font-weight: bold; background: transparent;")
+        lbl_p.setStyleSheet(
+            "color: #fdfdd0; font-size: 12px; font-weight: bold; "
+            "background: transparent;")
         lay.addWidget(lbl_p)
         self.txtPass = QLineEdit()
-        self.txtPass.setPlaceholderText("Enter password...")
+        self.txtPass.setPlaceholderText("Password...")
         self.txtPass.setEchoMode(QLineEdit.EchoMode.Password)
         self.txtPass.setMinimumHeight(38)
         lay.addWidget(self.txtPass)
 
-        lay.addSpacing(8)
+        lay.addSpacing(6)
 
-        # Buttons
-        self.btnLogin = QPushButton("Sign In")
+        # VB6 button pair: Login (in-panel white) + Un Load (below panel)
+        self.btnLogin = QPushButton("Login")
+        self.btnLogin.setStyleSheet(
+            "QPushButton { background: #ffffff; color: #1d3d5d; "
+            "font-weight: bold; font-size: 13px; border: none; "
+            "border-radius: 7px; padding: 9px 22px; }\n"
+            "QPushButton:hover { background: #eaf4fd; }")
         self.btnLogin.setFixedHeight(42)
-        self.btnLogin.setStyleSheet("""
-            QPushButton {
-                background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #7c3aed, stop:1 #a855f7);
-                color: white; font-weight: bold; font-size: 14px;
-                border: none; border-radius: 8px;
-            }
-            QPushButton:hover { background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #6d28d9, stop:1 #9333ea); }
-            QPushButton:pressed { background: #5b21b6; }
-        """)
         lay.addWidget(self.btnLogin)
 
-        self.btnUnLoad = QPushButton("Exit")
+        self.btnUnLoad = QPushButton("Un Load")
+        self.btnUnLoad.setProperty("vbGhost", True)
         self.btnUnLoad.setFixedHeight(36)
-        self.btnUnLoad.setStyleSheet("""
-            QPushButton {
-                background: transparent; color: #8888aa; border: 1px solid #3a3a52;
-                border-radius: 8px; font-size: 12px;
-            }
-            QPushButton:hover { border-color: #7c3aed; color: #b0b0cc; }
-        """)
-        lay.addWidget(self.btnUnLoad)
+        wlay.addWidget(self.btnUnLoad)
 
         self.lblMsg = QLabel("")
         self.lblMsg.setWordWrap(True)
         self.lblMsg.setStyleSheet("color: #ef4444; font-weight: bold; background: transparent; font-size: 11px;")
         self.lblMsg.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        lay.addWidget(self.lblMsg)
+        wlay.addWidget(self.lblMsg)
 
-        root.addWidget(body)
-
-        # DB status + settings button
+        # DB status + settings button (bottom strip)
         self.lblDb = QLabel("")
         self.lblDb.setStyleSheet("color: #666680; font-size: 10px; padding: 4px;")
         self.lblDb.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        root.addWidget(self.lblDb)
+        wlay.addWidget(self.lblDb)
 
         self.btnDb = QPushButton("Database Settings")
+        self.btnDb.setProperty("vbGhost", True)
         self.btnDb.setFixedHeight(30)
-        self.btnDb.setStyleSheet("""
-            QPushButton {
-                background: transparent; color: #7c3aed; border: 1px solid #7c3aed;
-                border-radius: 8px; font-size: 11px; font-weight: bold;
-            }
-            QPushButton:hover { background: rgba(124,58,237,0.15); }
-        """)
-        root.addWidget(self.btnDb)
+        wlay.addWidget(self.btnDb)
         self._note_shown = False
 
         self.btnLogin.clicked.connect(self._do_login)
@@ -381,37 +383,46 @@ class LoginDialog(QDialog):
 
 # ------------------------------------------------------------- company
 class CompanyDialog(QDialog):
-    """Modern company selection dialog."""
+    """VB6 'Company Details' company select — hybrid: VB6 blue header +
+    grid layout, modern polish."""
 
     def __init__(self, user: str, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Select Company")
+        self.setWindowTitle("Company Details")
         self.setFixedSize(580, 420)
         self.user = user
         self.selected = None
+        # VB6 full-desktop parity: gray MDI desktop + floating white grid
+        # (screenshot 010_CompanyDetails_Grid.png: bg #636363)
+        self.setProperty("vbDesktop", True)
 
         root = QVBoxLayout(self)
         root.setContentsMargins(0, 0, 0, 0)
+        root.setSpacing(0)
 
-        # Header
-        header = QWidget()
-        header.setFixedHeight(70)
-        header.setStyleSheet("background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #7c3aed, stop:1 #a855f7); border-top-left-radius: 12px; border-top-right-radius: 12px;")
-        hl = QVBoxLayout(header)
-        hl.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        lbl = QLabel("Select Company")
-        lbl.setFont(QFont("Segoe UI", 16, QFont.Weight.Bold))
-        lbl.setStyleSheet("color: white; background: transparent;")
-        lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        hl.addWidget(lbl)
+        # VB6 header (screenshot: blue gradient bar + cream 'Company
+        # Details' title) — modern gradient, same semantics
+        header = QLabel("Company Details")
+        header.setProperty("vbHeader", True)
+        header.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        header.setFixedHeight(52)
         root.addWidget(header)
 
-        # Card body
-        body = QWidget()
-        body.setStyleSheet("background: #2a2a3c; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;")
+        # Gray desktop gap (VB6 MDI client area vibe)
+        root.addSpacing(18)
+
+        # VB6: floating white grid window on gray desktop — modern:
+        # surface card + subtle border
+        body = QFrame()
+        body.setProperty("vbCard", True)
         lay = QVBoxLayout(body)
         lay.setContentsMargins(24, 16, 24, 20)
         lay.setSpacing(12)
+
+        lbl_hint = QLabel("Company select karke Login dabao")
+        lbl_hint.setProperty("vbHeaderSub", True)
+        lbl_hint.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        lay.addWidget(lbl_hint)
 
         # Table
         self.tbl = QTableWidget(0, 3)
@@ -428,43 +439,24 @@ class CompanyDialog(QDialog):
         self.tbl.horizontalHeader().setStretchLastSection(True)
         lay.addWidget(self.tbl)
 
-        # Buttons
+        # Buttons — VB6 captions: Login / Un Load / Database Update
         btn_lay = QHBoxLayout()
         btn_lay.setSpacing(8)
         self.btnLogin = QPushButton("Login")
+        self.btnLogin.setProperty("vbPrimary", True)
         self.btnLogin.setFixedHeight(40)
-        self.btnLogin.setStyleSheet("""
-            QPushButton {
-                background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #7c3aed, stop:1 #a855f7);
-                color: white; font-weight: bold; font-size: 13px;
-                border: none; border-radius: 8px; padding: 0 24px;
-            }
-            QPushButton:hover { background: #6d28d9; }
-        """)
-        self.btnUnLoad = QPushButton("Exit")
+        self.btnUnLoad = QPushButton("Un Load")
+        self.btnUnLoad.setProperty("vbGhost", True)
         self.btnUnLoad.setFixedHeight(40)
-        self.btnUnLoad.setStyleSheet("""
-            QPushButton {
-                background: transparent; color: #8888aa; border: 1px solid #3a3a52;
-                border-radius: 8px; font-size: 12px; padding: 0 20px;
-            }
-            QPushButton:hover { border-color: #7c3aed; color: #b0b0cc; }
-        """)
-        self.btnDbUpd = QPushButton("DB Update")
+        self.btnDbUpd = QPushButton("Database Update")
+        self.btnDbUpd.setProperty("vbWarn", True)
         self.btnDbUpd.setFixedHeight(40)
-        self.btnDbUpd.setStyleSheet("""
-            QPushButton {
-                background: transparent; color: #f59e0b; border: 1px solid #f59e0b;
-                border-radius: 8px; font-size: 12px; padding: 0 20px;
-            }
-            QPushButton:hover { background: rgba(245,158,11,0.1); }
-        """)
         btn_lay.addWidget(self.btnLogin)
         btn_lay.addWidget(self.btnUnLoad)
         btn_lay.addWidget(self.btnDbUpd)
         lay.addLayout(btn_lay)
 
-        root.addWidget(body)
+        root.addWidget(body, 1)
 
         self.btnLogin.clicked.connect(self._do_login)
         self.btnUnLoad.clicked.connect(self.reject)
@@ -1688,8 +1680,8 @@ def _form_registry() -> dict[str, callable]:
 
 
 class MainWindow(QMainWindow):
-    """VB6 MDIForm1 jaisa: title '{Company} { Year }', left sidebar
-    (ini key 9), module click se User_Module menubar."""
+    """VB6 MDIForm1 jaisa: title '{Company} { Year }', narrow left module
+    strip (VB6 x 0-107 teal buttons), module click se menubar."""
 
     def __init__(self, user: str, comp: dict):
         super().__init__()
@@ -1715,16 +1707,18 @@ class MainWindow(QMainWindow):
         root.setSpacing(0)
         root.setContentsMargins(0, 0, 0, 0)
 
-        # Top bar with title + theme toggle
+        # Top bar: VB6 header (blue gradient + cream title) + theme toggle
+        # (screenshots/02_Main_Setup/014_Main_Menu_AfterLogin.png)
         topbar = QHBoxLayout()
-        topbar.setContentsMargins(16, 8, 16, 8)
+        topbar.setContentsMargins(0, 0, 0, 0)
+        topbar.setSpacing(8)
         self.lblTitle = QLabel(
             f"  {comp['name']}  {{ {comp['year']} }}")
         f = QFont("Segoe UI", 14, QFont.Weight.Bold)
         self.lblTitle.setFont(f)
-        self.lblTitle.setProperty("header", True)
-        topbar.addWidget(self.lblTitle)
-        topbar.addStretch()
+        self.lblTitle.setProperty("vbHeader", True)
+        self.lblTitle.setMinimumHeight(44)
+        topbar.addWidget(self.lblTitle, 1)
 
         # Theme toggle button
         self.theme_btn = QPushButton("Dark Mode")
@@ -1735,19 +1729,56 @@ class MainWindow(QMainWindow):
         self.theme_btn.setObjectName("themeToggle")
         self.theme_btn.clicked.connect(self._toggle_theme)
         topbar.addWidget(self.theme_btn)
+        topbar.addSpacing(12)
         root.addLayout(topbar)
+
+        # VB6 purple module-row + sub-row bars (live evidence: B032 module
+        # menus, B033 Operations sub-row, B058 Reservation row). QMenuBar
+        # upar wali tests/accessibility ke liye aise hi rehti hai; ye bars
+        # VB6 jaisi navigation deti hain. Active button = yellow text.
+        self._crumb = {"module": None, "group": None, "leaf": None}
+        self._groups = []
+        self.mod_row = QFrame()
+        self.mod_row.setObjectName("vbModRow")
+        self._mod_lay = QHBoxLayout(self.mod_row)
+        self._mod_lay.setContentsMargins(4, 2, 4, 2)
+        self._mod_lay.setSpacing(2)
+        self._mod_buttons: list = []
+        root.addWidget(self.mod_row)
+        self.sub_row = QFrame()
+        self.sub_row.setObjectName("vbSubRow")
+        self._sub_lay = QHBoxLayout(self.sub_row)
+        self._sub_lay.setContentsMargins(4, 0, 4, 2)
+        self._sub_lay.setSpacing(2)
+        self._sub_buttons: list = []
+        root.addWidget(self.sub_row)
+        self.mod_row.setStyleSheet(
+            "QFrame#vbModRow { background: transparent; }"
+            "QPushButton[vbBar='mod'] { background: #6d28d9; color: white;"
+            " border: 1px solid #4c1d95; padding: 6px 14px; font-weight: 700; }"
+            "QPushButton[vbBar='mod']:hover { background: #7c3aed; }"
+            "QPushButton[vbBar='mod'][active='true'] { color: yellow; }")
+        self.sub_row.setStyleSheet(
+            "QFrame#vbSubRow { background: transparent; }"
+            "QPushButton[vbBar='sub'] { background: #7c3aed; color: white;"
+            " border: 1px solid #4c1d95; padding: 5px 12px; font-weight: 600; }"
+            "QPushButton[vbBar='sub']:hover { background: #8b5cf6; }"
+            "QPushButton[vbBar='sub'][active='true'] { color: yellow; }"
+            "QPushButton[vbBar='sub']:disabled { background: #4c1d95;"
+            " color: #c4b5fd; }")
 
         body = QHBoxLayout()
         body.setSpacing(0)
         body.setContentsMargins(0, 0, 0, 0)
 
-        # Modern sidebar
-        sidebar = QFrame()
-        sidebar.setProperty("sidebar", True)
-        sidebar.setFixedWidth(220)
-        side_lay = QVBoxLayout(sidebar)
-        side_lay.setContentsMargins(10, 8, 10, 8)
-        side_lay.setSpacing(2)
+        # VB6 module strip: ~116px white strip, teal 3D module buttons
+        # (screenshots: left strip x 0-107, buttons teal #54a0a0)
+        strip = QFrame()
+        strip.setProperty("moduleStrip", True)
+        strip.setFixedWidth(116)
+        side_lay = QVBoxLayout(strip)
+        side_lay.setContentsMargins(4, 8, 4, 8)
+        side_lay.setSpacing(6)
 
         self._side_buttons = []
         # menuHelp L1 sources pehle (VB6 menubar parity), phir legacy roots —
@@ -1757,10 +1788,10 @@ class MainWindow(QMainWindow):
         except Exception:
             _side_sources = menu.sidebar_modules()
         for m in _side_sources:
-            b = QPushButton(f"  {m['name']}")
-            b.setProperty("sidebar-btn", True)
+            b = QPushButton(m["name"])
+            b.setProperty("strip-btn", True)
             b.setProperty("mod_target", m["name"])
-            b.setMinimumHeight(40)
+            b.setMinimumHeight(44)
             b.setCheckable(True)
             b.setAccessibleName(m["name"])
             b.setAccessibleDescription(f"Module {m['name']}")
@@ -1768,9 +1799,9 @@ class MainWindow(QMainWindow):
             self._side_buttons.append(b)
             side_lay.addWidget(b)
         side_lay.addStretch()
-        body.addWidget(sidebar)
+        body.addWidget(strip)
 
-        self.canvas = QLabel("Module select karo (left sidebar)")
+        self.canvas = QLabel("Module select karo (left strip)")
         self.canvas.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.canvas.setProperty("subtitle", True)
         body.addWidget(self.canvas, stretch=1)
@@ -1920,10 +1951,120 @@ class MainWindow(QMainWindow):
             for it in grp["items"]:
                 self._add_item(mm, it)
 
+        # VB6 purple module row (B032/B059 evidence): module click ke baad
+        # sirf module row dikhti hai; sub-row group click par aati hai.
+        groups = self._menus(m["name"], self.user)
+        self._groups = groups
+        self._crumb = {"module": m["name"], "group": None, "leaf": None}
+        self._clear_lay(self._mod_lay)
+        self._clear_lay(self._sub_lay)
+        self._mod_buttons = []
+        self._sub_buttons = []
+        for grp in groups:
+            gb = QPushButton(grp["name"])
+            gb.setProperty("vbBar", "mod")
+            gb.setProperty("active", False)
+            gb.clicked.connect(
+                lambda _, gg=grp: self._on_group(m["name"], gg))
+            self._mod_buttons.append(gb)
+            self._mod_lay.addWidget(gb)
+        self._mod_lay.addStretch(1)
+
         self.canvas.setText(
             f"{m['name']}\n\nTop menubar se form kholo")
         self.setWindowTitle(
             f"{self.comp['name']} {{ {self.comp['year']} }} - {m['name']}")
+
+    @staticmethod
+    def _clear_lay(lay):
+        while lay.count():
+            item = lay.takeAt(0)
+            w = item.widget()
+            if w is not None:
+                w.setParent(None)
+                w.deleteLater()
+
+    def _on_group(self, module: str, grp: dict):
+        """VB6 module-row click: sub-row bharo (B033 evidence)."""
+        for b in self._mod_buttons:
+            is_active = (b.text() == grp["name"])
+            b.setProperty("active", is_active)
+            b.style().unpolish(b)
+            b.style().polish(b)
+        self._crumb["group"] = grp["name"]
+        self._crumb["leaf"] = None
+        self._clear_lay(self._sub_lay)
+        self._sub_buttons = []
+        for it in grp.get("items", []):
+            lb = QPushButton(it["name"])
+            lb.setProperty("vbBar", "sub")
+            lb.setProperty("active", False)
+            opener = self.registry.get(it["name"])
+            if it.get("children"):
+                menu = QMenu(it["name"], self)
+                if opener:
+                    act = menu.addAction(it["name"])
+                    act.triggered.connect(
+                        lambda _, fn=opener: self.open_leaf(
+                            module, grp["name"], it["name"], fn))
+                    menu.addSeparator()
+                for ch in it["children"]:
+                    self._add_leaf_action(menu, module, grp["name"], ch)
+                lb.clicked.connect(
+                    lambda _, mm=menu, bb=lb: mm.popup(
+                        bb.mapToGlobal(bb.rect().bottomLeft())))
+            elif opener:
+                leaf = it["name"]
+                lb.clicked.connect(
+                    lambda _, fn=opener, lf=leaf: self.open_leaf(
+                        module, grp["name"], lf, fn))
+            else:
+                lb.setEnabled(False)   # phase-wise judenga (menubar jaisa)
+                lb.setToolTip("phase-wise judenga")
+            self._sub_buttons.append(lb)
+            self._sub_lay.addWidget(lb)
+        self._sub_lay.addStretch(1)
+        self.canvas.setText(f"[{module} > {grp['name']}]")
+
+    def _add_leaf_action(self, menu, module: str, group: str, it: dict):
+        if it.get("children"):
+            sub = menu.addMenu(it["name"])
+            for ch in it["children"]:
+                self._add_leaf_action(sub, module, group, ch)
+            return
+        act = menu.addAction(it["name"])
+        opener = self.registry.get(it["name"])
+        if opener:
+            leaf = it["name"]
+            act.triggered.connect(
+                lambda _, fn=opener, lf=leaf: self.open_leaf(
+                    module, group, lf, fn))
+        else:
+            act.setEnabled(False)
+
+    def open_leaf(self, module: str, group: str, leaf: str, opener):
+        """Purple sub-row / menu leaf kholo + breadcrumb track karo.
+
+        VB6 live evidence: child caption `[Module > Group > Screen]`
+        (B034/B036/B062). Dialogs apna title khud rakhte hain; ye crumb
+        canvas + MainWindow.crumb_title() ke liye source of truth hai —
+        naye/edited opener isse apna title banayein.
+        """
+        self._crumb = {"module": module, "group": group, "leaf": leaf}
+        for b in self._sub_buttons:
+            is_active = (b.text() == leaf)
+            b.setProperty("active", is_active)
+            b.style().unpolish(b)
+            b.style().polish(b)
+        self.canvas.setText(f"[{module} > {group} > {leaf}]")
+        opener(self)
+
+    def crumb_title(self, leaf: str | None = None) -> str:
+        """`[Module > Group > Leaf]` breadcrumb (VB6 child-caption parity)."""
+        c = self._crumb
+        leaf = leaf or c.get("leaf") or ""
+        parts = [c.get("module") or "", c.get("group") or "", leaf]
+        return "[" + " > ".join(p for p in parts if p) + "]"
 
     def _add_item(self, parent_menu, it: dict):
         opener = self.registry.get(it["name"])

@@ -127,6 +127,75 @@ def apply_desktop_surface(widget, object_name: str):
     widget.setStyleSheet(desktop_qss())
 
 
+def make_vb6_header(text: str):
+    """VB6-hybrid child-form chrome: blue gradient header + cream title.
+
+    VB6 child windows ki caption strip ('<Module> > <Group> > <Screen>')
+    ka hybrid port — properties theme.py ke VB6 shell QSS se style hote
+    hain (vbHeader). Har form me manually QLabel+property na likhna pade.
+    """
+    from PyQt6.QtCore import Qt
+    from PyQt6.QtWidgets import QLabel
+
+    hdr = QLabel(f"  {text}")
+    hdr.setProperty("vbHeader", True)
+    hdr.setAlignment(Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft)
+    hdr.setFixedHeight(40)
+    return hdr
+
+
+def apply_vb6_child_chrome(dialog, title: str, margin: int = 12):
+    """QDialog/QWidget ke box-layout ko VB6 chrome wrap me convert karo.
+
+    Existing QVBoxLayout ko le kar: top pe vbHeader strip + baaki
+    content ko vbCard surface me daal deta hai. One-liner migration:
+
+        lay = QVBoxLayout(self)
+        ...widgets...
+        apply_vb6_child_chrome(self, "Window Title")  # LAST me call
+
+    NOTE: QFormLayout directly dialog pe set ho to unsupported (form
+    rows bigadte hain) — waise calls None return karte hain, no-op.
+    """
+    from PyQt6.QtWidgets import (QFormLayout, QFrame, QVBoxLayout,
+                                 QWidget)
+
+    lay = dialog.layout()
+    if lay is None or isinstance(lay, QFormLayout) or \
+            not hasattr(lay, "addWidget"):
+        return None  # unsupported layout — no-op
+
+    # Existing children nikaalo (widgets + nested layouts + spacers)
+    items = []
+    while lay.count():
+        it = lay.takeAt(0)
+        if it.widget() is not None:
+            items.append(it.widget())
+        elif it.layout() is not None:
+            items.append(it.layout())
+        elif it.spacerItem() is not None:
+            items.append(it.spacerItem())
+
+    lay.setContentsMargins(0, 0, 0, 0)
+    lay.setSpacing(0)
+
+    hdr = make_vb6_header(title)
+    lay.addWidget(hdr)
+
+    body = QFrame()
+    body.setProperty("vbCard", True)
+    body_lay = QVBoxLayout(body)
+    body_lay.setContentsMargins(margin, margin - 2, margin, margin)
+    body_lay.setSpacing(10)
+    for w in items:
+        if isinstance(w, QWidget):
+            body_lay.addWidget(w)
+        else:
+            body_lay.addLayout(w)
+    lay.addWidget(body, 1)
+    return lay
+
+
 def mark_desktop_action(button, role: str = "default"):
     button.setProperty("desktopAction", True)
     if role == "primary":

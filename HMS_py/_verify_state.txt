@@ -1,0 +1,9 @@
+0d3c007 Add Cancel Bill and Unsettled Bills UI buttons with handlers
+f5b6585 commity
+4487548 Add Merge Folio and Apply Discount UI buttons with handlers
+5b89fdc Add bill print/preview function (BillDet view)
+f0c0485 Add group booking GrpBookingDetails insert function
+---STAGED---
+---MODIFIED---
+ M _staged.txt
+?? _verify_state.txt

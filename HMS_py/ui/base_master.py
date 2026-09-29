@@ -18,8 +18,8 @@ from dataclasses import dataclass, field as dc_field
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor, QKeySequence, QShortcut
-from PyQt6.QtWidgets import (QDialog, QFormLayout, QHBoxLayout, QLabel,
-                             QLineEdit, QMessageBox, QPushButton,
+from PyQt6.QtWidgets import (QDialog, QFormLayout, QFrame, QHBoxLayout,
+                             QLabel, QLineEdit, QMessageBox, QPushButton,
                              QTableWidget, QTableWidgetItem, QVBoxLayout,
                              QAbstractItemView, QHeaderView, QGroupBox,
                              QWidget)
@@ -68,8 +68,22 @@ class BaseMasterForm(QDialog):
 
         p = _theme.palette()
         root = QVBoxLayout(self)
-        root.setContentsMargins(16, 12, 16, 12)
-        root.setSpacing(12)
+        root.setContentsMargins(0, 0, 0, 0)
+        root.setSpacing(0)
+
+        # VB6-hybrid chrome: blue gradient header + cream title
+        # (VB6 child forms: '<Module> > <Group> > <Screen>' caption strip)
+        hdr = QLabel(f"  {cfg.title}")
+        hdr.setProperty("vbHeader", True)
+        hdr.setFixedHeight(40)
+        root.addWidget(hdr)
+
+        body = QFrame()
+        body.setProperty("vbCard", True)
+        body_lay = QVBoxLayout(body)
+        body_lay.setContentsMargins(16, 12, 16, 12)
+        body_lay.setSpacing(12)
+        root.addWidget(body, 1)
 
         # --- Table section ---
         tbl_grp = QGroupBox(f"{cfg.title} List")
@@ -103,7 +117,7 @@ class BaseMasterForm(QDialog):
             hdr.setSectionResizeMode(i, QHeaderView.ResizeMode.ResizeToContents)
         self.tbl.cellDoubleClicked.connect(lambda *_: self._on_edit())
         tbl_lay.addWidget(self.tbl)
-        root.addWidget(tbl_grp, stretch=1)
+        body_lay.addWidget(tbl_grp, stretch=1)
 
         # --- Form section ---
         form_grp = QGroupBox("Record Details")
@@ -134,7 +148,7 @@ class BaseMasterForm(QDialog):
             self._field_labels[f.name] = lbl
             form_lay.addRow(lbl, e)
             self.edits[f.name] = e
-        root.addWidget(form_grp)
+        body_lay.addWidget(form_grp)
 
         # --- Tab order ---
         prev_widget = None
@@ -190,7 +204,7 @@ class BaseMasterForm(QDialog):
         ):
             mark_desktop_action(button, role)
         btn_lay.addStretch()
-        root.addWidget(btn_grp)
+        body_lay.addWidget(btn_grp)
 
         # --- Status bar ---
         self.lblState = QLabel("Ready")
@@ -199,7 +213,7 @@ class BaseMasterForm(QDialog):
             f"font-size: 11px; color: {p['text_dim']}; padding: 4px 0; "
             f"border-top: 1px solid {p['border']};"
         )
-        root.addWidget(self.lblState)
+        body_lay.addWidget(self.lblState)
 
         # --- Signals ---
         self.btnNew.clicked.connect(self._on_new)
