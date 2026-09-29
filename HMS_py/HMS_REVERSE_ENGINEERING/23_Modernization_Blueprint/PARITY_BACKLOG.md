@@ -61,7 +61,15 @@ in-memory tracker already), `user2` (UserMast mirror).
 | Godrej Locks / Godrej Lock Settings | Hardware (door-lock) integration | Hardware decision |
 | Item Issued On Cleaning | Cleaning stock issue — Stock flow variant | After Comp Master |
 | Changes Department | department change for outlets — minor FO helper | Small task |
-| Plan Defination Master | PlanPackMast — plan package definition | Medium task, Plan Master REAL hai |
+| ~~Plan Defination Master~~ | **DONE `9e7639a`** — FrmPlanPackMast Standard-mode port: `core/plan_definition.py` (code-gen KK011-next, FixedCharge picker, Plan1 JOIN display, percent validation) + `open_plan_definition` dialog via tested `packagemaster.save_with_children`. Note: live `Enviro.PlanMastType='Advanced'` — VB6 bhi us case me FrmPackageMast kholta tha (already REAL). |
+
+## Changes Department — dead-in-VB6, SKIP (2026-09-29)
+
+`FrmChangeDepart.frm` = MDIForm1 `CHANGEHK` menu entry jo **VB6 me bhi
+`Visible = 0` hai** (MDIForm1.frm:1596). Form sirf House-Keeping depart
+lookup picker hai (Depart read — RestType/BackColor), **koi DB write
+nahi**. BUG-012 wali dead-in-VB6 class — port nahi hoga, documented
+reason.
 
 ## Forms D1 (MISSING, n=3)
 
@@ -77,4 +85,4 @@ in-memory tracker already), `user2` (UserMast mirror).
 2. ~~Venue capacity CRUD~~ — **DONE `4172c2a`**
 3. ~~Comp Master~~ — **DONE `24cedc5`**
 4. ~~departpay enhancement~~ — **DONE `b9f20d3`** — **TIER-1 COMPLETE 4/4**
-5. Plan Defination Master / Changes Department — chhote tasks (next)
+5. ~~Plan Defination Master~~ — **DONE `9e7639a`** / Changes Department — dead-in-VB6, skip documented
