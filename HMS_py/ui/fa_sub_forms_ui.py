@@ -4,7 +4,8 @@ import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QTableWidget, QTableWidgetItem, QPushButton, QLineEdit, QLabel,
-    QComboBox, QMessageBox, QGroupBox, QFormLayout, QDateEdit, QTabWidget)
+    QComboBox, QMessageBox, QGroupBox, QFormLayout, QDateEdit, QTabWidget,
+    QDialog)
 from PyQt6.QtCore import Qt, QDate
 from PyQt6.QtGui import QColor, QFont
 from core import fa_ledger_ops as falo
@@ -120,7 +121,7 @@ class FaAdjustWindow(QMainWindow):
     def _load_data(self):
         try:
             rows = falo.ledgeradj_list()
-            self.table.setRowCount(len(rows))
+            self.table.setRowCount(max(len(rows), 1))  # Ensure at least 1 row placeholder
             for i, r in enumerate(rows):
                 for j, v in enumerate([r["docid1"], str(r["v_sno1"]), r["docid2"],
                                        str(r["v_sno2"]), str(r["cr"]), r["subcode"]]):
@@ -187,23 +188,16 @@ class FaAdjustWindow(QMainWindow):
         text = self.txt_subcode.text().strip()
         # Search logic equivalent of VB6 Proc_183_43_EF7D54
         from HMS_py.core import fa_ledger_ops as falo
-        # Try to get acgroup list - if not available, use hardcoded fallback
+        # BUG #2: live ACGROUP only — koi hardcoded fallback nahi
         try:
             accounts = falo.get_acgroup_list()
         except AttributeError:
-            # Fallback hardcoded list
-            accounts = [
-                {"code": "100", "name": "Cash"},
-                {"code": "101", "name": "Bank"},
-                {"code": "102", "name": "Customer"},
-                {"code": "103", "name": "Vendor"},
-                {"code": "104", "name": "Expense"},
-                {"code": "105", "name": "Asset"},
-            ]
+            from HMS_py.core import fa_masters_ops as fmo
+            accounts = fmo.acgroup_list()
         if accounts:
             # Find matching account
             for acct in accounts:
-                if text.lower() in acct["name"].lower() or text.lower() in acct["code"].lower():
+                if text.lower() in (acct.get("name") or "").lower() or text.lower() in (acct.get("code") or "").lower():
                     self.txt_subcode.setText(acct["name"])
                     self.txt_subcode.setToolTip(f"SubCode: {acct['code']}")
                     return
@@ -350,3 +344,254 @@ def open_fa_chq_clear(parent=None):
 
 def open_fa_tds_cert(parent=None):
     w = FaTDSCertificateWindow(parent); w.show(); return w
+
+
+class TDSChallanWindow(QDialog):
+    """TDS Challan Entry (VB6: FaTDSChal + FaTDSChal1).
+
+    Header (TDSChal): DocId, ChalType, ChalNo, ChalDate, BankCode,
+    MonthNo, TDSAmt, Chq_No, Chq_Date, BankName.
+    Lines (TDSChal1): TDS voucher attach (TDSDOCID/TDSVSNo, Amt, TDS,
+    TDSAmt, CertiNo/CertiDate) — challan ke against LEDGERTDS mark.
+    """
+
+    LINE_COLS = [("VSNo", "vsno"), ("TDS DocId", "tds_docid"),
+                 ("TDS VSNo", "tds_vsno"), ("TDS Code", "tdscode"),
+                 ("Amount", "amt"), ("TDS", "tds"), ("TDS Amt", "tdsamt"),
+                 ("Certi No", "certi_no")]
+
+    def __init__(self, parent=None, user: str = "SA"):
+        super().__init__(parent)
+        self.user = user
+        self.setWindowTitle("T.D.S. Challan Entry - HMS_py")
+        self.resize(940, 560)
+        self.edit_docid = None
+        self.state = "Idle"
+
+        root = QVBoxLayout(self)
+        form = QGroupBox("Challan Header (TDSChal)")
+        fl = QFormLayout(form)
+        self.ed_docid = QLineEdit(); self.ed_docid.setMaxLength(20)
+        self.ed_chaltype = QLineEdit(); self.ed_chaltype.setMaxLength(6)
+        self.ed_chalno = QLineEdit(); self.ed_chalno.setMaxLength(20)
+        self.dt_chaldate = QDateEdit(QDate.currentDate())
+        self.dt_chaldate.setCalendarPopup(True)
+        self.ed_bankcode = QLineEdit(); self.ed_bankcode.setMaxLength(8)
+        self.ed_monthno = QLineEdit(); self.ed_monthno.setMaxLength(4)
+        self.ed_tdsamt = QLineEdit("0.00")
+        self.ed_chqno = QLineEdit(); self.ed_chqno.setMaxLength(20)
+        self.dt_chqdate = QDateEdit(QDate.currentDate())
+        self.dt_chqdate.setCalendarPopup(True)
+        self.ed_bankname = QLineEdit(); self.ed_bankname.setMaxLength(50)
+        fl.addRow("DocId:", self.ed_docid)
+        fl.addRow("Challan Type:", self.ed_chaltype)
+        fl.addRow("Challan No:", self.ed_chalno)
+        fl.addRow("Challan Date:", self.dt_chaldate)
+        fl.addRow("Bank Code:", self.ed_bankcode)
+        fl.addRow("Month No:", self.ed_monthno)
+        fl.addRow("TDS Amount:", self.ed_tdsamt)
+        fl.addRow("Cheque No:", self.ed_chqno)
+        fl.addRow("Cheque Date:", self.dt_chqdate)
+        fl.addRow("Bank Name:", self.ed_bankname)
+        root.addWidget(form)
+
+        self.tbl = QTableWidget(0, len(self.LINE_COLS))
+        self.tbl.setHorizontalHeaderLabels([c[0] for c in self.LINE_COLS])
+        self.tbl.setAlternatingRowColors(True)
+        self.tbl.setSelectionBehavior(QTableWidget.SelectRows)
+        self.tbl.setSelectionMode(QTableWidget.SingleSelection)
+        self.tbl.setShowGrid(True)
+        self.tbl.horizontalHeader().setStretchLastSection(True)
+        root.addWidget(self.tbl, 1)
+
+        self.lbl_state = QLabel("State: Idle")
+        root.addWidget(self.lbl_state)
+
+        btns = QHBoxLayout()
+        self.btn_new = QPushButton("New (Ctrl+N)")
+        self.btn_edit = QPushButton("Edit (Ctrl+E)")
+        self.btn_delete = QPushButton("Delete (Ctrl+D)")
+        self.btn_save = QPushButton("Save (Ctrl+S)")
+        self.btn_cancel = QPushButton("Cancel (Esc)")
+        self.btn_close = QPushButton("Close")
+        for b in (self.btn_new, self.btn_edit, self.btn_delete,
+                  self.btn_save, self.btn_cancel, self.btn_close):
+            btns.addWidget(b)
+        root.addLayout(btns)
+
+        self.btn_new.clicked.connect(self._on_new)
+        self.btn_edit.clicked.connect(self._on_edit)
+        self.btn_delete.clicked.connect(self._on_delete)
+        self.btn_save.clicked.connect(self._on_save)
+        self.btn_cancel.clicked.connect(self._on_cancel)
+        self.btn_close.clicked.connect(self.reject)
+        from PyQt6.QtGui import QShortcut, QKeySequence
+        QShortcut(QKeySequence("Ctrl+N"), self, activated=self._on_new)
+        QShortcut(QKeySequence("Ctrl+E"), self, activated=self._on_edit)
+        QShortcut(QKeySequence("Ctrl+D"), self, activated=self._on_delete)
+        QShortcut(QKeySequence("Ctrl+S"), self, activated=self._on_save)
+        QShortcut(QKeySequence("Escape"), self, activated=self._on_cancel)
+        QShortcut(QKeySequence("F5"), self, activated=self.reload)
+
+        self.set_state(False)
+        self.reload()
+
+    # ---- helpers ----
+    def _header_rec(self) -> dict:
+        return {
+            "docid": self.ed_docid.text().strip(),
+            "chaltype": self.ed_chaltype.text().strip(),
+            "chalno": self.ed_chalno.text().strip(),
+            "chaldate": self.dt_chaldate.date().toPyDate(),
+            "bankcode": self.ed_bankcode.text().strip(),
+            "monthno": self.ed_monthno.text().strip(),
+            "tdsamt": float(self.ed_tdsamt.text() or 0),
+            "chq_no": self.ed_chqno.text().strip(),
+            "chq_date": self.dt_chqdate.date().toPyDate(),
+            "bank_name": self.ed_bankname.text().strip(),
+        }
+
+    def _load_header(self, rec: dict):
+        self.ed_docid.setText(rec.get("docid", ""))
+        self.ed_chaltype.setText(rec.get("chaltype", ""))
+        self.ed_chalno.setText(rec.get("chalno", ""))
+        d = rec.get("chaldate")
+        if hasattr(d, "year"):
+            self.dt_chaldate.setDate(QDate(d.year, d.month, d.day))
+        self.ed_bankcode.setText(rec.get("bankcode", ""))
+        self.ed_monthno.setText(str(rec.get("monthno", "")))
+        self.ed_tdsamt.setText(f"{float(rec.get('tdsamt') or 0):.2f}")
+        self.ed_chqno.setText(rec.get("chq_no", ""))
+        cd = rec.get("chq_date")
+        if hasattr(cd, "year"):
+            self.dt_chqdate.setDate(QDate(cd.year, cd.month, cd.day))
+        self.ed_bankname.setText(rec.get("bank_name", ""))
+
+    def _load_lines(self, docid: str):
+        rows = tds.tdschal1_lines(docid)
+        self.tbl.setRowCount(max(len(rows), 1))  # Ensure at least 1 row placeholder
+        if not rows:
+            self.tbl.setItem(0, 0, QTableWidgetItem('No records found'))
+        for r, rec in enumerate(rows):
+            for c, key in enumerate([k for _, k in self.LINE_COLS]):
+                v = rec.get(key, "")
+                it = QTableWidgetItem(str(v))
+                it.setFlags(it.flags() & ~Qt.ItemFlag.ItemIsEditable)
+                self.tbl.setItem(r, c, it)
+
+    def set_state(self, enabled: bool):
+        for w in (self.ed_docid, self.ed_chaltype, self.ed_chalno,
+                  self.dt_chaldate, self.ed_bankcode, self.ed_monthno,
+                  self.ed_tdsamt, self.ed_chqno, self.dt_chqdate,
+                  self.ed_bankname):
+            w.setEnabled(enabled)
+        self.btn_new.setEnabled(not enabled)
+        self.btn_edit.setEnabled(not enabled)
+        self.btn_delete.setEnabled(not enabled)
+        self.btn_save.setEnabled(enabled)
+        self.btn_cancel.setEnabled(enabled)
+        self.state = ("Add" if self.edit_docid is None else "Edit") if enabled else "Idle"
+        self.lbl_state.setText(f"State: {self.state}")
+
+    def reload(self):
+        try:
+            rows = tds.tdschal_list(limit=1)
+            if rows:
+                self._load_header(rows[0])
+                self._load_lines(rows[0]["docid"])
+        except Exception:
+            pass
+
+    def _on_new(self):
+        self.edit_docid = None
+        for w in (self.ed_docid, self.ed_chaltype, self.ed_chalno,
+                  self.ed_bankcode, self.ed_monthno, self.ed_chqno,
+                  self.ed_bankname):
+            w.clear()
+        self.ed_tdsamt.setText("0.00")
+        self.tbl.setRowCount(0)
+        self.set_state(True)
+        self.ed_docid.setFocus()
+
+    def _on_edit(self):
+        from PyQt6.QtWidgets import QInputDialog
+        try:
+            challans = tds.tdschal_list(limit=100)
+        except Exception as e:
+            QMessageBox.critical(self, "TDS Challan", f"DB error: {e}")
+            return
+        if not challans:
+            QMessageBox.information(self, "Edit", "Koi challan nahi mila")
+            return
+        names = [c["docid"] for c in challans]
+        docid, ok = QInputDialog.getItem(self, "Edit Challan",
+                                         "Select DocId:", names, 0, False)
+        if not (ok and docid):
+            return
+        rec = tds.tdschal_get(docid)
+        if not rec:
+            return
+        self.edit_docid = docid
+        self._load_header(rec)
+        self._load_lines(docid)
+        self.set_state(True)
+        self.ed_docid.setEnabled(False)
+
+    def _on_save(self):
+        rec = self._header_rec()
+        if not rec["docid"]:
+            QMessageBox.warning(self, "Save", "DocId zaroori hai")
+            return
+        try:
+            if self.state == "Add":
+                if tds.tdschal_get(rec["docid"]):
+                    QMessageBox.warning(self, "Save",
+                                        f"{rec['docid']} pehle se maujood hai")
+                    return
+                tds.tdschal_insert(rec)
+            else:
+                tds.tdschal_update(self.edit_docid, rec)
+        except ValueError as e:
+            QMessageBox.warning(self, "Save", str(e))
+            return
+        except Exception as e:
+            QMessageBox.critical(self, "Save", f"DB error: {e}")
+            return
+        QMessageBox.information(self, "Save", "TDS Challan saved")
+        self.edit_docid = None
+        self.set_state(False)
+        self.reload()
+
+    def _on_cancel(self):
+        self.edit_docid = None
+        self.set_state(False)
+        self.reload()
+
+    def _on_delete(self):
+        docid = self.edit_docid or self.ed_docid.text().strip()
+        if not docid:
+            QMessageBox.information(self, "Delete",
+                                    "Pehle challan select/edit karein")
+            return
+        if not docid.upper().startswith("PYT"):
+            QMessageBox.warning(self, "Delete",
+                                "Safety: sirf PYT* test challans delete ho "
+                                "sakte hain (production data protected)")
+            return
+        if QMessageBox.question(self, "Delete",
+                                f"Challan '{docid}' delete karein?") != \
+                QMessageBox.StandardButton.Yes:
+            return
+        try:
+            tds.tdschal1_delete_all(docid)
+            tds.tdschal_delete(docid)
+            QMessageBox.information(self, "Delete", "Deleted")
+        except Exception as e:
+            QMessageBox.critical(self, "Delete", f"DB error: {e}")
+        self.edit_docid = None
+        self.set_state(False)
+        self.reload()
+
+
+def open_fa_tds_challan(parent=None, user: str = "SA"):
+    TDSChallanWindow(parent, user=user).exec()
