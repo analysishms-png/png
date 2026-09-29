@@ -7,6 +7,7 @@ from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QTableWidget, QTableWidgetItem)
 from PyQt6.QtCore import Qt, QThread, pyqtSignal
 from PyQt6.QtGui import QFont, QColor
+from PyQt6.QtWidgets import QTabWidget  # noqa: E402 (multi-check tabs)
 from HMS_py.core import db_maintenance
 from HMS_py.core import inconsistency
 from ui.theme import palette
@@ -106,11 +107,15 @@ def open_db_maintenance(parent=None):
 
 
 class InconsistencyCheckWindow(QMainWindow):
-    """Inconsistency Check (VB6: FrmInc) — read-only data audit."""
+    """Inconsistency Check (VB6: FrmInc) — read-only data audit.
+
+    Har check apne tab me (VB6 output sections ka 1:1 mapping):
+    tab label par offending count dikhta hai, clean check label 'CLEAN'.
+    """
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Inconsistency Check")
-        self.resize(860, 560)
+        self.resize(880, 580)
         self._build_ui()
 
     def _build_ui(self):
@@ -138,11 +143,39 @@ class InconsistencyCheckWindow(QMainWindow):
         self.lbl_summary = QLabel("Audit chalane ke liye 'Run Check' dabao.")
         layout.addWidget(self.lbl_summary)
 
-        self.table = QTableWidget()
-        self.table.setColumnCount(0)
-        self.table.setAlternatingRowColors(True)
-        self.table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
-        layout.addWidget(self.table)
+        self.tabs = QTabWidget()
+        self.tabs.setDocumentMode(True)
+        self._tables: dict[str, QTableWidget] = {}
+        for check_title, _fn in inconsistency.CHECKS:
+            t = QTableWidget()
+            t.setColumnCount(0)
+            t.setAlternatingRowColors(True)
+            t.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+            self._tables[check_title] = t
+            self.tabs.addTab(t, check_title)
+        layout.addWidget(self.tabs, 1)
+
+    @staticmethod
+    def _render(table: QTableWidget, data) -> int:
+        """Ek check ka data grid me daalo; offending row count return."""
+        if isinstance(data, dict):
+            headers = ["Table", "Bad DocId rows"]
+            rows = [[str(k), str(v)] for k, v in data.items()]
+            n = sum(1 for v in data.values() if v)
+        else:
+            rows = [[str(v) for v in r.values()] for r in data]
+            headers = list(data[0].keys()) if data else []
+            n = len(data)
+        table.setColumnCount(len(headers))
+        table.setHorizontalHeaderLabels(headers)
+        table.setRowCount(len(rows))
+        txt = palette()["text"]
+        for i, r in enumerate(rows):
+            for j, v in enumerate(r):
+                it = QTableWidgetItem(v)
+                it.setForeground(QColor(txt))
+                table.setItem(i, j, it)
+        return n
 
     def _run(self):
         self.btn_run.setEnabled(False)
@@ -152,40 +185,24 @@ class InconsistencyCheckWindow(QMainWindow):
             self.btn_run.setEnabled(True)
             QMessageBox.critical(self, "Error", str(e)); return
         self.btn_run.setEnabled(True)
-        # pick the first non-empty check for the grid (clean checks list
-        # me sirf count dikhte hain)
-        rows, headers, chosen = [], [], ""
-        for title, data in results.items():
-            if isinstance(data, dict):
-                if any(data.values()):
-                    rows = [[str(k), str(v)] for k, v in data.items()]
-                    headers = ["Table", "Bad DocId rows"]
-                    chosen = title
-                    break
-                continue
-            if data:
-                rows = [[str(v) for v in r.values()] for r in data]
-                headers = list(data[0].keys())
-                chosen = title
-                break
-        clean = [t for t, d in results.items()
-                 if isinstance(d, list) and not d] or \
-                [t for t, d in results.items() if isinstance(d, dict)
-                 and not any(d.values())]
-        if not rows:
-            self.lbl_summary.setText("Sab checks CLEAN — koi inconsistency nahi mili.")
-            self.table.setRowCount(0); self.table.setColumnCount(0)
-            return
-        extra = f" | Clean: {len(clean)} checks" if clean else ""
-        self.lbl_summary.setText(f"{chosen} — {len(rows)} row(s){extra}")
-        self.table.setColumnCount(len(headers))
-        self.table.setHorizontalHeaderLabels(headers)
-        self.table.setRowCount(len(rows))
-        for i, r in enumerate(rows):
-            for j, v in enumerate(r):
-                it = QTableWidgetItem(v)
-                it.setForeground(QColor(palette()["text"]))
-                self.table.setItem(i, j, it)
+        bad_total, bad_checks = 0, []
+        for check_title, data in results.items():
+            n = self._render(self._tables[check_title], data)
+            # tab label: offending count (dict-check me n = bad-tables count)
+            label = f"{check_title} ({n})" if n else f"{check_title} — CLEAN"
+            self.tabs.setTabText(self.tabs.indexOf(self._tables[check_title]),
+                                 label)
+            if n:
+                bad_total += n
+                bad_checks.append(check_title)
+        if not bad_checks:
+            self.lbl_summary.setText(
+                "Sab checks CLEAN — koi inconsistency nahi mili.")
+        else:
+            self.lbl_summary.setText(
+                f"{len(bad_checks)} check(s) me issue: "
+                + ", ".join(bad_checks)
+                + f" ({bad_total} offending row/table(s))")
 
 
 def open_inconsistency_check(parent=None):
