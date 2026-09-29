@@ -8,6 +8,7 @@ from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
 from PyQt6.QtCore import Qt, QThread, pyqtSignal
 from PyQt6.QtGui import QFont, QColor
 from HMS_py.core import db_maintenance
+from HMS_py.core import inconsistency
 from ui.theme import palette
 
 
@@ -102,3 +103,90 @@ class DbMaintenanceWindow(QMainWindow):
 
 def open_db_maintenance(parent=None):
     w = DbMaintenanceWindow(parent); w.show(); return w
+
+
+class InconsistencyCheckWindow(QMainWindow):
+    """Inconsistency Check (VB6: FrmInc) — read-only data audit."""
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Inconsistency Check")
+        self.resize(860, 560)
+        self._build_ui()
+
+    def _build_ui(self):
+        central = QWidget(); self.setCentralWidget(central)
+        layout = QVBoxLayout(central)
+        title = QLabel("Inconsistency Check")
+        title.setFont(QFont("Segoe UI", 14, QFont.Weight.Bold))
+        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(title)
+
+        ops = QGroupBox("Audit")
+        ops_lay = QHBoxLayout(ops)
+        self.btn_run = QPushButton("Run Check")
+        self.btn_run.setToolTip("Saare VB6 FrmInc audit queries chalao "
+                                "(read-only, kuch bhi modify nahi hota)")
+        self.btn_run.setStyleSheet("QPushButton{padding:10px;font-size:11pt;}")
+        self.btn_run.clicked.connect(self._run)
+        self.btn_exit = QPushButton("Exit")
+        self.btn_exit.clicked.connect(self.close)
+        ops_lay.addWidget(self.btn_run)
+        ops_lay.addStretch()
+        ops_lay.addWidget(self.btn_exit)
+        layout.addWidget(ops)
+
+        self.lbl_summary = QLabel("Audit chalane ke liye 'Run Check' dabao.")
+        layout.addWidget(self.lbl_summary)
+
+        self.table = QTableWidget()
+        self.table.setColumnCount(0)
+        self.table.setAlternatingRowColors(True)
+        self.table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        layout.addWidget(self.table)
+
+    def _run(self):
+        self.btn_run.setEnabled(False)
+        try:
+            results = inconsistency.run_all()
+        except Exception as e:
+            self.btn_run.setEnabled(True)
+            QMessageBox.critical(self, "Error", str(e)); return
+        self.btn_run.setEnabled(True)
+        # pick the first non-empty check for the grid (clean checks list
+        # me sirf count dikhte hain)
+        rows, headers, chosen = [], [], ""
+        for title, data in results.items():
+            if isinstance(data, dict):
+                if any(data.values()):
+                    rows = [[str(k), str(v)] for k, v in data.items()]
+                    headers = ["Table", "Bad DocId rows"]
+                    chosen = title
+                    break
+                continue
+            if data:
+                rows = [[str(v) for v in r.values()] for r in data]
+                headers = list(data[0].keys())
+                chosen = title
+                break
+        clean = [t for t, d in results.items()
+                 if isinstance(d, list) and not d] or \
+                [t for t, d in results.items() if isinstance(d, dict)
+                 and not any(d.values())]
+        if not rows:
+            self.lbl_summary.setText("Sab checks CLEAN — koi inconsistency nahi mili.")
+            self.table.setRowCount(0); self.table.setColumnCount(0)
+            return
+        extra = f" | Clean: {len(clean)} checks" if clean else ""
+        self.lbl_summary.setText(f"{chosen} — {len(rows)} row(s){extra}")
+        self.table.setColumnCount(len(headers))
+        self.table.setHorizontalHeaderLabels(headers)
+        self.table.setRowCount(len(rows))
+        for i, r in enumerate(rows):
+            for j, v in enumerate(r):
+                it = QTableWidgetItem(v)
+                it.setForeground(QColor(palette()["text"]))
+                self.table.setItem(i, j, it)
+
+
+def open_inconsistency_check(parent=None):
+    w = InconsistencyCheckWindow(parent); w.show(); return w

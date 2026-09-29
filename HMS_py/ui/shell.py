@@ -1295,6 +1295,7 @@ def _form_registry() -> dict[str, callable]:
         "Guest History": (lambda w: ghu.open_guest_history(w, user=w.user)) if ghu else None,
         "Room Display": (lambda w: rs_ui.open_roomstatus(w, user=w.user)) if rs_ui else None,
         "Update Database Nulls": (lambda w: dbmaint_ui.open_db_maintenance(w)) if dbmaint_ui else _coming_soon("Update Database Nulls"),
+        "Inconsistency Check": (lambda w: dbmaint_ui.open_inconsistency_check(w)) if dbmaint_ui else _coming_soon("Inconsistency Check"),
         "Account Merging": (lambda w: acmerge_ui.open_account_merge(w)) if acmerge_ui else None,
         # Tally export (frmTallyExport port — read-only XML files)
         "Tally Export": _open_tally(),
@@ -1522,7 +1523,7 @@ def _form_registry() -> dict[str, callable]:
             "Finish Material Receive Entry", "Excise Invoice Cum Gate Pass",
             "Pending Purchase Order",
             "Voucher Wise Sundry Entry", "Sale MIS Customized",
-            "Inconsistency Check", "Menu Item Copy", "POS Bill Deletion",
+            "POS Bill Deletion",
             "Data Transfer", "Data Recieving",
             "Data Transfer (POS)", "PLU File (W.Scale)", "POS Recycle",
             "Task Scheduler", "Voucher Serialisation",
