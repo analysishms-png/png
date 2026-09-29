@@ -1518,6 +1518,9 @@ def _form_registry() -> dict[str, callable]:
         # Misc sub-forms (Opening Stock, Sundry Master, Restaurant Master)
         "Opening Stock": (lambda w: misc_ui.open_opening_stock(w)) if misc_ui else _coming_soon("Opening Stock"),
         "Party Master": (lambda w: misc_ui.open_party_master(w, user=getattr(w, "user", "SA"))) if misc_ui else _coming_soon("Party Master"),
+        # Comp Master (VB6 CompMast — RoomDiscount + Comp_PlanDet +
+        # Comp_Inclusive delete-then-reinsert pack)
+        "Comp Master": (lambda w: misc_ui.open_comp_master(w, user=getattr(w, "user", "SA"))) if misc_ui else _coming_soon("Comp Master"),
         "Sundry Master": (lambda w: misc_ui.open_sundry_master(w)) if misc_ui else _coming_soon("Sundry Master"),
         "Menu Item Copy": (lambda w: pm.open_menu_item_copy(w, user=getattr(w, "user", "SA"))) if pm else _coming_soon("Menu Item Copy"),
         "Restaurant Master": (lambda w: misc_ui.open_restaurant_master(w)) if misc_ui else _coming_soon("Restaurant Master"),
