@@ -1216,6 +1216,7 @@ def _form_registry() -> dict[str, callable]:
         "Menu Category":  (lambda w: pm.open_itemcat(w, user=getattr(w, "user", "SA"))) if pm else None,
         # Wave 3: Banquet masters
         "Venue Features":    (lambda w: bm.open_venfeature(w)) if bm else None,
+        "Venue Capacity":    (lambda w: bm.open_venue_capacity(w, user=getattr(w, "user", "SA"))) if bm else None,
         "Catalog Master":    (lambda w: bm.open_catalog(w)) if bm else None,
         "Group Profile":     (lambda w: bm.open_groupprof(w)) if bm else None,
         # Wave 3: HR/Payroll masters
