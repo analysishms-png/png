@@ -179,7 +179,7 @@ def show_farm_check_ui() -> FarmCheckUI | None:
     ui = FarmCheckUI()
     result = ui.exec()  # Show modal
     
-    if result == QDialog.Accepted:
+    if result == QDialog.DialogCode.Accepted:
         return ui
     return None
 

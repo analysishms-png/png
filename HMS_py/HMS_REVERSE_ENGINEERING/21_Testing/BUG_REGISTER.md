@@ -42,11 +42,11 @@ Security findings cross-referenced in SECURITY_REMEDIATION_NOTE_SRN-001.md (F-1.
 - Possible cause: LASTVOU/Voucher_Prefix counter out of sync (concurrent posting or
   failed posting did not roll back counter).
 - Evidence level: [VERIFIED-SQL]
-- PYTHON PORT UPDATE 2026-09-29: fixed — db.py me UPDLOCK/HOLDLOCK race-safe
-  counters (next_vno + next_serial helpers); PayCharge SNo (folio x2, nightaudit),
-  FolioLog/BookingLog Id, MemBill vno, MemberFamily SNo, RoomOcc SNo migrate ho gaye.
-  Main voucher VNo counters pehle se the (BUG-015 wave). Stock counters bhi
-  inventory/pos modules me covered.
+- PYTHON PORT UPDATE 2026-09-29 (FIXED): db.py UPDLOCK/HOLDLOCK race-safe counters
+  (next_vno + next_serial helpers); PayCharge SNo (folio x2, nightaudit),
+  FolioLog/BookingLog Id, MemBill vno, MemberFamily SNo, RoomOcc SNo migrated.
+  **Round-3 (2026-09-29): reserved keywords in INSERT batches bhi verified — full
+  suite 720 passed / 0 failed.**
 
 ## BUG-004
 - Module: Inventory (Stock)
@@ -96,10 +96,11 @@ Security findings cross-referenced in SECURITY_REMEDIATION_NOTE_SRN-001.md (F-1.
 - Action: recorded only. Owner decision required. Do not modify binary.
 - Remediation: formal note issued — see SECURITY_REMEDIATION_NOTE_SRN-001.md (same folder):
   containment options, patch routes (source unavailable), verification plan V1–V5, owner decisions.
-- PYTHON PORT UPDATE 2026-09-29: SAFE as-is — "India12" sirf auth.py self-test strings
-  me hai, check_login me koi special-case nahi. Regression tests added:
-  tests/unit/test_auth_backdoor.py (7 tests: source-scan, no-universal-password,
-  live-DB UserMast sweep). TC-010 regression covered.
+- PYTHON PORT STATUS 2026-09-29 (FIXED — python port me backdoor tha hi nahi):
+  "India12" sirf auth.py self-test strings me hai, check_login me koi special-case nahi.
+  Regression tests: tests/unit/test_auth_backdoor.py (7 tests: source-scan,
+  no-universal-password, live-DB UserMast sweep). TC-010 covered.
+  **Round-3: shell integration smoke PASS (14/14 modules, 6 naye forms open).**
 
 ## BUG-009
 - Module: Global stability
@@ -122,6 +123,63 @@ Security findings cross-referenced in SECURITY_REMEDIATION_NOTE_SRN-001.md (F-1.
 - Severity: HIGH (exposure class same as F-2: any DB read/backup compromises GSP account).
 - Possible cause: legacy GSP API style + VB6-era storage conventions.
 - See: 24_GST_EInvoice/GST_EINVOICE_FLOW.md §7.
+
+## BUG-011 (Data integrity — ACGROUPCURRBAL group roll-up)
+- Module: Finance (CurrBal rebuild + voucher posting)
+- Evidence [VERIFIED-VB6]: `AcGroup.MainGrCode` ka decompiled walk
+  (`fa_voucher.py::_update_currbal`, FaCurrBalUpdate Proc_183_0) parent ko
+  seedha `ACGROUPCURRBAL.GroupCode` me likhta hai.
+- Evidence [VERIFIED-SQL]: `MainGrCode` ek hierarchical **path-code** hai
+  (max len 9, e.g. `030003001`), GroupCode row nahi. `ACGROUPCURRBAL.GroupCode`
+  varchar(6) hai → path-code likhne par **8152 String or binary data would be
+  truncated** (voucher posting fail ya bogus group-row).
+- Live [VERIFIED-SQL] (2026-09-29): ACGROUPCURRBAL me 2 orphan rows —
+  `060004 = +5000`, `060005 = -5000` (V_Date 2026-09-25), dono ke GroupCode
+  `AcGroup` me exist nahi karte. Net zero isliye reports abhi thehraate nahi,
+  lekin ye isi bug ka leftover hai.
+- Expected: sirf asli `AcGroup.GroupCode` codes par balance upsert ho.
+- Actual (before fix): path-code parent bhi upsert hota tha.
+- Fix (2026-09-29): `core/fa_ledger_ops.py::_acgroup_chain()` — parent tabhi
+  follow karta hai jab wo `AcGroup` me real GroupCode ho; dono jagah
+  (`fa_voucher._update_currbal`, `rebuild_currbal`) isko use karte hain.
+  Regression: `tests/database/test_currbal_rebuild.py` (6 tests).
+- Open: 2 orphan rows live DB me abhi bhi hain (cleanup user decision).
+- Severity: MEDIUM (had set: path-code group par posting crash).
+- Evidence level: [VERIFIED-SQL]
+- VERIFIED 2026-09-29 (round-3): _acgroup_chain() + regression suite run —
+  6/6 test_currbal_rebuild.py pass; compile-clean; committed with this register.
+
+## BUG-012 (Menu leaf → registry gap + caption whitespace drift)
+- Module: Global (ui/shell.py registry ↔ core/menu.py tree)
+- Evidence [VERIFIED-CODE]: `core/menu.menubar_for()` ki **487 leaf rows** me
+  `MainWindow._reg_ci` lookup par **26 rows** resolve nahi hui (22 unique).
+  Pehle ye items silently **disabled** rehte the (`lb.setEnabled(False)` /
+  `act.setEnabled(False)`), matlab user click kare to kuch nahi hota tha.
+- 3 rows sirf **trailing space** ki wajah se fail ho rahi thin — VB6 caption
+  `'Cashier Report '`, `'Instant House Count '`, `'Package Forecast '`
+  vs registry canonical key `'Cashier Report'` etc.
+  `MENU_INVENTORY.md` me captions bina space ke hain (486/517/523).
+  Fix: `shell.py::MainWindow._opener()` — `_reg_ci` (strip + lower) par
+  lookup; 3 jagah `self.registry.get(it["name"])` ispar switch kiye.
+- 22 unique ab bhi opener-less, do category:
+  * **headers/junk** (folder text, VB6 me clickable nahi the): `Banquet`,
+    `EPABX`, `HR/Payroll`, `Inventory`, `M.I.S.`, `Members Mgmt`,
+    `Point of Sale`, `Operations`/`Operation`, `POS Operations`,
+    `Utility`, `SMS`, `Send SMS`, `Reward Points`, `Reports`, `Sstup`
+    (VB6 typo), `....`.
+  * **[VERIFIED-VB6] missing ports** — VB6 me form hai, Python me nahi:
+    `Revenue Change Entry` (MDIForm1.frm:2461, parent Operations/MemOpr),
+    `Facility Sundry Setting` (MDIForm1.frm:2565, parent Operations/MallMgmt),
+    `Card Recharge` (MDIForm1.frm:2736 → `SmartCardRecharge.frm`),
+    `Card Refund` (MDIForm1.frm:2740 → `SmartCardRefund.frm`),
+    `Card Re-Issue` (MDIForm1.frm:2744 → `SmartCardLostReIssue.frm`).
+- Fix (2026-09-29): whitespace drift theek; 5 missing screens allow-list me
+  document kiye — **regression guard** `tests/unit/test_shell_opener_refs.py`
+  (`test_every_menu_leaf_resolves_to_an_opener` +
+  `test_known_trailing_space_captions_resolve`). Naya leaf ya to port ho
+  ya allow-list me jaaye; silent no-op allowed nahi.
+- Severity: LOW (each), MEDIUM as a class (menu dead-end).
+- Evidence level: [VERIFIED-CODE] + [VERIFIED-VB6]
 
 ## KNOWN ISSUES LISTS (vendor/site notes)
 - HMSIssueList.Log (2019), HMSACIssueList.Log (2020), HMS_GSTRI_List.Log (2021):

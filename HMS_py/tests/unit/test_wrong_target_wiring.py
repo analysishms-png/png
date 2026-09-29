@@ -44,13 +44,13 @@ WRONG_TARGET_CONTRACTS: dict[str, tuple[str, str]] = {
     ),
     # VB6 FaTDSChal: dedicated challan UI (TDSChal/TDSChal1 + LEDGERTDS mark)
     "T.D.S. Challan Entry": (
-        r"open_fa_tds_challan|open_voucher_entry",  # fallback: voucher (documented)
-        r"^$",
+        r"open_fa_tds_challan",
+        r"open_voucher_entry",
     ),
     # VB6 FaCurrBalUpdate: currbal rebuild UI (SubGroupCurrBal/ACGroupCurrBal)
     "Current Balance Updation": (
-        r"open_currbal_update|open_trial_balance",  # fallback documented
-        r"^$",
+        r"open_currbal_update",
+        r"open_trial_balance",
     ),
     # VB6 fdAcPostChrg family: A/C posting runner (PostingUtility /
     # NightAuditProcess) — reports browser nahi
@@ -59,8 +59,8 @@ WRONG_TARGET_CONTRACTS: dict[str, tuple[str, str]] = {
         r"open_nightaudit_reports",
     ),
     "Night Audit Process": (
-        r"open_night_audit_process|open_posting_utility|open_nightaudit_reports",
-        r"^$",
+        r"open_night_audit_process",
+        r"open_nightaudit_reports",
     ),
     # VB6 frmReNightAudit: reverse_night_audit core, reports browser nahi
     "Reverse Night Audit": (
@@ -69,14 +69,18 @@ WRONG_TARGET_CONTRACTS: dict[str, tuple[str, str]] = {
     ),
     # VB6 MembershipMast: member master CRUD, billing nahi
     "Member Master": (
-        r"open_member_master|open_member_billing",  # fallback: billing (no MemberMast table)
-        r"^$",
+        r"open_member_master",
+        r"open_member_billing",
+    ),
+    "Corporate Member Master": (
+        r"open_corporate_member_master",
+        r"open_member_billing",
     ),
     # VB6 SmartCardRegistration: registration entry (SmartCardRegistration
     # table CRUD), card master nahi
     "Card Registration": (
-        r"open_card_registration|open_smartcard",  # fallback: master
-        r"^$",
+        r"open_card_registration",
+        r"open_smartcard",
     ),
 }
 

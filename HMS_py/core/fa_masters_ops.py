@@ -299,6 +299,150 @@ def subgroup_delete(code: str, cn=None, commit: bool = True) -> int:
 
 
 # ============================================================
+# Member Master (VB6 MembershipMast — Members Mgmt Setup)
+# Members SubGroup me CompanyType se identify hote hain, alag table nahi:
+#   normal    -> CompanyType IN (SELECT Code FROM MemCatMast WHERE Corporate='N')
+#   corporate -> CompanyType = 'Corporate'   (live data me 1089 rows)
+# ============================================================
+def _member_where(corporate: bool) -> str:
+    if corporate:
+        return "S.CompanyType = 'Corporate'"
+    return ("S.CompanyType IN (SELECT Code FROM MemCatMast "
+            "WHERE ISNULL(Corporate, 'N') = 'N')")
+
+
+def member_list(corporate: bool = False, cn=None, limit: int = 5000) -> list[dict]:
+    rows = db.query(
+        "SELECT TOP " + str(int(limit)) + " S.SubCode, S.Name, "
+        "ISNULL(G.GroupName, ''), ISNULL(S.CompanyType, ''), "
+        "ISNULL(S.Mobile, ''), ISNULL(S.Phone, ''), ISNULL(S.ActiveYN, 1) "
+        "FROM (SubGroup S LEFT JOIN AcGroup G ON S.GroupCode = G.GroupCode) "
+        "WHERE " + _member_where(corporate) + " ORDER BY S.Name", cn=cn)
+    return [{"code": (r[0] or "").strip(), "name": (r[1] or "").strip(),
+             "under": (r[2] or "").strip(), "companytype": (r[3] or "").strip(),
+             "mobile": (r[4] or "").strip(), "phone": (r[5] or "").strip(),
+             "active": r[6]} for r in rows]
+
+
+def member_get(code: str, cn=None) -> dict | None:
+    code = (code or "").strip()
+    rows = db.query(
+        "SELECT S.SubCode, S.Name, ISNULL(S.GroupCode, ''), "
+        "ISNULL(G.GroupName, ''), ISNULL(S.CompanyType, ''), "
+        "ISNULL(S.Add1, ''), ISNULL(S.Phone, ''), ISNULL(S.Mobile, ''), "
+        "ISNULL(S.EMail, ''), ISNULL(S.CityCode, ''), ISNULL(S.ActiveYN, 1) "
+        "FROM (SubGroup S LEFT JOIN AcGroup G ON S.GroupCode = G.GroupCode) "
+        "WHERE RTRIM(S.SubCode) = ?", (code,), cn=cn)
+    if not rows:
+        return None
+    r = rows[0]
+    return {"code": (r[0] or "").strip(), "name": (r[1] or "").strip(),
+            "group_code": (r[2] or "").strip(), "under": (r[3] or "").strip(),
+            "companytype": (r[4] or "").strip(), "add1": (r[5] or "").strip(),
+            "phone": (r[6] or "").strip(), "mobile": (r[7] or "").strip(),
+            "email": (r[8] or "").strip(), "city_code": (r[9] or "").strip(),
+            "active": r[10]}
+
+
+def member_exists(code: str, cn=None) -> bool:
+    return member_get(code, cn=cn) is not None
+
+
+def member_group_options(cn=None) -> list[tuple[str, str]]:
+    """Member a/c groups (VB6: AcGroup NATURE='Customer')."""
+    rows = db.query(
+        "SELECT GroupCode, GroupName FROM AcGroup "
+        "WHERE ISNULL(AliasYN, 'N') <> 'Y' "
+        "AND (ISNULL(Nature, '') = 'Customer' OR ISNULL(GroupNature, '') = 'A') "
+        "ORDER BY GroupName", cn=cn)
+    return [((r[0] or "").strip(), (r[1] or "").strip()) for r in rows]
+
+
+def member_category_options(cn=None) -> list[tuple[str, str]]:
+    rows = db.query(
+        "SELECT Code, Name FROM MemCatMast ORDER BY Name", cn=cn)
+    return [((r[0] or "").strip(), (r[1] or "").strip()) for r in rows]
+
+
+def member_insert(rec: dict, corporate: bool = False, cn=None,
+                  commit: bool = True) -> str:
+    """VB6 MembershipMast TopCtrl1 save: naya member SubGroup me.
+
+    SubGroup INSERT + CompanyType UPDATE ek hi connection/transaction me
+    (warna beech me fail hone par member bina category ke reh jaata).
+    """
+    name = (rec.get("name") or "").strip()
+    if not name:
+        raise ValueError("Member Name zaroori hai")
+    ctype = "Corporate" if corporate else (rec.get("companytype") or "").strip()
+    if not ctype:
+        raise ValueError("Member Category zaroori hai")
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        code = subgroup_insert(rec, cn=cn, commit=False)
+        db.execute(
+            "UPDATE SubGroup SET CompanyType = ? WHERE RTRIM(SubCode) = ?",
+            (ctype, code), cn=cn, commit=False)
+        if own and commit:
+            cn.commit()
+        return code
+    except Exception:
+        if own:
+            try:
+                cn.rollback()
+            except Exception:
+                pass
+        raise
+    finally:
+        if own:
+            try:
+                cn.close()
+            except Exception:
+                pass
+
+
+def member_update(code: str, rec: dict, corporate: bool = False,
+                  cn=None, commit: bool = True) -> int:
+    code = (code or "").strip()
+    if not code:
+        raise ValueError("SubCode zaroori hai")
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        if not member_get(code, cn=cn):
+            raise ValueError("Member nahi mila")
+        n = subgroup_update(code, rec, cn=cn, commit=False)
+        if not corporate:
+            ctype = (rec.get("companytype") or "").strip()
+            if ctype:
+                db.execute(
+                    "UPDATE SubGroup SET CompanyType = ? "
+                    "WHERE RTRIM(SubCode) = ?",
+                    (ctype, code), cn=cn, commit=False)
+        if own and commit:
+            cn.commit()
+        return n
+    except Exception:
+        if own:
+            try:
+                cn.rollback()
+            except Exception:
+                pass
+        raise
+    finally:
+        if own:
+            try:
+                cn.close()
+            except Exception:
+                pass
+
+
+def member_delete(code: str, cn=None, commit: bool = True) -> int:
+    return subgroup_delete(code, cn=cn, commit=commit)
+
+
+# ============================================================
 # NarrMast — Global Narration picker (VB6 FaGlobeNarr)
 # ============================================================
 def narr_list(cn=None) -> list[dict]:

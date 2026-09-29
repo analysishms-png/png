@@ -1496,6 +1496,35 @@ def refresh_all_currbal(cn=None) -> int:
     return count
 
 
+def _acgroup_chain(gc: str, cn=None) -> list[str]:
+    """AcGroup.MainGrCode chain -> write-yogya group codes (ancestor first).
+
+    AcGroup.MainGrCode ek hierarchical path-code hai (jaise '010001' ya
+    9-char '030003001'), GroupCode nahi. ACGROUPCURRBAL.GroupCode varchar(6)
+    hai, isliye sirf wahi codes lautate hain jo AcGroup me asli GroupCode ke
+    roop me exist karte hain (warna 8152 string-truncation).
+    """
+    out: list[str] = []
+    seen: set[str] = set()
+    gc = (gc or "").strip()
+    while gc and gc not in seen:
+        seen.add(gc)
+        if not db.query(
+                "SELECT 1 FROM AcGroup WHERE GroupCode = ?", (gc,), cn=cn):
+            break
+        out.append(gc)
+        p = db.query(
+            "SELECT MainGrCode FROM AcGroup WHERE GroupCode = ?",
+            (gc,), cn=cn)
+        if not p:
+            break
+        parent = ((p[0][0] or "").strip())
+        if not parent or parent == gc:
+            break
+        gc = parent
+    return out
+
+
 def rebuild_currbal(subcode: str | None = None, cn=None,
                     commit: bool = True) -> dict:
     """VB6 FaCurrBalUpdate.frm Command1_Click: current-balance rebuild.
@@ -1549,18 +1578,8 @@ def rebuild_currbal(subcode: str | None = None, cn=None,
         # Group nets = subtree sum (VB6 MainGrCode chain par delta add)
         grp_nets: dict[str, float] = {}
         for sc, net in nets.items():
-            gc = grp_of.get(sc) or ""
-            seen: set[str] = set()
-            while gc and gc not in seen:
-                seen.add(gc)
+            for gc in _acgroup_chain(grp_of.get(sc) or "", cn=cn):
                 grp_nets[gc] = grp_nets.get(gc, 0.0) + net
-                p = db.query(
-                    "SELECT MainGrCode FROM AcGroup WHERE GroupCode = ?",
-                    (gc,), cn=cn)
-                parent = ((p[0][0] or "").strip() if p else "")
-                if not parent or parent == gc:
-                    break
-                gc = parent
 
         # Step 4: zero (VB6 does this inside the same transaction)
         if subcode:
@@ -1602,7 +1621,14 @@ def rebuild_currbal(subcode: str | None = None, cn=None,
             raise ValueError("Ledger Table is Empty")
 
         # Step 5b: group chain rows
-        for gc, net in grp_nets.items():
+        # grp_nets ke values poore Ledger ke subtree-net hain (absolute);
+        # single-subcode mode me sirf us subcode tak pahunchne wale groups
+        # rewrite hote hain - baaki groups untouched (aur sahi) rehte hain.
+        write_groups = grp_nets
+        if subcode:
+            reach = _acgroup_chain(grp_of.get(subcode.strip()) or "", cn=cn)
+            write_groups = {g: grp_nets[g] for g in reach if g in grp_nets}
+        for gc, net in write_groups.items():
             if acgroupcurrbal_get(gc, cn=cn):
                 db.execute(
                     "UPDATE ACGROUPCURRBAL SET Curr_Bal = ? "
@@ -1618,7 +1644,7 @@ def rebuild_currbal(subcode: str | None = None, cn=None,
         if own and commit:
             cn.commit()
 
-        return {"subgroups": written_sub, "groups": len(grp_nets),
+        return {"subgroups": written_sub, "groups": len(write_groups),
                 "subcode": (subcode or "(all)"), "user": USER}
     except Exception:
         if own:

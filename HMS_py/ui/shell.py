@@ -1347,7 +1347,7 @@ def _form_registry() -> dict[str, callable]:
         "Cash And Bank Books": lambda w: fvu.open_cash_bank_books(w),
         # Finance Reports (fa_voucher_ui openers)
         "Trial Balance": lambda w: fvu.open_trial_balance(w),
-        "Interest Ledger": lambda w: fvu.open_led_int(w) if hasattr(fvu, "open_led_int") else fvu.open_trial_balance(w),
+        "Interest Ledger": _open_report("&Interest Ledger"),  # LedInt report; open_led_int nahi bana
         "Journal Books": lambda w: fvu.open_journal_book(w),
         "Bank Register": lambda w: fvu.open_bank_register(w),
         "Cheque Cleared Register": lambda w: _open_fv_list(w, "Cheque Cleared", fv_cheque_cleared),
@@ -1513,7 +1513,7 @@ def _form_registry() -> dict[str, callable]:
         # Salary Creation (VB6 prSalCreate port)
         "Salary Creation": lambda w: _open_salary_create(w),
         # Tally Export
-        "Tally Export(XML)": (lambda w: tally_ui.open_tally_export(w)) if tally_ui else _coming_soon("Tally Export(XML)"),
+        "Tally Export(XML)": (lambda w: tally_ui.open_tally(w)) if tally_ui else _coming_soon("Tally Export(XML)"),
         # Misc sub-forms (Opening Stock, Sundry Master, Restaurant Master)
         "Opening Stock": (lambda w: misc_ui.open_opening_stock(w)) if misc_ui else _coming_soon("Opening Stock"),
         "Party Master": (lambda w: misc_ui.open_party_master(w, user=getattr(w, "user", "SA"))) if misc_ui else _coming_soon("Party Master"),
@@ -1996,6 +1996,16 @@ class MainWindow(QMainWindow):
                 w.setParent(None)
                 w.deleteLater()
 
+    def _opener(self, caption):
+        """menu caption -> opener.
+
+        `_reg_ci` = registry keys ko strip+lower (MainWindow.__init__).
+        VB6 caption me trailing/extra space aa jaati hai
+        ('Cashier Report ', 'Instant House Count ') jo canonical key se
+        alag hota tha -> item disabled ho jaata tha.
+        """
+        return self._reg_ci.get(str(caption).strip().lower())
+
     def _on_group(self, module: str, grp: dict):
         """VB6 module-row click: sub-row bharo (B033 evidence)."""
         for b in self._mod_buttons:
@@ -2011,7 +2021,7 @@ class MainWindow(QMainWindow):
             lb = QPushButton(it["name"])
             lb.setProperty("vbBar", "sub")
             lb.setProperty("active", False)
-            opener = self.registry.get(it["name"])
+            opener = self._opener(it["name"])
             if it.get("children"):
                 menu = QMenu(it["name"], self)
                 if opener:
@@ -2045,7 +2055,7 @@ class MainWindow(QMainWindow):
                 self._add_leaf_action(sub, module, group, ch)
             return
         act = menu.addAction(it["name"])
-        opener = self.registry.get(it["name"])
+        opener = self._opener(it["name"])
         if opener:
             leaf = it["name"]
             act.triggered.connect(
@@ -2079,7 +2089,7 @@ class MainWindow(QMainWindow):
         return "[" + " > ".join(p for p in parts if p) + "]"
 
     def _add_item(self, parent_menu, it: dict):
-        opener = self.registry.get(it["name"])
+        opener = self._opener(it["name"])
         if it["children"]:
             sub = parent_menu.addMenu(it["name"])
             if opener:
