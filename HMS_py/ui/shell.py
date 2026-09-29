@@ -1508,6 +1508,7 @@ def _form_registry() -> dict[str, callable]:
         # Misc sub-forms (Opening Stock, Sundry Master, Restaurant Master)
         "Opening Stock": (lambda w: misc_ui.open_opening_stock(w)) if misc_ui else _coming_soon("Opening Stock"),
         "Sundry Master": (lambda w: misc_ui.open_sundry_master(w)) if misc_ui else _coming_soon("Sundry Master"),
+        "Menu Item Copy": (lambda w: pm.open_menu_item_copy(w, user=getattr(w, "user", "SA"))) if pm else _coming_soon("Menu Item Copy"),
         "Restaurant Master": (lambda w: misc_ui.open_restaurant_master(w)) if misc_ui else _coming_soon("Restaurant Master"),
         # Kitchen Closing Stock (VB6 kClStk port — KClStk table live hai)
         "Kitchen Closing Stock": (lambda w: kclstk_ui.open_kitchen_closing_stock(w)) if kclstk_ui else _coming_soon("Kitchen Closing Stock"),

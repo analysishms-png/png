@@ -323,6 +323,118 @@ def open_auto_settle_card_balance(parent=None, user: str = "SA"):
     dlg.exec()
 
 
+# ── Menu Item Copy (VB6 frmMenuItemCopy) ──────────────────────
+def open_menu_item_copy(parent=None, user="SA"):
+    """Menu items ko ek outlet se dusre me copy karo (VB6 frmMenuItemCopy).
+    Sirf wo items dikhte hain jo target me abhi nahi hain; copy ItemMast +
+    ItemRate (latest source rate) dono banata hai."""
+    from PyQt6.QtCore import Qt
+    from PyQt6.QtWidgets import (QComboBox, QDialog, QHBoxLayout, QHeaderView,
+        QLabel, QMessageBox, QPushButton, QTableWidget, QTableWidgetItem,
+        QVBoxLayout)
+    from HMS_py.core import menu_item_copy as mic
+
+    dlg = QDialog(parent)
+    dlg.setWindowTitle("Menu Item Copy - HMS_py")
+    dlg.resize(780, 560)
+    lay = QVBoxLayout(dlg)
+
+    lay.addWidget(QLabel("Source se target outlet me menu items copy karo "
+                         "(jo target me abhi nahi hain)."))
+    top = QHBoxLayout()
+    top.addWidget(QLabel("From:"))
+    cmb_from = QComboBox()
+    top.addWidget(cmb_from, 1)
+    top.addWidget(QLabel("To:"))
+    cmb_to = QComboBox()
+    top.addWidget(cmb_to, 1)
+    lay.addLayout(top)
+
+    tbl = QTableWidget(0, 5, dlg)
+    tbl.setHorizontalHeaderLabels(["", "Code", "Item", "Group", "Category"])
+    tbl.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+    tbl.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+    tbl.horizontalHeader().setSectionResizeMode(
+        QHeaderView.ResizeMode.ResizeToContents)
+    lay.addWidget(tbl, 1)
+
+    status = QLabel("")
+    lay.addWidget(status)
+
+    bottom = QHBoxLayout()
+    btn_load = QPushButton("Load Items")
+    btn_copy = QPushButton("Copy Selected")
+    btn_copy.setProperty("role", "warning")
+    btn_close = QPushButton("Close")
+    bottom.addWidget(btn_load); bottom.addStretch()
+    bottom.addWidget(btn_copy); bottom.addWidget(btn_close)
+    lay.addLayout(bottom)
+
+    def _fill_outlets():
+        for o in mic.list_outlets():
+            label = f"{o['name']} ({o['code']})"
+            cmb_from.addItem(label, o["code"])
+            cmb_to.addItem(label, o["code"])
+        if cmb_to.count() > 1:
+            cmb_to.setCurrentIndex(1)
+
+    def _load():
+        f = cmb_from.currentData(); t = cmb_to.currentData()
+        if not f or not t:
+            QMessageBox.information(dlg, "Input", "Dono outlets chuno"); return
+        if f == t:
+            QMessageBox.information(dlg, "Input",
+                                    "Source aur target alag hone chahiye"); return
+        try:
+            rows = mic.list_copyable_items(f, t)
+        except Exception as e:
+            QMessageBox.critical(dlg, "Error", str(e)); return
+        tbl.setRowCount(0)
+        for r in rows:
+            row = tbl.rowCount()
+            tbl.insertRow(row)
+            chk = QTableWidgetItem()
+            chk.setFlags(chk.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+            chk.setCheckState(Qt.CheckState.Unchecked)
+            tbl.setItem(row, 0, chk)
+            for col, v in enumerate([r["itemcode"], r["itemname"],
+                                     r["groupname"], r["itemcatname"]], 1):
+                tbl.setItem(row, col, QTableWidgetItem(v))
+        status.setText(f"{len(rows)} item(s) copyable: {f} -> {t}")
+
+    def _copy():
+        f = cmb_from.currentData(); t = cmb_to.currentData()
+        picked = []
+        for row in range(tbl.rowCount()):
+            it = tbl.item(row, 0)
+            if it and it.checkState() == Qt.CheckState.Checked:
+                picked.append(tbl.item(row, 1).text())
+        if not picked:
+            QMessageBox.information(dlg, "Copy",
+                                    "Koi item select (checkbox) nahi hua")
+            return
+        reply = QMessageBox.question(dlg, "Confirm",
+            f"{len(picked)} item(s) ko {t} me copy karein?")
+        if reply != QMessageBox.StandardButton.Yes:
+            return
+        try:
+            res = mic.copy_items(f, t, picked, user=user)
+        except Exception as e:
+            QMessageBox.critical(dlg, "Error", str(e)); return
+        msg = f"{len(res['copied'])} item(s) copied (ItemMast + ItemRate)"
+        if res["skipped"]:
+            msg += ("\nSkipped (already exist/invalid): "
+                    + ", ".join(res["skipped"][:8]))
+        QMessageBox.information(dlg, "Done", msg)
+        _load()
+
+    btn_load.clicked.connect(_load)
+    btn_copy.clicked.connect(_copy)
+    btn_close.clicked.connect(dlg.reject)
+    _fill_outlets()
+    dlg.exec()
+
+
 # ── Standalone launcher ───────────────────────────────────────
 class POSMastersLauncher(QMainWindow):
     def __init__(self):
