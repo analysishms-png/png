@@ -148,6 +148,12 @@ Security findings cross-referenced in SECURITY_REMEDIATION_NOTE_SRN-001.md (F-1.
 - Evidence level: [VERIFIED-SQL]
 - VERIFIED 2026-09-29 (round-3): _acgroup_chain() + regression suite run —
   6/6 test_currbal_rebuild.py pass; compile-clean; committed with this register.
+- **CLEANED 2026-09-29 (round-4, user-approved): 2 orphan rows deleted**
+  (060004 +5000, 060005 -5000, V_Date 2026-09-25) — evidence-first script
+  `_qa/bug011_orphan_cleanup.py`; verify: orphan count 0, 2052 real group
+  rows untouched. BUG-011 ab fully CLOSED.
+- VERIFIED 2026-09-29 (round-3): _acgroup_chain() + regression suite run —
+  6/6 test_currbal_rebuild.py pass; compile-clean; committed with this register.
 
 ## BUG-012 (Menu leaf → registry gap + caption whitespace drift)
 - Module: Global (ui/shell.py registry ↔ core/menu.py tree)
