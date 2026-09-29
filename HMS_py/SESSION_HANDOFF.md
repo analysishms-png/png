@@ -46,34 +46,35 @@
   unknown user, case variants, live-DB UserMast sweep (genuine-credential
   guard ke saath). **7/7 pass.**
 
-## 2. NEXT SESSION — kya bacha
+## 2. IS SESSION KE BAAD KE FIXES (2026-09-29 round 2)
 
-### Pre-existing failures (HEAD pe bhi, parallel agents' in-flight work)
-Full suite: **677 passed, 10 failed** — failures MERE changes se nahi
-(git-diff se proven: reservation.py me mera diff sirf `_log` pe; broken
-`insert_draft` line 201 HEAD ka hai):
-- `tests/unit/test_wrong_target_wiring.py` x8: wo spec-tests await kar
-  rahe hain ki koi agent ye openers banaye:
-  `posting_utility_ui.open_reverse_night_audit` (ReverseNightAuditWindow),
-  `fa_voucher_ui.open_currbal_update` (FaCurrBalUpdate parity),
-  `pos_masters_ui.open_card_registration` (SmartCardRegistration parity);
-  + shell.py wrong-target lines fix ho: "Adjustment Deletion" ->
-  open_fa_adjust (needs separate form), "Charges Posting"/"Reverse Night
-  Audit" -> open_nightaudit_reports (needs npu_ui/narep_ui faithful UI),
-  "Reverse Check Out" -> open_checkout (needs reverse=True variant).
-- `tests/database/test_channel_phase2_live.py` x2: `insert_draft` 21S01
-  (INSERT cols > VALUES) — "Extend Booking insert to VB6 56-col pattern"
-  commit (33be17a) ne toda tha. Fix: 56 cols ke saath values count
-  match karo.
-- **In failures ko apne commit se pehle fix mat karo agar koi aur agent
-  us pe kaam kar raha ho — git log se dekho.**
+- **insert_draft 21S01 FIXED** (commit `4264fbd`): root cause — VB6 56-col
+  pattern me se python ne sirf 55 cols liye (VB6 ka `[Authorization]`
+  missing, ODBC-reserved isliye bracketed) AUR VALUES me 2 values kam the
+  (BookStatus/RefBookNo row me 4 values 6 cols ke liye). Ab cols/values
+  Python lists se construct + assert len==56 — mismatch class khatam.
+  29 reservation/channel tests green.
+- **InconsistencyCheckWindow multi-tab** (`4264fbd`): har check apne
+  QTabWidget tab me (VB6 sections 1:1), tab label pe count/CLEAN.
+- **Gravy Item Entry PORTED** (commit `07e884f`): `core/gravy_item.py` +
+  `ui/pos_sub_forms_ui.py::GravyItemWindow`. VB6 loc_14B1E9C code-gen
+  (KK003201 next), 18-col INSERT GravyItem='Yes' + Type='Finish',
+  UnitMast auto-create, STOCK/BOM delete guards. Live probes
+  `_qa/probe_gravy*.py`. **NOTE: shell.py registry wire us waqt parallel
+  agent ke in-flight diff me mixed tha — us commit ke saath aayega; agar
+  "Gravy Item Entry" ab bhi STUB dikhe to shell.py me wire check karo.**
+- Parallel agent ne wrong_target_wiring ke openers deliver kiye
+  (reverse checkout, currbal, night audit process/posting) — suite
+  685 passed / 6 failed thi unke in-flight commit se pehle.
 
 ### Abhi bhi COMING_SOON stubs (blocked-table wale)
 - "Sale Bill Entry", "Settlement Entry" (Sale/Stock tables absent),
   "Forex Receive Entry" (ForexRecv/ForexReceipt absent) — port mat karna
   jab tak tables na aaye (probe: `_qa/probe_coming_soon_tables.py`).
-- "Gravy Item Entry" bhi stub hai (RsGravyItemEntry VB6 evidence hai,
-  GravyItem column ItemMast me LIVE hai — ye port ho sakta hai!).
+- "Party Master", "Consumption Master", "Finish Material Receive Entry",
+  "Excise Invoice Cum Gate Pass" waghera bhi batch me hain.
+
+## 2b. NEXT SESSION — kya bacha
 
 ### Aage ke ideas
 - BUG_REGISTER.md ke document-only bugs (001/005/006/007/009/010) ko
