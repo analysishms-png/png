@@ -1,155 +1,116 @@
-# SESSION HANDOFF — HMS_py VB6 parity port (2026-09-28)
+# SESSION HANDOFF — HMS_py VB6 parity port (2026-09-29)
 
 ## IMPORTANT: Ye file agle session ka STARTING POINT hai
 
-## 1. VERIFIED-COMPLETE (is session me, tests se prove hua)
+## 1. VERIFIED-COMPLETE (is session me, tests/smoke se prove hua)
 
-- Commit `65aa07e` (branch `codex/main-setup-parity`):
-  - `core/checkin.py` `delete_checkin()` me `GuestFolioProfDetail` cleanup added
-    (PK = Docid+GuestProf; iske bina folio-reuse pe PK_GuestFolioProfDtl violation)
-  - `ui/pos_table_ui.py` merge-conflict markers resolved (HEAD vs 9615357 —
-    dono sides same delete-guard pattern thi, ek clean block rakha)
-  - Live DB se 1 orphan `GuestFolioProfDetail` row cleaned (dead test artifact)
-  - **Tests: 661 passed** (pehle 1 syntax error + 6 failures the)
+- **Push verified**: `33be17a..56940e0` origin pe (pehle 6 pending commits).
+- **Task A complete — 3 COMING_SOON forms ab REAL** (registry qualname-check
+  se verified: teeno REAL):
+  1. **Reverse Room Merge** (commit `a04c3db`):
+     - `core/fo_ops.py::reverse_merge_charge` + `list_merge_children` —
+       VB6 FrmRevMergeCharge 3-step reverse (PayCharge re-home via
+       RelatedFolioNoDocId, child unlink, master markers clear when empty).
+       Guard: child ka mFolioNoDocid master hona chahiye.
+     - `ui/fo_sub_forms_ui.py::ReverseMergeWindow` + `open_reverse_room_merge`.
+     - Registry wire shell.py ("Reverse Room Merge" batch se nikala).
+  2. **Inconsistency Check** (commit `764f988`):
+     - `core/inconsistency.py` — 6 read-only audits (missing PayCode,
+       Bill_No missing, SettleDate missing, Dr-Cr mismatch per folio,
+       invalid PayCode, null DocId counts) + `run_all()`.
+       VB6 ke destructive repairs jaan-boojh ke read-only rakhe.
+     - `ui/db_maintenance_ui.py::InconsistencyCheckWindow` +
+       `open_inconsistency_check`.
+     - Live-DB run verified: 3 REAL Dr-Cr mismatches mile, baaki clean.
+  3. **Menu Item Copy** (commit `396821b`):
+     - `core/menu_item_copy.py` — list_outlets/categories/groups (VB6
+       Form_Load queries), list_copyable_items (NOT IN target +
+       ActiveYN/ItemType/DispCode/GravyItem exclusions), latest_rate,
+       copy_items (29-col ItemMast + ItemRate insert).
+     - **PK ItemMast = (Code, RestCode)** — live probe se verified
+       (`_qa/probe_itemmast_pk.py`), isliye same-Code/new-RestCode copy.
+       Live ActiveYN convention 'Yes'/'No' (3343/1/11).
+     - `ui/pos_masters_ui.py::open_menu_item_copy` (checkbox grid dialog).
+     - Live read-only smoke: 18 copyable items KKE001->KKM001,
+       latest_rate KK000005@KKRS = 70.0.
+- **Task B complete** (commit `dfa4be1`): `core/db.py::next_serial()` —
+  UPDLOCK/HOLDLOCK MAX(col)+1 helper (Vtype-less counters ke liye,
+  next_vno ka bhai). Migrated: FolioLog/BookingLog `_log` Id (folio/
+  checkin/checkout/reservation), PayCharge SNo (folio x2, nightaudit),
+  MemBill vno, MemberFamily SNo, RoomOcc SNo; FOMBillDetails
+  `next_billno` inline hint (varchar CAST counter).
+- **Task C complete** (commit `dfa4be1`): `tests/unit/test_auth_backdoor.py`
+  — 7 tests: India12 source-scan invariant, no-universal-password
+  (mocked creds, per-test unique usernames — kyunki `_login_attempts`
+  DISK pe persist hota hai, fixed naam se lockout false-negative),
+  unknown user, case variants, live-DB UserMast sweep (genuine-credential
+  guard ke saath). **7/7 pass.**
 
-- Login test (user request "SA/KANPUR se login kar test karo"):
-  - `auth.check_login("SA", "KANPUR")` → **True, "Welcome SA"** (verified)
-  - `auth.check_login("SA", "wrongpass")` → False, "Invalid Password" (verified)
-  - VB6-compatible decrypt + brute-force lockout dono working
+## 2. NEXT SESSION — kya bacha
 
-- Registry audit (qualname check zaroori hai kyunki `_coming_soon` bhi callable
-  return karta hai — plain `reg.get(cap) is not None` galat "WIRED" bata deta hai):
-  - Already WIRED: "KOT Transfer", "Check Out Clearance Screen", "Display Rack",
-    "Multiple SMS Type", "Table Change Entry", "Token Entry"
-  - Abhi bhi COMING_SOON stubs: **"Menu Item Copy", "Inconsistency Check",
-    "Reverse Room Merge", "Sale Bill Entry", "Settlement Entry", "Forex Receive Entry"**
-  - Registry me later keys earlier `_coming_soon(cap)` batch-set ko override
-    karti hain (dict literal order) — audit hamesha runtime dict pe karo
+### Pre-existing failures (HEAD pe bhi, parallel agents' in-flight work)
+Full suite: **677 passed, 10 failed** — failures MERE changes se nahi
+(git-diff se proven: reservation.py me mera diff sirf `_log` pe; broken
+`insert_draft` line 201 HEAD ka hai):
+- `tests/unit/test_wrong_target_wiring.py` x8: wo spec-tests await kar
+  rahe hain ki koi agent ye openers banaye:
+  `posting_utility_ui.open_reverse_night_audit` (ReverseNightAuditWindow),
+  `fa_voucher_ui.open_currbal_update` (FaCurrBalUpdate parity),
+  `pos_masters_ui.open_card_registration` (SmartCardRegistration parity);
+  + shell.py wrong-target lines fix ho: "Adjustment Deletion" ->
+  open_fa_adjust (needs separate form), "Charges Posting"/"Reverse Night
+  Audit" -> open_nightaudit_reports (needs npu_ui/narep_ui faithful UI),
+  "Reverse Check Out" -> open_checkout (needs reverse=True variant).
+- `tests/database/test_channel_phase2_live.py` x2: `insert_draft` 21S01
+  (INSERT cols > VALUES) — "Extend Booking insert to VB6 56-col pattern"
+  commit (33be17a) ne toda tha. Fix: 56 cols ke saath values count
+  match karo.
+- **In failures ko apne commit se pehle fix mat karo agar koi aur agent
+  us pe kaam kar raha ho — git log se dekho.**
 
-- Schema probe (`_qa/probe_coming_soon_tables.py`):
-  - LIVE (portable): RoomOcc, PayCharge, GuestFolio, FolioLog, KOT(28101 rows),
-    Sale1, ItemMast(3355), ItemGrp, ItemCatMast, Depart, RoomMast, Enviro
-  - ABSENT (BLOCKED-TBL, port NAHI karna): ForexRecv, ForexReceipt, GroupMast,
-    MessageIn, MessageOut, MeterRead, SMSLog, SMSType, Sale
-  - Probe pattern: `sys.path.insert(0, os.getcwd())` + parent dir (HMS_py
-    self-named package) — conftest jaisa path setup probe scripts me bhi chahiye
+### Abhi bhi COMING_SOON stubs (blocked-table wale)
+- "Sale Bill Entry", "Settlement Entry" (Sale/Stock tables absent),
+  "Forex Receive Entry" (ForexRecv/ForexReceipt absent) — port mat karna
+  jab tak tables na aaye (probe: `_qa/probe_coming_soon_tables.py`).
+- "Gravy Item Entry" bhi stub hai (RsGravyItemEntry VB6 evidence hai,
+  GravyItem column ItemMast me LIVE hai — ye port ho sakta hai!).
 
-- VB6 evidence collected (FODER = `../FODER`, decompiled .frm):
-  - `FrmRevMergeCharge.frm` (Reverse Transfer Room) ke exact UPDATE queries
-    (lines ~605-913, merge_charge ka 3-step reverse):
-      1. UPDATE GuestFolio SET mFolioNoDocId='', mFolioNo=0
-         WHERE MFolioNoDocid=? AND Docid=?
-      2. UPDATE PayCharge SET FolioNoDocid=<target> WHERE FolioNoDocid=<source>
-      3. UPDATE PayCharge SET RelatedFolioNo=0, RelatedFolioNoDocId=''
-         WHERE FolioNoDocid=<source>
-  - `FrmInc.frm` (Inconsistency Check) ke exact audit queries (lines 2946-3067):
-      - PayCharge where PayType set but PayCode empty
-      - SETTLEDATE set but BILL_NO empty (MODESET<>'S', vtype not in ARRES/ADRES)
-      - Per-folio: SUM(AmtDr)-SUM(AmtCr) HAVING <>0 GROUP BY FolionoDocId
-      - PayCode NOT IN (SELECT CODE FROM REVMAST)
-      - null/empty Docid in PayCharge & GuestFolio
-  - `frmMenuItemCopy.frm` evidence (lines 1357, 1642):
-      - outlets: SELECT Code,Name,RestType,ShortName FROM Depart WHERE
-        (LOGSITE_CODE=? or LOGSITE_CODE='HO') AND OutletYN='Y'
-        AND RestType<>'Banquet'
-      - items: SELECT ... FROM ItemMast LEFT JOIN ItemCatMast ON
-        ItemMast.ItemCatCode=ItemCatMast.Code LEFT JOIN ItemGrp ON
-        ItemMast.ItemGroup=ItemGrp.Code LEFT JOIN Depart ON
-        ItemMast.RestCode=Depart.Code WHERE ItemMast.RestCode=?
-  - ItemMast live columns verified — VB6 24-col copy-list ke sab cols exist:
-    Code,Name,Unit,Type,ItemGroup,RestCode,SaleRate,ItemCatCode,Kitchen,
-    SChrgApp,RateIncTax,DiscApp,RateEdit,NType,FinItem,ItemType,BarCode,
-    CommodityCode,DispCode,PurchRate,LPurRate,ConvRatio,IssueUnit (+more)
+### Aage ke ideas
+- BUG_REGISTER.md ke document-only bugs (001/005/006/007/009/010) ko
+  implementation notes se update karna.
+- InconsistencyCheckWindow ko multi-check tabs dena (ab sirf pehla
+  non-empty check grid me dikhta hai).
+- ItemMast DispCode smallint + GravyItem varchar probe (`_qa/probe_itemmast_types.py`).
 
-- BUG_REGISTER.md (HMS_REVERSE_ENGINEERING/21_Testing/) — 10 bugs:
-  - **BUG-002**: SundryType ORDER BY error — python port
-    (`core/sundry_type.py::list_entries`) me query already valid hai
-    (no GROUP BY), isliye python side SAFE. Sirf evidence note add karo.
-  - **BUG-003/BUG-004 (HIGH, fix karna hai)**: PayCharge/Stock PK violation —
-    counter desync. Pattern already `core/checkin.py::next_folio` me hai:
-    `SELECT MAX(FolioNo) FROM X WITH (UPDLOCK, HOLDLOCK)` — same pattern
-    PayCharge (LASTVOU/Voucher_Prefix) aur Stock counters pe apply karo.
-  - **BUG-008 (SECURITY)**: VB6 backdoor "India12". `core/auth.py` me sirf
-    self-test strings me hai (line ~187) — production login path me nahi.
-    SAFE as-is; regression test (TC-010): login with India12 must FAIL.
-  - BUG-001/BUG-006: schema drift (LocationMast/FreeItemAllow absent) —
-    DB-side fix owner decision, code touch nahi karna.
-  - BUG-005/007/009/010: VB6-binary/runtime — python port me equivalent
-    nahi, document-only.
+## 3. PATTERNS / GOTCHAS (proven this session)
 
-- Parity tool fixed: `tools/vb6_py_file_parity.py` line ~756
-  `w("..." w"lambda...")` invalid syntax tha → proper implicit concat.
-  Latest counts: forms {PY_FILE:50, REGISTRY:160, LIKELY:49, MISSING:3,
-  REPORT_VIEWER:15, COMING_SOON:40, SHELL:2, REGISTRY_ONLY:2},
-  bas {FULL:11, MISSING:5, PARTIAL:13, SPARSE:2, NO_SQL:1}
+- `lambda w, u=getattr(w, "user", ...)` — NameError at registry-build:
+  default-arg me `w` reference nahi hota. Sahi: body me
+  `getattr(w, "user", "SA")` (Account Posting line dekho).
+- Registry wire karne ke baad HAMESHA `_verify_reg.py` chalao (qualname
+  check) + offscreen smoke (`QT_QPA_PLATFORM=offscreen`).
+- Dialog me QTableWidget/QHeaderView local-import pattern:
+  `pos_masters_ui.py::open_menu_item_copy` / `open_smartcard` dekho.
+- core INSERT me `commit=False` + caller-owned cn = transactional;
+  `next_serial/next_vno` usi cn pe call karo warna lock bekaar.
+- Tests hitting live DB: PYT*-prefix data; auth tests me unique usernames
+  (persistent lockout state).
+- Terminal corruption kabhi bhi: git state hamesha temp-file + read_files
+  se verify; scrambled output pe commit NAHI.
 
-## 2. NEXT SESSION PLAN (ordered)
+## 4. KEY FILE MAP (updated)
 
-### Task A — 3 forms port karo (COMING_SOON → REAL)
-1. **Reverse Room Merge** (FrmRevMergeCharge):
-   - Core: `core/fo_ops.py` me `reverse_merge_charge(docid, user, ...)` —
-     3 UPDATEs (upar evidence). Guard: source docid ka mFolioNoDocid
-     non-empty hona chahiye (warna reverse karne layak merge nahi).
-   - UI: `ui/fo_sub_forms_ui.py` me `open_reverse_room_merge(parent)` —
-     `open_merge_charge` (line ~419) ka mirror pattern.
-   - Registry: "Reverse Room Merge" ko `_coming_soon` batch-set (~line 1446)
-     se NIKALO aur real opener dict me lagao.
-2. **Inconsistency Check** (FrmInc):
-   - Core: naya `core/inconsistency.py` — 6 audit checks (evidence upar),
-     read-only, har check list of offending rows return kare.
-   - UI: `ui/db_maintenance_ui.py` me `open_inconsistency_check(parent)` —
-     grid + "Run Check" button.
-   - Registry: "Inconsistency Check" batch se nikaalo, wired karo.
-3. **Menu Item Copy** (frmMenuItemCopy):
-   - Core: naya `core/menu_item_copy.py` — `copy_items(from_rest, to_rest,
-     codes, user)` INSERT...SELECT (VB6 exact 24 cols, live schema verified).
-     Guard: to_rest Depart me OutletYN='Y' + to_rest != from_rest.
-   - UI: `ui/pos_masters_ui.py` me dialog (from/to outlet combo + item grid
-     checkboxes + Copy button), `open_menu_item_copy(parent, user)`.
-   - Registry: "Menu Item Copy" batch se nikaalo, wired karo.
-4. Har form: `python -m py_compile` + offscreen smoke (QApplication + open
-   form + core helper) + unit test (tests/unit/) + registry wired-check
-   (_verify_reg.py style, qualname check ke saath).
-
-### Task B — BUG-003/004 counters (UPDLOCK/HOLDLOCK)
-- `next_folio` pattern copy karke PayCharge serial + Stock serial pe lagao.
-- Counter code dhoondo: MAX(FolioNo)/LASTVOU/Voucher_Prefix usage core/ me.
-- Unit test: lock-hint presence ya concurrent simulation.
-
-### Task C — BUG-008 regression test
-- `tests/unit/test_auth_backdoor.py`: check_login kisi bhi user se
-  "India12" → must be False. (SA real pass KANPUR hai.)
-
-### Task D — Verify + Push
-1. `python -m pytest tests -q` → all green (661 + naye)
-2. `python tools/vb6_py_file_parity.py` regenerate
-3. Commit: "Port Reverse Room Merge, Inconsistency Check, Menu Item Copy +
-   BUG-003/004 counter locks + BUG-008 regression test"
-4. Push: `git push origin codex/main-setup-parity`
-   (remote = https://github.com/analysishms-png/png.git)
-
-## 3. KNOWN ISSUES
-
-- Is session ke END me terminal environment corrupted tha (scrambled tool
-  outputs, mixed command results, fabricated file contents — verify kiya
-  `git log` inconsistency se). Agar naya session bhi weird output de to:
-  simple command se verify karo, file reads dobara karo, aur scrambled
-  output pe KABHI code commit mat karo.
-- `SESSION_HANDOFF.md`, `_qa/ev_gravy.txt`, `_qa/probe_itemmast_schema.py`,
-  `_qa/probe_coming_soon_tables.py` — handoff/evidence files; commit ke
-  baad handoff rakh sakte ho, probes _qa me rehne do.
-- `HMS_py/_screen.png` deleted in git status (user ne locally delete kiya) —
-  unrelated, ignore.
-
-## 4. KEY FILE MAP
-
-- Shell registry: `ui/shell.py` `_form_registry()` (line 644)
-- Coming-soon stubs: same file `_coming_soon()` (~line 980) +
-  batch-sets (~line 1445, ~line 1525)
-- Merge/Reverse evidence: `core/fo_ops.py` merge_charge (~line 271)
-- VB6 decompiled source: `../FODER/*.frm` (project ke bahar, read-only)
-- Parity report: `VB6_VS_PYTHON_FILE_BY_FILE.txt` (tool regenerate karta hai)
+- Shell registry: `ui/shell.py` `_form_registry()` (~line 644), imports
+  (~640-880), batch-sets (~1445, ~1525)
+- Reverse merge: `core/fo_ops.py` (merge_charge ~271, reverse_merge_charge
+  ~323, list_merge_children)
+- Inconsistency: `core/inconsistency.py` + `ui/db_maintenance_ui.py`
+- Menu Item Copy: `core/menu_item_copy.py` + `ui/pos_masters_ui.py`
+- Counter helpers: `core/db.py` next_vno (~354) + next_serial (~408)
+- Auth: `core/auth.py` check_login (~153), encrypt/decrypt, enc_bytes
+- Backdoor tests: `tests/unit/test_auth_backdoor.py`
+- VB6 decompiled source: `../FODER/*.frm` (read-only)
+- Probes: `_qa/probe_*.py` (DB schema evidence)
 - Bug register: `HMS_REVERSE_ENGINEERING/21_Testing/BUG_REGISTER.md`
-- Test cases: `HMS_REVERSE_ENGINEERING/21_Testing/TEST_CASES.md`
 - DB: MOONData2627 (SQL Server, Native Client 10), 277 tables
 - Login: SA/KANPUR verified working

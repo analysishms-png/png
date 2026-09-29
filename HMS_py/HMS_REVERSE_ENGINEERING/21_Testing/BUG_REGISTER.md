@@ -42,6 +42,11 @@ Security findings cross-referenced in SECURITY_REMEDIATION_NOTE_SRN-001.md (F-1.
 - Possible cause: LASTVOU/Voucher_Prefix counter out of sync (concurrent posting or
   failed posting did not roll back counter).
 - Evidence level: [VERIFIED-SQL]
+- PYTHON PORT UPDATE 2026-09-29: fixed — db.py me UPDLOCK/HOLDLOCK race-safe
+  counters (next_vno + next_serial helpers); PayCharge SNo (folio x2, nightaudit),
+  FolioLog/BookingLog Id, MemBill vno, MemberFamily SNo, RoomOcc SNo migrate ho gaye.
+  Main voucher VNo counters pehle se the (BUG-015 wave). Stock counters bhi
+  inventory/pos modules me covered.
 
 ## BUG-004
 - Module: Inventory (Stock)
@@ -50,6 +55,9 @@ Security findings cross-referenced in SECURITY_REMEDIATION_NOTE_SRN-001.md (F-1.
 - Severity: MEDIUM
 - Possible cause: same counter-desync class as BUG-003.
 - Evidence level: [VERIFIED-SQL]
+- PYTHON PORT UPDATE 2026-09-29: fixed — same UPDLOCK/HOLDLOCK counter wave
+  (BUG-003 note dekho); remaining plain MAX() queries sirf per-doc SNo / report
+  aggregates hain, PK-violation risk wale counters locked.
 
 ## BUG-005
 - Module: POS / Bill printing
@@ -88,6 +96,10 @@ Security findings cross-referenced in SECURITY_REMEDIATION_NOTE_SRN-001.md (F-1.
 - Action: recorded only. Owner decision required. Do not modify binary.
 - Remediation: formal note issued — see SECURITY_REMEDIATION_NOTE_SRN-001.md (same folder):
   containment options, patch routes (source unavailable), verification plan V1–V5, owner decisions.
+- PYTHON PORT UPDATE 2026-09-29: SAFE as-is — "India12" sirf auth.py self-test strings
+  me hai, check_login me koi special-case nahi. Regression tests added:
+  tests/unit/test_auth_backdoor.py (7 tests: source-scan, no-universal-password,
+  live-DB UserMast sweep). TC-010 regression covered.
 
 ## BUG-009
 - Module: Global stability
