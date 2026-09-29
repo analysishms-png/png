@@ -23,7 +23,9 @@ Analysis scripts: `_qa/vb6_only_next_candidates.py`, registry sweep.
 | 1 | ✅ **DONE** Guest Profile — Foreigner tab (GuestProfile.frm) | `guestproffor` | 30 | **Ported `b64d31d`**: `core/guest_foreign.py` (31-col CRUD, CFORM serial via Voucher_Prefix, serial-preserve update) + `ui/guest_lookup_ui.py` tabbed dialog + 6 unit tests. |
 | 2 | ✅ **DONE** Venue Master — capacity tab (FrmVenueMast.frm) | `venuecapacity` | 32 | **Ported `4172c2a`**: `core/venue.py::capacity_list/upsert/delete` (Capacity **varchar** hai — 'Informal'/'Theatre' tiers; **U_Name col nahi** live table me) + `open_venue_capacity` dialog + registry wire + 5 tests. Latent UnboundLocalError fix hua. |
 | 3 | ✅ **DONE** Comp Master (CompMast.frm) | `comp_plandet` 8350 + `roomdiscount` 1584 + `comp_inclusive` | ~10k | **Ported `24cedc5`**: `core/comp_master.py` (3-table delete-then-reinsert save, VB6 loc_168F014) + `CompMasterWindow` + registry wire + 6 tests. **PlanMast cols `Code`/`Name`** hain (PlanCode/PlanName nahi — probe-verified). |
-| 4 | **IN PROGRESS** Settlement outlet-paycodes (FdReSettlement add-on) | `departpay` | 75 | Chhota: re-settlement me outlet-allowed-paycodes filter. ReSettlement REAL — enhancement. |
+| 4 | ✅ **DONE** Settlement outlet-paycodes (FdReSettlement add-on) | `departpay` | 75 | **Ported `b9f20d3`**: `core/depart_pay.py` (VB6 FrmPayTypeMast grid + FdReSetlement JOIN, BANQ auto-row) + Outlet Paycodes dialog + ReSettlementWindow live-filter combo + 6 tests. Latent `QComboBox.currentItem()` bug fix hua. |
+
+**TIER-1 COMPLETE (4/4, round-5).**
 
 ## TIER 2 — Portable, par low-value/low-data (jab Tier 1 done)
 
@@ -74,5 +76,5 @@ in-memory tracker already), `user2` (UserMast mirror).
 1. ~~GuestProfile Foreigner tab~~ — **DONE `b64d31d`**
 2. ~~Venue capacity CRUD~~ — **DONE `4172c2a`**
 3. ~~Comp Master~~ — **DONE `24cedc5`**
-4. **departpay enhancement** (Tier1 #4) — re-settlement filter — IN PROGRESS
-5. Plan Defination Master / Changes Department — chhote tasks
+4. ~~departpay enhancement~~ — **DONE `b9f20d3`** — **TIER-1 COMPLETE 4/4**
+5. Plan Defination Master / Changes Department — chhote tasks (next)

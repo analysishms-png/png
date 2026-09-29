@@ -342,6 +342,19 @@ member/smartcard wale parallel-agent ke in-flight).
 
 **Pushed**: `f9422b1..3136294` (4 commits: 3 feature + 1 cleanup).
 
+- **departpay enhancement — TIER-1 COMPLETE 4/4** (`b9f20d3`):
+  `core/depart_pay.py` — VB6 FrmPayTypeMast grid port
+  (outlet_grid_for_paycode, set_for_paycode delete-then-reinsert +
+  BANQ auto-row loc_105CC94) + FdReSetlement JOIN
+  (fom_allowed_paycodes, restcode='<site>Fom'). UI:
+  `open_outlet_paycodes` dialog (finance_masters_ui, registry "Outlet
+  Paycodes") + ReSettlementWindow combo ab live DepartPay-filtered
+  (pehle hardcoded). **Latent bug fix**: `QComboBox.currentItem()`
+  exist hi nahi karta — `currentData()` tha sahi (click pe
+  AttributeError hota). Live: FOM 14 paycodes, 73 outlets,
+  KK0002→2 allowed. Suite: **618 unit passed**. Backlog update:
+  PARITY_BACKLOG.md me Tier-1 sab DONE marked.
+
 ## 2b. NEXT SESSION — kya bacha
 
 ### Aage ke ideas
