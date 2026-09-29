@@ -151,3 +151,158 @@ P5|12:09:22|09_Banquet|slot7 dblclick|window='Bill Look Up'|C3_P5D7_Bill_Look_Up
 P6|12:20:41|13_Messaging|slot1 click-seq|window='EXTRAs > SMS > Sstup > SMS (API)'|C3_P6S1_EXTRAs__SMS__Sstup__SMS_API.png|TopBarLib|
 RBAC|12:40:47|Login|Deepak login attempt|typed ******|||
 RBAC|12:40:51|Login|Deepak attempt failed|MSG: Invalid Password|RBAC_Deepak_LoginError.png||
+C3|21:10:58|02_Main_Setup|Open slot 1|window='Main Setup > General Setup > Tax Master'|C3_01_Main_Setup__General_Setup__Tax_M.png|TopBarLib slot 1|
+C3|21:11:00|02_Main_Setup|Open slot 1|window='Main Setup > General Setup > Tax Master'|C3_01_Main_Setup__General_Setup__Tax_M.png|TopBarLib slot 1|
+C3|21:11:04|02_Main_Setup|Open slot 2|window='Main Setup > General Setup > Tax Structure'|C3_02_Main_Setup__General_Setup__Tax_S.png|TopBarLib slot 2|
+C3|21:11:07|02_Main_Setup|Open slot 3|window='Main Setup > General Setup > Payment Type'|C3_03_Main_Setup__General_Setup__Payme.png|TopBarLib slot 3|
+C3|21:11:10|02_Main_Setup|Open slot 4|window='Main Setup > General Setup > Parameter'|C3_04_Main_Setup__General_Setup__Param.png|TopBarLib slot 4|
+C3|21:11:14|02_Main_Setup|Open slot 5|window='Main Setup > General Setup > Printing Parameters'|C3_05_Main_Setup__General_Setup__Print.png|TopBarLib slot 5|
+C3|21:11:17|02_Main_Setup|Open slot 6|window='Main Setup > General Setup > Printing Setup'|C3_06_Main_Setup__General_Setup__Print.png|TopBarLib slot 6|
+C3|21:11:26|02_Main_Setup|Slot 7|no window||TopBarLib slot|
+C3|21:11:34|02_Main_Setup|Slot 8|no window||TopBarLib slot|
+C3|21:11:41|02_Main_Setup|Slot 9|no window||TopBarLib slot|
+C3|21:12:42|03_Finance|Slot 1|no window||TopBarLib slot|
+C3|21:12:44|03_Finance|Open slot 2|window='Finance > Transaction > Expense Voucher'|C3_02_Finance__Transaction__Expense_Vo.png|TopBarLib slot 2|
+C3|21:12:56|06_House_Keeping|Slot 1|no window||TopBarLib slot|
+C3|21:12:58|06_House_Keeping|Open slot 2|window='House Keeping > Operations > Complaint Master'|C3_02_House_Keeping__Operations__Compl.png|TopBarLib slot 2|
+C3|21:13:07|06_House_Keeping|Slot 3|no window||TopBarLib slot|
+C3|21:13:14|06_House_Keeping|Slot 4|no window||TopBarLib slot|
+C3|21:27:27|07_Inventory|Slot 1|no window||TopBarLib slot|
+C3|21:27:28|07_Inventory|Open slot 2|window='Inventory > Operations > Indent'|C3_02_Inventory__Operations__Indent.png|TopBarLib slot 2|
+C3|21:27:32|07_Inventory|Open slot 3|window='Inventory > Operations > Purchase Order'|C3_03_Inventory__Operations__Purchase_.png|TopBarLib slot 3|
+C3|21:27:35|07_Inventory|Open slot 4|window='Inventory > Operations > M.R. Entry'|C3_04_Inventory__Operations__MR_Entry.png|TopBarLib slot 4|
+C3|21:27:39|07_Inventory|Open slot 5|window='Inventory > Operations > Purchase Bill'|C3_05_Inventory__Operations__Purchase_.png|TopBarLib slot 5|
+C4|21:34:24|03_Finance|Open Ledger|window='ReprtForm' close=wm_close|C4_L1+sub_ReprtForm_20260928_213423.png|handle-walk|
+C4|21:34:26|03_Finance|Open Cash Book|window='Finance > Reports > Cash Book' close=wm_close|C4_L1+sub_Finance__Reports__Cash_Book_20260928_213425.png|handle-walk|
+C4|21:34:28|03_Finance|Open Bank Book|window='Finance > Reports > Bank Book' close=wm_close|C4_L1+sub_Finance__Reports__Bank_Book_20260928_213428.png|handle-walk|
+C4|21:34:30|03_Finance|Open Journal Books|window='Finance > Reports > Journal Books' close=wm_close|C4_L1+sub_Finance__Reports__Journal_Books_20260928_213430.png|handle-walk|
+C4|21:34:33|03_Finance|Open Annexure|window='Finance > Reports > Annexure' close=wm_close|C4_L1+sub_Finance__Reports__Annexure_20260928_213432.png|handle-walk|
+C4|21:34:35|03_Finance|Open Bank Register|window='Finance > Reports > Bank Register' close=wm_close|C4_L1+sub_Finance__Reports__Bank_Register_20260928_213434.png|handle-walk|
+C4|21:34:37|03_Finance|Open Ageing Analysis for Debtors|window='Finance > Reports > Ageing Analysis for Debtors' close=wm_close|C4_L1+sub_Finance__Reports__Ageing_Analysi_20260928_213436.png|handle-walk|
+C4|21:34:39|03_Finance|Open Ageing Analysis for Creditors|window='Finance > Reports > Ageing Analysis for Creditors' close=wm_close|C4_L1+sub_Finance__Reports__Ageing_Analysi_20260928_213438.png|handle-walk|
+C4|21:34:41|03_Finance|Open Outstanding Report For Creditors|window='Finance > Reports > Outstanding Report For Creditors' close=wm_close|C4_L1+sub_Finance__Reports__Outstanding_Re_20260928_213440.png|handle-walk|
+C4|21:34:44|03_Finance|Open Detailed Trial Ledger|window='Finance > Reports > Detailed Trial Ledger' close=wm_close|C4_L1+sub_Finance__Reports__Detailed_Trial_20260928_213443.png|handle-walk|
+C4|21:34:46|03_Finance|Open Bill Wise Outstanding Report For Debtors|window='Finance > Reports > Bill Wise Outstanding Report For Debtors' close=wm_close|C4_L1+sub_Finance__Reports__Bill_Wise_Outs_20260928_213445.png|handle-walk|
+C4|21:34:48|03_Finance|Open Cheque Cleared Register|window='Finance > Reports > Cheque Cleared Register' close=wm_close|C4_L1+sub_Finance__Reports__Cheque_Cleared_20260928_213447.png|handle-walk|
+C4|21:34:50|03_Finance|Open Cheque Not Cleared Register|window='Finance > Reports > Cheque Not Cleared Register' close=wm_close|C4_L1+sub_Finance__Reports__Cheque_Not_Cle_20260928_213449.png|handle-walk|
+C4|21:34:52|03_Finance|Open Journal Books Log|window='Finance > Reports > Journal Books Log' close=wm_close|C4_L1+sub_Finance__Reports__Journal_Books__20260928_213451.png|handle-walk|
+C4|21:34:55|03_Finance|Open Cash Flow|window='Finance > Reports > Cash Flow' close=wm_close|C4_L1+sub_Finance__Reports__Cash_Flow_20260928_213454.png|handle-walk|
+C4|21:34:57|03_Finance|Open Fund Flow|window='Finance > Reports > Fund Flow' close=wm_close|C4_L1+sub_Finance__Reports__Fund_Flow_20260928_213456.png|handle-walk|
+C4|21:35:01|03_Finance|No window: Non Transaction Report|||topbar|
+C4|21:35:04|03_Finance|No window: Reference Report|||topbar|
+C4|21:35:08|03_Finance|No window: A/c Check List|||topbar|
+C4|21:35:11|03_Finance|No window: Control Ledger|||topbar|
+C4|21:35:15|03_Finance|No window: Roz Namcha|||topbar|
+C4|21:35:18|03_Finance|No window: TDS Report|||topbar|
+C4|21:36:27|08_POS|Open Open Item Sales|window='Point Of Sale > POS M.I.S. > Open Item Sales' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Open_Ite_20260928_213626.png|handle-walk|
+C4|21:36:29|08_POS|Open Void Bills|window='Point Of Sale > POS M.I.S. > Void Bills' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Void_Bil_20260928_213629.png|handle-walk|
+C4|21:36:32|08_POS|Open KOT Change Report|window='Point Of Sale > POS M.I.S. > KOT Change Report' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__KOT_Chan_20260928_213631.png|handle-walk|
+C4|21:36:34|08_POS|Open Discount Summary|window='Point Of Sale > POS M.I.S. > Discount Summary' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Discount_20260928_213633.png|handle-walk|
+C4|21:36:36|08_POS|Open Monthwise Sales|window='Point Of Sale > POS M.I.S. > Monthwise Sales' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Monthwis_20260928_213635.png|handle-walk|
+C4|21:36:38|08_POS|Open ABC  Analysis|window='Point Of Sale > POS M.I.S. > ABC  Analysis' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__ABC__Ana_20260928_213637.png|handle-walk|
+C4|21:36:40|08_POS|Open Sale Summary|window='Point Of Sale > POS M.I.S. > Sale Summary' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Sale_Sum_20260928_213639.png|handle-walk|
+C4|21:36:42|08_POS|Open Edited Bills|window='Point Of Sale > POS M.I.S. > Edited Bills' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Edited_B_20260928_213641.png|handle-walk|
+C4|21:36:48|08_POS|Open Open Item Sales|window='Point Of Sale > POS M.I.S. > Open Item Sales' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Open_Ite_20260928_213647.png|handle-walk|
+C4|21:36:50|08_POS|Open Void Bills|window='Point Of Sale > POS M.I.S. > Void Bills' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Void_Bil_20260928_213649.png|handle-walk|
+C4|21:36:52|08_POS|Open KOT Change Report|window='Point Of Sale > POS M.I.S. > KOT Change Report' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__KOT_Chan_20260928_213651.png|handle-walk|
+C4|21:36:54|08_POS|Open Discount Summary|window='Point Of Sale > POS M.I.S. > Discount Summary' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Discount_20260928_213654.png|handle-walk|
+C4|21:36:56|08_POS|Open Monthwise Sales|window='Point Of Sale > POS M.I.S. > Monthwise Sales' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Monthwis_20260928_213656.png|handle-walk|
+C4|21:36:59|08_POS|Open ABC  Analysis|window='Point Of Sale > POS M.I.S. > ABC  Analysis' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__ABC__Ana_20260928_213658.png|handle-walk|
+C4|21:37:01|08_POS|Open Sale Summary|window='Point Of Sale > POS M.I.S. > Sale Summary' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Sale_Sum_20260928_213700.png|handle-walk|
+C4|21:37:03|08_POS|Open Edited Bills|window='Point Of Sale > POS M.I.S. > Edited Bills' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Edited_B_20260928_213702.png|handle-walk|
+C4|21:37:09|08_POS|Open Open Item Sales|window='Point Of Sale > POS M.I.S. > Open Item Sales' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Open_Ite_20260928_213708.png|handle-walk|
+C4|21:37:11|08_POS|Open Void Bills|window='Point Of Sale > POS M.I.S. > Void Bills' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Void_Bil_20260928_213710.png|handle-walk|
+C4|21:37:13|08_POS|Open KOT Change Report|window='Point Of Sale > POS M.I.S. > KOT Change Report' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__KOT_Chan_20260928_213712.png|handle-walk|
+C4|21:37:15|08_POS|Open Discount Summary|window='Point Of Sale > POS M.I.S. > Discount Summary' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Discount_20260928_213714.png|handle-walk|
+C4|21:37:17|08_POS|Open Monthwise Sales|window='Point Of Sale > POS M.I.S. > Monthwise Sales' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Monthwis_20260928_213716.png|handle-walk|
+C4|21:37:19|08_POS|Open ABC  Analysis|window='Point Of Sale > POS M.I.S. > ABC  Analysis' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__ABC__Ana_20260928_213718.png|handle-walk|
+C4|21:37:21|08_POS|Open Sale Summary|window='Point Of Sale > POS M.I.S. > Sale Summary' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Sale_Sum_20260928_213721.png|handle-walk|
+C4|21:37:24|08_POS|Open Edited Bills|window='Point Of Sale > POS M.I.S. > Edited Bills' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Edited_B_20260928_213723.png|handle-walk|
+C4|21:37:29|08_POS|Open Open Item Sales|window='Point Of Sale > POS M.I.S. > Open Item Sales' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Open_Ite_20260928_213728.png|handle-walk|
+C4|21:37:31|08_POS|Open Void Bills|window='Point Of Sale > POS M.I.S. > Void Bills' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Void_Bil_20260928_213730.png|handle-walk|
+C4|21:37:33|08_POS|Open KOT Change Report|window='Point Of Sale > POS M.I.S. > KOT Change Report' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__KOT_Chan_20260928_213733.png|handle-walk|
+C4|21:37:36|08_POS|Open Discount Summary|window='Point Of Sale > POS M.I.S. > Discount Summary' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Discount_20260928_213735.png|handle-walk|
+C4|21:37:38|08_POS|Open Monthwise Sales|window='Point Of Sale > POS M.I.S. > Monthwise Sales' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Monthwis_20260928_213737.png|handle-walk|
+C4|21:37:40|08_POS|Open ABC  Analysis|window='Point Of Sale > POS M.I.S. > ABC  Analysis' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__ABC__Ana_20260928_213739.png|handle-walk|
+C4|21:37:42|08_POS|Open Sale Summary|window='Point Of Sale > POS M.I.S. > Sale Summary' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Sale_Sum_20260928_213741.png|handle-walk|
+C4|21:37:44|08_POS|Open Edited Bills|window='Point Of Sale > POS M.I.S. > Edited Bills' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Edited_B_20260928_213743.png|handle-walk|
+C4|21:37:50|08_POS|Open Open Item Sales|window='Point Of Sale > POS M.I.S. > Open Item Sales' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Open_Ite_20260928_213749.png|handle-walk|
+C4|21:37:52|08_POS|Open Void Bills|window='Point Of Sale > POS M.I.S. > Void Bills' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Void_Bil_20260928_213751.png|handle-walk|
+C4|21:37:54|08_POS|Open KOT Change Report|window='Point Of Sale > POS M.I.S. > KOT Change Report' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__KOT_Chan_20260928_213753.png|handle-walk|
+C4|21:37:56|08_POS|Open Discount Summary|window='Point Of Sale > POS M.I.S. > Discount Summary' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Discount_20260928_213755.png|handle-walk|
+C4|21:37:58|08_POS|Open Monthwise Sales|window='Point Of Sale > POS M.I.S. > Monthwise Sales' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Monthwis_20260928_213757.png|handle-walk|
+C4|21:38:00|08_POS|Open ABC  Analysis|window='Point Of Sale > POS M.I.S. > ABC  Analysis' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__ABC__Ana_20260928_213800.png|handle-walk|
+C4|21:38:03|08_POS|Open Sale Summary|window='Point Of Sale > POS M.I.S. > Sale Summary' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Sale_Sum_20260928_213802.png|handle-walk|
+C4|21:38:05|08_POS|Open Edited Bills|window='Point Of Sale > POS M.I.S. > Edited Bills' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Edited_B_20260928_213804.png|handle-walk|
+C4|21:38:10|08_POS|Open Open Item Sales|window='Point Of Sale > POS M.I.S. > Open Item Sales' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Open_Ite_20260928_213809.png|handle-walk|
+C4|21:38:12|08_POS|Open Void Bills|window='Point Of Sale > POS M.I.S. > Void Bills' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Void_Bil_20260928_213812.png|handle-walk|
+C4|21:38:15|08_POS|Open KOT Change Report|window='Point Of Sale > POS M.I.S. > KOT Change Report' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__KOT_Chan_20260928_213814.png|handle-walk|
+C4|21:38:17|08_POS|Open Discount Summary|window='Point Of Sale > POS M.I.S. > Discount Summary' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Discount_20260928_213816.png|handle-walk|
+C4|21:38:19|08_POS|Open Monthwise Sales|window='Point Of Sale > POS M.I.S. > Monthwise Sales' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Monthwis_20260928_213818.png|handle-walk|
+C4|21:38:21|08_POS|Open ABC  Analysis|window='Point Of Sale > POS M.I.S. > ABC  Analysis' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__ABC__Ana_20260928_213820.png|handle-walk|
+C4|21:38:23|08_POS|Open Sale Summary|window='Point Of Sale > POS M.I.S. > Sale Summary' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Sale_Sum_20260928_213822.png|handle-walk|
+C4|21:38:25|08_POS|Open Edited Bills|window='Point Of Sale > POS M.I.S. > Edited Bills' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Edited_B_20260928_213824.png|handle-walk|
+C4|21:38:31|08_POS|Open Open Item Sales|window='Point Of Sale > POS M.I.S. > Open Item Sales' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Open_Ite_20260928_213830.png|handle-walk|
+C4|21:38:33|08_POS|Open Void Bills|window='Point Of Sale > POS M.I.S. > Void Bills' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Void_Bil_20260928_213832.png|handle-walk|
+C4|21:38:35|08_POS|Open KOT Change Report|window='Point Of Sale > POS M.I.S. > KOT Change Report' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__KOT_Chan_20260928_213834.png|handle-walk|
+C4|21:38:37|08_POS|Open Discount Summary|window='Point Of Sale > POS M.I.S. > Discount Summary' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Discount_20260928_213836.png|handle-walk|
+C4|21:38:40|08_POS|Open Monthwise Sales|window='Point Of Sale > POS M.I.S. > Monthwise Sales' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Monthwis_20260928_213839.png|handle-walk|
+C4|21:38:42|08_POS|Open ABC  Analysis|window='Point Of Sale > POS M.I.S. > ABC  Analysis' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__ABC__Ana_20260928_213841.png|handle-walk|
+C4|21:38:44|08_POS|Open Sale Summary|window='Point Of Sale > POS M.I.S. > Sale Summary' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Sale_Sum_20260928_213843.png|handle-walk|
+C4|21:38:46|08_POS|Open Edited Bills|window='Point Of Sale > POS M.I.S. > Edited Bills' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Edited_B_20260928_213845.png|handle-walk|
+C4|21:38:51|08_POS|Open Open Item Sales|window='Point Of Sale > POS M.I.S. > Open Item Sales' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Open_Ite_20260928_213851.png|handle-walk|
+C4|21:38:54|08_POS|Open Void Bills|window='Point Of Sale > POS M.I.S. > Void Bills' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Void_Bil_20260928_213853.png|handle-walk|
+C4|21:38:56|08_POS|Open KOT Change Report|window='Point Of Sale > POS M.I.S. > KOT Change Report' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__KOT_Chan_20260928_213855.png|handle-walk|
+C4|21:38:58|08_POS|Open Discount Summary|window='Point Of Sale > POS M.I.S. > Discount Summary' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Discount_20260928_213857.png|handle-walk|
+C4|21:39:00|08_POS|Open Monthwise Sales|window='Point Of Sale > POS M.I.S. > Monthwise Sales' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Monthwis_20260928_213859.png|handle-walk|
+C4|21:39:02|08_POS|Open ABC  Analysis|window='Point Of Sale > POS M.I.S. > ABC  Analysis' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__ABC__Ana_20260928_213901.png|handle-walk|
+C4|21:39:04|08_POS|Open Sale Summary|window='Point Of Sale > POS M.I.S. > Sale Summary' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Sale_Sum_20260928_213903.png|handle-walk|
+C4|21:39:06|08_POS|Open Edited Bills|window='Point Of Sale > POS M.I.S. > Edited Bills' close=wm_close|C4_L1+sub_Point_Of_Sale__POS_MIS__Edited_B_20260928_213906.png|handle-walk|
+C4|21:40:13|09_Banquet|Open OutStanding Report|window='Banquet > Reports > OutStanding Report' close=wm_close|C4_L1+sub_Banquet__Reports__OutStanding_Re_20260928_214012.png|handle-walk|
+C4|21:40:15|09_Banquet|Open Party wise OutStanding|window='Banquet > Reports > Party wise OutStanding' close=wm_close|C4_L1+sub_Banquet__Reports__Party_wise_Out_20260928_214014.png|handle-walk|
+C4|21:40:17|09_Banquet|Open Cashier  Report|window='Banquet > Reports > Cashier  Report' close=wm_close|C4_L1+sub_Banquet__Reports__Cashier__Repor_20260928_214016.png|handle-walk|
+C4|21:40:19|09_Banquet|Open Booking Inquiry Detail|window='Banquet > Reports > Booking Inquiry Detail' close=wm_close|C4_L1+sub_Banquet__Reports__Booking_Inquir_20260928_214018.png|handle-walk|
+C4|21:40:21|09_Banquet|Open Settlement  Report|window='Banquet > Reports > Settlement  Report' close=wm_close|C4_L1+sub_Banquet__Reports__Settlement__Re_20260928_214020.png|handle-walk|
+C4|21:40:23|09_Banquet|Open Daily Function Sheet|window='Banquet > Reports > Daily Function Sheet' close=wm_close|C4_L1+sub_Banquet__Reports__Daily_Function_20260928_214022.png|handle-walk|
+C4|21:40:25|09_Banquet|Open Item Wise Sales Report|window='Banquet > Reports > Item Wise Sales Report' close=wm_close|C4_L1+sub_Banquet__Reports__Item_Wise_Sale_20260928_214025.png|handle-walk|
+C4|21:40:28|09_Banquet|Open Company Wise Sale Report|window='Banquet > Reports > Company Wise Sale Report' close=wm_close|C4_L1+sub_Banquet__Reports__Company_Wise_S_20260928_214027.png|handle-walk|
+C4|21:40:33|09_Banquet|Open OutStanding Report|window='Banquet > Reports > OutStanding Report' close=wm_close|C4_L1+sub_Banquet__Reports__OutStanding_Re_20260928_214032.png|handle-walk|
+C4|21:40:35|09_Banquet|Open Party wise OutStanding|window='Banquet > Reports > Party wise OutStanding' close=wm_close|C4_L1+sub_Banquet__Reports__Party_wise_Out_20260928_214034.png|handle-walk|
+C4|21:40:38|09_Banquet|Open Cashier  Report|window='Banquet > Reports > Cashier  Report' close=wm_close|C4_L1+sub_Banquet__Reports__Cashier__Repor_20260928_214037.png|handle-walk|
+C4|21:40:40|09_Banquet|Open Booking Inquiry Detail|window='Banquet > Reports > Booking Inquiry Detail' close=wm_close|C4_L1+sub_Banquet__Reports__Booking_Inquir_20260928_214039.png|handle-walk|
+C4|21:40:42|09_Banquet|Open Settlement  Report|window='Banquet > Reports > Settlement  Report' close=wm_close|C4_L1+sub_Banquet__Reports__Settlement__Re_20260928_214041.png|handle-walk|
+C4|21:40:44|09_Banquet|Open Daily Function Sheet|window='Banquet > Reports > Daily Function Sheet' close=wm_close|C4_L1+sub_Banquet__Reports__Daily_Function_20260928_214043.png|handle-walk|
+C4|21:40:46|09_Banquet|Open Item Wise Sales Report|window='Banquet > Reports > Item Wise Sales Report' close=wm_close|C4_L1+sub_Banquet__Reports__Item_Wise_Sale_20260928_214045.png|handle-walk|
+C4|21:40:48|09_Banquet|Open Company Wise Sale Report|window='Banquet > Reports > Company Wise Sale Report' close=wm_close|C4_L1+sub_Banquet__Reports__Company_Wise_S_20260928_214047.png|handle-walk|
+C4|21:40:54|09_Banquet|Open OutStanding Report|window='Banquet > Reports > OutStanding Report' close=wm_close|C4_L1+sub_Banquet__Reports__OutStanding_Re_20260928_214053.png|handle-walk|
+C4|21:40:56|09_Banquet|Open Party wise OutStanding|window='Banquet > Reports > Party wise OutStanding' close=wm_close|C4_L1+sub_Banquet__Reports__Party_wise_Out_20260928_214055.png|handle-walk|
+C4|21:40:58|09_Banquet|Open Cashier  Report|window='Banquet > Reports > Cashier  Report' close=wm_close|C4_L1+sub_Banquet__Reports__Cashier__Repor_20260928_214057.png|handle-walk|
+C4|21:41:00|09_Banquet|Open Booking Inquiry Detail|window='Banquet > Reports > Booking Inquiry Detail' close=wm_close|C4_L1+sub_Banquet__Reports__Booking_Inquir_20260928_214100.png|handle-walk|
+C4|21:41:03|09_Banquet|Open Settlement  Report|window='Banquet > Reports > Settlement  Report' close=wm_close|C4_L1+sub_Banquet__Reports__Settlement__Re_20260928_214102.png|handle-walk|
+C4|21:41:05|09_Banquet|Open Daily Function Sheet|window='Banquet > Reports > Daily Function Sheet' close=wm_close|C4_L1+sub_Banquet__Reports__Daily_Function_20260928_214104.png|handle-walk|
+C4|21:41:07|09_Banquet|Open Item Wise Sales Report|window='Banquet > Reports > Item Wise Sales Report' close=wm_close|C4_L1+sub_Banquet__Reports__Item_Wise_Sale_20260928_214106.png|handle-walk|
+C4|21:41:09|09_Banquet|Open Company Wise Sale Report|window='Banquet > Reports > Company Wise Sale Report' close=wm_close|C4_L1+sub_Banquet__Reports__Company_Wise_S_20260928_214108.png|handle-walk|
+C4|21:41:42|11_HR_Payroll|Open Payroll Register|window='HR/Payroll > Reports > Payroll Register' close=exit-btn|C4_L1+sub_HRPayroll__Reports__Payroll_Regi_20260928_214141.png|handle-walk|
+C4|21:41:44|11_HR_Payroll|Open Loan Register|window='HR/Payroll > Reports > Loan Register' close=exit-btn|C4_L1+sub_HRPayroll__Reports__Loan_Registe_20260928_214144.png|handle-walk|
+C4|21:41:47|11_HR_Payroll|Open Loan/Advance Summary|window='HR/Payroll > Reports > Loan/Advance Summary' close=exit-btn|C4_L1+sub_HRPayroll__Reports__LoanAdvance__20260928_214146.png|handle-walk|
+C4|21:41:49|11_HR_Payroll|Open Loan/Advance Ledger|window='HR/Payroll > Reports > Loan/Advance Ledger' close=exit-btn|C4_L1+sub_HRPayroll__Reports__LoanAdvance__20260928_214148.png|handle-walk|
+C4|21:41:51|11_HR_Payroll|Open Attendence Report|window='HR/Payroll > Reports > Attendence Report' close=exit-btn|C4_L1+sub_HRPayroll__Reports__Attendence_R_20260928_214150.png|handle-walk|
+C4|21:41:53|11_HR_Payroll|Open Gratuity Report|window='HR/Payroll > Reports > Gratuity Report' close=exit-btn|C4_L1+sub_HRPayroll__Reports__Gratuity_Rep_20260928_214152.png|handle-walk|
+C4|21:41:55|11_HR_Payroll|Open PF Statement|window='HR/Payroll > Reports > PF Statement' close=exit-btn|C4_L1+sub_HRPayroll__Reports__PF_Statement_20260928_214154.png|handle-walk|
+C4|21:41:57|11_HR_Payroll|Open Form C|window='HR/Payroll > Reports > Form C' close=exit-btn|C4_L1+sub_HRPayroll__Reports__Form_C_20260928_214157.png|handle-walk|
+C4|21:42:32|10_Night_Audit|Blocklist skip: Charges Posting|||safety|
+C4|21:42:32|10_Night_Audit|Blocklist skip: Night Audit Process|||safety|
+C4|21:42:32|10_Night_Audit|Blocklist skip: Account Posting|||safety|
+C4|21:42:34|10_Night_Audit|Open Reverse Night Audit|window='Night Audit > Operation > Reverse Night Audit' close=exit-btn|C4_L1+sub_Night_Audit__Operation__Reverse__20260928_214233.png|handle-walk|
+C4|21:42:38|10_Night_Audit|Blocklist skip: Charges Posting|||safety|
+C4|21:42:38|10_Night_Audit|Blocklist skip: Night Audit Process|||safety|
+C4|21:42:38|10_Night_Audit|Blocklist skip: Account Posting|||safety|
+C4|21:42:40|10_Night_Audit|Open Reverse Night Audit|window='Night Audit > Operation > Reverse Night Audit' close=exit-btn|C4_L1+sub_Night_Audit__Operation__Reverse__20260928_214239.png|handle-walk|
+C4|21:42:43|10_Night_Audit|Blocklist skip: Charges Posting|||safety|
+C4|21:42:43|10_Night_Audit|Blocklist skip: Night Audit Process|||safety|
+C4|21:42:43|10_Night_Audit|Blocklist skip: Account Posting|||safety|
+C4|21:42:46|10_Night_Audit|Open Reverse Night Audit|window='Night Audit > Operation > Reverse Night Audit' close=exit-btn|C4_L1+sub_Night_Audit__Operation__Reverse__20260928_214245.png|handle-walk|
+C4|21:42:49|10_Night_Audit|Blocklist skip: Charges Posting|||safety|
+C4|21:42:49|10_Night_Audit|Blocklist skip: Night Audit Process|||safety|
+C4|21:42:49|10_Night_Audit|Blocklist skip: Account Posting|||safety|
+C4|21:42:51|10_Night_Audit|Open Reverse Night Audit|window='Night Audit > Operation > Reverse Night Audit' close=exit-btn|C4_L1+sub_Night_Audit__Operation__Reverse__20260928_214250.png|handle-walk|

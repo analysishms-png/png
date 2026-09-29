@@ -1,265 +1,102 @@
-# HR & PAYROLL MODULE
+# MODULE MANUAL — 11_HR_Payroll
+
+Module id: builder `&H14` (decimal 20) · menu_tree hex `14` · `menuHelp.OPT1 = 20` (`HR/Payroll`).
+Evidence tags: `[VERIFIED-VB6]` source, `[VERIFIED-SQL]` database extracts, `[INFERRED]`, `[UNKNOWN]`.
 
 ## 1. Purpose
+Attendance, leave, loan/advance, overtime, leave-encashment and monthly salary processing for hotel staff,
+plus payroll masters (designation, category, holiday, employee) and 9 payroll reports. `[VERIFIED-VB6]`
 
-HR & Payroll module hotel ke employee management, attendance, leave, loan/advance, salary processing, aur payroll reporting ke liye hai. Employee master se lekar pay slip generation tak ka complete HR flow is module me hai.
+## 2. Menu Structure
+- Header `PayRoll` — menu_tree_raw L454; registered `EXTRAS.text` L476846.
+- 16 items total: 6 screens (L455–L460, one duplicate `Over Time Entry`), 9 reports (L461–L469).
+- `menuHelp` root `HR/Payroll|20|0|0|0|N` (MenuHelp_SA_tree.txt L321) + 16 child rows for user SA. `[VERIFIED-SQL]`
+- Setup items live under menu module `C` → `PayRoll Setup` (menu_tree_raw L124–L128).
 
-**Evidence:** [VERIFIED-VB6] — 16 menu items, single group (all TOP-level).
-
-## 2. Menu Structure (from MENU_INVENTORY.md)
-
-```
-HR & Payroll
-├── Leave Entry
-├── Loan/Advance Entry
-├── Salary Creation
-├── Leave Encashment
-├── Over Time Entry
-├── Over Time Entry (duplicate)
-├── Attendence Report
-├── Pay Slip
-├── Loan Register
-├── Loan Advance Summary
-├── Payroll Register
-├── PF Statement
-├── Loan/Advance Ledger
-├── Form C
-├── Gratuity Report
-└── PayRoll
-```
-
-## 3. Screens (from vb6_form_inventory.md)
-
-### HR Forms (Pr*, pr*, sal*)
-- **PrEmployee** — Employee master
-- **PrAttend1** — Attendance entry
-- **prAttend** — Attendance report
-- **prHoliday** — Holiday master
-- **prOverTime** — Over time entry
-- **PrCategoryMast** — Category master
-- **PrDesigMast** — Designation master
-- **PrLeavench** — Leave encashment
-- **PrLoan** — Loan/Advance entry
-- **prSalCreate** — Salary creation
-- **rRepPayRoll** — Payroll report
-- **Empl_Detl** — Employee details report
+## 3. Screens
+`prAttend`, `PrLoan`, `prSalCreate`, `PrLeavench`, `prOverTime` (+ `PrAttend1` without a menu item).
+Full index/key tables in `screens/screens.md`. Two dispatch paths (control arrays vs `menuHelp.[Option]`).
 
 ## 4. Masters
-
-| Master | Table | Evidence |
-|--------|-------|----------|
-| Employee | Employee | [VERIFIED-VB6] |
-| Designation | PrDesigMast | [VERIFIED-VB6] |
-| Category | PrCategoryMast | [VERIFIED-VB6] |
-| Holiday | prHoliday | [VERIFIED-VB6] |
+| Master | Form | Table (rows) |
+|---|---|---|
+| Designation | `PrDesigMast` L918492 | `Desig` (61) |
+| Category | `PrCategoryMast` L917629 | `EmpCategory` (4) |
+| Holiday | `prHoliday` L922337 | `Holiday` (0) |
+| Employee | `PrEmployee` L919215 | `Employee` (140) |
 
 ## 5. Transactions
-
-| Transaction | Form | Table | Evidence |
-|-------------|------|-------|----------|
-| Attendance Entry | PrAttend1 | — | [VERIFIED-VB6] |
-| Leave Entry | — | — | [VERIFIED-VB6] |
-| Leave Encashment | PrLeavench | — | [VERIFIED-VB6] |
-| Loan/Advance Entry | PrLoan | LOAN | [VERIFIED-VB6] |
-| Over Time Entry | prOverTime | — | [VERIFIED-VB6] |
-| Salary Creation | prSalCreate | — | [VERIFIED-VB6] |
+- Daily attendance → `Attend` (insert L905302) + monthly `Attendence.Attn_Str` (L917592).
+- Loan/advance vouchers → `Loan` (L908843, L911955/L912096) with `V_Type` ∈ {LO, LR, LR1, ADE, AR1, AR2}. `[VERIFIED-VB6]`
+- Overtime → `OverTime` (L910442).
+- Leave encashment → `Leave_Ench` (L906606) + ledger posting.
+- Salary run → `Salary` (L912272), `SalaryLog` (L911659/L911661), ledger rows, `Employee.Basic` update (L911672). `[VERIFIED-VB6]`
 
 ## 6. Operations
-
-- **Employee Management** — Employee master with personal/professional details
-- **Attendance** — Daily attendance marking
-- **Leave Management** — Leave application, approval, encashment
-- **Loan/Advance** — Employee loan and advance tracking
-- **Over Time** — Over time entry and calculation
-- **Salary Processing** — Monthly salary creation and pay slip generation
-- **PF Management** — Provident Fund statements
-- **Gratuity** — Gratuity calculation and reporting
+Menu type `0` entry screens only; no separate bulk/period-close operation is registered under hex `14`. `[VERIFIED-VB6]`
+Salary re-creation is allowed only after an explicit Yes/No prompt (L911411).
 
 ## 7. Reports
-
-| Report | Form | Evidence |
-|--------|------|----------|
-| Attendence Report | prAttend | [VERIFIED-VB6] |
-| Pay Slip | rRepPayRoll | [VERIFIED-VB6] |
-| Loan Register | rRepPayRoll | [VERIFIED-VB6] |
-| Loan Advance Summary | rRepPayRoll | [VERIFIED-VB6] |
-| Payroll Register | rRepPayRoll | [VERIFIED-VB6] |
-| PF Statement | rRepPayRoll | [VERIFIED-VB6] |
-| Loan/Advance Ledger | rRepPayRoll | [VERIFIED-VB6] |
-| Form C | rRepPayRoll | [VERIFIED-VB6] |
-| Gratuity Report | rRepPayRoll | [VERIFIED-VB6] |
-| Empl_Detl | rRepPayRoll | [VERIFIED-VB6] |
+9 reports, all hosted by `rRepPayRoll` (L912857): AttendanceRep, PaySlip, LoanReg, LoanAdvSumm, PayrollReg,
+PFStatement, LoanLedg, FormC, GratuityReport — see `reports/reports.md`.
+`.rpt` file mapping: `[UNKNOWN] — no keyword match in 17_Reports inventory`.
 
 ## 8. Permissions
-
-- HR & Payroll module access UserPermission form se control hota hai [VERIFIED-VB6]
-- Per-user menu hierarchy MenuHelp table me OPT1..OPT4 columns [VERIFIED-SQL]
+- `menuHelp.Param_Str` (AEDP) + `Module_Name` + `OutletCode` read at dispatch (L477046).
+- Seeds mention module `Pay` with option `Leave` (L6603).
+- Visibility = `menuHelp` rows; enforcement = `user1.PARAM_STR` (MENUHELP_PER_USER_ANALYSIS.md L35–L36). `[VERIFIED-SQL]`
 
 ## 9. Business Rules
+- Attendance status letters `P/A/L/C/E` (L905002 region). `[VERIFIED-VB6]`
+- Salary already created → edit/delete blocked (L904870, L904966, L910072, L910136, L917527, L920830, L922411).
+- Salary re-run prompt (L911411); `SalaryLog` refresh per employee/month (L911659–L911661).
+- Employee validation: joining ≥ birth (L920183), resign ≥ joining (L920210), unique ESI (L921331).
+- Employee delete cascades to Salary/Attend/Attendence/Loan/Leave_Ench/OverTime (L920298–L920304).
 
-1. **Employee table** — Employee master with personal/professional details [VERIFIED-VB6]
-2. **Category** — PrCategoryMast for employee classification [VERIFIED-VB6]
-3. **Designation** — PrDesigMast for employee designation [VERIFIED-VB6]
-4. **Holiday** — prHoliday for company holidays [VERIFIED-VB6]
-5. **Loan** — LOAN table for employee loans (47 refs) [VERIFIED-VB6]
-6. **Audit columns** — Har transaction me U_Name, U_EntDt, U_AE ('A'/'E'/'D') [VERIFIED-VB6]
-7. **Multi-site** — LogSite_Code filters every query [VERIFIED-VB6]
-8. **Empl_Detl** — Employee details report with .ttx field map [VERIFIED-VB6]
+## 10. VB6 Logic
+`Proc_165_0_14C1708` (menu build, L475664), `Proc_165_2_1E3A588` (dispatch, L476999),
+`Proc_165_3_EEA710` (key lookup, L480834), handlers `PayOpr_Click` L4313, `PayRep_Click` L4425, `PRM_Click` L1123.
+Detail in `logic/vb6_logic.md`.
 
-## 10. VB6 Logic (from EXTRAS.text)
+## 11. SQL Logic
+All statements extracted, never executed: `sql/queries.sql`.
+Report SQL: pay slip L915020, PF L915101, attendance L915181, loan ledger L915261–L915397.
 
-### Employee Master (PrEmployee)
-```vb
-' Employee master form
-' Key fields: Code, Name, Category, Designation, DOB, DOJ, Address, Phone
-' Tables: Employee, PrCategoryMast, PrDesigMast
-```
-
-### Attendance Entry (PrAttend1)
-```vb
-' Daily attendance entry
-' Key fields: Employee, Date, Status (Present/Absent/Leave/Half-day)
-```
-
-### Leave Encashment (PrLeavench)
-```vb
-' Leave encashment calculation
-' Key fields: Employee, Leave Days, Encash Amount
-```
-
-### Loan/Advance (PrLoan)
-```vb
-' Employee loan/advance entry
-' Key fields: Employee, Loan Amount, Installment, Balance
-' Table: LOAN
-```
-
-### Over Time (prOverTime)
-```vb
-' Over time entry
-' Key fields: Employee, Date, Hours, Rate, Amount
-```
-
-### Salary Creation (prSalCreate)
-```vb
-' Monthly salary creation
-' Key fields: Employee, Month, Basic, DA, HRA, Deductions, Net Pay
-```
-
-### Payroll Report (rRepPayRoll)
-```vb
-' Payroll report viewer
-' Uses Empl_Detl.ttx field map
-```
-
-## 11. SQL Logic (from SQL_TRACKING_RESULTS.md)
-
-### Employee Query
-```sql
--- Employee: Code, Name, Category, Designation, DOB, DOJ
--- PrCategoryMast: Category master
--- PrDesigMast: Designation master
--- prHoliday: Holiday master
-```
-
-### Loan Query
-```sql
--- LOAN: Employee, Loan Amount, Installment, Balance
-```
-
-## 12. Tables (from DATABASE_INVENTORY.md)
-
-| Table | Usage Count | Purpose |
-|-------|-------------|---------|
-| Employee | 112 | Employee master |
-| LOAN | 47 | Employee loans |
-| MemberFamily | 70 | Member family (also used for employee family) |
+## 12. Tables
+`Employee` 140 · `EmpCategory` 4 · `Desig` 61 · `Depart` 73 · `Holiday` 0 · `Attend` 1323 · `Attendence` 0 ·
+`Salary` 282 · `SalaryLog` 0 · `Loan` 0 · `Leave_Ench` 0 · `OverTime` 0 · cross-module `Ledger` 40818,
+`GoDownMast`, `menuHelp` 9212. 0 foreign keys (`foreign_keys.txt` empty). `[VERIFIED-SQL]`
 
 ## 13. Fields
-
-### Employee
-- Code, Name, Category, Designation, DOB, DOJ
-- Address, Phone, Email, PAN, PF Number
-- U_Name, U_EntDt, U_AE, LogSite_Code [VERIFIED-VB6]
-
-### LOAN
-- Employee, Loan Amount, Installment, Balance
-- U_Name, U_EntDt, U_AE, LogSite_Code [VERIFIED-VB6]
-
-### PrCategoryMast
-- Code, Name, Description
-- U_Name, U_EntDt, U_AE, LogSite_Code [VERIFIED-VB6]
-
-### PrDesigMast
-- Code, Name, Description
-- U_Name, U_EntDt, U_AE, LogSite_Code [VERIFIED-VB6]
-
-### prHoliday
-- Date, Description
-- U_Name, U_EntDt, U_AE, LogSite_Code [VERIFIED-VB6]
+Key columns documented in `sql/sql_notes.md` §2 (Employee 66 cols incl. PF/ESI/openings; Salary 33 cols;
+Attend key = `V_Prefix+V_Date+Emp_Code`; OverTime = `EmpCode+OTDate`).
 
 ## 14. Workflow
-
-```
-Employee Master (PrEmployee)
-  ├── Category (PrCategoryMast)
-  ├── Designation (PrDesigMast)
-  └── Holiday (prHoliday)
-       ↓
-Daily Operations
-  ├── Attendance Entry (PrAttend1)
-  ├── Leave Entry
-  ├── Over Time Entry (prOverTime)
-  └── Loan/Advance Entry (PrLoan)
-       ↓
-Monthly Processing
-  ├── Salary Creation (prSalCreate)
-  ├── Leave Encashment (PrLeavench)
-  └── Pay Slip Generation
-       ↓
-Reports
-  ├── Attendence Report
-  ├── Payroll Register
-  ├── Pay Slip
-  ├── Loan Register
-  ├── PF Statement
-  ├── Form C
-  └── Gratuity Report
-```
+See `flowcharts/workflow.mmd` (menu → dispatch → form → table → report).
 
 ## 15. Screenshots
-
-Screenshots folder me available hain:
-- HR & Payroll module ke screenshots `11_HR_Payroll/screenshots/` me hain
+12 PNGs in `../../screenshots/11_HR_Payroll/` — pointer only (`screenshots/README.md`).
 
 ## 16. Test Cases
-
-| Test Case | Description | Evidence |
-|-----------|-------------|----------|
-| TC-HR-001 | Employee master create/edit | [VERIFIED-VB6] |
-| TC-HR-002 | Attendance entry | [VERIFIED-VB6] |
-| TC-HR-003 | Leave entry | [VERIFIED-VB6] |
-| TC-HR-004 | Leave encashment | [VERIFIED-VB6] |
-| TC-HR-005 | Loan/Advance entry | [VERIFIED-VB6] |
-| TC-HR-006 | Over time entry | [VERIFIED-VB6] |
-| TC-HR-007 | Salary creation | [VERIFIED-VB6] |
-| TC-HR-008 | Pay slip generation | [VERIFIED-VB6] |
-| TC-HR-009 | Attendence report | [VERIFIED-VB6] |
-| TC-HR-010 | Payroll register | [VERIFIED-VB6] |
-| TC-HR-011 | PF statement | [VERIFIED-VB6] |
-| TC-HR-012 | Gratuity report | [VERIFIED-VB6] |
+1. Open `Leave Entry` → expect `prAttend` caption set from menu path (L480279). `[VERIFIED-VB6]`
+2. Save attendance for a date already marked in `Attend` → duplicate/reject path (L905302 block).
+3. Create salary for a month twice → prompt `* Salary Already created *` appears (L911411); No cancels.
+4. Delete a `Salary`-covered attendance row → blocked message (L904870).
+5. Run `Pay Slip` with `GRepFormName=PaySlip` → dataset L915020 joins; employee with no `Salary` row absent (L915020 `Right Join`).
+6. Employee with `Joining_Date > Birth_Date` → rejected (L920183).
+7. Menu click for a user with no `menuHelp` row → silent no-op (L477022 `On Error Resume Next`). Expected legacy behaviour.
 
 ## 17. Known Issues
-
-1. **Duplicate menu items:** "Over Time Entry" do baar appear hota hai [VERIFIED-VB6]
-2. **No stored procedures** — Application inline ADODB SQL use karta hai [VERIFIED-VB6]
-3. **Limited integration** — HR module Finance module se limited integration hai (salary posting)
+- Duplicate `Over Time Entry` menu rows (L459/L460).
+- Caption ↔ dispatcher key drift (`Leave Entry` vs `Leave` etc.).
+- `Attendance` screen unreachable from any registered menu row.
+- Hard-coded log file `C:\moduleFILE.TXT` (L477034/L480825).
+- `Attendence` table empty while `Attend` holds 1323 rows (roll-up unused or cleared).
 
 ## 18. Migration Notes
-
-1. **Employee management** — Modern HRMS system me migrate karna hoga
-2. **Attendance** — Biometric/RFID integration karna hoga
-3. **Leave management** — Modern leave management system with workflow karna hoga
-4. **Payroll** — Modern payroll processing system me upgrade karna hoga
-5. **PF/Gratuity** — Statutory compliance (PF, ESI, Gratuity) me upgrade karna hoga
-6. **Pay slip** — Digital pay slip generation karna hoga
+- Reproduce **both** menu surfaces: static control arrays (index maps above) and the `menuHelp`-driven tree,
+  with `menuHelp.[Option]` as the canonical dispatch key and menu caption as display text.
+- Port `V_Type` loan taxonomy (LO/LR/LR1/ADE/AR1/AR2) exactly; aggregates in reports depend on it.
+- Keep the salary guard (`SalaryLog` per month+employee) as the idempotency mechanism.
+- Replace the `C:\moduleFILE.TXT` breadcrumb with an audit table.
+- Menu registry import is 1:1 possible from `menuHelp` (MENUHELP_PER_USER_ANALYSIS.md L41).

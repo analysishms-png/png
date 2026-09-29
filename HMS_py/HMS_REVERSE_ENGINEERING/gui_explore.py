@@ -113,13 +113,172 @@ def type_keys(d, keys, wait=0.8):
     time.sleep(wait)
 
 # ---------------- login ----------------
-def do_login(app, user, password, company_hint=None):
-    """Drive the login form (frmPassword/frmCompany). Credentials are used in-memory
-    only — never logged, never written to disk."""
+def _vb6_edits(d):
+    """VB6 TextBox controls (class ThunderRT6TextBox) + plain Edit, visible only."""
+    try:
+        kids = d.descendants()
+    except Exception:
+        kids = []
+    out = []
+    for w in kids:
+        try:
+            if w.class_name() in ("ThunderRT6TextBox", "Edit") and w.is_visible():
+                r = w.rectangle()
+                if r.width() > 20 and r.height() > 8:
+                    out.append(w)
+        except Exception:
+            pass
+    out.sort(key=lambda w: (w.rectangle().top, w.rectangle().left))
+    return out
+
+
+def _msgbox_text(app):
+    """Visible VB6/Win32 message box text, or ''."""
+    import win32gui
+    txt = []
+    def cb(h, _):
+        if win32gui.GetClassName(h) == "#32770" and win32gui.IsWindowVisible(h):
+            t = win32gui.GetWindowText(h)
+            # static text children hold the message
+            def inner(ch, _a):
+                if win32gui.GetClassName(ch) in ("Static",) :
+                    s = win32gui.GetWindowText(ch)
+                    if s:
+                        txt.append(s)
+            win32gui.EnumChildWindows(h, inner, None)
+            if t:
+                txt.append("TITLE:" + t)
+    win32gui.EnumWindows(cb, None)
+    return " | ".join(txt)
+
+
+def _dismiss_msgbox(app):
+    """Click OK/Yes on a message box; returns its text (masked callers log nothing)."""
+    import win32gui, win32con
+    found = []
+    def cb(h, _):
+        if win32gui.GetClassName(h) == "#32770" and win32gui.IsWindowVisible(h):
+            found.append(h)
+    win32gui.EnumWindows(cb, None)
+    if not found:
+        return ""
+    text = _msgbox_text(app)
+    def inner(ch, _a):
+        if win32gui.GetClassName(ch) == "Button":
+            t = win32gui.GetWindowText(ch).lower()
+            if t in ("ok", "yes", "&ok"):
+                win32gui.PostMessage(ch, win32con.BM_CLICK, 0, 0)
+    win32gui.EnumChildWindows(found[0], inner, None)
+    time.sleep(0.6)
+    return text
+
+
+def do_login(app, user, password, company_hint=None, settle_company=True):
+    """Drive frmPassword -> company selection -> MDI.
+
+    SECURITY: `user`/`password` are used in-memory only. They are never passed to
+    log(), never printed, never written to any file. Only the outcome is logged.
+    Returns a status dict (never contains the password).
+    """
     d = dlg(app)
-    d.set_focus()
-    time.sleep(1)
-    return d  # interactive continuation happens turn-by-turn with control discovery
+    try:
+        d.set_focus()
+    except Exception:
+        pass
+    time.sleep(1.0)
+
+    edits = _vb6_edits(d)
+    if not edits:
+        # maybe already logged in / MDI showing
+        return {"ok": False, "stage": "locate-fields",
+                "detail": "no login text boxes found", "msgbox": _msgbox_text(app)}
+
+    # Username field: prefer the one whose tab/id looks first; else top-most.
+    target = edits[0]
+    try:
+        target.set_focus()
+    except Exception:
+        pass
+    time.sleep(0.3)
+    target.type_keys(user, with_spaces=True)          # username
+    time.sleep(0.2)
+
+    if len(edits) > 1:
+        # password = next edit in visual order (skip empty non-secret fields)
+        pw_field = edits[1]
+        try:
+            pw_field.set_focus()
+        except Exception:
+            win = target
+            win.type_keys("{TAB}")
+        time.sleep(0.2)
+        pw_field.type_keys(password, with_spaces=True)
+    time.sleep(0.3)
+
+    # Trigger login: Enter (VB6 default button) then look for outcome.
+    try:
+        d.type_keys("{ENTER}")
+    except Exception:
+        pass
+    time.sleep(2.0)
+
+    mb = _msgbox_text(app)
+    if mb:
+        low = mb.lower()
+        _dismiss_msgbox(app)
+        if "invalid user" in low or "invalid password" in low or "not currently active" in low:
+            log("LOGIN", "Login", "Rejected by server check", "msgbox-dismissed", "",
+                "frmPassword validation [VERIFIED-VB6]", "")
+            return {"ok": False, "stage": "rejected", "detail": mb[:120]}
+        # any other informational box: dismiss and continue
+        time.sleep(1.0)
+
+    # Company selection grid may appear (DBGrid "Select Company").
+    if settle_company:
+        time.sleep(1.0)
+        settled = _select_company(app, company_hint)
+    else:
+        settled = "skipped"
+
+    log("LOGIN", "Login", "Credentials submitted", "company=%s" % settled, "",
+        "frmPassword + company grid [VERIFIED-VB6]", "")
+    return {"ok": True, "stage": "post-login", "company": settled}
+
+
+def _select_company(app, hint=None):
+    """Pick the property/company row in the selection grid. Returns 'grid'/'none'.
+    Uses only Enter/double-click — never writes data."""
+    import win32gui, win32con
+    d = dlg(app)
+    grids = []
+    try:
+        for w in d.descendants():
+            if w.class_name() in ("ThunderRT6GridDC", "ThunderRT6DBGrid",
+                                  "MSHierarchicalFlexGridLib2.Control", "Grid"):
+                if w.is_visible():
+                    grids.append(w)
+    except Exception:
+        pass
+    if not grids:
+        # maybe MDI already up
+        return "no-grid"
+    g0 = grids[0]
+    try:
+        g0.set_focus()
+        time.sleep(0.4)
+        # double-click first data row selects the company in this app
+        r = g0.rectangle()
+        import pywinauto.mouse as _mouse
+        _mouse.click(button="left", coords=((r.left + 40), (r.top + 28)), click_count=2)
+        time.sleep(1.2)
+        return "grid"
+    except Exception:
+        try:
+            g0.type_keys("{ENTER}")
+            time.sleep(1.0)
+            return "grid-enter"
+        except Exception:
+            return "grid-failed"
 
 if __name__ == "__main__":
     cmd = sys.argv[1] if len(sys.argv) > 1 else "windows"

@@ -104,12 +104,12 @@ def capture_slot(mdi, key, folder, si, x0, x1, tag):
 
 def walk_module(key, limit):
     caption, folder = h2.MODULES[key]
-    btn = h2.find_strip_btn(caption)
-    if not btn:
-        print("[%s] strip button missing" % key)
-        return 0
     h2.fix_win()
-    h2.click_center(btn); time.sleep(1.6)
+    # 2026-09-29: strip button first, MDI menu fallback (reaches EPABX/Members/Sales/Mall)
+    if not h2.click_module(key):
+        print("[%s] strip button AND MDI menu missing (%s)" % (key, caption))
+        return 0
+    time.sleep(1.6)
     h2.force_fg()
     slots = h2.bar_slots()
     if not slots:

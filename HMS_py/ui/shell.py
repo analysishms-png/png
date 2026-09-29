@@ -1277,6 +1277,12 @@ def _form_registry() -> dict[str, callable]:
         "Setup Outlet":      (lambda w: p2.open_depart(w)) if p2 else None,
         "Outlet Bill Sundry Setting": ((lambda w: fdui.open_depart_sundry(w))
                                        if fdui else None),
+        # VB6 MDIForm1 CCenterMas_Click(6) -> DepartSundry.frm, jiska
+        # V_Type = site+'PURC' (purchase sundry) hai — 22-col INSERT evidence
+        # HMS_py/core/sundry_type.py docstring (DepartSundry.frm:1810-1825).
+        "Purchase Sundry Setting": ((lambda w: fdui.open_depart_sundry(w))
+                                    if fdui else _coming_soon(
+                                        "Purchase Sundry Setting")),
         # FacilitySundry.frm port (V_Type='FACL') - VB6 dispatcher
         # ModuleAdd.bas:5278 'New FacilitySundry' se khulta tha, par yahan
         # registry me tha hi nahi (BUG-012 correction).
@@ -1608,7 +1614,7 @@ def _form_registry() -> dict[str, callable]:
         "Pending M.R.": (lambda w: reqslip_ui.open_requisition_slip(w)) if reqslip_ui else _coming_soon("Pending M.R."),
         # --- S1 tail: blocked tables (click par documented VB6-style message) ---
         **({cap: _coming_soon(cap) for cap in (
-            "Purchase Sundry Setting", "Enviro Inventry",
+            "Enviro Inventry",
             "Finish Material Receive Entry", "Excise Invoice Cum Gate Pass",
             "Pending Purchase Order",
             "Voucher Wise Sundry Entry", "Sale MIS Customized",
@@ -1616,13 +1622,12 @@ def _form_registry() -> dict[str, callable]:
             "Data Transfer", "Data Recieving",
             "Data Transfer (POS)", "PLU File (W.Scale)", "POS Recycle",
             "Task Scheduler", "Voucher Serialisation",
-            "Voucher Wise Sundry Entry", "Expected Plan/Package FB Details",
+            "Expected Plan/Package FB Details",
             "Cashier  Report", "Attendence Report", "Item Wise Sales Report",
             "Member Bill Missing Report",
             "Recharge/Refund Entry", "Cash Card Transaction Report",
             "Cash Card Collection Summary", "Card Transaction Report",
-            "Card Collection Summary",
-             "Guest Registration", "-",
+            "Card Collection Summary", "-",
         )}),
         # ── PARTIAL-batch wiring: VB6 forms -> existing tested openers ──
         # (HR tabs: VB6 alag forms the, HrPayrollDialog tabs ka port)

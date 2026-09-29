@@ -24,6 +24,11 @@ sys.path.insert(0, HERE)
 import gui_explore as g
 
 # module key -> (left-strip button caption, screenshots folder)
+# 2026-09-29 FIX: added the 4 INI modules that were missing (epabx/mem/sal/mall) so
+# capture3 (which imports this table) can reach all 15 modules, not just 11.
+# Strip captions come from the INI menu string (key 9); find_strip_btn() now falls
+# back to case-insensitive + substring matching, and click_module() falls back to
+# the MDI menu bar (HMENU) when no strip button exists.
 MODULES = {
     "finance": ("Finance", "03_Finance"),
     "setup":   ("Main Setup", "02_Main_Setup"),
@@ -36,6 +41,13 @@ MODULES = {
     "na":      ("Night Audit", "10_Night_Audit"),
     "hr":      ("HR/Payroll", "11_HR_Payroll"),
     "msg":     ("EXTRAs", "13_Messaging"),   # EXTRAs strip me messaging/epabx/extra tools
+    # --- previously unreachable (only 11 entries existed) ---
+    "epabx":   ("EPABX", "12_EPABX"),
+    "mem":     ("Members Mgmt", "14_Members_Management"),
+    "members": ("Members Mgmt", "14_Members_Management"),
+    "sal":     ("Sale & Marketing", "15_Sales_Marketing"),
+    "sales":   ("Sale & Marketing", "15_Sales_Marketing"),
+    "mall":    ("Mall Management", "16_Mall_Management"),
 }
 DEFAULT_MODS = ["fo", "res", "na", "finance", "setup", "hk", "inv", "pos", "banq", "hr", "msg"]
 
@@ -78,26 +90,90 @@ def child_forms():
     win32gui.EnumChildWindows(MDI, cb, out)
     return out
 
-def find_strip_btn(caption):
+def _norm(s):
+    return (s or "").replace("&", "").replace("/", " ").replace("  ", " ").strip().lower()
+
+def list_strip_btns():
+    """All visible strip buttons in the MDI (caption, handle) — discovery aid."""
     res = []
     def cb(h, _):
-        if win32gui.GetClassName(h) == "Button" and win32gui.IsWindowVisible(h) and win32gui.GetWindowText(h) == caption:
-            res.append(h)
+        if win32gui.GetClassName(h) == "Button" and win32gui.IsWindowVisible(h):
+            t = win32gui.GetWindowText(h)
+            if t:
+                res.append((t, h))
     win32gui.EnumChildWindows(MDI, cb, None)
-    return res[0] if res else None
+    return res
+
+def find_strip_btn(caption):
+    """Exact match -> case-insensitive -> substring. Returns handle or None."""
+    btns = list_strip_btns()
+    want = _norm(caption)
+    for t, h in btns:
+        if t == caption:
+            return h
+    for t, h in btns:
+        if _norm(t) == want:
+            return h
+    for t, h in btns:
+        n = _norm(t)
+        if want and (want in n or n in want):
+            return h
+    return None
+
+# ---------------- MDI menu bar fallback (HMENU) ----------------
+# EPABX / Members / Sale & Marketing / Mall Management are INI menu items that may
+# not have a left-strip button. VB6 MDI forms expose them through the window menu.
+def list_mdi_menu():
+    """Top-level MDI menu items: [(caption, wID)]."""
+    out = []
+    try:
+        hmenu = win32gui.GetMenu(MDI)
+    except Exception:
+        return out
+    if not hmenu:
+        return out
+    for i in range(win32gui.GetMenuItemCount(hmenu)):
+        try:
+            info = win32gui.GetMenuItemInfo(hmenu, i, True)
+        except Exception:
+            continue
+        text = (info.get("text") or "").replace("&", "").split("\t")[0].strip()
+        if text:
+            out.append((text, info.get("wID")))
+    return out
+
+def click_mdi_menu(caption):
+    """Select an MDI top-level menu item by caption (WM_COMMAND). True if sent."""
+    want = _norm(caption)
+    for text, wid in list_mdi_menu():
+        if _norm(text) == want or want in _norm(text):
+            if wid:
+                win32gui.PostMessage(MDI, win32con.WM_COMMAND, wid, 0)
+                return True
+    return False
+
+def click_module(key):
+    """Click a module: strip button first, MDI menu fallback. True if either worked."""
+    caption, _folder = MODULES[key]
+    btn = find_strip_btn(caption)
+    if btn:
+        click_center(btn)
+        return True
+    return click_mdi_menu(caption)
 
 def click_center(hwnd):
     r = win32gui.GetWindowRect(hwnd)
     mouse.click(button="left", coords=((r[0] + r[2]) // 2, (r[1] + r[3]) // 2))
 
 def bar_slots():
-    """Top bar (y 23..103) ke dark runs = menu buttons."""
-    bar = ImageGrab.grab(bbox=(0, 23, 1440, 103)).convert("RGB")
+    """Top bar (y 23..103) ke dark runs = menu buttons.
+    NOTE 2026-09-28: bbox widened 1440->1920 for 1920x1080 MDI (Session C)."""
+    bar = ImageGrab.grab(bbox=(0, 23, 1920, 103)).convert("RGB")
     a = np.asarray(bar).astype(int)
     mask = (a.sum(axis=2) < 330)
     colsum = mask.sum(axis=0)
     runs, cur = [], None
-    for x in range(1440):
+    for x in range(1920):
         on = colsum[x] > 2
         if on and cur is None: cur = [x, x]
         elif on: cur[1] = x
@@ -146,12 +222,11 @@ def _children(h):
 
 def capture_module(key, limit):
     caption, folder = MODULES[key]
-    btn = find_strip_btn(caption)
-    if not btn:
-        print("[%s] strip button nahi mila (%s)" % (key, caption))
-        return 0
     fix_win()
-    click_center(btn); time.sleep(1.6)
+    if not click_module(key):
+        print("[%s] strip button AND MDI menu both missed (%s)" % (key, caption))
+        return 0
+    time.sleep(1.6)
     force_fg()
     slots = bar_slots()
     print("[%s] menu slots: %s" % (key, slots))
@@ -212,6 +287,10 @@ def main():
     ap.add_argument("--mods", default="fo")
     ap.add_argument("--limit", type=int, default=5)
     ap.add_argument("--slots", action="store_true")
+    ap.add_argument("--list-strip", action="store_true",
+                    help="enumerate visible left-strip buttons (discovery)")
+    ap.add_argument("--list-menu", action="store_true",
+                    help="enumerate MDI top-level menu items (discovery)")
     args = ap.parse_args()
 
     MDI = find_mdi()
@@ -220,6 +299,14 @@ def main():
         return
     fix_win()
 
+    if args.list_strip:
+        for t, h in list_strip_btns():
+            print("STRIP: %r (hwnd=%d)" % (t, h))
+        return
+    if args.list_menu:
+        for t, wid in list_mdi_menu():
+            print("MENU: %r (wID=%s)" % (t, wid))
+        return
     if args.slots:
         print("current module slots:", bar_slots())
         return

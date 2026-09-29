@@ -42,7 +42,7 @@ def main() -> int:
                 caps += re.findall(r'"([^"]+)"', lines[j])
                 j += 1
             for c in caps:
-                events.setdefault(c, []).append((j, "<coming_soon batch>"))
+                events.setdefault(c, []).append((j, "<coming_soon>"))
             i = j
             continue
         m = ENTRY.match(line)
@@ -64,7 +64,10 @@ def main() -> int:
     for cap, defs in events.items():
         if len(defs) < 2:
             continue
-        if defs[-1][1] == "<coming_soon>" and any(d[1] == "<real>" for d in defs):
+        # last definition wins in the dict literal; if that is a
+        # coming_soon placeholder while a real wiring exists earlier,
+        # the port is silently unreachable (menu shows "Coming Soon").
+        if defs[-1][1] == "<coming_soon>" and any(d[1] == "<real>" for d in defs[:-1]):
             shadowed.append((cap, defs))
 
     print(f"captions defined more than once: {sum(1 for d in events.values() if len(d) > 1)}")

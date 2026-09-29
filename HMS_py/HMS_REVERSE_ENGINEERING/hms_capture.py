@@ -94,6 +94,65 @@ def find_tree(mdi):
     win32gui.EnumChildWindows(mdi, cb, out)
     return out[0] if out else None
 
+def _norm(s):
+    return (s or "").replace("&", "").replace("/", " ").replace("  ", " ").strip().lower()
+
+def _strip_button(mdi, caption):
+    """Left-strip (x 0-107) module button by caption [VERIFIED-UI]."""
+    found = []
+    def cb(h, _):
+        if win32gui.GetClassName(h) == "Button" and win32gui.IsWindowVisible(h):
+            t = win32gui.GetWindowText(h)
+            if t:
+                found.append((t, h))
+    win32gui.EnumChildWindows(mdi, cb, None)
+    want = _norm(caption)
+    for t, h in found:
+        if _norm(t) == want:
+            return h
+    for t, h in found:
+        n = _norm(t)
+        if want and (want in n or n in want):
+            return h
+    return None
+
+def _mdi_menu_command(mdi, caption):
+    """Select an MDI top-level menu item (INI key 9) via WM_COMMAND."""
+    try:
+        hmenu = win32gui.GetMenu(mdi)
+    except Exception:
+        return False
+    if not hmenu:
+        return False
+    want = _norm(caption)
+    for i in range(win32gui.GetMenuItemCount(hmenu)):
+        try:
+            info = win32gui.GetMenuItemInfo(hmenu, i, True)
+        except Exception:
+            continue
+        if _norm(info.get("text") or "") == want:
+            wid = info.get("wID")
+            if wid:
+                win32gui.PostMessage(mdi, win32con.WM_COMMAND, wid, 0)
+                return True
+    return False
+
+def select_module(mdi, caption, idx):
+    """FIX 2026-09-29: old code only clicked guessed full-width pixel columns at
+    y=+55 (there is no full-width tab strip; CAPTURE_INDEX documents a left strip
+    x 0-107). Now: strip button -> MDI menu -> legacy pixel guess as last resort."""
+    btn = _strip_button(mdi, caption)
+    if btn:
+        r = win32gui.GetWindowRect(btn)
+        mouse.click(button="left", coords=((r[0] + r[2]) // 2, (r[1] + r[3]) // 2))
+        time.sleep(1.4)
+        return "strip"
+    if _mdi_menu_command(mdi, caption):
+        time.sleep(1.4)
+        return "menu"
+    click_module_tab(mdi, idx)
+    return "pixel"
+
 def click_module_tab(mdi, idx):
     r = win32gui.GetWindowRect(mdi)
     n = len(MODULES)
@@ -199,8 +258,12 @@ def close_form(hwnd):
     return "wm_close"
 
 def _dialog_button(dlg, prefer):
+    # FIX 2026-09-29: was `win32gui.EnumChildWindows and _children(dlg) or []`
+    # (always truthy function object -> worked by accident, but returned [] when
+    # EnumChildWindows was falsy). Now plainly iterates the child handles.
+    kids = _children(dlg)
     for want in prefer:
-        for c in win32gui.EnumChildWindows and _children(dlg) or []:
+        for c in kids:
             if win32gui.GetClassName(c) == "Button" and want.lower() in win32gui.GetWindowText(c).lower():
                 return c
     return None
@@ -221,15 +284,20 @@ def _click_dialog_button(hwnd):
 # ---------------- main capture ----------------
 def capture_module(mdi, tree, key, limit, only_type):
     idx, folder, caption = MODULES[key]
-    click_module_tab(mdi, idx)
+    how = select_module(mdi, caption, idx)
+    g.log("CAP", "Module " + caption, "Select module (%s)" % how, "", "", "strip/HMENU", "")
     items = tree_items(tree)
     g.log("CAP", "Module " + caption, "Read live tree", "%d items" % len(items), "", "TreeView cross-process", "")
     if not items:
         print("[%s] tree not readable (fallback off)" % key)
         return
     # source expectations: raw me modhex -> type,cap
-    hexmod = [k for k, v in HEX2KEY.items() if v == key][0]
-    src = load_source_menu().get(hexmod, [])
+    hexmod = next((k for k, v in HEX2KEY.items() if v == key), None)
+    if hexmod is None:
+        print("[%s] no menu-tree hex mapping (source cross-check skipped)" % key)
+        src = []
+    else:
+        src = load_source_menu().get(hexmod, [])
     src_caps = {c.lower(): t for t, _, c in src}
     done = 0
     for text, r in items:

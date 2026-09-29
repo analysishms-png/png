@@ -1,462 +1,274 @@
-# POINT OF SALE (POS) MODULE
+# MODULE MANUAL — 08_POS (Point of Sale)
+
+Module hex code **`11`** (`&H11`) · menu caption **`Point Of Sale`** · DB `MOONData2627`.
+Evidence tags per `PROMT.txt` §25: `[VERIFIED-VB6]` `[VERIFIED-SQL]` `[VERIFIED-UI]`
+`[VERIFIED-CONFIG]` `[INFERRED]` `[UNKNOWN]`.
+
+---
 
 ## 1. Purpose
 
-POS module hotel ke restaurant/bars ka billing engine hai. KOT (Kitchen Order Ticket) entry, table management, bill generation, settlement, aur sales reporting yahin hoti hai. Touch-screen support bhi available hai. Inventory module se integrated hai — item consumption automatically stock se deduct hota hai.
+Order-to-cash for F&B outlets: take a kitchen order (KOT), convert it to a bill, settle the bill by
+tender, reprint/lookup/void bills, and report on outlet sales. `[INFERRED]` from the screen set and
+table writes; no prose description exists in the source.
 
-**Evidence:** [VERIFIED-VB6] — 53 menu items, 4 sub-groups: POS Operations, POS Reports, POS M.I.S., POS Status.
+Supporting facts: the module owns `KOT` (28 101 rows), `Sale1` (12 686), `Sale2` (66 055),
+`SunTran` (98 025) and `PayCharge`. `[VERIFIED-SQL]`
 
-## 2. Menu Structure (from MENU_INVENTORY.md)
+## 2. Menu Structure
 
-```
-Point Of Sale
-├── POS Operations
-│   ├── KOT Entry
-│   ├── Table Change Entry
-│   ├── Sale Bill Entry
-│   ├── Settlement Entry
-│   ├── POS Bill Reprint
-│   ├── Split Sale Bill
-│   ├── Display Table
-│   ├── Order Booking
-│   ├── Bill Lookup
-│   ├── Order Booking Advance
-│   ├── KOT Transfer
-│   └── Token Entry
-├── POS Reports
-│   ├── Denomination Detail
-│   ├── Bill Wise Adjustment Report
-│   ├── Sales Register
-│   ├── Stewardwise Sale
-│   ├── Tablewise Sales
-│   ├── Settlement Summary
-│   ├── Tax Report
-│   ├── KOT Wise Details
-│   ├── Discount Register
-│   ├── Cover Analysis
-│   ├── Pending KOT
-│   ├── Item wise Sale
-│   ├── Deleted Unsettled Bill
-│   ├── NC KOT Detail
-│   ├── Sales Day Book
-│   ├── Tax Register
-│   ├── Order Detail Report
-│   ├── Taxwise Details
-│   ├── NC KOT Summary
-│   ├── Discount Register (PartyWise)
-│   ├── Not Delivered Order
-│   ├── Group Wise Sale
-│   ├── Customer Detail
-│   ├── Collection Summary
-│   ├── Open Item Sales
-│   ├── Void Bills
-│   ├── KOT Change Report
-│   ├── Tax Summary
-│   ├── Discount Summary
-│   ├── Monthwise Sales
-│   ├── ABC Analysis
-│   ├── Sale Summary
-│   ├── Tax Invoice Detail
-│   └── Edited Bills
-├── POS M.I.S.
-│   ├── Collection Summary
-│   ├── Open Item Sales
-│   ├── Void Bills
-│   ├── KOT Change Report
-│   ├── Tax Summary
-│   ├── Discount Summary
-│   ├── Monthwise Sales
-│   ├── ABC Analysis
-│   ├── Sale Summary
-│   ├── Tax Invoice Detail
-│   └── Edited Bills
-└── POS Status
-    └── Payment Receive Entry (POS)
-```
+Full tree with line cites: `screens\screens.md` §2. Summary:
 
-## 3. Screens (from vb6_form_inventory.md)
+- 53 static rows in `19_VB6_Logic\menu_tree_raw.txt` (rows L11, L14, L312–L362). `[VERIFIED-VB6]`
+- 1 module header, 3 group headers (`POS Operations` L315, `POS Reports` L328, `POS M.I.S.` L351),
+  2 top-level items (`Restaurant Change` L313, `POS Status` L314),
+  12 operations, 22 POS Reports rows, 11 POS M.I.S. rows, 2 stray rows.
+- **Runtime superset:** one extra group header *per outlet* plus its children, generated from
+  `Depart` where `OutletYN='Y'` (EXTRAS.text L476608–L476655). `[VERIFIED-VB6]`
+- Setup siblings under module `C`, group `Point of Sale Setup` (menu rows L79–L92).
 
-### POS Forms (Rs*, POS*)
-- **RsBookingEntry** — Booking entry
-- **RsBookingEntryAdvance** — Booking entry with advance
-- **RsTouchScreenBookingEntry** — Touch screen booking entry
-- **RsKOTEntry** — KOT entry
-- **RsTouchScreenKOTEntry** — Touch screen KOT entry
-- **RsTokenEntry** — Token entry
-- **RsTouchScreenTOKENEntry** — Touch screen token entry
-- **RsSaleBillSplit** — Split sale bill
-- **RsAssignDelivery** — Assign delivery
-- **RsGravyItemEntry** — Gravy item entry
-- **RsMenuItemEntry** — Menu item entry
-- **RsSpecItemEntry** — Special item entry
-- **RsKitchenMaterial** — Kitchen material
-- **RsKitchenStk** — Kitchen stock
-- **RsPOSCustInfo** — POS customer info
-- **RsPOSDisplay** — POS display
-- **RsPOSDisplayNew** — POS display (new)
-- **RsPaymentReceice** — Payment receive
-- **RsStatusScreen** — Status screen
-- **RsTableMast** — Table master
-- **RsTbChange** — Table change
-- **RsTouchDisplayTB** — Touch display table
-- **RsTouchScreenFAFind** — Touch screen find
-- **RsTouchScreenKeyBoard** — Touch screen keyboard
-- **RsTouchScreenSteward** — Touch screen steward
-- **RsTouchScreenAdvanceDepDialog** — Touch screen advance deposit dialog
-- **RsTouchScreenSaleBill** — Touch screen sale bill
-- **POSBillPrint** — POS bill print
-- **POSBillReprint** — POS bill reprint
-- **RSSaleBill** — Sale bill
-- **RSSaleBill1** — Sale bill (1)
-- **RSSaleBillDisplay** — Sale bill display
-- **POSAdvanceDepDialog** — POS advance deposit dialog
-- **FrmPOSBillDeletion** — POS bill deletion
-- **FrmPOSBillModificationDatewise** — POS bill modification (datewise)
-- **FrmPOSBillModificationItemGroupwise** — POS bill modification (item groupwise)
-- **FrmPOSRecycleData** — POS recycle data
-- **FrmPOSSaleDataTransfer** — POS sale data transfer
-- **pHappyHours** — Happy hours
-- **NewHappyHours** — New happy hours
-- **repTouchDate** — Touch date
-- **FrmUserPaymentCollection** — User payment collection
-- **FrmReceivePayment** — Receive payment
-- **FrmClaimEntry** — Claim entry
-- **FrmNAMessageA/B/C** — Night audit messages
+## 3. Screens
 
-### Supporting Forms
-- **FrmWaiterMast** — Waiter master
-- **FrmDeliveryBoyMast** — Delivery boy master
-- **FrmMenuList** — Menu list
-- **FrmMenuRate** — Menu rate
-- **frmMenuItemCopy** — Menu item copy
-- **OutLetMast** — Outlet master
-- **OutLetSundry** — Outlet sundry
+Dispatch table: `screens\screens.md` §4. Forms and object ranges: `logic\vb6_logic.md`.
+
+| Group | Forms |
+|---|---|
+| Operations | `RsKOTEntry`, `RsTbChange`, `RSSaleBill`, `RsSaleBillSplit`, `POSBillReprint`, `RsPOSDisplay`, `RsBookingEntry`, `RSSaleBillDisplay`, `POSAdvanceDepDialog`, `RsKOTTransfer`, `RsTokenEntry`, `RsPaymentReceice`, `FrmDenomination`, `RsStatusScreen`, `FrmChangeRest` |
+| Display | `RsPOSDisplayNew`, `RsTouchDisplayTB`, `RsTouchScreenKOTEntry`, `RSTouchScreenSaleBill` |
+| Maintenance / admin | `FrmPOSBillDeletion`, `FrmPOSBillModificationDatewise`, `FrmPOSBillModificationItemGroupwise`, `FrmPOSSaleDataTransfer`, `pHappyHours` |
+| Masters | `OutLetMast`, `RsTableMast`, `FrmWaiterMast`, `FrmItemGroupMast`, `FrmItemCatMast` |
+| Report viewers | `rPOSRepView`, `rHallRepView` |
 
 ## 4. Masters
 
-| Master | Table | Evidence |
-|--------|-------|----------|
-| Table Master | RsTableMast | [VERIFIED-VB6] |
-| Waiter Master | Waiter | [VERIFIED-VB6] |
-| Delivery Boy | FrmDeliveryBoyMast | [VERIFIED-VB6] |
-| Menu List | FrmMenuList | [VERIFIED-VB6] |
-| Menu Rate | FrmMenuRate | [VERIFIED-VB6] |
-| Outlet Master | OutLetMast | [VERIFIED-VB6] |
-| Happy Hours | pHappyHours/NewHappyHours | [VERIFIED-VB6] |
-| Item Master | ItemMast | [VERIFIED-VB6] |
-| Item Rate | ItemRate | [VERIFIED-VB6] |
-| Tax Structure | TaxStru | [VERIFIED-VB6] |
-| Sundry Type | SundryType | [VERIFIED-VB6] |
+| Master | Form | Key columns | Rows |
+|---|---|---|---|
+| Outlet | `OutLetMast` (L183116) | `Depart.Code, Name, RestType, OutletYN, ShortName, KotYn, Order_Booking, Printer, PrintType, AutoSettlement, SplitBill, MultiBill, OpenItemYN, PlaceOfSupplyYN, …` (74 cols) | 73 `[VERIFIED-SQL]` |
+| Table | `RsTableMast` (L107258) | stored in `RoomMast` with `TYPE='TB'` — **there is no `TableMast` table** | 86 `RoomMast` rows `[VERIFIED-SQL]` |
+| Steward / Waiter | `FrmWaiterMast` | `Waiter.Code, Name, ActiveYN, RestCode` (9 cols) | 58 `[VERIFIED-SQL]` |
+| Menu group / category / item | `FrmItemGroupMast`, `FrmItemCatMast` | grouped by `RestType='Finish'` `[VERIFIED-VB6]` (EXTRAS.text L477840-region) | — |
+| Session | — | `SessionMast.FromTime/ToTime` drives token session `[VERIFIED-VB6]` (L613846) | — |
+| Voucher types | — | `Voucher_Type` (`Ncat='ORDER'`, `'PADV'`, `'B'+ShortName`) | — |
+| Voucher prefix | — | `Voucher_Prefix` (10 cols) | — |
+
+Setup registration lines: EXTRAS.text L476007–L476031. `[VERIFIED-VB6]`
 
 ## 5. Transactions
 
-| Transaction | Form | Table | Evidence |
-|-------------|------|-------|----------|
-| KOT Entry | RsKOTEntry | KOT | [VERIFIED-VB6] |
-| Token Entry | RsTokenEntry | TOKEN | [VERIFIED-VB6] |
-| Sale Bill | RSSaleBill | Sale1/Sale2 | [VERIFIED-VB6] |
-| Split Sale Bill | RsSaleBillSplit | SplitSale1/SplitSale2 | [VERIFIED-VB6] |
-| Settlement | RsPaymentReceice | PayCharge | [VERIFIED-VB6] |
-| Table Change | RsTbChange | — | [VERIFIED-VB6] |
-| Order Booking | RsBookingEntry | — | [VERIFIED-VB6] |
-| KOT Transfer | — | KOT | [VERIFIED-VB6] |
-| Bill Reprint | POSBillReprint | Sale1/Sale2 | [VERIFIED-VB6] |
-| Bill Deletion | FrmPOSBillDeletion | TempPosDel | [VERIFIED-VB6] |
-| Payment Receive | FrmReceivePayment | PayCharge | [VERIFIED-VB6] |
+| Transaction | Screen | Header table | Detail tables |
+|---|---|---|---|
+| Kitchen order | `RsKOTEntry` | `KOT` | `KOTLog` |
+| Token | `RsTokenEntry` | `TOKEN` | `KOTLog`, `Stock` (guard) |
+| Table change | `RsTbChange` | — (updates `KOT.ROOMNO`) | — |
+| Sale bill | `RSSaleBill` | `Sale1` | `Sale2` (tax), `SunTran` (sundry), `KOT` (Pending→'N') |
+| Split sale bill | `RsSaleBillSplit` | `SplitSale1`/`Sale1` | `SplitSale2`, `SplitSunTran` |
+| Settlement / payment | `RsPaymentReceice` | `PayCharge` | `LEDGERADJ`, `Voucher_Prefix` |
+| Order booking | `RsBookingEntry` | (order voucher, `Ncat='ORDER'`) | — |
+| Order booking advance | `POSAdvanceDepDialog` | (`Ncat='PADV'`) | — |
+| Denomination | `FrmDenomination` | — | `DenominationDetail` |
+
+Row counts: `18_Database\tables_rowcounts.txt` `[VERIFIED-SQL]`.
 
 ## 6. Operations
 
-- **KOT Entry** — Kitchen order ticket creation
-- **Token Entry** — Token number generation
-- **Sale Bill** — Bill generation with tax calculation
-- **Split Sale Bill** — Split bill across multiple departments
-- **Settlement** — Payment settlement (cash/card/credit)
-- **Table Change** — Change table assignment
-- **Order Booking** — Advance order booking
-- **KOT Transfer** — Transfer KOT between tables
-- **Bill Reprint** — Reprint existing bills
-- **Bill Deletion** — Delete unsettled bills
-- **Happy Hours** — Time-based discount rules
-- **Touch Screen** — Touch-screen interface for tables
+- **Restaurant change** (`FrmChangeRest`, EXTRAS.text L480172) → sets `MemVar_1F811A4`, which every
+  screen copies into `LocalRestCode` / `MDIRestCode`. `[VERIFIED-VB6]`
+- **Display table** — touch-screen branch chosen by `Enviro.TouchScreen` (EXTRAS.text L477031,
+  L9892). `[VERIFIED-VB6]`
+- **KOT transfer** between kitchens (`RsKOTTransfer`, L610453). `[VERIFIED-VB6]`
+- **Bill deletion utility** (`FrmPOSBillDeletion`, L513954) with `TempPosDel` staging. `[VERIFIED-VB6]`
+- **Bill modification** by date (L593783) or item group (L594844); **sale data transfer** between
+  outlets (L595905). `[VERIFIED-VB6]`
+- **POS status** live dashboard (`RsStatusScreen`) — Sale1 ⋈ KOT FULL OUTER JOIN (L612350–L612381).
+  `[VERIFIED-VB6]`
 
 ## 7. Reports
 
-| Report | Form | Evidence |
-|--------|------|----------|
-| Sales Register | rPOSRepView | [VERIFIED-VB6] |
-| Stewardwise Sale | rPOSRepView | [VERIFIED-VB6] |
-| Tablewise Sales | rPOSRepView | [VERIFIED-VB6] |
-| Settlement Summary | rPOSRepView | [VERIFIED-VB6] |
-| Tax Report | rPOSRepView | [VERIFIED-VB6] |
-| KOT Wise Details | rPOSRepView | [VERIFIED-VB6] |
-| Discount Register | rPOSRepView | [VERIFIED-VB6] |
-| Cover Analysis | rPOSRepView | [VERIFIED-VB6] |
-| Pending KOT | rPOSRepView | [VERIFIED-VB6] |
-| Item wise Sale | rPOSRepView | [VERIFIED-VB6] |
-| Deleted Unsettled Bill | rPOSRepView | [VERIFIED-VB6] |
-| NC KOT Detail | rPOSRepView | [VERIFIED-VB6] |
-| Sales Day Book | rPOSRepView | [VERIFIED-VB6] |
-| Tax Register | rPOSRepView | [VERIFIED-VB6] |
-| Order Detail Report | rPOSRepView | [VERIFIED-VB6] |
-| Taxwise Details | rPOSRepView | [VERIFIED-VB6] |
-| NC KOT Summary | rPOSRepView | [VERIFIED-VB6] |
-| Discount Register (PartyWise) | rPOSRepView | [VERIFIED-VB6] |
-| Not Delivered Order | rPOSRepView | [VERIFIED-VB6] |
-| Group Wise Sale | rPOSRepView | [VERIFIED-VB6] |
-| Customer Detail | rPOSRepView | [VERIFIED-VB6] |
-| Collection Summary | rPOSRepView | [VERIFIED-VB6] |
-| Open Item Sales | rPOSRepView | [VERIFIED-VB6] |
-| Void Bills | rPOSRepView | [VERIFIED-VB6] |
-| KOT Change Report | rPOSRepView | [VERIFIED-VB6] |
-| Tax Summary | rPOSRepView | [VERIFIED-VB6] |
-| Discount Summary | rPOSRepView | [VERIFIED-VB6] |
-| Monthwise Sales | rPOSRepView | [VERIFIED-VB6] |
-| ABC Analysis | rPOSRepView | [VERIFIED-VB6] |
-| Sale Summary | rPOSRepView | [VERIFIED-VB6] |
-| Tax Invoice Detail | rPOSRepView | [VERIFIED-VB6] |
-| Edited Bills | rPOSRepView | [VERIFIED-VB6] |
-| Denomination Detail | rPOSRepView | [VERIFIED-VB6] |
-| Bill Wise Adjustment Report | rPOSRepView | [VERIFIED-VB6] |
+Full mapping: `reports\reports.md`.
+- 22 `POS Reports` + 11 `POS M.I.S.` menu rows; viewers `rPOSRepView` / `rHallRepView`.
+- `GRepFormName` → `REPORTS_TXT\<name>.txt` (233 descriptors; all 49 POS names confirmed).
+  `[VERIFIED-SQL]`
+- Crystal Reports engine, 524 `.rpt`/`.ttx` files, path from INI key 2. `[VERIFIED-CONFIG]`
+- `RestType` = `BANQ`/`ODC` forks 4 captions to the hall viewer. `[VERIFIED-VB6]`
 
 ## 8. Permissions
 
-- POS module access UserPermission form se control hota hai [VERIFIED-VB6]
-- Per-user menu hierarchy MenuHelp table me OPT1..OPT4 columns [VERIFIED-SQL]
-- Cashier-wise settlement tracking (Payments By Cashier report) [VERIFIED-VB6]
+- Discount ceiling per user: `SELECT POSDiscountAllowUpto FROM UserPermission WHERE LOGSITE_CODE=…
+  And CompCode=… And UserName=…` → `global_520`; `0` means no discount right
+  (EXTRAS.text L320452-region, L320459; guards L320113/L320273/L321357/L321450/L323772).
+  `[VERIFIED-VB6]`
+- Menu visibility is permission-driven: a second registration pass supplies `var_174` (the caller's
+  group) at EXTRAS.text L184623–L184818. `[VERIFIED-VB6]`
+- Settlement blocked for outlets with `RestType='Production'` (EXTRAS.text L698-region).
+  `[VERIFIED-VB6]`
+- Per-user MenuHelp trees exist in `19_VB6_Logic\MenuHelp_*_tree.txt` (`MenuHelp_POS_tree.txt`,
+  `MenuHelp_SA_tree.txt`). `[VERIFIED-CONFIG]`
+- **No credential values are extracted or written anywhere in this module folder.**
 
 ## 9. Business Rules
 
-1. **KOT table** — DocId, Sno, Token, Item, Qty, Delivery [VERIFIED-VB6]
-2. **Sale1/Sale2** — POS sale header/detail [VERIFIED-VB6]
-3. **SplitSale1/SplitSale2** — Split bill staging [VERIFIED-VB6]
-4. **TempPosDel** — Deleted bill staging [VERIFIED-VB6]
-5. **TOKEN table** — Token number tracking (124 refs) [VERIFIED-VB6]
-6. **Voucher numbering** — Voucher_Type + Voucher_Prefix tables manage serial numbers per type per site [VERIFIED-VB6]
-7. **DocId pattern** — varchar(21) = site-prefix + Vtype + serial [VERIFIED-VB6]
-8. **Audit columns** — Har transaction me U_Name, U_EntDt, U_AE ('A'/'E'/'D') [VERIFIED-VB6]
-9. **Multi-site** — LogSite_Code filters every query [VERIFIED-VB6]
-10. **Token reset** — Night Audit me token counters reset: `Update Depart Set CurTokenNo=0,CurTokenNoKOT=0 where AutoResetToken='Yes'` [VERIFIED-VB6]
-11. **Split bill cleanup** — Night Audit me split-bill staging cleanup for split departments [VERIFIED-VB6]
-12. **KOTAtNightAudit** — Enviro setting: KOT processing before audit [VERIFIED-VB6]
-13. **POSBillAtNightAudit** — Enviro setting: POS bill processing before audit [VERIFIED-VB6]
-14. **AutoSplit** — Depart setting for automatic bill splitting [VERIFIED-VB6]
-15. **CoverMandatory** — Depart setting for mandatory cover entry [VERIFIED-VB6]
-16. **MobileNoMandatory** — Depart setting for mandatory mobile number [VERIFIED-VB6]
+| # | Rule | Evidence |
+|---|---|---|
+| BR-01 | Voucher number must be non-zero and unique per voucher class | `Vr. No Can Not Be 0` L60308; `Duplicate Voucher No.` L60348 `[VERIFIED-VB6]` |
+| BR-02 | KOT requires steward + at least one item line | L62321, L62337, L62348 `[VERIFIED-VB6]` |
+| BR-03 | Duplicate KOT number and duplicate item within a KOT are rejected | L68565, L68818 `[VERIFIED-VB6]` |
+| BR-04 | Editing an existing KOT requires a reason | `You must Enter a Valid Reason of Editing` L62407 `[VERIFIED-VB6]` |
+| BR-05 | A KOT can only be billed once | `Sale Bill Already Generated !!` L65988 `[VERIFIED-VB6]` |
+| BR-06 | Bill save releases the KOT set (`Pending='N'`) | L324830 `[VERIFIED-VB6]` |
+| BR-07 | Discount allowed only up to `UserPermission.POSDiscountAllowUpto` | L320115/L320459 `[VERIFIED-VB6]` |
+| BR-08 | Negative stock requires explicit confirmation | L67889 `[VERIFIED-VB6]` |
+| BR-09 | Settlement requires payment rows before save | `Please Fill Payment Details Before Saving..` L983732 `[VERIFIED-VB6]` |
+| BR-10 | Settlement voucher class = `'B' + Depart.ShortName` | L479944-region `[VERIFIED-VB6]` |
+| BR-11 | Settlement not allowed on production outlets | L698-region `[VERIFIED-VB6]` |
+| BR-12 | Bill dates must fall inside the financial year | `V.Date Not Between Current Fin. Year` L466604; `FromDate/ToDate must be with in Financial Year` L514173/L514190 `[VERIFIED-VB6]` |
+| BR-13 | Split bill must be fully adjusted before save | `Please fully adjust the Bill` L468083 `[VERIFIED-VB6]` |
+| BR-14 | Token voucher prefix = `'N' + Depart.ShortName` | L614187 `[VERIFIED-VB6]` |
+| BR-15 | Session boundary comes from `SessionMast` | L613846 `[VERIFIED-VB6]` |
+| BR-16 | A room bill already printed blocks further edits | `Guest Room Bill Already printed for this Room` L60649, L62312, L982730 `[VERIFIED-VB6]` |
+| BR-17 | Credit-card tender validates expiry; credit can be disabled | L982769, L982870 `[VERIFIED-VB6]` |
+| BR-18 | Re-save of a bill is delete-then-insert, not update | L324253 → L324352 `[VERIFIED-VB6]` |
 
-## 10. VB6 Logic (from EXTRAS.text)
+## 10. VB6 Logic
 
-### KOT Entry (RsKOTEntry)
-```vb
-' KOT entry form
-' Key fields: Token, Item, Qty, Delivery
-' Tables: KOT, Stock, Sale1/Sale2
-' OpenMode: 1 = Add, 2 = Edit
-```
+`logic\vb6_logic.md`. Highlights: object boundary map (33 objects with line ranges), the
+`ModuleAdd` caption→form ladder (EXTRAS.text L475662–L488665), the MDI toolbar mirror
+(L680–L800), the touch-screen branch, and the shared-instance settlement finding **F-POS-01**.
 
-### Sale Bill (RSSaleBill)
-```vb
-' Sale bill generation
-' Key fields: DocId, Vtype, VNo, Vdate, TableNo, Steward, Cover
-' Tables: Sale1 (header), Sale2 (detail)
-' Tax calculation: TaxStru
-```
+## 11. SQL Logic
 
-### Split Sale Bill (RsSaleBillSplit)
-```vb
-' Split bill across multiple departments
-' Tables: SplitSale1, SplitSale2, SplitStock, SplitedSunTran
-' VType='B'+ShortName for split departments
-```
+`sql\queries.sql` + `sql\sql_notes.md`. 12 object ranges → statement inventory; all statements are
+**static extractions, none executed**.
 
-### Payment Receive (RsPaymentReceice)
-```vb
-' Payment settlement
-' Key fields: PayCode, PayType, AmtCr, AmtDr
-' Tables: PayCharge
-```
+## 12. Tables
 
-### Table Master (RsTableMast)
-```vb
-' Table master for restaurant
-' Key fields: Code, Name, Outlet, Capacity
-```
+| Table | Cols | PK | Rows | Written by |
+|---|---|---|---|---|
+| `KOT` | 44 | `(DocId,Sno)` | 28 101 | KOT Entry, Table Change, Sale Bill |
+| `KOTLog` | 40 | — | 1 420 | KOT Entry, Token Entry |
+| `Sale1` | 81 | `(DocId)` | 12 686 | Sale Bill, Split Sale |
+| `Sale1Log` | — | — | 130 | Sale Bill |
+| `Sale2` | 19 | `(DocId,Sno,SNo1)` | 66 055 | Sale Bill, pPBill, Split |
+| `Sale2Log` | — | — | 1 086 | Sale Bill |
+| `SunTran` | 24 | `(DocId,Sno)` | 98 025 | Sale Bill, pPBill, Split |
+| `SunTranH` / `SunTranLog` | — | — | 228 / 910 | sundry header/log |
+| `PayCharge` | 61 | — | (n/a) | Payment Receive |
+| `TOKEN` | — | (index present) | 0 | Token Entry |
+| `POS_SBill` | 8 | `(DocId,OutletDocId)` | 0 | outlet bill link |
+| `SplitSale1/2`, `SplitSunTran` | 74 / — / — | present | 0 / 0 / 0 | Split Sale Bill |
+| `TempPosDel` | — | — | 0 | bill deletion utility |
+| `DenominationDetail` | 18 | — | 0 | Denomination |
+| `Voucher_Prefix` | 10 | — | — | all voucher writers |
+| `Depart` | 74 | — | 73 | outlet master |
+| `Waiter` | 9 | — | 58 | steward master |
+| `RoomMast` | — | — | 86 | table master (`TYPE='TB'`) |
+| **`foreign_keys.txt`** | — | — | **0 FKs declared** | — |
 
-### Happy Hours (pHappyHours/NewHappyHours)
-```vb
-' Time-based discount rules
-' Key fields: FromTime, ToTime, Discount%
-```
-
-### Special Item Entry (RsSpecItemEntry)
-```vb
-' Special item entry (non-menu items)
-' Key fields: Item, Qty, Rate, Amount
-' SQL: SELECT IsNull(Max(Name),'') FROM Depart Where Code='<dept>'
-```
-
-### POS Display (RsPOSDisplay/RsPOSDisplayNew)
-```vb
-' POS display for kitchen/order tracking
-' Shows pending KOTs, table status
-```
-
-## 11. SQL Logic (from SQL_TRACKING_RESULTS.md)
-
-### KOT Query
-```sql
--- KOT: DocId, Sno, Token, Item, Qty, Delivery
--- ItemMast: Item master
--- Depart: Outlet/department
--- Waiter: Steward
-```
-
-### Sale Query
-```sql
--- Sale1: DocId, Vtype, VNo, Vdate, TableNo, Steward, Cover
--- Sale2: DocId, SNo, Item, Qty, Rate, Amount
--- SplitSale1/SplitSale2: Split bill staging
--- TempPosDel: Deleted bill staging
-```
-
-### Night Audit Token Reset
-```sql
-Update Depart Set CurTokenNo=0,CurTokenNoKOT=0 
-where AutoResetToken='Yes' And Logsite_code='<site>'
-```
-
-### Split Bill Cleanup
-```sql
-Delete From POS_SBill / SplitSale1 / SplitSale2 / SplitStock / SplitedSunTran
-Where VType='B<dept>' And LogSite_Code='<site>' And VDate=<audit date>
-```
-
-## 12. Tables (from DATABASE_INVENTORY.md)
-
-| Table | Usage Count | Purpose |
-|-------|-------------|---------|
-| Sale1 | 243 | POS sale header |
-| Sale2 | 113 | POS sale detail |
-| KOT | 200 | Kitchen order ticket |
-| TOKEN | 124 | Token master |
-| SplitSale1 | 68 | Split sale header |
-| SplitStock | — | Split stock |
-| SplitStock1 | — | Split stock (1) |
-| Stock1 | — | Stock (1) |
-| TempPosDel | 37 | Deleted bill staging |
-| PayCharge | 873 | Folio charge posting |
-| PayChargeH | 67 | Charge history |
-| PayChargeLog | 37 | Posting audit |
-| ItemMast | 618 | Item master |
-| ItemRate | 70 | Item rate |
-| Waiter | 99 | Waiter master |
-| Depart | 1378 | Department/outlet master |
+Sources: `18_Database\columns_dictionary.txt`, `indexes_pks.txt`, `tables_rowcounts.txt`,
+`foreign_keys.txt`. `[VERIFIED-SQL]`
 
 ## 13. Fields
 
-### Sale1 (POS Sale Header)
-- DocId, Vtype, VNo, Vdate, TableNo, Steward, Cover
-- U_Name, U_EntDt, U_AE, LogSite_Code [VERIFIED-VB6]
+Key fields (full lists in `sql\queries.sql` header comments):
 
-### Sale2 (POS Sale Detail)
-- DocId, SNo, Item, Qty, Rate, Amount
-- U_Name, U_EntDt, U_AE, LogSite_Code [VERIFIED-VB6]
-
-### KOT (Kitchen Order Ticket)
-- DocId, SNo, Token, Item, Qty, Delivery
-- U_Name, U_EntDt, U_AE, LogSite_Code [VERIFIED-VB6]
-
-### TOKEN
-- TokenNo, TableNo, Steward, Outlet
-- U_Name, U_EntDt, U_AE, LogSite_Code [VERIFIED-VB6]
-
-### PayCharge (Payment/Charge)
-- DocId, SNo, Vtype, VNo, Vdate, PayCode, PayType
-- AmtCr, AmtDr, RoomNo, FolioNo, Bill_No
-- TaxPer, OnAmt, Split, SettleDate
-- U_Name, U_EntDt, U_AE, LogSite_Code [VERIFIED-VB6]
-
-### Depart (Department/Outlet)
-- Code, Name, CurTokenNo, CurTokenNoKOT
-- AutoResetToken, AutoSplit, KOTAtNightAudit, POSBillAtNightAudit
-- CoverMandatory, MobileNoMandatory
-- U_Name, U_EntDt, U_AE, LogSite_Code [VERIFIED-VB6]
+- `KOT`: `DocId, Sno, Vtype, Vtime, VNo, Site_Code, Vprefix, Vdate, RestCode, RoomCat, RoomType,
+  RoomNo, Item, Qty, Rate, Amount, VoidYN, Waiter, Pending, KOTType, NCKOT, NCTYPE, Printed,
+  FreeSno, SchemeCode, Description, Party, ItemRestCode, SeqNo, GuarAtt, TokenNo, PrintFlag,
+  ContraDocId, ContraSno, Reasons, Remarks, DelFlag, LogSite_Code, U_Name/U_EntDt/U_AE,
+  U_Name1/U_EntDt1/U_AE1` (44). `[VERIFIED-SQL]`
+- `Sale1` (81): `DocId, Vtype, VNo, Vtime, Site_Code, Vprefix, Vdate, RestCode, RoomCat, RoomType,
+  RoomNo, FolioNo, Party, Total, DiscPer, DiscAmt, NonTaxable, Taxable, Tax, ServiceCharge,
+  ServiceTax, CGST, SGST, IGST, AddAmt, DedAmt, RoundOff, NetAmt, KOTNO, TokenNo, Waiter,
+  GuarAtt, ExpAtt, CoverRate, DelFlag, PRINTED, DeliveredYN, CashRecd, BookNo, CardNo,
+  Redemption, DiscRemark, EditRemark, PlaceOfSupply, AU_Name, AU_EntDt, LogSite_Code, …`
+- `PayCharge` (61): `PayCode, PayType, AmtCr, AmtDr, TipAmt, CardNo, ChqNo, BillAmount,
+  ContraDocID, SettleDate, BatchNo, MarkEntry, ModeSet, Split, RefDocId, TxnNo, TaxCondAmt, …`
+- `Depart` switches that drive behaviour: `KotYn, OutletYN, RestType, ShortName, Order_Booking,
+  AutoSettlement, SplitBill, MultiBill, OpenItemYN, PlaceOfSupplyYN, PrintOnSave, KOTAtNightAudit,
+  CoverMandatory, MobileNoMandatory`. `[VERIFIED-SQL]`
 
 ## 14. Workflow
 
-```
-Table Assignment (RsTableMast)
-  ↓
-Order Booking (RsBookingEntry) [optional]
-  ↓
-KOT Entry (RsKOTEntry)
-  ├── Select Table
-  ├── Select Items (Menu/Special/Gravy)
-  ├── Enter Quantity
-  └── Send to Kitchen
-       ↓
-Kitchen Preparation
-  ↓
-Sale Bill (RSSaleBill)
-  ├── Generate Bill
-  ├── Tax Calculation (TaxStru)
-  └── Split Bill (if needed)
-       ↓
-Settlement (RsPaymentReceice)
-  ├── Cash Payment
-  ├── Card Payment
-  ├── Credit Payment
-  └── Split Settlement
-       ↓
-Night Audit
-  ├── Token Reset
-  ├── Split Bill Cleanup
-  └── KOT/POS Bill Processing
-```
+`flowcharts\workflow.mmd` — Mermaid `flowchart-v2`; parses cleanly with `mermaid.parse()`.
+Narrative:
+
+1. Pick outlet (`FrmChangeRest`) → `MemVar_1F811A4`.
+2. `KOT Entry` → validate → `Insert KOT` + `KOTLog` → optional print (`PRINTED='Y'`).
+3. `Sale Bill Entry` → discount permission check → wipe + insert `Sale1`/`Sale2`/`SunTran` →
+   `Update KOT Set Pending='N'` → *Updation Completed.*
+4. `Settlement Entry` → outlet voucher class, production guard → `Delete/Insert PayCharge`,
+   `LEDGERADJ`, bump `Voucher_Prefix`.
+5. Reprint / lookup / split / void as post-settlement operations.
+6. Reports read `Sale1`/`Sale2`/`SunTran`/`PayCharge`/`KOT` via Crystal.
 
 ## 15. Screenshots
 
-Screenshots folder me available hain:
-- POS module ke screenshots `08_POS/screenshots/` me hain
+`screenshots\README.md` → pointer to `../../screenshots/08_POS/` (**20 PNGs**).
+Captured: menu tab (2), `POS Reports` screens/reports (6), `POS M.I.S.` report viewers (8),
+outlet bill screens for `Hight Way point` (3) and `MOON TEA CAFE` (1), POS Reports sub-menu (1),
+Bill Look Up (1). **No** `POS Operations` transaction screen was captured. `[VERIFIED-UI]`
 
 ## 16. Test Cases
 
-| Test Case | Description | Evidence |
-|-----------|-------------|----------|
-| TC-POS-001 | KOT entry | [VERIFIED-VB6] |
-| TC-POS-002 | Token entry | [VERIFIED-VB6] |
-| TC-POS-003 | Sale bill generation | [VERIFIED-VB6] |
-| TC-POS-004 | Split sale bill | [VERIFIED-VB6] |
-| TC-POS-005 | Settlement (cash) | [VERIFIED-VB6] |
-| TC-POS-006 | Settlement (card) | [VERIFIED-VB6] |
-| TC-POS-007 | Settlement (credit) | [VERIFIED-VB6] |
-| TC-POS-008 | Table change | [VERIFIED-VB6] |
-| TC-POS-009 | Order booking | [VERIFIED-VB6] |
-| TC-POS-010 | KOT transfer | [VERIFIED-VB6] |
-| TC-POS-011 | Bill reprint | [VERIFIED-VB6] |
-| TC-POS-012 | Bill deletion | [VERIFIED-VB6] |
-| TC-POS-013 | Happy hours discount | [VERIFIED-VB6] |
-| TC-POS-014 | Touch screen KOT entry | [VERIFIED-VB6] |
-| TC-POS-015 | Sales register report | [VERIFIED-VB6] |
-| TC-POS-016 | Settlement summary report | [VERIFIED-VB6] |
-| TC-POS-017 | Tax report | [VERIFIED-VB6] |
-| TC-POS-018 | ABC analysis report | [VERIFIED-VB6] |
-| TC-POS-019 | Night audit token reset | [VERIFIED-VB6] |
-| TC-POS-020 | Night audit split bill cleanup | [VERIFIED-VB6] |
+Designed from the rules in §9; **not executed** (no live run performed for this module).
+`[UNKNOWN] — test execution out of scope for the reverse-engineering pass`.
+
+| ID | Case | Expected | Rule |
+|---|---|---|---|
+| T-POS-01 | Save KOT with `Vr.No = 0` | reject: `Vr. No Can Not Be 0` | BR-01 |
+| T-POS-02 | Save KOT with no item line | reject: `Item Detail Required ` | BR-02 |
+| T-POS-03 | Save KOT with an item already on the KOT | reject: `Duplicate Item Not Allowed` | BR-03 |
+| T-POS-04 | Edit a KOT with empty reason | reject: `You must Enter a Valid Reason of Editing` | BR-04 |
+| T-POS-05 | Bill an already-billed KOT | reject: `Sale Bill Already Generated !!` | BR-05 |
+| T-POS-06 | Save bill → check `KOT.Pending='N'` for every source KOT | flag cleared, `U_AE1='E'` | BR-06 |
+| T-POS-07 | Apply discount above `POSDiscountAllowUpto` | reject: `U are not Authorised to give discount` | BR-07 |
+| T-POS-08 | Issue quantity beyond stock | prompt: `Do you Want to Proceed with Negative Stock ?` | BR-08 |
+| T-POS-09 | Save settlement with no tender rows | reject: `Please Fill Payment Details Before Saving..` | BR-09 |
+| T-POS-10 | Settle on an outlet whose `RestType='Production'` | reject: `Operation is not allowed for Perticular Department` | BR-11 |
+| T-POS-11 | Save a bill dated outside the financial year | reject: `V.Date Not Between Current Fin. Year` | BR-12 |
+| T-POS-12 | Save split bill with residual balance | reject: `Please fully adjust the Bill` | BR-13 |
+| T-POS-13 | Save settlement → verify `Voucher_Prefix.Start_Srl_No` incremented | serial +1 | BR-10 |
+| T-POS-14 | Reprint a bill deleted by another user | reject: `Record is Deleted by somebody` | — |
+| T-POS-15 | Open `Display Table` with no `RoomMast TYPE='TB'` rows | `Tables are not defined in this Outlet` | — |
+| T-POS-16 | Select an outlet with `RestType='BANQ'` → run `Sales Register` | `rHallRepView` opens (not `rPOSRepView`) | F-POS-07 |
+| T-POS-17 | Set `Enviro.TouchScreen='Yes'` → open `Token Entry` | `RsTouchScreenTOKENEntry` opens | — |
+| T-POS-18 | Reopen `Settlement Entry` while a previous one is loaded | confirm/deny state carry-over (F-POS-01) | F-POS-01 |
 
 ## 17. Known Issues
 
-1. **Duplicate menu items:** "VAT Register III" do baar appear hota hai [VERIFIED-VB6]
-2. **No stored procedures** — Application inline ADODB SQL use karta hai [VERIFIED-VB6]
-3. **Split bill complexity** — Split bill system complex hai, modern POS me simplify karna hoga
-4. **Touch screen** — Touch screen support legacy hai, modern tablet/mobile interface karna hoga
+Detailed write-ups: `notes\notes.md`.
+
+| ID | Issue | Tag |
+|---|---|---|
+| F-POS-01 | Settlement dialog is a shared, never-`New`ed instance (`MemVar_1F81F64`) — state can leak between opens | `[INFERRED]` |
+| F-POS-02 | Live POS menu is generated per outlet from `Depart`, so `menu_tree_raw.txt` (53 rows) under-reports it | `[VERIFIED-VB6]` |
+| F-POS-03 | Two module-11 rows sit at the top of the dump (L11, L14) because they are registered separately | `[VERIFIED-VB6]` |
+| F-POS-06 | `Sale1` re-save is delete-then-insert with **zero FKs** declared — orphan `Sale2`/`SunTran`/`PayCharge` rows are possible | `[VERIFIED-SQL]` + `[VERIFIED-VB6]` |
+| F-POS-07 | `RestType` (`BANQ`/`ODC`) silently re-routes POS reports and masters to banquet code | `[VERIFIED-VB6]` |
+| — | Loose `OR` in the deletion outlet picker: `OutletYN='Y' and RestType<>'Banquet' OR RestType='Kitchen'` | `[VERIFIED-VB6]` |
+| — | `TOKEN`, `POS_SBill`, `Split*`, `TempPosDel`, `DenominationDetail`, `HappyHours` all hold **0 rows** — code paths exist, feature unused | `[VERIFIED-SQL]` |
+| — | 12 `POS Operations` screens have no screenshot coverage | `[VERIFIED-UI]` |
+| — | `Not Delivered Order` and `Denomination Detail` are menus under `POS Reports` but open *screens*, not Crystal reports | `[VERIFIED-VB6]` |
+| — | `Tax Invoice Detail` has no `ModuleAdd` dispatch — only the MDI `MISREP` handler (EXTRAS.text L7794) | `[VERIFIED-VB6]` |
+| — | `flowcharts\workflow.mmd` parser-validated only; `mmdc` renderer not installed | `[UNKNOWN]` |
 
 ## 18. Migration Notes
 
-1. **POS system** — Modern cloud-based POS system me migrate karna hoga
-2. **Touch screen** — Modern tablet/mobile interface karna hoga
-3. **Split bill** — Split bill system ko modern POS ke built-in split bill feature se replace karna hoga
-4. **Happy hours** — Time-based discount rules ko modern promotion engine se replace karna hoga
-5. **Token system** — Digital token/queue management system me upgrade karna hoga
-6. **Kitchen display** — Kitchen Display System (KDS) integration karna hoga
-7. **Payment gateway** — Modern payment gateway integration karna hoga
-8. **Tax calculation** — GST compliance me upgrade karna hoga
+1. **Split the singleton.** Replace `MemVar_1F81F64` with a per-invocation instance (F-POS-01) —
+   the current design will otherwise share settlement state across users on the same terminal.
+2. **Introduce FKs.** `foreign_keys.txt` is empty; at minimum `Sale2.DocId → Sale1.DocId`,
+   `SunTran.DocId → Sale1.DocId`, `PayCharge.DocId → Sale1.DocId`, `KOTLog.DocId → KOT.DocId`.
+3. **Replace delete-then-insert** bill re-save with an upsert (or keep it but wrap in a transaction
+   — no transaction boundaries were visible in the decompile `[UNKNOWN] — searched for
+   `BeginTrans`/`CommitTrans` in the POS object ranges`).
+4. **Parameterise SQL.** Every statement concatenates UI strings; migrate to bound parameters.
+5. **Fix the outlet-picker `OR`** with explicit parentheses (BR/group F-POS-07 issue).
+6. **`RoomMast TYPE='TB'` as tables** is a modelling quirk — either keep it for parity or split
+   into a real `TableMaster` and update `RsTbChange`'s two lookups.
+7. **Port the two-part menu**: static registration block (L476507–L476607) + dynamic per-outlet
+   block (L476608–L476655) + permission pass (L184623–L184818).
+8. **Report layer**: keep `GRepFormName` as the stable key — it already maps 1:1 to
+   `REPORTS_TXT\<name>.txt`. Replace Crystal with the modern renderer behind the same key.
+9. **Touch-screen variants** are chosen by `Enviro.TouchScreen`; make it a per-user or per-device
+   setting rather than a global.
+10. **Do not migrate credential handling** from this code; no credential values are documented here
+    by design.
