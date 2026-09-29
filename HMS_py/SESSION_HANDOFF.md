@@ -1,4 +1,4 @@
-# SESSION HANDOFF — HMS_py VB6 parity port (2026-09-29, round 3)
+# SESSION HANDOFF — HMS_py VB6 parity port (2026-09-29, round 5)
 
 ## IMPORTANT: Ye file agle session ka STARTING POINT hai
 
@@ -168,13 +168,185 @@
 `tests/database/test_member_master.py`, `tests/unit/test_wrong_target_wiring.py`,
 `_smoke_new_openers.py`.
 
+## 2d. ROUND 4 (2026-09-29) — same bug-class static audits + 3 silent wiring bugs
+
+**Suite: 726 passed / 0 failed** (round-3 ke 720 se +6: naye static
+audit tests; `pytest -q -p no:cacheprovider`).
+
+Round-3 ke WRONG_TARGET sweep ke baad wahi bug-class poore codebase par
+static-ly scan kiya — **3 real latent bugs mile jo click par crash/kharab
+kholte the**:
+
+- **PyQt6 enum audit** (puri `ui/`+`core/`+`tests/` AST scan):
+  - `ui/farm_check_ui.py:182` → `QDialog.Accepted` **doesn't exist in
+    PyQt6** (sahi: `QDialog.DialogCode.Accepted`) → dialog close hote hi
+    `AttributeError`. Fixed.
+  - Round-3 ka `QTableWidget.SelectRows` wala fix bhi isi class ka tha.
+  - Guard: `tests/unit/test_qt_enum_usage.py` (2 tests — full-tree scan +
+    known-fixed regression).
+- **`_form_registry()` opener-reference scan** (`<alias>.<fn>` ko asli
+  module par verify):
+  - `Tally Export(XML)` → `tally_ui.open_tally_export()` **module me hai
+    hi nahi** (sahi: `tally_ui.open_tally`) → `AttributeError` on click.
+    mdi leaf `Tally Export(XML)` (no `&`) real key hai, fix kiya.
+  - `Interest Ledger` → `fvu.open_led_int()` bhi nahi bana tha; guard
+    `hasattr` ke saath chup-chaap `open_trial_balance` (galat report)
+    khol raha tha. VB6 `MENU_INVENTORY.md:328` + `reports.py::LedInt`
+    (`Vtype='INT'`) ke against **sahi fix**: `_open_report("&Interest Ledger")`.
+  - Guard: `tests/unit/test_shell_opener_refs.py::test_registry_opener_refs_exist`.
+- **Menu leaf → registry coverage** (`core/menu.menubar_for` ki **487
+  leaf rows** ko registry par thoka):
+  - **26 rows resolve nahi ho rahi thin** → item **silently disabled**
+    (`setEnabled(False)`), matlab click = kuch nahi.
+  - **3 sirf trailing space ki wajah se**: VB6 caption `'Cashier Report '`,
+    `'Instant House Count '`, `'Package Forecast '` vs canonical
+    `'Cashier Report'` etc. Fix: naya
+    `MainWindow._opener()` = `_reg_ci` (strip+lower) lookup; 3 jagah
+    `self.registry.get(it["name"])` ispar switch.
+  - Baaki **22 unique**: headers/folder-text (`Banquet`, `EPABX`,
+    `Inventory`, `M.I.S.`, `Utility`, `SMS`, `Reports`, `Sstup` typo,
+    `....`) + **5 genuine missing ports** (VB6 form hai, Python nahi):
+    `Revenue Change Entry` (MDIForm1.frm:2461), `Facility Sundry Setting`
+    (:2565), `Card Recharge`/`Card Refund`/`Card Re-Issue`
+    (:2736/:2740/:2744 → `SmartCardRecharge.frm`/`SmartCardRefund.frm`/
+    `SmartCardLostReIssue.frm`). → **BUG-012** me likha + allow-list me
+    document kiye taaki silent no-op dubara na ho.
+  - Guard: `test_every_menu_leaf_resolves_to_an_opener` +
+    `test_known_trailing_space_captions_resolve`.
+- **New tests**: `tests/unit/test_qt_enum_usage.py` (2),
+  `tests/unit/test_shell_opener_refs.py` (4).
+- **Verification**: 726 green, `_smoke_new_openers.py` 0 failures,
+  `_verify_reg.py` OK, `compileall` OK.
+- **Stray artifacts (dusre agent/manual run ke, delete nahi kiye)**:
+  `ui/Ledger.xml`, `ui/LedgerMaster.xml` (Tally export output),
+  `_end.txt`/`_final.txt`/`_pr1.txt`/`_probe_*.txt`.
+
+**Uncommitted (commit nahi kiya)**: round-3 files + `ui/farm_check_ui.py`,
+`ui/shell.py`, `tests/unit/test_qt_enum_usage.py`,
+`tests/unit/test_shell_opener_refs.py`, `HMS_REVERSE_ENGINEERING/21_Testing/BUG_REGISTER.md`,
+`SESSION_HANDOFF.md`.
+
+## 2e. ROUND 5 (2026-09-29) — 3 card screens port + 2 latent CRUD bugs
+
+**Suite: 739 passed / 0 failed** (round-4 ke 726 se +13; `pytest -q -p no:cacheprovider`).
+
+### (a) BUG-012 classification correction → sirf 3 real ports
+Round-4 me "5 missing ports" likha gaya tha. VB6 source padhkar:
+- **`Revenue Change Entry`** = `MDIForm1.MemOpr` Index **9, `Visible = 0`**;
+  `MemOpr_Click` me case 9 **hai hi nahi** (handled 0,1,2,3,4,5,6,11).
+- ~~**`Facility Sundry Setting`** = `MallMgmt` Index 6 `Visible = 0`;
+  `MallMgmt_Click()` body `Exit Sub`~~ → **ye wala note ROUND-6 me
+  galat saabit hua, dekho §2f (a).**
+
+### (b) 3 card screens port hue — `ui/smartcard_txn_ui.py` (naya file)
+Routing: `MDIForm1.EXTSCOP` Index 3/4/5 → `ModuleAdd.bas:2470/2476/2482`
+→ `SmartCardRecharge` / `SmartCardRefund` / `SmartCardLostReIssue`.
+- `RechargeDialog`, `RefundDialog` (+ VB6 `CmdWaiveoff` button),
+  `ReIssueDialog`; shared `pick_card()` = VB6 **card-reader scan** ka Python
+  equivalent (Code/SerialNo se card select).
+- Opener: `open_card_recharge` / `open_card_refund` / `open_card_re_issue`
+  (`menu_name_allowed` guard ke saath), `ui/shell.py` registry me
+  `Card Recharge` / `Card Refund` / `Card Re-Issue`.
+- Hardware note: VB6 reader par chip me balance likhta hai
+  (`ModuleSmartCard.Proc_275_3/7`); Python me reader nahi → DB effects
+  same hain, chip write skip. `SmartCardTransaction` table live DB me
+  **absent** → VB6 ka hidden `CmdPosting` (LS_Posting) skip.
+
+### (c) Core ops — `core/smartcard_ops.py`
+VB6 ka poora money-movement ek hi `Proc_275_17(code, hw, label, vdate,
+cash, secur, narr)` se guzarta hai (`label` = Recharge | Refund | Waive-off
+| Reward), **VType hamesha `'RCARD'`**. Naya:
+- `_card_docid()` — `Voucher_Prefix` (V_Type='RCARD') se prefix+serial →
+  21-char DocId, `Start_Srl_No` bump (VB6 `Proc_275_15`).
+- `recharge_card()` / `refund_card()` / `waive_off_all()` / `reissue_card()`.
+- Sign convention **verified from source**: `SmartCardRecharge.frm:890`
+  rollup `CurrBal = Sum(AmtCr) - Sum(AmtDr)` over `RCARDC/CARDEXP`,
+  `SecurBal` over `RCARDS` → **Recharge = AmtCr, Refund/Waive = AmtDr**;
+  Type = `RCARDC`(cash)/`RCARDS`(security); waive = `WCARDC` (rollup me
+  **shamil nahi** — VB6 bhi alag UPDATE se zero karta hai, sirf audit row).
+- `reissue_card` = VB6 ke 4 statements ek transaction me:
+  `SmartCardReIssueDetail` insert + `SmartCardRegistration`
+  SerialNo/IssDate/ValidUpto + `MemberFamily`(CardRegId) +
+  `SmartCardMaster`(HW_Id). `SmartCardMaster` me `CardIssDate` column
+  **hai hi nahi** (schema probe) → wo skip.
+- **Naya latent bugs mile aur fix hue**:
+  - **BUG-026 (HIGH)**: `insert_reg` ka `VALUES` ek `?` off-by-one tha →
+    `U_EntDt`(datetime) ko `'A'` milta tha → **har Card Registration INSERT
+    22007 se fail**. Saath hi `SmartCardReIssueDetail.Trans_Id` **IDENTITY**
+    hai (explicit value = 544) aur `SCOPE_IDENTITY()` naye cursor me NULL
+    deta tha → `@@IDENTITY`.
+  - **BUG-027 (MEDIUM)**: `auto_settle_card` `VType='ASB'`, `Type='Refund'`,
+    `AmtCr` likh raha tha (VB6: `RCARD`/`RCARDC`/`RCARDS`/`AmtDr`) → rollup
+    ke against; `secur_settle='R'` par bhi `SecurBal=0` ho jata tha.
+
+### (d) New tests (13)
+- `tests/database/test_smartcard_txn.py` — **9** (recharge ledger+rollup,
+  VB6 message parity, refund caps, reissue 4-statement + validations,
+  waive-off, auto_settle RCARD regression, DocId/prefix bump).
+- `tests/unit/test_card_txn_ui.py` — **4** (registry resolves 3 leaves,
+  openers exist, dialogs construct with VB6 fields + `CmdWaiveoff`,
+  `RechargeDialog._on_save` guards).
+
+### (e) Verification
+`pytest` → **739 passed / 0 failed**; `_verify_reg.py` OK; `compileall` OK.
+(`_smoke_new_openers.py` round-4 ke baad delete ho chuka tha — uske kaam
+ko ab full suite + `_verify_reg.py` cover karta hai.)
+Temp `_probe_card_tables.py` delete.
+
+**Uncommitted (commit nahi kiya)**: round-4 files + `core/smartcard_ops.py`,
+`ui/smartcard_txn_ui.py`, `ui/shell.py`, `tests/database/test_smartcard_txn.py`,
+`tests/unit/test_card_txn_ui.py`,
+`HMS_REVERSE_ENGINEERING/21_Testing/BUG_REGISTER.md`, `SESSION_HANDOFF.md`.
+
+## 2f. TIER-1 PARITY BATCH (2026-09-29, round-5, pushed f9422b1..3136294)
+
+PARITY_BACKLOG.md ke Tier-1 me se 3/4 forms REAL + pushed. **Suite: 610
+unit passed / 0 failed** (17 naye tests; database tests alag track me —
+member/smartcard wale parallel-agent ke in-flight).
+
+- **GuestProfile Foreigner tab** (`b64d31d`): `core/guest_foreign.py` —
+  GuestProfFor 31-col CRUD (VB6 GuestProfile.frm loc_1C38424 36-col
+  INSERT pattern), **CFORM serial** Voucher_Prefix V_Type='CFORM' se
+  (loc_1C38859/1C38965; insert pe consume+update, update pe
+  **serial-preserve guard** — warna Form-C serial wipe ho jata), Sno
+  auto-gen (MAX+1), GuestProf existence guard. UI:
+  `ui/guest_lookup_ui.py::_open_foreign()` — per-stay QTabWidget
+  dialog (28 fields), Add Stay Tab / Save All. **UI gotcha**: sno/
+  serialno readonly widgets me rakhe (vals-collector sab widgets se
+  padta hai) + save loop `sno=0` pass karta hai, core resolve karta hai.
+  6 unit tests.
+- **VenueCapacity CRUD** (`4172c2a`): `core/venue.py::capacity_list/
+  capacity_upsert/capacity_delete` + `ui/banquet_masters_ui.py::
+  open_venue_capacity` dialog + shell registry "Venue Capacity".
+  **Live-schema surprises**: Capacity **varchar** hai ('Informal',
+  'Theatre', 'Seating' tier-names — sirf int nahi!), **U_Name column
+  table me hai hi nahi** (audit sirf U_EntDt/U_AE/LogSite_Code).
+  **Latent bug fix**: local var `exists` module-fn `exists()` ko shadow
+  kar raha tha → UnboundLocalError on every upsert (row_exists rename).
+  5 unit tests (U_Name-absent invariant assert).
+- **Comp Master** (`24cedc5`): `core/comp_master.py` — 3-table pack
+  (RoomDiscount/Comp_PlanDet/Comp_Inclusive), VB6 CompMast
+  delete-then-reinsert save (loc_168F014), SubGroup guard, discount
+  0-100 validation. UI: `ui/misc_sub_forms_ui.py::CompMasterWindow`
+  (company code + 3 tabs) + shell registry "Comp Master".
+  **PlanMast live cols `Code`/`Name`** hain — PlanCode/PlanName nahi
+  (probe: 24 cols). **RoomDiscount me U_Name col nahi** (Comp_PlanDet/
+  Comp_Inclusive me hai). Live: 1096 companies, 86 roomcats, 9 plans,
+  get_comp('KK000025') = 4 discounts/4 plans. 6 unit tests.
+- **Coordinated with parallel agent ka round-5 card work**: shell.py
+  me unke 2 hunks (sct-import + Card Recharge/Refund/Re-Issue entries)
+  mere commit me stage NAHI hue — per-hunk `git apply --cached` se
+  selective staging. Unka working-tree diff intact hai.
+- Stale scratch cleanup (`3136294`): `_bug002_check.txt`,
+  `_gitstate.txt`, `_staged.txt`, `_verify_state.txt` deleted.
+
+**Pushed**: `f9422b1..3136294` (4 commits: 3 feature + 1 cleanup).
+
 ## 2b. NEXT SESSION — kya bacha
 
 ### Aage ke ideas
 - BUG_REGISTER.md ke document-only bugs (001/005/006/007/009/010) ko
   implementation notes se update karna.
-- **BUG-011 orphan rows** (`060004`/`060005`) live DB se saaf karne hain ya
-  nahi — user se confirm karna.
 - **HallAcPostChrg** (VB6 "A/C Posting", From/To Date + Night Audit button)
   ka koi menu leaf hi nahi hai (`core/mdi_menu.json` me absent) → MISSING
   form, WRONG_TARGET nahi. Banquet billing se launch hota tha; port karna
@@ -227,12 +399,25 @@
 - VB6 decompiled source: `../FODER/*.frm` (read-only)
 - Probes: `_qa/probe_*.py` (DB schema evidence)
 - Bug register: `HMS_REVERSE_ENGINEERING/21_Testing/BUG_REGISTER.md`
-  (BUG-011 = ACGROUPCURRBAL path-code/orphan rows)
+  (BUG-011 = ACGROUPCURRBAL path-code/orphan rows; BUG-012 = menu leaf gap
+  (rev: 2 dead-in-VB6 + 3 ported); BUG-026 = insert_reg off-by-one +
+  identity; BUG-027 = auto_settle ledger sign/type)
 - CurrBal rebuild: `core/fa_ledger_ops.py::rebuild_currbal` + `_acgroup_chain`
 - Member master: `core/fa_masters_ops.py::member_*` + `ui/member_master_ui.py`
+- Card txn core: `core/smartcard_ops.py::recharge_card / refund_card /
+  waive_off_all / reissue_card / _card_docid / auto_settle_card`
+- Card txn UI: `ui/smartcard_txn_ui.py` (Recharge/Refund/ReIssueDialog,
+  `pick_card`) + shell registry keys `Card Recharge`/`Card Refund`/`Card Re-Issue`
+- **Guest foreigner**: `core/guest_foreign.py::save_stay/list_foreign_stays/
+  next_serial/delete_stay` + `ui/guest_lookup_ui.py::_open_foreign`
+- **Venue capacity**: `core/venue.py::capacity_list/upsert/delete` +
+  `ui/banquet_masters_ui.py::open_venue_capacity` (registry "Venue Capacity")
+- **Comp master**: `core/comp_master.py::list_*/get_comp/save_comp/delete_comp`
+  + `ui/misc_sub_forms_ui.py::CompMasterWindow` (registry "Comp Master")
 - TDS challan: `ui/fa_sub_forms_ui.py::TDSChallanWindow` (selection-enum fix)
 - Member/smartcard/currbal tests: `tests/database/test_member_master.py`,
-  `tests/database/test_currbal_rebuild.py`
+  `tests/database/test_currbal_rebuild.py`,
+  `tests/database/test_smartcard_txn.py`
 - Wrong-target contracts: `tests/unit/test_wrong_target_wiring.py` (strict)
 - DB: MOONData2627 (SQL Server, Native Client 10), 277 tables
 - Login: SA/KANPUR verified working

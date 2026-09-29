@@ -1,4 +1,4 @@
-# PARITY BACKLOG — Prioritized Shortlist (2026-09-29, round-4)
+# PARITY BACKLOG — Prioritized Shortlist (2026-09-29, round-5 update)
 
 Source: `VB6_VS_PYTHON_FILE_BY_FILE.txt` (regenerated cd8f976) +
 runtime registry ground-truth + live-DB probes.
@@ -13,15 +13,17 @@ Analysis scripts: `_qa/vb6_only_next_candidates.py`, registry sweep.
 - missing_biz_fns 431 / missing_evt 619: static estimates — zyadatar
   mapped-ya-covered (registry-wired forms ke andar); actionable subset
   hi niche shortlist me hai.
+- **Tier-1 progress (round-5)**: #1, #2, #3 COMPLETE + pushed
+  (commits `b64d31d`, `4172c2a`, `24cedc5`); sirf #4 (departpay) bachi.
 
 ## TIER 1 — Port next (real masters/details, live data, owner form clear)
 
 | # | Form (VB6) | Table(s) | Live rows | Kyun |
 |---|-----------|----------|-----------|------|
-| 1 | **Guest Profile — Foreigner tab** (GuestProfile.frm) | `guestproffor` | 30 | Form-C compliance data (passport/visa 20+ cols live). GuestProfile REAL hai — tab add karna hai, naya form nahi. |
-| 2 | **Venue Master — capacity tab** (FrmVenueMast.frm) | `venuecapacity` | 32 | Venue Master REAL hai (banq_ui); capacity rows ka CRUD missing. |
-| 3 | **Comp Master** (CompMast.frm) | `comp_plandet` 8350 + `roomdiscount` 1584 + `comp_inclusive` | ~10k | Complimentary plans ka poora system — data heavy, VB6 CompMast evidence strong. Naya master. |
-| 4 | **Settlement outlet-paycodes** (FdReSettlement add-on) | `departpay` | 75 | Chhota: re-settlement me outlet-allowed-paycodes filter. ReSettlement REAL — enhancement. |
+| 1 | ✅ **DONE** Guest Profile — Foreigner tab (GuestProfile.frm) | `guestproffor` | 30 | **Ported `b64d31d`**: `core/guest_foreign.py` (31-col CRUD, CFORM serial via Voucher_Prefix, serial-preserve update) + `ui/guest_lookup_ui.py` tabbed dialog + 6 unit tests. |
+| 2 | ✅ **DONE** Venue Master — capacity tab (FrmVenueMast.frm) | `venuecapacity` | 32 | **Ported `4172c2a`**: `core/venue.py::capacity_list/upsert/delete` (Capacity **varchar** hai — 'Informal'/'Theatre' tiers; **U_Name col nahi** live table me) + `open_venue_capacity` dialog + registry wire + 5 tests. Latent UnboundLocalError fix hua. |
+| 3 | ✅ **DONE** Comp Master (CompMast.frm) | `comp_plandet` 8350 + `roomdiscount` 1584 + `comp_inclusive` | ~10k | **Ported `24cedc5`**: `core/comp_master.py` (3-table delete-then-reinsert save, VB6 loc_168F014) + `CompMasterWindow` + registry wire + 6 tests. **PlanMast cols `Code`/`Name`** hain (PlanCode/PlanName nahi — probe-verified). |
+| 4 | **IN PROGRESS** Settlement outlet-paycodes (FdReSettlement add-on) | `departpay` | 75 | Chhota: re-settlement me outlet-allowed-paycodes filter. ReSettlement REAL — enhancement. |
 
 ## TIER 2 — Portable, par low-value/low-data (jab Tier 1 done)
 
@@ -69,8 +71,8 @@ in-memory tracker already), `user2` (UserMast mirror).
 
 ## Recommended execution order (next sessions)
 
-1. **GuestProfile Foreigner tab** (Tier1 #1) — smallest, compliance value
-2. **Venue capacity CRUD** (Tier1 #2) — venue master me tab
-3. **Comp Master** (Tier1 #3) — sabse bada, 3 tables, full form port
-4. **departpay enhancement** (Tier1 #4) — re-settlement filter
+1. ~~GuestProfile Foreigner tab~~ — **DONE `b64d31d`**
+2. ~~Venue capacity CRUD~~ — **DONE `4172c2a`**
+3. ~~Comp Master~~ — **DONE `24cedc5`**
+4. **departpay enhancement** (Tier1 #4) — re-settlement filter — IN PROGRESS
 5. Plan Defination Master / Changes Department — chhote tasks
