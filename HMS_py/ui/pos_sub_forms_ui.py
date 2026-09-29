@@ -366,3 +366,239 @@ class GravyItemWindow(QMainWindow):
 
 def open_gravy_item_entry(parent=None, user="SA"):
     w = GravyItemWindow(parent, user=user); w.show(); return w
+
+
+class ConsumptionMasterWindow(QMainWindow):
+    """Consumption Master (VB6: FrmConsumMast) — BOM recipe master.
+    Finish item + outlet + date ke liye raw-material recipe define karo
+    (Cost LPurRate se compute, ItemMast.PurchRate backfill)."""
+
+    RECIPE_COLS = ["FinItem", "Outlet", "Date", "Finish Name",
+                   "Raw rows"]
+    RAW_COLS = ["", "Raw Item", "Name", "Qty", "Waste"]
+
+    def __init__(self, parent=None, user="SA"):
+        super().__init__(parent)
+        self.setWindowTitle("Consumption Master")
+        self.resize(920, 580)
+        self._user = user
+        self._build_ui()
+        self._reload()
+
+    def _build_ui(self):
+        from PyQt6.QtWidgets import (QComboBox, QDateEdit, QFormLayout,
+                                     QGroupBox, QTabWidget)
+        from HMS_py.core import consumption_master as cm
+        central = QWidget(); self.setCentralWidget(central)
+        layout = QVBoxLayout(central)
+        title = QLabel("Consumption Master (BOM Recipes)")
+        title.setFont(QFont("Segoe UI", 14, QFont.Weight.Bold))
+        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(title)
+
+        self.tabs = QTabWidget()
+        self.tabs.setDocumentMode(True)
+
+        # ── Tab 1: saved recipes ──
+        w1 = QWidget(); l1 = QVBoxLayout(w1)
+        self.recipe_table = QTableWidget(0, len(self.RECIPE_COLS))
+        self.recipe_table.setHorizontalHeaderLabels(self.RECIPE_COLS)
+        self.recipe_table.setSelectionBehavior(
+            QTableWidget.SelectionBehavior.SelectRows)
+        self.recipe_table.setSelectionMode(
+            QTableWidget.SelectionMode.SingleSelection)
+        self.recipe_table.setEditTriggers(
+            QTableWidget.EditTrigger.NoEditTriggers)
+        self.recipe_table.itemSelectionChanged.connect(self._on_recipe_row)
+        l1.addWidget(self.recipe_table, 1)
+        b1 = QHBoxLayout()
+        self.btn_del_recipe = QPushButton("Delete Recipe")
+        self.btn_del_recipe.setProperty("role", "danger")
+        self.btn_del_recipe.setEnabled(False)
+        self.btn_del_recipe.clicked.connect(self._delete_recipe)
+        self.btn_exit = QPushButton("Exit")
+        self.btn_exit.clicked.connect(self.close)
+        b1.addWidget(self.btn_del_recipe); b1.addStretch()
+        b1.addWidget(self.btn_exit)
+        l1.addLayout(b1)
+        self.tabs.addTab(w1, "Saved Recipes")
+
+        # ── Tab 2: new/edit recipe ──
+        w2 = QWidget(); l2 = QVBoxLayout(w2)
+        form = QGroupBox("Recipe header")
+        fl = QFormLayout(form)
+        self.cmb_outlet = QComboBox()
+        for o in cm.list_outlets():
+            self.cmb_outlet.addItem(f"{o['name']} ({o['code']})", o["code"])
+        self.cmb_outlet.currentIndexChanged.connect(self._fill_finish)
+        self.cmb_fin = QComboBox()
+        self.txt_finqty = QLineEdit("1")
+        self.dt_app = QDateEdit(); self.dt_app.setCalendarPopup(True)
+        self.dt_app.setDate(self.dt_app.date())
+        fl.addRow("Outlet*:", self.cmb_outlet)
+        fl.addRow("Finish item*:", self.cmb_fin)
+        fl.addRow("FinQty (yield):", self.txt_finqty)
+        fl.addRow("Applicable date:", self.dt_app)
+        l2.addWidget(form)
+        l2.addWidget(QLabel("Raw material rows (Store/Gravy items):"))
+        self.raw_table = QTableWidget(0, len(self.RAW_COLS))
+        self.raw_table.setHorizontalHeaderLabels(self.RAW_COLS)
+        self.raw_table.setEditTriggers(
+            QTableWidget.EditTrigger.NoEditTriggers)
+        l2.addWidget(self.raw_table, 1)
+        b2 = QHBoxLayout()
+        self.btn_add_raw = QPushButton("Add Raw Item")
+        self.btn_rm_raw = QPushButton("Remove Row")
+        self.btn_save_recipe = QPushButton("Save Recipe")
+        self.btn_save_recipe.setProperty("role", "warning")
+        b2.addWidget(self.btn_add_raw)
+        b2.addWidget(self.btn_rm_raw); b2.addStretch()
+        b2.addWidget(self.btn_save_recipe)
+        l2.addLayout(b2)
+        self.tabs.addTab(w2, "New / Edit Recipe")
+        layout.addWidget(self.tabs, 1)
+
+        self.btn_add_raw.clicked.connect(self._add_raw)
+        self.btn_rm_raw.clicked.connect(self._rm_raw)
+        self.btn_save_recipe.clicked.connect(self._save_recipe)
+
+    def _reload(self):
+        from HMS_py.core import consumption_master as cm
+        try:
+            recipes = cm.list_recipes()
+        except Exception as e:
+            QMessageBox.critical(self, "Error", str(e)); return
+        t = self.recipe_table
+        t.setRowCount(len(recipes))
+        txt = palette()["text"]
+        for i, r in enumerate(recipes):
+            vals = [r["fin_item"], r["outlet"], r["app_date"],
+                    r["fin_name"], str(r["raw_count"])]
+            for j, v in enumerate(vals):
+                it = QTableWidgetItem(v)
+                it.setForeground(QColor(txt))
+                t.setItem(i, j, it)
+        self._recipes = recipes
+
+    def _fill_finish(self):
+        from HMS_py.core import consumption_master as cm
+        code = self.cmb_outlet.currentData()
+        self.cmb_fin.clear()
+        if not code:
+            return
+        try:
+            for f in cm.list_finish_items(code):
+                self.cmb_fin.addItem(f"{f['name']} ({f['code']})", f["code"])
+        except Exception:
+            pass
+
+    def _on_recipe_row(self):
+        self.btn_del_recipe.setEnabled(self.recipe_table.currentRow() >= 0)
+
+    def _add_raw(self):
+        from HMS_py.core import consumption_master as cm
+        code = self.cmb_outlet.currentData()
+        try:
+            raws = cm.list_raw_items(code or "")
+        except Exception as e:
+            QMessageBox.critical(self, "Error", str(e)); return
+        if not raws:
+            QMessageBox.information(self, "Input",
+                                    "Is outlet ke liye koi raw (Store/Gravy) "
+                                    "items nahi mile"); return
+        names = [f"{r['name']} ({r['code']})" for r in raws]
+        from PyQt6.QtWidgets import QInputDialog
+        choice, ok = QInputDialog.getItem(
+            self, "Add Raw Item", "Raw item:", names, 0, False)
+        if not ok:
+            return
+        idx = names.index(choice)
+        raw = raws[idx]
+        qty, ok = QInputDialog.getDouble(
+            self, "Add Raw Item", "Quantity:", 1.0, 0.01, 1e9, 4)
+        if not ok:
+            return
+        row = self.raw_table.rowCount()
+        self.raw_table.insertRow(row)
+        chk = QTableWidgetItem()
+        chk.setFlags(chk.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+        chk.setCheckState(Qt.CheckState.Checked)
+        self.raw_table.setItem(row, 0, chk)
+        self.raw_table.setItem(row, 1, QTableWidgetItem(raw["code"]))
+        self.raw_table.setItem(row, 2, QTableWidgetItem(raw["name"]))
+        self.raw_table.setItem(row, 3, QTableWidgetItem(f"{qty:.4f}"))
+        self.raw_table.setItem(row, 4, QTableWidgetItem("0.0000"))
+
+    def _rm_raw(self):
+        row = self.raw_table.currentRow()
+        if row >= 0:
+            self.raw_table.removeRow(row)
+
+    def _save_recipe(self):
+        from HMS_py.core import consumption_master as cm
+        fin = self.cmb_fin.currentData()
+        outlet = self.cmb_outlet.currentData()
+        try:
+            fin_qty = float(self.txt_finqty.text() or "1")
+        except ValueError:
+            QMessageBox.warning(self, "Input", "FinQty numeric hona chahiye")
+            return
+        raw_rows = []
+        for row in range(self.raw_table.rowCount()):
+            chk = self.raw_table.item(row, 0)
+            if not chk or chk.checkState() != Qt.CheckState.Checked:
+                continue
+            try:
+                qty = float(self.raw_table.item(row, 3).text())
+                waste = float(self.raw_table.item(row, 4).text() or "0")
+            except (ValueError, AttributeError):
+                QMessageBox.warning(self, "Input",
+                                    f"Row {row + 1}: qty/waste numeric hona "
+                                    "chahiye")
+                return
+            raw_rows.append({"raw_item": self.raw_table.item(row, 1).text(),
+                             "raw_qty": qty, "waste": waste})
+        app_date = self.dt_app.date().toPyDate()
+        reply = QMessageBox.question(
+            self, "Confirm",
+            f"Recipe save karein?\n{fin} @ {outlet} ({app_date})\n"
+            "Purani recipe (same key) replace hogi.")
+        if reply != QMessageBox.StandardButton.Yes:
+            return
+        try:
+            res = cm.save_recipe(fin, outlet, fin_qty, app_date, raw_rows,
+                                 user=self._user)
+        except Exception as e:
+            QMessageBox.critical(self, "Error", str(e)); return
+        QMessageBox.information(
+            self, "Done",
+            f"{res['rows_saved']} raw row(s) saved.\n"
+            f"Cost per finished unit: {res['cost_per_unit']:,.4f}\n"
+            "(ItemMast.PurchRate/LPurRate updated)")
+        self.raw_table.setRowCount(0)
+        self._reload()
+
+    def _delete_recipe(self):
+        from HMS_py.core import consumption_master as cm
+        row = self.recipe_table.currentRow()
+        if not (0 <= row < len(self._recipes)):
+            return
+        r = self._recipes[row]
+        reply = QMessageBox.question(
+            self, "Confirm",
+            f"Recipe {r['fin_name']} @ {r['outlet']} "
+            f"({r['app_date']}) delete karein?")
+        if reply != QMessageBox.StandardButton.Yes:
+            return
+        import datetime as _dt
+        y, m, d = (int(x) for x in r["app_date"].split("-")[:3])
+        try:
+            cm.delete_recipe(r["fin_item"], r["rest_code"],
+                             _dt.date(y, m, d))
+        except Exception as e:
+            QMessageBox.critical(self, "Error", str(e)); return
+        self._reload()
+
+
+def open_consumption_master(parent=None, user="SA"):
+    w = ConsumptionMasterWindow(parent, user=user); w.show(); return w

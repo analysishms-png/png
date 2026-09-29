@@ -1324,7 +1324,8 @@ def _form_registry() -> dict[str, callable]:
         "Adjustment Entry": lambda w: fvu.open_voucher_entry(w),
         "Delete Adjustment Entry": lambda w: fvu.open_voucher_entry(w),
         "Bank Reconciliation": lambda w: fvu.open_bank_recon(w),
-        "T.D.S. Challan Entry": lambda w: fvu.open_voucher_entry(w),
+        # VB6 fate_Click idx5 -> FaTDSChal (idx0 FaVrEnt, idx6 FaTDSCertificate)
+        "T.D.S. Challan Entry": (lambda w: fasub_ui.open_fa_tds_challan(w)) if fasub_ui else _coming_soon("T.D.S. Challan Entry"),
         "T.D.S. Certificate Entry": lambda w: _open_fv_list(
             w, "T.D.S. Certificate",
             lambda: __import__("HMS_py.core.tdscerti", fromlist=["x"]).list_all()),
@@ -1431,6 +1432,7 @@ def _form_registry() -> dict[str, callable]:
         "Look Up Room types": (lambda w: fosub_ui.open_room_lookup(w)) if fosub_ui else _coming_soon("Look Up Room types"),
         "POS Bill Reprint": (lambda w: psub_ui.open_bill_reprint(w)) if psub_ui else _coming_soon("POS Bill Reprint"),
         "Gravy Item Entry": (lambda w: psub_ui.open_gravy_item_entry(w, user=getattr(w, "user", "SA"))) if psub_ui else _coming_soon("Gravy Item Entry"),
+        "Consumption Master": (lambda w: psub_ui.open_consumption_master(w, user=getattr(w, "user", "SA"))) if psub_ui else _coming_soon("Consumption Master"),
         "Split Sale Bill": (lambda w: psub_ui.open_split_bill(w)) if psub_ui else _coming_soon("Split Sale Bill"),
         # Truly blocked (no DB tables)
         # NOTE: "Member Bill Sundry Setting" alag case hai — SundryTypeFix table
@@ -1521,7 +1523,7 @@ def _form_registry() -> dict[str, callable]:
         "Pending M.R.": (lambda w: reqslip_ui.open_requisition_slip(w)) if reqslip_ui else _coming_soon("Pending M.R."),
         # --- S1 tail: blocked tables (click par documented VB6-style message) ---
         **({cap: _coming_soon(cap) for cap in (
-             "Party Master", "Consumption Master",
+             "Party Master",
             "Purchase Sundry Setting", "Enviro Inventry",
             "Finish Material Receive Entry", "Excise Invoice Cum Gate Pass",
             "Pending Purchase Order",
