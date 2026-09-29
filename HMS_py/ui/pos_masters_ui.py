@@ -232,6 +232,99 @@ def open_smartcard(parent=None, user: str = "SA"):
     _open(smartcard_config, parent, user)
 
 
+# ── Card Registration (VB6 SmartCardRegistration.frm) ──────────
+def _reg_record(rec: dict) -> dict:
+    """BaseMasterForm string-fields -> smartcard_ops typed record."""
+    out = dict(rec)
+    for k in ("cashamt", "securityamt", "rewardbal"):
+        if k in out and out[k] not in (None, ""):
+            try:
+                out[k] = float(out[k])
+            except (TypeError, ValueError):
+                out[k] = 0.0
+    return out
+
+
+class _CardRegistrationAPI:
+    """BaseMasterForm API adapter over core.smartcard_ops registration CRUD.
+
+    VB6 SmartCardRegistration.frm (Members > Card Registration) alag table
+    SmartCardRegistration pe kaam karta hai — SmartCardMaster (open_smartcard)
+    se independent.
+    """
+
+    @staticmethod
+    def list_all(cn=None, limit=1000):
+        from HMS_py.core import smartcard_ops as sc
+        return sc.list_all_reg(cn=cn, limit=limit)
+
+    @staticmethod
+    def get(code, cn=None):
+        from HMS_py.core import smartcard_ops as sc
+        return sc.get_reg(code, cn=cn)
+
+    @staticmethod
+    def exists(code, cn=None):
+        from HMS_py.core import smartcard_ops as sc
+        return sc.get_reg(code, cn=cn) is not None
+
+    @staticmethod
+    def insert(rec, cn=None, commit=True):
+        from HMS_py.core import smartcard_ops as sc
+        return sc.insert_reg(_reg_record(rec), cn=cn, commit=commit)
+
+    @staticmethod
+    def update(code, rec, cn=None, commit=True):
+        from HMS_py.core import smartcard_ops as sc
+        return sc.update_reg(code, _reg_record(rec), cn=cn, commit=commit)
+
+    @staticmethod
+    def delete(code, cn=None, commit=True):
+        from HMS_py.core import smartcard_ops as sc
+        return sc.delete_reg(code, cn=cn, commit=commit)
+
+
+def card_registration_config() -> MasterConfig:
+    return MasterConfig(
+        title="Card Registration - HMS_py",
+        columns=[("Code", "code"), ("Card Type", "cardtype"),
+                 ("Card No", "cardno"), ("Name", "name"),
+                 ("Phone", "phone"), ("Blocked", "blockedyn"),
+                 ("Curr Bal", "currbal"), ("Member", "membercode")],
+        fields=[
+            Field("code", "Card Code", max_len=6, required=True),
+            Field("cardtype", "Card Type", max_len=6),
+            Field("cardno", "Card No", max_len=20),
+            Field("name", "Name", max_len=40, required=True),
+            Field("addr", "Address", max_len=60),
+            Field("phone", "Phone", max_len=20),
+            Field("cashamt", "Cash Amount", default="0"),
+            Field("securityamt", "Security Amount", default="0"),
+            Field("blockedyn", "Blocked Y/N", max_len=1, default="N"),
+            Field("serialno", "Serial No", max_len=20),
+            Field("membercode", "Member Code", max_len=10),
+            Field("rewardbal", "Reward Balance", default="0"),
+        ],
+        api=_CardRegistrationAPI,
+        delete_guard=make_delete_guard("PYT"),
+    )
+
+
+def open_card_registration(parent=None, user: str = "SA"):
+    """VB6 SmartCardRegistration -> registration entry (CRUD).
+
+    open_smartcard (SmartCardMaster) se alag: ye SmartCardRegistration
+    table par chalta hai — VB6 menu leaf "Card Registration".
+    """
+    cfg = card_registration_config()
+    form_name = cfg.title.split(" - ", 1)[0].strip()
+    if not menu_core.menu_name_allowed(form_name, user):
+        QMessageBox.warning(parent, "Access denied",
+                            f"{form_name} ko aapke user rights mein nahi hai.")
+        return
+    BaseMasterForm(cfg, parent).exec()
+
+
 # ── Auto Settle Card Balance (VB6 MemAutoSettleCardBalance.frm port) ──
 def open_auto_settle_card_balance(parent=None, user: str = "SA"):
     """Pending-balance cards grid + Settle (VB6 Fill/CmdSave pattern).

@@ -1191,7 +1191,7 @@ def _form_registry() -> dict[str, callable]:
         "Check-Out": (lambda w: _rbac_guard("d", "Check-Out")(fo2.open_checkout)(w, user=w.user)) if fo2 else None,
         "Checkout": (lambda w: _rbac_guard("d", "Checkout")(fo2.open_checkout)(w, user=w.user)) if fo2 else None,            "WalkIn CheckIn": (lambda w: wrui.open_walkin_entry(
                 w, user=getattr(w, 'user', 'PYADMIN'))) if wrui else _coming_soon("WalkIn CheckIn"),
-        "Reverse Check Out": (lambda w: fo2.open_checkout(w, user=w.user)) if fo2 else None,
+        "Reverse Check Out": (lambda w: fo2.open_checkout(w, user=w.user, reverse=True)) if fo2 else None,
         "Room Status": (lambda w: rs_ui.open_roomstatus(w, user=w.user)) if rs_ui else None,
         "House Keeping Screen": (lambda w: rs_ui.open_roomstatus(w, user=w.user)) if rs_ui else None,
         "Expense Entry": (lambda w: exp_ui.open_expense(w, user=w.user)) if exp_ui else None,
@@ -1331,7 +1331,7 @@ def _form_registry() -> dict[str, callable]:
         "Expense Voucher": (lambda w: exp_ui.open_expense(w, user=w.user)) if exp_ui else None,
         "Opening Balance Updation": lambda w: fvu.open_trial_balance(w),
         "Year End Updation": (lambda w: year_end_ui.open_year_end_preflight(w)) if year_end_ui else None,
-        "Current Balance Updation": lambda w: fvu.open_trial_balance(w),
+        "Current Balance Updation": lambda w: fvu.open_currbal_update(w),
         # Finance Display (fa_voucher_ui openers)
         "Balance Sheet": lambda w: fvu.open_balance_sheet(w),
         "Profit And Loss Account": lambda w: fvu.open_pnl(w),
@@ -1415,10 +1415,12 @@ def _form_registry() -> dict[str, callable]:
             "Attendance Report", "Form C",
         ) if _rpmod}),
         # Blocked-table leaves -> some now have real UIs
-        "Night Audit Process": (lambda w: narep_ui.open_nightaudit_reports(w)) if narep_ui else _coming_soon("Night Audit Process"),
+        # VB6 MDIForm1 NightAuditoR_Click: idx1 Charges Posting -> fdPostChrg,
+        # idx2 Night Audit Process -> fdAcPostChrg, idx5 Reverse -> frmReNightAudit
+        "Night Audit Process": (lambda w: npu_ui.open_night_audit_process(w, user=getattr(w, 'user', None))) if npu_ui else _coming_soon("Night Audit Process"),
         "Night Audit Control Panel": (lambda w: narep_ui.open_nightaudit_reports(w)) if narep_ui else _coming_soon("Night Audit Control Panel"),
-        "Reverse Night Audit": (lambda w: narep_ui.open_nightaudit_reports(w)) if narep_ui else _coming_soon("Reverse Night Audit"),
-        "Charges Posting": (lambda w: narep_ui.open_nightaudit_reports(w)) if narep_ui else _coming_soon("Charges Posting"),
+        "Reverse Night Audit": (lambda w: npu_ui.open_reverse_night_audit(w, user=getattr(w, 'user', None))) if npu_ui else _coming_soon("Reverse Night Audit"),
+        "Charges Posting": (lambda w: npu_ui.open_posting_utility(w, user=getattr(w, 'user', None))) if npu_ui else _coming_soon("Charges Posting"),
         # VB6 fdNDAcPostChrg = Posting Utility (NightAuditoR index 3)
         "Account Posting": (lambda w: npu_ui.open_posting_utility(w, user=getattr(w, 'user', None))) if npu_ui else _coming_soon("Account Posting"),
         "Bill Reprint": (lambda w: psub_ui.open_bill_reprint(w)) if psub_ui else _coming_soon("Bill Reprint"),
@@ -1428,6 +1430,7 @@ def _form_registry() -> dict[str, callable]:
         "Look Up Rooms": (lambda w: fosub_ui.open_room_lookup(w)) if fosub_ui else _coming_soon("Look Up Rooms"),
         "Look Up Room types": (lambda w: fosub_ui.open_room_lookup(w)) if fosub_ui else _coming_soon("Look Up Room types"),
         "POS Bill Reprint": (lambda w: psub_ui.open_bill_reprint(w)) if psub_ui else _coming_soon("POS Bill Reprint"),
+        "Gravy Item Entry": (lambda w: psub_ui.open_gravy_item_entry(w, user=getattr(w, "user", "SA"))) if psub_ui else _coming_soon("Gravy Item Entry"),
         "Split Sale Bill": (lambda w: psub_ui.open_split_bill(w)) if psub_ui else _coming_soon("Split Sale Bill"),
         # Truly blocked (no DB tables)
         # NOTE: "Member Bill Sundry Setting" alag case hai — SundryTypeFix table
@@ -1487,7 +1490,7 @@ def _form_registry() -> dict[str, callable]:
                 "SELECT LcCode, AppDate, FcCode, UnitRate, DueOn FROM LocationFacility ORDER BY LcCode")),
         # Finance sub-forms (VB6 fate_Click)
         "Ledger Adjustment": (lambda w: fasub_ui.open_fa_adjust(w)) if fasub_ui else _coming_soon("Ledger Adjustment"),
-        "Adjustment Deletion": (lambda w: fasub_ui.open_fa_adjust(w)) if fasub_ui else _coming_soon("Adjustment Deletion"),
+        "Adjustment Deletion": (lambda w: fasub_ui.open_fa_adjust(w, delete=True)) if fasub_ui else _coming_soon("Adjustment Deletion"),
         "Cheque Clearing": (lambda w: fasub_ui.open_fa_chq_clear(w)) if fasub_ui else _coming_soon("Cheque Clearing"),
         "TDS Certificate": (lambda w: fasub_ui.open_fa_tds_cert(w)) if fasub_ui else _coming_soon("TDS Certificate"),
         # Guest & Registration forms (GuestProf/GuestFolio tables exist)
@@ -1520,7 +1523,6 @@ def _form_registry() -> dict[str, callable]:
         **({cap: _coming_soon(cap) for cap in (
              "Party Master", "Consumption Master",
             "Purchase Sundry Setting", "Enviro Inventry",
-            "Gravy Item Entry",
             "Finish Material Receive Entry", "Excise Invoice Cum Gate Pass",
             "Pending Purchase Order",
             "Voucher Wise Sundry Entry", "Sale MIS Customized",
@@ -1562,7 +1564,7 @@ def _form_registry() -> dict[str, callable]:
         "Auto Settle Card Balance": ((lambda w: pm.open_auto_settle_card_balance(
             w, user=getattr(w, "user", "SA"))) if pm else None),
         # SmartCard ops (VB6: Registration/Recharge/Refund/ReIssue forms)
-        "Card Registration": ((lambda w: pm.open_smartcard(w, user=getattr(w, "user", "SA"))) if pm else None),
+        "Card Registration": ((lambda w: pm.open_card_registration(w, user=getattr(w, "user", "SA"))) if pm else None),
         # VB6 FrmGuestWakeUp -> guest services Wake Up tab
         "Register Wake up Calls": ((lambda w: gsvc_ui.open_guest_services(w)) if gsvc_ui else None),
         # VB6 HRoomCheckOutClearance -> check-out screen
