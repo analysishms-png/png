@@ -1,0 +1,35 @@
+%% 10_Night_Audit — workflow (spec §15)
+%% Evidence: NIGHT_AUDIT_FLOW.md + module_manual §5/§9 [VERIFIED-VB6]
+flowchart TD
+    A[Night Audit menu click] --> B[Enviro gate<br/>KOTAtNightAudit / POSBillAtNightAudit<br/>L480407]
+    B -->|pending work| C[Force pending KOT/POS processing<br/>NightAuditoR_Click pre-checks]
+    C --> B
+    B -->|clear| D{Optional pre-steps}
+    D --> D1[Charges Posting<br/>fdPostChrg]
+    D --> D2[Account Posting<br/>fdNDAcPostChrg]
+    D1 --> E[Night Audit Process<br/>mdlNightAudit BeginTrans]
+    D2 --> E
+
+    subgraph TXN [One transaction]
+        E --> PA[Phase A: revenue + expense to Ledger<br/>RevMast CASH_AC, ExpSheet HTEXP/HTSAL]
+        PA -->|CommitTrans 1F6FEAC| PB[Phase B: room status roll<br/>occupied not C/O -> roomStat='D']
+        PB --> PC[Phase C: due-out extension<br/>DepDate roll + NoDays recount]
+        PC --> PD1[Phase D: Enviro.ncur +1<br/>ImprestAmount=0]
+        PD1 --> PD2[NightAuditLog insert<br/>L228852]
+        PD2 --> PD3[Depart token reset<br/>AutoResetToken='Yes']
+        PD3 --> PD4[Split-bill purge<br/>POS_SBill/SplitSale1/2/SplitStock/SplitedSunTran]
+        PD4 --> PD5[VOUCHER_PREFIX renumber<br/>Max(VNo)+1]
+        PD5 --> COMMIT[CommitTrans 1F70A34]
+    end
+
+    COMMIT --> OK[Business date advanced]
+    E -.->|any error| RB[RollbackTrans<br/>MsgBox: problem in Last date<br/>Settlement Or Charge Posting]
+    RB --> NC[Business date UNCHANGED]
+
+    OK --> REV[Reverse Night Audit<br/>frmReNightAudit via NightAuditLog DateChngFrom/To]
+    OK --> RPT[Reports: Daily / Analyses /<br/>GST GSTR / Tally / Log views]
+
+    style E fill:#ffebee
+    style RB fill:#ffcdd2
+    style NC fill:#ffcdd2
+    style OK fill:#e8f5e9

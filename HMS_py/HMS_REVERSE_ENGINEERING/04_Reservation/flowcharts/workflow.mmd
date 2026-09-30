@@ -1,0 +1,61 @@
+flowchart TD
+    A[MDI menu click] -->     B["Proc_165_3_EEA710 reads MenuHelp OPTION column"]
+    B --> C["Proc_165_2_1E3A588 dispatch key var_188"]
+    C --> D{var_188 matches a stored caption?}
+    D -- no --> E[Nothing happens - fall through]
+    D -- yes --> F{Branch type}
+
+    F -- "entry screen" --> G["Set var_90 = New / MemVar form"]
+    G --> H[.CAPTION = arg_10 : .Show]
+
+    F -- "report" --> I["Set var_90 = New rFomRepView or rRepReserv"]
+    I --> J["GRepFormName = report key"]
+    J --> K[.Show]
+    K --> L["CreateFieldDefFile rs, ReportPath & name & .ttx"]
+    L --> M["Open ReportPath & name & .RPT - Crystal Reports"]
+
+    subgraph SAVE [Reservation save - RrRoomReservation]
+        S1[User fills header and room grid] --> S2{Validations pass}
+        S2 -- no --> S3[MsgBox validation error]
+        S2 -- yes --> S4["Insert Into Booking - EXTRAS L91992"]
+        S4 --> S5["Insert Into BookingMore x up to 6 - L92013+"]
+        S5 --> S6["INSERT INTO GrpBookingDetails - L100457"]
+        S6 --> S7["INSERT INTO BookingPlanDetails - L100546"]
+        S7 --> S8["Update Voucher_Prefix Start_Srl_No - L90042"]
+    end
+
+    subgraph CANCEL [Cancellation - soft]
+        C1{Guest already checked in?} -- yes --> C2["MsgBox Sorry Guest Already Checked In - L90309"]
+        C1 -- no --> C3["Update Booking Set Cancel Y - L89900"]
+        C3 --> C4["Update GrpBookingDetails Cancel Y - L89908"]
+        C4 --> C5["Insert Into BookingCancelDetails - L90054"]
+        C5 --> C6[Advance refund posted to PayCharge L89963]
+        C6 --> C7[SMSEnviro template sent L90259]
+    end
+
+    subgraph RESTORE [Restore cancelled booking]
+        R1["Update Booking Set Cancel N - L90539"] --> R2["Update GrpBookingDetails Cancel N - L90543"]
+        R2 --> R3["Delete from BookingCancelDetails - L90548"]
+    end
+
+    subgraph DELETE [Hard delete - cascade, no FKs]
+        T1["Count PayCharge / GuestFolio guards - L91404 L91415"] --> T2["Delete Booking - L91430"]
+        T2 --> T3["Delete GrpBookingDetails - L91431"]
+        T3 --> T4["Delete BookingPlanDetails - L91432"]
+        T4 --> T5["Delete BookingMore - L91433"]
+        T5 --> T6["Delete BookingCancelDetails - L91434"]
+    end
+
+    subgraph BLOCK [Room availability]
+        B1["Read RoomBlockOut Type O overlap - L97971"]
+        B2["Block rows written by 06_House_Keeping"]
+        B2 --> B1
+        B1 --> B3{Room blocked on stay dates}
+        B3 -- yes --> B4[Room excluded from picker]
+        B3 -- no --> B5[Room selectable]
+    end
+
+    H --> SAVE
+    SAVE --> CANCEL
+    CANCEL --> RESTORE
+    SAVE --> BLOCK

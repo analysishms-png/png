@@ -115,6 +115,13 @@ def next_code(cn=None) -> str:
 
 def insert(rec: dict, cn=None, commit: bool = True) -> int:
     _validate(rec, cn=cn, check_duplicates=True)
+    # BUG (demo-entry 2026-09-28): duplicate Code raw IntegrityError 2627
+    # deta tha — _validate sirf Mobile/Phone/Email dekhta hai, PK Code nahi.
+    # VB6 CompMast.frm:3830 pattern ("A/c Code Already Exists") jaisa friendly
+    # ValueError: require_absent cn-aware hai (uncommitted rows bhi dikhte
+    # hain jab caller apna cn pass kare).
+    db.require_absent("GuestProf", "Code", rec.get("code", "").strip(),
+                      label="Guest Code", cn=cn)
     return db.execute(
         "INSERT INTO GuestProf (Code, Name, Add1, Add2, City, Type, "
         "PhoneNo, MobileNo, EmailId, Nationality, "

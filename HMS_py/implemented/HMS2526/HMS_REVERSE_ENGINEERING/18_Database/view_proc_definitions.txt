@@ -1,0 +1,314 @@
+BillDet ### CREATE VIEW [dbo].[BillDet]
+AS
+SELECT     TOP 100 PERCENT dbo.PayCharge.Bill_No, SUM(dbo.PayCharge.AmtDr - dbo.PayCharge.AmtCr) AS Bill_Amt, MAX(dbo.PayCharge.SettleDate) 
+                      AS BillSettleDate, MAX(dbo.PayCharge.FolioNo) AS Folio_No, MIN(dbo.GuestFolio.Vdate) AS ChkInDate, MAX(dbo.RoomOcc.ChkOutDate) AS ChkOutDate,
+                       MAX(dbo.RoomOcc.ChkOutTime) AS ChkOutTime, MAX(dbo.RoomOcc.ChkOutDate) - MIN(dbo.GuestFolio.Vdate) AS Nights, 
+                      MAX(dbo.GuestFolio.GuestProf) AS GuestProf, MAX(dbo.RoomOcc.RoomNo) AS ChkOutRoom, dbo.PayCharge.LogSite_Code, 
+                      dbo.PayCharge.FolioNoDocid
+FROM         dbo.PayCharge INNER JOIN
+                      dbo.RoomOcc ON dbo.PayCharge.FolioNoDocid = dbo.RoomOcc.DocId INNER JOIN
+                      dbo.GuestFolio ON dbo.RoomOcc.DocId = dbo.GuestFolio.DocId AND dbo.RoomOcc.DocId = dbo.GuestFolio.DocId
+WHERE     (dbo.PayCharge.Bill_No IS NOT NULL) AND (dbo.PayCharge.Bill_No <> '') AND (dbo.RoomOcc.Type = 'O')
+GROUP BY dbo.PayCharge.Bill_No, dbo.PayCharge.LogSite_Code, dbo.PayCharge.FolioNoDocid
+ORDER BY MAX(dbo.PayCharge.SettleDate), dbo.PayCharge.Bill_No
+
+BillSummary ### CREATE VIEW [dbo].[BillSummary]
+AS
+SELECT     dbo.BillDet.Bill_No, dbo.BillDet.BillSettleDate, dbo.BillDet.Folio_No AS FolioNo, dbo.BillDet.ChkInDate, dbo.RoomOcc.ChkInTime, 
+                      dbo.BillDet.ChkOutDate, dbo.BillDet.ChkOutTime, dbo.BillDet.Bill_Amt, dbo.BillDet.GuestProf, dbo.RoomOcc.RoomNo AS ChkInRoom, 
+                      dbo.BillDet.ChkOutRoom, dbo.BillDet.FolioNoDocid
+FROM         dbo.BillDet INNER JOIN
+                      dbo.RoomOcc ON dbo.BillDet.FolioNoDocid = dbo.RoomOcc.DocId
+WHERE     (dbo.RoomOcc.SNo = 1)
+
+Party_List ### CREATE VIEW [dbo].[Party_List] AS SELECT     dbo.SubGroup.GroupCode, dbo.SubGroup.Nature, dbo.SubGroup.SubCode, dbo.SubGroup.Name AS PARTY_NAME, dbo.SubGroup.Add1,dbo.SubGroup.Add2, dbo.SubGroup.CityCode, dbo.City.CityName AS CITY_NAME, dbo.SubGroup.Name, dbo.SubGroup.GroupCode AS CODE,dbo.SubGroup.GroupNature , dbo.SubGroup.ActiveYN FROM         dbo.SubGroup LEFT OUTER JOIN dbo.City ON dbo.SubGroup.CityCode = dbo.City.CityCode
+RoomOccDet ### CREATE VIEW dbo.RoomOccDet AS SELECT  RO.DocId, RO.SNo, RO.FolioNo, RO.Vtype, RO.Site_Code, RO.Vprefix, RO.GuestProf, RO.RoomCat, RO.RoomType, RO.RoomNo, RO.RateCode, RO.RoomRate, RO.ChkInDate, RO.ChkInTime, RO.Adult, RO.Children, RO.DepDate, RO.DepTime, RO.ChkOutDate, RO.ChkOutTime, RO.Type, RO.U_Name, RO.U_EntDt, RO.U_AE, RO.UserchkoutDate, RO.ChkoutUser, RO.NewRoomNo, RO.Reason, RO.PlanCode, RO.PlanAmt, RO.IncInRate, RO.LogSite_Code, RO.PlanDisc, RO.PlanDiscAmt, RO.PlanDiscAppon, RO.RRTaxInc, RO.RRServiceChrg, RO.ChngDate, RO.ExtraBed, RO.RoomTarrif, RO.RoomTaxStru, RO1.ChkInDT, RO1.ChkInTm, RO1.ChkOutDT, RO1.ChkOutTm, GF.RODisc AS RoomDisc, GF.GuestProf AS GuestProfile, GF.MFolioNo, GF.MFolioNoDocid FROM (SELECT dbo.RoomOcc.DocId, dbo.RoomOcc.SNo, dbo.RoomOcc.FolioNo, dbo.RoomOcc.Vtype, dbo.RoomOcc.Site_Code, dbo.RoomOcc.Vprefix, dbo.RoomOcc.GuestProf, dbo.RoomOcc.RoomCat, dbo.RoomOcc.RoomType, dbo.RoomOcc.RoomNo, dbo.RoomOcc.RateCode, dbo.RoomOcc.RoomRate, dbo.RoomOcc.ChkInDate, dbo.RoomOcc.ChkInTime, dbo.RoomOcc.Adult, dbo.RoomOcc.Children, dbo.RoomOcc.DepDate, dbo.RoomOcc.DepTime, dbo.RoomOcc.ChkOutDate, dbo.RoomOcc.ChkOutTime, dbo.RoomOcc.Type, dbo.RoomOcc.U_Name, dbo.RoomOcc.U_EntDt, dbo.RoomOcc.U_AE, dbo.RoomOcc.UserchkoutDate, dbo.RoomOcc.ChkoutUser, dbo.RoomOcc.NewRoomNo, dbo.RoomOcc.Reason, dbo.RoomOcc.PlanCode, dbo.RoomOcc.PlanAmt, dbo.RoomOcc.IncInRate, dbo.RoomOcc.LogSite_Code, dbo.RoomOcc.PlanDisc, dbo.RoomOcc.PlanDiscAmt, dbo.RoomOcc.PlanDiscAppon , dbo.RoomOcc.RRTaxInc, dbo.RoomOcc.RRServiceChrg, dbo.RoomOcc.ChngDate, dbo.RoomOcc.ExtraBed, dbo.RoomOcc.RoomTarrif, dbo.RoomOcc.RoomTaxStru FROM dbo.RoomOcc INNER JOIN (SELECT     MAX(SNo) AS SNo, MAX(DocId) AS Docid FROM dbo.RoomOcc AS RoomOcc_5 GROUP BY DocId, ChngDate) AS R1 ON dbo.RoomOcc.DocId = R1.Docid AND dbo.RoomOcc.SNo = R1.SNo) AS RO INNER JOIN (SELECT RoomOcc_4.DocId AS TDocId, R3.ChkInDate AS ChkInDT, RoomOcc_4.ChkInTime AS ChkInTm, R3.ChkOutDate AS ChkOutDT, R3.ChkOutTime AS ChkOutTm FROM dbo.RoomOcc AS RoomOcc_4 INNER JOIN (SELECT     MAX(R1.DocId2) AS DocId3, MIN(RoomOcc_3.ChkInDate) AS ChkInDate, MAX(R1.ChkOutDate) AS ChkOutDate, MAX(R1.ChkOutTime) AS ChkOutTime FROM dbo.RoomOcc AS RoomOcc_3 INNER JOIN (SELECT RoomOcc_2.ChkOutDate, RoomOcc_2.ChkOutTime, RoomOcc_2.DocId AS DocId2 FROM dbo.RoomOcc AS RoomOcc_2 INNER JOIN (SELECT     MAX(DocId) AS DocId1, MAX(SNo) AS Sno1 FROM dbo.RoomOcc AS RoomOcc_1 GROUP BY DocId) AS R ON RoomOcc_2.DocId = R.DocId1 AND RoomOcc_2.SNo = R.Sno1) AS R1 ON RoomOcc_3.DocID = r1.DocId2 GROUP BY RoomOcc_3.DocId) AS R3 ON RoomOcc_4.DocId = R3.DocId3 WHERE (RoomOcc_4.SNo = 1)) AS RO1 ON RO.DocId = RO1.TDocId INNER JOIN dbo.GuestFolio AS GF ON GF.DocId = RO.DocId
+SunTransaction ### CREATE VIEW [SunTransaction] AS SELECT SUM(SunTran.Amount) + SUM(SunTranH.Amount) AS Amt,MAX(SunTranH.SValue) SValue,MAX(SunTranH.DispName) DispName,SunTranH.DocId,SunTranH.Sno,SunTranH.Vtype,SunTranH.VNo, SunTranH.Vdate,SunTranH.PartyCode,SunTranH.SunCode,SunTranH.ROff,SunTran.RestCode,SunTran.SunAppDate,SunTran.RevCode FROM SunTran INNER JOIN SunTranH ON SunTran.Sno = SunTranH.Sno AND SunTran.DocId = SunTranH.DocId GROUP BY SunTranH.DocId,SunTranH.Sno,SunTranH.Vtype,SunTranH.VNo,SunTranH.Vdate,SunTranH.PartyCode,SunTranH.SunCode,SunTranH.ROff,SunTran.RestCode,SunTran.SunAppDate,SunTran.RevCode
+View_Booking ### CREATE VIEW [dbo].[View_Booking] AS SELECT top 100 percent B.DocId, B.Vtype, B.BookNo, B.Site_Code, B.Vprefix, B.VDate, B.GroupCode, B.ArrDate, B.ArrTime, B.DepDate, B.DepTime, B.NoDays, B.RoomType, B.RoomNo, B.RateCode, B.Remarks, B.Company, B.GuestProf, B.TravelAgency, B.BussSource,B.MarketSeg, B.ArrFrom, B.Destination, B.BookedBy, B.ResMode, B.SplitFolio, B.DepositeReq, B.Guarantee, B.CardNo, B.ExpDate, B.CancelDate,B.Cancel, B.GuestName, B.U_Name, B.U_EntDt, B.U_AE, B.OccRoom, B.PackageCode, B.LogSite_Code, B.MobNo, B.Email, B.FaxNo, B.OtherCont,B.RDisc, B.RSDisc, CASE WHEN g.INCtAX IS NULL THEN B.RRTAXINC ELSE g.INCTAX END AS RRTAXINC, CASE WHEN G.ADULTS IS NULL THEN B.Adult ELSE G.ADULTS END AS ADULT, CASE WHEN G.CHILDS IS NULL THEN B.Child ELSE G.CHILDS END AS CHILD,CASE WHEN G.TARRIF IS NULL THEN B.RoomRate ELSE G.TARRIF END AS ROOMRATE, CASE WHEN G.ROOMCAT IS NULL THEN B.RoomCat ELSE G.ROOMCAT END AS ROOMCAT,CASE WHEN G.ROOMDET IS NULL THEN B.NoofRooms ELSE G.ROOMDET END AS NoOfRooms,G.Sno FROM dbo.Booking B  LEFT OUTER JOIN dbo.GrpBookingDetails G ON B.DocId = G.BookingDocid WHERE     (B.Cancel <> 'Y') ORDER BY B.VDate, B.BookNo 
+ViewBooking ### CREATE VIEW [dbo].[ViewBooking] AS SELECT TOP 100 PERCENT B.DocId, B.Vtype, B.BookNo, B.Site_Code, B.Vprefix, B.VDate, B.GroupCode, B.RoomType, IsNull(G.Remarks, '') AS Remarks, B.Company, B.GuestProf, B.TravelAgency, B.BussSource, B.MarketSeg, B.ArrFrom, B.Destination, B.BookedBy, B.ResMode, IsNull(B.ResStatus,'') As ResStatus, B.SplitFolio, B.DepositeReq, B.Guarantee, IsNull(B.CardNo, '') AS CardNo, B.ExpDate, B.GuestName, B.U_Name, B.U_EntDt, B.U_AE, B.OccRoom, B.LogSite_Code, B.MobNo, B.Email, B.FaxNo, B.OtherCont, B.RDisc, B.RSDisc, CASE WHEN G.ArrDate IS NULL THEN B.ArrDate ELSE G.ArrDate END AS ArrDate, CASE WHEN IsNull(G.ArrTime, '') = '' THEN B.ArrTime ELSE G.ArrTime END AS ArrTime, CASE WHEN G.DepDate IS NULL THEN B.DepDate ELSE G.DepDate END AS DepDate, CASE WHEN IsNull(G.DepTime, '') = '' THEN B.DepTime ELSE G.DepTime END AS DepTime, CASE WHEN IsNull(G.NoDays, 0) = 0 THEN B.NoDays ELSE G.NoDays END AS NoDays, CASE WHEN IsNull(G.RoomNo, '') = '' THEN B.RoomNo ELSE G.RoomNo END AS RoomNo, CASE WHEN IsNull(G.RateCode, '') = '' THEN B.RateCode ELSE G.RateCode END AS RateCode, CASE WHEN G.CancelDate IS NULL THEN B.CancelDate ELSE G.CancelDate END AS CancelDate, CASE WHEN IsNull(G.Cancel, 'N') = 'N' THEN 'N' ELSE B.Cancel END AS Cancel, CASE WHEN g.INCtAX IS NULL THEN B.RRTAXINC ELSE g.INCTAX END AS RRTAXINC, CASE WHEN G.ADULTS IS NULL THEN B.Adult ELSE G.ADULTS END AS ADULT, CASE WHEN G.CHILDS IS NULL THEN B.Child ELSE G.CHILDS END AS CHILD, CASE WHEN G.TARRIF IS NULL THEN B.RoomRate ELSE G.TARRIF END AS ROOMRATE, CASE WHEN G.ROOMCAT IS NULL THEN B.RoomCat ELSE G.ROOMCAT END AS ROOMCAT, CASE WHEN G.ROOMDET IS NULL THEN B.NoofRooms ELSE G.ROOMDET END AS NoOfRooms, G.Plan_Package AS PackageCode, G.Sno FROM dbo.Booking B LEFT OUTER JOIN dbo.GrpBookingDetails G ON B.DocId = G.BookingDocid WHERE (B.Cancel <> 'Y') AND (ISNull(G.Cancel, '') <> 'Y') ORDER BY B.VDate, B.BookNo
+ViewLedger ### CREATE VIEW [dbo].[ViewLedger]
+AS
+SELECT     dbo.Ledger.V_Date, dbo.Ledger.SubCode AS party, dbo.Ledger.ContraSub AS party1, dbo.Ledger.AmtCr AS credit, dbo.Ledger.AmtDr AS debit, 
+                      dbo.Ledger.V_Type, dbo.Ledger.V_No, dbo.Ledger.v_Prefix AS v_add, dbo.Ledger.V_SNo, dbo.Ledger.Chq_No, dbo.Ledger.Chq_Date, 
+                      dbo.Ledger.Clg_Date, dbo.LedgerM.Narration AS MNarr, dbo.Ledger.Narration AS Narr, dbo.Ledger.Site_Code, dbo.Ledger.DocId, 
+                      dbo.Ledger.LogSite_Code
+FROM         dbo.Ledger LEFT OUTER JOIN
+                      dbo.LedgerM ON dbo.Ledger.DocId = dbo.LedgerM.DocId
+
+ViewLedgerLog ### 
+CREATE VIEW [dbo].[ViewLedgerLog]
+AS
+SELECT     dbo.LedgerLog.V_Date, dbo.LedgerLog.SubCode AS party, dbo.LedgerLog.ContraSub AS party1, dbo.LedgerLog.AmtCr AS credit, dbo.LedgerLog.AmtDr AS debit, dbo.LedgerLog.V_Type, 
+                      dbo.LedgerLog.V_No, dbo.LedgerLog.v_Prefix AS v_add, dbo.LedgerLog.V_SNo, dbo.LedgerLog.Chq_No, dbo.LedgerLog.Chq_Date, dbo.LedgerLog.Clg_Date, dbo.LedgerMLog.Narration AS MNarr, 
+                      dbo.LedgerLog.Narration AS Narr, dbo.LedgerLog.Site_Code, dbo.LedgerLog.DocId, dbo.LedgerLog.LogSite_Code, dbo.LedgerLog.U_Name, dbo.LedgerLog.U_EntDt, dbo.LedgerLog.SeqNo
+FROM         dbo.LedgerLog LEFT OUTER JOIN
+                      dbo.LedgerMLog ON dbo.LedgerLog.DocId = dbo.LedgerMLog.DocId AND dbo.LedgerLog.SeqNo = dbo.LedgerMLog.SeqNo
+UNION ALL
+SELECT     dbo.Ledger.V_Date, dbo.Ledger.SubCode AS party, dbo.Ledger.ContraSub AS party1, dbo.Ledger.AmtCr AS credit, dbo.Ledger.AmtDr AS debit, dbo.Ledger.V_Type, dbo.Ledger.V_No, 
+                      dbo.Ledger.v_Prefix AS v_add, dbo.Ledger.V_SNo, dbo.Ledger.Chq_No, dbo.Ledger.Chq_Date, dbo.Ledger.Clg_Date, dbo.LedgerM.Narration AS MNarr, dbo.Ledger.Narration AS Narr, 
+                      dbo.Ledger.Site_Code, dbo.Ledger.DocId, dbo.Ledger.LogSite_Code, dbo.Ledger.U_Name, dbo.Ledger.U_EntDt, Cast(999 AS Integer) AS SeqNo
+FROM         dbo.Ledger LEFT OUTER JOIN
+                      dbo.LedgerM ON dbo.Ledger.DocId = dbo.LedgerM.DocId Where dbo.Ledger.DocId In (Select Docid From LedgerLog)
+
+
+ViewSubgroup ### CREATE VIEW [dbo].[ViewSubgroup] AS SELECT     dbo.SubGroup.Site_Code, dbo.SubGroup.SubCode, dbo.SubGroup.Name, dbo.SubGroup.GroupCode, dbo.SubGroup.GroupNature, dbo.SubGroup.Nature,dbo.SubGroup.Add1, dbo.SubGroup.Add2, dbo.SubGroup.Add3, dbo.SubGroup.CityCode, dbo.SubGroup.PIN, dbo.SubGroup.Phone,dbo.ACGROUP.MainGrCode AS MainGrCodeS, dbo.ACGROUP.AliasYN AS GAliasYn, dbo.ACGROUP.GroupName AS GName,dbo.ACGROUP.SysGroup AS SysGrp, dbo.SubGroup.Name + ISNULL(dbo.City.CityName, '') AS NameWithCity, dbo.City.CityName,dbo.ACGROUP.GroupName, dbo.ACGROUP.TradingYN, dbo.ACGROUP.BlOrd, dbo.SubGroup.FName, dbo.SubGroup.LogSite_Code,dbo.SubGroup.ActiveYN FROM         dbo.SubGroup LEFT OUTER JOIN dbo.ACGROUP ON dbo.SubGroup.GroupCode = dbo.ACGROUP.GroupCode LEFT OUTER JOIN dbo.City ON dbo.SubGroup.CityCode = dbo.City.CityCode
+PROC GetFieldNameAs ### create procedure [dbo].[GetFieldNameAs] @tableName varchar(50),@FieldName varchar(50)
+as
+SELECT SC.Name as FieldName
+,ST.Name as DataType
+,SC.Length as FieldLength 
+FROM syscolumns sc left JOIN systypes st ON sc.xType=st.xType 
+WHERE id=(
+SELECT id 
+FROM SysObjects 
+WHERE Name=@TableName) 
+and sc.Name like '%' + @FieldName + '%'
+
+PROC GetFieldNameAsStr ### /****** Object:  Stored Procedure dbo.GetFieldNameAsStr    Script Date: 23/Jan/2006 3:36:07 PM ******/
+create procedure [dbo].[GetFieldNameAsStr] @tableName varchar(50),@FieldName varchar(50)    
+as   
+declare Curs cursor  
+for SELECT distinct SC.Name as FieldName    
+FROM syscolumns sc left JOIN systypes st ON sc.xType=st.xType     
+WHERE id=(    
+SELECT id     
+FROM SysObjects     
+WHERE Name=@TableName)     
+and sc.Name like '%' + @FieldName + '%'    
+open curs  
+Declare @MyStr varchar(1500)   
+Declare @mFldName varchar(25)  
+fetch next from curs into @mFldName  
+set @MyStr=@mFldName+','  
+while @@fetch_status=0  
+begin  
+ fetch next from curs into @mFldName  
+ set @MyStr=@MyStr+@mFldName+','  
+end   
+delete from TransferTable
+insert into TransferTable values (lefT(@mystr,len(@mYstr)-2-len(@mFldName))  )
+deallocate Curs
+print  lefT(@mystr,len(@mYstr)-2-len(@mFldName))
+
+PROC Proc_WebService ### Create Procedure [dbo].[Proc_WebService]
+(
+@action int=0,
+@UserName nvarchar(max)=null,
+@UserPassword nvarchar(max)=null,
+@ResturantCode nvarchar(max)=null,
+@categoryid nvarchar(max)=null,
+@itemgrpid nvarchar(max)=null,
+
+
+@DocId nvarchar(max)=null,
+@Sno nvarchar(max)=null,
+@Vtype nvarchar(max)=null,
+@VNo nvarchar(max)=null,
+@Site_Code nvarchar(max)=null,
+@Vprefix nvarchar(max)=null,
+@Vdate datetime=null, 
+@RestCode nvarchar(max)=null,
+@RoomNo nvarchar(max)=null,
+@Item nvarchar(max)=null,
+@Qty float=null,
+@Rate float=null,
+@Amount float=null,
+@Waiter nvarchar(max)=null,
+@U_Name nvarchar(max)=null,
+@U_EntDt date=null,
+@U_AE nvarchar(max)=null,
+@U_Name1 nvarchar(max)=null,
+@U_EntDt1 date=null,
+@U_AE1 nvarchar(max)=null,
+@LogSite_Code nvarchar(max)=null,
+@ItemRestCode nvarchar(max)=null,
+@VTodate nvarchar(max)=null,
+@VFromdate nvarchar(max)=null,
+@GuarAtt int=0,
+@categoryName nvarchar(max)=null
+
+
+
+
+
+)
+as begin
+
+if(@action=1)--for login
+begin
+if(@UserName='null')
+begin
+select 'Please Enter User Name' as dbmsg
+end
+else if(@UserPassword='null')
+begin
+select 'Please Enter Password' as dbmsg
+end
+else
+begin
+--select * FROM UserMast where ActiveYN='Y' and USER_NAME='sa' and PASSWD='sa'
+select USER_NAME, ShortName,'Correct' as dbmsg FROM UserMast where ActiveYN='Y' and USER_NAME=@UserName and PASSWD=@UserPassword
+end
+
+end
+
+if(@action=2)-- for resturant
+begin
+declare @compcode nvarchar(max);
+ --SELECT   * FROM Company  Order By Comp_Code desc
+
+
+SELECT   @compcode=  MAX(Comp_Code)FROM Company group by Comp_Code Order By Comp_Code desc
+
+if(@compcode=null)
+begin
+select 'Company Code Do Not Match' as dbmsg
+end
+else
+begin
+SELECT Depart.Name, Depart.Code, menuHelp.Param_Str, 'Correct' as dbmsg FROM menuHelp INNER JOIN Depart ON menuHelp.OutletCode = Depart.Code
+WHERE  (menuHelp.UserName = @UserName) AND (menuHelp.CompCode = @compcode) AND (menuHelp.[Option] = 'KOT Entry')
+end
+
+end
+
+if(@action=3)--for Waiter
+begin
+
+SELECT Code, Name, Site_Code, U_Name, RestCode, 'Correct' as dbmsg FROM Waiter
+WHERE (RestCode = @ResturantCode) AND (ActiveYN = 'Yes')
+
+--SELECT Code, Name, Site_Code, U_Name, RestCode, 'Correct' as dbmsg FROM Waiter
+--WHERE (RestCode = @ResturantCode) AND (U_Name = @UserName) AND (ActiveYN = 'Yes')
+
+end
+
+if(@action=4)--for returant table
+begin
+
+Select Type, Code, Name, RoomCat, RestCode,U_Name, 'Correct' as dbmsg FROM  RoomMast WHERE (RestCode = @ResturantCode) order by Code
+
+--Select LTrim(RTrim(T.Code)) as Code,T.Name,AA.WAITERNAME,AA.VTime,T.RestCode,CONTRADOCID From RoomMast T LEFT JOIN 
+--(SELECT DISTINCT ROOMNO,KOT.DOCID,KOT.VTime,WAITER,WAITER.NAME AS WAITERNAME,CONTRADOCID FROM KOT LEFT JOIN WAITER ON (WAITER.CODE=KOT.WAITER) 
+--WHERE KOT.RestCode=@ResturantCode And  RoomCat='REST' and RoomType='TB' And Pending='Y' AND VOIDYN='N' AND (DELFLAG='N' or DELFLAG='') 
+--AND NCKOT<>'Y')AS AA ON (AA.ROOMNO=T.CODE) WHERE RESTCODE=@ResturantCode order by T.Code
+
+end
+
+if(@action=5)--for Category
+begin
+
+--SELECT DISTINCT ItemCatMast.CatType,  'Correct' as dbmsg FROM ItemMast INNER JOIN ItemGrp ON ItemMast.ItemGroup = ItemGrp.Code INNER JOIN
+-- ItemCatMast ON ItemMast.ItemCatCode = ItemCatMast.Code
+--WHERE        (ItemMast.RestCode = 'KKR001') AND (ItemMast.ActiveYN = 'Yes')
+
+--SELECT DISTINCT ItemCatMast.CatType, ItemCatMast.Code, 'Correct' as dbmsg FROM ItemMast INNER JOIN ItemGrp ON ItemMast.ItemGroup = ItemGrp.Code INNER JOIN
+-- ItemCatMast ON ItemMast.ItemCatCode = ItemCatMast.Code
+--WHERE        (ItemMast.RestCode = 'KKR001') AND (ItemMast.ActiveYN = 'Yes')
+
+--SELECT DISTINCT ItemCatMast.CatType, ItemCatMast.Code, 'Correct' as dbmsg FROM ItemMast INNER JOIN ItemGrp ON ItemMast.ItemGroup = ItemGrp.Code INNER JOIN
+-- ItemCatMast ON ItemMast.ItemCatCode = ItemCatMast.Code
+--WHERE        (ItemMast.RestCode = @ResturantCode) AND (ItemMast.ActiveYN = 'Yes')
+
+SELECT DISTINCT ItemCatMast.CatType, 'Correct' as dbmsg FROM ItemMast INNER JOIN ItemGrp ON ItemMast.ItemGroup = ItemGrp.Code INNER JOIN
+ ItemCatMast ON ItemMast.ItemCatCode = ItemCatMast.Code
+WHERE        (ItemMast.RestCode = @ResturantCode) AND (ItemMast.ActiveYN = 'Yes')
+
+
+end
+
+if(@action=6)--for itemgrp or subcategory, category wise
+begin
+
+
+--SELECT DISTINCT ItemGrp.Code, ItemGrp.Name, 'Correct' as dbmsg
+--FROM            ItemMast INNER JOIN
+--                         ItemGrp ON ItemMast.ItemGroup = ItemGrp.Code INNER JOIN
+--                         ItemCatMast ON ItemMast.ItemCatCode = ItemCatMast.Code
+--WHERE        (ItemMast.RestCode = 'KKR001') AND (ItemMast.ActiveYN = 'Yes') AND (ItemCatMast.CatType = 'Beverage')
+
+
+SELECT DISTINCT ItemGrp.Code, ItemGrp.Name, 'Correct' as dbmsg
+FROM            ItemMast INNER JOIN
+                         ItemGrp ON ItemMast.ItemGroup = ItemGrp.Code INNER JOIN
+                         ItemCatMast ON ItemMast.ItemCatCode = ItemCatMast.Code
+WHERE        (ItemMast.RestCode = @ResturantCode) AND (ItemMast.ActiveYN = 'Yes') AND (ItemCatMast.CatType = @categoryName)
+
+
+--SELECT DISTINCT ItemGrp.Code, ItemGrp.Name, 'Correct' as dbmsg
+--FROM            ItemMast INNER JOIN
+--                         ItemGrp ON ItemMast.ItemGroup = ItemGrp.Code INNER JOIN
+--                         ItemCatMast ON ItemMast.ItemCatCode = ItemCatMast.Code
+--WHERE        (ItemMast.RestCode = @ResturantCode) AND (ItemMast.ActiveYN = 'Yes') AND (ItemMast.ItemCatCode = @categoryid)
+
+
+end
+
+if(@action=7)-- for item load according to subcategory or itemgrp
+begin
+
+SELECT DISTINCT ItemMast.Code, ItemMast.Name, ItemMast.Unit, ItemMast.SaleRate,'Correct' as dbmsg
+FROM            ItemMast INNER JOIN
+                         ItemGrp ON ItemMast.ItemGroup = ItemGrp.Code INNER JOIN
+                         ItemCatMast ON ItemMast.ItemCatCode = ItemCatMast.Code
+WHERE        (ItemMast.RestCode = @ResturantCode) AND (ItemMast.ActiveYN = 'Yes') AND (ItemGrp.Code = @itemgrpid)
+
+end
+
+if(@action=8)--check
+begin
+
+select 'Correct' as dbmsg
+
+end
+
+if(@action=9)--kot Docid
+begin
+declare @Sitecode nvarchar(max),  @Vcode nvarchar(max), @lgdate date;
+
+--SELECT SiteCode FROM Company  Order By Comp_Code desc
+
+SELECT @Sitecode= SiteCode FROM Company  Order By Comp_Code desc
+
+select @lgdate=ncur from Enviro
+
+--Select V_Type As Code,Description As Name,NCat From Voucher_Type WHERE (SITE_CODE=@Sitecode AND LOGSITE_CODE=@Sitecode) and V_Type=(Select 'K'+ShortName From Depart Where Code=@ResturantCode) Order by Description
+
+Select @Vcode= V_Type From Voucher_Type WHERE (SITE_CODE=@Sitecode AND LOGSITE_CODE=@Sitecode) 
+and V_Type=(Select 'K'+ShortName From Depart Where Code=@ResturantCode) Order by Description
+
+Select VT.Number_Method,VP.V_Type,VP.Date_From,VP.Date_To,VP.Prefix,VP.Start_Srl_No, 'Correct' as dbmsg, @Sitecode as Sitecode, @lgdate as ncur  From Voucher_Type VT Inner Join Voucher_Prefix VP 
+on (VT.V_Type=VP.V_Type AND VT.SITE_CODE=VP.SITE_CODE AND VP.LOGSITE_CODE=VP.LOGSITE_CODE) 
+Where (VP.SITE_CODE=@Sitecode AND VP.LOGSITE_CODE=@Sitecode) and  VP.V_Type=@Vcode And VP.Date_From<=@lgdate Order By VP.Date_From DESC
+
+
+
+end
+
+if(@action=10)
+begin
+
+insert into kot (DocId,Sno,Vtype,Vtime,VNo,Site_Code,Vprefix,Vdate,RestCode,RoomCat,RoomType,RoomNo,Item,Qty,Rate,Amount,
+VoidYN,Waiter,Pending,U_Name,U_EntDt,U_AE,U_Name1,U_EntDt1,U_AE1,NCKOT,LogSite_Code,ItemRestCode,DelFlag,Printed,PrintFlag,FreeSno,GuarAtt) values(@DocId,@Sno,@Vtype,CONVERT(VARCHAR(5),GETDATE(),108),@VNo,@Site_Code,
+@Vprefix,@Vdate,@RestCode,'REST','TB',@RoomNo,@Item,@Qty,@Rate,@Amount,'N',@Waiter,'Y',@U_Name,GETDATE(),@U_AE,@U_Name1,@U_EntDt1,@U_AE1,'N',@LogSite_Code,
+@ItemRestCode,'N','N','N',0,@GuarAtt)
+
+if(@@ROWCOUNT>0)
+begin
+Update Voucher_Prefix set Start_Srl_No=@VNo
+WHERE        (V_Type = @Vtype) and Date_From <=  @VFromdate and Date_To>= @VTodate and Site_Code=@Site_Code and LogSite_Code=@LogSite_Code
+end
+
+end
+
+if(@action=11)--Occupid table
+begin
+
+Select LTrim(RTrim(T.Code)) as Code,T.Name,isnull(AA.WAITERNAME,'NA')as WAITERNAME,AA.VTime,T.RestCode,isnull(CONTRADOCID,'NA')as CONTRADOCID, 'Correct'as dbmsg From RoomMast T LEFT JOIN 
+(SELECT DISTINCT ROOMNO,KOT.DOCID,KOT.VTime,WAITER,WAITER.NAME AS WAITERNAME,CONTRADOCID FROM KOT LEFT JOIN WAITER ON (WAITER.CODE=KOT.WAITER) 
+WHERE KOT.RestCode=@ResturantCode And  RoomCat='REST' and RoomType='TB' And Pending='Y' AND VOIDYN='N' AND (DELFLAG='N' or DELFLAG='') 
+AND NCKOT<>'Y')AS AA ON (AA.ROOMNO=T.CODE) WHERE RESTCODE=@ResturantCode order by T.Code
+
+end
+
+end

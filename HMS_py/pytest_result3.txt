@@ -1,0 +1,22 @@
+============================= test session starts =============================
+platform win32 -- Python 3.14.4, pytest-9.0.3, pluggy-1.6.0 -- C:\Python314\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\LENOVO\Desktop\serialkey\PROJECT_REPAIR - Copy\HMS_py\HMS_py
+configfile: pytest.ini (WARNING: ignoring pytest config in pyproject.toml!)
+plugins: anyio-4.14.2, asyncio-1.4.0, cov-7.1.0, timeout-2.4.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 11 items
+
+tests/unit/test_epabx_calltype_parity.py::test_calltype_config_matches_schema_and_core_keys PASSED [  9%]
+tests/unit/test_epabx_calltype_parity.py::test_calltype_list_scopes_current_site_and_home PASSED [ 18%]
+tests/unit/test_epabx_calltype_parity.py::test_calltype_writer_is_disabled PASSED [ 27%]
+tests/unit/test_epabx_calltype_parity.py::test_calltype_opener_applies_read_only_permissions PASSED [ 36%]
+tests/unit/test_epabx_callcode_parity.py::test_callcode_config_matches_core_keys_and_schema_widths PASSED [ 45%]
+tests/unit/test_epabx_callcode_parity.py::test_callcode_list_scopes_current_site_and_home PASSED [ 54%]
+tests/unit/test_epabx_callcode_parity.py::test_callcode_insert_only_requires_stdcode_and_uses_core_keys PASSED [ 63%]
+tests/unit/test_epabx_callcode_parity.py::test_callcode_update_uses_composite_record_keys PASSED [ 72%]
+tests/unit/test_epabx_extension_parity.py::test_extension_config_matches_core_keys_and_schema_widths PASSED [ 81%]
+tests/unit/test_epabx_extension_parity.py::test_extension_core_limits_match_checked_in_schema PASSED [ 90%]
+tests/unit/test_epabx_extension_parity.py::test_extension_ui_uses_core_record_keys PASSED [100%]
+
+============================= 11 passed in 0.75s ==============================

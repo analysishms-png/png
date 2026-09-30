@@ -90,3 +90,116 @@ def update(code: str, rec: dict, cn=None, commit: bool = True) -> int:
 def delete(code: str, cn=None, commit: bool = True) -> int:
     return db.execute("DELETE FROM VenueMast WHERE Code = ?", (code,),
                       cn=cn, commit=commit)
+
+
+# ------------------------------------------------------------
+# VenueCapacity (VB6 FrmVenueMast capacity-rows: Seating/Floating/PicPath
+# per config; live 32 rows; PK implicit (VenueCode, Capacity-seating row))
+# ------------------------------------------------------------
+def capacity_list(venue: str = "", cn=None) -> list[dict]:
+    """VenueCapacity rows (sab ya per-venue).
+    NOTE: Capacity varchar hai live ('Informal' jaise tiers bhi),
+    int-cast sirf numerics pe."""
+    if venue:
+        rows = db.query(
+            "SELECT VenueCode, Capacity, Seating, Floating, PicPath, "
+            "U_AE FROM VenueCapacity WHERE VenueCode = ? ORDER BY VenueCode, "
+            "CASE WHEN ISNUMERIC(Capacity) = 1 THEN CAST(Capacity AS int) "
+            "ELSE 999999 END", (venue,), cn=cn)
+    else:
+        rows = db.query(
+            "SELECT VenueCode, Capacity, Seating, Floating, "
+            "PicPath, U_AE FROM VenueCapacity", cn=cn)
+    out = []
+    for r in rows:
+        cap = (str(r.Capacity) if not isinstance(r.Capacity, (int, float))
+               else str(int(r.Capacity)))
+        try:
+            cap = str(int(float(cap)))
+        except (ValueError, TypeError):
+            cap = cap.strip()
+        # PicPath live me IMAGE (varbinary) column hai — bytes ko utf-8
+        # path-text me decode karo (VB6 pic load path hi store karta tha)
+        pic = r.PicPath
+        if isinstance(pic, (bytes, bytearray, memoryview)):
+            pic = bytes(pic).split(b"\x00")[0].decode("utf-8", "replace").strip()
+        else:
+            pic = (str(pic) if pic is not None else "").strip()
+        out.append({"venuecode": (r.VenueCode or "").strip(),
+                    "capacity": cap,
+                    "seating": float(r.Seating or 0),
+                    "floating": float(r.Floating or 0),
+                    "picpath": pic,
+                    "u_ae": (r.U_AE or "").strip()})
+    return out
+
+
+def capacity_upsert(venuecode: str, capacity: str, seating: float,
+                    floating: float, picpath: str = "",
+                    user: str = "HMS_py", cn=None,
+                    commit: bool = True) -> str:
+    """VenueCapacity row insert/update (key: VenueCode+Capacity).
+    Venue VenueMast me hona chahiye.
+    NOTE: live table me U_Name column NAHI hai — audit sirf
+    U_EntDt/U_AE/LogSite_Code pe. Capacity string hai ('Informal'
+    jaise non-numeric tiers allowed)."""
+    venuecode = (venuecode or "").strip()
+    if not venuecode:
+        raise ValueError("Venue code zaroori hai")
+    capacity = str(capacity or "").strip()
+    if not capacity:
+        raise ValueError("Capacity zaroori hai (number ya tier name)")
+    # PicPath IMAGE (varbinary) hai — text path ko bytes me likho
+    picpath_bytes = (picpath or "").encode("utf-8") if picpath else None
+    if not exists(venuecode, cn=cn):
+        raise ValueError(f"Venue {venuecode} VenueMast me nahi hai")
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        cur = cn.cursor()
+        cur.execute(
+            "SELECT COUNT(*) FROM VenueCapacity WHERE VenueCode = ? "
+            "AND Capacity = ?", (venuecode, capacity))
+        row_exists = (cur.fetchone()[0] or 0) > 0
+        if row_exists:
+            db.execute(
+                "UPDATE VenueCapacity SET Seating = ?, Floating = ?, "
+                "PicPath = ?, U_EntDt = getdate(), U_AE = 'E' "
+                "WHERE VenueCode = ? AND Capacity = ?",
+                (float(seating), float(floating), picpath_bytes,
+                 venuecode, capacity), cn=cn, commit=False)
+        else:
+            db.execute(
+                "INSERT INTO VenueCapacity (VenueCode, Capacity, Seating, "
+                "Floating, PicPath, Site_Code, U_EntDt, U_AE, "
+                "LogSite_Code) VALUES (?, ?, ?, ?, ?, ?, getdate(), "
+                "'A', ?)",
+                (venuecode, capacity, float(seating),
+                 float(floating), picpath_bytes, SITE_CODE, SITE_CODE),
+                cn=cn, commit=False)
+        if commit:
+            cn.commit()
+        return venuecode
+    except Exception:
+        if own:
+            try:
+                cn.rollback()
+            except Exception:
+                pass
+        raise
+    finally:
+        if own:
+            cn.close()
+
+
+def capacity_delete(venuecode: str, capacity: str, cn=None,
+                    commit: bool = True) -> int:
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        return db.execute(
+            "DELETE FROM VenueCapacity WHERE VenueCode = ? AND Capacity = ?",
+            (venuecode, str(capacity).strip()), cn=cn, commit=commit)
+    finally:
+        if own:
+            cn.close()

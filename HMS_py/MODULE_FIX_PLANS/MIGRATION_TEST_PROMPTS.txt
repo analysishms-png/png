@@ -1,0 +1,668 @@
+================================================================================
+MIGRATION TEST PROMPTS  -  MODULE WISE
+================================================================================
+File : HMS_py/MODULE_FIX_PLANS/MIGRATION_TEST_PROMPTS.txt
+Date : 2026-09-30
+Purpose: Har module ke liye ek READY-TO-PASTE text prompt. AI agent / debug
+         session me ek prompt copy karo, wo uska migration test khud karega
+         aur neeche diye gaye output format me report dega.
+
+Kaise use karna hai
+-------------------
+1. Header ka "COMMON RULES" + "COMMAND CHEATSHEET" har prompt ke saath
+   copy-paste hota hai (module block already unhe include karta hai).
+2. Ek session me ek hi prompt. Doosre module ka prompt alag session me.
+3. Prompt ke end me `[END PROMPT-NN]` tak hi paste karna hai.
+
+Reference docs (har prompt isi ko cite karta hai)
+-------------------------------------------------
+- Module manual (2026) : HMS_REVERSE_ENGINEERING/MODULE_MANUALS_2026/<NN_Module>/
+                         README.md / FRONTEND.md / BACKEND.md / DATABASE.md
+                         TEST_PLAN.md / TEST_RESULTS.md / _logic.json
+- Test plan master     : .../00_Instructions/TEST_PLAN_MASTER.md   (layers + KI log)
+- Test log             : .../00_GLOBAL/RUN_TEST_LOG.md
+- VB6 RE manual        : HMS_REVERSE_ENGINEERING/<NN folder>/module_manual.md
+- VB6 source (truth)   : implemented/HMS2526/serialkey/PROJECT2/PROJECT/*.frm|.bas
+- Menu tree            : core/mdi_menu.json   |  runtime: ui/shell.py _form_registry()
+
+--------------------------------------------------------------------------------
+COMMON RULES (har module prompt me same)
+--------------------------------------------------------------------------------
+- Live SQL Server DB = source of truth. VB6 form/event = behavior reference.
+- Koi table/column NAHI ghadna. Agar table live DB me absent hai -> BLOCKED
+  likho, safe viewer / no-op rakho. "Table missing" ko crash me mat badlo.
+- Read-only DB check chalega. Likhne wale test yaft rollback/snapshot se hon.
+- Sirf us module ke files touch karo. Doosre module ka code/registry entry
+  mat badlo (parallel sessions chal rahe hain).
+- Har fix ke saath focused regression test. Bina test ke "DONE" mat likho.
+- Evidence har baat ke saath: file:line, SQL result, test name + command.
+- "Coming Soon" (_coming_soon) leaves = documented gap, bug nahi - par unhe
+  list karna zaroori hai, chup mat raho.
+
+COMMAND CHEATSHEET
+--------------------------------------------------------------------------------
+# pytest wale commands ka cwd = HMS_py\HMS_py  (jis me tests/ ui/ core/ hain)
+python -m pytest tests/unit -q                                   # L1 unit, no DB
+python -m pytest tests/database -q                               # L2 live DB (rollback)
+python -m pytest tests/test_front_office.py -q                   # L2b FO flows
+python -m pytest tests/test_wave_ui_forms.py tests/test_ui_walkthroughs.py -q   # L3 offscreen UI
+python tests/database/<file>.py                                  # L2c proof script
+
+# ye dono cwd = toplevel (HMS_py\ , jahan HMS_py package hai)
+python -m HMS_py.tools.manual_pipeline.run_module_tests --module <NN_Module>    # L1..L3 + TEST_RESULTS.md
+python -m HMS_py.tools.manual_pipeline.capture_module --module <NN_Module>      # L4 live desktop capture
+python -m HMS_py.tools.manual_pipeline.check_manual --module <NN_Module>
+
+OUTPUT FORMAT (har prompt ka expected jawab)
+--------------------------------------------------------------------------------
+Module            : <NN_Name>
+VB6 object(s)     : <frm/bas name + event>
+Python file(s)    : <ui/...py:line, core/...py:line>
+DB check          : <table -> rows / MISSING>
+Menu registry     : <leaf -> opener | _coming_soon | None>
+Test run          : <command> -> <pass/fail counts>
+Root cause        : <why behaviour alag thi (ya "parity OK")>
+Fix / Gap         : <fix + test file, ya BLOCKED + reason>
+Status            : PASS | PARTIAL | BLOCKED | FAIL
+Risk              : <agla kadam / kis module pe impact>
+
+
+================================================================================
+PROMPT-01  -  MODULE 01_Finance  (sidebar: "finance")
+================================================================================
+[COPY-PASTE START]
+You are verifying the VB6 -> Python migration of HMS module **01_Finance**.
+
+Rules: live SQL Server DB = source of truth; VB6 form/event = behavior
+reference; never invent tables; read-only DB checks only; touch ONLY
+Finance files; every claim needs file:line + test evidence.
+
+Scope:
+- Manual : HMS_REVERSE_ENGINEERING/MODULE_MANUALS_2026/01_Finance/{README,FRONTEND,BACKEND,DATABASE,TEST_PLAN,TEST_RESULTS}.md
+- RE doc : HMS_REVERSE_ENGINEERING/03_Finance/module_manual.md
+- menuHelp Module_Name: FA, FAT, fate, farp, FAREPORT, fae, fame, TallyRPTS, TallyPOSRPT
+- menuhelp counts: masters 10 / operations 2 / reports 26 / other+unclassified 16
+- core/: fa_voucher, fa_ledger_ops, fa_masters_ops, fa_reports, fa_tds_ops,
+        fa_enviro, ledger, acgroup, narr, tdscat, tdscerti, tally_export
+- ui/  : fa_voucher_ui, fa_ledger_ui, fa_enviro_ui, fa_sub_forms_ui,
+        finance_masters_ui, voucher_environment_ui, account_merge_ui,
+        scheme_tds_ui, tally_ui
+- Tables: Ledger, LedgerM, AcGroup, SubGroup, NarrMast, Voucher_Prefix,
+        Voucher_Type, TDSCat, LedgerAdj, LedgerRef, LedgerTDS,
+        SubGroupCurrBal, AcGroupCurrBal, FaEnviro
+
+Do this, in order:
+1. Menu parity: walk `core/mdi_menu.json` -> `&Finance` subtree, resolve every
+   leaf through `ui/shell.py::_form_registry()` (import it live, do not read
+   only). Report: wired / _coming_soon / None (None = click pe TypeError).
+2. Schema check (read-only): for each table above run row counts + PK columns.
+   Note every VB6-vs-live mismatch (missing table/column, type drift).
+3. Behavior parity vs VB6: Ledger/Group/Narration/TDS CRUD - validation msgs,
+   dup guards, audit columns (U_Name/U_EntDt/U_AE), LogSite_Code scoping,
+   DocId pattern `site + Vtype + serial` (varchar 21).
+4. Voucher numbering: Voucher_Type + Voucher_Prefix + LASTVOUCHER flow.
+   Verify `_next_vno` / `_get_voucher_prefix` select-then-consume race (KI-1).
+5. Tests: run the cheatsheet commands for this module
+   (`run_module_tests --module 01_Finance`) and report exact counts.
+6. Known issues re-check (TEST_PLAN_MASTER): KI-1 `_next_vno`/`_get_voucher_prefix`;
+   KI-2 inventory-registers data gap; KI-3 tally-export data gap;
+   `test_fa_voucher` V7 TB parity assertion.
+Output in the standard format above. Do NOT fix anything unless a P0 crash
+is found - report first.
+[END PROMPT-01]
+
+
+================================================================================
+PROMPT-02  -  MODULE 02_MainSetup  (sidebar: "main setup")
+================================================================================
+[COPY-PASTE START]
+You are verifying the VB6 -> Python migration of HMS module **02_MainSetup**
+(the central configuration hub - 124+ menu leaves, masters for every module).
+
+Rules: live DB = truth; VB6 = behavior; never invent tables; read-only DB
+checks; touch ONLY Main Setup files; evidence file:line + test names.
+
+Scope:
+- Manual : HMS_REVERSE_ENGINEERING/MODULE_MANUALS_2026/02_MainSetup/{README,FRONTEND,BACKEND,DATABASE,TEST_PLAN,TEST_RESULTS}.md
+- RE doc : HMS_REVERSE_ENGINEERING/02_Main_Setup/module_manual.md (18 sections)
+- menu tree: core/mdi_menu.json -> "&Main Setup" (11 groups, 135 leaves)
+- menuHelp Module_Name: Mast, GEN, GENMas, Mas, HL, HallM, CCenter, CCenterMas, Util, UTL
+- core/: roommaster, roomcategory, plans, company, guestprof, depart, unit,
+        item, taxmaster, paymenttype, marketsegment, general_setup,
+        sys_config, sundry, sundry_type
+- ui/  : p2_masters (config-driven master forms), general_setup_ui,
+        general_setup_tabs_ui (FDGENMAS 6 tabs), taxstru_ui, enviro_ui,
+        sys_config_ui, voucher_environment_ui, plan_master, misc_parity_ui
+- Tables: RoomMast, RoomCat, PlanMast, GuestProf, Depart + Enviro(221+ cols),
+        TaxStru, PayTypeMast, Voucher_Type, Voucher_Prefix, userMast,
+        User_Module, MenuHelp, SundryMast, SundryType, ItemMast, UnitMast
+
+Do this, in order:
+1. Menu parity: for ALL 134 real leaves of "&Main Setup" resolve
+   `ui/shell.py::_form_registry()` live. Classify: real opener / _coming_soon /
+   None. List every non-real leaf with its group.
+2. Master CRUD smoke (offline, per master): Room Category, Room Master
+   (Type='RO'), Plan Master (date range + ActiveYN), Department (KotYn Y/N
+   guard), Tax Master, Tax Structure, Payment Type, Unit, Item.
+   Check: required-field msg, dup guard msg, audit columns, LogSite_Code scope.
+3. Enviro: `core/enviro.py` read/write path vs live `Enviro WHERE LogSite_Code`.
+   Confirm only whitelisted operational columns are editable; finance columns
+   read-only; business date `ncur` respected.
+4. MenuHelp RBAC: `core/menu_help.py` per-user/per-company hierarchy
+   (OPT1..OPT4), comp_code='2'; `userMast` PASSWD handling (byte-exact VB6
+   encryption - flag if someone replaced it with bcrypt).
+5. Tests: `run_module_tests --module 02_MainSetup` + the cheatsheet L1/L2b.
+6. Known gaps re-check:
+   - `tests/unit/test_mainsetup_registry_parity.py` `_COMING_SOON_QUALNAME`
+     value vs actual runtime qualname (a test that can never fail = bug).
+   - BUG-001 LocationMast table absent (FrmLocationMast exists in VB6).
+   - Utility leaves expected as ops: Data Transfer, POS Bill Deletion,
+     PLU File (W.Scale), POS Recycle, Task Scheduler, Voucher Serialisation.
+   - comparison/VB6_vs_Python_Comparison.md "Main Setup (28 missing)" staleness.
+Output in the standard format above. Report first, fix only on P0 crash.
+[END PROMPT-02]
+
+
+================================================================================
+PROMPT-03  -  MODULE 03_Reservation  (sidebar: "reservation")
+================================================================================
+[COPY-PASTE START]
+You are verifying the VB6 -> Python migration of HMS module **03_Reservation**.
+
+Rules: live DB = truth; VB6 = behavior; never invent tables; read-only DB
+checks; touch ONLY Reservation files; evidence file:line + test names.
+
+Scope:
+- Manual : HMS_REVERSE_ENGINEERING/MODULE_MANUALS_2026/03_Reservation/{README,FRONTEND,BACKEND,DATABASE,TEST_PLAN,TEST_RESULTS}.md
+- RE doc : HMS_REVERSE_ENGINEERING/04_Reservation/module_manual.md
+- menuHelp Module_Name: Reserv, ReservationEnt, ResOpEnt, ResStatusRpt,
+        AdvRecdRpt, ReservationMIS   (masters 0 / ops 2 / reports 5 / other 16)
+- core/: reservation, booking, guestprof
+- ui/  : booking_ops_ui, reservation_browser, registration_entry_ui,
+        front_office_dashboard, frontoffice
+- Tables: Booking, BookingLog, BookingCancelDetails, GuestProf, GuestFolio, RoomOcc
+
+Do this:
+1. Menu parity: "&Reservation" leaves -> `_form_registry()` live classification.
+2. Booking create / amend / cancel flow vs VB6: sequence numbers, log rows
+   (BookingLog), room-availability check against RoomOcc, duplicate guard,
+   audit columns, LogSite_Code scope.
+3. Cancellation: BookingCancelDetails write + refund/policy fields vs VB6.
+4. Cross-module contract: booking -> check-in handoff (04_FrontOffice) must not
+   change Booking row shape. Flag any column the Python side writes that VB6
+   never wrote.
+5. Tests: `run_module_tests --module 03_Reservation` + cheatsheet L1/L2b.
+6. Known issues re-check (KI-7 family): the 3 `_coming_soon` leaves
+   (e.g. Guest Registration, Reservation Status Report) - confirm still
+   documented, and confirm whether VB6 actually served them.
+Output in the standard format above.
+[END PROMPT-03]
+
+
+================================================================================
+PROMPT-04  -  MODULE 04_FrontOffice  (sidebar: "front office")
+================================================================================
+[COPY-PASTE START]
+You are verifying the VB6 -> Python migration of HMS module **04_FrontOffice**
+(pilot module - richest flows: check-in, checkout, folio, room status).
+
+Rules: live DB = truth; VB6 = behavior; never invent tables; READ-ONLY for
+live checks (any write test must rollback); touch ONLY FO files; evidence
+file:line + test names.
+
+Scope:
+- Manual : HMS_REVERSE_ENGINEERING/MODULE_MANUALS_2026/04_FrontOffice/{README,FRONTEND,BACKEND,DATABASE,TEST_PLAN,TEST_RESULTS}.md
+- RE doc : HMS_REVERSE_ENGINEERING/05_Front_Office/module_manual.md
+- menuHelp Module_Name: FrontDesk, FDO, FDOMenu, FDOForms, FDORep, FDOReports,
+        TFDOForms, FDOMIS, FDOMISRep, FDOTax, FDOTaxr  (ops 1 / reports 33)
+- core/: checkin, checkout, folio, fo_ops, guestprof, guest_folio,
+        guest_services, roomstatus, room_occ, account_merge, booking, reservation
+- ui/  : fd_forms_ui, checkout_ui, folio_ui, roomstatus_ui, frontoffice,
+        walkin_rack_ui, guest_charges_ui, guest_services_ui, guest_lookup_ui,
+        guest_history_ui, registration_entry_ui, booking_ops_ui
+- Tables: GuestProf, GuestFolio, PayCharge, RoomOcc, RoomMast, Booking,
+        BookingMore, RoomBlockOut, RevMast, PlanDetails, FOMBillDetails,
+        GuestFolioAmend, FolioLog, PayChargeLog
+
+Do this:
+1. Menu parity: all FO leaves -> `_form_registry()` live classification.
+2. Check-in: walk-in -> RoomOcc row, room status transition, charges setup,
+   audit columns, LogSite_Code. Compare with VB6 fdCheckIn.frm event order.
+3. Check-out: folio settlement, PayCharge/PayChargeLog pair, room -> Dirty,
+   reverse check-out path. Confirm DocId/serial numbering matches VB6.
+4. Folio/amend: GuestFolioAmend + FolioLog writes; merge-room / reverse-merge
+   guard; account merge path.
+5. Window-show bug class (KI-8): openers that build a window but never call
+   `.show()` - shell discards the return value, so the form never appears.
+   Sweep `ui/fd_forms_ui.py` and any other FO opener for this pattern.
+6. Tests: `run_module_tests --module 04_FrontOffice` + cheatsheet
+   L1/L2/L2b/L3 (L2b = 27 FO flow checks).
+7. Known issues re-check: KI-8 fd_forms_ui no-show; KI-9 `test_receive_payment`
+   PayChargeLog preflight cleanup / VNo reuse; L4 skipped messagebox leaves.
+Output in the standard format above.
+[END PROMPT-04]
+
+
+================================================================================
+PROMPT-05  -  MODULE 05_HouseKeeping  (sidebar: "house keeping")
+================================================================================
+[COPY-PASTE START]
+You are verifying the VB6 -> Python migration of HMS module **05_HouseKeeping**.
+
+Rules: live DB = truth; VB6 = behavior; never invent tables; read-only DB
+checks; touch ONLY House Keeping files; evidence file:line + test names.
+
+Scope:
+- Manual : HMS_REVERSE_ENGINEERING/MODULE_MANUALS_2026/05_HouseKeeping/{README,FRONTEND,BACKEND,DATABASE,TEST_PLAN,TEST_RESULTS}.md
+- RE doc : HMS_REVERSE_ENGINEERING/06_House_Keeping/module_manual.md
+- menuHelp Module_Name: HouseKeeping, TransHK, HouseEnt, ReportsHK, HouseREP
+        (reports 1 / other 8) - single-leaf module (Room Status)
+- core/: roomstatus, room_occ
+- ui/  : roomstatus_ui, walkin_rack_ui, fd_forms_ui, posting_forms_ui
+- Tables: RoomOcc, RoomMast, RoomBLockOut, ComplaintDetail, LostFoundDetail
+
+Do this:
+1. Menu parity: HK leaves -> `_form_registry()` live classification.
+2. Room status screen: dirty/clean/occupied transitions vs VB6. Confirm who
+   writes Dirty (housekeeping vs night audit KOTAtNightAudit path) - the two
+   must not fight over the same column.
+3. Block master (RoomBLockOut) + Complaint/Lost-Found masters: CRUD, audit
+   columns, LogSite_Code.
+4. Confirm the module's leaf coverage: TB master list says single leaf - verify
+   no HK form is orphaned (VB6 form exists, no registry entry).
+5. Tests: `run_module_tests --module 05_HouseKeeping` + cheatsheet L1/L2b.
+Output in the standard format above.
+[END PROMPT-05]
+
+
+================================================================================
+PROMPT-06  -  MODULE 06_Inventory  (sidebar: "inventory")
+================================================================================
+[COPY-PASTE START]
+You are verifying the VB6 -> Python migration of HMS module **06_Inventory**.
+
+Rules: live DB = truth; VB6 = behavior; never invent tables; write tests must
+rollback/snapshot; touch ONLY Inventory files; evidence file:line + test names.
+
+Scope:
+- Manual : HMS_REVERSE_ENGINEERING/MODULE_MANUALS_2026/06_Inventory/{README,FRONTEND,BACKEND,DATABASE,TEST_PLAN,TEST_RESULTS}.md
+- RE doc : HMS_REVERSE_ENGINEERING/07_Inventory/module_manual.md
+- menuHelp Module_Name: Purchase, Matop, Purch, MatLok, MatStat, MatReports,
+        MatVat, MatVatR  (masters 5 / ops 1 / other 17)
+- core/: inventory, purchase, item, unit, sundry
+- ui/  : inventory, purchase_order_ui, purchase_bill_ui, requisition_slip_ui,
+        stock_adjust_ui, stock_issue_ui, stock_receive_ui, kitchen_clstk_ui
+- Tables: GIN, Indent, Porder, Purch1, Purch2, ItemMast, Stock, GodownMast
+
+Do this:
+1. Menu parity: Inventory leaves -> `_form_registry()` live classification.
+   Flag every `_coming_soon` (e.g. Enviro Inventry, Opening Stock, Consumption
+   Master) with its VB6 evidence.
+2. Indent -> PO -> GIN (purchase receipt) -> stock movement chain: serial
+   numbers, stock qty arithmetic, godown-wise balance, audit columns.
+3. Voucher counter race (KI-1): `inventory` indent `_next_vno` is
+   select-then-consume - check for duplicate-PK risk under concurrency and
+   whether VB6 used a lock/transaction the port dropped.
+4. Registers/stock reports: date-window filters, party/godown filters vs VB6.
+5. GIN form party-key port (already fixed at ui/inventory.py:484) - confirm
+   the fix is still present and covered by a test.
+6. Tests: `run_module_tests --module 06_Inventory` + cheatsheet L1/L2 +
+   `python tests/database/test_inventory_registers.py` (L2c).
+7. Known issues: KI-2 register data gap (0 rows in date window / vprefix='2025'),
+   empty POrder/GIN in DB - distinguish "data gap" from "code bug".
+Output in the standard format above.
+[END PROMPT-06]
+
+
+================================================================================
+PROMPT-07  -  MODULE 07_POS  (sidebar: "point of sale")
+================================================================================
+[COPY-PASTE START]
+You are verifying the VB6 -> Python migration of HMS module **07_POS**.
+
+Rules: live DB = truth; VB6 = behavior; never invent tables; write tests must
+rollback; touch ONLY POS files; evidence file:line + test names.
+
+Scope:
+- Manual : HMS_REVERSE_ENGINEERING/MODULE_MANUALS_2026/07_POS/{README,FRONTEND,BACKEND,DATABASE,TEST_PLAN,TEST_RESULTS}.md
+- RE doc : HMS_REVERSE_ENGINEERING/08_POS/module_manual.md
+- menuHelp Module_Name: Restaurant, POSEnt, POSMas, POSRep, POSReports,
+        POSMIS, MISREP, PosTax, PosTaxRep  (masters 13 / reports 28 / hidden 1)
+- core/: pos, pos_entry, pos_kot, pos_sales, pos_stock, pos_table,
+        pos_masters, pos_hall, pos_packing, pos_delivery, pos_happy
+- ui/  : pos_masters_ui, pos_sales_ui, pos_stock_ui, pos_table_ui,
+        pos_sub_forms_ui, pos_happy_ui, pos_packing_ui, pos_delivery_ui,
+        kot_entry, kot_transfer_ui, item_rate_ui, scheme_tds_ui, pos_na
+- Tables: KOT, KOTLog, Sale1, Sale2, SunTran, SessionMast, ShiftMast,
+        NCTypeMast, ItemCatMast, ItemMast, SplitBillDetail, GuestReward,
+        Stock, PayCharge
+
+Do this:
+1. Menu parity: POS leaves -> `_form_registry()` live classification.
+   List `_coming_soon`: Rate Group Master, Open Item Consumption, Table Master
+   (if TableMast absent), + any others.
+2. KOT -> bill -> settlement chain: KOT/KOTLog writes, Sale1/Sale2 totals,
+   sundry (SunTran) tax application, PayCharge settle, split-bill path.
+3. Counter race (KI-1): `core/pos.py:306 _next_kot_vno` select-then-consume -
+   duplicate KOT number risk; compare with VB6 locking.
+4. Happy Hours / Scheme / Combo Pack / NC Type: table exists but 0 rows
+   (SchemeMast, HappyHours, ShiftMast, DeliveryBoy) - confirm the UI degrades
+   gracefully on empty set instead of crashing.
+5. Session master + night-audit flags (KOTAtNightAudit / POSBillAtNightAudit
+   from Enviro) - POS posting timing must match VB6.
+6. Tests: `run_module_tests --module 07_POS` + cheatsheet L1/L2b +
+   `python tests/database/test_scheme_tds.py` (L2c).
+Output in the standard format above.
+[END PROMPT-07]
+
+
+================================================================================
+PROMPT-08  -  MODULE 08_Banquet  (sidebar: "banquet")
+================================================================================
+[COPY-PASTE START]
+You are verifying the VB6 -> Python migration of HMS module **08_Banquet**.
+
+Rules: live DB = truth; VB6 = behavior; never invent tables; write tests must
+rollback; touch ONLY Banquet files; evidence file:line + test names.
+
+Scope:
+- Manual : HMS_REVERSE_ENGINEERING/MODULE_MANUALS_2026/08_Banquet/{README,FRONTEND,BACKEND,DATABASE,TEST_PLAN,TEST_RESULTS}.md
+- RE doc : HMS_REVERSE_ENGINEERING/09_Banquet/module_manual.md (module_manual + screens/logic/sql)
+- menuHelp Module_Name: Banquet, oper, Hallop, HallReport, BanqRep, HallMIS,
+        BanqRepMIS, HallTax, HallTaxP, HallM  (masters 8 / ops 2 / reports 14)
+- core/: hall_booking, banquet_ops, banquet_masters, venue, packagemaster,
+        seasonmaster
+- ui/  : banquet_masters_ui, banquet_ops_ui, hall_booking_ui, seasonmaster_ui
+- Tables: HallBook, HallBook1, HallSale1, HallSale1Est, HallSale2, VenueMast,
+        VenueMast1, VenueFeatures, CatalogMast, BookingInquiry, PlanMast,
+        HallPreCosting
+
+Do this:
+1. Menu parity: Banquet leaves -> `_form_registry()` live classification
+   (Banquet Bill Sundry Setting is expected `_coming_soon` - confirm).
+2. Booking -> estimate -> event -> settlement chain: HallBook/HallBook1 rows,
+   HallSale1 vs HallSale1Est (estimate vs actual), pre-costing, cancellation.
+3. Counter race (KI-1): `core/banquet_ops.py:85 _next_vno` select-then-consume.
+4. Empty-data robustness: HallBook1 / CatalogMast / SeasonMast are 0 rows in
+   live DB - booking UI must not crash on empty master lists.
+5. Banquet tax/sundry setting vs VB6 HallSundry.frm - if table missing, report
+   BLOCKED, do not create it.
+6. Tests: `run_module_tests --module 08_Banquet` + cheatsheet L1/L2b.
+Output in the standard format above.
+[END PROMPT-08]
+
+
+================================================================================
+PROMPT-09  -  MODULE 09_NightAudit  (sidebar: "night audit")
+================================================================================
+[COPY-PASTE START]
+You are verifying the VB6 -> Python migration of HMS module **09_NightAudit**.
+
+Rules: live DB = truth; VB6 = behavior; never invent tables; live checks
+read-only (night audit ke write paths kisi bhi haal me prod table pe mat
+chalao - snapshot/rollback ya dry-run); touch ONLY Night Audit files;
+evidence file:line + test names.
+
+Scope:
+- Manual : HMS_REVERSE_ENGINEERING/MODULE_MANUALS_2026/09_NightAudit/{README,FRONTEND,BACKEND,DATABASE,TEST_PLAN,TEST_RESULTS}.md
+- RE doc : HMS_REVERSE_ENGINEERING/10_Night_Audit/module_manual.md
+- menuHelp Module_Name: NightAudit, NightAudito, NightAuditoR, NightAuditR,
+        NightAuditRR, NightAuditL, NightAuditLR, NightAuditGST,
+        NightAuditGSTR, NightAuditMenu  (ops 1 / reports 8 / other 21)
+- core/: nightaudit, year_end, guest_folio, folio
+- ui/  : nightaudit_reports_ui, pos_na, posting_utility_ui, year_end_ui,
+        fd_forms_ui, checkout_ui, folio_ui
+- Tables: NightAuditLog, Enviro, PayCharge, GuestFolio, FolioLog,
+        FOMBillDetails, Booking
+
+Do this:
+1. Menu parity: Night Audit leaves -> `_form_registry()` live classification.
+2. Night audit run: which Enviro flags drive it (ncur business date,
+   KOTAtNightAudit, POSBillAtNightAudit) and whether the Python run posts the
+   same set of transactions as mdlNightAudit.bas.
+3. Reverse Night Audit: `Enviro.NCur - 1` path - TB says it is a critical flow
+   and NOT captured. Verify the port exists and is guarded (double-reverse
+   protection).
+4. Room -> Dirty after audit; folio carry-forward; NightAuditLog rows written
+   with U_Name/U_EntDt/U_AE + LogSite_Code.
+5. Counter race: `core/nightaudit.py:380 _get_voucher_prefix` (KI-1 family).
+6. Tests: `run_module_tests --module 09_NightAudit` + cheatsheet L1/L2b.
+Output in the standard format above.
+[END PROMPT-09]
+
+
+================================================================================
+PROMPT-10  -  MODULE 10_HRPayroll  (sidebar: "hr/payroll")
+================================================================================
+[COPY-PASTE START]
+You are verifying the VB6 -> Python migration of HMS module **10_HRPayroll**.
+
+Rules: live DB = truth; VB6 = behavior; never invent tables; write tests must
+rollback; touch ONLY HR/Payroll files; evidence file:line + test names.
+NOTE: VB6 ke intentional misspellings (Attendence, "Category  Master") =
+parity, bug nahi - unhe rename mat karo.
+
+Scope:
+- Manual : HMS_REVERSE_ENGINEERING/MODULE_MANUALS_2026/10_HRPayroll/{README,FRONTEND,BACKEND,DATABASE,TEST_PLAN,TEST_RESULTS}.md
+- RE doc : HMS_REVERSE_ENGINEERING/11_HR_Payroll/module_manual.md
+- menuHelp Module_Name: PR, PRM, PayRoll, PayO, PayOpr, PayR, PayRep
+        (masters 4 / reports 9 / other 9)
+- core/: hr_masters, hr_payroll
+- ui/  : hr_payroll_ui, hr_members_ui
+- Tables: Employee, Desig, EmpCategory, Holiday, Attend, Attendence,
+        Salary, SalaryLog, Loan
+
+Do this:
+1. Menu parity: HR leaves (Designation/Category/Holiday/Employee Master) ->
+   `_form_registry()` live classification.
+2. Masters CRUD: Designation, Category, Holiday, Employee - required/dup
+   guards, audit columns, LogSite_Code.
+3. Salary run: Salary + SalaryLog write path. TB flags "salary upsert =
+   delete+insert race" - confirm whether VB6 used a transaction the port lost,
+   and whether two concurrent runs can double-pay.
+4. Attendance/Loan: empty tables (Holiday/Attendence/Loan 0 rows) - confirm
+   graceful empty-state, and confirm VB6 spelling parity of column names.
+5. Tests: `run_module_tests --module 10_HRPayroll` + cheatsheet L1/L2b.
+Output in the standard format above.
+[END PROMPT-10]
+
+
+================================================================================
+PROMPT-11  -  MODULE 11_EPABX  (sidebar: "epabx")
+================================================================================
+[COPY-PASTE START]
+You are verifying the VB6 -> Python migration of HMS module **11_EPABX**.
+
+Rules: live DB = truth; VB6 = behavior; never invent tables (Location MISSING
+hai - BLOCKED likho, table mat banao); read-only DB checks; touch ONLY EPABX
+files; evidence file:line + test names.
+
+Scope:
+- Manual : HMS_REVERSE_ENGINEERING/MODULE_MANUALS_2026/11_EPABX/{README,FRONTEND,BACKEND,DATABASE,TEST_PLAN,TEST_RESULTS}.md
+- RE doc : HMS_REVERSE_ENGINEERING/12_EPABX/module_manual.md
+- menuHelp: module_names = () and counts all 0  <- biggest gap of this module
+- core/: epabx_masters, epabx_ops
+- ui/  : epabx_ui, comport_ui
+- Tables: TelCallType, TelCallCode, TelExt, EPABX_Data, Location(MISSING)
+
+Do this:
+1. Menu parity: EPABX leaves (Call Type / Extension / Call Codes / Call
+   Control / Com Port Properties) -> `_form_registry()` live classification.
+2. menuHelp gap (KI-11): zero rows for this module anywhere - confirm whether
+   VB6 served EPABX from MenuHelp at all or from a hardcoded menu. Report what
+   the Python side must do to be consistent (do not invent rows).
+3. Latent crash: `Location-Master` leaf -> unguarded `_open_fv_list` while the
+   `Location` table is missing. Confirm current state and whether it now
+   raises an unhandled exception on click.
+4. Empty masters: TelCallType/TelCallCode/TelExt/EPABX_Data all 0 rows -
+   UI must handle empty list; call-entry flow must fail with a clear message.
+5. Com Port Properties: comport config read/write path vs VB6 (test file
+   tests/unit/test_comport_config.py exists - run it).
+6. Tests: `run_module_tests --module 11_EPABX` + cheatsheet L1/L2b.
+Output in the standard format above. Expect PARTIAL/BLOCKED - that is a valid,
+honest answer here.
+[END PROMPT-11]
+
+
+================================================================================
+PROMPT-12  -  MODULE 12_Messaging  (sidebar: "extras")
+================================================================================
+[COPY-PASTE START]
+You are verifying the VB6 -> Python migration of HMS module **12_Messaging**.
+
+Rules: live DB = truth; VB6 = behavior; never invent tables; NO real SMS/API
+call during tests (stub/skip network); write tests must rollback; touch ONLY
+Messaging files; evidence file:line + test names.
+
+Scope:
+- Manual : HMS_REVERSE_ENGINEERING/MODULE_MANUALS_2026/12_Messaging/{README,FRONTEND,BACKEND,DATABASE,TEST_PLAN,TEST_RESULTS}.md
+- RE doc : HMS_REVERSE_ENGINEERING/13_Messaging/module_manual.md
+- menuHelp Module_Name: SMSSETUP, EXTSMSSETUP, SMSOPR, EXTSMSOPR, EXTRSMS, EXTSMS
+        (masters 2 / ops 1 / other 3)
+- core/: sms_comm, sms_enviro, sms_http
+- ui/  : sms_ui, sms_http_ui, messaging_ui
+- Tables: SMSEnviro, DBSendSMS, EmailSMSForward, GuestReward
+
+Do this:
+1. Menu parity: Messaging leaves (SMS API / Scheduled / Conditional / Send)
+   -> `_form_registry()` live classification.
+2. Caption normalisation (KI-10): `menu_help._norm_caption` strips trailing
+   `(...)` -> all SMS variants collapse to "sms". Confirm the 2026-09-25 fix in
+   `collect_logic.classify` (exact caption precedence) still holds and its TDD
+   test still passes.
+3. DBSendSMS / EmailSMSForward: DocId + `MAX(Id)+1` counter (KI-1 family) -
+   duplicate risk under concurrent sends.
+4. SMSEnviro singleton: no-lock read-modify-write - flag if two sessions can
+   clobber each other's settings.
+5. Tests: `run_module_tests --module 12_Messaging` + cheatsheet L1/L2b +
+   `python -m pytest tests/unit/test_manual_pipeline.py -q`.
+6. Flakiness: first run of this module was transient red (KI-12) - run twice
+   and report both results if they differ.
+Output in the standard format above.
+[END PROMPT-12]
+
+
+================================================================================
+PROMPT-13  -  MODULE 13_MembersMgmt  (sidebar: "extras")
+================================================================================
+[COPY-PASTE START]
+You are verifying the VB6 -> Python migration of HMS module **13_MembersMgmt**.
+
+Rules: live DB = truth; VB6 = behavior; never invent tables; write tests must
+rollback; touch ONLY Members files; evidence file:line + test names.
+
+Scope:
+- Manual : HMS_REVERSE_ENGINEERING/MODULE_MANUALS_2026/13_MembersMgmt/{README,FRONTEND,BACKEND,DATABASE,TEST_PLAN,TEST_RESULTS}.md
+- RE doc : HMS_REVERSE_ENGINEERING/14_Members_Management/module_manual.md
+- menuHelp Module_Name: Mem, MemMas, MemOpr  (masters 4 / other 2)
+- core/: members_masters, member_billing, facility_billing
+- ui/  : member_master_ui, member_billing_ui, member_environment_ui,
+        facility_billing_ui, hr_members_ui, misc_parity_ui
+- Tables: MemCatMast, MemberFamily, MemEnviro, RevMast, LocationFacility
+        (+ MemBill, FacilityBill from billing paths)
+
+Do this:
+1. Menu parity: Members leaves -> `_form_registry()` live classification.
+   `Member Master` and `Member Bill Sundry Setting` expected `_coming_soon` -
+   confirm and cite VB6 evidence for whether they are dead in VB6 too.
+2. Category / Member / Corporate Member masters: CRUD, age-wise revenue,
+   category-wise revenue/facility links vs VB6 MemCatMast.frm.
+3. Billing counters: MemBill.vno + FacilityBill.vno select-then-consume
+   (KI-1 family) - duplicate risk.
+4. Sparse data: MemBill=0 / FacilityMast=0 - confirm empty-state handling and
+   that "no members yet" does not read as a crash.
+5. Enviro split: MemEnviro vs main Enviro - confirm no key is written to the
+   wrong table.
+6. Tests: `run_module_tests --module 13_MembersMgmt` + cheatsheet L1/L2b +
+   `python tests/database/test_member_master.py` (L2c).
+Output in the standard format above.
+[END PROMPT-13]
+
+
+================================================================================
+PROMPT-14  -  MODULE 14_SaleMarketing  (sidebar: "extras")
+================================================================================
+[COPY-PASTE START]
+You are verifying the VB6 -> Python migration of HMS module **14_SaleMarketing**.
+
+Rules: live DB = truth; VB6 = behavior; never invent tables; read-only DB
+checks; touch ONLY Sales/Marketing files; evidence file:line + test names.
+
+Scope:
+- Manual : HMS_REVERSE_ENGINEERING/MODULE_MANUALS_2026/14_SaleMarketing/{README,FRONTEND,BACKEND,DATABASE,TEST_PLAN,TEST_RESULTS}.md
+- RE doc : HMS_REVERSE_ENGINEERING/15_Sales_Marketing/module_manual.md
+- menuHelp: module_names = () , counts all 0 ; rows classified as
+  `Module_Name='Mas'` (discovery ruling: sits in the 02 bucket)
+- core/: marketsegment, businesssource, guestprof
+- ui/  : finance_masters_ui, frontoffice, registration_entry_ui (shared)
+- Tables: MarketSeg, BussSource, GuestProf
+
+Do this:
+1. Menu parity: Market Segment / Business Source leaves -> `_form_registry()`
+   live classification. Confirm they are served from the Main Setup / FO
+   bucket rather than a dedicated sidebar (no dedicated sidebar = expected).
+2. Schema drift (already fixed once): VB6 MktSegMast vs live `MarketSeg`,
+   BusSrcMast vs `BussSource`, GuestStatusMast vs `GuestStatus` - re-verify the
+   live names and that no code still uses the VB6-only name.
+3. Counters: `guestprof.next_code()` select-then-consume (KI-1 family).
+4. Active/Y-N defaults + audit columns on MarketSeg/BussSource inserts.
+5. Tests: `run_module_tests --module 14_SaleMarketing` + cheatsheet L1/L2b.
+Output in the standard format above.
+[END PROMPT-14]
+
+
+================================================================================
+PROMPT-15  -  CROSS-MODULE GATE (registry + permissions + baseline)
+================================================================================
+[COPY-PASTE START]
+You are running the CROSS-MODULE migration gate for the HMS Python port.
+No module edits - this is a verification-only pass across the whole menu.
+
+Rules: read-only; live DB = truth; every claim needs file:line or command
+output; do not fix anything, only report.
+
+Tasks:
+1. Full registry parity:
+   - walk `core/mdi_menu.json` for ALL modules (not just one),
+   - resolve every leaf via `ui/shell.py::_form_registry()` imported live,
+   - classify: real opener / `_coming_soon` / None.
+   - Output a per-module table: total leaves, wired, coming_soon, None.
+   - `None` is a P0 finding (click -> TypeError). List each with shell.py line.
+2. Coming-soon audit: for every `_coming_soon` leaf, cite the blocked-spread
+   comment in shell.py and the VB6 evidence (form exists / table missing /
+   inactive in VB6). Undocumented ones = finding.
+3. Shadow check: `python tools/check_registry_shadow.py` - report any real
+   wiring hidden behind a later `_coming_soon` entry for the same caption.
+4. Permissions: `core/menu_help.py` + `User_Module` + `userMast` - confirm
+   per-user/per-company menu rights actually gate the shell (SA bypass + a
+   restricted user deny case). Confirm PASSWD handling is still VB6
+   byte-exact (flag any silent swap to bcrypt/argon2).
+5. Audit-column sweep: grep `ui/base_master.py` + a sample of `core/*_ops.py`
+   for U_Name / U_EntDt / U_AE / LogSite_Code on INSERT/UPDATE - report which
+   write paths skip them.
+6. Baseline tests:
+   python -m pytest tests/unit -q
+   python -m pytest tests/database -q
+   python -m pytest tests/test_front_office.py -q
+   python -m pytest tests/test_wave_ui_forms.py tests/test_ui_walkthroughs.py -q
+   Report exact pass/fail counts + every failing test name. Rerun any single
+   flaky failure once and report BOTH results (project has known order/DB
+   dependent flakes: KI-5, KI-6, KI-12).
+7. Doc drift: compare `comparison/VB6_vs_Python_Comparison.md` "missing"
+   lists vs the live registry result - list every entry that is now wired
+   (stale doc) and every genuinely missing one.
+Output: one markdown table per task + a final RAG status per module
+(GREEN / AMBER / RED) with the single highest-risk item for each.
+[END PROMPT-15]
+
+
+================================================================================
+NOTES
+================================================================================
+- PROMPT-02 ka finding (parity test `_COMING_SOON_QUALNAME` mismatch) already
+  verify ho chuka hai 2026-09-30 ko - us session me 134 leaves me se 17
+  `_coming_soon` the aur purana qualname 0 match karta tha.
+- Agar koi module P0 crash de, pehle `git status` check karo - parallel
+  sessions ke staged changes (1936 files) pending hain, unhe mat uthana.
+- Naya module aaye to yahan PROMPT-16 add karo, format same rakho.
+================================================================================

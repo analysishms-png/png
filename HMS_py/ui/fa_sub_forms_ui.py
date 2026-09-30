@@ -5,7 +5,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QTableWidget, QTableWidgetItem, QPushButton, QLineEdit, QLabel,
     QComboBox, QMessageBox, QGroupBox, QFormLayout, QDateEdit, QTabWidget,
-    QDialog)
+    QDialog, QAbstractItemView)
 from PyQt6.QtCore import Qt, QDate
 from PyQt6.QtGui import QColor, QFont
 from core import fa_ledger_ops as falo
@@ -398,8 +398,8 @@ class TDSChallanWindow(QDialog):
         self.tbl = QTableWidget(0, len(self.LINE_COLS))
         self.tbl.setHorizontalHeaderLabels([c[0] for c in self.LINE_COLS])
         self.tbl.setAlternatingRowColors(True)
-        self.tbl.setSelectionBehavior(QTableWidget.SelectRows)
-        self.tbl.setSelectionMode(QTableWidget.SingleSelection)
+        self.tbl.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.tbl.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self.tbl.setShowGrid(True)
         self.tbl.horizontalHeader().setStretchLastSection(True)
         root.addWidget(self.tbl, 1)

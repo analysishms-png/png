@@ -1,0 +1,78 @@
+%% 16_Mall_Management workflow — location/facility masters + facility billing
+%% Evidence: menu_tree_raw L504-L514, EXTRAS dispatch L480784-L480820,
+%%           FacilityMast SQL L932289-L932924, bill SQL L10924/L670698-L670790,
+%%           MenuHelp_SA OPT1=25, tables_rowcounts
+%% solid=[VERIFIED-VB6]  dashed=[INFERRED]  dotted=[UNKNOWN]
+
+flowchart TD
+    subgraph RUNTIME["Runtime reachability (user SA)"]
+        TAB["Strip tab 'Mall Management'<br/>Analysis.ini key 9 (15th name)<br/>[VERIFIED-UI]"]
+        MH["MenuHelp OPT1=25<br/>**0 rows** -> empty menu<br/>[VERIFIED-SQL]"]
+        TAB --> MH
+    end
+
+    subgraph BUILDER["Builder menu (11 rows, hex 19)"]
+        B0["Mall Management L504"] --> BO["Operations group L505"]
+        B0 --> BR["Reports group L513"]
+        BO --> B1["row1 caption 'Operations' L506"]
+        BO --> B2["Facility Master L507"]
+        BO --> B3["Location Facilities L508"]
+        BO --> B4["Party Locations L509"]
+        BO --> B5["Meter Reading L510"]
+        BO --> B6["Facility Billing L511"]
+        BO --> B7["Facility Sundry Setting L512 (type 2)"]
+        BR --> R1["Facility Bill Register L514 (type 1)"]
+    end
+
+    subgraph DISP["Caption dispatch (direct New, cleanest block)"]
+        B1 -->|"matches 'Location-Master' L480784<br/>MENU SAYS 'Operations' -> MISMATCH"| D1["New FrmLocationMast L480785"]
+        B2 -->|"L480789"| D2["New FrmFacilityMast L480790"]
+        B3 -->|"L480794"| D3["New FrmLocationFacilities L480795"]
+        B4 -->|"L480799"| D4["New FrmPartyLocations L480800"]
+        B5 -->|"L480804"| D5["New FrmMeterReading L480805"]
+        B6 -->|"L480809"| D6["New frmFacilityBillAdv L480810"]
+        B7 -->|"L480814"| D7["New FacilitySundry L480815"]
+        R1 -->|"L480819"| D8["New rFomRepView L480820<br/>(shared FO/Mall viewer)"]
+    end
+
+    subgraph MASTERS["FacilityMast lifecycle SQL"]
+        D2 --> S1["SELECT Code,Name ... LOGSITE_CODE='HO' fallback<br/>L932289  [VERIFIED-VB6]"]
+        D2 --> S2["search grid: Code,Name,ChargeType,UnitRate<br/>L932614"]
+        D2 --> S3A["next code variant A: MAX(VAL(MID(Code,3)))+1<br/>L932867  [VERIFIED-VB6]"]
+        D2 --> S3B["next code variant B: MAX(CAST(SUBSTRING(Code,3,4) AS INT))+1<br/>L932876  [VERIFIED-VB6]"]
+        S3A -.->|"two formulas, one rule"| S3B
+        D2 --> S4["INSERT INTO FacilityMast(...) L932924<br/>Code,Name,ShortName,SACCode,TaxStru,..."]
+        D2 --> SX["DELETE FROM FacilityMast WHERE Code=...<br/>L932516  **QA: never click**"]
+    end
+
+    subgraph BILLING["Facility billing flow"]
+        D6 --> P1["bill header FacilityBill<br/>DocId, PartyCode, VDate"]
+        P1 --> P2["lines FacilityBill1<br/>VType,VNo,ForPeriod,LocationCode"]
+        P2 --> P3["detail/tax FacilityBill2"]
+        P1 --> P4["revenue: SunTranFacility<br/>SunCode -> Revmast.Sundry"]
+        P2 --> U1["UPDATE FacilityBill1 SET LocationCode=Q.LocationCode<br/>post-insert fixup  L10924  [VERIFIED-VB6]"]
+        P4 --> AGG["aggregates L670777-L670790<br/>Tax / Disc / ROff / NetAmt"]
+    end
+
+    subgraph REPS["Report path"]
+        D8 --> Q1["register SQL L670698<br/>Fb.Docid, Party, Vdate, Vtype/Vno BillNo, ForPeriod"]
+        D8 --> Q2["tax union L723667-L723910<br/>Nature IN ('Luxury Tax','Sale Tax','Service Tax')"]
+        Q2 --> T2
+    end
+
+    subgraph SEARCH["Location facilities search key"]
+        D3 --> K1["SearchCode = LcCode + SPACE(6-LEN) + '**' + CONVERT(AppDate,103)<br/>L860829  (duplicate at L900649)"]
+    end
+
+    subgraph TABS["Table state (this site)"]
+        T1[("FacilityMast 0 / FacilityBill 0<br/>FacilityBill1 0 / FacilityBill2 0<br/>LocationFacility 0 / SunTranFacility 0<br/>[VERIFIED-SQL]")]
+    end
+    S4 --> T1
+    P3 --> T1
+
+    classDef verified fill:#d5f5e3,stroke:#1e8449
+    classDef bug fill:#fadbd8,stroke:#c0392b
+    classDef inferred fill:#fdebd0,stroke:#b9770e,stroke-dasharray:4 3
+    class B0,BO,BR,B2,B3,B4,B5,B6,B7,R1,D2,D3,D4,D5,D6,D7,D8,S1,S2,S4,P1,P2,P3,P4,AGG,Q1,Q2,K1,U1 verified
+    class B1,D1,SX bug
+    class S3A,S3B,MH,T1 inferred

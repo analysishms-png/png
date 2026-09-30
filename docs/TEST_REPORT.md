@@ -310,7 +310,7 @@ Connection: ✓ (Windows Auth)
 
 ```text
 Username: kanpur
-Password: kanpur (VB6 application password)
+Password: ******** (VB6 application password; masked, not stored)
 Database: MOONData2627
 Auth: Windows Authentication (-E)
 Result: ✅ LOGIN SUCCESSFUL

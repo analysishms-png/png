@@ -1,0 +1,40 @@
+2026-09-28 10:06:01|12|Update PlanMast SET RoomTaxStru=RevMast.TaxStru FROM PlanMast LEFT JOIN RoomCat ON RoomCat.Code = PlanMast.RoomCat LEFT JOIN RevMast ON RevMast.Code = RoomCat.RevCode WHERE IsNull(Planmast.RoomTaxStru,'')=''
+2026-09-28 10:06:01|12|UPDATE RoomOcc SET RoomTaxStru=Q.TaxStru FROM RoomOcc INNER JOIN (SELECT DocId+CAST(SNo AS VARCHAR) DocIdS,RoomOcc.RoomRate,RevMast.TaxStru FROM RoomOcc Inner Join RoomCat On RoomCat.Code=RoomOcc.RoomCat Inner Join Revmast On RoomCat.Revcode=Revmast.
+2026-09-28 10:06:01|12|UPDATE GrpBookingDetails SET RoomTaxStru=Q.TaxStru FROM GrpBookingDetails INNER JOIN (SELECT BookingDocId+CAST(SNo AS VARCHAR) DocIdS,RevMast.TaxStru FROM GrpBookingDetails Inner Join RoomCat On RoomCat.Code=GrpBookingDetails.RoomCat Inner Join Revma
+2026-09-28 10:06:01|12|Delete From GuestFolioProfDetail Where Docid=''
+2026-09-28 10:06:01|12|Update ItemMast Set MRP=IsNull(MRP,0) Where MRP Is Null
+2026-09-28 10:06:01|12|Update ItemRate Set MRP=IsNull(MRP,0) Where MRP Is Null
+2026-09-28 10:06:01|12|Update Stock Set MRP=IsNull(MRP,0) Where MRP Is Null
+2026-09-28 10:06:01|12|Update StockLog Set MRP=IsNull(MRP,0) Where MRP Is Null
+2026-09-28 10:06:01|12|Update SplitStock Set MRP=IsNull(MRP,0) Where MRP Is Null
+2026-09-28 10:06:01|12|Update RevMast Set Active=IsNull(Active,'') Where Active Is Null
+2026-09-28 10:06:01|12|Update RevMast Set TaxInc=IsNull(TaxInc,'No') Where TaxInc Is Null
+2026-09-28 10:06:01|12|Update Sale1 Set AU_Name=IsNull(U_Name,''),AU_EntDt=U_EntDt Where IsNull(AU_Name,'')=''
+2026-09-28 10:06:01|12|Update Sale1Log Set AU_Name=IsNull(U_Name,''),AU_EntDt=U_EntDt Where IsNull(AU_Name,'')=''
+2026-09-28 10:06:01|12|Update SplitSale1 Set AU_Name=IsNull(U_Name,''),AU_EntDt=U_EntDt Where IsNull(AU_Name,'')=''
+2026-09-28 10:06:01|12|Update Paycharge Set AU_Name=IsNull(U_Name,''),AU_EntDt=U_EntDt Where IsNull(AU_Name,'')=''
+2026-09-28 10:06:01|12|Update PaychargeLog Set AU_Name=IsNull(U_Name,''),AU_EntDt=U_EntDt Where IsNull(AU_Name,'')=''
+2026-09-28 10:06:01|12|Update GuestReward Set Total=Q.Total,DiscAmt=Q.DiscAmt,RestCode=Q.RestCode,SchemeCode='',SaleUpTo=0,RPointOnAmt=0,RewardValue=0,RedeemValue=0 From (Select S1.Total,S1.DiscAmt,S1.RestCode,G.DocId From GuestReward G Inner Join Sale1 S1 On G.DocId=S1.Do
+2026-09-28 10:06:01|12|Update SmartCardRegistration Set RewardBal=IsNull(RewardBal,0),RewardSale=IsNull(RewardSale,0),RewardPoint=IsNull(RewardPoint,0),RedeemPoint=IsNull(RedeemPoint,0) Where RedeemPoint Is Null
+2026-09-28 10:06:01|12|Update Depart Set KOTAtNightAudit=(Select IsNull(Max(KOTAtNightAudit),'') From Enviro Where LogSite_Code='KK') Where IsNull(KOTAtNightAudit,'')='' And OutletYN='Y'
+2026-09-28 10:06:01|12|Update GuestProf Set FOM=1 Where Code In (Select GuestProf From Booking) And FOM Is Null
+2026-09-28 10:06:02|12|Update GuestProf Set FOM=1 Where Code In (Select GuestProf From GuestFolio) And FOM Is Null
+2026-09-28 10:06:02|12|Update GuestProf Set FOM=1 Where Code In (Select GuestProf From GuestFolioProfDetail) And FOM Is Null
+2026-09-28 10:06:02|12|Update GuestProf Set POS=1 Where Code In (Select CustCode From GuestReward) And POS Is Null
+2026-09-28 10:06:02|12|Update GuestProf Set FOM=ISNULL(FOM,0)
+2026-09-28 10:06:02|12|Update GuestProf Set POS=ISNULL(POS,0)
+2026-09-28 10:06:02|12|Update MarketSeg Set Active=ISNULL(Active,'')
+2026-09-28 10:06:02|12|Update BussSource Set Active=ISNULL(Active,'')
+2026-09-28 10:06:02|12|Update RoomDiscount Set Adult=ISNULL(Adult,1)
+2026-09-28 10:06:02|12|Update Item Set CommodityCode=ItemMast.CommodityCode From Item,ItemMast Where Item.Code=ItemMast.Code And Item.CommodityCode IS Null
+2026-09-28 10:06:02|12|Update Depart Set CoverMandatory=(Select IsNull(Max(CoversMandatory),'') From Enviro Where LogSite_Code='KK') Where CoverMandatory Is Null
+2026-09-28 10:06:02|12|Update Depart Set MobileNoMandatory=(Select IsNull(Max(MobileNoMandatory),'') From Enviro Where LogSite_Code='KK') Where MobileNoMandatory Is Null
+2026-09-28 10:06:02|12|Update ItemRate Set Party=ISNULL(Party,'')
+2026-09-28 10:06:02|12|Update SunTranFacility set Vtype='FACL' Where Vtype='8'
+2026-09-28 10:06:02|12|Update FacilityBill1 Set FacilityBill1.LocationCode=Q.LocationCode From (Select FacilityBill.DocId,FacilityBill.LocationCode From FacilityBill)Q  Where DocId1=Q.Docid And IsNull(FacilityBill1.LocationCode,'')=''
+2026-09-28 11:23:07|12|Delete From GuestFolioProfDetail Where IsNull(Docid,'')='' And mProf='KK007803'
+2026-09-28 11:23:10|12|Delete From GuestFolioProfDetail Where IsNull(Docid,'')='' And mProf='KK007803'
+2026-09-28 11:23:13|12|Delete From GuestFolioProfDetail Where IsNull(Docid,'')='' And mProf='KK007803'
+2026-09-28 11:23:28|12|Delete From GuestFolioProfDetail Where IsNull(Docid,'')='' And mProf='KK007803'
+2026-09-28 11:26:05|12|Delete From GuestFolioProfDetail Where IsNull(Docid,'')='' And mProf='KK007803'
+2026-09-28 11:27:54|12|Delete From GuestFolioProfDetail Where IsNull(Docid,'')='' And mProf='KK007803'

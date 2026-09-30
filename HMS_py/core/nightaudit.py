@@ -132,10 +132,10 @@ def _next_vno(vtype: str, vprefix: str, cn=None) -> int:
 
 
 def _next_sno(foliono: int, cn=None) -> int:
-    rows = db.query(
-        "SELECT MAX(SNo) FROM PayCharge WHERE FolioNo = ? AND Site_Code = ?",
-        (foliono, SITE_CODE), cn=cn)
-    return (rows[0][0] or 0) + 1 if rows and rows[0][0] else 1
+    # BUG-003/004: race-safe SNo (UPDLOCK/HOLDLOCK) - db.py central helper.
+    return db.next_serial("PayCharge", "SNo",
+                          "FolioNo = ? AND Site_Code = ?",
+                          (foliono, SITE_CODE), cn=cn)
 
 
 def _make_rc_docid(vprefix: str, vno: int) -> str:
@@ -720,12 +720,48 @@ def run_night_audit(date_from, date_to=None, user: str = USER,
             total_skipped += pos_result["skipped"]
             pos_posted += pos_result["posted"]
 
+            # VB6 NIGHT_AUDIT_FLOW.md §B: Room status roll (occupied -> Dirty)
+            try:
+                room_status_roll(current, user, cn=cn, commit=False)
+            except Exception as e:
+                errors.append(f"{current}: room status roll fail: {e}")
+
+            # VB6 NIGHT_AUDIT_FLOW.md §C: Due-out extension
+            try:
+                due_out_extension(current, user, cn=cn, commit=False)
+            except Exception as e:
+                errors.append(f"{current}: due-out extension fail: {e}")
+
+            # VB6 NIGHT_AUDIT_FLOW.md §D: Split-bill staging cleanup
+            try:
+                split_bill_cleanup(current, user, cn=cn, commit=False)
+            except Exception as e:
+                errors.append(f"{current}: split-bill cleanup fail: {e}")
+
+            # VB6 NIGHT_AUDIT_FLOW.md §D: Voucher serial renumber
+            try:
+                voucher_serial_renumber(current, user, cn=cn, commit=False)
+            except Exception as e:
+                errors.append(f"{current}: voucher renumber fail: {e}")
+
             # Log NA entry
             end_time = datetime.datetime.now()
             _log_night_audit(current, current, start_time, end_time, user, cn=cn, commit=False)
 
             dates_processed.append(current)
             current += datetime.timedelta(days=1)
+
+        # VB6 NIGHT_AUDIT_FLOW.md §D: Token reset (once after all dates)
+        try:
+            token_reset(user, cn=cn, commit=False)
+        except Exception as e:
+            errors.append(f"token reset fail: {e}")
+
+        # VB6 NIGHT_AUDIT_FLOW.md §D: Business date roll (NCur + 1)
+        try:
+            roll_business_date(user, cn=cn, commit=False)
+        except Exception as e:
+            errors.append(f"business date roll fail: {e}")
 
         if commit:
             cn.commit()
@@ -999,3 +1035,248 @@ def post_pos_revenue(date_from, date_to, user=USER, cn=None) -> int:
                 cn.close()
             except Exception:
                 pass
+
+
+# ============================================================
+# Room Status Roll (VB6 NIGHT_AUDIT_FLOW.md §B)
+# ============================================================
+
+def room_status_roll(vdate, user: str = USER, cn=None,
+                     commit: bool = True) -> dict:
+    """VB6 NIGHT_AUDIT_FLOW.md §B: Occupied rooms ko Dirty mark karo.
+    
+    VB6 SQL (mdlNightAudit, line ~228750):
+      SELECT RoomMast.Code AS RoomNo FROM (((((RoomMast RIGHT JOIN RoomOcc
+      ON RoomMast.Code=RoomOcc.RoomNo) LEFT JOIN GuestFolio ON
+      RoomOcc.DocId=GuestFolio.DocId) LEFT JOIN GuestProf ON
+      GuestFolio.GuestProf=GuestProf.Code) LEFT JOIN SubGroup ON
+      GuestFolio.Company=SubGroup.SubCode) LEFT JOIN RoomCat ON
+      RoomOcc.RoomCat=RoomCat.Code) LEFT JOIN GUESTSTAT ON
+      GUESTSTAT.CODE=GUESTPROF.GUESTSTATUS
+      WHERE roomocc.type not in ('C','O') AND ROOMMAST.TYPE='RO'
+      AND RoomMast.LogSite_Code='<site>'
+      -> Update RoomMAst set roomStat='D' WHERE CODE='<room>'
+    
+    Returns: {'updated': count, 'rooms': [room_numbers]}
+    """
+    rows = db.query(
+        "SELECT DISTINCT RTRIM(RoomMast.Code) FROM RoomMast "
+        "INNER JOIN RoomOcc ON RoomMast.Code = RoomOcc.RoomNo "
+        "WHERE RoomOcc.Type NOT IN ('C', 'O') "
+        "AND RoomMast.Type = 'RO' "
+        "AND RoomOcc.ChkOutDate IS NULL "
+        "AND (RoomMast.LogSite_Code = ? OR RoomMast.LogSite_Code = 'HO')",
+        (SITE_CODE,), cn=cn)
+    rooms = [r[0] for r in rows]
+    if not rooms:
+        return {"updated": 0, "rooms": []}
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        for room in rooms:
+            db.execute(
+                "UPDATE RoomMast SET roomStat = 'D', U_Name = ?, "
+                "U_EntDt = getdate(), U_AE = 'E' "
+                "WHERE RTRIM(Code) = ? AND (LogSite_Code = ? OR LogSite_Code = 'HO')",
+                (user, room, SITE_CODE), cn=cn, commit=False)
+        if commit:
+            cn.commit()
+        return {"updated": len(rooms), "rooms": rooms}
+    finally:
+        if own:
+            cn.close()
+
+
+# ============================================================
+# Due-out Extension (VB6 NIGHT_AUDIT_FLOW.md §C)
+# ============================================================
+
+def due_out_extension(vdate, user: str = USER, cn=None,
+                      commit: bool = True) -> dict:
+    """VB6 NIGHT_AUDIT_FLOW.md §C: Due-out folios ka departure date roll.
+    
+    VB6 SQL (mdlNightAudit, line ~228800):
+      select DocId,Depdate,VDate as ChkInDate,NoDays from GuestFolio
+      where Docid in (Select DocId from RoomOcc where chkoutdate is NULL)
+      -> For each folio whose DepDate <= audit date:
+         Update RoomOcc Set Depdate=<new>,U_EntDt=<now>,U_AE='E'
+         Update GuestFolio Set nodays=<diff>,Depdate=<new>
+         NoDays = DateDiff(d, ChkInDate, DepDate+1)
+    
+    Returns: {'extended': count, 'folios': [{folio, old_dep, new_dep}]}
+    """
+    rows = db.query(
+        "SELECT GF.DocId, GF.FolioNo, GF.DepDate, GF.VDate, GF.NoDays "
+        "FROM GuestFolio GF "
+        "WHERE GF.DocId IN (SELECT DocId FROM RoomOcc WHERE ChkOutDate IS NULL) "
+        "AND GF.Site_Code = ? AND GF.DepDate <= ?",
+        (SITE_CODE, vdate), cn=cn)
+    if not rows:
+        return {"extended": 0, "folios": []}
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        extended = []
+        for r in rows:
+            docid = r[0]
+            folio = r[1]
+            old_dep = r[2]
+            vdate_chk = r[3]
+            if isinstance(old_dep, datetime.datetime):
+                old_dep = old_dep.date()
+            if isinstance(vdate_chk, datetime.datetime):
+                vdate_chk = vdate_chk.date()
+            new_dep = vdate + datetime.timedelta(days=1)
+            nodays = max((new_dep - vdate_chk).days, 1)
+            db.execute(
+                "UPDATE RoomOcc SET DepDate = ?, U_EntDt = getdate(), "
+                "U_AE = 'E' WHERE DocId = ?",
+                (new_dep, docid), cn=cn, commit=False)
+            db.execute(
+                "UPDATE GuestFolio SET NoDays = ?, DepDate = ?, "
+                "U_EntDt = getdate(), U_AE = 'E' WHERE DocId = ?",
+                (nodays, new_dep, docid), cn=cn, commit=False)
+            extended.append({"folio": folio, "old_dep": old_dep, "new_dep": new_dep})
+        if commit:
+            cn.commit()
+        return {"extended": len(extended), "folios": extended}
+    finally:
+        if own:
+            cn.close()
+
+
+# ============================================================
+# Token Reset (VB6 NIGHT_AUDIT_FLOW.md §D)
+# ============================================================
+
+def token_reset(user: str = USER, cn=None, commit: bool = True) -> dict:
+    """VB6 NIGHT_AUDIT_FLOW.md §D: Auto-reset token counters.
+    
+    VB6 SQL (mdlNightAudit, line ~228850):
+      Update Depart Set CurTokenNo=0,CurTokenNoKOT=0
+      where AutoResetToken='Yes' And Logsite_code='<site>'
+    
+    Returns: {'reset': count}
+    """
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        n = db.execute(
+            "UPDATE Depart SET CurTokenNo = 0, CurTokenNoKOT = 0, "
+            "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' "
+            "WHERE AutoResetToken = 'Yes' AND (LogSite_Code = ? OR LogSite_Code = 'HO')",
+            (user, SITE_CODE), cn=cn, commit=False)
+        if commit:
+            cn.commit()
+        return {"reset": n}
+    finally:
+        if own:
+            cn.close()
+
+
+# ============================================================
+# Split-bill Staging Cleanup (VB6 NIGHT_AUDIT_FLOW.md §D)
+# ============================================================
+
+def split_bill_cleanup(vdate, user: str = USER, cn=None,
+                       commit: bool = True) -> dict:
+    """VB6 NIGHT_AUDIT_FLOW.md §D: Split-bill staging cleanup.
+    
+    VB6 SQL (mdlNightAudit, line ~228860):
+      Delete From POS_SBill / SplitSale1 / SplitSale2 / SplitStock / SplitedSunTran
+      Where VType='B<dept>' And LogSite_Code='<site>' And VDate=<audit date>
+    
+    Returns: {'deleted': {table: count}}
+    """
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        deleted = {}
+        tables = ["POS_SBill", "SplitSale1", "SplitSale2", "SplitStock", "SplitedSunTran"]
+        for table in tables:
+            try:
+                n = db.execute(
+                    f"DELETE FROM {table} WHERE LogSite_Code = ? AND VDate = ?",
+                    (SITE_CODE, vdate), cn=cn, commit=False)
+                deleted[table] = n
+            except Exception:
+                deleted[table] = 0
+        if commit:
+            cn.commit()
+        return {"deleted": deleted}
+    finally:
+        if own:
+            cn.close()
+
+
+# ============================================================
+# Voucher Serial Renumber (VB6 NIGHT_AUDIT_FLOW.md §D)
+# ============================================================
+
+def voucher_serial_renumber(vdate, user: str = USER, cn=None,
+                            commit: bool = True) -> dict:
+    """VB6 NIGHT_AUDIT_FLOW.md §D: Voucher serial renumber after split-bill cleanup.
+    
+    VB6 SQL (mdlNightAudit, line ~228870):
+      UPDATE VOUCHER_PREFIX SET START_SRL_NO=(Select IsNull(Max(VNo),0)
+      From SplitSale1 Where VType='B<dept>' ...)
+      WHERE DATE_FROM=... AND DATE_TO=... AND V_TYPE='...'
+    
+    Returns: {'renumbered': count}
+    """
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        n = db.execute(
+            "UPDATE Voucher_Prefix SET START_SRL_NO = "
+            "(SELECT ISNULL(MAX(VNo), 0) FROM SplitSale1 "
+            "WHERE VType = Voucher_Prefix.V_Type "
+            "AND LogSite_Code = Voucher_Prefix.LogSite_Code), "
+            "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' "
+            "WHERE LogSite_Code = ? AND ? BETWEEN Date_From AND Date_To",
+            (user, SITE_CODE, vdate), cn=cn, commit=False)
+        if commit:
+            cn.commit()
+        return {"renumbered": n}
+    finally:
+        if own:
+            cn.close()
+
+
+# ============================================================
+# Business Date Roll (VB6 NIGHT_AUDIT_FLOW.md §D)
+# ============================================================
+
+def roll_business_date(user: str = USER, cn=None, commit: bool = True) -> dict:
+    """VB6 NIGHT_AUDIT_FLOW.md §D: Business date roll forward.
+    
+    VB6 SQL (mdlNightAudit, line ~228850):
+      Update enviro set ncur=<next date>, ImprestAmount=0
+      where Logsite_code='<site>'
+    
+    Returns: {'from_date': old_date, 'to_date': new_date}
+    """
+    rows = db.query(
+        "SELECT [NCur] FROM Enviro WHERE LogSite_Code = ? OR "
+        "LogSite_Code = 'HO'", (SITE_CODE,), cn=cn)
+    if not rows:
+        raise ValueError("Enviro NCur nahi mila")
+    ncur = rows[0][0]
+    if ncur is None:
+        raise ValueError("Enviro NCur NULL hai (roll possible nahi)")
+    ncur_d = ncur.date() if isinstance(ncur, datetime.datetime) else ncur
+    new_d = ncur_d + datetime.timedelta(days=1)
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        db.execute(
+            "UPDATE Enviro SET [NCur] = ?, ImprestAmount = 0, "
+            "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' "
+            "WHERE LogSite_Code = ?",
+            (new_d, user, SITE_CODE), cn=cn, commit=False)
+        if commit:
+            cn.commit()
+        return {"from_date": ncur_d, "to_date": new_d, "user": user}
+    finally:
+        if own:
+            cn.close()

@@ -1,0 +1,39 @@
+%% 05_Front_Office — workflow (spec §14 lifecycle)
+%% Evidence: FRONT_OFFICE_LIFECYCLE.md [VERIFIED-VB6], CHECKIN_FIELD_MAP.md [VERIFIED-UI]
+flowchart TD
+    A[Login] --> B[Business Date<br/>Enviro.ncur per LogSite_Code]
+    B --> C{Reservation?}
+    C -->|yes| D[Booking insert<br/>L91992]
+    C -->|walk-in| E[fdWalkInEntry]
+    D --> F[fdCheckIn<br/>reservation-based]
+    E --> G[GuestFolio header<br/>L942575]
+    F --> G
+    G --> H[RoomOcc rows<br/>L942284]
+    H --> I[GuestFolioProfDetail link]
+    I --> J[Stay operations]
+
+    subgraph STAY [Stay]
+        J --> J1[Room Change<br/>fdRoomChange]
+        J --> J2[Plan/Rate Change<br/>Update RoomOcc PlanCode]
+        J --> J3[Amend Stay<br/>fdAmendEntry + GuestFolioAmend]
+        J --> J4[Merge / Reverse Merge<br/>mFolioNoDocId]
+        J --> J5[Discount RoDisc/RSDisc]
+        J --> J6[Look-up / Room Status<br/>InHouseGuestFolio]
+    end
+
+    STAY --> K[Posting<br/>fdPostChrg -> PayCharge]
+    K --> L[Payment / Advance<br/>fdPaymentCharge]
+    L --> M[Folio view<br/>fdDisplayFolio]
+    M --> N{Check-out?}
+    N -->|no| J
+    N -->|yes| O[FdCheckOut<br/>RoomOcc.CHKOUTDATE L149667]
+    O --> P[Bill / Invoice<br/>frmFomB reprint, BillPrint.rpt]
+    P --> Q[Settlement<br/>FdReSetlement]
+    Q --> R[PayChargeH history]
+    R --> S[Night Audit<br/>see 10_Night_Audit]
+    S --> T[Date roll Enviro.ncur+1<br/>RoomMast.roomStat='D' for dirty]
+
+    style G fill:#e1f5fe
+    style H fill:#e1f5fe
+    style S fill:#ffebee
+    style T fill:#ffebee

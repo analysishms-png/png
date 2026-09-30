@@ -1,0 +1,123 @@
+=================================================================
+  HMS SERIAL KEYS - ALL YEARS
+  Generated: 23-Jun-2026 09:45:08 AM
+  Source: [DefaultDataBSE] from Analysis.ini
+=================================================================
+
+
+#################################################################
+#  YEAR: Hudhud | LICENSE DATE: 2025-01-15
+#################################################################
+
+  Company                        City            Code     Raw Key              Encrypted Key                           
+  ------------------------------ --------------- -------- -------------------- ----------------------------------------
+  HMS Hotel Pvt Ltd              kanpur          1234     Hudhud      9123     B·¦ª·¦bbbbbb{stu                       
+  Hotel Kailas                   Kanpur          1526     Hudhud      8790     0x¥¥PPPPPPhgi`                       
+  KALAWATI GREENS                Akbarpur        1648     Hudhud      9455     >³¢¦³¢^^^^^^wrss                       
+  Janta Chauhan Dhaba            Kanpur          1374     Hudhud      9412     "jBBBBBB[VST                       
+  New Janta Chauhan Dhaba        Kanpur          1374     Hudhud     10078     G¼«¯¼«gggggxww~                       
+
+
+#################################################################
+#  YEAR: Pirecy | LICENSE DATE: 2026-01-15
+#################################################################
+
+  Company                        City            Code     Raw Key              Encrypted Key                           
+  ------------------------------ --------------- -------- -------------------- ----------------------------------------
+  HMS Hotel Pvt Ltd              kanpur          1234     Pirecy      9123     B«´§¥»bbbbbb{stu                       
+  Hotel Kailas                   Kanpur          1526     Pirecy      8790     @©²¥£¹``````xwyp                       
+  KALAWATI GREENS                Akbarpur        1648     Pirecy      9455     l¼ÕÞÑÏå¥ ¡¡                       
+  Janta Chauhan Dhaba            Kanpur          1374     Pirecy      9412     7 ©°WWWWWWpkhi                       
+  New Janta Chauhan Dhaba        Kanpur          1374     Pirecy     10078     xÈáêÝÛñ©¨¨¯°                       
+
+
+#################################################################
+#  YEAR: Pinaca | LICENSE DATE: 2027-01-15
+#################################################################
+
+  Company                        City            Code     Raw Key              Encrypted Key                           
+  ------------------------------ --------------- -------- -------------------- ----------------------------------------
+  HMS Hotel Pvt Ltd              kanpur          1234     Pinaca      9123     P ¹¾±³±pppppp                       
+  Hotel Kailas                   Kanpur          1526     Pinaca      8790     9¢§YYYYYYqpri                       
+  KALAWATI GREENS                Akbarpur        1648     Pinaca      9455     yÉâçÚÜÚ²­®®                       
+  Janta Chauhan Dhaba            Kanpur          1374     Pinaca      9412     $tDDDDDD]XUV                       
+  New Janta Chauhan Dhaba        Kanpur          1374     Pinaca     10078     eµÎÓÆÈÆ                       
+
+
+#################################################################
+#  YEAR: Platoo | LICENSE DATE: 2028-01-15
+#################################################################
+
+  Company                        City            Code     Raw Key              Encrypted Key                           
+  ------------------------------ --------------- -------- -------------------- ----------------------------------------
+  HMS Hotel Pvt Ltd              kanpur          1234     Platoo      9123     eµÑÆÙÔÔ                       
+  Hotel Kailas                   Kanpur          1526     Platoo      8790     +{KKKKKKcbd[                       
+  KALAWATI GREENS                Akbarpur        1648     Platoo      9455     a±ÍÂÕÐÐ                       
+  Janta Chauhan Dhaba            Kanpur          1374     Platoo      9412     .~¢NNNNNNgb_`                       
+  New Janta Chauhan Dhaba        Kanpur          1374     Platoo     10078     "rBBBBBSRRYZ                       
+
+
+#################################################################
+#  YEAR: Zombia | LICENSE DATE: 2029-01-15
+#################################################################
+
+  Company                        City            Code     Raw Key              Encrypted Key                           
+  ------------------------------ --------------- -------- -------------------- ----------------------------------------
+  HMS Hotel Pvt Ltd              kanpur          1234     Zombia      9123     3¢ SSSSSSldef                       
+  Hotel Kailas                   Kanpur          1526     Zombia      8790     kÅÚØÍÔÌ£¢¤                       
+  KALAWATI GREENS                Akbarpur        1648     Zombia      9455     $~DDDDDD]XYY                       
+  Janta Chauhan Dhaba            Kanpur          1374     Zombia      9412     R¬Á¿´»³rrrrrr                       
+  New Janta Chauhan Dhaba        Kanpur          1374     Zombia     10078     qËàÞÓÚÒ¢¡¡¨©                       
+
+
+#################################################################
+#  YEAR: Albert | LICENSE DATE: 2030-01-15
+#################################################################
+
+  Company                        City            Code     Raw Key              Encrypted Key                           
+  ------------------------------ --------------- -------- -------------------- ----------------------------------------
+  HMS Hotel Pvt Ltd              kanpur          1234     Albert      9123     YÅ»¾ËÍyyyyyy                       
+  Hotel Kailas                   Kanpur          1526     Albert      8790     yºåÛÞëí±°²©                       
+  KALAWATI GREENS                Akbarpur        1648     Albert      9455     7x£©«WWWWWWpkll                       
+  Janta Chauhan Dhaba            Kanpur          1374     Albert      9412     s´ßÕØåç¬§¤¥                       
+  New Janta Chauhan Dhaba        Kanpur          1374     Albert     10078     %fEEEEEVUU\]                       
+
+
+#################################################################
+#  YEAR: Ostric | LICENSE DATE: 2031-01-15
+#################################################################
+
+  Company                        City            Code     Raw Key              Encrypted Key                           
+  ------------------------------ --------------- -------- -------------------- ----------------------------------------
+  HMS Hotel Pvt Ltd              kanpur          1234     Ostric      9123     >±²°§¡^^^^^^wopq                       
+  Hotel Kailas                   Kanpur          1526     Ostric      8790     wÆêëéàÚ¯®°§                       
+  KALAWATI GREENS                Akbarpur        1648     Ostric      9455     J½¾¼³­jjjjjj~                       
+  Janta Chauhan Dhaba            Kanpur          1374     Ostric      9412      o@@@@@@YTQR                       
+  New Janta Chauhan Dhaba        Kanpur          1374     Ostric     10078     D·¸¶­§dddddutt{|                       
+
+
+#################################################################
+#  YEAR: Legran | LICENSE DATE: 2032-01-15
+#################################################################
+
+  Company                        City            Code     Raw Key              Encrypted Key                           
+  ------------------------------ --------------- -------- -------------------- ----------------------------------------
+  HMS Hotel Pvt Ltd              kanpur          1234     Legran      9123     M²´¿®»mmmmmm~                       
+  Hotel Kailas                   Kanpur          1526     Legran      8790     (tHHHHHH`_aX                       
+  KALAWATI GREENS                Akbarpur        1648     Legran      9455     ?¤¦± ­______xstt                       
+  Janta Chauhan Dhaba            Kanpur          1374     Legran      9412     K°²½¬¹kkkkkk|}                       
+  New Janta Chauhan Dhaba        Kanpur          1374     Legran     10078     +wKKKKK\[[bc                       
+
+
+#################################################################
+#  YEAR: Malmal | LICENSE DATE: 2033-01-15
+#################################################################
+
+  Company                        City            Code     Raw Key              Encrypted Key                           
+  ------------------------------ --------------- -------- -------------------- ----------------------------------------
+  HMS Hotel Pvt Ltd              kanpur          1234     Malmal      9123     'tGGGGGG`XYZ                       
+  Hotel Kailas                   Kanpur          1526     Malmal      8790     W¤¸ÃÄ¸Ãwwwwww                       
+  KALAWATI GREENS                Akbarpur        1648     Malmal      9455     P±¼½±¼pppppp                       
+  Janta Chauhan Dhaba            Kanpur          1374     Malmal      9412     Q²½¾²½qqqqqq                       
+  New Janta Chauhan Dhaba        Kanpur          1374     Malmal     10078     :¦§¦ZZZZZkjjqr                       
+

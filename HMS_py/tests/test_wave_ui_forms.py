@@ -344,3 +344,39 @@ class TestSundryTypeCore:
             assert set(r) >= {"vtype", "sundrycode", "sno", "dispname",
                               "sundry_name", "rev_name", "postyn"}
             assert r["vtype"] == "KKPURC"
+
+
+# =================================================================
+# roomstatus_ui: Room Category Wise lookup (VB6 resRoomType)
+# =================================================================
+class TestRoomTypeLookup:
+    def test_opener_constructs_and_filters(self, monkeypatch):
+        from HMS_py.ui import roomstatus_ui as m
+        from HMS_py.ui import shell
+        _qapp()
+        rack = [
+            {'roomno': '101', 'cat': 'DELUXE', 'status': 'Vacant',
+             'guest': '', 'folio': None},
+            {'roomno': '201', 'cat': 'EXECUTIVE', 'status': 'Occupied',
+             'guest': 'G', 'folio': 1},
+            {'roomno': '202', 'cat': 'EXECUTIVE', 'status': 'Vacant',
+             'guest': '', 'folio': None},
+        ]
+        monkeypatch.setattr(m.roomstatus, 'room_rack', lambda: rack)
+        w = m.RoomTypeLookupDialog()
+        try:
+            assert w.windowTitle() == 'Room Category Wise Reservation Look Up'
+            assert w.cmb_cat.count() == 2
+            w.cmb_cat.setCurrentText('EXECUTIVE')
+            assert w.tbl.rowCount() == 2
+            w.cmb_cat.setCurrentText('DELUXE')
+            assert w.tbl.rowCount() == 1
+        finally:
+            w.close()
+
+    def test_registry_key_present(self):
+        from HMS_py.ui import shell
+        fn = shell._form_registry().get('Room Category Wise')
+        assert fn is not None
+        assert 'coming_soon' not in repr(fn)
+

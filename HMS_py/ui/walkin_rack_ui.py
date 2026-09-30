@@ -296,9 +296,10 @@ class WalkInEntryWindow(QMainWindow, _StatusBar):
     def __init__(self, parent=None, user: str = "PYADMIN"):
         super().__init__(parent)
         self.user = user
-        self.setWindowTitle("Walk In / Check In Entry")
-        self.resize(760, 520)
-        self.setMinimumSize(680, 480)
+        # VB6 live evidence (B034): MDI child caption breadcrumb.
+        self.setWindowTitle("[Front Office > Operations > WalkIn CheckIn]")
+        self.resize(880, 560)
+        self.setMinimumSize(760, 500)
         self._build()
         self._load_rooms()
         self._show_step(0)
@@ -400,6 +401,40 @@ class WalkInEntryWindow(QMainWindow, _StatusBar):
         self.spin_child = QComboBox()
         self.spin_child.addItems(["0", "1", "2", "3"])
         stay_form.addRow("Children", self.spin_child)
+        # VB6 fdCheckIn.frm:942284 Plan fields
+        self.txt_plancode = QLineEdit()
+        self.txt_plancode.setPlaceholderText("Plan code, optional")
+        stay_form.addRow("Plan Code", self.txt_plancode)
+        self.txt_planamt = QLineEdit()
+        self.txt_planamt.setPlaceholderText("Plan amount, optional")
+        stay_form.addRow("Plan Amount", self.txt_planamt)
+        self.txt_incinrate = QLineEdit()
+        self.txt_incinrate.setPlaceholderText("Incl in Rate (Y/N)")
+        stay_form.addRow("Incl in Rate", self.txt_incinrate)
+        self.txt_plandisc = QLineEdit()
+        self.txt_plandisc.setPlaceholderText("Plan discount %, optional")
+        stay_form.addRow("Plan Discount %", self.txt_plandisc)
+        self.txt_plandiscamt = QLineEdit()
+        self.txt_plandiscamt.setPlaceholderText("Plan discount amount, optional")
+        stay_form.addRow("Plan Discount Amt", self.txt_plandiscamt)
+        self.txt_plandiscon = QLineEdit()
+        self.txt_plandiscon.setPlaceholderText("Discount app on, optional")
+        stay_form.addRow("Discount App On", self.txt_plandiscon)
+        self.txt_rrtaxinc = QLineEdit()
+        self.txt_rrtaxinc.setPlaceholderText("RR Tax Incl (Y/N)")
+        stay_form.addRow("RR Tax Incl", self.txt_rrtaxinc)
+        self.txt_rrservicechrg = QLineEdit()
+        self.txt_rrservicechrg.setPlaceholderText("RR Service Charge (Y/N)")
+        stay_form.addRow("RR Service Chrg", self.txt_rrservicechrg)
+        self.txt_roomtarrif = QLineEdit()
+        self.txt_roomtarrif.setPlaceholderText("Room tariff, optional")
+        stay_form.addRow("Room Tariff", self.txt_roomtarrif)
+        self.txt_rackrate = QLineEdit()
+        self.txt_rackrate.setPlaceholderText("Rack rate, optional")
+        stay_form.addRow("Rack Rate", self.txt_rackrate)
+        self.txt_roomtaxstru = QLineEdit()
+        self.txt_roomtaxstru.setPlaceholderText("Room tax structure, optional")
+        stay_form.addRow("Room Tax Stru", self.txt_roomtaxstru)
 
         self.guest_page = QFrame()
         self.guest_page.setObjectName("formPage")
@@ -452,7 +487,6 @@ class WalkInEntryWindow(QMainWindow, _StatusBar):
         self.lbl_done = QLabel("")
         self.lbl_done.setObjectName("statusMessage")
         content_lay.addWidget(self.lbl_done)
-        lay.addWidget(content, 1)
 
         action_bar = QFrame()
         action_bar.setObjectName("actionBar")
@@ -482,7 +516,54 @@ class WalkInEntryWindow(QMainWindow, _StatusBar):
         bar.addWidget(self.btn_exit)
         bar.addWidget(self.btn_next)
         bar.addWidget(self.btn_checkin)
-        lay.addWidget(action_bar)
+
+        # VB6 action rail (live B034): Guest Profile | Check In |
+        # Duplicate Last Check In | Check In with Guest History |
+        # Advance Entry | Rooms Display. Wizard (right) preserved as-is;
+        # rail sirf VB6 entry points deta hai, koi naya save-path nahi.
+        rail = QFrame()
+        rail.setObjectName("actionRail")
+        rail_lay = QVBoxLayout(rail)
+        rail_lay.setContentsMargins(12, 14, 12, 14)
+        rail_lay.setSpacing(8)
+        self.btn_act_profile = QPushButton("Guest Profile")
+        self.btn_act_checkin = QPushButton("Check In")
+        self.btn_act_duplicate = QPushButton("Duplicate\nLast Check In")
+        self.btn_act_history = QPushButton("Check In with\nGuest History")
+        self.btn_act_advance = QPushButton("Advance Entry")
+        self.btn_act_rooms = QPushButton("Rooms Display")
+        for b in (self.btn_act_profile, self.btn_act_checkin,
+                  self.btn_act_duplicate, self.btn_act_history,
+                  self.btn_act_advance, self.btn_act_rooms):
+            b.setObjectName("railButton")
+            rail_lay.addWidget(b)
+        rail_lay.addStretch(1)
+        self.btn_act_checkin.setProperty("accent", True)
+        self.btn_act_profile.clicked.connect(self._act_profile)
+        self.btn_act_checkin.clicked.connect(lambda: self._show_step(2))
+        self.btn_act_duplicate.clicked.connect(self._duplicate_last)
+        self.btn_act_history.clicked.connect(self._act_history)
+        self.btn_act_rooms.clicked.connect(
+            lambda: open_room_view(self))
+        # Advance Entry: port me koi advance opener nahi (phase-wise;
+        # menubar pattern jaisa disabled + tooltip).
+        self.btn_act_advance.setEnabled(False)
+        self.btn_act_advance.setToolTip("VB6 parity: Advance Entry (phase-wise)")
+
+        mid = QHBoxLayout()
+        mid.setContentsMargins(0, 0, 0, 0)
+        mid.setSpacing(0)
+        mid.addWidget(rail)
+        right_wrap = QWidget()
+        right = QVBoxLayout(right_wrap)
+        right.setContentsMargins(0, 0, 0, 0)
+        right.setSpacing(0)
+        right.addWidget(content, 1)
+        right.addWidget(action_bar)
+        mid.addWidget(right_wrap, 1)
+        mid_wrap = QWidget()
+        mid_wrap.setLayout(mid)
+        lay.addWidget(mid_wrap, 1)
 
         for field in (self.txt_name, self.txt_city, self.dt_arr, self.dt_dep,
                       self.cmb_room, self.spin_adult, self.spin_child,
@@ -550,6 +631,21 @@ class WalkInEntryWindow(QMainWindow, _StatusBar):
             QFrame#actionBar {{
                 background: {p['surface_solid']};
                 border-top: 1px solid {p['border']};
+            }}
+            QFrame#actionRail {{
+                background: {p['surface']};
+                border-right: 1px solid {p['border']};
+            }}
+            QPushButton#railButton {{
+                background: {p['surface_hover']}; color: {p['text']};
+                border: 1px solid {p['border']}; border-radius: {radius}px;
+                padding: 10px 8px; font-weight: 700;
+            }}
+            QPushButton#railButton:hover {{
+                border-color: {p['accent']}; background: {p['accent_soft']};
+            }}
+            QPushButton#railButton:disabled {{
+                color: {p['text_dim']};
             }}
             QPushButton#secondaryButton {{
                 background: {p['surface_hover']}; color: {p['text']};
@@ -670,6 +766,42 @@ class WalkInEntryWindow(QMainWindow, _StatusBar):
             f"City: {self.txt_city.text().strip() or '(none)'}"
         )
 
+    # ── VB6 action-rail slots (B034) ──────────────────────────────
+    def _act_profile(self):
+        """Guest Profile button (VB6 rail top)."""
+        try:
+            from HMS_py.ui import frontoffice as _fo
+            _fo.open_guestprof(self)
+        except Exception as e:
+            _msgbox_err(self, e)
+
+    def _act_history(self):
+        """Check In with Guest History (VB6 rail)."""
+        try:
+            from HMS_py.ui import guest_history_ui as _ghu
+            _ghu.open_guest_history(self, user=self.user)
+        except Exception as e:
+            _msgbox_err(self, e)
+
+    def _duplicate_last(self):
+        """Duplicate Last Check In (VB6 rail): aakhri folio ke guest
+        details prefill karo — dates nayi (today/tomorrow), koi save nahi."""
+        try:
+            rows = checkin.list_checkins(top=1)
+        except Exception as e:
+            _msgbox_err(self, e)
+            return
+        if not rows:
+            self._say("koi purana check-in nahi (duplicate khali)")
+            return
+        last = rows[0]
+        self.txt_name.setText(last.get("name", ""))
+        self.txt_city.setText(last.get("city", ""))
+        self.txt_guestprof.setText(last.get("guestprof", ""))
+        self._show_step(0)
+        self._say(f"folio #{last.get('folio')} se duplicate prefill "
+                  f"(save nahi hua)")
+
     def _checkin(self):
         if not self._validate_step(0):
             return
@@ -691,7 +823,18 @@ class WalkInEntryWindow(QMainWindow, _StatusBar):
                 bookingdocid=self.txt_booking.text().strip(), user=self.user,
                 adult=int(self.spin_adult.currentText()),
                 children=int(self.spin_child.currentText()),
-                ratecode=self.txt_rate.text().strip())
+                ratecode=self.txt_rate.text().strip(),
+                plancode=self.txt_plancode.text().strip(),
+                planamt=float(self.txt_planamt.text().strip() or 0) or None,
+                incinrate=self.txt_incinrate.text().strip(),
+                plandisc=float(self.txt_plandisc.text().strip() or 0) or None,
+                plandiscamt=float(self.txt_plandiscamt.text().strip() or 0) or None,
+                plandiscon=self.txt_plandiscon.text().strip(),
+                rrtaxinc=self.txt_rrtaxinc.text().strip(),
+                rrservicechrg=self.txt_rrservicechrg.text().strip(),
+                roomtarrif=float(self.txt_roomtarrif.text().strip() or 0) or None,
+                rackrate=float(self.txt_rackrate.text().strip() or 0) or None,
+                roomtaxstru=self.txt_roomtaxstru.text().strip())
             rec = checkin.get(fno) or {}
             self.lbl_done.setText(
                 f"Checked-in: folio #{fno}, room "

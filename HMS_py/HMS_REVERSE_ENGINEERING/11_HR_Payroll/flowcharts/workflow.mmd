@@ -1,0 +1,78 @@
+flowchart TB
+    subgraph MENU["Menu surfaces"]
+        MTH["Menu header `14 / 20 : HR/Payroll`<br/>menu_tree_raw L454 · menuHelp L321"]
+        MT["Menu items (16)<br/>6 screens L455-L460 · 9 reports L461-L469"]
+        MH["menuHelp rows (17 for user SA)<br/>MenuHelp_SA_tree.txt L321-L339, L438-L439"]
+        SET["Setup (menu module C)<br/>Designation / Category / Holiday / Employee<br/>menu_tree_raw L125-L128"]
+    end
+
+    subgraph DISPATCH["Dispatch layer"]
+        PA["Path A: control arrays<br/>PayOpr_Click L4313 · PayRep_Click L4425 · PRM_Click L1123"]
+        PB["Path B: Proc_165_2_1E3A588 L476999<br/>key = menuHelp.[Option] via Proc_165_3 L480844"]
+        AUD["Append key to C:\\moduleFILE.TXT<br/>L477034 / L480825"]
+    end
+
+    subgraph FORMS["Entry forms"]
+        F1["prAttend L904237<br/>Leave entry"]
+        F2["PrLoan L907110<br/>Loan/Advance"]
+        F3["prSalCreate L910828<br/>Salary creation"]
+        F4["PrLeavench L905703<br/>Leave encashment"]
+        F5["prOverTime L909514<br/>Overtime"]
+        F6["PrAttend1 L916765<br/>Attendance grid"]
+    end
+
+    subgraph MASTERS["Masters"]
+        MA["PrDesigMast L918492"]
+        MB["PrCategoryMast L917629"]
+        MC["prHoliday L922337"]
+        MD["PrEmployee L919215"]
+    end
+
+    subgraph REPORTS["Reports - host form rRepPayRoll L912857"]
+        R1["GRepFormName PaySlip / PayrollReg / AttendanceRep"]
+        R2["LoanReg / LoanAdvSumm / LoanLedg"]
+        R3["PFStatement / FormC / GratuityReport"]
+    end
+
+    subgraph DATA["Tables"]
+        T1[("Employee 140")]
+        T2[("Attend 1323")]
+        T3[("Attendence 0")]
+        T4[("Salary 282")]
+        T5[("SalaryLog 0")]
+        T6[("Loan 0")]
+        T7[("Leave_Ench 0")]
+        T8[("OverTime 0")]
+        T9[("Desig 61 · EmpCategory 4 · Holiday 0")]
+        T10[("Ledger 40818")]
+    end
+
+    MTH --> MT
+    MTH --> MH
+    MT --> PA
+    MT --> PB
+    MH --> PB
+    PA --> FORMS
+    PB --> FORMS
+    PB --> REPORTS
+    SET --> PA
+    PB --> AUD
+
+    F1 --> T2
+    F1 --> T3
+    F6 --> T2
+    F6 --> T3
+    F2 --> T6
+    F3 --> T4
+    F3 --> T5
+    F3 --> T6
+    F3 --> T10
+    F4 --> T7
+    F5 --> T8
+    MD --> T9
+    MD --> T1
+    F3 -.guard: "Salary Already Created"<br/>L911411 .-> F3
+    MD -.cascade delete<br/>L920298-L920304 .-> T4
+    REPORTS --> T1
+    REPORTS --> T4
+    REPORTS --> T6

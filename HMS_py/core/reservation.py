@@ -162,22 +162,41 @@ def insert_draft(guest_name: str, arr_date, dep_date, adults: int = 1,
     bookno = next_bookno(cn=cn, site=site)
     docid = make_docid(site, VPREFIX, bookno, vtype=VTYPE)
     nodays = max((dep_date - arr_date).days, 1)
-    # 27 columns == 27 placeholders (explicit; count-mismatch bugfix)
-    sql = """
-        INSERT INTO Booking (
-            DocId, Vtype, BookNo, Site_Code, Vprefix,
-            VDate, ArrDate, ArrTime, DepDate, DepTime,
-            NoDays, Adult, Child, NoofRooms, RoomRate,
-            Remarks, Cancel, GuestName, U_Name, U_EntDt,
-            U_AE, LogSite_Code, MobNo, Email, FaxNo,
-            OtherCont, ResStatus)
-        VALUES (
-            ?, ?, ?, ?, ?,
-            getdate(), ?, '10:00', ?, '10:00',
-            ?, ?, 0, ?, ?,
-            ?, 'N', ?, ?, getdate(),
-            'A', ?, '', '', '',
-            '', 'Confirm')"""
+    # VB6 FRONT_OFFICE_LIFECYCLE.md §1: 56-col INSERT pattern (HMS.bas:91996
+    # FdResEntry variant). FIX (21S01): pehle 55 cols the (VB6 ka Authorization
+    # missing) aur VALUES me 2 values kam — "more columns than values" error.
+    # Ab cols/values Python lists se bante hain — count mismatch impossible.
+    # Order python port ka hai (VB6 order alag hai, farak nahi padta —
+    # values aligned rehna zaroori hai).
+    _cols = [
+        "DocId", "Vtype", "BookNo", "Site_Code", "Vprefix",
+        "VDate", "ArrDate", "ArrTime", "DepDate", "DepTime",
+        "NoDays", "Adult", "Child", "NoofRooms", "RoomRate",
+        "Remarks", "Cancel", "[Authorization]", "GuestName", "U_Name",
+        "U_EntDt", "U_AE", "LogSite_Code", "MobNo", "Email",
+        "FaxNo", "OtherCont", "ResStatus", "GroupCode", "RoomCat",
+        "RoomType", "Roomno", "RateCode", "Company", "GuestProf",
+        "TravelAgency", "BussSource", "MarketSeg", "ArrFrom", "Destination",
+        "BookedBy", "ResMode", "TravelMode", "SplitFolio", "DepositeReq",
+        "Guarantee", "OccRoom", "PackageCode", "RRTaxInc", "RRServiceChrg",
+        "RDisc", "RSDisc", "AdvDueDate", "RefCode", "BookStatus", "RefBookNo",
+    ]
+    _vals = [
+        "?", "?", "?", "?", "?",                    # DocId..Vprefix
+        "getdate()", "?", "'10:00'", "?", "'10:00'",  # VDate..DepTime
+        "?", "?", "0", "?", "?",                     # NoDays..RoomRate
+        "?", "'N'", "''", "?", "?",                   # Remarks,Cancel,Auth,Guest,U_Name
+        "getdate()", "'A'", "?", "''", "''",          # U_EntDt,U_AE,LogSite,MobNo,Email
+        "''", "''", "'Confirm'", "''", "''", "''",     # FaxNo..RoomType
+        "''", "''", "''", "''", "''",                 # Roomno..TravelAgency
+        "''", "''", "''", "''", "''",                 # BussSource..BookedBy
+        "''", "''", "''", "''", "''",                 # ResMode..Guarantee
+        "''", "''", "''", "''",                       # OccRoom..RRServiceChrg
+        "''", "''", "''", "''", "''", "''",           # RDisc..RefBookNo
+    ]
+    assert len(_cols) == len(_vals) == 56, (len(_cols), len(_vals))
+    sql = ("INSERT INTO Booking (" + ", ".join(_cols) +
+           ") VALUES (" + ", ".join(_vals) + ")")
     params = (docid, VTYPE, bookno, site, VPREFIX,
               arr_date, dep_date,
               nodays, adults, rooms, rate,
@@ -202,10 +221,9 @@ def _log(docid: str, flag: str, user: str, cn, site: str = SITE_CODE):
     """BookingLog write - HMS.bas ka EXACT pattern:
     Max(Id)+1 (else 1); columns (Id,Bookingdocid,Flag,Site_Code,
     U_Name,U_EntDt,U_AE,LogSite_Code); U_EntDt=Now."""
-    rows = db.query(
-        "SELECT MAX(Id) FROM BookingLog WHERE LogSite_Code = ?",
-        (site,), cn=cn)
-    logid = (rows[0][0] or 0) + 1 if rows and rows[0][0] else 1
+    # BUG-003/004: race-safe Id (UPDLOCK/HOLDLOCK) - db.py central helper.
+    logid = db.next_serial("BookingLog", "Id", "LogSite_Code = ?", (site,),
+                           cn=cn)
     db.execute(
         "INSERT INTO BookingLog (Id, Bookingdocid, Flag, Site_Code, "
         "U_Name, U_EntDt, U_AE, LogSite_Code) "

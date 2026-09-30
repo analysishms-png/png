@@ -8,7 +8,7 @@ Modules: Finance, Main Setup, Reservation, Front Office, House Keeping,
          Messaging, Members Mgmt, Outdoor Banquet, Extras, Direct Sale
 
 Database: MOONData2627 (274 tables, Windows Auth)
-Login: kanpur (VB6 application password)
+Login: ******** (VB6 application password; via env HMS_APP_PASSWORD)
 """
 import os, sys, json, time, subprocess
 from datetime import datetime
@@ -448,6 +448,6 @@ if __name__ == "__main__":
 
     print(f"\nAll {len(MODULE_MAP)} modules created successfully!")
     print("Database: MOONData2627 (274 tables)")
-    print("Login: kanpur (VB6 application password)")
+    print("Login: ******** (VB6 application password; via env HMS_APP_PASSWORD)")
     print("Screenshots: 19 kanpur module-wise screenshots saved")
     sys.exit(0)

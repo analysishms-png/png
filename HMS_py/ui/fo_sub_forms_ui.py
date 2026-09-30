@@ -269,6 +269,140 @@ class MergeChargeWindow(QMainWindow):
             QMessageBox.critical(self, "Error", str(e))
 
 
+class ReverseMergeWindow(QMainWindow):
+    """Reverse Room Merge (VB6: FrmRevMergeCharge) — merged folio se ek
+    child room ke charges wapas uske apne folio par wapas le jao."""
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Reverse Room Merge")
+        self.resize(720, 520)
+        self._build_ui()
+        self._master = None
+        self._children = []
+
+    def _build_ui(self):
+        central = QWidget(); self.setCentralWidget(central)
+        layout = QVBoxLayout(central)
+        title = QLabel("Reverse Room Merge")
+        title.setFont(QFont("Segoe UI", 14, QFont.Weight.Bold))
+        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(title)
+
+        form = QGroupBox("Master Room")
+        form_lay = QHBoxLayout(form)
+        self.txt_master = QLineEdit()
+        self.txt_master.setPlaceholderText("Master Room No (jisne merge kiya)")
+        self.txt_master.returnPressed.connect(self._load_children)
+        self.btn_load = QPushButton("Load")
+        self.btn_load.setToolTip("Master folio se linked child rooms load karo")
+        self.btn_load.clicked.connect(self._load_children)
+        form_lay.addWidget(QLabel("Room:")); form_lay.addWidget(self.txt_master, 1)
+        form_lay.addWidget(self.btn_load)
+        layout.addWidget(form)
+
+        self.lbl_master = QLabel("-"); layout.addWidget(self.lbl_master)
+
+        self.table = QTableWidget()
+        self.table.setColumnCount(5)
+        self.table.setHorizontalHeaderLabels(
+            ["", "Room", "Folio", "Guest", "Master par charges"])
+        self.table.horizontalHeader().setSectionResizeMode(
+            QHeaderView.ResizeMode.Stretch)
+        self.table.setAlternatingRowColors(True)
+        self.table.setSelectionBehavior(
+            QTableWidget.SelectionBehavior.SelectRows)
+        self.table.setSelectionMode(
+            QTableWidget.SelectionMode.SingleSelection)
+        self.table.itemSelectionChanged.connect(self._on_row_changed)
+        layout.addWidget(self.table)
+
+        info = QLabel("Child select karke 'Reverse Merge' dabao — uske saare "
+                      "charges master folio se wapas uske apne folio par aa "
+                      "jayenge aur link toot jayega.")
+        info.setWordWrap(True); layout.addWidget(info)
+
+        btn_lay = QHBoxLayout()
+        self.btn_reverse = QPushButton("Reverse Merge")
+        self.btn_reverse.setProperty("role", "warning")
+        self.btn_reverse.setEnabled(False)
+        self.btn_exit = QPushButton("Exit")
+        self.btn_reverse.clicked.connect(self._reverse)
+        self.btn_exit.clicked.connect(self.close)
+        btn_lay.addWidget(self.btn_reverse); btn_lay.addWidget(self.btn_exit)
+        layout.addLayout(btn_lay)
+
+    def _load_children(self):
+        q = self.txt_master.text().strip()
+        if not q:
+            QMessageBox.warning(self, "Input", "Master Room No likho"); return
+        try:
+            self._master = fo_ops.open_folio_by_room(q, cn=None)
+            self._children = fo_ops.list_merge_children(q, cn=None) \
+                if self._master else []
+        except Exception as e:
+            self._master = None; self._children = []
+            QMessageBox.critical(self, "Error", str(e)); return
+        if not self._master:
+            QMessageBox.information(self, "Not found",
+                                    "Koi in-house guest nahi mila"); return
+        self.lbl_master.setText(
+            f"Master folio {self._master['folio']} - {self._master['name']}")
+        self._render_children()
+
+    def _render_children(self):
+        self.table.setRowCount(len(self._children))
+        for i, ch in enumerate(self._children):
+            vals = ["\u2713" if ch["charges"] else "", ch["room"] or "-",
+                    str(ch["folio"]), ch["name"], str(ch["charges"])]
+            for j, v in enumerate(vals):
+                it = QTableWidgetItem(v)
+                if j == 0:
+                    it.setForeground(QColor("#27ae60"))
+                self.table.setItem(i, j, it)
+        self.btn_reverse.setEnabled(False)
+
+    def _on_row_changed(self):
+        row = self.table.currentRow()
+        has = bool(self._children and 0 <= row < len(self._children))
+        self.btn_reverse.setEnabled(has)
+
+    def _reverse(self):
+        row = self.table.currentRow()
+        if not (self._children and 0 <= row < len(self._children)):
+            return
+        ch = self._children[row]
+        reply = QMessageBox.question(self, "Confirm",
+            f"{ch['room'] or ch['name']} ke {ch['charges']} charges master "
+            f"folio {self._master['folio']} se wapas folio {ch['folio']} "
+            "par le jaayein?")
+        if reply != QMessageBox.StandardButton.Yes: return
+        try:
+            res = fo_ops.reverse_merge_charge(
+                self.txt_master.text().strip(),
+                ch["room"] or self._find_room_by_docid(ch["docid"]))
+            msg = (f"{res['rows_moved']} rows reversed\n"
+                   f"Folio {res['folio_master']} -> {res['folio_child']}")
+            if res["master_cleared"]:
+                msg += "\nMaster folio ke merge markers bhi clear ho gaye."
+            QMessageBox.information(self, "Done", msg)
+            self._load_children()
+        except Exception as e:
+            QMessageBox.critical(self, "Error", str(e))
+
+    def _find_room_by_docid(self, docid: str) -> str:
+        for ch in self._children:
+            if ch["docid"] == docid and ch["room"]:
+                return ch["room"]
+        rec = fo_ops.open_folio_by_docid(docid, cn=None)
+        if rec:
+            occ = db.query(
+                "SELECT TOP 1 RTRIM(RoomNo) FROM RoomOcc WHERE DocId = ? "
+                "AND ChkOutDate IS NULL", (docid,))
+            if occ and occ[0][0]:
+                return occ[0][0].strip()
+        raise ValueError("Child room resolve nahi ho paya")
+
+
 class ReSettlementWindow(QMainWindow):
     """Bill Re-Settlement (VB6: FdReSetlement)."""
     def __init__(self, parent=None):
@@ -311,8 +445,7 @@ class ReSettlementWindow(QMainWindow):
         newg = QGroupBox("New settlement")
         nl = QHBoxLayout(newg)
         self.cmb_paycode = QComboBox()
-        for code, label in _PAY_TYPES.items():
-            self.cmb_paycode.addItem(f"{label} ({code})", code)
+        self._fill_paycodes()
         self.spn_amount = QDoubleSpinBox(); self.spn_amount.setRange(0, 1_000_000_000)
         self.spn_amount.setDecimals(2); self.spn_amount.setMinimumWidth(140)
         self.txt_comment = QLineEdit(); self.txt_comment.setPlaceholderText("BY CASH / BY UPI...")
@@ -342,6 +475,25 @@ class ReSettlementWindow(QMainWindow):
         btn_lay.addWidget(self.btn_settle); btn_lay.addWidget(self.btn_exit)
         layout.addLayout(btn_lay)
 
+    def _fill_paycodes(self):
+        """VB6 FdReSetlement loc_14633E7: Check Out parent se khulne par
+        paycodes DepartPay (restcode='<site>Fom') se aate hain; fallback
+        full PAY_TYPES list (direct-open branch VB6 loc_1463488)."""
+        from HMS_py.core import depart_pay as dp
+        try:
+            rows = dp.fom_allowed_paycodes()
+            for r in rows:
+                if not r["paycode"]:
+                    continue
+                label = r["name"] or r["paycode"]
+                self.cmb_paycode.addItem(
+                    f"{label} ({r['paycode']})", r["paycode"])
+        except Exception:
+            pass
+        if self.cmb_paycode.count() == 0:
+            for code, label in _PAY_TYPES.items():
+                self.cmb_paycode.addItem(f"{label} ({code})", code)
+
     def _load(self):
         q = self.txt_folio.text().strip()
         if not q:
@@ -369,8 +521,7 @@ class ReSettlementWindow(QMainWindow):
         self.btn_settle.setEnabled(bool(self._pending))
 
     def _add_line(self):
-        item = self.cmb_paycode.currentItem()
-        code = item.data(Qt.ItemDataRole.UserRole) if item else "KKCASH"
+        code = self.cmb_paycode.currentData()
         amt = self.spn_amount.value()
         if amt <= 0:
             QMessageBox.warning(self, "Input", "Amount > 0 hona chahiye"); return
@@ -418,6 +569,10 @@ def open_room_change(parent=None):
 
 def open_merge_charge(parent=None):
     w = MergeChargeWindow(parent); w.show(); return w
+
+def open_reverse_room_merge(parent=None):
+    """Reverse Room Merge (VB6: FrmRevMergeCharge)."""
+    w = ReverseMergeWindow(parent); w.show(); return w
 
 def open_re_settlement(parent=None):
     w = ReSettlementWindow(parent); w.show(); return w

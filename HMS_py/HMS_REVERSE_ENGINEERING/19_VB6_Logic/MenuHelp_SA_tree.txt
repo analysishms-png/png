@@ -1,0 +1,440 @@
+Finance|11|0|0|0|N
+Transaction|11|11|0|0|N
+Voucher Entry|11|11|11|0|E
+T.D.S. Challan Entry|11|11|15|0|E
+T.D.S. Certificate Entry|11|11|16|0|E
+Cash Flow|11|13|15|0|R
+Fund Flow|11|13|16|0|R
+Reports|11|13|0|0|N
+Trial Balance|11|13|11|0|R
+Ledger|11|13|13|0|R
+Cash Book|11|13|15|0|R
+Bank Book|11|13|16|0|R
+Journal Books|11|13|17|0|R
+Annexure|11|13|18|0|R
+Bank Register|11|13|19|0|R
+Ageing Analysis for Debtors|11|13|20|0|R
+Ageing Analysis for Creditors|11|13|21|0|R
+Outstanding Report For Debtors|11|13|24|0|R
+Outstanding Report For Creditors|11|13|25|0|R
+Daily Transaction Summary|11|13|26|0|R
+Non Transaction Report|11|13|27|0|R
+Reference Report|11|13|28|0|R
+Detailed Trial Ledger|11|13|29|0|R
+A/c Check List|11|13|30|0|R
+Bill Wise Outstanding Report For Debtors|11|13|31|0|R
+Control Ledger|11|13|32|0|R
+Roz Namcha|11|13|33|0|R
+Main Setup|12|0|0|0|N
+General Setup|12|11|0|0|N
+Tax Master|12|11|11|0|E
+Tax Structure|12|11|12|0|E
+Payment Type|12|11|13|0|E
+Parameter|12|11|14|0|E
+Printing Parameters|12|11|16|0|E
+Printing Setup|12|11|17|0|E
+Front Office|12|12|0|0|N
+Market Segment|12|12|14|0|E
+Business Source|12|12|15|0|E
+Guest Status|12|12|16|0|E
+Charge Master|12|12|17|0|E
+Fixed Charge|12|12|18|0|E
+Plan Master|12|12|20|0|E
+Room Features|12|12|22|0|E
+Room Category|12|12|23|0|E
+Room Master|12|12|24|0|E
+Company Master|12|12|25|0|E
+Guest History|12|12|27|0|E
+Room Display|12|12|29|0|E
+Point of Sale|12|13|0|0|N
+Setup Outlet|12|13|11|0|E
+Outlet Bill Sundry Setting|12|13|12|0|E
+Server Master|12|13|13|0|E
+Table Master|12|13|14|0|E
+Item List|12|13|15|0|E
+Menu Group|12|13|16|0|E
+Menu Category|12|13|17|0|E
+Menu Item|12|13|18|0|E
+Menu Item Rate|12|13|19|0|E
+Session Master|12|13|21|0|E
+Open Item Consumption|12|13|22|0|E
+NC Type|12|13|27|0|E
+Customer History|12|13|28|0|E
+Members Mgmt|12|14|0|0|N
+Category Master|12|14|11|0|E
+Member Master|12|14|12|0|E
+Environment Settings|12|14|19|0|E
+Banquet|12|15|0|0|N
+Events|12|15|11|0|E
+Venue Features|12|15|12|0|E
+Venue Master|12|15|13|0|E
+Menu Category|12|15|14|0|E
+Item Group|12|15|15|0|E
+Menu Item|12|15|16|0|E
+Catalog Master|12|15|17|0|E
+Banquet Bill Sundry Setting|12|15|18|0|E
+Inventory|12|16|0|0|N
+Party Master|12|16|11|0|E
+Department|12|16|12|0|E
+Item Group|12|16|13|0|E
+Item Category|12|16|14|0|E
+Item Entry|12|16|15|0|E
+Purchase Sundry Setting|12|16|17|0|E
+Opening Stock|12|16|19|0|E
+Item  List|12|16|20|0|E
+Enviro Inventry|12|16|22|0|E
+HR/Payroll|12|17|0|0|N
+Designation Master|12|17|11|0|E
+Category  Master|12|17|12|0|E
+Holiday Master|12|17|13|0|E
+Employee Master|12|17|14|0|E
+Finance|12|19|0|0|N
+Group Accounts|12|19|11|0|E
+Ledger Accounts|12|19|12|0|E
+Narration Master|12|19|13|0|E
+T.D.S. Category|12|19|14|0|E
+FA Environment|12|19|15|0|E
+Voucher Environment|12|19|16|0|E
+Year End Updation|12|19|18|0|E
+Current Balance Updation|12|19|19|0|E
+Account Merging|12|19|24|0|E
+Voucher Serialisation|12|19|25|0|E
+Utility|12|20|0|0|N
+User Master|12|20|11|0|E
+Permissions|12|20|12|0|E
+Backup Data|12|20|14|0|E
+Sundry Master|12|20|17|0|E
+Inconsistency Check|12|20|21|0|E
+Year End Updation|12|20|22|0|E
+Menu Item Copy|12|20|25|0|E
+Guest LookUp|12|20|27|0|E
+Country Master|12|20|28|0|E
+State Master|12|20|29|0|E
+City Master|12|20|30|0|E
+Company Master|12|20|31|0|E
+Department|12|20|32|0|E
+Ledger Accounts|12|20|33|0|E
+Unit Master|12|20|38|0|E
+Reservation|13|0|0|0|N
+Operations|13|11|0|0|N
+Reservation/Cancellation|13|11|11|0|E
+Look Up Room types|13|11|13|0|E
+Look Up Rooms|13|11|14|0|E
+Reservation With History|13|11|15|0|E
+Advance Deposit|13|11|16|0|E
+Confirmation Letters|13|11|17|0|E
+Cancellation Letters|13|11|18|0|E
+Registration Card|13|11|19|0|E
+Reservation Status Screen|13|11|20|0|E
+Reservation Status Report|13|12|0|0|N
+Reservation Status|13|12|11|0|R
+Reservation Status Arrival|13|12|12|0|R
+Arrival List|13|12|16|0|R
+Advance Recd. Report|13|13|0|0|N
+Advance Recd.|13|13|11|0|R
+Advance Recd. Arrival|13|13|12|0|R
+M.I.S.|13|14|0|0|N
+7-730 Days Forecast|13|14|11|0|E
+23 Day Room Availability Forecast|13|14|12|0|E
+23 Day Room Type Availability Forecast|13|14|13|0|E
+Package Forecast|13|14|14|0|E
+Front Office|14|0|0|0|N
+Operations|14|11|0|0|N
+WalkIn CheckIn|14|11|11|0|E
+Room Status|14|11|12|0|E
+Expense Entry|14|11|13|0|E
+Display Rack|14|11|15|0|E
+Bill Reprint|14|11|18|0|E
+Reverse Check Out|14|11|19|0|E
+Merge Room|14|11|20|0|E
+Bill Re-Settlement|14|11|21|0|E
+Reverse Room Merge|14|11|22|0|E
+Plan Meal Tokens|14|11|23|0|E
+GRC Printing|14|11|24|0|E
+Blank GRC|14|11|25|0|E
+Reports|14|12|0|0|N
+Instant House Count|14|12|11|0|R
+Room Inventory|14|12|12|0|R
+Charge Payment Detail|14|12|16|0|R
+Payments By Cashier|14|12|17|0|R
+Cashier Report|14|12|18|0|R
+Settlement Report|14|12|19|0|R
+Cancel Bill Details|14|12|20|0|R
+Room Change History|14|12|21|0|R
+FOM Sales Register|14|12|23|0|R
+Room Wise Plan Detail|14|12|24|0|R
+Occupancy Report|14|12|26|0|R
+Bill Change Report|14|12|27|0|R
+Check Out Register|14|12|28|0|R
+Check In Register|14|12|29|0|R
+Expected Check Out|14|12|30|0|R
+Guest Extra Charges|14|12|32|0|R
+Checked In Guest Detail|14|12|33|0|R
+Room Rent Audit Report|14|12|34|0|R
+Sales Report|14|12|35|0|R
+Guest Payments|14|12|36|0|R
+Tourism Forms|14|13|0|0|N
+Form  C|14|13|11|0|E
+Tourism Form 1|14|13|12|0|E
+Tourism Form 2|14|13|13|0|E
+Tourism Form 5|14|13|14|0|E
+Tourism Form 6|14|13|16|0|E
+Tourism Form 4|14|13|17|0|E
+Luxury Tax Report|14|13|18|0|E
+Monthly Return|14|13|19|0|E
+L.T. FORM II|14|13|20|0|E
+L.T. FORM IV|14|13|21|0|E
+M.I.S.|14|14|0|0|N
+Occupancy Display|14|14|11|0|R
+Guest wise Analysis|14|14|12|0|R
+Company wise Analysis|14|14|13|0|R
+Guestwise Charges Detail|14|14|14|0|R
+Room Occupancy|14|14|15|0|R
+Room Type Occupancy|14|14|16|0|R
+Room Wise Room Revenue|14|14|17|0|R
+Occupancy Analysis|14|14|18|0|R
+Company wise Nights|14|14|19|0|R
+Revenue During the stay|14|14|20|0|R
+Tax Reports|14|15|0|0|N
+FOM Tax Detail|14|15|11|0|E
+Tax Wise Charge Detail|14|15|12|0|E
+House Keeping|15|0|0|0|N
+Operations|15|12|0|0|N
+Complaint Master|15|12|11|0|E
+Complaint Clearance|15|12|12|0|E
+Lost / Found Entry|15|12|13|0|E
+Claim Entry|15|12|14|0|E
+House Keeping Screen|15|12|17|0|E
+Reports|15|13|0|0|N
+House Keeping Report|15|13|16|0|R
+Inventory|16|0|0|0|N
+Operations|16|11|0|0|N
+Indent|16|11|12|0|E
+Purchase Order|16|11|13|0|E
+M.R. Entry|16|11|14|0|E
+Purchase Bill|16|11|15|0|E
+Requisition Slip|16|11|16|0|E
+Stock Issue on Requisition|16|11|17|0|E
+Kitchen Closing Stock|16|11|18|0|E
+Stock Transfer|16|11|19|0|E
+Look Ups|16|12|0|0|N
+Pending Indent|16|12|11|0|E
+Pending M.R.|16|12|12|0|E
+Pending Purchase Order|16|12|13|0|E
+Reports|16|13|0|0|N
+Purchase Register|16|13|11|0|R
+Purchase Summary|16|13|12|0|R
+Cash/Credit Purchase|16|13|13|0|R
+Stock Register|16|13|14|0|R
+Stock Summary|16|13|15|0|R
+Stock In Hand|16|13|16|0|R
+Kitchen Stock Report I/R Basis|16|13|17|0|R
+Excess Consumption Report|16|13|18|0|R
+Purchase Ledger|16|13|23|0|R
+Issue CheckList|16|13|24|0|R
+ABC Analysis|16|13|26|0|R
+Tax Reports|16|14|0|0|N
+VAT Register|16|14|11|0|E
+VAT Register II|16|14|12|0|E
+VAT Register III|16|14|13|0|E
+Form24 Annexure-A|16|14|14|0|E
+Form III|16|14|15|0|E
+UPVAT XXIV|16|14|16|0|E
+Point Of Sale|17|0|0|0|N
+POS Reports|17|17|0|0|N
+Sales Register|17|17|11|0|R
+Stewardwise Sale|17|17|12|0|R
+Table wise Sale|17|17|13|0|R
+Settlement Summary|17|17|14|0|R
+KOT Wise Details|17|17|15|0|R
+Cover Analysis|17|17|17|0|R
+Pending KOT|17|17|18|0|R
+Item wise Sale|17|17|19|0|R
+Deleted Unsettled Bill|17|17|20|0|R
+NC KOT Detail|17|17|21|0|R
+NC KOT Summary|17|17|24|0|R
+Group Wise Sale|17|17|28|0|R
+Customer Detail|17|17|29|0|R
+POS M.I.S.|17|18|0|0|N
+Collection Summary|17|18|11|0|R
+Open Item Sales|17|18|12|0|R
+Void Bills|17|18|13|0|R
+KOT Change Report|17|18|14|0|R
+Discount Summary|17|18|15|0|R
+Monthwise Sales|17|18|16|0|R
+ABC  Analysis|17|18|17|0|R
+Sale Summary|17|18|18|0|R
+Edited Bills|17|18|20|0|R
+Tax Reports|17|19|0|0|N
+Tax Report|17|19|11|0|R
+Tax Register|17|19|12|0|R
+Taxwise Details|17|19|13|0|R
+Tax Summary|17|19|14|0|R
+Banquet|18|0|0|0|N
+Operation|18|12|0|0|N
+Booking Inquiry|18|12|11|0|E
+Banquet Booking|18|12|12|0|E
+Catalog Selection|18|12|13|0|E
+Chef Pre-Costing|18|12|14|0|E
+Banquet Billing|18|12|15|0|E
+Venue Availability|18|12|17|0|E
+Guest Comments|18|12|18|0|E
+Banquet Estimate Billing|18|12|19|0|E
+Banquet Booking Advance|18|12|20|0|E
+Reports|18|13|0|0|N
+Sales Register|18|13|11|0|R
+OutStanding Report|18|13|12|0|R
+Party wise OutStanding|18|13|13|0|R
+Cashier  Report|18|13|14|0|R
+Booking Inquiry Detail|18|13|15|0|R
+Settlement  Report|18|13|16|0|R
+Daily Function Sheet|18|13|17|0|R
+Item Wise Sales Report|18|13|18|0|R
+Company Wise Sale Report|18|13|19|0|R
+Function Wise Item Detail|18|13|20|0|R
+MIS|18|14|0|0|N
+Cover Analysis|18|14|11|0|R
+Collection Summary|18|14|12|0|R
+Tax Report|18|15|0|0|N
+Tax Report|18|15|11|0|R
+Tax Summary|18|15|12|0|R
+Banquet Taxwise Details|18|15|13|0|E
+Night Audit|19|0|0|0|N
+Operation|19|11|0|0|N
+Guest Audit Ledger|19|11|11|0|E
+Charges Posting|19|11|12|0|E
+Night Audit Process|19|11|13|0|E
+Account Posting|19|11|14|0|E
+Reverse Night Audit|19|11|16|0|E
+Reports|19|12|0|0|N
+Daily Report|19|12|11|0|E
+Guest Trail|19|12|14|0|E
+Checkout Analysis|19|12|15|0|E
+Occupancy Analysis|19|12|16|0|R
+Market Segment Analysis|19|12|17|0|E
+Business Source Analysis|19|12|18|0|E
+Company Analysis|19|12|19|0|E
+FOCC Report|19|12|21|0|E
+Food Costing Report|19|12|22|0|E
+FB Cost Statement|19|12|23|0|E
+Log|19|13|0|0|N
+HR/Payroll|20|0|0|0|N
+Night Audit Log|19|13|11|0|E
+Charges Remove Log|19|13|12|0|E
+Loan/Advance|20|11|13|0|E
+Over Time|20|11|14|0|E
+Leave Encashment|20|11|15|0|E
+Salary Creation|20|11|16|0|E
+Reports|20|12|0|0|N
+Pay Slip|20|12|11|0|R
+Payroll Register|20|12|12|0|R
+Loan Register|20|12|13|0|R
+Loan/Advance Summary|20|12|14|0|R
+Loan/Advance Ledger|20|12|15|0|R
+Attendence Report|20|12|16|0|R
+Gratuity Report|20|12|17|0|R
+PF Statement|20|12|18|0|R
+Form C|20|12|19|0|R
+EXTRAs|27|0|0|0|N
+SMS|27|12|0|0|N
+Sstup|27|12|11|0|N
+SMS (API)|27|12|11|11|E
+Operations|27|12|12|0|N
+SMS (Scheduled)|27|12|12|11|E
+SMS (Conditional)|27|12|12|12|E
+ROOM SERVICE|17|20|0|0|N
+KOT Entry|17|20|11|0|E
+Sale Bill Entry|17|20|13|0|E
+Settlement Entry|17|20|14|0|E
+POS Bill Reprint|17|20|15|0|E
+Split Sale Bill|17|20|16|0|E
+Display Table|17|20|17|0|E
+KOT Transfer|17|20|21|0|E
+Expense Voucher|11|11|12|0|E
+Bank Reconciliation|11|11|14|0|E
+Cheque Cleared Register|11|13|22|0|R
+Cheque Not Cleared Register|11|13|23|0|R
+Journal Books Log|11|13|32|0|R
+TDS Report|11|13|33|0|R
+Member Select Category|12|14|20|0|E
+Task Scheduler|12|20|41|0|E
+Room Type Occupancy Analysis|14|14|21|0|R
+Plan Report|14|14|22|0|R
+Business Source Occupancy Report|14|14|23|0|R
+LAUNDRY|15|14|0|0|N
+Laundry Memo|15|14|13|0|E
+Memo Reprint|15|14|14|0|E
+Finish Material Receive Entry|16|11|20|0|E
+Store Issue Report|16|13|27|0|R
+Liquor Sale Report|16|13|28|0|R
+Payment Receive|17|0|11|0|E
+Order Detail Report|17|17|23|0|R
+Payment Receive Entry|17|17|30|0|E
+Payment Receive Entry (POS)|17|17|31|0|E
+Bill Wise Adjustment Report|17|17|32|0|R
+Order Booking Advance|17|21|21|0|E
+Payment Receive|17|20|23|0|E
+Hight Way point|17|21|0|0|N
+KOT Entry|17|21|11|0|E
+Sale Bill Entry|17|21|15|0|E
+Settlement Entry|17|21|16|0|E
+POS Bill Reprint|17|21|17|0|E
+Garden Aroma|17|22|0|0|N
+KOT Entry|17|22|11|0|E
+Table Change Entry|17|22|12|0|E
+KOT Transfer|17|22|13|0|E
+Sale Bill Entry|17|22|15|0|E
+Settlement Entry|17|22|16|0|E
+POS Bill Reprint|17|22|17|0|E
+Split Sale Bill|17|22|18|0|E
+Display Table|17|22|19|0|E
+Order Booking|17|22|20|0|E
+Order Booking Advance|17|22|21|0|E
+Bill Lookup|17|22|22|0|E
+Payment Receive|17|22|23|0|E
+Hight Way point KOT|17|23|0|0|N
+KOT Entry|17|23|11|0|E
+Table Change Entry|17|23|12|0|E
+KOT Transfer|17|23|13|0|E
+Sale Bill Entry|17|23|15|0|E
+Settlement Entry|17|23|16|0|E
+POS Bill Reprint|17|23|17|0|E
+Split Sale Bill|17|23|18|0|E
+Display Table|17|23|19|0|E
+Order Booking|17|21|20|0|E
+Order Booking Advance|17|21|21|0|E
+Bill Lookup|17|23|22|0|E
+Payment Receive|17|23|23|0|E
+MOON TEA CAFE|17|24|0|0|N
+Token Entry|17|24|14|0|E
+Sale Bill Entry|17|24|15|0|E
+Settlement Entry|17|24|16|0|E
+POS Bill Reprint|17|24|17|0|E
+Split Sale Bill|17|24|18|0|E
+Display Table|17|24|19|0|E
+Bill Lookup|17|24|22|0|E
+Payment Receive|17|24|23|0|E
+ECOMERSE SALES|17|25|0|0|N
+Token Entry|17|25|14|0|E
+Sale Bill Entry|17|25|15|0|E
+Settlement Entry|17|25|16|0|E
+POS Bill Reprint|17|25|17|0|E
+Split Sale Bill|17|25|18|0|E
+Display Table|17|25|19|0|E
+Order Booking|17|25|20|0|E
+Bill Lookup|17|25|22|0|E
+Payment Receive|17|25|23|0|E
+Credit Report|19|12|24|0|R
+EInvoice Report|19|12|25|0|R
+GST Reports|19|14|0|0|N
+GSTR-1|19|14|11|0|R
+GSTR-2(3)|19|14|12|0|R
+GSTR-2(4A)|19|14|13|0|R
+GSTR-2(4B)|19|14|14|0|R
+Reconciliation (GSTR-2A)|19|14|15|0|R
+Upload Process|19|14|16|0|E
+Tally Reports|19|15|0|0|N
+Tally POS Report|19|15|11|0|R
+Operations|20|11|0|0|N
+Leave|20|11|11|0|E
+Auto Settle Card Balance|23|0|11|0|E

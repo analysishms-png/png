@@ -1,0 +1,49 @@
+%% 12_EPABX workflow — EPABX call logging + wake-up calls
+%% Evidence: EXTRAS.text dispatch lines, menu_tree_raw.txt L470-L471, menuHelp OPT1=15
+%% Markers: solid = [VERIFIED-VB6], dashed = [INFERRED], dotted = [UNKNOWN]
+
+flowchart TD
+    subgraph MENU["Module entry (hex 15 / OPT1=15)"]
+        MH["module header EPABX<br/>menu_tree_raw L470<br/>[VERIFIED-VB6]"]
+        MH --> M1["Telephones &gt; Call Entry<br/>TelCallEntry<br/>dispatch L479925<br/>[VERIFIED-VB6]"]
+        MH --> M2["Telephones &gt; Wake-up Call<br/>FrmGuestWakeUp<br/>dispatch L478331<br/>[VERIFIED-VB6]"]
+        MH --> M3["Call Reports &gt; EPBAX Call Report<br/>menu_tree_raw L471 (typo)<br/>GRepFormName=EpabxCallRep L16<br/>[VERIFIED-VB6]"]
+        MH --> M4["Setup &gt; EPABX Setup<br/>registered under Main Setup hex C L130<br/>[VERIFIED-VB6]"]
+    end
+
+    subgraph ENTRY["Call entry path"]
+        M1 --> CE["TelCallEntry form<br/>[VERIFIED-VB6]"]
+        CE --> CE1["pick extension / call type / call code<br/>[INFERRED]"]
+        CE1 --> CE2["write call record<br/>[INFERRED]"]
+        CE2 --> T1[("EPABX_IN (Jet DMEPABX.mdb)<br/>NOT in 277 SQL tables<br/>[VERIFIED-SQL]")]
+    end
+
+    subgraph WAKE["Wake-up call path"]
+        M2 --> WK["FrmGuestWakeUp form<br/>[VERIFIED-VB6]"]
+        WK --> WK1["select guest + time<br/>[INFERRED]"]
+        WK1 --> T2[("GuestWakeup table<br/>0 rows on this site<br/>[VERIFIED-SQL]")]
+        WK1 -.-> WK2["wake-up list printed at desk<br/>[UNKNOWN]"]
+    end
+
+    subgraph REP["Report path"]
+        M3 --> RH["rRepTel report host<br/>L282557 / L282768<br/>[VERIFIED-VB6]"]
+        RH --> RH1["rRepTelPreview alternate host<br/>L478412 / L15<br/>[VERIFIED-VB6]"]
+        RH1 --> SRC["source: PayCharge, SunTran, GuestMast<br/>REPORTS_TXT/EpabxCallRep.txt<br/>[VERIFIED-SQL]"]
+        SRC --> OUT["EpabxCallRep.rpt on disk<br/>[VERIFIED-UI]"]
+    end
+
+    subgraph SETUP["Master data path"]
+        M4 --> SM["Setup &gt; EPABX Setup<br/>[VERIFIED-VB6]"]
+        SM --> T3[("TelCallTypeMast  0 rows<br/>TelCallCodeMast  0 rows<br/>TelExt           0 rows<br/>[VERIFIED-SQL]")]
+        SM --> T4[("TelCallControlMast<br/>[VERIFIED-VB6]")]
+    end
+
+    T1 -.->|"call detail feeds report?"| SRC
+    T3 -.->|"masters feed call entry"| CE1
+
+    classDef verified fill:#d5f5e3,stroke:#1e8449,stroke-width:1px
+    classDef inferred fill:#fdebd0,stroke:#b9770e,stroke-dasharray:4 3
+    classDef unknown fill:#fadbd8,stroke:#c0392b,stroke-dasharray:2 3
+    class MH,M1,M2,M3,M4,CE,RH,SRC,SM verified
+    class CE1,CE2,WK,WK1,T1,T2,T3,T4,RH1 inferred
+    class WK2 unknown

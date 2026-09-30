@@ -746,11 +746,23 @@ def open_lookup_room(parent=None):
 
 
 def open_depart_sundry(parent=None):
-    return DepartSundryWindow(parent)
+    """VB6 DepartSundry.frm (V_Type = site+'PURC').
+
+    Window ko dikhana zaroori hai: shell menu-click par opener ka return
+    value discard karta hai (ui/shell.py `self.registry[leaf](self)`),
+    isliye sirf return karne se form kabhi khulta hi nahi tha.
+    """
+    w = DepartSundryWindow(parent)
+    w.show()
+    return w
 
 
 def open_facility_sundry(parent=None):
-    return FacilitySundryWindow(parent)
+    """VB6 FacilitySundry.frm (V_Type='FACL') — see open_depart_sundry
+    ki wajah se yahan bhi explicit show zaroori hai."""
+    w = FacilitySundryWindow(parent)
+    w.show()
+    return w
 
 
 if __name__ == "__main__":

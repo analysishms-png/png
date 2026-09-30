@@ -1,0 +1,73 @@
+flowchart TD
+    A[MDI menu click] --> B["MenuHelp.Option -> var_188<br/>gate: InStr(MemVar_1F81228,'J') L476426<br/>gate: InStr(...,'C') L476079"]
+    B --> C{var_188 matches a stored caption}
+
+    C -- "no match" --> E[Fall through - cleanup L480825 to L480831 - nothing happens]
+    C -- "Requistion Slip Entry" --> E2["dead key L479138 - no menu row"]
+    C -- "Kitchen stock Transfer / Change Kitchen/Store" --> E3["dead keys L479156 / L479265"]
+    C -- "match" --> F{Branch kind}
+
+    F -- "master" --> G["New FrmParty / DepartMast / FrmItemGroupMast /<br/>FrmItemCatRaw / FrmItemMastRaw / FrmConsumMast"]
+    F -- "transaction" --> H["PIndent / pPOrder / pMREntry / pPBill /<br/>pReqSlip / pGIss / kClStk / RsGravyItemEntry"]
+    F -- "stock voucher" --> I["RsKitchenStk / RsStoreRecEntry /<br/>RsKitchenMaterial / FrmOPStock"]
+    F -- "report" --> J["New rInventRepView - GRepFormName"]
+    J --> K["CreateFieldDefFile - report path and .ttx<br/>L636046"]
+    K --> L["Open report path and .RPT<br/>L636048 - MISSING backslash"]
+    L --> M{"file exists in <HMS2526>\\Reports ?"}
+    M -- yes --> N[Report prints]
+    M -- "no - 10 keys" --> O[Crystal error / silent failure]
+
+    subgraph ORDER [Purchase order chain]
+        P1["PIndent - indent L208436 / L208486"] --> P2["pReqSlip - requisition L834236 / L834277"]
+        P2 --> P3["pGIss - issue against indent L109742<br/>clears Indent.ClearYN='Y'"]
+        P1 --> P4["pPOrder - purchase order L212494 / L212636"]
+        P4 --> P5["pMREntry - material receipt L216615 + GIN L216548"]
+        P5 --> P6["pPBill - purchase bill L73560 / L73641"]
+        P6 --> P7["Stock Qtyrec up L73827<br/>Purch1 / Purch2 / Sale2 / SunTran / Ledger"]
+        P7 --> P8["Voucher_Prefix bump L74026 + LastVou L74043<br/>INSIDE BeginTrans L73485 - CommitTrans L74061"]
+    end
+
+    subgraph SAVE [Single-form save pattern]
+        S1[Validate grid - Item / Qty / Rate required] --> S2["BeginTrans e.g. L72487"]
+        S2 --> S3[Multi-table INSERT / UPDATE / DELETE]
+        S3 --> S4{Error?}
+        S4 -- yes --> S5["RollbackTrans e.g. L72565"]
+        S4 -- no --> S6["CommitTrans e.g. L72551"]
+        S6 --> S7["Bump Voucher_Prefix - inside the same unit<br/>pPBill L74026 within L73485 to L74061"]
+        S7 --> S8[Saved]
+    end
+
+    subgraph STK [Stock writers - all hit table Stock 61925 rows]
+        T1[pPBill L73827 Qtyrec] --> T7[(Stock 65 cols)]
+        T2[pMREntry L216615 Qtyrec] --> T7
+        T3[pGIss L109730 QtyIss] --> T7
+        T4[FrmOPStock L425700] --> T7
+        T5[FrmStockTransfer L452641] --> T7
+        T6["RsKitchenStk / RsStoreRecEntry /<br/>RsKitchenMaterial L591196 / L588328 / L607086"] --> T7
+        T7 --> T8["No FK cascade - 0 declared FKs"]
+        T8 --> T9["DB CHECK required on migration"]
+    end
+
+    subgraph SETUP [Material Mgmt Setup hex 0xC]
+        U1[Party Master L477917] --> U2[(SubGroup + Ledger)]
+        U3[Department L477923] --> U4[(Depart 73 rows)]
+        U5["Item Group L477929 - branch on OutletCode"] --> U6{"OutletCode BANQ or ODC?"}
+        U6 -- yes --> U7[HallItemGroupMast]
+        U6 -- no --> U8[FrmItemGroupMastRaw]
+        U7 --> U9[(ItemGrp 140 rows)]
+        U8 --> U9
+        U10[Item Category L477942] --> U11[(ItemCatMast 50 rows)]
+        U12["Item Entry L477948 - guard is NOT 'Item Entry'"] --> U13["guard 'Item Entry ' L477949"] --> U14[(FrmItemMastRaw -> ItemMast 3355)]
+        U15[Consumption Master L477956] --> U16[(BOM 2048 rows)]
+        U17["Opening Stock L477758"] --> U18[(FrmOPStock -> Stock)]
+        U19["Item  List L477692 - two spaces"] --> U20[(FrmItemMast -> Item 3187)]
+        U21[Enviro Inventry L477962] --> U22[(Enviro 222 cols)]
+        U23["Location Master L477752 - NO MENU ROW"] --> U24[(Godown 70 rows)]
+    end
+
+    H --> ORDER
+    H --> SAVE
+    I --> SAVE
+    I --> STK
+    H --> STK
+    G --> SETUP

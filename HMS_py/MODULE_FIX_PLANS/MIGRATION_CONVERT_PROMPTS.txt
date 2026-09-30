@@ -1,0 +1,1416 @@
+================================================================================
+VB6 -> PYTHON CONVERSION PROMPTS  -  MODULE WISE
+================================================================================
+File : HMS_py/MODULE_FIX_PLANS/MIGRATION_CONVERT_PROMPTS.txt
+Date : 2026-09-30
+Companion: MIGRATION_TEST_PROMPTS.txt (verify karne ke liye) - ye file
+           CONVERT karne ke liye hai. Dono ka output format alag hai.
+
+Har block ek MODULE ka ready-to-paste prompt hai, VB6 form list ke saath.
+Prompt copy karo -> agent pehle inventory/parity matrix banata hai, phir
+MISSING/PARTIAL items ko port order me convert karta hai.
+
+VB6 source (sach) : implemented/HMS2526/serialkey/PROJECT2/PROJECT/   (320 .frm, .bas)
+Python port       : HMS_py/core/*.py  (logic)   HMS_py/ui/*_ui.py  (forms)
+Registry (truth)  : HMS_py/ui/shell.py :: _form_registry()   menu tree: HMS_py/core/mdi_menu.json
+
+--------------------------------------------------------------------------------
+PORTING RECIPE (har item ke liye same order - tests isi pe depend karte hain)
+--------------------------------------------------------------------------------
+1. SCHEMA PROBE FIRST
+      db.query("SELECT TOP 1 * FROM <table>")
+   -> table/column absent? status = BLOCKED-TBL, matrix me document karo,
+      VB6 evidence ke saath (VB6 me bhi dead tha?), aur RUK JAO.
+      KABHI table/column mat ghadna.
+2. CORE  HMS_py/core/<domain>.py
+   - VB6 Sub/Function body faithfully port karo.
+   - fill-query copy karo: same WHERE / JOINs / ORDER BY (brackets for
+     reserved words: [Option]).
+   - save-sequence copy karo: same INSERT/UPDATE order + cn.commit().
+   - helper names VB6 semantics ke naam rakho (Fill/Proc_341_20 -> auto_settle_pending jaisa).
+   - Har write path me audit columns: U_Name, U_EntDt, U_AE ('A'/'E'/'D')
+     + LogSite_Code. Missing = defect.
+3. UI    HMS_py/ui/<domain>_ui.py
+   - CRUD master  -> ui/base_master.py : BaseMasterForm + Field + MasterConfig
+   - list/action  -> open_<name>(parent=None) factory returning the window
+                     AND call .show() (shell return value discard karta hai -
+                     warna form kabhi dikhega hi nahi, KI-8).
+   - grid+buttons pattern VB6 DataGrid forms ke liye.
+   - captions/labels/messages VERBATIM (VB6 typos included).
+4. REGISTRY  ui/shell.py :: _form_registry()
+   - key = EXACT VB6 menu caption.
+   - real opener ko _coming_soon batch me mat daalo (wo baad me shadow kar deta hai).
+   - tools/check_registry_shadow.py se verify karo.
+5. VERIFY
+      python -m py_compile <changed files>
+      python -m pytest tests/unit -q
+      python -m pytest tests/database -q
+      python -m HMS_py.tools.manual_pipeline.run_module_tests --module <manual_id>
+      + naya focused regression test (bina test ke DONE mat likho).
+
+--------------------------------------------------------------------------------
+CONVENTIONS / GOTCHAS
+--------------------------------------------------------------------------------
+- DB access sirf HMS_py/core/db.py se. Ek transaction me doosri connection
+  mat kholo (self-deadlock observed).
+- Registry lookup case-insensitive (_reg_ci) hai - menuHelp captions lowercase
+  aati hain; plain dict.get() miss kar jata hai.
+- VB6 BGR colours: &HCEE0C2& -> #C2E0CE (byte pairs reverse).
+- menuHelp.Param_Str rights: 'AEDP' full; missing letter = no right;
+  Flag 'V' = hidden; Flag '-'/'S' = separator (kabhi clickable nahi).
+- Parallel agents is repo pe hain: change file-scoped rakho, module complete
+  hote hi git add <files> && git commit.
+- Live DB check read-only chalega; write test rollback/snapshot ke saath.
+
+--------------------------------------------------------------------------------
+OUTPUT FORMAT (har convert prompt ka expected jawab)
+--------------------------------------------------------------------------------
+Matrix row (per VB6 form):
+| VB6 form | Caption | VB6 tables (frm SQL se) | live rows / MISSING | Python UI | Python core | Status |
+Status = DONE | PARTIAL | UI-ONLY | BLOCKED-TBL | MISSING
+
+Phir conversion log (sirf jo convert kiya):
+  Converted : <VB6 form> 
+  Probe     : <table> -> rows | MISSING
+  Core      : <core/...py:line>  (<VB6 Sub/Function>)
+  UI        : <ui/...py:line>    (open_<name>, .show() = yes/no)
+  Registry  : "<caption>" -> <opener>   (shell.py:line)
+  Tests     : <file> -> <counts>
+  Status    : DONE | PARTIAL | BLOCKED-TBL
+  Risk      : <agla item / impact>
+
+--------------------------------------------------------------------------------
+SUGGESTED CONVERSION ORDER (dependency + business value)
+--------------------------------------------------------------------------------
+01  02_Main_Setup      (sabke masters yahan se aate hain - pehle ye)
+02  05_Front_Office    (highest revenue flow, L2b 27 checks gate)
+03  08_POS             (KOT->bill chain)
+04  07_Inventory       (Indent->PO->GIN->Stock)
+05  03_Finance         (ledger/voucher - sab modules ispe post karte hain)
+06  09_Banquet
+07  04_Reservation
+08  10_Night_Audit     (dry-run only)
+09  06_House_Keeping
+10  11_HR_Payroll
+11  14_Members_Management
+12  12_EPABX           (expected BLOCKED - honest answer valid hai)
+13  13_Messaging
+14  15_Sales_Marketing
+15  16_Mall_Management
+16  17_Reports         (report apne module ke saath hi convert ho)
+
+
+================================================================================
+CONVERT-01  -  MODULE 02_Main_Setup   (VB6 -> Python)
+================================================================================
+Manual id : 02_MainSetup
+RE doc    : HMS_REVERSE_ENGINEERING/02_Main_Setup/module_manual.md
+Sidebar   : main setup
+VB6 forms : 67 .frm  1 .bas   (root: implemented/HMS2526/serialkey/PROJECT2/PROJECT/)
+Core      : roommaster, roomcategory, plans, company, guestprof, depart, unit, item, taxmaster, paymenttype, marketsegment, general_setup, sys_config, sundry, sundry_type
+UI        : p2_masters, general_setup_ui, general_setup_tabs_ui, taxstru_ui, enviro_ui, sys_config_ui, voucher_environment_ui, plan_master, misc_parity_ui
+
+VB6 FORMS TO CONVERT:
+  AccountMerg, CompMast, DepartMast, DepartSundry, FaCityMast, FaCountryMast, FaCurrBalUpdate,
+  FaEnvron, FaNarrMast, FaStateMast, FaSubGroup, FaTDSCat, FaVtype, FacilitySundry, FrmBdayLookup,
+  FrmBusinessSrc, FrmChangeDepart, FrmChangeSite, FrmChargeMast, FrmComplaintClearing,
+  FrmComplaintMast, FrmControlPanel, FrmDataRecieving, FrmGuestStat, FrmImage, FrmInc,
+  FrmJobScheduler, FrmLocationFacilities, FrmLocationMast, FrmLostFound, FrmMarketSeg,
+  FrmMergeCharge, FrmPackageMast, FrmParty, FrmPartyLocations, FrmPayTypeMast, FrmPlanPackMast,
+  FrmPlanTokenMast, FrmRevMergeCharge, FrmRoomCatMast, FrmRoomFeatureMast, FrmRoomMast,
+  FrmSerialiseVr, FrmTaxMast, FrmTaxStruMast, FrmUploadProcess, FrmVenueFeat, FrmVenueMast,
+  GroupProfile, GuestProfile, OutLetMast, OutLetSundry, SundryMast, SundryVType, Transfer,
+  UserMast, UserPermission, VoucherSundrySetting, frmBlockMast, frmCompany, frmEnviro,
+  frmFixedChargeMast, frmGuestParamMast, frmRevGroup, frmSeasonMast, frmSessionMast, frmYearEnd
+VB6 MODULES (.bas):
+  ModuleAdd
+
+[COPY-PASTE START]
+Convert VB6 -> Python for HMS module **02_Main_Setup** (menu group "main setup").
+
+Rules: live SQL Server DB = truth; VB6 .frm/.bas = behavior reference;
+never invent tables/columns; DB access only via core/db.py; one connection
+per transaction; VB6 captions/messages verbatim (typos included); file-scoped
+changes; commit per module; every claim needs file:line + test evidence.
+
+Target files:
+  core/: roommaster, roomcategory, plans, company, guestprof, depart, unit, item, taxmaster, paymenttype, marketsegment, general_setup, sys_config, sundry, sundry_type
+  ui/  : p2_masters, general_setup_ui, general_setup_tabs_ui, taxstru_ui, enviro_ui, sys_config_ui, voucher_environment_ui, plan_master, misc_parity_ui
+  wire : ui/shell.py _form_registry()[ "<exact VB6 caption>" ]
+
+VB6 forms in scope (67):
+  AccountMerg, CompMast, DepartMast, DepartSundry, FaCityMast, FaCountryMast, FaCurrBalUpdate,
+  FaEnvron, FaNarrMast, FaStateMast, FaSubGroup, FaTDSCat, FaVtype, FacilitySundry, FrmBdayLookup,
+  FrmBusinessSrc, FrmChangeDepart, FrmChangeSite, FrmChargeMast, FrmComplaintClearing,
+  FrmComplaintMast, FrmControlPanel, FrmDataRecieving, FrmGuestStat, FrmImage, FrmInc,
+  FrmJobScheduler, FrmLocationFacilities, FrmLocationMast, FrmLostFound, FrmMarketSeg,
+  FrmMergeCharge, FrmPackageMast, FrmParty, FrmPartyLocations, FrmPayTypeMast, FrmPlanPackMast,
+  FrmPlanTokenMast, FrmRevMergeCharge, FrmRoomCatMast, FrmRoomFeatureMast, FrmRoomMast,
+  FrmSerialiseVr, FrmTaxMast, FrmTaxStruMast, FrmUploadProcess, FrmVenueFeat, FrmVenueMast,
+  GroupProfile, GuestProfile, OutLetMast, OutLetSundry, SundryMast, SundryVType, Transfer,
+  UserMast, UserPermission, VoucherSundrySetting, frmBlockMast, frmCompany, frmEnviro,
+  frmFixedChargeMast, frmGuestParamMast, frmRevGroup, frmSeasonMast, frmSessionMast, frmYearEnd
+VB6 .bas modules (1): ModuleAdd
+
+Porting recipe - apply per item, in this order (tests depend on it):
+  1. Schema probe FIRST: db.query("SELECT TOP 1 * FROM <table>").
+     Absent -> BLOCKED-TBL, document with VB6 evidence, STOP. Never invent
+     a table or column.
+  2. Core  HMS_py/core/<domain>.py: port the VB6 Sub/Function faithfully -
+     same fill-query (WHERE/JOIN/ORDER BY, brackets for reserved words like
+     [Option]) and same save-sequence (INSERT/UPDATE order + cn.commit()).
+     Every write carries U_Name / U_EntDt / U_AE ('A'|'E'|'D') + LogSite_Code.
+  3. UI    HMS_py/ui/<domain>_ui.py: CRUD master -> ui/base_master.py
+     BaseMasterForm+Field+MasterConfig; list/action -> open_<name>(parent=None)
+     factory that ALSO calls .show() (shell discards the return value, else
+     the window never appears). Captions/messages verbatim.
+  4. Registry: ui/shell.py _form_registry()["<exact VB6 caption>"] = opener;
+     real openers ko _coming_soon batch me mat daalo; verify with
+     python tools/check_registry_shadow.py
+  5. Verify: python -m py_compile <files> ; python -m pytest tests/unit -q ;
+     python -m pytest tests/database -q ;
+     python -m HMS_py.tools.manual_pipeline.run_module_tests --module 02_MainSetup
+     + a focused regression test (no test = no DONE).
+
+Step 0 - inventory first (NO code yet):
+  Har form ka .frm grep karo SQL ke liye (FROM / INSERT INTO / UPDATE), uska
+  menu caption nikaalo, har table live probe karo, phir ye matrix do:
+  | VB6 form | Caption | VB6 tables | live rows / MISSING | Python UI | Python core |
+  | Status |
+  Status = DONE | PARTIAL | UI-ONLY | BLOCKED-TBL | MISSING
+  Uske baad sirf MISSING + PARTIAL rows dependency order me convert karo, ek ek
+  karke, aur har item ka ye log do:
+    Converted : <VB6 form>            Probe : <table> -> rows | MISSING
+    Core      : <core/x.py:line>      UI    : <ui/x_ui.py:line> (.show() yes/no)
+    Registry  : "<caption>" -> opener (shell.py:line)
+    Tests     : <file> -> <counts>    Status: DONE|PARTIAL|BLOCKED-TBL
+
+Gotchas specific to 02_Main_Setup:
+  - Enviro = 221+ columns, single row per site (LogSite_Code) - only whitelisted operational fields editable, finance fields read-only.
+  - MenuHelp OPT1..OPT4 = per-user/per-company menu hierarchy; menuHelp.Param_Str 'AEDP' rights, Flag 'V' = hidden, '-'/'S' = separator.
+  - userMast.PASSWD is VB6 byte-exact obfuscation - do NOT swap to bcrypt/argon2 without an explicit migration task.
+  - Voucher numbering = Voucher_Type + Voucher_Prefix + LASTVOUCHER; DocId varchar(21) = site-prefix + Vtype + serial.
+  - BUG-001: LocationMast table MISSING in live DB (FrmLocationMast.frm exists) -> BLOCKED-TBL, do not create it.
+  - 17 Main Setup leaves currently resolve to _coming_soon (Data Transfer, POS Bill Deletion, PLU File, POS Recycle, Task Scheduler, Voucher Serialisation, Enviro Inventry, ...).
+  - CRUD masters should use the config-driven pattern (ui/p2_masters.py *_config() -> ui/base_master.BaseMasterForm), not one-off forms.
+
+Rules recap: DB = truth, VB6 = behavior, no invented tables, core/db.py only,
+one connection per transaction, file-scoped diffs, commit per module, evidence
+file:line + test counts for every claim. Report matrix + conversion log as
+shown above. Table-less-in-VB6 or absent-live -> BLOCKED-TBL with evidence;
+that is a valid, expected result - do not force a port.
+[END CONVERT-01]
+
+================================================================================
+CONVERT-02  -  MODULE 05_Front_Office   (VB6 -> Python)
+================================================================================
+Manual id : 04_FrontOffice
+RE doc    : HMS_REVERSE_ENGINEERING/05_Front_Office/module_manual.md
+Sidebar   : front office
+VB6 forms : 23 .frm  0 .bas   (root: implemented/HMS2526/serialkey/PROJECT2/PROJECT/)
+Core      : checkin, checkout, folio, fo_ops, guestprof, guest_folio, guest_services, roomstatus, room_occ, account_merge, booking, reservation
+UI        : fd_forms_ui, checkout_ui, folio_ui, roomstatus_ui, frontoffice, walkin_rack_ui, guest_charges_ui, guest_services_ui, guest_lookup_ui, guest_history_ui, registration_entry_ui, booking_ops_ui
+
+VB6 FORMS TO CONVERT:
+  FdCheckOut, FdLookUpRoom, FdReSetlement, FdRevCheckOut, FdRoomDisplay, FrmExpense, FrmForExRec,
+  FrmGrcBlank, FrmGuestWakeUp, FrmHouGuestMsg, FrmMergeCharge, FrmRevMergeCharge, HWIHistory,
+  InHouseGuestFolio, fdAcPostChrg, fdAmendEntry, fdCheckIn, fdDisplayFolio, fdPaymentCharge,
+  fdPostChrg, fdRoomChange, fdWalkInEntry, frmFomB
+
+[COPY-PASTE START]
+Convert VB6 -> Python for HMS module **05_Front_Office** (menu group "front office").
+
+Rules: live SQL Server DB = truth; VB6 .frm/.bas = behavior reference;
+never invent tables/columns; DB access only via core/db.py; one connection
+per transaction; VB6 captions/messages verbatim (typos included); file-scoped
+changes; commit per module; every claim needs file:line + test evidence.
+
+Target files:
+  core/: checkin, checkout, folio, fo_ops, guestprof, guest_folio, guest_services, roomstatus, room_occ, account_merge, booking, reservation
+  ui/  : fd_forms_ui, checkout_ui, folio_ui, roomstatus_ui, frontoffice, walkin_rack_ui, guest_charges_ui, guest_services_ui, guest_lookup_ui, guest_history_ui, registration_entry_ui, booking_ops_ui
+  wire : ui/shell.py _form_registry()[ "<exact VB6 caption>" ]
+
+VB6 forms in scope (23):
+  FdCheckOut, FdLookUpRoom, FdReSetlement, FdRevCheckOut, FdRoomDisplay, FrmExpense, FrmForExRec,
+  FrmGrcBlank, FrmGuestWakeUp, FrmHouGuestMsg, FrmMergeCharge, FrmRevMergeCharge, HWIHistory,
+  InHouseGuestFolio, fdAcPostChrg, fdAmendEntry, fdCheckIn, fdDisplayFolio, fdPaymentCharge,
+  fdPostChrg, fdRoomChange, fdWalkInEntry, frmFomB
+
+Porting recipe - apply per item, in this order (tests depend on it):
+  1. Schema probe FIRST: db.query("SELECT TOP 1 * FROM <table>").
+     Absent -> BLOCKED-TBL, document with VB6 evidence, STOP. Never invent
+     a table or column.
+  2. Core  HMS_py/core/<domain>.py: port the VB6 Sub/Function faithfully -
+     same fill-query (WHERE/JOIN/ORDER BY, brackets for reserved words like
+     [Option]) and same save-sequence (INSERT/UPDATE order + cn.commit()).
+     Every write carries U_Name / U_EntDt / U_AE ('A'|'E'|'D') + LogSite_Code.
+  3. UI    HMS_py/ui/<domain>_ui.py: CRUD master -> ui/base_master.py
+     BaseMasterForm+Field+MasterConfig; list/action -> open_<name>(parent=None)
+     factory that ALSO calls .show() (shell discards the return value, else
+     the window never appears). Captions/messages verbatim.
+  4. Registry: ui/shell.py _form_registry()["<exact VB6 caption>"] = opener;
+     real openers ko _coming_soon batch me mat daalo; verify with
+     python tools/check_registry_shadow.py
+  5. Verify: python -m py_compile <files> ; python -m pytest tests/unit -q ;
+     python -m pytest tests/database -q ;
+     python -m HMS_py.tools.manual_pipeline.run_module_tests --module 04_FrontOffice
+     + a focused regression test (no test = no DONE).
+
+Step 0 - inventory first (NO code yet):
+  Har form ka .frm grep karo SQL ke liye (FROM / INSERT INTO / UPDATE), uska
+  menu caption nikaalo, har table live probe karo, phir ye matrix do:
+  | VB6 form | Caption | VB6 tables | live rows / MISSING | Python UI | Python core |
+  | Status |
+  Status = DONE | PARTIAL | UI-ONLY | BLOCKED-TBL | MISSING
+  Uske baad sirf MISSING + PARTIAL rows dependency order me convert karo, ek ek
+  karke, aur har item ka ye log do:
+    Converted : <VB6 form>            Probe : <table> -> rows | MISSING
+    Core      : <core/x.py:line>      UI    : <ui/x_ui.py:line> (.show() yes/no)
+    Registry  : "<caption>" -> opener (shell.py:line)
+    Tests     : <file> -> <counts>    Status: DONE|PARTIAL|BLOCKED-TBL
+
+Gotchas specific to 05_Front_Office:
+  - KI-8: many fd_forms_ui openers construct the window but never call .show() - shell discards the return value, so the form is invisible. Every new opener must .show() before returning.
+  - Check-out writes PayCharge + PayChargeLog as a pair; a preflight that deletes one and not the other causes VNo reuse / PK duplicate (KI-9).
+  - Room -> Dirty is written by BOTH housekeeping and night audit (KOTAtNightAudit) - do not change ownership casually.
+  - Guest edit cascades: GuestProf + GuestFolio + RoomOcc.GuestProf (guestprof.py update path).
+  - Highest-traffic module: run L2b (27 flow checks) after every conversion.
+
+Rules recap: DB = truth, VB6 = behavior, no invented tables, core/db.py only,
+one connection per transaction, file-scoped diffs, commit per module, evidence
+file:line + test counts for every claim. Report matrix + conversion log as
+shown above. Table-less-in-VB6 or absent-live -> BLOCKED-TBL with evidence;
+that is a valid, expected result - do not force a port.
+[END CONVERT-02]
+
+================================================================================
+CONVERT-03  -  MODULE 08_POS   (VB6 -> Python)
+================================================================================
+Manual id : 07_POS
+RE doc    : HMS_REVERSE_ENGINEERING/08_POS/module_manual.md
+Sidebar   : point of sale
+VB6 forms : 31 .frm  0 .bas   (root: implemented/HMS2526/serialkey/PROJECT2/PROJECT/)
+Core      : pos, pos_entry, pos_kot, pos_sales, pos_stock, pos_table, pos_masters, pos_hall, pos_packing, pos_delivery, pos_happy
+UI        : pos_masters_ui, pos_sales_ui, pos_stock_ui, pos_table_ui, pos_sub_forms_ui, pos_happy_ui, pos_packing_ui, pos_delivery_ui, kot_entry, kot_transfer_ui, item_rate_ui, scheme_tds_ui, pos_na
+
+VB6 FORMS TO CONVERT:
+  FrmChangeRest, FrmDenomination, FrmItemCatMast, FrmItemGroupMast, FrmPOSBillDeletion,
+  FrmPOSBillModificationDatewise, FrmPOSBillModificationItemGroupwise, FrmPOSSaleDataTransfer,
+  FrmWaiterMast, OutLetMast, POSAdvanceDepDialog, POSBillReprint, RSSaleBill, RSSaleBillDisplay,
+  RSTouchScreenSaleBill, RsBookingEntry, RsKOTEntry, RsKOTTransfer, RsPOSDisplay, RsPOSDisplayNew,
+  RsPaymentReceice, RsSaleBillSplit, RsStatusScreen, RsTableMast, RsTbChange, RsTokenEntry,
+  RsTouchDisplayTB, RsTouchScreenKOTEntry, pHappyHours, rHallRepView, rPOSRepView
+
+[COPY-PASTE START]
+Convert VB6 -> Python for HMS module **08_POS** (menu group "point of sale").
+
+Rules: live SQL Server DB = truth; VB6 .frm/.bas = behavior reference;
+never invent tables/columns; DB access only via core/db.py; one connection
+per transaction; VB6 captions/messages verbatim (typos included); file-scoped
+changes; commit per module; every claim needs file:line + test evidence.
+
+Target files:
+  core/: pos, pos_entry, pos_kot, pos_sales, pos_stock, pos_table, pos_masters, pos_hall, pos_packing, pos_delivery, pos_happy
+  ui/  : pos_masters_ui, pos_sales_ui, pos_stock_ui, pos_table_ui, pos_sub_forms_ui, pos_happy_ui, pos_packing_ui, pos_delivery_ui, kot_entry, kot_transfer_ui, item_rate_ui, scheme_tds_ui, pos_na
+  wire : ui/shell.py _form_registry()[ "<exact VB6 caption>" ]
+
+VB6 forms in scope (31):
+  FrmChangeRest, FrmDenomination, FrmItemCatMast, FrmItemGroupMast, FrmPOSBillDeletion,
+  FrmPOSBillModificationDatewise, FrmPOSBillModificationItemGroupwise, FrmPOSSaleDataTransfer,
+  FrmWaiterMast, OutLetMast, POSAdvanceDepDialog, POSBillReprint, RSSaleBill, RSSaleBillDisplay,
+  RSTouchScreenSaleBill, RsBookingEntry, RsKOTEntry, RsKOTTransfer, RsPOSDisplay, RsPOSDisplayNew,
+  RsPaymentReceice, RsSaleBillSplit, RsStatusScreen, RsTableMast, RsTbChange, RsTokenEntry,
+  RsTouchDisplayTB, RsTouchScreenKOTEntry, pHappyHours, rHallRepView, rPOSRepView
+
+Porting recipe - apply per item, in this order (tests depend on it):
+  1. Schema probe FIRST: db.query("SELECT TOP 1 * FROM <table>").
+     Absent -> BLOCKED-TBL, document with VB6 evidence, STOP. Never invent
+     a table or column.
+  2. Core  HMS_py/core/<domain>.py: port the VB6 Sub/Function faithfully -
+     same fill-query (WHERE/JOIN/ORDER BY, brackets for reserved words like
+     [Option]) and same save-sequence (INSERT/UPDATE order + cn.commit()).
+     Every write carries U_Name / U_EntDt / U_AE ('A'|'E'|'D') + LogSite_Code.
+  3. UI    HMS_py/ui/<domain>_ui.py: CRUD master -> ui/base_master.py
+     BaseMasterForm+Field+MasterConfig; list/action -> open_<name>(parent=None)
+     factory that ALSO calls .show() (shell discards the return value, else
+     the window never appears). Captions/messages verbatim.
+  4. Registry: ui/shell.py _form_registry()["<exact VB6 caption>"] = opener;
+     real openers ko _coming_soon batch me mat daalo; verify with
+     python tools/check_registry_shadow.py
+  5. Verify: python -m py_compile <files> ; python -m pytest tests/unit -q ;
+     python -m pytest tests/database -q ;
+     python -m HMS_py.tools.manual_pipeline.run_module_tests --module 07_POS
+     + a focused regression test (no test = no DONE).
+
+Step 0 - inventory first (NO code yet):
+  Har form ka .frm grep karo SQL ke liye (FROM / INSERT INTO / UPDATE), uska
+  menu caption nikaalo, har table live probe karo, phir ye matrix do:
+  | VB6 form | Caption | VB6 tables | live rows / MISSING | Python UI | Python core |
+  | Status |
+  Status = DONE | PARTIAL | UI-ONLY | BLOCKED-TBL | MISSING
+  Uske baad sirf MISSING + PARTIAL rows dependency order me convert karo, ek ek
+  karke, aur har item ka ye log do:
+    Converted : <VB6 form>            Probe : <table> -> rows | MISSING
+    Core      : <core/x.py:line>      UI    : <ui/x_ui.py:line> (.show() yes/no)
+    Registry  : "<caption>" -> opener (shell.py:line)
+    Tests     : <file> -> <counts>    Status: DONE|PARTIAL|BLOCKED-TBL
+
+Gotchas specific to 08_POS:
+  - Chain: KOT -> KOTLog -> Sale1/Sale2 -> SunTran (sundries/tax) -> PayCharge settlement -> SplitBillDetail.
+  - _next_kot_vno (core/pos.py) is select-then-consume (KI-1) - duplicate KOT risk.
+  - TableMast table is ABSENT in live DB while RsTableMast.frm exists -> BLOCKED-TBL.
+  - ShiftMast / HappyHours / SchemeMast / DeliveryBoy are 0 rows - UI must handle empty master lists without crashing.
+  - Touch-screen variants (RsTouchScreen*) are presentation-only ports of the same logic - share core, do not copy-paste the SQL.
+
+Rules recap: DB = truth, VB6 = behavior, no invented tables, core/db.py only,
+one connection per transaction, file-scoped diffs, commit per module, evidence
+file:line + test counts for every claim. Report matrix + conversion log as
+shown above. Table-less-in-VB6 or absent-live -> BLOCKED-TBL with evidence;
+that is a valid, expected result - do not force a port.
+[END CONVERT-03]
+
+================================================================================
+CONVERT-04  -  MODULE 07_Inventory   (VB6 -> Python)
+================================================================================
+Manual id : 06_Inventory
+RE doc    : HMS_REVERSE_ENGINEERING/07_Inventory/module_manual.md
+Sidebar   : inventory
+VB6 forms : 31 .frm  0 .bas   (root: implemented/HMS2526/serialkey/PROJECT2/PROJECT/)
+Core      : inventory, purchase, item, unit, sundry
+UI        : inventory, purchase_order_ui, purchase_bill_ui, requisition_slip_ui, stock_adjust_ui, stock_issue_ui, stock_receive_ui, kitchen_clstk_ui
+
+VB6 FORMS TO CONVERT:
+  DepOpStk, DepartMast, DepartSundry, FrmChangeDepart, FrmConsumMast, FrmItemCatMast,
+  FrmItemGroupMast, FrmItemGroupMastRaw, FrmItemMast, FrmItemMastRaw, FrmOPStock, FrmParty,
+  FrmStockTransfer, Godown, HKHouseOpStk, HallItemGroupMast, PIndent, REPVIEW, RsGravyItemEntry,
+  RsKitchenMaterial, RsKitchenStk, RsStoreRecEntry, RsTableMast, frmPurEnviro, kClStk, pGIss,
+  pMREntry, pPBill, pPOrder, pReqSlip, rInventRepView
+
+[COPY-PASTE START]
+Convert VB6 -> Python for HMS module **07_Inventory** (menu group "inventory").
+
+Rules: live SQL Server DB = truth; VB6 .frm/.bas = behavior reference;
+never invent tables/columns; DB access only via core/db.py; one connection
+per transaction; VB6 captions/messages verbatim (typos included); file-scoped
+changes; commit per module; every claim needs file:line + test evidence.
+
+Target files:
+  core/: inventory, purchase, item, unit, sundry
+  ui/  : inventory, purchase_order_ui, purchase_bill_ui, requisition_slip_ui, stock_adjust_ui, stock_issue_ui, stock_receive_ui, kitchen_clstk_ui
+  wire : ui/shell.py _form_registry()[ "<exact VB6 caption>" ]
+
+VB6 forms in scope (31):
+  DepOpStk, DepartMast, DepartSundry, FrmChangeDepart, FrmConsumMast, FrmItemCatMast,
+  FrmItemGroupMast, FrmItemGroupMastRaw, FrmItemMast, FrmItemMastRaw, FrmOPStock, FrmParty,
+  FrmStockTransfer, Godown, HKHouseOpStk, HallItemGroupMast, PIndent, REPVIEW, RsGravyItemEntry,
+  RsKitchenMaterial, RsKitchenStk, RsStoreRecEntry, RsTableMast, frmPurEnviro, kClStk, pGIss,
+  pMREntry, pPBill, pPOrder, pReqSlip, rInventRepView
+
+Porting recipe - apply per item, in this order (tests depend on it):
+  1. Schema probe FIRST: db.query("SELECT TOP 1 * FROM <table>").
+     Absent -> BLOCKED-TBL, document with VB6 evidence, STOP. Never invent
+     a table or column.
+  2. Core  HMS_py/core/<domain>.py: port the VB6 Sub/Function faithfully -
+     same fill-query (WHERE/JOIN/ORDER BY, brackets for reserved words like
+     [Option]) and same save-sequence (INSERT/UPDATE order + cn.commit()).
+     Every write carries U_Name / U_EntDt / U_AE ('A'|'E'|'D') + LogSite_Code.
+  3. UI    HMS_py/ui/<domain>_ui.py: CRUD master -> ui/base_master.py
+     BaseMasterForm+Field+MasterConfig; list/action -> open_<name>(parent=None)
+     factory that ALSO calls .show() (shell discards the return value, else
+     the window never appears). Captions/messages verbatim.
+  4. Registry: ui/shell.py _form_registry()["<exact VB6 caption>"] = opener;
+     real openers ko _coming_soon batch me mat daalo; verify with
+     python tools/check_registry_shadow.py
+  5. Verify: python -m py_compile <files> ; python -m pytest tests/unit -q ;
+     python -m pytest tests/database -q ;
+     python -m HMS_py.tools.manual_pipeline.run_module_tests --module 06_Inventory
+     + a focused regression test (no test = no DONE).
+
+Step 0 - inventory first (NO code yet):
+  Har form ka .frm grep karo SQL ke liye (FROM / INSERT INTO / UPDATE), uska
+  menu caption nikaalo, har table live probe karo, phir ye matrix do:
+  | VB6 form | Caption | VB6 tables | live rows / MISSING | Python UI | Python core |
+  | Status |
+  Status = DONE | PARTIAL | UI-ONLY | BLOCKED-TBL | MISSING
+  Uske baad sirf MISSING + PARTIAL rows dependency order me convert karo, ek ek
+  karke, aur har item ka ye log do:
+    Converted : <VB6 form>            Probe : <table> -> rows | MISSING
+    Core      : <core/x.py:line>      UI    : <ui/x_ui.py:line> (.show() yes/no)
+    Registry  : "<caption>" -> opener (shell.py:line)
+    Tests     : <file> -> <counts>    Status: DONE|PARTIAL|BLOCKED-TBL
+
+Gotchas specific to 07_Inventory:
+  - Chain: Indent -> POrder -> GIN -> Stock/StockLog -> registers. Convert in that order; each step's output is the next step's input.
+  - _next_vno (indent) is select-then-consume (KI-1) - port VB6 locking.
+  - Godown-wise balance: Stock is per GodownMast; never sum across godowns implicitly.
+  - Register queries with date windows / vprefix often return 0 rows (KI-2 data gap) - report data gap vs code bug separately.
+
+Rules recap: DB = truth, VB6 = behavior, no invented tables, core/db.py only,
+one connection per transaction, file-scoped diffs, commit per module, evidence
+file:line + test counts for every claim. Report matrix + conversion log as
+shown above. Table-less-in-VB6 or absent-live -> BLOCKED-TBL with evidence;
+that is a valid, expected result - do not force a port.
+[END CONVERT-04]
+
+================================================================================
+CONVERT-05  -  MODULE 03_Finance   (VB6 -> Python)
+================================================================================
+Manual id : 01_Finance
+RE doc    : HMS_REVERSE_ENGINEERING/03_Finance/module_manual.md
+Sidebar   : finance
+VB6 forms : 8 .frm  0 .bas   (root: implemented/HMS2526/serialkey/PROJECT2/PROJECT/)
+Core      : fa_voucher, fa_ledger_ops, fa_masters_ops, fa_reports, fa_tds_ops, fa_enviro, ledger, acgroup, narr, tdscat, tdscerti, tally_export
+UI        : fa_voucher_ui, fa_ledger_ui, fa_enviro_ui, fa_sub_forms_ui, finance_masters_ui, voucher_environment_ui, account_merge_ui, scheme_tds_ui, tally_ui
+
+VB6 FORMS TO CONVERT:
+  FaAdjust, FaAdjustDel, FaChqClear, FaReports, FaTDSCertificate, FaTDSChal, FaTaxVoucher, FaVrEnt
+
+[COPY-PASTE START]
+Convert VB6 -> Python for HMS module **03_Finance** (menu group "finance").
+
+Rules: live SQL Server DB = truth; VB6 .frm/.bas = behavior reference;
+never invent tables/columns; DB access only via core/db.py; one connection
+per transaction; VB6 captions/messages verbatim (typos included); file-scoped
+changes; commit per module; every claim needs file:line + test evidence.
+
+Target files:
+  core/: fa_voucher, fa_ledger_ops, fa_masters_ops, fa_reports, fa_tds_ops, fa_enviro, ledger, acgroup, narr, tdscat, tdscerti, tally_export
+  ui/  : fa_voucher_ui, fa_ledger_ui, fa_enviro_ui, fa_sub_forms_ui, finance_masters_ui, voucher_environment_ui, account_merge_ui, scheme_tds_ui, tally_ui
+  wire : ui/shell.py _form_registry()[ "<exact VB6 caption>" ]
+
+VB6 forms in scope (8):
+  FaAdjust, FaAdjustDel, FaChqClear, FaReports, FaTDSCertificate, FaTDSChal, FaTaxVoucher, FaVrEnt
+
+Porting recipe - apply per item, in this order (tests depend on it):
+  1. Schema probe FIRST: db.query("SELECT TOP 1 * FROM <table>").
+     Absent -> BLOCKED-TBL, document with VB6 evidence, STOP. Never invent
+     a table or column.
+  2. Core  HMS_py/core/<domain>.py: port the VB6 Sub/Function faithfully -
+     same fill-query (WHERE/JOIN/ORDER BY, brackets for reserved words like
+     [Option]) and same save-sequence (INSERT/UPDATE order + cn.commit()).
+     Every write carries U_Name / U_EntDt / U_AE ('A'|'E'|'D') + LogSite_Code.
+  3. UI    HMS_py/ui/<domain>_ui.py: CRUD master -> ui/base_master.py
+     BaseMasterForm+Field+MasterConfig; list/action -> open_<name>(parent=None)
+     factory that ALSO calls .show() (shell discards the return value, else
+     the window never appears). Captions/messages verbatim.
+  4. Registry: ui/shell.py _form_registry()["<exact VB6 caption>"] = opener;
+     real openers ko _coming_soon batch me mat daalo; verify with
+     python tools/check_registry_shadow.py
+  5. Verify: python -m py_compile <files> ; python -m pytest tests/unit -q ;
+     python -m pytest tests/database -q ;
+     python -m HMS_py.tools.manual_pipeline.run_module_tests --module 01_Finance
+     + a focused regression test (no test = no DONE).
+
+Step 0 - inventory first (NO code yet):
+  Har form ka .frm grep karo SQL ke liye (FROM / INSERT INTO / UPDATE), uska
+  menu caption nikaalo, har table live probe karo, phir ye matrix do:
+  | VB6 form | Caption | VB6 tables | live rows / MISSING | Python UI | Python core |
+  | Status |
+  Status = DONE | PARTIAL | UI-ONLY | BLOCKED-TBL | MISSING
+  Uske baad sirf MISSING + PARTIAL rows dependency order me convert karo, ek ek
+  karke, aur har item ka ye log do:
+    Converted : <VB6 form>            Probe : <table> -> rows | MISSING
+    Core      : <core/x.py:line>      UI    : <ui/x_ui.py:line> (.show() yes/no)
+    Registry  : "<caption>" -> opener (shell.py:line)
+    Tests     : <file> -> <counts>    Status: DONE|PARTIAL|BLOCKED-TBL
+
+Gotchas specific to 03_Finance:
+  - Finance amount columns are sensitive - keep them read-only in the port unless VB6 wrote them.
+  - _next_vno / _get_voucher_prefix are select-then-consume counters (KI-1 class): port the VB6 locking/transaction or you get duplicate serials.
+  - Trial Balance parity assertion (L2c V7) is a pre-existing app issue - do not 'fix' it silently inside a conversion pass.
+  - Narration/TDS/Group master captions come from VB6 FaNarrMast/FaTDSCat/FaSubGroup - keep labels verbatim.
+
+Rules recap: DB = truth, VB6 = behavior, no invented tables, core/db.py only,
+one connection per transaction, file-scoped diffs, commit per module, evidence
+file:line + test counts for every claim. Report matrix + conversion log as
+shown above. Table-less-in-VB6 or absent-live -> BLOCKED-TBL with evidence;
+that is a valid, expected result - do not force a port.
+[END CONVERT-05]
+
+================================================================================
+CONVERT-06  -  MODULE 09_Banquet   (VB6 -> Python)
+================================================================================
+Manual id : 08_Banquet
+RE doc    : HMS_REVERSE_ENGINEERING/09_Banquet/module_manual.md
+Sidebar   : banquet
+VB6 forms : 23 .frm  1 .bas   (root: implemented/HMS2526/serialkey/PROJECT2/PROJECT/)
+Core      : hall_booking, banquet_ops, banquet_masters, venue, packagemaster, seasonmaster
+UI        : banquet_masters_ui, banquet_ops_ui, hall_booking_ui, seasonmaster_ui
+
+VB6 FORMS TO CONVERT:
+  BanqAvailability, CateringBooking, FrmBookingInquiry, FrmEventMast, FrmHallItemCatMast,
+  FrmVenueFeat, FrmVenueMast, HallAdvanceDepDialog, HallBill, HallBillEstimate, HallBooking,
+  HallChefPreCosting, HallEstimate, HallItemGroupMast, HallMenuCatalog, HallMenuItemEntry,
+  HallSundry, RsTouchScreenBookingEntry, frmGuestComments, hAdvanceDepDialog,
+  hAdvanceDepDialogSecondry, rHallRepView, resBanq
+VB6 MODULES (.bas):
+  BanqModule
+
+[COPY-PASTE START]
+Convert VB6 -> Python for HMS module **09_Banquet** (menu group "banquet").
+
+Rules: live SQL Server DB = truth; VB6 .frm/.bas = behavior reference;
+never invent tables/columns; DB access only via core/db.py; one connection
+per transaction; VB6 captions/messages verbatim (typos included); file-scoped
+changes; commit per module; every claim needs file:line + test evidence.
+
+Target files:
+  core/: hall_booking, banquet_ops, banquet_masters, venue, packagemaster, seasonmaster
+  ui/  : banquet_masters_ui, banquet_ops_ui, hall_booking_ui, seasonmaster_ui
+  wire : ui/shell.py _form_registry()[ "<exact VB6 caption>" ]
+
+VB6 forms in scope (23):
+  BanqAvailability, CateringBooking, FrmBookingInquiry, FrmEventMast, FrmHallItemCatMast,
+  FrmVenueFeat, FrmVenueMast, HallAdvanceDepDialog, HallBill, HallBillEstimate, HallBooking,
+  HallChefPreCosting, HallEstimate, HallItemGroupMast, HallMenuCatalog, HallMenuItemEntry,
+  HallSundry, RsTouchScreenBookingEntry, frmGuestComments, hAdvanceDepDialog,
+  hAdvanceDepDialogSecondry, rHallRepView, resBanq
+VB6 .bas modules (1): BanqModule
+
+Porting recipe - apply per item, in this order (tests depend on it):
+  1. Schema probe FIRST: db.query("SELECT TOP 1 * FROM <table>").
+     Absent -> BLOCKED-TBL, document with VB6 evidence, STOP. Never invent
+     a table or column.
+  2. Core  HMS_py/core/<domain>.py: port the VB6 Sub/Function faithfully -
+     same fill-query (WHERE/JOIN/ORDER BY, brackets for reserved words like
+     [Option]) and same save-sequence (INSERT/UPDATE order + cn.commit()).
+     Every write carries U_Name / U_EntDt / U_AE ('A'|'E'|'D') + LogSite_Code.
+  3. UI    HMS_py/ui/<domain>_ui.py: CRUD master -> ui/base_master.py
+     BaseMasterForm+Field+MasterConfig; list/action -> open_<name>(parent=None)
+     factory that ALSO calls .show() (shell discards the return value, else
+     the window never appears). Captions/messages verbatim.
+  4. Registry: ui/shell.py _form_registry()["<exact VB6 caption>"] = opener;
+     real openers ko _coming_soon batch me mat daalo; verify with
+     python tools/check_registry_shadow.py
+  5. Verify: python -m py_compile <files> ; python -m pytest tests/unit -q ;
+     python -m pytest tests/database -q ;
+     python -m HMS_py.tools.manual_pipeline.run_module_tests --module 08_Banquet
+     + a focused regression test (no test = no DONE).
+
+Step 0 - inventory first (NO code yet):
+  Har form ka .frm grep karo SQL ke liye (FROM / INSERT INTO / UPDATE), uska
+  menu caption nikaalo, har table live probe karo, phir ye matrix do:
+  | VB6 form | Caption | VB6 tables | live rows / MISSING | Python UI | Python core |
+  | Status |
+  Status = DONE | PARTIAL | UI-ONLY | BLOCKED-TBL | MISSING
+  Uske baad sirf MISSING + PARTIAL rows dependency order me convert karo, ek ek
+  karke, aur har item ka ye log do:
+    Converted : <VB6 form>            Probe : <table> -> rows | MISSING
+    Core      : <core/x.py:line>      UI    : <ui/x_ui.py:line> (.show() yes/no)
+    Registry  : "<caption>" -> opener (shell.py:line)
+    Tests     : <file> -> <counts>    Status: DONE|PARTIAL|BLOCKED-TBL
+
+Gotchas specific to 09_Banquet:
+  - VB6 BanqModule.bas holds shared hall logic - port it as core helpers, do not split it across UI files.
+  - HallSale1 (actual) vs HallSale1Est (estimate) are separate tables - keep both paths.
+  - _next_vno at core/banquet_ops.py:85 is select-then-consume (KI-1).
+  - HallBook1 / CatalogMast / SeasonMast are 0 rows live - empty-state handling required.
+  - HallSundry.frm (banquet bill sundry) - if its table is missing, BLOCKED-TBL; do not create it.
+
+Rules recap: DB = truth, VB6 = behavior, no invented tables, core/db.py only,
+one connection per transaction, file-scoped diffs, commit per module, evidence
+file:line + test counts for every claim. Report matrix + conversion log as
+shown above. Table-less-in-VB6 or absent-live -> BLOCKED-TBL with evidence;
+that is a valid, expected result - do not force a port.
+[END CONVERT-06]
+
+================================================================================
+CONVERT-07  -  MODULE 04_Reservation   (VB6 -> Python)
+================================================================================
+Manual id : 03_Reservation
+RE doc    : HMS_REVERSE_ENGINEERING/04_Reservation/module_manual.md
+Sidebar   : reservation
+VB6 forms : 13 .frm  0 .bas   (root: implemented/HMS2526/serialkey/PROJECT2/PROJECT/)
+Core      : reservation, booking, guestprof
+UI        : booking_ops_ui, reservation_browser, registration_entry_ui, front_office_dashboard, frontoffice
+
+VB6 FORMS TO CONVERT:
+  FdLookUpRoom, FdLookUpRoomNo, FrmReservationStatus, RrLookUpGuest, RrRoomReservation,
+  frmAdvanceDepDialog, rFomRepView, rRepReserv, resGroup, resRoomNo, resRoomType,
+  rrsAdvanceDepDialog, rsAdvanceDepDialog
+
+[COPY-PASTE START]
+Convert VB6 -> Python for HMS module **04_Reservation** (menu group "reservation").
+
+Rules: live SQL Server DB = truth; VB6 .frm/.bas = behavior reference;
+never invent tables/columns; DB access only via core/db.py; one connection
+per transaction; VB6 captions/messages verbatim (typos included); file-scoped
+changes; commit per module; every claim needs file:line + test evidence.
+
+Target files:
+  core/: reservation, booking, guestprof
+  ui/  : booking_ops_ui, reservation_browser, registration_entry_ui, front_office_dashboard, frontoffice
+  wire : ui/shell.py _form_registry()[ "<exact VB6 caption>" ]
+
+VB6 forms in scope (13):
+  FdLookUpRoom, FdLookUpRoomNo, FrmReservationStatus, RrLookUpGuest, RrRoomReservation,
+  frmAdvanceDepDialog, rFomRepView, rRepReserv, resGroup, resRoomNo, resRoomType,
+  rrsAdvanceDepDialog, rsAdvanceDepDialog
+
+Porting recipe - apply per item, in this order (tests depend on it):
+  1. Schema probe FIRST: db.query("SELECT TOP 1 * FROM <table>").
+     Absent -> BLOCKED-TBL, document with VB6 evidence, STOP. Never invent
+     a table or column.
+  2. Core  HMS_py/core/<domain>.py: port the VB6 Sub/Function faithfully -
+     same fill-query (WHERE/JOIN/ORDER BY, brackets for reserved words like
+     [Option]) and same save-sequence (INSERT/UPDATE order + cn.commit()).
+     Every write carries U_Name / U_EntDt / U_AE ('A'|'E'|'D') + LogSite_Code.
+  3. UI    HMS_py/ui/<domain>_ui.py: CRUD master -> ui/base_master.py
+     BaseMasterForm+Field+MasterConfig; list/action -> open_<name>(parent=None)
+     factory that ALSO calls .show() (shell discards the return value, else
+     the window never appears). Captions/messages verbatim.
+  4. Registry: ui/shell.py _form_registry()["<exact VB6 caption>"] = opener;
+     real openers ko _coming_soon batch me mat daalo; verify with
+     python tools/check_registry_shadow.py
+  5. Verify: python -m py_compile <files> ; python -m pytest tests/unit -q ;
+     python -m pytest tests/database -q ;
+     python -m HMS_py.tools.manual_pipeline.run_module_tests --module 03_Reservation
+     + a focused regression test (no test = no DONE).
+
+Step 0 - inventory first (NO code yet):
+  Har form ka .frm grep karo SQL ke liye (FROM / INSERT INTO / UPDATE), uska
+  menu caption nikaalo, har table live probe karo, phir ye matrix do:
+  | VB6 form | Caption | VB6 tables | live rows / MISSING | Python UI | Python core |
+  | Status |
+  Status = DONE | PARTIAL | UI-ONLY | BLOCKED-TBL | MISSING
+  Uske baad sirf MISSING + PARTIAL rows dependency order me convert karo, ek ek
+  karke, aur har item ka ye log do:
+    Converted : <VB6 form>            Probe : <table> -> rows | MISSING
+    Core      : <core/x.py:line>      UI    : <ui/x_ui.py:line> (.show() yes/no)
+    Registry  : "<caption>" -> opener (shell.py:line)
+    Tests     : <file> -> <counts>    Status: DONE|PARTIAL|BLOCKED-TBL
+
+Gotchas specific to 04_Reservation:
+  - Booking -> RoomOcc availability check must use the same occupancy rule as VB6 (never double-occupy a room).
+  - Every booking state change writes BookingLog + audit columns (U_Name/U_EntDt/U_AE) + LogSite_Code.
+  - 3 reservation leaves are _coming_soon (KI-7 family) - confirm VB6 evidence before wiring or leaving blocked.
+  - Advance/deposit dialogs (frmAdvanceDepDialog, rrsAdvanceDepDialog) share money logic with FO - do not fork it.
+
+Rules recap: DB = truth, VB6 = behavior, no invented tables, core/db.py only,
+one connection per transaction, file-scoped diffs, commit per module, evidence
+file:line + test counts for every claim. Report matrix + conversion log as
+shown above. Table-less-in-VB6 or absent-live -> BLOCKED-TBL with evidence;
+that is a valid, expected result - do not force a port.
+[END CONVERT-07]
+
+================================================================================
+CONVERT-08  -  MODULE 10_Night_Audit   (VB6 -> Python)
+================================================================================
+Manual id : 09_NightAudit
+RE doc    : HMS_REVERSE_ENGINEERING/10_Night_Audit/module_manual.md
+Sidebar   : night audit
+VB6 forms : 7 .frm  0 .bas   (root: implemented/HMS2526/serialkey/PROJECT2/PROJECT/)
+Core      : nightaudit, year_end, guest_folio, folio
+UI        : nightaudit_reports_ui, pos_na, posting_utility_ui, year_end_ui, fd_forms_ui, checkout_ui, folio_ui
+
+VB6 FORMS TO CONVERT:
+  FrmControlPanel, FrmUploadProcess, fdAcPostChrg, fdNDAcPostChrg, fdPostChrg, frmReNightAudit,
+  rFomRepView
+
+[COPY-PASTE START]
+Convert VB6 -> Python for HMS module **10_Night_Audit** (menu group "night audit").
+
+Rules: live SQL Server DB = truth; VB6 .frm/.bas = behavior reference;
+never invent tables/columns; DB access only via core/db.py; one connection
+per transaction; VB6 captions/messages verbatim (typos included); file-scoped
+changes; commit per module; every claim needs file:line + test evidence.
+
+Target files:
+  core/: nightaudit, year_end, guest_folio, folio
+  ui/  : nightaudit_reports_ui, pos_na, posting_utility_ui, year_end_ui, fd_forms_ui, checkout_ui, folio_ui
+  wire : ui/shell.py _form_registry()[ "<exact VB6 caption>" ]
+
+VB6 forms in scope (7):
+  FrmControlPanel, FrmUploadProcess, fdAcPostChrg, fdNDAcPostChrg, fdPostChrg, frmReNightAudit,
+  rFomRepView
+
+Porting recipe - apply per item, in this order (tests depend on it):
+  1. Schema probe FIRST: db.query("SELECT TOP 1 * FROM <table>").
+     Absent -> BLOCKED-TBL, document with VB6 evidence, STOP. Never invent
+     a table or column.
+  2. Core  HMS_py/core/<domain>.py: port the VB6 Sub/Function faithfully -
+     same fill-query (WHERE/JOIN/ORDER BY, brackets for reserved words like
+     [Option]) and same save-sequence (INSERT/UPDATE order + cn.commit()).
+     Every write carries U_Name / U_EntDt / U_AE ('A'|'E'|'D') + LogSite_Code.
+  3. UI    HMS_py/ui/<domain>_ui.py: CRUD master -> ui/base_master.py
+     BaseMasterForm+Field+MasterConfig; list/action -> open_<name>(parent=None)
+     factory that ALSO calls .show() (shell discards the return value, else
+     the window never appears). Captions/messages verbatim.
+  4. Registry: ui/shell.py _form_registry()["<exact VB6 caption>"] = opener;
+     real openers ko _coming_soon batch me mat daalo; verify with
+     python tools/check_registry_shadow.py
+  5. Verify: python -m py_compile <files> ; python -m pytest tests/unit -q ;
+     python -m pytest tests/database -q ;
+     python -m HMS_py.tools.manual_pipeline.run_module_tests --module 09_NightAudit
+     + a focused regression test (no test = no DONE).
+
+Step 0 - inventory first (NO code yet):
+  Har form ka .frm grep karo SQL ke liye (FROM / INSERT INTO / UPDATE), uska
+  menu caption nikaalo, har table live probe karo, phir ye matrix do:
+  | VB6 form | Caption | VB6 tables | live rows / MISSING | Python UI | Python core |
+  | Status |
+  Status = DONE | PARTIAL | UI-ONLY | BLOCKED-TBL | MISSING
+  Uske baad sirf MISSING + PARTIAL rows dependency order me convert karo, ek ek
+  karke, aur har item ka ye log do:
+    Converted : <VB6 form>            Probe : <table> -> rows | MISSING
+    Core      : <core/x.py:line>      UI    : <ui/x_ui.py:line> (.show() yes/no)
+    Registry  : "<caption>" -> opener (shell.py:line)
+    Tests     : <file> -> <counts>    Status: DONE|PARTIAL|BLOCKED-TBL
+
+Gotchas specific to 10_Night_Audit:
+  - DANGER: night audit writes across the whole DB. Convert in dry-run/read-only mode first; only run against a snapshot/rollback session.
+  - Enviro flags drive it: ncur (business date), KOTAtNightAudit, POSBillAtNightAudit - port the same gating as mdlNightAudit.bas.
+  - Reverse Night Audit uses Enviro.NCur - 1 - must be guarded against double-reverse; it is currently NOT captured by L4.
+  - _get_voucher_prefix (core/nightaudit.py:380) select-then-consume (KI-1).
+
+Rules recap: DB = truth, VB6 = behavior, no invented tables, core/db.py only,
+one connection per transaction, file-scoped diffs, commit per module, evidence
+file:line + test counts for every claim. Report matrix + conversion log as
+shown above. Table-less-in-VB6 or absent-live -> BLOCKED-TBL with evidence;
+that is a valid, expected result - do not force a port.
+[END CONVERT-08]
+
+================================================================================
+CONVERT-09  -  MODULE 06_House_Keeping   (VB6 -> Python)
+================================================================================
+Manual id : 05_HouseKeeping
+RE doc    : HMS_REVERSE_ENGINEERING/06_House_Keeping/module_manual.md
+Sidebar   : house keeping
+VB6 forms : 19 .frm  0 .bas   (root: implemented/HMS2526/serialkey/PROJECT2/PROJECT/)
+Core      : roomstatus, room_occ
+UI        : roomstatus_ui, walkin_rack_ui, fd_forms_ui, posting_forms_ui
+
+VB6 FORMS TO CONVERT:
+  FrmChangeDepart, FrmClaimEntry, FrmComplaintClearing, FrmComplaintMast, FrmGuestWakeUp,
+  FrmHouGuestMsg, FrmHouseStatus, FrmItemIssuedOnCleaning, FrmLostFound, HHouseKeeping,
+  HKHouseOpStk, HKIssRec, HKRoomBlock, HKRoomOpStk, HRoomCheckOutClearance, HWIHistory,
+  frmBlockMast, rRepHouse, rRepHousePreview
+
+[COPY-PASTE START]
+Convert VB6 -> Python for HMS module **06_House_Keeping** (menu group "house keeping").
+
+Rules: live SQL Server DB = truth; VB6 .frm/.bas = behavior reference;
+never invent tables/columns; DB access only via core/db.py; one connection
+per transaction; VB6 captions/messages verbatim (typos included); file-scoped
+changes; commit per module; every claim needs file:line + test evidence.
+
+Target files:
+  core/: roomstatus, room_occ
+  ui/  : roomstatus_ui, walkin_rack_ui, fd_forms_ui, posting_forms_ui
+  wire : ui/shell.py _form_registry()[ "<exact VB6 caption>" ]
+
+VB6 forms in scope (19):
+  FrmChangeDepart, FrmClaimEntry, FrmComplaintClearing, FrmComplaintMast, FrmGuestWakeUp,
+  FrmHouGuestMsg, FrmHouseStatus, FrmItemIssuedOnCleaning, FrmLostFound, HHouseKeeping,
+  HKHouseOpStk, HKIssRec, HKRoomBlock, HKRoomOpStk, HRoomCheckOutClearance, HWIHistory,
+  frmBlockMast, rRepHouse, rRepHousePreview
+
+Porting recipe - apply per item, in this order (tests depend on it):
+  1. Schema probe FIRST: db.query("SELECT TOP 1 * FROM <table>").
+     Absent -> BLOCKED-TBL, document with VB6 evidence, STOP. Never invent
+     a table or column.
+  2. Core  HMS_py/core/<domain>.py: port the VB6 Sub/Function faithfully -
+     same fill-query (WHERE/JOIN/ORDER BY, brackets for reserved words like
+     [Option]) and same save-sequence (INSERT/UPDATE order + cn.commit()).
+     Every write carries U_Name / U_EntDt / U_AE ('A'|'E'|'D') + LogSite_Code.
+  3. UI    HMS_py/ui/<domain>_ui.py: CRUD master -> ui/base_master.py
+     BaseMasterForm+Field+MasterConfig; list/action -> open_<name>(parent=None)
+     factory that ALSO calls .show() (shell discards the return value, else
+     the window never appears). Captions/messages verbatim.
+  4. Registry: ui/shell.py _form_registry()["<exact VB6 caption>"] = opener;
+     real openers ko _coming_soon batch me mat daalo; verify with
+     python tools/check_registry_shadow.py
+  5. Verify: python -m py_compile <files> ; python -m pytest tests/unit -q ;
+     python -m pytest tests/database -q ;
+     python -m HMS_py.tools.manual_pipeline.run_module_tests --module 05_HouseKeeping
+     + a focused regression test (no test = no DONE).
+
+Step 0 - inventory first (NO code yet):
+  Har form ka .frm grep karo SQL ke liye (FROM / INSERT INTO / UPDATE), uska
+  menu caption nikaalo, har table live probe karo, phir ye matrix do:
+  | VB6 form | Caption | VB6 tables | live rows / MISSING | Python UI | Python core |
+  | Status |
+  Status = DONE | PARTIAL | UI-ONLY | BLOCKED-TBL | MISSING
+  Uske baad sirf MISSING + PARTIAL rows dependency order me convert karo, ek ek
+  karke, aur har item ka ye log do:
+    Converted : <VB6 form>            Probe : <table> -> rows | MISSING
+    Core      : <core/x.py:line>      UI    : <ui/x_ui.py:line> (.show() yes/no)
+    Registry  : "<caption>" -> opener (shell.py:line)
+    Tests     : <file> -> <counts>    Status: DONE|PARTIAL|BLOCKED-TBL
+
+Gotchas specific to 06_House_Keeping:
+  - Single-leaf module (Room Status) - most HK forms (FrmComplaintMast, FrmLostFound, HKRoomBlock, ...) are shared masters; wire them once, do not duplicate openers.
+  - RoomBLockOut / ComplaintDetail / LostFoundDetail need audit columns + LogSite_Code on insert/update.
+  - VB6 room status codes (V/C/D/O...) must stay byte-identical - other modules branch on them.
+
+Rules recap: DB = truth, VB6 = behavior, no invented tables, core/db.py only,
+one connection per transaction, file-scoped diffs, commit per module, evidence
+file:line + test counts for every claim. Report matrix + conversion log as
+shown above. Table-less-in-VB6 or absent-live -> BLOCKED-TBL with evidence;
+that is a valid, expected result - do not force a port.
+[END CONVERT-09]
+
+================================================================================
+CONVERT-10  -  MODULE 11_HR_Payroll   (VB6 -> Python)
+================================================================================
+Manual id : 10_HRPayroll
+RE doc    : HMS_REVERSE_ENGINEERING/11_HR_Payroll/module_manual.md
+Sidebar   : hr/payroll
+VB6 forms : 6 .frm  0 .bas   (root: implemented/HMS2526/serialkey/PROJECT2/PROJECT/)
+Core      : hr_masters, hr_payroll
+UI        : hr_payroll_ui, hr_members_ui
+
+VB6 FORMS TO CONVERT:
+  PrAttend1, PrLeavench, PrLoan, prAttend, prOverTime, prSalCreate
+
+[COPY-PASTE START]
+Convert VB6 -> Python for HMS module **11_HR_Payroll** (menu group "hr/payroll").
+
+Rules: live SQL Server DB = truth; VB6 .frm/.bas = behavior reference;
+never invent tables/columns; DB access only via core/db.py; one connection
+per transaction; VB6 captions/messages verbatim (typos included); file-scoped
+changes; commit per module; every claim needs file:line + test evidence.
+
+Target files:
+  core/: hr_masters, hr_payroll
+  ui/  : hr_payroll_ui, hr_members_ui
+  wire : ui/shell.py _form_registry()[ "<exact VB6 caption>" ]
+
+VB6 forms in scope (6):
+  PrAttend1, PrLeavench, PrLoan, prAttend, prOverTime, prSalCreate
+
+Porting recipe - apply per item, in this order (tests depend on it):
+  1. Schema probe FIRST: db.query("SELECT TOP 1 * FROM <table>").
+     Absent -> BLOCKED-TBL, document with VB6 evidence, STOP. Never invent
+     a table or column.
+  2. Core  HMS_py/core/<domain>.py: port the VB6 Sub/Function faithfully -
+     same fill-query (WHERE/JOIN/ORDER BY, brackets for reserved words like
+     [Option]) and same save-sequence (INSERT/UPDATE order + cn.commit()).
+     Every write carries U_Name / U_EntDt / U_AE ('A'|'E'|'D') + LogSite_Code.
+  3. UI    HMS_py/ui/<domain>_ui.py: CRUD master -> ui/base_master.py
+     BaseMasterForm+Field+MasterConfig; list/action -> open_<name>(parent=None)
+     factory that ALSO calls .show() (shell discards the return value, else
+     the window never appears). Captions/messages verbatim.
+  4. Registry: ui/shell.py _form_registry()["<exact VB6 caption>"] = opener;
+     real openers ko _coming_soon batch me mat daalo; verify with
+     python tools/check_registry_shadow.py
+  5. Verify: python -m py_compile <files> ; python -m pytest tests/unit -q ;
+     python -m pytest tests/database -q ;
+     python -m HMS_py.tools.manual_pipeline.run_module_tests --module 10_HRPayroll
+     + a focused regression test (no test = no DONE).
+
+Step 0 - inventory first (NO code yet):
+  Har form ka .frm grep karo SQL ke liye (FROM / INSERT INTO / UPDATE), uska
+  menu caption nikaalo, har table live probe karo, phir ye matrix do:
+  | VB6 form | Caption | VB6 tables | live rows / MISSING | Python UI | Python core |
+  | Status |
+  Status = DONE | PARTIAL | UI-ONLY | BLOCKED-TBL | MISSING
+  Uske baad sirf MISSING + PARTIAL rows dependency order me convert karo, ek ek
+  karke, aur har item ka ye log do:
+    Converted : <VB6 form>            Probe : <table> -> rows | MISSING
+    Core      : <core/x.py:line>      UI    : <ui/x_ui.py:line> (.show() yes/no)
+    Registry  : "<caption>" -> opener (shell.py:line)
+    Tests     : <file> -> <counts>    Status: DONE|PARTIAL|BLOCKED-TBL
+
+Gotchas specific to 11_HR_Payroll:
+  - VB6 misspellings are PARITY, not bugs: 'Attendence', 'Category  Master' (double space) - keep column/menu text verbatim.
+  - Salary upsert is delete+insert in the port - flag the race (two runs can double-pay); VB6 used a transaction you must preserve.
+  - Holiday / Attendence / Loan tables are 0 rows live - empty state must not crash.
+  - Employee master links to Desig + EmpCategory - convert the lookups with it.
+
+Rules recap: DB = truth, VB6 = behavior, no invented tables, core/db.py only,
+one connection per transaction, file-scoped diffs, commit per module, evidence
+file:line + test counts for every claim. Report matrix + conversion log as
+shown above. Table-less-in-VB6 or absent-live -> BLOCKED-TBL with evidence;
+that is a valid, expected result - do not force a port.
+[END CONVERT-10]
+
+================================================================================
+CONVERT-11  -  MODULE 14_Members_Management   (VB6 -> Python)
+================================================================================
+Manual id : 13_MembersMgmt
+RE doc    : HMS_REVERSE_ENGINEERING/14_Members_Management/module_manual.md
+Sidebar   : extras
+VB6 forms : 28 .frm  3 .bas   (root: implemented/HMS2526/serialkey/PROJECT2/PROJECT/)
+Core      : members_masters, member_billing, facility_billing
+UI        : member_master_ui, member_billing_ui, member_environment_ui, facility_billing_ui, hr_members_ui, misc_parity_ui
+
+VB6 FORMS TO CONVERT:
+  MemAssistant, MemAutoSettleCardBalance, MemBillPrintingModule, MemCatMast, MemFacilityBilling,
+  MemFacilityEntry, MemPaymentReceive, MemRenewalEntry, MemSelectCategory, MemTagadaLetter,
+  MemVisitEntry, MemberProposedMemInf, MemberShipRevenueMast, MembershipMast, SmartCardLostReIssue,
+  SmartCardMast, SmartCardRecharge, SmartCardRefund, SmartCardRegistration, frmGodrejLockSettings,
+  frmLockGodrejSettings, memAgeRevMast, memCatChngCond, memCatChngEntry, memCatRevMast,
+  memCategoryFacilities, memFacilityMast, memOutStationEntry
+VB6 MODULES (.bas):
+  MemberModule, ModuleDoorLock, ModuleSmartCard
+
+[COPY-PASTE START]
+Convert VB6 -> Python for HMS module **14_Members_Management** (menu group "extras").
+
+Rules: live SQL Server DB = truth; VB6 .frm/.bas = behavior reference;
+never invent tables/columns; DB access only via core/db.py; one connection
+per transaction; VB6 captions/messages verbatim (typos included); file-scoped
+changes; commit per module; every claim needs file:line + test evidence.
+
+Target files:
+  core/: members_masters, member_billing, facility_billing
+  ui/  : member_master_ui, member_billing_ui, member_environment_ui, facility_billing_ui, hr_members_ui, misc_parity_ui
+  wire : ui/shell.py _form_registry()[ "<exact VB6 caption>" ]
+
+VB6 forms in scope (28):
+  MemAssistant, MemAutoSettleCardBalance, MemBillPrintingModule, MemCatMast, MemFacilityBilling,
+  MemFacilityEntry, MemPaymentReceive, MemRenewalEntry, MemSelectCategory, MemTagadaLetter,
+  MemVisitEntry, MemberProposedMemInf, MemberShipRevenueMast, MembershipMast, SmartCardLostReIssue,
+  SmartCardMast, SmartCardRecharge, SmartCardRefund, SmartCardRegistration, frmGodrejLockSettings,
+  frmLockGodrejSettings, memAgeRevMast, memCatChngCond, memCatChngEntry, memCatRevMast,
+  memCategoryFacilities, memFacilityMast, memOutStationEntry
+VB6 .bas modules (3): MemberModule, ModuleDoorLock, ModuleSmartCard
+
+Porting recipe - apply per item, in this order (tests depend on it):
+  1. Schema probe FIRST: db.query("SELECT TOP 1 * FROM <table>").
+     Absent -> BLOCKED-TBL, document with VB6 evidence, STOP. Never invent
+     a table or column.
+  2. Core  HMS_py/core/<domain>.py: port the VB6 Sub/Function faithfully -
+     same fill-query (WHERE/JOIN/ORDER BY, brackets for reserved words like
+     [Option]) and same save-sequence (INSERT/UPDATE order + cn.commit()).
+     Every write carries U_Name / U_EntDt / U_AE ('A'|'E'|'D') + LogSite_Code.
+  3. UI    HMS_py/ui/<domain>_ui.py: CRUD master -> ui/base_master.py
+     BaseMasterForm+Field+MasterConfig; list/action -> open_<name>(parent=None)
+     factory that ALSO calls .show() (shell discards the return value, else
+     the window never appears). Captions/messages verbatim.
+  4. Registry: ui/shell.py _form_registry()["<exact VB6 caption>"] = opener;
+     real openers ko _coming_soon batch me mat daalo; verify with
+     python tools/check_registry_shadow.py
+  5. Verify: python -m py_compile <files> ; python -m pytest tests/unit -q ;
+     python -m pytest tests/database -q ;
+     python -m HMS_py.tools.manual_pipeline.run_module_tests --module 13_MembersMgmt
+     + a focused regression test (no test = no DONE).
+
+Step 0 - inventory first (NO code yet):
+  Har form ka .frm grep karo SQL ke liye (FROM / INSERT INTO / UPDATE), uska
+  menu caption nikaalo, har table live probe karo, phir ye matrix do:
+  | VB6 form | Caption | VB6 tables | live rows / MISSING | Python UI | Python core |
+  | Status |
+  Status = DONE | PARTIAL | UI-ONLY | BLOCKED-TBL | MISSING
+  Uske baad sirf MISSING + PARTIAL rows dependency order me convert karo, ek ek
+  karke, aur har item ka ye log do:
+    Converted : <VB6 form>            Probe : <table> -> rows | MISSING
+    Core      : <core/x.py:line>      UI    : <ui/x_ui.py:line> (.show() yes/no)
+    Registry  : "<caption>" -> opener (shell.py:line)
+    Tests     : <file> -> <counts>    Status: DONE|PARTIAL|BLOCKED-TBL
+
+Gotchas specific to 14_Members_Management:
+  - VB6 MemberModule.bas + ModuleSmartCard.bas hold shared member/smartcard logic.
+  - MemBill.vno and FacilityBill.vno are select-then-consume (KI-1).
+  - Member Master / Member Bill Sundry Setting are _coming_soon - cite VB6 evidence (dead there too?) before wiring.
+  - MemBill / FacilityMast are sparse (0 rows) - empty-state handling required.
+  - MemEnviro is a SEPARATE table from Enviro - do not write member settings into Enviro.
+
+Rules recap: DB = truth, VB6 = behavior, no invented tables, core/db.py only,
+one connection per transaction, file-scoped diffs, commit per module, evidence
+file:line + test counts for every claim. Report matrix + conversion log as
+shown above. Table-less-in-VB6 or absent-live -> BLOCKED-TBL with evidence;
+that is a valid, expected result - do not force a port.
+[END CONVERT-11]
+
+================================================================================
+CONVERT-12  -  MODULE 12_EPABX   (VB6 -> Python)
+================================================================================
+Manual id : 11_EPABX
+RE doc    : HMS_REVERSE_ENGINEERING/12_EPABX/module_manual.md
+Sidebar   : epabx
+VB6 forms : 8 .frm  0 .bas   (root: implemented/HMS2526/serialkey/PROJECT2/PROJECT/)
+Core      : epabx_masters, epabx_ops
+UI        : epabx_ui, comport_ui
+
+VB6 FORMS TO CONVERT:
+  FrmGuestWakeUp, TelCallCodeMast, TelCallControlMast, TelCallEntry, TelCallTypeMast,
+  TelExtensionMast, rRepTel, rRepTelPreview
+
+[COPY-PASTE START]
+Convert VB6 -> Python for HMS module **12_EPABX** (menu group "epabx").
+
+Rules: live SQL Server DB = truth; VB6 .frm/.bas = behavior reference;
+never invent tables/columns; DB access only via core/db.py; one connection
+per transaction; VB6 captions/messages verbatim (typos included); file-scoped
+changes; commit per module; every claim needs file:line + test evidence.
+
+Target files:
+  core/: epabx_masters, epabx_ops
+  ui/  : epabx_ui, comport_ui
+  wire : ui/shell.py _form_registry()[ "<exact VB6 caption>" ]
+
+VB6 forms in scope (8):
+  FrmGuestWakeUp, TelCallCodeMast, TelCallControlMast, TelCallEntry, TelCallTypeMast,
+  TelExtensionMast, rRepTel, rRepTelPreview
+
+Porting recipe - apply per item, in this order (tests depend on it):
+  1. Schema probe FIRST: db.query("SELECT TOP 1 * FROM <table>").
+     Absent -> BLOCKED-TBL, document with VB6 evidence, STOP. Never invent
+     a table or column.
+  2. Core  HMS_py/core/<domain>.py: port the VB6 Sub/Function faithfully -
+     same fill-query (WHERE/JOIN/ORDER BY, brackets for reserved words like
+     [Option]) and same save-sequence (INSERT/UPDATE order + cn.commit()).
+     Every write carries U_Name / U_EntDt / U_AE ('A'|'E'|'D') + LogSite_Code.
+  3. UI    HMS_py/ui/<domain>_ui.py: CRUD master -> ui/base_master.py
+     BaseMasterForm+Field+MasterConfig; list/action -> open_<name>(parent=None)
+     factory that ALSO calls .show() (shell discards the return value, else
+     the window never appears). Captions/messages verbatim.
+  4. Registry: ui/shell.py _form_registry()["<exact VB6 caption>"] = opener;
+     real openers ko _coming_soon batch me mat daalo; verify with
+     python tools/check_registry_shadow.py
+  5. Verify: python -m py_compile <files> ; python -m pytest tests/unit -q ;
+     python -m pytest tests/database -q ;
+     python -m HMS_py.tools.manual_pipeline.run_module_tests --module 11_EPABX
+     + a focused regression test (no test = no DONE).
+
+Step 0 - inventory first (NO code yet):
+  Har form ka .frm grep karo SQL ke liye (FROM / INSERT INTO / UPDATE), uska
+  menu caption nikaalo, har table live probe karo, phir ye matrix do:
+  | VB6 form | Caption | VB6 tables | live rows / MISSING | Python UI | Python core |
+  | Status |
+  Status = DONE | PARTIAL | UI-ONLY | BLOCKED-TBL | MISSING
+  Uske baad sirf MISSING + PARTIAL rows dependency order me convert karo, ek ek
+  karke, aur har item ka ye log do:
+    Converted : <VB6 form>            Probe : <table> -> rows | MISSING
+    Core      : <core/x.py:line>      UI    : <ui/x_ui.py:line> (.show() yes/no)
+    Registry  : "<caption>" -> opener (shell.py:line)
+    Tests     : <file> -> <counts>    Status: DONE|PARTIAL|BLOCKED-TBL
+
+Gotchas specific to 12_EPABX:
+  - menuHelp has ZERO rows for this module (KI-11) - decide from MDIForm1.frm whether VB6 built the EPABX menu from menuHelp or hardcoded; do not invent rows.
+  - Location table is MISSING while Location-Mast leaf exists -> currently an unguarded _open_fv_list crash; make it BLOCKED-TBL/safe message.
+  - TelCallType / TelCallCode / TelExt / EPABX_Data are all 0 rows - empty-state required.
+  - Com Port Properties is config-only (tests/unit/test_comport_config.py exists).
+
+Rules recap: DB = truth, VB6 = behavior, no invented tables, core/db.py only,
+one connection per transaction, file-scoped diffs, commit per module, evidence
+file:line + test counts for every claim. Report matrix + conversion log as
+shown above. Table-less-in-VB6 or absent-live -> BLOCKED-TBL with evidence;
+that is a valid, expected result - do not force a port.
+[END CONVERT-12]
+
+================================================================================
+CONVERT-13  -  MODULE 13_Messaging   (VB6 -> Python)
+================================================================================
+Manual id : 12_Messaging
+RE doc    : HMS_REVERSE_ENGINEERING/13_Messaging/module_manual.md
+Sidebar   : extras
+VB6 forms : 13 .frm  2 .bas   (root: implemented/HMS2526/serialkey/PROJECT2/PROJECT/)
+Core      : sms_comm, sms_enviro, sms_http
+UI        : sms_ui, sms_http_ui, messaging_ui
+
+VB6 FORMS TO CONVERT:
+  EmptyInbox, FindMess, FrmDataRecieving, FrmMsgBox, FrmSMSEnviro, FrmSMSMultiType,
+  FrmSmsCenterSettings, FrmUploadProcess, Inbox, MemberSMS, Outbox, frmMessage, frmmessageKey
+VB6 MODULES (.bas):
+  MobWebAPI, SMSModule
+
+[COPY-PASTE START]
+Convert VB6 -> Python for HMS module **13_Messaging** (menu group "extras").
+
+Rules: live SQL Server DB = truth; VB6 .frm/.bas = behavior reference;
+never invent tables/columns; DB access only via core/db.py; one connection
+per transaction; VB6 captions/messages verbatim (typos included); file-scoped
+changes; commit per module; every claim needs file:line + test evidence.
+
+Target files:
+  core/: sms_comm, sms_enviro, sms_http
+  ui/  : sms_ui, sms_http_ui, messaging_ui
+  wire : ui/shell.py _form_registry()[ "<exact VB6 caption>" ]
+
+VB6 forms in scope (13):
+  EmptyInbox, FindMess, FrmDataRecieving, FrmMsgBox, FrmSMSEnviro, FrmSMSMultiType,
+  FrmSmsCenterSettings, FrmUploadProcess, Inbox, MemberSMS, Outbox, frmMessage, frmmessageKey
+VB6 .bas modules (2): MobWebAPI, SMSModule
+
+Porting recipe - apply per item, in this order (tests depend on it):
+  1. Schema probe FIRST: db.query("SELECT TOP 1 * FROM <table>").
+     Absent -> BLOCKED-TBL, document with VB6 evidence, STOP. Never invent
+     a table or column.
+  2. Core  HMS_py/core/<domain>.py: port the VB6 Sub/Function faithfully -
+     same fill-query (WHERE/JOIN/ORDER BY, brackets for reserved words like
+     [Option]) and same save-sequence (INSERT/UPDATE order + cn.commit()).
+     Every write carries U_Name / U_EntDt / U_AE ('A'|'E'|'D') + LogSite_Code.
+  3. UI    HMS_py/ui/<domain>_ui.py: CRUD master -> ui/base_master.py
+     BaseMasterForm+Field+MasterConfig; list/action -> open_<name>(parent=None)
+     factory that ALSO calls .show() (shell discards the return value, else
+     the window never appears). Captions/messages verbatim.
+  4. Registry: ui/shell.py _form_registry()["<exact VB6 caption>"] = opener;
+     real openers ko _coming_soon batch me mat daalo; verify with
+     python tools/check_registry_shadow.py
+  5. Verify: python -m py_compile <files> ; python -m pytest tests/unit -q ;
+     python -m pytest tests/database -q ;
+     python -m HMS_py.tools.manual_pipeline.run_module_tests --module 12_Messaging
+     + a focused regression test (no test = no DONE).
+
+Step 0 - inventory first (NO code yet):
+  Har form ka .frm grep karo SQL ke liye (FROM / INSERT INTO / UPDATE), uska
+  menu caption nikaalo, har table live probe karo, phir ye matrix do:
+  | VB6 form | Caption | VB6 tables | live rows / MISSING | Python UI | Python core |
+  | Status |
+  Status = DONE | PARTIAL | UI-ONLY | BLOCKED-TBL | MISSING
+  Uske baad sirf MISSING + PARTIAL rows dependency order me convert karo, ek ek
+  karke, aur har item ka ye log do:
+    Converted : <VB6 form>            Probe : <table> -> rows | MISSING
+    Core      : <core/x.py:line>      UI    : <ui/x_ui.py:line> (.show() yes/no)
+    Registry  : "<caption>" -> opener (shell.py:line)
+    Tests     : <file> -> <counts>    Status: DONE|PARTIAL|BLOCKED-TBL
+
+Gotchas specific to 13_Messaging:
+  - VB6 SMSModule.bas + MobWebAPI.bas are the transport layer - port them behind core/sms_comm.py, never from UI code.
+  - NEVER make a real SMS/API call in tests - stub the transport.
+  - DBSendSMS.DocId / EmailSMSForward MAX(Id)+1 are select-then-consume (KI-1).
+  - menu_help._norm_caption strips trailing '(...)' so SMS (API)/(Scheduled)/(Conditional) all collapse to 'sms' - the 2026-09-25 classify fix (exact caption precedence) must stay intact.
+  - SMSEnviro is a singleton row with no lock - flag read-modify-write races.
+
+Rules recap: DB = truth, VB6 = behavior, no invented tables, core/db.py only,
+one connection per transaction, file-scoped diffs, commit per module, evidence
+file:line + test counts for every claim. Report matrix + conversion log as
+shown above. Table-less-in-VB6 or absent-live -> BLOCKED-TBL with evidence;
+that is a valid, expected result - do not force a port.
+[END CONVERT-13]
+
+================================================================================
+CONVERT-14  -  MODULE 15_Sales_Marketing   (VB6 -> Python)
+================================================================================
+Manual id : 14_SaleMarketing
+RE doc    : HMS_REVERSE_ENGINEERING/15_Sales_Marketing/module_manual.md
+Sidebar   : extras
+VB6 forms : 6 .frm  0 .bas   (root: implemented/HMS2526/serialkey/PROJECT2/PROJECT/)
+Core      : marketsegment, businesssource, guestprof
+UI        : finance_masters_ui, frontoffice, registration_entry_ui
+
+VB6 FORMS TO CONVERT:
+  FrmBusinessSrc, FrmMarketSeg, FrmSMSEnviro, FrmSMSMultiType, FrmSmsCenterSettings,
+  salmarCompProfile
+
+[COPY-PASTE START]
+Convert VB6 -> Python for HMS module **15_Sales_Marketing** (menu group "extras").
+
+Rules: live SQL Server DB = truth; VB6 .frm/.bas = behavior reference;
+never invent tables/columns; DB access only via core/db.py; one connection
+per transaction; VB6 captions/messages verbatim (typos included); file-scoped
+changes; commit per module; every claim needs file:line + test evidence.
+
+Target files:
+  core/: marketsegment, businesssource, guestprof
+  ui/  : finance_masters_ui, frontoffice, registration_entry_ui
+  wire : ui/shell.py _form_registry()[ "<exact VB6 caption>" ]
+
+VB6 forms in scope (6):
+  FrmBusinessSrc, FrmMarketSeg, FrmSMSEnviro, FrmSMSMultiType, FrmSmsCenterSettings,
+  salmarCompProfile
+
+Porting recipe - apply per item, in this order (tests depend on it):
+  1. Schema probe FIRST: db.query("SELECT TOP 1 * FROM <table>").
+     Absent -> BLOCKED-TBL, document with VB6 evidence, STOP. Never invent
+     a table or column.
+  2. Core  HMS_py/core/<domain>.py: port the VB6 Sub/Function faithfully -
+     same fill-query (WHERE/JOIN/ORDER BY, brackets for reserved words like
+     [Option]) and same save-sequence (INSERT/UPDATE order + cn.commit()).
+     Every write carries U_Name / U_EntDt / U_AE ('A'|'E'|'D') + LogSite_Code.
+  3. UI    HMS_py/ui/<domain>_ui.py: CRUD master -> ui/base_master.py
+     BaseMasterForm+Field+MasterConfig; list/action -> open_<name>(parent=None)
+     factory that ALSO calls .show() (shell discards the return value, else
+     the window never appears). Captions/messages verbatim.
+  4. Registry: ui/shell.py _form_registry()["<exact VB6 caption>"] = opener;
+     real openers ko _coming_soon batch me mat daalo; verify with
+     python tools/check_registry_shadow.py
+  5. Verify: python -m py_compile <files> ; python -m pytest tests/unit -q ;
+     python -m pytest tests/database -q ;
+     python -m HMS_py.tools.manual_pipeline.run_module_tests --module 14_SaleMarketing
+     + a focused regression test (no test = no DONE).
+
+Step 0 - inventory first (NO code yet):
+  Har form ka .frm grep karo SQL ke liye (FROM / INSERT INTO / UPDATE), uska
+  menu caption nikaalo, har table live probe karo, phir ye matrix do:
+  | VB6 form | Caption | VB6 tables | live rows / MISSING | Python UI | Python core |
+  | Status |
+  Status = DONE | PARTIAL | UI-ONLY | BLOCKED-TBL | MISSING
+  Uske baad sirf MISSING + PARTIAL rows dependency order me convert karo, ek ek
+  karke, aur har item ka ye log do:
+    Converted : <VB6 form>            Probe : <table> -> rows | MISSING
+    Core      : <core/x.py:line>      UI    : <ui/x_ui.py:line> (.show() yes/no)
+    Registry  : "<caption>" -> opener (shell.py:line)
+    Tests     : <file> -> <counts>    Status: DONE|PARTIAL|BLOCKED-TBL
+
+Gotchas specific to 15_Sales_Marketing:
+  - Schema drift already reconciled once: VB6 MktSegMast -> live MarketSeg, BusSrcMast -> BussSource, GuestStatusMast -> GuestStatus. Probe live names first.
+  - menuHelp rows for this module carry Module_Name='Mas' (02 bucket) - no dedicated sidebar; wire captions, not a new group.
+  - guestprof.next_code() is select-then-consume (KI-1).
+  - salmarCompProfile.frm is the only form that is purely this module's - the rest are shared masters.
+
+Rules recap: DB = truth, VB6 = behavior, no invented tables, core/db.py only,
+one connection per transaction, file-scoped diffs, commit per module, evidence
+file:line + test counts for every claim. Report matrix + conversion log as
+shown above. Table-less-in-VB6 or absent-live -> BLOCKED-TBL with evidence;
+that is a valid, expected result - do not force a port.
+[END CONVERT-14]
+
+================================================================================
+CONVERT-15  -  MODULE 16_Mall_Management   (VB6 -> Python)
+================================================================================
+Manual id : (no 2026 manual)
+RE doc    : HMS_REVERSE_ENGINEERING/16_Mall_Management/module_manual.md
+Sidebar   : Mall Mgmt
+VB6 forms : 11 .frm  1 .bas   (root: implemented/HMS2526/serialkey/PROJECT2/PROJECT/)
+Core      : door_lock
+UI        : door_lock_ui
+
+VB6 FORMS TO CONVERT:
+  DepOpStk, FrmChangeDepart, FrmFacilityMast, FrmLocationFacilities, FrmLocationMast,
+  FrmMeterReading, FrmParty, FrmPartyLocations, frmGodrejLockSettings, frmLockGodrejSettings,
+  kClStk
+VB6 MODULES (.bas):
+  ModuleDoorLock
+
+[COPY-PASTE START]
+Convert VB6 -> Python for HMS module **16_Mall_Management** (menu group "Mall Mgmt").
+
+Rules: live SQL Server DB = truth; VB6 .frm/.bas = behavior reference;
+never invent tables/columns; DB access only via core/db.py; one connection
+per transaction; VB6 captions/messages verbatim (typos included); file-scoped
+changes; commit per module; every claim needs file:line + test evidence.
+
+Target files:
+  core/: door_lock
+  ui/  : door_lock_ui
+  wire : ui/shell.py _form_registry()[ "<exact VB6 caption>" ]
+
+VB6 forms in scope (11):
+  DepOpStk, FrmChangeDepart, FrmFacilityMast, FrmLocationFacilities, FrmLocationMast,
+  FrmMeterReading, FrmParty, FrmPartyLocations, frmGodrejLockSettings, frmLockGodrejSettings,
+  kClStk
+VB6 .bas modules (1): ModuleDoorLock
+
+Porting recipe - apply per item, in this order (tests depend on it):
+  1. Schema probe FIRST: db.query("SELECT TOP 1 * FROM <table>").
+     Absent -> BLOCKED-TBL, document with VB6 evidence, STOP. Never invent
+     a table or column.
+  2. Core  HMS_py/core/<domain>.py: port the VB6 Sub/Function faithfully -
+     same fill-query (WHERE/JOIN/ORDER BY, brackets for reserved words like
+     [Option]) and same save-sequence (INSERT/UPDATE order + cn.commit()).
+     Every write carries U_Name / U_EntDt / U_AE ('A'|'E'|'D') + LogSite_Code.
+  3. UI    HMS_py/ui/<domain>_ui.py: CRUD master -> ui/base_master.py
+     BaseMasterForm+Field+MasterConfig; list/action -> open_<name>(parent=None)
+     factory that ALSO calls .show() (shell discards the return value, else
+     the window never appears). Captions/messages verbatim.
+  4. Registry: ui/shell.py _form_registry()["<exact VB6 caption>"] = opener;
+     real openers ko _coming_soon batch me mat daalo; verify with
+     python tools/check_registry_shadow.py
+  5. Verify: python -m py_compile <files> ; python -m pytest tests/unit -q ;
+     python -m pytest tests/database -q ;
+     python -m HMS_py.tools.manual_pipeline.run_module_tests --module (no 2026 manual)
+     + a focused regression test (no test = no DONE).
+
+Step 0 - inventory first (NO code yet):
+  Har form ka .frm grep karo SQL ke liye (FROM / INSERT INTO / UPDATE), uska
+  menu caption nikaalo, har table live probe karo, phir ye matrix do:
+  | VB6 form | Caption | VB6 tables | live rows / MISSING | Python UI | Python core |
+  | Status |
+  Status = DONE | PARTIAL | UI-ONLY | BLOCKED-TBL | MISSING
+  Uske baad sirf MISSING + PARTIAL rows dependency order me convert karo, ek ek
+  karke, aur har item ka ye log do:
+    Converted : <VB6 form>            Probe : <table> -> rows | MISSING
+    Core      : <core/x.py:line>      UI    : <ui/x_ui.py:line> (.show() yes/no)
+    Registry  : "<caption>" -> opener (shell.py:line)
+    Tests     : <file> -> <counts>    Status: DONE|PARTIAL|BLOCKED-TBL
+
+Gotchas specific to 16_Mall_Management:
+  - VB6 ModuleDoorLock.bas + frmGodrejLockSettings/frmLockGodrejSettings + FrmLocationMast/FrmLocationFacilities.
+  - BUG-001: LocationMast table MISSING in live DB -> BLOCKED-TBL for FrmLocationMast; do not create it.
+  - ui/door_lock_ui.py already exists (DoorLockForm/open_door_lock) but is NOT imported by ui/shell.py - wiring it is a registry task, not a rewrite.
+  - FrmMeterReading / DepOpStk / kClStk overlap with Inventory - wire once, reference from both groups.
+
+Rules recap: DB = truth, VB6 = behavior, no invented tables, core/db.py only,
+one connection per transaction, file-scoped diffs, commit per module, evidence
+file:line + test counts for every claim. Report matrix + conversion log as
+shown above. Table-less-in-VB6 or absent-live -> BLOCKED-TBL with evidence;
+that is a valid, expected result - do not force a port.
+[END CONVERT-15]
+
+================================================================================
+CONVERT-16  -  MODULE 17_Reports   (VB6 -> Python)
+================================================================================
+Manual id : (no 2026 manual)
+RE doc    : HMS_REVERSE_ENGINEERING/17_Reports/module_manual.md
+Sidebar   : (reports live per-module)
+VB6 forms : 10 .frm  1 .bas   (root: implemented/HMS2526/serialkey/PROJECT2/PROJECT/)
+Core      : reports, fa_reports
+UI        : reports_ui, nightaudit_reports_ui
+
+VB6 FORMS TO CONVERT:
+  REPVIEW, rFomRepView, rHallRepView, rInventRepView, rMemberRepView, rPOSRepView, rRepHouse,
+  rRepPayRoll, rRepReserv, rRepTel
+VB6 MODULES (.bas):
+  GridPrint
+
+[COPY-PASTE START]
+Convert VB6 -> Python for HMS module **17_Reports** (menu group "(reports live per-module)").
+
+Rules: live SQL Server DB = truth; VB6 .frm/.bas = behavior reference;
+never invent tables/columns; DB access only via core/db.py; one connection
+per transaction; VB6 captions/messages verbatim (typos included); file-scoped
+changes; commit per module; every claim needs file:line + test evidence.
+
+Target files:
+  core/: reports, fa_reports
+  ui/  : reports_ui, nightaudit_reports_ui
+  wire : ui/shell.py _form_registry()[ "<exact VB6 caption>" ]
+
+VB6 forms in scope (10):
+  REPVIEW, rFomRepView, rHallRepView, rInventRepView, rMemberRepView, rPOSRepView, rRepHouse,
+  rRepPayRoll, rRepReserv, rRepTel
+VB6 .bas modules (1): GridPrint
+
+Porting recipe - apply per item, in this order (tests depend on it):
+  1. Schema probe FIRST: db.query("SELECT TOP 1 * FROM <table>").
+     Absent -> BLOCKED-TBL, document with VB6 evidence, STOP. Never invent
+     a table or column.
+  2. Core  HMS_py/core/<domain>.py: port the VB6 Sub/Function faithfully -
+     same fill-query (WHERE/JOIN/ORDER BY, brackets for reserved words like
+     [Option]) and same save-sequence (INSERT/UPDATE order + cn.commit()).
+     Every write carries U_Name / U_EntDt / U_AE ('A'|'E'|'D') + LogSite_Code.
+  3. UI    HMS_py/ui/<domain>_ui.py: CRUD master -> ui/base_master.py
+     BaseMasterForm+Field+MasterConfig; list/action -> open_<name>(parent=None)
+     factory that ALSO calls .show() (shell discards the return value, else
+     the window never appears). Captions/messages verbatim.
+  4. Registry: ui/shell.py _form_registry()["<exact VB6 caption>"] = opener;
+     real openers ko _coming_soon batch me mat daalo; verify with
+     python tools/check_registry_shadow.py
+  5. Verify: python -m py_compile <files> ; python -m pytest tests/unit -q ;
+     python -m pytest tests/database -q ;
+     python -m HMS_py.tools.manual_pipeline.run_module_tests --module (no 2026 manual)
+     + a focused regression test (no test = no DONE).
+
+Step 0 - inventory first (NO code yet):
+  Har form ka .frm grep karo SQL ke liye (FROM / INSERT INTO / UPDATE), uska
+  menu caption nikaalo, har table live probe karo, phir ye matrix do:
+  | VB6 form | Caption | VB6 tables | live rows / MISSING | Python UI | Python core |
+  | Status |
+  Status = DONE | PARTIAL | UI-ONLY | BLOCKED-TBL | MISSING
+  Uske baad sirf MISSING + PARTIAL rows dependency order me convert karo, ek ek
+  karke, aur har item ka ye log do:
+    Converted : <VB6 form>            Probe : <table> -> rows | MISSING
+    Core      : <core/x.py:line>      UI    : <ui/x_ui.py:line> (.show() yes/no)
+    Registry  : "<caption>" -> opener (shell.py:line)
+    Tests     : <file> -> <counts>    Status: DONE|PARTIAL|BLOCKED-TBL
+
+Gotchas specific to 17_Reports:
+  - VB6 report viewers: REPVIEW + rFomRepView/rRepHouse/rRepPayRoll/rRepReserv/rRepTel/rPOSRepView/rInventRepView/rMemberRepView/rHallRepView, shared GridPrint.bas.
+  - Python side: ui/shell.py _open_report() + core/reports.menu_caption_map(); a caption with no map entry silently becomes _coming_soon.
+  - L2c test_reports_engine is 370/445 (KI-1) - a pre-existing app issue; converting a report must not regress it further.
+  - Reports are declared per module - convert a report together with its owning module, not in a separate pass.
+
+Rules recap: DB = truth, VB6 = behavior, no invented tables, core/db.py only,
+one connection per transaction, file-scoped diffs, commit per module, evidence
+file:line + test counts for every claim. Report matrix + conversion log as
+shown above. Table-less-in-VB6 or absent-live -> BLOCKED-TBL with evidence;
+that is a valid, expected result - do not force a port.
+[END CONVERT-16]
+
+================================================================================
+END OF FILE
+================================================================================

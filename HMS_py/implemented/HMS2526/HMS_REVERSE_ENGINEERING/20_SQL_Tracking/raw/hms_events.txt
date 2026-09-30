@@ -1,0 +1,200 @@
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|select COUNT(*) from userMast|4631|139
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|SELECT * FROM USERMAST WHERE USER_NAME='********'|2042|5
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|select COUNT(*) from userMast|136|3
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|SELECT * FROM USERMAST WHERE USER_NAME='SA'|3546|2
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select isnull(AllowDtChng,'') from UserMast where User_Name='SA'|1892|5
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|SELECT User1.* FROM User1 LEFT JOIN User_Module ON User_Module.SrNo=User1.SrNo WHERE User1.User_Name='SA'|16298|161
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from company  order by STart_dt Desc|6729|366
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|select * from company where comp_code='2'|2152|6
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|select backcolor from usermast where (user_name='SA')|811|5
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * From Enviro WHERE LOGSITE_CODE='KK'|50531|3770
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|SELECT * FROM Messaging Where Receiver='SA'  and(Cleared is Null Or Cleared='' Or Cleared='N')And ReadYN='N' Order By VDATE DESC,VType DESC,VNo DESC,Sender|3785|290
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select [Option] Name,OPT1 from MenuHelp Where Flag<>'V' And OPT1<>0 And OPT2=0 And OPT3=0 And OPT4=0 And UserName='SA' And CompCode='2' Order By Code|11898|337
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|SELECT * FROM ENVIRO WHERE SITECODE='KK'|3185|9
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|SELECT * FROM MENUHELP Where Flag<>'V' AND USERNAME='SA' AND CompCode='2' AND [Option]<>'-' AND ShowInList='Y' ORDER BY OPT1,OPT2,OPT3,OPT4|3344|191
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|SELECT * FROM MENUHELP Where Flag<>'V' AND USERNAME='SA' AND CompCode='2' AND [Option]<>'-' AND ShowInList='Y' ORDER BY OPT1,OPT2,OPT3,OPT4|1295|173
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|SELECT * FROM MENUHELP Where Flag<>'V' AND USERNAME='SA' AND CompCode='2' AND Opt1=11 ORDER BY OPT1,OPT2,OPT3,OPT4|2224|185
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|SELECT * FROM ENVIRO WHERE SITECODE='KK'|361|2
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from enviro WHERE LogSITE_CODE='KK'|3590|7
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|select Count(*) from information_schema.columns where table_name = 'MemEnviro' And column_name='CardExpDate'|19828|629
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select Substring(Convert(Varchar,GetDate(),120),1,10)|534|0
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from Company|640|3
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|select * from MemEnviro|4163|344
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select Count(*) from dbo.sysobjects where id = object_id(N'[dbo].[eInvoiceEnviro]') and OBJECTPROPERTY(id, N'IsTable') = 1|5169|94
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|select sum([rows]) from sys.partitions where object_id=object_id('eInvoiceEnviro') and index_id in (0,1)|6194|145
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select IsNull(ASPId,'') from eInvoiceEnviro|1016|18
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from UserModule where[OPtion]='GST Reports' and OPT1=19 and Flag<>'N'|4149|110
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select Count(opt1) from UserModule Where OutletCode='' And OPT1=19 And [Option]='GST Reports'|1126|19
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from UserModule where[OPtion]='GSTR-1' and OPT1=19 and Flag<>'N'|165|8
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from UserModule where[OPtion]='GSTR-2(3)' and OPT1=19 and Flag<>'N'|426|8
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from UserModule where[OPtion]='GSTR-2(4A)' and OPT1=19 and Flag<>'N'|156|8
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from UserModule where[OPtion]='GSTR-2(4B)' and OPT1=19 and Flag<>'N'|176|8
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from UserModule where[OPtion]='Expense Voucher' and OPT1=11 and Flag<>'N'|142|8
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from UserModule where[OPtion]='Store Issue Report' and OPT1=16 and Flag<>'N'|545|8
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from UserModule where[OPtion]='Room Type Occupancy Analysis' and OPT1=14 and Flag<>'N'|254|8
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from UserModule where[OPtion]='Credit Report' and OPT1=19 and Flag<>'N'|445|8
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from UserModule where[OPtion]='Liquor Sale Report' and OPT1=16 and Flag<>'N'|390|8
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from UserModule where[OPtion]='Payment Receive Entry (POS)' and OPT1=17 and Flag<>'N'|212|8
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from UserModule where[OPtion]='Reconciliation (GSTR-2A)' and OPT1=19 and Flag<>'N'|128|8
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from UserModule where[OPtion]='Upload Process' and OPT1=19 and Flag<>'N'|222|8
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|select code,Name,KOTYN from depart where outletYN='Y'|6615|1328
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from UserModule where  OutletCode='KKRS' and [OPtion]='Payment Receive' and OPT1=17|1324|19
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from UserModule where  OutletCode='KKG001' and [OPtion]='Payment Receive' and OPT1=17|151|8
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from UserModule where  OutletCode='KKM001' and [OPtion]='Payment Receive' and OPT1=17|439|8
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from UserModule where  OutletCode='KKL001' and [OPtion]='Payment Receive' and OPT1=17|780|8
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from UserModule where  OutletCode='KKH003' and [OPtion]='Payment Receive' and OPT1=17|413|8
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from UserModule where  OutletCode='KKM009' and [OPtion]='Payment Receive' and OPT1=17|280|8
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from UserModule where  OutletCode='KKE001' and [OPtion]='Payment Receive' and OPT1=17|221|8
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from UserModule where[OPtion]='Bill Wise Adjustment Report' and OPT1=17 and Flag<>'N'|582|8
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from UserModule where[OPtion]='Plan Report' and OPT1=14 and Flag<>'N'|153|8
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from UserModule where[OPtion]='Business Source Occupancy Report' and OPT1=14 and Flag<>'N'|404|8
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from UserModule where[OPtion]='Member Select Category' and OPT1=12 and Flag<>'N'|128|8
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from UserModule where[OPtion]='Auto Settle Card Balance' and OPT1=23 and Flag<>'N'|134|8
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from UserModule where[OPtion]='Journal Books Log' and OPT1=11 and Flag<>'N'|135|8
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from UserModule where[OPtion]='EInvoice Report' and OPT1=19 and Flag<>'N'|165|8
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from UserModule where[OPtion]='TDS Report' and OPT1=11 and Flag<>'N'|112|8
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Update PlanMast SET RoomTaxStru=RevMast.TaxStru FROM PlanMast LEFT JOIN RoomCat ON RoomCat.Code = PlanMast.RoomCat LEFT JOIN RevMast ON RevMast.Code = RoomCat.RevCode WHERE IsNull(Planmast.RoomTaxStru,'')=''|19760|1382
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|UPDATE RoomOcc SET RoomTaxStru=Q.TaxStru FROM RoomOcc INNER JOIN (SELECT DocId+CAST(SNo AS VARCHAR) DocIdS,RoomOcc.RoomRate,RevMast.TaxStru FROM RoomOcc Inner Join RoomCat On RoomCat.Code=RoomOcc.RoomCat Inner Join Revmast On RoomCat.Revcode=Revmast.Code WHERE IsNull(RoomOcc.RoomTaxStru,'')='') Q ON|64071|2151
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|UPDATE GrpBookingDetails SET RoomTaxStru=Q.TaxStru FROM GrpBookingDetails INNER JOIN (SELECT BookingDocId+CAST(SNo AS VARCHAR) DocIdS,RevMast.TaxStru FROM GrpBookingDetails Inner Join RoomCat On RoomCat.Code=GrpBookingDetails.RoomCat Inner Join Revmast On RoomCat.Revcode=Revmast.Code WHERE IsNull(Gr|12715|452
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Delete From GuestFolioProfDetail Where Docid=''|5548|122
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Update ItemMast Set MRP=IsNull(MRP,0) Where MRP Is Null|15777|1014
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Update ItemRate Set MRP=IsNull(MRP,0) Where MRP Is Null|4347|226
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Update Stock Set MRP=IsNull(MRP,0) Where MRP Is Null|82926|4199
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Update StockLog Set MRP=IsNull(MRP,0) Where MRP Is Null|6776|884
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Update SplitStock Set MRP=IsNull(MRP,0) Where MRP Is Null|3517|724
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Update RevMast Set Active=IsNull(Active,'') Where Active Is Null|3698|18
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Update RevMast Set TaxInc=IsNull(TaxInc,'No') Where TaxInc Is Null|1592|18
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Update Sale1 Set AU_Name=IsNull(U_Name,''),AU_EntDt=U_EntDt Where IsNull(AU_Name,'')=''|35211|2224
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Update Sale1Log Set AU_Name=IsNull(U_Name,''),AU_EntDt=U_EntDt Where IsNull(AU_Name,'')=''|5216|985
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Update SplitSale1 Set AU_Name=IsNull(U_Name,''),AU_EntDt=U_EntDt Where IsNull(AU_Name,'')=''|4386|823
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Update Paycharge Set AU_Name=IsNull(U_Name,''),AU_EntDt=U_EntDt Where IsNull(AU_Name,'')=''|101116|4049
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Update PaychargeLog Set AU_Name=IsNull(U_Name,''),AU_EntDt=U_EntDt Where IsNull(AU_Name,'')=''|9969|1062
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Update GuestReward Set Total=Q.Total,DiscAmt=Q.DiscAmt,RestCode=Q.RestCode,SchemeCode='',SaleUpTo=0,RPointOnAmt=0,RewardValue=0,RedeemValue=0 From (Select S1.Total,S1.DiscAmt,S1.RestCode,G.DocId From GuestReward G Inner Join Sale1 S1 On G.DocId=S1.DocId)Q  Where GuestReward.DocId=Q.DocId And IsNull(|25321|725
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Update SmartCardRegistration Set RewardBal=IsNull(RewardBal,0),RewardSale=IsNull(RewardSale,0),RewardPoint=IsNull(RewardPoint,0),RedeemPoint=IsNull(RedeemPoint,0) Where RedeemPoint Is Null|4116|370
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Update Depart Set KOTAtNightAudit=(Select IsNull(Max(KOTAtNightAudit),'') From Enviro Where LogSite_Code='KK') Where IsNull(KOTAtNightAudit,'')='' And OutletYN='Y'|4088|20
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Update GuestProf Set FOM=1 Where Code In (Select GuestProf From Booking) And FOM Is Null|36878|1999
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Update GuestProf Set FOM=1 Where Code In (Select GuestProf From GuestFolio) And FOM Is Null|27405|1098
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Update GuestProf Set FOM=1 Where Code In (Select GuestProf From GuestFolioProfDetail) And FOM Is Null|22024|334
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Update GuestProf Set POS=1 Where Code In (Select CustCode From GuestReward) And POS Is Null|22220|662
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Update GuestProf Set FOM=ISNULL(FOM,0)|18831|15715
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Update GuestProf Set POS=ISNULL(POS,0)|12977|15715
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Update MarketSeg Set Active=ISNULL(Active,'')|2343|196
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Update BussSource Set Active=ISNULL(Active,'')|1964|179
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Update RoomDiscount Set Adult=ISNULL(Adult,1)|4159|3360
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Update Item Set CommodityCode=ItemMast.CommodityCode From Item,ItemMast Where Item.Code=ItemMast.Code And Item.CommodityCode IS Null|10626|247
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Update Depart Set CoverMandatory=(Select IsNull(Max(CoversMandatory),'') From Enviro Where LogSite_Code='KK') Where CoverMandatory Is Null|2938|17
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Update Depart Set MobileNoMandatory=(Select IsNull(Max(MobileNoMandatory),'') From Enviro Where LogSite_Code='KK') Where MobileNoMandatory Is Null|2861|17
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|If exists (select * from information_schema.columns where table_name = 'Purch1' And column_name='PartyBillNo' And data_type='varchar' And character_maximum_length<25) Alter table Purch1 alter column PartyBillNo varchar(25)|13408|230
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|If exists (select * from information_schema.columns where table_name = 'GIN' And column_name='MemInvNo' And data_type='varchar' And character_maximum_length<25) Alter table GIN alter column MemInvNo varchar(25)|11345|188
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|If exists (select * from information_schema.columns where table_name = 'ItemCatMast' And column_name='CatType' And data_type='varchar' And character_maximum_length<15) Alter table ItemCatMast alter column CatType varchar(15)|13236|550
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Update ItemRate Set Party=ISNULL(Party,'')|2158|733
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Update SunTranFacility set Vtype='FACL' Where Vtype='8'|2150|317
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Update FacilityBill1 Set FacilityBill1.LocationCode=Q.LocationCode From (Select FacilityBill.DocId,FacilityBill.LocationCode From FacilityBill)Q  Where DocId1=Q.Docid And IsNull(FacilityBill1.LocationCode,'')=''|4328|543
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|If exists (select * from information_schema.columns where table_name = 'DBSendSMS' And column_name='TxtMsg' And data_type='varchar' And character_maximum_length<500) Alter table DBSendSMS alter column TxtMsg varchar(500)|14306|352
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|If exists (select * from information_schema.columns where table_name = 'GuestFolio' And column_name='Remarks' And data_type='varchar' And character_maximum_length<100) Alter table GuestFolio alter column Remarks varchar(100)|9608|57
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|If exists (select * from information_schema.columns where table_name = 'GuestFolio' And column_name='Remark' And data_type='varchar' And character_maximum_length<100) Alter table GuestFolio alter column Remark varchar(100)|8734|51
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|If exists (select * from information_schema.columns where table_name = 'GuestProf' And column_name='Comments1' And data_type='varchar' And character_maximum_length<100) Alter table GuestProf alter column Comments1 varchar(100)|10008|138
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|If exists (select * from information_schema.columns where table_name = 'GuestProf' And column_name='Comments2' And data_type='varchar' And character_maximum_length<100) Alter table GuestProf alter column Comments2 varchar(100)|8927|48
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|If exists (select * from information_schema.columns where table_name = 'GuestProf' And column_name='Comments3' And data_type='varchar' And character_maximum_length<100) Alter table GuestProf alter column Comments3 varchar(100)|8666|48
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|If exists (select * from information_schema.columns where table_name = 'Sale1' And column_name='Remark' And data_type='varchar' And character_maximum_length<255) Alter table Sale1 alter column Remark varchar(255)|9188|55
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|If exists (select * from information_schema.columns where table_name = 'Sale1Log' And column_name='Remark' And data_type='varchar' And character_maximum_length<255) Alter table Sale1Log alter column Remark varchar(255)|8754|55
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|If exists (select * from information_schema.columns where table_name = 'SplitSale1' And column_name='Remark' And data_type='varchar' And character_maximum_length<255) Alter table SplitSale1 alter column Remark varchar(255)|9210|57
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|If exists (select * from information_schema.columns where table_name = 'GuestReward' And column_name='DepartName' And data_type='varchar' And character_maximum_length<35) Alter table GuestReward alter column DepartName varchar(35)|8894|50
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|If exists (select * from information_schema.columns where table_name = 'KOT' And column_name='Reasons' And data_type='varchar' And character_maximum_length<150) Alter table KOT alter column Reasons varchar(150)|21651|1079
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|If exists (select * from information_schema.columns where table_name = 'KOTLog' And column_name='Reasons' And data_type='varchar' And character_maximum_length<150) Alter table KOTLog alter column Reasons varchar(150)|8757|70
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select Convert(Varchar,GetDate(),120)|123|0
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select JS.*,JD.Job_Id,JD.JobName From JobSchedule JS Inner Join JobScheduledDetail JD On JS.Schedule_Id=JD.Schedule_Id Where JS.LogSite_Code='KK' And '28/Sep/2026' Between JS.ScheduleStartDate And JS.ScheduleEndDate And JS.ScheduleEnabled=1|5908|659
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select Convert(Varchar,GetDate(),120)|304|0
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select JS.*,JD.Job_Id,JD.JobName From JobSchedule JS Inner Join JobScheduledDetail JD On JS.Schedule_Id=JD.Schedule_Id Where JS.LogSite_Code='KK' And '28/Sep/2026' Between JS.ScheduleStartDate And JS.ScheduleEndDate And JS.ScheduleEnabled=1|174|6
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select Convert(Varchar,GetDate(),120)|398|0
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select JS.*,JD.Job_Id,JD.JobName From JobSchedule JS Inner Join JobScheduledDetail JD On JS.Schedule_Id=JD.Schedule_Id Where JS.LogSite_Code='KK' And '28/Sep/2026' Between JS.ScheduleStartDate And JS.ScheduleEndDate And JS.ScheduleEnabled=1|179|6
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select Convert(Varchar,GetDate(),120)|311|0
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select JS.*,JD.Job_Id,JD.JobName From JobSchedule JS Inner Join JobScheduledDetail JD On JS.Schedule_Id=JD.Schedule_Id Where JS.LogSite_Code='KK' And '28/Sep/2026' Between JS.ScheduleStartDate And JS.ScheduleEndDate And JS.ScheduleEnabled=1|189|6
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from JOBScheduledDetail Where JobEnabled=1 And JobScheduledOn Is Not Null|2131|8
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from DBSENDSMS Where ISNULL(SENDTF,'')<>'TRUE'|23304|957
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select Convert(Varchar,GetDate(),120)|316|0
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select JS.*,JD.Job_Id,JD.JobName From JobSchedule JS Inner Join JobScheduledDetail JD On JS.Schedule_Id=JD.Schedule_Id Where JS.LogSite_Code='KK' And '28/Sep/2026' Between JS.ScheduleStartDate And JS.ScheduleEndDate And JS.ScheduleEnabled=1|174|6
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select Convert(Varchar,GetDate(),120)|1946|0
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select JS.*,JD.Job_Id,JD.JobName From JobSchedule JS Inner Join JobScheduledDetail JD On JS.Schedule_Id=JD.Schedule_Id Where JS.LogSite_Code='KK' And '28/Sep/2026' Between JS.ScheduleStartDate And JS.ScheduleEndDate And JS.ScheduleEnabled=1|93|6
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select Convert(Varchar,GetDate(),120)|318|0
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select JS.*,JD.Job_Id,JD.JobName From JobSchedule JS Inner Join JobScheduledDetail JD On JS.Schedule_Id=JD.Schedule_Id Where JS.LogSite_Code='KK' And '28/Sep/2026' Between JS.ScheduleStartDate And JS.ScheduleEndDate And JS.ScheduleEnabled=1|156|6
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select Convert(Varchar,GetDate(),120)|312|0
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select JS.*,JD.Job_Id,JD.JobName From JobSchedule JS Inner Join JobScheduledDetail JD On JS.Schedule_Id=JD.Schedule_Id Where JS.LogSite_Code='KK' And '28/Sep/2026' Between JS.ScheduleStartDate And JS.ScheduleEndDate And JS.ScheduleEnabled=1|443|6
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select Convert(Varchar,GetDate(),120)|315|0
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select JS.*,JD.Job_Id,JD.JobName From JobSchedule JS Inner Join JobScheduledDetail JD On JS.Schedule_Id=JD.Schedule_Id Where JS.LogSite_Code='KK' And '28/Sep/2026' Between JS.ScheduleStartDate And JS.ScheduleEndDate And JS.ScheduleEnabled=1|203|6
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from JOBScheduledDetail Where JobEnabled=1 And JobScheduledOn Is Not Null|121|2
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from DBSENDSMS Where ISNULL(SENDTF,'')<>'TRUE'|6715|738
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select Convert(Varchar,GetDate(),120)|2117|0
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select JS.*,JD.Job_Id,JD.JobName From JobSchedule JS Inner Join JobScheduledDetail JD On JS.Schedule_Id=JD.Schedule_Id Where JS.LogSite_Code='KK' And '28/Sep/2026' Between JS.ScheduleStartDate And JS.ScheduleEndDate And JS.ScheduleEnabled=1|199|6
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select Convert(Varchar,GetDate(),120)|3745|0
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select JS.*,JD.Job_Id,JD.JobName From JobSchedule JS Inner Join JobScheduledDetail JD On JS.Schedule_Id=JD.Schedule_Id Where JS.LogSite_Code='KK' And '28/Sep/2026' Between JS.ScheduleStartDate And JS.ScheduleEndDate And JS.ScheduleEnabled=1|185|6
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select Convert(Varchar,GetDate(),120)|283|0
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select JS.*,JD.Job_Id,JD.JobName From JobSchedule JS Inner Join JobScheduledDetail JD On JS.Schedule_Id=JD.Schedule_Id Where JS.LogSite_Code='KK' And '28/Sep/2026' Between JS.ScheduleStartDate And JS.ScheduleEndDate And JS.ScheduleEnabled=1|211|6
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select Convert(Varchar,GetDate(),120)|331|0
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select JS.*,JD.Job_Id,JD.JobName From JobSchedule JS Inner Join JobScheduledDetail JD On JS.Schedule_Id=JD.Schedule_Id Where JS.LogSite_Code='KK' And '28/Sep/2026' Between JS.ScheduleStartDate And JS.ScheduleEndDate And JS.ScheduleEnabled=1|182|6
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select Convert(Varchar,GetDate(),120)|299|0
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select JS.*,JD.Job_Id,JD.JobName From JobSchedule JS Inner Join JobScheduledDetail JD On JS.Schedule_Id=JD.Schedule_Id Where JS.LogSite_Code='KK' And '28/Sep/2026' Between JS.ScheduleStartDate And JS.ScheduleEndDate And JS.ScheduleEnabled=1|193|6
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from JOBScheduledDetail Where JobEnabled=1 And JobScheduledOn Is Not Null|170|2
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from DBSENDSMS Where ISNULL(SENDTF,'')<>'TRUE'|7985|738
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select Convert(Varchar,GetDate(),120)|165|0
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select JS.*,JD.Job_Id,JD.JobName From JobSchedule JS Inner Join JobScheduledDetail JD On JS.Schedule_Id=JD.Schedule_Id Where JS.LogSite_Code='KK' And '28/Sep/2026' Between JS.ScheduleStartDate And JS.ScheduleEndDate And JS.ScheduleEnabled=1|149|6
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select Convert(Varchar,GetDate(),120)|230|0
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select JS.*,JD.Job_Id,JD.JobName From JobSchedule JS Inner Join JobScheduledDetail JD On JS.Schedule_Id=JD.Schedule_Id Where JS.LogSite_Code='KK' And '28/Sep/2026' Between JS.ScheduleStartDate And JS.ScheduleEndDate And JS.ScheduleEnabled=1|131|6
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select Convert(Varchar,GetDate(),120)|134|0
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select JS.*,JD.Job_Id,JD.JobName From JobSchedule JS Inner Join JobScheduledDetail JD On JS.Schedule_Id=JD.Schedule_Id Where JS.LogSite_Code='KK' And '28/Sep/2026' Between JS.ScheduleStartDate And JS.ScheduleEndDate And JS.ScheduleEnabled=1|98|6
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select Convert(Varchar,GetDate(),120)|145|0
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select JS.*,JD.Job_Id,JD.JobName From JobSchedule JS Inner Join JobScheduledDetail JD On JS.Schedule_Id=JD.Schedule_Id Where JS.LogSite_Code='KK' And '28/Sep/2026' Between JS.ScheduleStartDate And JS.ScheduleEndDate And JS.ScheduleEnabled=1|6488|627
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select Convert(Varchar,GetDate(),120)|198|0
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select JS.*,JD.Job_Id,JD.JobName From JobSchedule JS Inner Join JobScheduledDetail JD On JS.Schedule_Id=JD.Schedule_Id Where JS.LogSite_Code='KK' And '28/Sep/2026' Between JS.ScheduleStartDate And JS.ScheduleEndDate And JS.ScheduleEnabled=1|86|6
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from JOBScheduledDetail Where JobEnabled=1 And JobScheduledOn Is Not Null|798|8
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from DBSENDSMS Where ISNULL(SENDTF,'')<>'TRUE'|12020|1156
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select Convert(Varchar,GetDate(),120)|472|0
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select JS.*,JD.Job_Id,JD.JobName From JobSchedule JS Inner Join JobScheduledDetail JD On JS.Schedule_Id=JD.Schedule_Id Where JS.LogSite_Code='KK' And '28/Sep/2026' Between JS.ScheduleStartDate And JS.ScheduleEndDate And JS.ScheduleEnabled=1|191|6
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select Convert(Varchar,GetDate(),120)|1432|0
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select JS.*,JD.Job_Id,JD.JobName From JobSchedule JS Inner Join JobScheduledDetail JD On JS.Schedule_Id=JD.Schedule_Id Where JS.LogSite_Code='KK' And '28/Sep/2026' Between JS.ScheduleStartDate And JS.ScheduleEndDate And JS.ScheduleEnabled=1|195|6
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select Convert(Varchar,GetDate(),120)|336|0
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select JS.*,JD.Job_Id,JD.JobName From JobSchedule JS Inner Join JobScheduledDetail JD On JS.Schedule_Id=JD.Schedule_Id Where JS.LogSite_Code='KK' And '28/Sep/2026' Between JS.ScheduleStartDate And JS.ScheduleEndDate And JS.ScheduleEnabled=1|206|6
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select Convert(Varchar,GetDate(),120)|302|0
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select JS.*,JD.Job_Id,JD.JobName From JobSchedule JS Inner Join JobScheduledDetail JD On JS.Schedule_Id=JD.Schedule_Id Where JS.LogSite_Code='KK' And '28/Sep/2026' Between JS.ScheduleStartDate And JS.ScheduleEndDate And JS.ScheduleEnabled=1|178|6
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select Convert(Varchar,GetDate(),120)|298|0
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select JS.*,JD.Job_Id,JD.JobName From JobSchedule JS Inner Join JobScheduledDetail JD On JS.Schedule_Id=JD.Schedule_Id Where JS.LogSite_Code='KK' And '28/Sep/2026' Between JS.ScheduleStartDate And JS.ScheduleEndDate And JS.ScheduleEnabled=1|177|6
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from JOBScheduledDetail Where JobEnabled=1 And JobScheduledOn Is Not Null|83|2
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from DBSENDSMS Where ISNULL(SENDTF,'')<>'TRUE'|3171|738
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select Convert(Varchar,GetDate(),120)|147|0
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select JS.*,JD.Job_Id,JD.JobName From JobSchedule JS Inner Join JobScheduledDetail JD On JS.Schedule_Id=JD.Schedule_Id Where JS.LogSite_Code='KK' And '28/Sep/2026' Between JS.ScheduleStartDate And JS.ScheduleEndDate And JS.ScheduleEnabled=1|78|6
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select Convert(Varchar,GetDate(),120)|300|0
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select JS.*,JD.Job_Id,JD.JobName From JobSchedule JS Inner Join JobScheduledDetail JD On JS.Schedule_Id=JD.Schedule_Id Where JS.LogSite_Code='KK' And '28/Sep/2026' Between JS.ScheduleStartDate And JS.ScheduleEndDate And JS.ScheduleEnabled=1|224|6
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select Convert(Varchar,GetDate(),120)|303|0
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select JS.*,JD.Job_Id,JD.JobName From JobSchedule JS Inner Join JobScheduledDetail JD On JS.Schedule_Id=JD.Schedule_Id Where JS.LogSite_Code='KK' And '28/Sep/2026' Between JS.ScheduleStartDate And JS.ScheduleEndDate And JS.ScheduleEnabled=1|192|6
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select Convert(Varchar,GetDate(),120)|138|0
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select JS.*,JD.Job_Id,JD.JobName From JobSchedule JS Inner Join JobScheduledDetail JD On JS.Schedule_Id=JD.Schedule_Id Where JS.LogSite_Code='KK' And '28/Sep/2026' Between JS.ScheduleStartDate And JS.ScheduleEndDate And JS.ScheduleEnabled=1|67|6
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select Convert(Varchar,GetDate(),120)|384|0
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select JS.*,JD.Job_Id,JD.JobName From JobSchedule JS Inner Join JobScheduledDetail JD On JS.Schedule_Id=JD.Schedule_Id Where JS.LogSite_Code='KK' And '28/Sep/2026' Between JS.ScheduleStartDate And JS.ScheduleEndDate And JS.ScheduleEnabled=1|190|6
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from JOBScheduledDetail Where JobEnabled=1 And JobScheduledOn Is Not Null|84|2
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from DBSENDSMS Where ISNULL(SENDTF,'')<>'TRUE'|2656|738
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select Convert(Varchar,GetDate(),120)|124|0
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select JS.*,JD.Job_Id,JD.JobName From JobSchedule JS Inner Join JobScheduledDetail JD On JS.Schedule_Id=JD.Schedule_Id Where JS.LogSite_Code='KK' And '28/Sep/2026' Between JS.ScheduleStartDate And JS.ScheduleEndDate And JS.ScheduleEnabled=1|65|6
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select Convert(Varchar,GetDate(),120)|370|0
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select JS.*,JD.Job_Id,JD.JobName From JobSchedule JS Inner Join JobScheduledDetail JD On JS.Schedule_Id=JD.Schedule_Id Where JS.LogSite_Code='KK' And '28/Sep/2026' Between JS.ScheduleStartDate And JS.ScheduleEndDate And JS.ScheduleEnabled=1|176|6
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select Convert(Varchar,GetDate(),120)|300|0
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select JS.*,JD.Job_Id,JD.JobName From JobSchedule JS Inner Join JobScheduledDetail JD On JS.Schedule_Id=JD.Schedule_Id Where JS.LogSite_Code='KK' And '28/Sep/2026' Between JS.ScheduleStartDate And JS.ScheduleEndDate And JS.ScheduleEnabled=1|189|6
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select Convert(Varchar,GetDate(),120)|302|0
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select JS.*,JD.Job_Id,JD.JobName From JobSchedule JS Inner Join JobScheduledDetail JD On JS.Schedule_Id=JD.Schedule_Id Where JS.LogSite_Code='KK' And '28/Sep/2026' Between JS.ScheduleStartDate And JS.ScheduleEndDate And JS.ScheduleEnabled=1|178|6
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select Convert(Varchar,GetDate(),120)|304|0
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select JS.*,JD.Job_Id,JD.JobName From JobSchedule JS Inner Join JobScheduledDetail JD On JS.Schedule_Id=JD.Schedule_Id Where JS.LogSite_Code='KK' And '28/Sep/2026' Between JS.ScheduleStartDate And JS.ScheduleEndDate And JS.ScheduleEnabled=1|181|6
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from JOBScheduledDetail Where JobEnabled=1 And JobScheduledOn Is Not Null|161|2
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from DBSENDSMS Where ISNULL(SENDTF,'')<>'TRUE'|8033|738
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select Convert(Varchar,GetDate(),120)|317|0
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select JS.*,JD.Job_Id,JD.JobName From JobSchedule JS Inner Join JobScheduledDetail JD On JS.Schedule_Id=JD.Schedule_Id Where JS.LogSite_Code='KK' And '28/Sep/2026' Between JS.ScheduleStartDate And JS.ScheduleEndDate And JS.ScheduleEnabled=1|190|6
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select Convert(Varchar,GetDate(),120)|326|0
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select JS.*,JD.Job_Id,JD.JobName From JobSchedule JS Inner Join JobScheduledDetail JD On JS.Schedule_Id=JD.Schedule_Id Where JS.LogSite_Code='KK' And '28/Sep/2026' Between JS.ScheduleStartDate And JS.ScheduleEndDate And JS.ScheduleEnabled=1|180|6
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select Convert(Varchar,GetDate(),120)|263|0
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select JS.*,JD.Job_Id,JD.JobName From JobSchedule JS Inner Join JobScheduledDetail JD On JS.Schedule_Id=JD.Schedule_Id Where JS.LogSite_Code='KK' And '28/Sep/2026' Between JS.ScheduleStartDate And JS.ScheduleEndDate And JS.ScheduleEnabled=1|178|6
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select Convert(Varchar,GetDate(),120)|300|0
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select JS.*,JD.Job_Id,JD.JobName From JobSchedule JS Inner Join JobScheduledDetail JD On JS.Schedule_Id=JD.Schedule_Id Where JS.LogSite_Code='KK' And '28/Sep/2026' Between JS.ScheduleStartDate And JS.ScheduleEndDate And JS.ScheduleEnabled=1|170|6
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select Convert(Varchar,GetDate(),120)|143|0
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select JS.*,JD.Job_Id,JD.JobName From JobSchedule JS Inner Join JobScheduledDetail JD On JS.Schedule_Id=JD.Schedule_Id Where JS.LogSite_Code='KK' And '28/Sep/2026' Between JS.ScheduleStartDate And JS.ScheduleEndDate And JS.ScheduleEnabled=1|82|6
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from JOBScheduledDetail Where JobEnabled=1 And JobScheduledOn Is Not Null|88|2
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select * from DBSENDSMS Where ISNULL(SENDTF,'')<>'TRUE'|4381|738
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select Convert(Varchar,GetDate(),120)|359|0
+12|NULL|DESKTOP-6GGQU0K|Logic Pro (Win HMS)|Select JS.*,JD.Job_Id,JD.JobName From JobSchedule JS Inner Join JobScheduledDetail JD On JS.Schedule_Id=JD.Schedule_Id Where JS.LogSite_Code='KK' And '28/Sep/2026' Between JS.ScheduleStartDate And JS.ScheduleEndDate And JS.ScheduleEnabled=1|193|6

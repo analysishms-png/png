@@ -1,0 +1,157 @@
+Main Setup|12|0|0|0|N|ACTIVE
+Front Office|12|12|0|0|N|ACTIVE
+Company Master|12|12|25|0|E|ACTIVE
+Reservation|13|0|0|0|N|ACTIVE
+Operations|13|11|0|0|N|ACTIVE
+Reservation/Cancellation|13|11|11|0|E|ACTIVE
+Look Up Room types|13|11|13|0|E|ACTIVE
+Look Up Rooms|13|11|14|0|E|ACTIVE
+Reservation With History|13|11|15|0|E|ACTIVE
+Advance Deposit|13|11|16|0|E|ACTIVE
+Confirmation Letters|13|11|17|0|E|ACTIVE
+Cancellation Letters|13|11|18|0|E|ACTIVE
+Registration Card|13|11|19|0|E|ACTIVE
+Reservation Status Screen|13|11|20|0|E|ACTIVE
+Reservation Status Report|13|12|0|0|N|ACTIVE
+Reservation Status|13|12|11|0|R|ACTIVE
+Reservation Status Arrival|13|12|12|0|R|ACTIVE
+Arrival List|13|12|16|0|R|ACTIVE
+Advance Recd. Report|13|13|0|0|N|ACTIVE
+Advance Recd.|13|13|11|0|R|ACTIVE
+Advance Recd. Arrival|13|13|12|0|R|ACTIVE
+M.I.S.|13|14|0|0|N|ACTIVE
+7-730 Days Forecast|13|14|11|0|E|ACTIVE
+23 Day Room Availability Forecast|13|14|12|0|E|ACTIVE
+23 Day Room Type Availability Forecast|13|14|13|0|E|ACTIVE
+Package Forecast|13|14|14|0|E|ACTIVE
+Front Office|14|0|0|0|N|ACTIVE
+Operations|14|11|0|0|N|ACTIVE
+WalkIn CheckIn|14|11|11|0|E|ACTIVE
+Room Status|14|11|12|0|E|ACTIVE
+Expense Entry|14|11|13|0|E|ACTIVE
+Display Rack|14|11|15|0|E|ACTIVE
+Bill Reprint|14|11|18|0|E|ACTIVE
+Merge Room|14|11|20|0|E|ACTIVE
+Bill Re-Settlement|14|11|21|0|E|ACTIVE
+Reverse Room Merge|14|11|22|0|E|ACTIVE
+GRC Printing|14|11|24|0|E|ACTIVE
+Blank GRC|14|11|25|0|E|ACTIVE
+Reports|14|12|0|0|N|ACTIVE
+Instant House Count|14|12|11|0|R|ACTIVE
+Room Inventory|14|12|12|0|R|ACTIVE
+Charge Payment Detail|14|12|16|0|R|ACTIVE
+Payments By Cashier|14|12|17|0|R|ACTIVE
+Cashier Report|14|12|18|0|R|ACTIVE
+Settlement Report|14|12|19|0|R|ACTIVE
+Cancel Bill Details|14|12|20|0|R|ACTIVE
+Room Change History|14|12|21|0|R|ACTIVE
+FOM Sales Register|14|12|23|0|R|ACTIVE
+Room Wise Plan Detail|14|12|24|0|R|ACTIVE
+Occupancy Report|14|12|26|0|R|ACTIVE
+Bill Change Report|14|12|27|0|R|ACTIVE
+Check Out Register|14|12|28|0|R|ACTIVE
+Check In Register|14|12|29|0|R|ACTIVE
+Expected Check Out|14|12|30|0|R|ACTIVE
+Guest Extra Charges|14|12|32|0|R|ACTIVE
+Checked In Guest Detail|14|12|33|0|R|ACTIVE
+Room Rent Audit Report|14|12|34|0|R|ACTIVE
+Sales Report|14|12|35|0|R|ACTIVE
+Guest Payments|14|12|36|0|R|ACTIVE
+M.I.S.|14|14|0|0|N|ACTIVE
+Occupancy Display|14|14|11|0|R|ACTIVE
+Guest wise Analysis|14|14|12|0|R|ACTIVE
+Company wise Analysis|14|14|13|0|R|ACTIVE
+Guestwise Charges Detail|14|14|14|0|R|ACTIVE
+Room Occupancy|14|14|15|0|R|ACTIVE
+Room Type Occupancy|14|14|16|0|R|ACTIVE
+Room Wise Room Revenue|14|14|17|0|R|ACTIVE
+Occupancy Analysis|14|14|18|0|R|ACTIVE
+Company wise Nights|14|14|19|0|R|ACTIVE
+Revenue During the stay|14|14|20|0|R|ACTIVE
+House Keeping|15|0|0|0|N|ACTIVE
+Operations|15|12|0|0|N|ACTIVE
+House Keeping Screen|15|12|17|0|E|ACTIVE
+LAUNDRY|15|14|0|0|N|ACTIVE
+Laundry Memo|15|14|13|0|E|ACTIVE
+Memo Reprint|15|14|14|0|E|ACTIVE
+Point Of Sale|17|0|0|0|N|ACTIVE
+POS Reports|17|17|0|0|N|ACTIVE
+Sales Register|17|17|11|0|R|ACTIVE
+Stewardwise Sale|17|17|12|0|R|ACTIVE
+Table wise Sale|17|17|13|0|R|ACTIVE
+Settlement Summary|17|17|14|0|R|ACTIVE
+KOT Wise Details|17|17|15|0|R|ACTIVE
+Cover Analysis|17|17|17|0|R|ACTIVE
+Pending KOT|17|17|18|0|R|ACTIVE
+Item wise Sale|17|17|19|0|R|ACTIVE
+Deleted Unsettled Bill|17|17|20|0|R|ACTIVE
+NC KOT Detail|17|17|21|0|R|ACTIVE
+NC KOT Summary|17|17|24|0|R|ACTIVE
+Payment Receive Entry|17|17|30|0|E|ACTIVE
+Payment Receive Entry (POS)|17|17|31|0|E|ACTIVE
+Bill Wise Adjustment Report|17|17|32|0|R|ACTIVE
+ROOM SERVICE|17|20|0|0|N|ACTIVE
+KOT Entry|17|20|11|0|E|ACTIVE
+Sale Bill Entry|17|20|13|0|E|ACTIVE
+POS Bill Reprint|17|20|15|0|E|ACTIVE
+Display Table|17|20|17|0|E|ACTIVE
+KOT Transfer|17|20|21|0|E|ACTIVE
+Payment Receive|17|20|23|0|E|ACTIVE
+Garden Aroma|17|22|0|0|N|ACTIVE
+KOT Entry|17|22|11|0|E|ACTIVE
+Table Change Entry|17|22|12|0|E|ACTIVE
+KOT Transfer|17|22|13|0|E|ACTIVE
+Sale Bill Entry|17|22|15|0|E|ACTIVE
+Settlement Entry|17|22|16|0|E|ACTIVE
+POS Bill Reprint|17|22|17|0|E|ACTIVE
+Split Sale Bill|17|22|18|0|E|ACTIVE
+Display Table|17|22|19|0|E|ACTIVE
+Bill Lookup|17|22|22|0|E|ACTIVE
+Payment Receive|17|22|23|0|E|ACTIVE
+Banquet|18|0|0|0|N|ACTIVE
+Operation|18|12|0|0|N|ACTIVE
+Booking Inquiry|18|12|11|0|E|ACTIVE
+Banquet Booking|18|12|12|0|E|ACTIVE
+Catalog Selection|18|12|13|0|E|ACTIVE
+Chef Pre-Costing|18|12|14|0|E|ACTIVE
+Banquet Billing|18|12|15|0|E|ACTIVE
+Venue Availability|18|12|17|0|E|ACTIVE
+Guest Comments|18|12|18|0|E|ACTIVE
+Banquet Estimate Billing|18|12|19|0|E|ACTIVE
+Banquet Booking Advance|18|12|20|0|E|ACTIVE
+Reports|18|13|0|0|N|ACTIVE
+Sales Register|18|13|11|0|R|ACTIVE
+OutStanding Report|18|13|12|0|R|ACTIVE
+Party wise OutStanding|18|13|13|0|R|ACTIVE
+Cashier  Report|18|13|14|0|R|ACTIVE
+Booking Inquiry Detail|18|13|15|0|R|ACTIVE
+Settlement  Report|18|13|16|0|R|ACTIVE
+Daily Function Sheet|18|13|17|0|R|ACTIVE
+Item Wise Sales Report|18|13|18|0|R|ACTIVE
+Company Wise Sale Report|18|13|19|0|R|ACTIVE
+Function Wise Item Detail|18|13|20|0|R|ACTIVE
+MIS|18|14|0|0|N|ACTIVE
+Cover Analysis|18|14|11|0|R|ACTIVE
+Collection Summary|18|14|12|0|R|ACTIVE
+Tax Report|18|15|0|0|N|ACTIVE
+Tax Report|18|15|11|0|R|ACTIVE
+Tax Summary|18|15|12|0|R|ACTIVE
+Banquet Taxwise Details|18|15|13|0|E|ACTIVE
+Night Audit|19|0|0|0|N|ACTIVE
+Operation|19|11|0|0|N|ACTIVE
+Guest Audit Ledger|19|11|11|0|E|ACTIVE
+Charges Posting|19|11|12|0|E|ACTIVE
+Night Audit Process|19|11|13|0|E|ACTIVE
+Account Posting|19|11|14|0|E|ACTIVE
+Reverse Night Audit|19|11|16|0|E|ACTIVE
+Reports|19|12|0|0|N|ACTIVE
+Daily Report|19|12|11|0|E|ACTIVE
+Guest Trail|19|12|14|0|E|ACTIVE
+Checkout Analysis|19|12|15|0|E|ACTIVE
+Occupancy Analysis|19|12|16|0|R|ACTIVE
+Market Segment Analysis|19|12|17|0|E|ACTIVE
+Business Source Analysis|19|12|18|0|E|ACTIVE
+Company Analysis|19|12|19|0|E|ACTIVE
+FOCC Report|19|12|21|0|E|ACTIVE
+Food Costing Report|19|12|22|0|E|ACTIVE
+FB Cost Statement|19|12|23|0|E|ACTIVE

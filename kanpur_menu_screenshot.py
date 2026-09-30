@@ -113,7 +113,7 @@ print(f"Screenshot directory: {SCREENSHOT_DIR}")
 print(f"Total modules to screenshot: {len(MODULES)}")
 print(f"Total module entries: {len(MODULES)}")
 print("\nModule list ready for win32 MCP automation")
-print("Next step: Use win32 MCP to login as kanpur and navigate each module")
+print("Next step: Use win32 MCP to login (session credentials) and navigate each module")
 print("\nModule codes (for keyboard shortcuts):")
 for i, (code, name) in enumerate(MODULES[:16]):
     print(f"  Alt+{chr(ord('F')+i) if i<16 else '?'} = {name}")

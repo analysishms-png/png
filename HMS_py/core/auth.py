@@ -136,7 +136,7 @@ def _stored_passwd(username: str, cn=None) -> str | None:
     BUGFIX (P0): pichhla SELECT list-driver pe PASSWD ko unicode-expand
     kar deta tha (Native Client 10: varchar 'A' -> 'A\x00'). CAST se
     raw bytes milte hain (VB6 ke jo ansi bytes hain wahi).
-    Evidence: SA raw=3c877d8a8c918e -> decrypt 'KANPUR' (seed=33).
+    Evidence: SA raw=3c877d8a8c918e -> decrypt '<MASKED>' (seed=33).
     """
     from HMS_py.core import db
     rows = db.query(

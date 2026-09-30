@@ -1,0 +1,53 @@
+%% 13_Messaging workflow — internal Inbox/Outbox + the SMS queue it sits next to
+%% Evidence: menu_tree_raw L472-L474, EXTRAS.text L7875-L7901, L7832, L626051-L629716,
+%%           L87786/L87877, tables_rowcounts
+%% solid = [VERIFIED-VB6]   dashed = [INFERRED]   dotted = [UNKNOWN]
+
+flowchart TD
+    subgraph MENU["Module entry (hex 16)"]
+        MH["Messaging header<br/>menu_tree L472<br/>[VERIFIED-VB6]"]
+        MH --> MI["InBox  (menu L473, type 0)"]
+        MH --> MO["OutBox (menu L474, type 0)"]
+    end
+
+    subgraph CLICK["mnuMSG_Click  L7875  [VERIFIED-VB6]"]
+        MI -->|"Index = 0"| H0["global_52 = New Inbox<br/>L7884, .Show L7889"]
+        MO -->|"Index = 1"| H1["global_52 = New Outbox<br/>L7892, .Show L7897"]
+        H0 --> CAP0["caption = Inbox.Menu.Caption<br/>Method_mnuMSG_Click0 L7886"]
+        H1 --> CAP1["caption = Outbox.Menu.Caption<br/>L7894"]
+    end
+
+    subgraph DATA["Backing data"]
+        H0 -.->|"reads?"| T3[("messaging  = 0 rows<br/>[VERIFIED-SQL]")]
+        H0 -.->|"reads?"| T4[("GuestMessage = 0 rows<br/>[VERIFIED-SQL]")]
+        H1 -.->|"reads?"| T5[("DBSendSMS 18810 rows<br/>[VERIFIED-SQL]")]
+    end
+
+    subgraph FO["Front-O owned guest message book"]
+        GM["Guest message screen (FO)<br/>grid SQL L87877<br/>[VERIFIED-VB6]"]
+        GM --> GQ["SELECT GM.DocID, VNo, RoomNo,<br/>GF.Name, GF.Company, GM.Caller<br/>L87877"]
+        GM -->|"edit = delete+insert"| GD["DELETE FROM GuestMessage<br/>WHERE DocID=…  L87786<br/>[VERIFIED-VB6]"]
+        GQ --> T4
+    end
+
+    subgraph QUEUE["SMS queue worker (module 18 owns the UI)"]
+        Q1["dequeue pending<br/>SELECT * FROM DBSENDSMS<br/>WHERE ISNULL(SENDTF,'')&lt;&gt;'TRUE'<br/>L7832  [VERIFIED-VB6]"]
+        Q2["next SNo per DocId<br/>MAX(SNo)+1  L626051<br/>[VERIFIED-VB6]"]
+        Q3["next VNo per VType<br/>MAX(VNo)+1  L626947 / L629716<br/>[VERIFIED-VB6]"]
+        Q4["mark SENDTF='TRUE'<br/>[UNKNOWN] - not seen in source"]
+        T6[("DBSendSMS 18810 rows<br/>queue never drained<br/>[VERIFIED-SQL]")]
+        Q1 --> T6
+        Q2 --> T6
+        Q3 --> T6
+        T6 -.-> Q4
+    end
+
+    T5 -.-> Q1
+    Q1 -.->|"forward?"| T7[("EmailSMSForward 18 rows<br/>[VERIFIED-SQL] owner UNKNOWN")]
+
+    classDef verified fill:#d5f5e3,stroke:#1e8449
+    classDef inferred fill:#fdebd0,stroke:#b9770e,stroke-dasharray:4 3
+    classDef unknown fill:#fadbd8,stroke:#c0392b,stroke-dasharray:2 3
+    class MH,MI,MO,H0,H1,CAP0,CAP1,GM,GQ,GD,Q1,Q2,Q3 verified
+    class T3,T4,T5,T6,T7 inferred
+    class Q4 unknown

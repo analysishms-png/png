@@ -1,0 +1,34 @@
+# DATABASE CONNECTION DISCOVERY  [Partially BLOCKED]
+
+## What the application connects to (evidence: decompiled code + INI)
+[VERIFIED-VB6] EXTRAS.text line 9868:
+  Provider=SQLNCLI.1;Password=<pwd>;Persist Security Info=True;User ID=<user>;Initial Catalog=<INI key 6>
+[VERIFIED-CONFIG] INI: server=LOCALHOST (key 1), database=MOONData2627 (key 6)
+
+## Secondary data stores
+[VERIFIED-VB6]
+- Jet 4.0: <Temp path>\DMEPABX.mdb (line 10694), SaleTransfer.mdb (71367, 75586),
+  <path>TO<path>.mdb pattern (487959 - export/staging DBs)
+- MSDASQL.1 DSN "HotelTrans" (487893)
+- Fadata.mdb, Temp.Mdb present in Temp\ [UNKNOWN exact role - to verify from code]
+
+## LIVE CONNECTION STATUS: ESTABLISHED (2026-09-28) — READ-ONLY
+SQL Server (MSSQLSERVER) service RUNNING on this machine; sqlcmd at
+C:\Program Files\Microsoft SQL Server\100\Tools\Binn\SQLCMD.EXE; Windows auth (-E) works.
+MOONData2627 ONLINE (SIMPLE recovery). Instance also hosts sister-property DBs
+(BareillyClub, GrandOrientData2425, KrishnaPalaceData2627[+a]) and test/restore DBs.
+Full read-only findings: HMS_REVERSE_ENGINEERING/18_Database/LIVE_DATABASE_DICTIONARY.md
+(The bundled Data\...\DATA folder remains empty — the service uses its own data path.)
+
+## How to unblock (read-only plan, for next phase)
+1. Check service:  sc query MSSQLSERVER / check services.msc for MSSQL10_50 instance
+2. If DB restored/attached elsewhere, connect READ-ONLY:
+     sqlcmd -S LOCALHOST -E -d MOONData2627 -h -1
+     (metadata only: sys.tables, sys.columns, sys.views, sys.procedures, sys.triggers,
+      sys.foreign_keys, sys.sql_modules)
+3. If a .bak exists anywhere: request user to place it in Data\...\Backup\ then
+     RESTORE DATABASE ... WITH RECOVERY, then treat as analysis copy.
+4. Optional safe trace: SQL Server Profiler / Extended Events with SELECT-only filter
+   while user operates HMS.exe (no writes executed by us).
+
+RULE (from task spec): no INSERT/UPDATE/DELETE/DDL on any HMS database. Metadata queries only.

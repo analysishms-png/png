@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "C:\Users\LENOVO\Desktop\serialkey\PROJECT_REPAIR - Copy\HMS_py\HMS_py\demo_test.py", line 12, in <module>
+    from HMS_py.ui.shell import LoginDialog, CompanyDialog, MainWindow
+ModuleNotFoundError: No module named 'HMS_py.ui'

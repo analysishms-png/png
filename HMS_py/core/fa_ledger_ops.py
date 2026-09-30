@@ -1496,6 +1496,171 @@ def refresh_all_currbal(cn=None) -> int:
     return count
 
 
+def _acgroup_chain(gc: str, cn=None) -> list[str]:
+    """AcGroup.MainGrCode chain -> write-yogya group codes (ancestor first).
+
+    AcGroup.MainGrCode ek hierarchical path-code hai (jaise '010001' ya
+    9-char '030003001'), GroupCode nahi. ACGROUPCURRBAL.GroupCode varchar(6)
+    hai, isliye sirf wahi codes lautate hain jo AcGroup me asli GroupCode ke
+    roop me exist karte hain (warna 8152 string-truncation).
+    """
+    out: list[str] = []
+    seen: set[str] = set()
+    gc = (gc or "").strip()
+    while gc and gc not in seen:
+        seen.add(gc)
+        if not db.query(
+                "SELECT 1 FROM AcGroup WHERE GroupCode = ?", (gc,), cn=cn):
+            break
+        out.append(gc)
+        p = db.query(
+            "SELECT MainGrCode FROM AcGroup WHERE GroupCode = ?",
+            (gc,), cn=cn)
+        if not p:
+            break
+        parent = ((p[0][0] or "").strip())
+        if not parent or parent == gc:
+            break
+        gc = parent
+    return out
+
+
+def rebuild_currbal(subcode: str | None = None, cn=None,
+                    commit: bool = True) -> dict:
+    """VB6 FaCurrBalUpdate.frm Command1_Click: current-balance rebuild.
+
+    Evidence (FaCurrBalUpdate.frm loc_1262920-1262C9A):
+      1. SELECT ... SUM(Ledger.AmtCr), SUM(Ledger.AmtDr) FROM SubGroup
+         INNER JOIN Ledger ... [WHERE SubCode=<sel>] GROUP BY ...
+      2. recset count = 0 -> MsgBox "Ledger Table is Empty"
+      3. BeginTrans
+      4. UPDATE ACGROUPCURRBAL SET CURR_BAL=0
+         UPDATE SUBGROUPCURRBAL SET CURR_BAL=0
+      5. har row -> Proc_183_0_1279094(site, subcode, AmtDr, AmtCr,
+         GroupCode)  => SUBGROUPCURRBAL.Curr_Bal = Dr - Cr, phir
+         AcGroup.MainGrCode chain par ACGROUPCURRBAL me same net
+      6. CommitTrans -> "Opening Balance Updation Has been Completed"
+
+    Sign convention: net = AmtDr - AmtCr (fa_voucher.py Proc_183_0 delta
+    aur refresh_currbal dono se match).
+
+    subcode=None -> poora rebuild (VB6 ka all-accounts mode).
+    subcode=...  -> sirf us subgroup ki row; group chain ke balances
+                    poore Ledger se recompute hote hain (VB6 ke single-
+                    account mode me sabhi Curr_Bal zero ho jaate the —
+                    wo data-loss quirk tha, yahan intentionally nahi).
+
+    Raises ValueError("Ledger Table is Empty") jab koi row na mile.
+    """
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        rows = db.query(
+            "SELECT S.SubCode, S.GroupCode, "
+            "SUM(L.AmtDr) AS AmtDr, SUM(L.AmtCr) AS AmtCr "
+            "FROM SubGroup S INNER JOIN LEDGER L ON L.SubCode = S.SubCode "
+            "GROUP BY S.SubCode, S.GroupCode", cn=cn)
+        if not rows:
+            raise ValueError("Ledger Table is Empty")
+
+        nets: dict[str, float] = {}
+        grp_of: dict[str, str] = {}
+        for r in rows:
+            sc = (r.SubCode or "").strip()
+            if not sc:
+                continue
+            nets[sc] = float(r.AmtDr or 0) - float(r.AmtCr or 0)
+            grp_of[sc] = (r.GroupCode or "").strip()
+
+        if not nets:
+            raise ValueError("Ledger Table is Empty")
+
+        # Group nets = subtree sum (VB6 MainGrCode chain par delta add)
+        grp_nets: dict[str, float] = {}
+        for sc, net in nets.items():
+            for gc in _acgroup_chain(grp_of.get(sc) or "", cn=cn):
+                grp_nets[gc] = grp_nets.get(gc, 0.0) + net
+
+        # Step 4: zero (VB6 does this inside the same transaction)
+        if subcode:
+            db.execute(
+                "UPDATE SUBGROUPCURRBAL SET Curr_Bal = 0 "
+                "WHERE SubCode = ? AND LogSite_Code = ?",
+                (subcode, SITE_CODE), cn=cn, commit=False)
+        else:
+            db.execute(
+                "UPDATE SUBGROUPCURRBAL SET Curr_Bal = 0 "
+                "WHERE LogSite_Code = ?", (SITE_CODE,),
+                cn=cn, commit=False)
+            db.execute(
+                "UPDATE ACGROUPCURRBAL SET Curr_Bal = 0 "
+                "WHERE LogSite_Code = ?", (SITE_CODE,),
+                cn=cn, commit=False)
+
+        # Step 5: write subgroup rows
+        written_sub = 0
+        for sc, net in nets.items():
+            if subcode and sc != subcode.strip():
+                continue
+            if subgroupcurrbal_get(sc, cn=cn):
+                db.execute(
+                    "UPDATE SUBGROUPCURRBAL SET Curr_Bal = ?, GroupCode = ? "
+                    "WHERE SubCode = ? AND LogSite_Code = ?",
+                    (net, grp_of.get(sc) or "", sc, SITE_CODE),
+                    cn=cn, commit=False)
+            else:
+                db.execute(
+                    "INSERT INTO SUBGROUPCURRBAL (LogSite_Code, SubCode, "
+                    "V_Date, GroupCode, Curr_Bal, Site_Code) "
+                    "VALUES (?, ?, getdate(), ?, ?, ?)",
+                    (SITE_CODE, sc, grp_of.get(sc) or "", net, SITE_CODE),
+                    cn=cn, commit=False)
+            written_sub += 1
+
+        if written_sub == 0:
+            raise ValueError("Ledger Table is Empty")
+
+        # Step 5b: group chain rows
+        # grp_nets ke values poore Ledger ke subtree-net hain (absolute);
+        # single-subcode mode me sirf us subcode tak pahunchne wale groups
+        # rewrite hote hain - baaki groups untouched (aur sahi) rehte hain.
+        write_groups = grp_nets
+        if subcode:
+            reach = _acgroup_chain(grp_of.get(subcode.strip()) or "", cn=cn)
+            write_groups = {g: grp_nets[g] for g in reach if g in grp_nets}
+        for gc, net in write_groups.items():
+            if acgroupcurrbal_get(gc, cn=cn):
+                db.execute(
+                    "UPDATE ACGROUPCURRBAL SET Curr_Bal = ? "
+                    "WHERE GroupCode = ? AND LogSite_Code = ?",
+                    (net, gc, SITE_CODE), cn=cn, commit=False)
+            else:
+                db.execute(
+                    "INSERT INTO ACGROUPCURRBAL (LogSite_Code, GroupCode, "
+                    "V_Date, Curr_Bal, Site_Code) "
+                    "VALUES (?, ?, getdate(), ?, ?)",
+                    (SITE_CODE, gc, net, SITE_CODE), cn=cn, commit=False)
+
+        if own and commit:
+            cn.commit()
+
+        return {"subgroups": written_sub, "groups": len(write_groups),
+                "subcode": (subcode or "(all)"), "user": USER}
+    except Exception:
+        if own:
+            try:
+                cn.rollback()
+            except Exception:
+                pass
+        raise
+    finally:
+        if own:
+            try:
+                cn.close()
+            except Exception:
+                pass
+
+
 # ============================================================
 # API Classes - LEDGER
 # ============================================================
@@ -1534,5 +1699,8 @@ class _CurrBalAPI:
     def refresh(subcode, cn=None): return refresh_currbal(subcode, cn)
     @staticmethod
     def refresh_all(cn=None): return refresh_all_currbal(cn)
+    @staticmethod
+    def rebuild(subcode=None, cn=None, commit=True):
+        return rebuild_currbal(subcode, cn, commit)
 
 CurrBalAPI = _CurrBalAPI()

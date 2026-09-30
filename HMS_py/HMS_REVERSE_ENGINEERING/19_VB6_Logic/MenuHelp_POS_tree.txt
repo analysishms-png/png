@@ -1,0 +1,10 @@
+Point Of Sale|17|0|0|0|N
+Garden Aroma|17|22|0|0|N
+KOT Entry|17|22|11|0|E
+Table Change Entry|17|22|12|0|E
+KOT Transfer|17|22|13|0|E
+Sale Bill Entry|17|22|15|0|E
+Settlement Entry|17|22|16|0|E
+POS Bill Reprint|17|22|17|0|E
+Display Table|17|22|19|0|E
+Bill Lookup|17|22|22|0|E

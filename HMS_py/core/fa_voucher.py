@@ -261,12 +261,12 @@ def _update_currbal(cn, subcode: str, dr: float, cr: float, vdate=None):
             (SITE_CODE, subcode, vdate, groupcode, delta, SITE_CODE))
     if not groupcode:
         return
-    seen: set[str] = set()
-    gc = groupcode
-    for _ in range(10):
-        if not gc or gc in seen:
-            break
-        seen.add(gc)
+    # AcGroup.MainGrCode ek hierarchical path-code hai (kabhi 9-char, jaise
+    # '030003001') jo GroupCode nahi. use ACGROUPCURRBAL.GroupCode me likhne
+    # par 8152 truncation aata tha (ya bogus group-row ban jaati thi).
+    # _acgroup_chain sirf asli AcGroup.GroupCode codes lautata hai.
+    from HMS_py.core.fa_ledger_ops import _acgroup_chain
+    for gc in _acgroup_chain(groupcode, cn=cn):
         ar = db.query(
             "SELECT ISNULL(Curr_Bal, 0) FROM ACGROUPCURRBAL "
             "WHERE GroupCode = ? AND LogSite_Code = ? AND V_Date = ?",
@@ -281,15 +281,6 @@ def _update_currbal(cn, subcode: str, dr: float, cr: float, vdate=None):
                 "INSERT INTO ACGROUPCURRBAL (LogSite_Code, GroupCode, "
                 "V_Date, Curr_Bal, Site_Code) VALUES (?, ?, ?, ?, ?)",
                 (SITE_CODE, gc, vdate, delta, SITE_CODE))
-        p = db.query(
-            "SELECT MainGrCode FROM AcGroup WHERE GroupCode = ?",
-            (gc,), cn=cn)
-        if not p:
-            break
-        parent = ((p[0][0] or "").strip())
-        if not parent or parent == gc:
-            break
-        gc = parent
 
 
 def _create_ledgerref(cn, docid: str, sno: int, subcode: str, line: dict,

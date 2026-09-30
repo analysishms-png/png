@@ -49,16 +49,23 @@ class TestAuthEncryptDecrypt:
         assert auth.decrypt("") == ""
 
     def test_vb6_sa_password_known(self):
-        """SA password from live DB decrypts to known value.
-        
-        Evidence: SA raw=3c877d8a8c918e -> decrypt 'KANPUR' (seed=33)
+        """SA password from live DB decrypts to env-configured value.
+
+        Evidence: SA raw=3c877d8a8c918e -> decrypt (seed=33); expected value
+        comes from HMS_APP_PASSWORD (credential intentionally not stored in repo).
         """
+        import os
+        import pytest
         from HMS_py.core import auth
-        
+
+        expected = os.environ.get("HMS_APP_PASSWORD")
+        if not expected:
+            pytest.skip("HMS_APP_PASSWORD not set (credential intentionally not stored)")
+
         # Raw bytes from DB (latin-1 decoded)
         sa_raw = bytes([0x3c, 0x87, 0x7d, 0x8a, 0x8c, 0x91, 0x8e]).decode('latin-1')
         decrypted = auth.decrypt(sa_raw)
-        assert decrypted == "KANPUR"
+        assert decrypted == expected
 
 
 class TestAuthCheckLogin:
