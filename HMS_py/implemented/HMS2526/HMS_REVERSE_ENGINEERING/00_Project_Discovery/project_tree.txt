@@ -1,0 +1,43 @@
+# HMS PROJECT TREE (discovered)  [VERIFIED-CONFIG]
+
+HMS root (== C:\PENDRIVE\HMS)
+|
+|-- HMS.exe                     current build (28.9MB, 2026-04-11)
+|-- HMS old.exe                 prior build (2023-08-05)
+|-- HMSGSTzzz (2).exe           GST build copy (2023-08-05)
+|-- Analysis.ini                config (see ini_analysis.txt)
+|-- EXTRAS.text                 54MB decompiled VB6 trace of HMS.exe  <-- PRIMARY CODE EVIDENCE
+|-- tax.txt                     [UNKNOWN purpose - to inspect]
+|-- GSTR1_Excel_Workbook_Template_V1.5.xlsx
+|
+|-- acr120u.dll / SmartCard_ACR.dll / Analysis_ACR.dll   ACR smartcard/keycard SDK
+|-- MSCOMM32.OCX / sysdm.ocx                             EPABX serial / system ocx
+|
+|-- Data\MSSQL10_50.MSSQLSERVER\MSSQL\   SQL Server 2008 R2 data dir
+|     |-- Backup\   (empty)
+|     |-- DATA\     (empty - DB files NOT in this copy) [BLOCKED: live DB analysis]
+|     |-- FTData\ JOBS\ Log\ repldata\
+|
+|-- Temp\
+|     |-- Temp.Mdb      working/temp Jet database
+|     |-- DMEPABX.mdb   EPABX call data (Jet) - referenced in code line 10694
+|     |-- Fadata.mdb    FA/finance related Jet data [UNKNOWN purpose - verify]
+|
+|-- Reports\    524 Crystal Reports (.rpt) + field definitions (.ttx)
+|     |-- EGST.rar       (e-GST report pack archive)
+|     |-- key reports: BillPrint.rpt/.ttx, CashierReport, ChkInRegister, ChkOutRegister,
+|                       DailyReport, Day23RoomAvail, NightAudit* (see 17_Reports)
+|
+|-- Image\
+|     |-- Hotel.bmp, Hotellogo.bmp
+|     |-- IdProof\        guest ID proofs
+|     |-- PurchBill\      purchase bill scans
+|
+|-- pic\        UI images (Hotel.bmp load path confirmed in MDIForm_Load, line 7412)
+|
+|-- HMS.rar (5.2MB) / HMSGST.rar (5MB) / Temp.rar (130KB)   <-- may contain VB6 source [TO EXTRACT]
+|
+|-- Logs: ErrorLog.Log (active), FaLog.Log, HMSIssueList.Log,
+|         HMSACIssueList.Log, HMS_GSTRI_List.Log
+
+HMS_REVERSE_ENGINEERING\        <- THIS documentation workspace (22 folders planned)

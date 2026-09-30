@@ -10,6 +10,7 @@ par verify karta hai (alias `None` ho to skip).
 """
 import ast
 import importlib
+import inspect
 import os
 import re
 
@@ -170,16 +171,38 @@ def _qapp():
     return QApplication.instance() or QApplication([])
 
 
-def test_facility_sundry_setting_is_a_real_opener():
+def test_facility_sundry_setting_is_a_real_opener(monkeypatch):
+    """Facility Sundry Setting -> asli opener (coming_soon nahi).
+
+    Registry me do ports hain jo ek hi leaf par wire hue hain:
+      - fd_forms_ui.open_facility_sundry  -> FacilitySundryWindow (return)
+      - misc_parity_ui.open_facility_sundry -> modal QDialog + dlg.exec()
+    Shell `self.registry[leaf](self)` ka return discard karta hai, isliye
+    jo opener khud show/exec kare wahi asli mein khulta hai — usi liye
+    yahan `mpu` wala winner hai.
+
+    Modal `dlg.exec()` ko stub karke invoke karte hain, warna ye test khud
+    hang ho jaata hai (Qt event loop pytest me block karta hai).
+    """
     _qapp()
+    from PyQt6.QtWidgets import QDialog
+
+    monkeypatch.setattr(
+        QDialog, "exec",
+        lambda self, *a, **k: QDialog.DialogCode.Accepted)
+
     from HMS_py.ui.shell import _form_registry
 
     res = _form_registry().get("Facility Sundry Setting")
     assert res, '"Facility Sundry Setting" registry me nahi hai'
-    win = res(None)
-    assert win.__class__.__name__ == "FacilitySundryWindow", (
-        f"unexpected opener: {win!r}"
-    )
+    # opener ka source asli opener par point karna chahiye, `_coming_soon`
+    # placeholder nahi (wo bhi callable hota hai, isliye sirf callable
+    # hona kaafi nahi).
+    src = inspect.getsource(res)
+    assert "open_facility_sundry" in src, f"unexpected opener: {src.strip()!r}"
+    # construct under stubbed modal loop — DB error / import error yahan
+    # pakda jaayega, event-loop block nahi hoga.
+    res(None)
 
 
 def test_facility_sundry_still_in_menu_tree():

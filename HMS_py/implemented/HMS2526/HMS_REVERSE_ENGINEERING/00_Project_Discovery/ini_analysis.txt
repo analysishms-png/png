@@ -1,0 +1,31 @@
+# Analysis.ini ANALYSIS  [VERIFIED-CONFIG]
+
+File: Analysis.ini (349 bytes, 2026-09-27)
+[HMS]
+1=LOCALHOST              -> SQL Server host [INFERRED -> confirmed by EXTRAS.text connection code
+                            building "Initial Catalog=" from key 6; host default = key 1]
+2=C:\PENDRIVE\HMS\Reports -> Crystal Reports folder
+3=C:\PENDRIVE\HMS\Temp    -> Temp folder (holds Temp.Mdb, DMEPABX.mdb, Fadata.mdb)
+4=Prn                     -> printer/report mode flag [INFERRED]
+5=C:\Backup               -> backup destination folder
+6=MOONData2627            -> database name [INFERRED -> matches "Initial Catalog=" concatenation
+                            in decompiled code; DB files not present on this copy]
+7=KK                      -> property/site short code [INFERRED] (used as site_code prefix in DocIds)
+8=Bareilly                -> city/property name [INFERRED]
+9=&Finance#&Main Setup#Reservation#Front Office#House Keeping#Inventory#Point Of Sale#Banquet#Night Audit#HR && PayRoll#EPABX#&Messaging#Members Mgmt#Sale && Marketing#Mall Management#
+                          -> main menu hierarchy, '#' delimited, '&' = accelerator key, '&&' = literal &.
+                            15 modules total.
+10=C:\PENDRIVE\HMS\Image  -> image folder (guest IdProof, purchase bills, hotel logo)
+
+Trailing token "LLS001" on its own line: [UNKNOWN] - likely a build/license tag. Needs verification.
+
+## Decompiled connection-string evidence (EXTRAS.text lines 9868-9879) [VERIFIED-VB6]
+- SQL Server : "Provider=SQLNCLI.1;Password=<dbpwd>;Persist Security Info=True;User ID=<dbuser>;Initial Catalog=" & <dbname>
+- Shaped     : "Provider=MSDataShape;Data Provider=SQLOLEDB.1;...User ID=<dbuser>;Initial Catalog=" & <dbname>
+- EPABX mdb  : "Provider=MSDataShape;Data Provider=Microsoft.Jet.OLEDB.4.0;...Data Source=" & <path> & "\DMEPABX.mdb"
+- SaleTransfer.mdb, HotelTrans DSN (MSDASQL.1) also referenced elsewhere in code.
+=> Architecture: SQL Server (central) + local Jet .mdb for EPABX/temp/transfer staging.
+
+## Credential handling [VERIFIED-CONFIG]
+Login credentials are supplied by the user at runtime and are NEVER stored in these documents.
+Mask as ******** everywhere.

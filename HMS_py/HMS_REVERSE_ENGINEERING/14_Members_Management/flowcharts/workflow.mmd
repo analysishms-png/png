@@ -1,0 +1,82 @@
+%% 14_Members_Management workflow — member lifecycle + billing document
+%% Evidence: menu_tree_raw L475-L497, EXTRAS dispatcher L480484-L480638,
+%%           Proc_1_122 L8494-L8556, inserts L859311/L861812/L861855/L861897,
+%%           MenuHelp_SA_tree (440 rows), tables_rowcounts
+%% solid=[VERIFIED-VB6]  dashed=[INFERRED]  dotted=[UNKNOWN]
+
+flowchart TD
+    subgraph RUNTIME["Runtime reachability (user SA)"]
+        TAB["Strip tab 'Members Mgmt'<br/>Analysis.ini key 9<br/>[VERIFIED-UI]"]
+        MH["MenuHelp OPT1=23<br/>ONLY 1 orphan row:<br/>'Auto Settle Card Balance'<br/>[VERIFIED-SQL]"]
+        MAST["Main Setup &gt; Members Mgmt (12|14)<br/>Category Master, Member Master,<br/>Environment Settings, Member Select Category<br/>[VERIFIED-SQL]"]
+        TAB --> MH
+        TAB --> MAST
+    end
+
+    subgraph BUILDER["Builder menu (menu_tree_raw, 24 rows) - design time"]
+        B0["Members Mgmt header L475"]
+        B0 --> BO["Operations group L476 (12 items)"]
+        B0 --> BR["Reports group L489 (8 items)"]
+    end
+
+    subgraph MASTERS["Master dispatch (caption chain)"]
+        MAST --> D1["Category Master -> MemCatMast  L480485"]
+        MAST --> D2["Member Master -> MemCatMast  L480490<br/>BUG: same form as Category<br/>[VERIFIED-VB6]"]
+        MAST --> D3["Revenue Master -> MemberShipRevenueMast L480495"]
+        MAST --> D4["Facility Master -> memFacilityMast L480501<br/>+ FrmFacilityMast L480504<br/>BUG: two .Show for one caption"]
+        MAST --> D5["9 masters total  L480484-L480529"]
+    end
+
+    subgraph OPS["Operations (caption chain)"]
+        BO --> O1["Member Visit Entry -> MemVisitEntry L480534"]
+        BO --> O2["Member Renewal Entry -> MemRenewalEntry L480539"]
+        BO --> O3["Member Used Facility -> MemFacilityEntry L480544"]
+        BO --> O4["Member Facility Billing -> MemFacilityBilling L480549"]
+        BO --> O5["Member Bill Printing -> MemBillPrintingModule L480554"]
+        BO --> O6["6 more ops (Assistant, Outstation,<br/>CatChng, PaymentReceive, Tagada, Cond)"]
+        BO --> OX["Revenue Change Entry L486<br/>NO dispatch arm -> DEAD<br/>[VERIFIED-VB6]"]
+        BO -.->|"stray row menu L18"| O7["Auto Settle Card Balance<br/>-> MemAutoSettleCardBalance L480579"]
+    end
+
+    subgraph IDX["Second dispatcher (index-based)"]
+        P["Proc_1_122_10724C8 L8494<br/>arg_C 0..5<br/>[VERIFIED-VB6]"]
+        P --> P1["0 MemVisitEntry / 1 MemRenewalEntry /<br/>2 MemFacilityEntry / 3 MemFacilityBilling /<br/>4 MemBillPrintingModule / 5 MemAssistant"]
+    end
+
+    O1 --> P
+    O2 --> P
+    O3 --> P
+    O4 --> P
+    O5 --> P
+
+    subgraph SQLW["Writes"]
+        O1 --> W1["INSERT MemVisitEntry  L859311<br/>MemCode, INDate, INTime, CardRegId"]
+        O4 --> W2["INSERT MemBill (header)  L861812"]
+        W2 --> W3["INSERT MemBill1 (facility line)  L861855<br/>AcCode, AcPosting"]
+        W3 --> W4["INSERT MemBill2 (tax line)  L861897"]
+    end
+
+    subgraph REPS["Reports (8 rows)"]
+        BR --> R1["7x rMemberRepView<br/>Visit Details, Mailing Labels, Bill Missing,<br/>Sales Register, Tax, Due Letter, Birthday"]
+        BR --> R2["Member Ledger -> FaReports  L480619<br/>[VERIFIED-VB6]"]
+        R2 --> RF["Finance report host"]
+    end
+
+    subgraph TABS["Table state (this site)"]
+        T1[("MemberFamily  37 rows")]
+        T2[("MemVisitEntry 0<br/>MemBill 0, MemBill1 0, MemBill2 0<br/>MemFacilityBilling 0, MemFacilityMast 0<br/>[VERIFIED-SQL]")]
+    end
+
+    W1 --> T2
+    W4 --> T2
+    R1 -.->|"only Mailing Labels + Birthday<br/>can return data"| T1
+    R2 -.->|"empty"| T2
+
+    classDef verified fill:#d5f5e3,stroke:#1e8449
+    classDef bug fill:#fadbd8,stroke:#c0392b
+    classDef inferred fill:#fdebd0,stroke:#b9770e,stroke-dasharray:4 3
+    classDef unknown fill:#e8daef,stroke:#6c3483,stroke-dasharray:2 3
+    class B0,BO,BR,D1,D3,D5,O1,O2,O3,O4,O5,O6,P,P1,W1,W2,W3,W4,R1,R2,RF verified
+    class D2,D4,OX bug
+    class MH,MAST,TAB,T1,T2 inferred
+    class O7 unknown

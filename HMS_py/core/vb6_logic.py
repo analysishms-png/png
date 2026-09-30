@@ -215,7 +215,7 @@ SQL_TRACKING = {
         "KOT (13907 rows)", "PayCharge (13723 rows)", "Ledger (18474 rows)",
         "FolioLog (972 rows)", "Indent (959 rows)", "RoomOcc (11002 rows)"
     ],
-    "note": "kanpur is VB6 login password, SQL Server uses Windows Auth"
+    "note": "VB6 application login password (env only, never stored); SQL Server uses Windows Auth"
 }
 
 # === Screenshot Manifest ===
@@ -235,13 +235,13 @@ SCREENSHOTS = {
     "location": "HMS_py/_qa/"
 }
 
-# === VB6 Login with kanpur ===
+# === VB6 Login credentials (password via env HMS_APP_PASSWORD) ===
 LOGIN_CREDENTIALS = {
     "username": "KK",
-    "password": "kanpur",
+    "password": os.environ.get("HMS_APP_PASSWORD", ""),  # session credential: env only
     "sql_username": "sa",
     "sql_auth_method": "Windows Auth",
-    "note": "kanpur is VB6 application password, not SQL Server password"
+    "note": "VB6 application password (env only, never stored), not SQL Server password"
 }
 
 if __name__ == "__main__":

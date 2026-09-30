@@ -16,8 +16,12 @@ import re
 import sys
 
 def split_conflicts(text: str):
+    # Markers must be line-anchored: ``=======`` also appears inside
+    # ``# ============`` section headers, and an unanchored match silently
+    # swallows the lines in between.
     pat = re.compile(
-        r"<<<<<<< [^\n]*\r?\n(.*?)=======\r?\n(.*?)>>>>>>> [^\n]*\r?\n", re.S
+        r"^<<<<<<< [^\n]*\r?\n(.*?)^=======\r?\n(.*?)^>>>>>>> [^\n]*\r?\n",
+        re.S | re.M,
     )
     blocks = []
     for m in pat.finditer(text):

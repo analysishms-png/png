@@ -20,7 +20,7 @@ python -m HMS_py.tools.manual_pipeline.run_module_tests --module 12_Messaging --
 # rerun after their test went green: → L1 413 passed, L2b 27 passed, fails=0 (rewritten)
 
 # capture after leaves fix (SMS Center → SMS (Scheduled)): [] → [SMS (API), SMS (Scheduled)]
-python -u -m HMS_py.tools.manual_pipeline.capture_module --module 12_Messaging --username SA --password KANPUR
+python -u -m HMS_py.tools.manual_pipeline.capture_module --module 12_Messaging --username SA --password ********
 # → login preflight ok / main window up / sidebar 'extras' ok
 # → [capture] masters/SMS (API): ok ; [capture] operations/SMS (Scheduled): ok
 # → captured 2 leaves, failed=[] exit=0

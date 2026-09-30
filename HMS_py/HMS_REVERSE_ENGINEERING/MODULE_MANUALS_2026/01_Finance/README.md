@@ -2,7 +2,7 @@
 
 ## 1. Menu path (MenuHelp)
 
-- Sidebar root: `finance` (Opt1=11, group caption `Finance`, `Module_Name='FA'`; QA user SA/KANPUR ke sidebar me root par).
+- Sidebar root: `finance` (Opt1=11, group caption `Finance`, `Module_Name='FA'`; QA user SA/******** ke sidebar me root par).
 - menuHelp buckets: `Opt1=11` (Finance: operations + reports), `Opt1=12` (FA masters: `Ledger Accounts`, `Group Accounts`, `Narration Master`, `T.D.S. Category` — `Module_Name='fame'`/`'UTL'`).
 - Module_Names (`_logic.json`): `FA`, `FAT`, `fate`, `farp`, `FAREPORT`, `fae`, `fame`, `TallyRPTS`, `TallyPOSRPT`; masters bucket = `fame`.
 - Counts (`_logic.json`, classify): **masters=10, operations=2, reports=26, hidden=0, other=8**.
@@ -34,7 +34,7 @@
 
 ## 4. Screenshot index
 
-Live capture (SA/KANPUR, manifest `screenshots/manifest.json`, `failed=[]`):
+Live capture (SA/********, manifest `screenshots/manifest.json`, `failed=[]`):
 
 | File | Layer | Leaf | Status |
 |---|---|---|---|

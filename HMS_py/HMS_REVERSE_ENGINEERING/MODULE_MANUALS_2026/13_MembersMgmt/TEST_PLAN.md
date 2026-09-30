@@ -13,7 +13,7 @@ python -m HMS_py.tools.manual_pipeline.run_module_tests --module 13_MembersMgmt 
 # → L1 413 passed, L2b 27 passed, fails=0 (TEST_RESULTS.md rewritten)
 
 # capture after masters leaf add: [] → [Member Select Category] (shell:1526)
-python -u -m HMS_py.tools.manual_pipeline.capture_module --module 13_MembersMgmt --username SA --password KANPUR
+python -u -m HMS_py.tools.manual_pipeline.capture_module --module 13_MembersMgmt --username SA --password ********
 # → captured 2 leaves, failed=[] exit=0 (sidebar 'extras')
 
 python -m HMS_py.tools.manual_pipeline.check_manual --module 13_MembersMgmt

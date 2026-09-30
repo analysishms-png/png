@@ -2,8 +2,19 @@
 
 Login: SA / ****** (masked) | Company via 'Company Details' grid | Date: 2026-09-28
 Tools: hms_capture2.py + hms_capture3.py (open→poll→shot→safe-close pattern)
-Audit trail: ../action_log.csv — **71 verified window-open events** | **97 PNGs total**
+Audit trail: ../action_log.csv — **307 rows (241 with screenshot refs), Related SQL 307/307**
 NO data saved anywhere; Night Audit engine never executed (blocklist enforced).
+
+## Current totals (refreshed 2026-09-30)
+- **309 PNGs** in this folder: **182 module-evidence** + 27 top-level `GUI_*` + 100 `_duplicates`
+- 18 module folders, one per capture target; per-module manifest = `<module>/README.md`
+  (file, size, state, evidence tag); naming convention = `SCREENSHOT_STANDARD.md` (spec §17)
+- Per-module PNG counts: 05_Front_Office 37, 03_Finance 20, 08_POS 20, 02_Main_Setup 16,
+  09_Banquet 15, 04_Reservation 12, 11_HR_Payroll 12, 01_Login_Security 11,
+  06_House_Keeping 10, 07_Inventory 10, 10_Night_Audit 7, 13_Messaging 4,
+  00_Project_Discovery 3, 12_EPABX/14_Members/15_Sales/16_Mall/EXTRAs 1 each
+- B-series batch walks (menu-level) + C-series form captures cover all 15 menu modules;
+  depth per module documented in each module's `screens/screens.md`
 
 ## Navigation architecture [VERIFIED-UI]
 - Left strip (x 0–107): 11 module buttons (Finance, Main Setup, Reservation, Front Office,

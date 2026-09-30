@@ -1,0 +1,75 @@
+flowchart TD
+    A[MDI menu click hex 0xF] --> B["MenuHelp.Option -> var_188"]
+    B --> C{var_188 matches a stored caption}
+
+    C -- "no match" --> E[Fall through - nothing happens]
+    C -- "Item Issued On Cleaning" --> E2["NO BRANCH EXISTS - dead menu item"]
+    C -- "match" --> F{Branch kind}
+
+    F -- "master" --> G["New frmBlockMast / FrmComplaintMast"]
+    F -- "entry" --> H["New FrmComplaintClearing / FrmLostFound / FrmClaimEntry"]
+    F -- "board" --> I["New HHouseKeeping"]
+    F -- "stock voucher" --> J["New HKHouseOpStk or HKIssRec"]
+    F -- "clearance" --> K["New HRoomCheckOutClearance"]
+    F -- "block" --> L["New HKRoomBlock"]
+    F -- "report" --> M["New rRepHousePreview - GRepFormName"]
+    M --> N["CreateFieldDefFile - report path and name .ttx"]
+    N --> O["Open report path and name .RPT"]
+
+    subgraph BOARD [HHouseKeeping - room board]
+        B1[Load RoomMast + RoomOcc + RoomBlockOut] --> B2{V vacant?}
+        B2 -- no --> B3["MsgBox Sorry Room Is Not vacant - L80720"]
+        B2 -- yes --> B4["Date earlier than audit date - L80605"]
+        B4 --> B5["RoomStat updated - L80884"]
+        B5 --> B6["RoomBlockOut OOO row written - L80755"]
+        B6 --> B7["Return to service: confirm L80818 / L80819"]
+        B7 --> B8["DELETE RoomBlockOut Type O - L80743"]
+    end
+
+    subgraph STOCK [Stock voucher - HKHouseOpStk / HKIssRec]
+        S1["Pick department - House Keeping RestType? L82488"] --> S2["Read Voucher_Prefix.Start_Srl_No - L82378"]
+        S2 --> S3["Pick items - ItemMast type Store - L82492"]
+        S3 --> S4{Direction}
+        S4 -- opening --> S5["INSERT Stock Qtyrec - L82366"]
+        S4 -- issue --> S6["INSERT Stock QtyIss - L85187"]
+        S4 -- receipt --> S7["INSERT Stock Qtyrec - L85229"]
+        S5 --> S8["UPDATE Voucher_Prefix - L82398"]
+        S6 --> S8
+        S7 --> S8
+        S8 --> S9["UPSERT LastVou - L82405 to L82420"]
+        S9 --> S10{Duplicate voucher?}
+        S10 -- yes --> S11["MsgBox Duplicate Voucher No. - L82893"]
+        S10 -- no --> S12{Date in fin year}
+        S12 -- no --> S13["MsgBox V.Date Not Between Current Fin. Year - L82934"]
+        S12 -- yes --> S14[Saved]
+    end
+
+    subgraph COMPLAINT [Complaint lifecycle]
+        C1["New code - MAX substring - L481791"] --> C2["INSERT ComplaintDetail - L481847"]
+        C2 --> C3["Open - Status default"]
+        C3 --> C4["Clear: Status Solved + ClearingDate - L449123"]
+        C4 --> C5["Re-open: Status UnSolved + ClearingDate NULL - L449141"]
+    end
+
+    subgraph LOST [Lost and Found lifecycle]
+        L1["New code - MAX substring 6 digits - L450172"] --> L2["INSERT LostFoundDetail - L450191"]
+        L2 --> L3["Claim - Status Delivered - L450964"]
+    end
+
+    subgraph CO [Check-out clearance]
+        X1["DELETE RoomCheckOutStatus - L628528"] --> X2["INSERT clearance flag - L628538"]
+        X2 --> X3["Dashboard join RoomOcc + PayCharge + RoomCheckOutStatus - L628771"]
+    end
+
+    subgraph OUT [Cross-module output]
+        O1["RoomBlockOut rows written here"] --> O2["04_Reservation reads Type O overlap - L97971"]
+        O3["RoomMast.RoomStat written here"] --> O4["Read by reservation room pickers"]
+    end
+
+    I --> BOARD
+    J --> STOCK
+    H --> COMPLAINT
+    H --> LOST
+    K --> CO
+    BOARD --> OUT
+    CO --> OUT

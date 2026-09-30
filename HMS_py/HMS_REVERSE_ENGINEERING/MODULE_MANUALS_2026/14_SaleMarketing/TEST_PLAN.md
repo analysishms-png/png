@@ -13,7 +13,7 @@ python -m HMS_py.tools.manual_pipeline.run_module_tests --module 14_SaleMarketin
 # → L1 434 passed, L2b 27 passed, fails=0
 
 # capture after leaves fill (was [] → [Market Segment] + [Business Source]):
-python -u -m HMS_py.tools.manual_pipeline.capture_module --module 14_SaleMarketing --username SA --password KANPUR
+python -u -m HMS_py.tools.manual_pipeline.capture_module --module 14_SaleMarketing --username SA --password ********
 # → login preflight ok / main window up / sidebar 'extras' ok
 # → [capture] masters/Market Segment: ok ; [capture] operations/Business Source: ok
 # → captured 2 leaves, failed=[] exit=0

@@ -197,7 +197,7 @@ ho chuke hain (BUG-001..020). Is document mein **root-cause patterns**, **vulner
 ### 5.2 Database Design Issues
 - **0 foreign keys** — referential integrity 100% in application
 - **0 triggers** — no database-level validation
-- **0 stored procedures** — all logic in VB6
+- **3 utility SPs, 0 called by app** — all business logic in VB6 inline SQL
 - **0 functions** — no reusable DB logic
 - **SIMPLE recovery** — no point-in-time recovery
 

@@ -14,7 +14,7 @@ python -m HMS_py.tools.manual_pipeline.run_module_tests --module 11_EPABX --laye
 
 # capture after leaves fix (HMS_py - EPABX Masters = window title, not key → Call Type;
 #   sidebar extras → epabx):
-python -u -m HMS_py.tools.manual_pipeline.capture_module --module 11_EPABX --username SA --password KANPUR
+python -u -m HMS_py.tools.manual_pipeline.capture_module --module 11_EPABX --username SA --password ********
 # → login preflight ok / main window up / sidebar 'epabx' ok
 # → [capture] masters/Call Type: ok ; [capture] operations/Telephone Call Entry: ok
 # → captured 2 leaves, failed=[] exit=0

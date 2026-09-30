@@ -1,11 +1,11 @@
 # HMS REVERSE-ENGINEERING — MASTER DOCUMENT INDEX
 
-Workspace: C:\PENDRIVE\HMS\HMS_REVERSE_ENGINEERING\ | Analysis: 2026-09-28 (READ-ONLY throughout)
+Workspace: HMS_REVERSE_ENGINEERING (this folder) | Analysis: 2026-09-28 → refresh 2026-09-30 (READ-ONLY throughout)
 System: HMS.exe (VB6, 351 objects) + MOONData2627 (SQL Server 2008 R2, 277 tables) | Site 'KK', Bareilly
 
 ## 🔵 READ IN THIS ORDER (new developer ke liye)
 
-### 1. HMS_Complete_Reverse_Engineering_Manual_v2.docx  (21 MB, 87 figures)
+### 1. HMS_Complete_Reverse_Engineering_Manual_v2.docx  (21 MB, 85 figures)
 **Pura technical manual** — architecture, config, login, modules, screens (screenshots embedded),
 database, GST, bugs, security, modernization. Start here.
 Location: 22_Final_Manual/
@@ -29,7 +29,7 @@ Location: 22_Final_Manual/ ( Operations manual ka Part 5.11–5.14)
 |---|---|
 | 22_Final_Manual/HMS_SYSTEM_ARCHITECTURE.md | Runtime architecture diagram + 7 key facts |
 | 22_Final_Manual/MASTER_SCREEN_INVENTORY.xlsx | Screen register (SCR-IDs, SQL mapping, evidence) |
-| 22_Final_Manual/MASTER_DATABASE_DICTIONARY.xlsx | Table dictionary (30+ core tables, PK/FK evidence) |
+| 22_Final_Manual/MASTER_DATABASE_DICTIONARY.xlsx | Table dictionary — ALL 277 live tables + columns/indexes evidence |
 | 19_VB6_Logic/MENU_INVENTORY.md | 524 menu items (decompiled builder se) |
 | 19_VB6_Logic/MENUHELP_PER_USER_ANALYSIS.md | Menu engine semantics (OPT1..4, Flag E/R/N/V), 69 users |
 | 19_VB6_Logic/MenuHelp_*_tree.txt | SA(440)/Deepak(157)/Kitchen(23)/POS(10)/kot(4) raw trees |
@@ -45,12 +45,19 @@ Location: 22_Final_Manual/ ( Operations manual ka Part 5.11–5.14)
 | 20_SQL_Tracking/raw/*.txt | Raw trace extracts |
 | 24_GST_EInvoice/GST_EINVOICE_FLOW.md | CI GSP → IRP flow, JSON v1.1, 185/211 IRNs |
 | 23_Modernization_Blueprint/MODERNIZATION_BLUEPRINT.md (+.docx) | Target stack, 4-phase roadmap, 5 charts |
+| 19_VB6_Logic/HMS_BAS_LOGIC.md | HMS.bas spec-§9 deep analysis (globals, sessions, txns, errors, utilities) |
+| 19_VB6_Logic/FE_BE_DB_MAPPING.md | Spec §19 frontend→backend→DB→SQL→output mapping (~60 rows) |
+| SCREENSHOT_STANDARD.md | Spec §17 capture standard + spec-name mapping (root of workspace) |
+| MODULE manuals (02–16) | 15/15 complete: module_manual.md (18 sections) + 7 subfolders each |
 
 ## 🟠 GOVERNANCE
 
 | File | Content |
 |---|---|
 | 21_Testing/BUG_REGISTER.md | BUG-001..010 (schema drift, PK crashes, backdoor, e-inv secrets) |
+| 21_Testing/BUG_DEEP_ANALYSIS.md | Line-cited deep analysis (backdoors, codecs, txn/error census) |
+| 21_Testing/FINAL_REVIEW.md | Spec §34 final-review checklist — 22/22 verified with evidence |
+| 21_Testing/DOCUMENTATION_VALIDATION.md | Cross-doc consistency validation |
 | 21_Testing/SECURITY_REMEDIATION_NOTE_SRN-001.md | F-1..F-5 findings, containment, verification plan |
 | 21_Testing/TEST_CASES.md | TC-001..012 templates (test DB pe chalane ke liye) |
 | 00_Project_Discovery/ | environment, INI analysis, software inventory, DB connection, project tree |
@@ -59,8 +66,8 @@ Location: 22_Final_Manual/ ( Operations manual ka Part 5.11–5.14)
 
 | Artifact | Count |
 |---|---|
-| screenshots/*/ | **97 PNGs** (17 module folders, CAPTURE_INDEX.md me full map) |
-| action_log.csv | 71 verified window-open events (timestamp+title+evidence) |
+| screenshots/*/ | **309 PNGs** (18 module folders + 27 GUI_* + 100 _duplicates; CAPTURE_INDEX.md me full map) |
+| action_log.csv | **307 rows** — Screen/Action/Result/Screenshot/Related Code/**Related SQL (307/307)** |
 | hms_capture2.py / hms_capture3.py | Re-usable GUI capture tools (safe open→shot→close) |
 | gui_explore.py | Shared helper (snap/log/menus) |
 | build_*.py | Regeneration scripts (inventories, charts, manuals, blueprint) |

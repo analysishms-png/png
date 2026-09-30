@@ -16,7 +16,7 @@ special-case nahi. Ye tests us invariant ko pin karte hain:
      stored password hi India12 ho (wo genuine credential match hota,
      backdoor nahi).
 
-SA ka real password KANPUR hai (verified earlier) - ye file usko use nahi
+SA ka real password ******** hai (session-only, not stored) - ye file usko use nahi
 karti; regression sirf negative path pin karta hai.
 """
 from __future__ import annotations

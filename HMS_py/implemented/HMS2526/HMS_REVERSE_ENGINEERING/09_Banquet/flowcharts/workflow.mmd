@@ -1,0 +1,125 @@
+---
+title: 09_Banquet workflow (VB6 HMS)
+---
+flowchart TD
+
+  subgraph SETUP["Setup (module C / group Banquet)"]
+    E1["Events<br/>FrmEventMast"]
+    E2["Venue Features<br/>FrmVenueFeat"]
+    E3["Venue Master<br/>FrmVenueMast"]
+    E4["Menu Category<br/>FrmHallItemCatMast"]
+    E5["Item Group<br/>HallItemGroupMast"]
+    E6["Menu Item<br/>HallMenuItemEntry"]
+    E7["Catalog Master<br/>HallMenuCatalog"]
+    E8["Banquet Bill Sundry Setting<br/>HallSundry"]
+    E3 --> E9["VenueMast + VenueCapacity + VenueFeatures"]
+    E2 --> E10["FeatureMast"]
+    E7 --> E11["CatalogMast"]
+  end
+
+  subgraph OPS["Banquet Operation - Indoor Catering / OutDoor Catering"]
+    O1["Booking Inquiry<br/>FrmBookingInquiry"]
+    O2["Banquet Booking<br/>HallBooking"]
+    O3["Catalog Selection<br/>CateringBooking"]
+    O4["Chef Pre-Costing<br/>HallChefPreCosting"]
+    O5["Banquet Billing<br/>HallBill"]
+    O6["Banquet Settlement<br/>HallAdvanceDepDialog"]
+    O7["Venue Availability<br/>BanqAvailability"]
+    O8["Guest Comments<br/>frmGuestComments"]
+    O9["Banquet Estimate Billing<br/>HallBillEstimate"]
+    O10["Banquet Booking Advance<br/>HallAdvanceDepDialog"]
+  end
+
+  subgraph REPORTS["Reports / MIS / Tax"]
+    R1["Banquet Reports<br/>rHallRepView"]
+    R2["Banquet Reports MIS<br/>rHallRepView"]
+    R3["Banquet Tax Reports<br/>rHallRepView"]
+  end
+
+  START(["Menu caption ladder<br/>ModuleAdd EXTRAS.text L476659-L476789"]) --> DISPATCH{"var_188 caption<br/>dispatch L479447-L480197"}
+
+  DISPATCH --> O1
+  DISPATCH --> O3
+  DISPATCH --> O4
+  DISPATCH --> O5
+  DISPATCH --> O6
+  DISPATCH --> O7
+  DISPATCH --> O8
+  DISPATCH --> O9
+  DISPATCH --> O10
+  DISPATCH --> R1
+  DISPATCH --> R2
+  DISPATCH --> R3
+  DISPATCH --> SETUP
+
+  O1 --> B1["BookingInquiry + BookingDetail<br/>L388129 / L388153"]
+  B1 --> O2
+  O1 -.->|"code not in (select InquiryCode from HallBook)"<br/>L395019| O2
+
+  O2 --> V1["Delete HallBook / HallBook1 / VenueOCC<br/>L394978 / L394986 / L394994"]
+  V1 --> V2["Insert HallBook L395970<br/>Insert VenueOCC L396053"]
+  V2 --> V3{"PayChargeH VType='AD'<br/>ContraDocId = booking<br/>L397711"}
+  V3 -->|"sum > 0"| V4["advance already received"]
+  V3 -->|"sum = 0"| V5["advance not received"]
+
+  O3 --> C1["HallBook / VenueOCC pull<br/>L376748 / L373790"]
+  C1 --> O5
+
+  O4 --> P1["HallPreCosting<br/>L420476 delete, L420928 insert"]
+  P1 -.->|"un-costed bookings L421169 / L421173"| O2
+  P1 --> P2["ItemMast + ItemGrp + ItemCatMast + ItemRate<br/>L420006"]
+  P1 --> P3["HallBook + VenueOCC + PayChargeH context<br/>L420616 / L420620 / L420623"]
+
+  O5 --> S1["Voucher_Type NCat='BBILL'<br/>L400311"]
+  S1 --> S2{"re-save?"}
+  S2 -->|"yes"| S3["Delete SunTran / SunTranH / HallStock / HallSale1<br/>L400388-L400412 and L401165-L401184"]
+  S3 --> S4["Insert HallSale1 / HallStock / HallSale2<br/>L401269 / L401361 / L401409"]
+  S2 -->|"new"| S4
+  S4 --> S5["RoundOffSetting ModuleName='Banquet Bill'<br/>L404241"]
+  S5 --> S6{"eInvoiceBill1 IRN present?<br/>L399171"}
+  S6 -->|"yes"| S7["eInvoice already generated<br/>L406923"]
+  S6 -->|"no"| S8["bill saved"]
+  S8 --> O6
+
+  O6 --> T1{"tender rows filled?<br/>L407640"}
+  T1 -->|"no"| T2["reject: Please Fill Payment Details"]
+  T1 -->|"yes"| T3["Delete + write PayChargeH VType='AD'<br/>L407400 / L407405"]
+  T3 --> T4["Update HallSale1 Advance<br/>L407730 / L407883"]
+  T4 --> T5["Update hallbook rectno / rectDate<br/>L408005"]
+  T5 --> T6{"REVMAST TOUT defined?<br/>L407778"}
+  T6 -->|"no"| T7["reject: System Defined Revenue is not defined"]
+  T6 -->|"yes"| T8["settlement posted"]
+
+  O7 --> A1["FAEnviro L418498<br/>VenueMast by DepartCode L419176"]
+  A1 --> A2["VenueOCC occupancy count<br/>L397327 / L388643"]
+
+  O9 --> U1["Voucher_Type NCat='ESBIL' L579793"]
+  U1 --> U2["Insert HallSale1Est / HallStockEst / SunTranEst<br/>L580610 / L580699 / L580753"]
+  U2 --> U3["tables at 0 rows - feature unused"]
+
+  O10 --> W1["AdvType='AD', OpenType=6<br/>L479817-region"]
+  W1 --> T3
+
+  O8 --> X1["GuestComments - 0 rows<br/>[UNKNOWN] write path not isolated"]
+
+  R1 --> Y1["SalesRegister, PartyOutStanding,<br/>PartyWiseOutStanding, CashierCollection,<br/>BookingDetail, SettleRepHall, DailyFuncSheet,<br/>ItemWiseSaleHall, CompanyWiseSaleHall,<br/>FunctionWiseItemDetail"]
+  R2 --> Y2["CoverAnalysis, CashierCollection"]
+  R3 --> Y3["TaxReportHall, TaxSummaryHall,<br/>TaxwiseDetailReportHall"]
+
+  FORK{"var_AC = BANQ or ODC<br/>L479455 / L479588 / L479650 / L479692 / L479827"}
+  FORK -->|yes| HALL["rHallRepView L777000"]
+  FORK -->|no| POS["rPOSRepView L726131"]
+  Y1 --> FORK
+  Y2 --> FORK
+  Y3 --> FORK
+
+  ORPHAN["Menu row 'Catalog Selection' ordinal 3<br/>registered at L476670 / L476741<br/>after var_124 = 'Chef Pre-Costing'<br/>caption never becomes 'Chef Pre-Costing'"]
+  ORPHAN -.->|"unreachable by caption"| O4
+  DISPATCH -->|"If var_188 = 'Chef Pre-Costing' L479771"| O4
+
+  classDef bug fill:#ffdddd,stroke:#cc0000,color:#000000
+  classDef unused fill:#eeeeee,stroke:#999999,color:#000000,stroke-dasharray: 4 3
+  classDef gate fill:#fff4d6,stroke:#d6a400,color:#000000
+  class ORPHAN,S7,T2,T7 bug
+  class U3,X1,V4 unused
+  class V3,T1,T6,S2,S6,FORK gate

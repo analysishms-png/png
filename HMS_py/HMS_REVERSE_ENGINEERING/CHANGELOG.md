@@ -1,5 +1,38 @@
 # HMS REVERSE-ENGINEERING — CHANGELOG
 
+## 2026-09-30 (spec-completion pass)
+
+### Files Created
+- `05_Front_Office/` full 9-file module set - dispatch chains (If + Loop-Until), 3 dead arms,
+  duplicate WalkIn arm, runtime OPT1=14 (63 rows), 3 dormant tables
+- `10_Night_Audit/` full 9-file module set - gate L480407, phases A-D one transaction,
+  frmReNightAudit, blocklist honored (NOT executed)
+- `19_VB6_Logic/HMS_BAS_LOGIC.md` - spec section 9: globals, constants, connections, DB fns,
+  session MemVars, business/financial date, login, permission, reports, NA, txn, errors, utilities
+- `19_VB6_Logic/FE_BE_DB_MAPPING.md` - spec section 19 FE->BE->DB->SQL->output (~60 rows)
+- `SCREENSHOT_STANDARD.md` - spec section 17 capture convention + spec-name mapping
+- `21_Testing/FINAL_REVIEW.md` - spec section 34 checklist, 22/22 verified (pointer in 22_Final_Manual)
+
+### Files Modified
+- `action_log.csv` - Related SQL column populated 307/307 (spec section 11; nav/blocklist/report
+  rows carry honest markers: n/a or `SQL NOT YET IDENTIFIED (verify: ...)`)
+- `README.md` - stale claims fixed (GUI exploration DONE, 15/15 modules complete, 309 screenshots)
+- `22_Final_Manual/00_MASTER_INDEX.md` - path fix, refreshed counts (309 PNGs/307 rows/277 tables),
+  added HMS_BAS_LOGIC / FE_BE_DB_MAPPING / SCREENSHOT_STANDARD / FINAL_REVIEW rows
+- `screenshots/CAPTURE_INDEX.md` - refreshed totals (309 PNGs = 182 evidence + 27 GUI + 100 dupes)
+- `22_Final_Manual/MASTER_SCREEN_INVENTORY.xlsx` (327 screens) + `MASTER_DATABASE_DICTIONARY.xlsx`
+  (277 tables) regenerated via `build_inventories.py`
+- Accuracy fix x8 files: "0 stored procedures" -> 3 utility SPs exist (GetFieldNameAs,
+  GetFieldNameAsStr, Proc_WebService) but 0 app references (0 EXEC in 995,855-line listing)
+- **Credential masking**: session password removed from working tree - 31 occurrences in this
+  workspace (gui scripts, MODULE_MANUALS README/TEST_PLAN, profiler traces, SQL_DEEP_MAPPING)
+  + 17 repo files outside (env-var refactor: `_launch_main.py`, `core/vb6_logic.py` ->
+  `HMS_APP_PASSWORD`). Residual: git history + public origin/main still contain it -> rotate password.
+
+### Audit
+- `audit_orig.py`: A=28/28 spec artifacts, B=15/15 modules (7/7 subfolders + manual),
+  C=0 stale README claims, D=182 module PNGs, E=307/307 Related SQL - PASS
+
 ## 2026-09-29
 
 ### Files Created

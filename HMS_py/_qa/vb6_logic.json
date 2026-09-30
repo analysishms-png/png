@@ -330,7 +330,7 @@
       "Indent (959 rows)",
       "RoomOcc (11002 rows)"
     ],
-    "note": "kanpur is VB6 login password, SQL Server uses Windows Auth"
+    "note": "VB6 login password (env only, never stored); SQL Server uses Windows Auth"
   },
   "SCREENSHOTS": {
     "total": 18,
@@ -377,10 +377,10 @@
   },
   "LOGIN_CREDENTIALS": {
     "username": "KK",
-    "password": "kanpur",
+    "password": "",
     "sql_username": "sa",
     "sql_auth_method": "Windows Auth",
-    "note": "kanpur is VB6 application password, not SQL Server password"
+    "note": "VB6 application password (env only, never stored), not SQL Server password"
   },
   "impl": "<__main__.VB6LogicImpl object at 0x000001A54EAF7770>",
   "qa_dir": "C:\\Users\\LENOVO\\Desktop\\serialkey\\PROJECT_REPAIR - Copy\\HMS_py\\HMS_py\\_qa"

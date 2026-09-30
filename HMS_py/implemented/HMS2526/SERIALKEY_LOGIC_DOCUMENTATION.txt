@@ -1,0 +1,364 @@
+================================================================================
+  HMS SERIAL KEY SYSTEM - COMPLETE LOGIC DOCUMENTATION
+  Analysis Software Services
+================================================================================
+
+यह दस्तावेज़ HMS (Hotel Management System) के SerialKey और frmCompany 
+VB6 फॉर्म्स के लॉजिक को समझाता है।
+
+================================================================================
+1. PROJECT STRUCTURE
+================================================================================
+
+serialkey/
+  Project.vbp      - VB6 Project file (SerialKey.exe)
+  SerialKey.frm    - Main Serial Key form (Encryption/Decryption/Key Mgmt)
+  SerialKey.frx    - Form resource file
+  company/
+    frmCompany.frm - Company Management form (Login/DB/License)
+    frmCompany.frx - Form resource file
+
+Root Project (HMS):
+  Project.vbp      - Main HMS VB6 Project (HMS.exe)
+  SerialKey.frm    - Duplicate of serialkey/SerialKey.frm
+  SerialKey.exe    - Compiled Serial Key executable
+  SerialKey_Validator.exe - Key validator
+  HMS.exe          - Main HMS executable
+  License.exe      - License manager
+  Analysis.ini     - Configuration file
+  sysdm.ocx        - Encrypted DB credentials file
+  CompInfo_*.Txt   - Company information files
+  HMSKey_*.Txt     - Encrypted serial key files
+
+================================================================================
+2. ENCRYPTION ALGORITHM (CODIFY / Proc_4_28_EE7B5C)
+================================================================================
+
+यह HMS सिस्टम का कोर एन्क्रिप्शन एल्गोरिदम है।
+
+=== ENCRYPTION (CODIFY) ===
+Source: SerialKey.frm → CODIFY(TEXT) function
+
+VB6 Logic:
+  1. Randomize(10)          - Seed RNG with 10
+  2. shift = Rnd(10)        - Get random value
+  3. shift = shift + 0x1B   - Add 27 to shift
+  4. first_char = Chr(shift + 0x1B)  - First char encodes the shift
+  5. For each char c in text:
+     - new_val = Asc(c) + 0x1B + shift
+     - result += Chr(new_val)
+  6. Return first_char + result
+
+Python Equivalent:
+  shift = random.randint(1, 94)
+  shift_char = chr(shift + 27)
+  return shift_char + "".join(chr(ord(c) + 27 + shift) for c in text)
+
+=== DECRYPTION (Proc_4_28_EE7B5C) ===
+Source: frmCompany.frm → Proc_4_28_EE7B5C
+
+VB6 Logic:
+  1. shift = Asc(Left(text, 1)) - &H1B   - Get shift from first char
+  2. For i = 1 To Len(text) - 1:
+     - char = Mid(text, i+1, 1)
+     - decoded = Chr(Asc(char) - &H1B - shift)
+     - result += decoded
+  3. Return result
+
+Python Equivalent:
+  shift = ord(text[0]) - 27
+  return "".join(chr(ord(c) - 27 - shift) for c in text[1:])
+
+Key Point: 0x1B = 27 (decimal). This is the magic shift value.
+
+================================================================================
+3. XNull FUNCTION
+================================================================================
+
+Source: SerialKey.frm → XNull(temp)
+
+VB6 Logic:
+  IIf(IsNull(temp), "", Trim(temp))
+
+Python Equivalent:
+  "" if value is None else str(value).strip()
+
+Purpose: Handles NULL database values safely.
+
+================================================================================
+4. CHECKSUM ALGORITHM
+================================================================================
+
+Source: frmCompany.frm (loc_11164BA area)
+
+यह चेकसम कंपनी की जानकारी को वेरिफाई करने के लिए इस्तेमाल होता है।
+
+VB6 Logic:
+  val = Asc(Mid(text, 1, 1)) * 10
+  While (val * 10) < 9999
+    val = val * 10
+  Wend
+  For Each char c in text
+    total = val + Asc(c)
+  Next
+  Return Str(total)
+
+Python Equivalent:
+  val = ord(text[0]) * 10
+  while (val * 10) < 9999:
+    val *= 10
+  total = val + sum(ord(c) for c in text)
+  return str(total)
+
+================================================================================
+5. SERIAL KEY FORMAT
+================================================================================
+
+Serial Key Structure (before encryption):
+  [6-char Prefix][10-char Checksum]
+
+  Total raw key length: 16 characters
+
+Prefix (Year Code) → License Date Mapping:
+  "Hudhud" → 15/Jan/2025
+  "Pirecy" → 15/Jan/2026
+  "Pinaca" → 15/Jan/2027
+  "Platoo" → 15/Jan/2028
+  "Zombia" → 15/Jan/2029
+  "Albert" → 15/Jan/2030
+  "Ostric" → 15/Jan/2031
+  "Legran" → 15/Jan/2032
+  "Malmal" → 15/Jan/2033
+
+Checksum is computed from company identifier:
+  Company Name#City#Code  (e.g., "KALAWATI GREENS#Akbarpur#1648")
+
+The raw key is then ENCRYPTED using CODIFY algorithm to produce the 
+final serial key stored in HMSKey_*.Txt files.
+
+================================================================================
+6. FILE FORMATS
+================================================================================
+
+=== CompInfo_*.Txt Files ===
+Source: SerialKey.frm → CmdCompInfo_Click
+
+Format:  CompanyName#City#Code
+Example: KALAWATI GREENS#Akbarpur#1648
+
+Creation:
+  1. Read 3 fields from database (Company Name, City, Code)
+  2. Concatenate with "#" separator: Name + "#" + City + "#" + Code
+  3. Write to: CompInfo_{combined_string}.Txt
+
+=== HMSKey_*.Txt Files ===
+Source: SerialKey.frm → CmdUpdate_Click
+
+Format:  [Encrypted Binary Data]
+Example: r�����룢���  (binary/encrypted)
+
+Creation:
+  1. Read CompInfo string (Name#City#Code)
+  2. Generate checksum from company info
+  3. Create raw key: [prefix][checksum]
+  4. Encrypt raw key using CODIFY
+  5. Write encrypted data to: HMSKey_{combined_string}.Txt
+
+=== Analysis.ini File ===
+Source: Both forms → Form_Load
+
+Format:
+  [HMS]
+  1=DatabaseServer        (e.g., "Localhost")
+  2=ReportsPath          (e.g., "C:\HMS\Reports")
+  3=TempPath             (e.g., "C:\HMS\Temp")
+  4=Printer              (e.g., "PRN")
+  5=BackupPath           (e.g., "C:\Backup")
+  6=DatabaseName         (e.g., "HMSData")
+  7=SiteCode             (e.g., "PP")
+  8=City                 (e.g., "Kanpur")
+  9=ModuleList           (e.g., "#Finance#Main Setup#...")
+  10=ImagePath           (e.g., "C:\HMS\Image")
+
+=== sysdm.ocx File ===
+Source: Both forms → Form_Load
+
+Contains 2 lines of encrypted credentials:
+  Line 1: Encrypted Database Username
+  Line 2: Encrypted Database Password
+
+Both are encrypted using Proc_4_28_EE7B5C encryption algorithm.
+After decryption, they provide the SQL Server credentials.
+
+================================================================================
+7. frmCompany.vbp LOGIN & AUTHENTICATION FLOW
+================================================================================
+
+Source: frmCompany.frm → btnapplyNew_Click
+
+Complete flow:
+
+STEP 1: Form Initialization (Form_Load)
+  - Read Analysis.ini → get DB server, paths, site info
+  - Read sysdm.ocx → decrypt DB username & password
+  - If sysdm.ocx not found → use hardcoded defaults ("sa" / "")
+  - Connect to SQL Server using decrypted credentials
+  - If DB has no users → create default "SA" user
+  - Connect to local Access DB (Temp.mdb) for Enviro settings
+
+STEP 2: Login
+  - User enters Username and Password
+  - System queries: SELECT * FROM USERMAST WHERE USER_NAME='{username}'
+  - Decrypts stored password using Proc_4_28_EE7B5C
+  - Compares decrypted password with user input
+  - Checks if user is Active (ActiveYN != 'N')
+  - If invalid → "Invalid User" / "Invalid Password" message
+
+STEP 3: Company Selection
+  - Loads all companies user has access to
+  - For admin (SA): shows ALL companies
+  - For regular users: shows companies from MenuHelp table
+  - Displays in DBGrid for selection
+  - Opens separate DB connections for each company (CentralData_Path)
+
+STEP 4: License Validation
+  - Reads SerialKeyNo from Company table
+  - Checks CardExpDate from MemEnviro table
+  - If CardExpDate is NULL → "You are New User, Please Create License"
+  - If CardExpDate < 30 days → "Your License Will Expire Soon"
+  - If CardExpDate < Current Date → "License Expired"
+  - Validates Comp_Id length >= 4
+  - Checks SiteCode matches
+
+STEP 5: System Updates
+  - Various database structure updates
+  - Default value fixes
+  - e-Invoice setup check
+
+================================================================================
+8. SERIAL KEY VALIDATION FLOW
+================================================================================
+
+Source: SerialKey.frm → Command1_Click & CmdUpdate_Click
+
+=== Key Generation (CmdCompInfo_Click) ===
+  1. Read 3 fields from DB (table field1, field2, field3)
+  2. combined = field1 + "#" + field2 + "#" + field3
+  3. Write to CompInfo_{combined}.Txt
+
+=== Key Update (CmdUpdate_Click) ===
+  1. Read 3 fields from DB (same as above)
+  2. combined = field1 + "#" + field2 + "#" + field3
+  3. Check if HMSKey_{combined}.Txt exists
+  4. If exists → Read encrypted key, update DB SerialKeyNo
+  5. If not exists → Show error "Serial_Key Not Exists"
+
+=== Key Validation (Command1_Click) ===
+  1. Check HMSKey\HMSKey.ini exists
+  2. Read HMSKey.ini → get volume serial number
+  3. Look for HMSKey_{vol_serial}.Txt
+  4. If exists → read & decrypt key
+  5. Validate prefix and checksum
+
+================================================================================
+9. LICENSE EXPIRY CHECK
+================================================================================
+
+Source: frmCompany.frm → btnapplyNew_Click
+
+The system checks:
+  1. CardExpDate from MemEnviro table
+  2. If CardExpDate is NULL → "New User, Create License"
+  3. If (CardExpDate - CurrentDate) <= 30 days → Warning message
+  4. If CardExpDate < CurrentDate → "License Expired, Contact Vendor"
+
+Standalone validation (without DB):
+  - Use prefix to get license reference date
+  - Add 1 year + 45 days grace period
+  - Compare with current date
+
+================================================================================
+10. PYTHON IMPLEMENTATION FILES
+================================================================================
+
+Main Script:     serialkey_cli.py
+Standalone EXE:  dist/SerialKeyCLI.exe
+This File:       SERIALKEY_LOGIC_DOCUMENTATION.txt
+
+Python classes:
+  HMSLib          - Core algorithms (decrypt, encrypt, checksum, xnull)
+  SerialKeyManager - Key generation & validation
+  CompInfoManager  - CompInfo file management
+  HMSKeyManager   - HMSKey file management
+  AnalysisConfig  - Analysis.ini parser
+  SysdmReader     - sysdm.ocx reader/decryptor
+  LicenseValidator - Complete license validation
+
+Menu Options:
+  [1] Generate Serial Key
+  [2] Validate Serial Key  
+  [3] License Summary
+  [4] Show Analysis.ini Config
+  [5] Read sysdm.ocx Credentials
+  [6] Decrypt Text
+  [7] Encrypt Text
+  [8] Calculate Checksum
+  [Q] Quit
+
+================================================================================
+11. SERIALKEY VALIDATION FLOW (FROM AUDIT LOG)
+================================================================================
+
+Source: SerialKey_Audit.log (actual execution log of SerialKey.exe)
+
+The original SerialKey.exe follows this exact flow:
+
+1. Find Analysis.ini in App.Path
+2. Read config: SQL Server = Localhost, Database = CrossingClubData2627
+3. Find sysdm.ocx in App.Path  
+4. Decrypt sysdm.ocx:
+   - Line 1 (DB Name/Username): Decryption FAILS → keeps Analysis.ini value
+   - Line 2 (Password): Decryption SUCCEEDS
+5. Look for HMSKey\HMSKey.ini in App.Path
+6. If HMSKey.ini NOT found → VALIDATION FAILS ("HMSKey ini File Missing")
+
+IMPORTANT: The HMSKey\HMSKey.ini file is the KEY piece that validates
+software authenticity. It should contain:
+  - Volume serial number / drive information
+  - Used to match against HMSKey_{vol_serial}.Txt
+
+The HMSKey subdirectory and HMSKey.ini file must exist for validation
+        to pass.
+
+================================================================================
+12. PROJECT FILES SUMMARY
+================================================================================
+
+Executables:
+  SerialKey.exe          - Main serial key management tool (VB6 compiled)
+  SerialKey_Validator.exe - Serial key validator
+  License.exe            - License management
+  Trail.exe              - Trial version
+  SQLPWD.exe             - SQL Password utility
+  HMS.exe                - Main HMS application
+
+Python Scripts:
+  serialkey_cli.py       - Full serial key logic (Python)
+  hms_cli.py             - HMS CLI (older version)
+
+Configuration:
+  Analysis.ini           - System configuration
+  sysdm.ocx              - Encrypted DB credentials
+
+Data Files:
+  CompInfo_*.Txt         - Company information (Name#City#Code)
+  HMSKey_*.Txt           - Encrypted serial keys
+  SerialKey_Audit.log    - Execution audit log
+
+Output Files:
+  dist/SerialKeyCLI.exe  - Compiled Python EXE (standalone)
+  SERIALKEY_LOGIC_DOCUMENTATION.txt - This file
+
+================================================================================
+END OF DOCUMENTATION
+================================================================================

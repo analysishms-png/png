@@ -1,0 +1,241 @@
+HMS REVERSE-ENGINEERING ANALYSIS - DELIVERY MANIFEST
+============================================================
+Archive   : HMS_RE_ANALYSIS_2026-09-28.zip
+Created   : 2026-09-28 13:19
+Workspace : C:\PENDRIVE\HMS\HMS_REVERSE_ENGINEERING
+System    : HMS.exe (VB6, 351 objects) + MOONData2627 (SQL Server 2008 R2, 277 tables) | Site 'KK', Bareilly
+Mode      : 100% READ-ONLY analysis (closed 2026-09-28)
+Files     : 178 | Uncompressed: 108.9 MB
+
+FOLDER SUMMARY
+------------------------------------------------------------
+00_Project_Discovery/                 5 files      9.8 KB
+01_Login_Security/                    1 files      3.8 KB
+05_Front_Office/                      2 files      8.7 KB
+10_Night_Audit/                       1 files      4.3 KB
+17_Reports/                           1 files      1.9 KB
+18_Database/                          9 files    291.6 KB
+19_VB6_Logic/                        12 files     82.4 KB
+20_SQL_Tracking/                      6 files      3.0 MB
+21_Testing/                           3 files     18.0 KB
+22_Final_Manual/                     12 files     27.5 MB
+23_Modernization_Blueprint/          10 files    388.1 KB
+24_GST_EInvoice/                      1 files      7.6 KB
+EXTRAS.text                           1 files     51.5 MB
+PROMT.txt                             1 files     24.0 KB
+README.md                             1 files      2.6 KB
+action_log.csv                        1 files     17.1 KB
+build_final_report_docx.py            1 files      7.1 KB
+build_inventories.py                  1 files     14.4 KB
+build_manual.py                       1 files     16.2 KB
+build_manual_v2.py                    1 files      6.2 KB
+build_menu_inventory.py               1 files      2.4 KB
+build_ops_manual.py                   1 files      7.1 KB
+gui_explore.py                        1 files      5.1 KB
+hms_capture.py                        1 files     11.3 KB
+hms_capture2.py                       1 files      8.1 KB
+hms_capture3.py                       1 files      4.9 KB
+screenshots/                        100 files     25.9 MB
+zip_workspace.py                      1 files      3.6 KB
+
+KEY DELIVERABLES (start here)
+------------------------------------------------------------
+  22_Final_Manual/00_MASTER_INDEX.md
+  22_Final_Manual/HMS_Complete_Reverse_Engineering_Manual_v2.docx
+  22_Final_Manual/HMS_Operations_Manual.docx
+  22_Final_Manual/FINAL_REPORT.docx
+  22_Final_Manual/FINAL_REPORT.md
+  22_Final_Manual/HMS_OPERATIONS_MANUAL.md
+  22_Final_Manual/HMS_WORKFLOWS_PART2.md
+  23_Modernization_Blueprint/MODERNIZATION_BLUEPRINT.md
+  23_Modernization_Blueprint/PHASE_A_TASK_LIST.md
+  21_Testing/BUG_REGISTER.md
+  21_Testing/SECURITY_REMEDIATION_NOTE_SRN-001.md
+  18_Database/LIVE_DATABASE_DICTIONARY.md
+  20_SQL_Tracking/SQL_TRACKING_RESULTS.md
+  screenshots/CAPTURE_INDEX.md
+
+FULL FILE INVENTORY (path | size)
+------------------------------------------------------------
+00_Project_Discovery\database_connection.txt                                         1.9 KB
+00_Project_Discovery\environment.txt                                                 2.5 KB
+00_Project_Discovery\ini_analysis.txt                                                2.1 KB
+00_Project_Discovery\project_tree.txt                                                1.9 KB
+00_Project_Discovery\software_inventory.txt                                          1.4 KB
+01_Login_Security\LOGIN_FLOW.md                                                      3.8 KB
+05_Front_Office\CHECKIN_FIELD_MAP.md                                                 3.5 KB
+05_Front_Office\FRONT_OFFICE_LIFECYCLE.md                                            5.2 KB
+10_Night_Audit\NIGHT_AUDIT_FLOW.md                                                   4.3 KB
+17_Reports\REPORTS_ANALYSIS.md                                                       1.9 KB
+18_Database\DATABASE_INVENTORY.md                                                    5.5 KB
+18_Database\DATABASE_RELATIONSHIP.md                                                 2.9 KB
+18_Database\LIVE_DATABASE_DICTIONARY.md                                              3.8 KB
+18_Database\columns_dictionary.txt                                                 242.4 KB
+18_Database\foreign_keys.txt                                                            0 B
+18_Database\indexes_pks.txt                                                         11.5 KB
+18_Database\tables_rowcounts.txt                                                     4.2 KB
+18_Database\view_proc_definitions.txt                                               21.1 KB
+18_Database\views_procs.txt                                                           195 B
+19_VB6_Logic\DEEPAK_ROLE_PROFILE.md                                                  1.9 KB
+19_VB6_Logic\Deepak_missing_from_SA.txt                                              5.8 KB
+19_VB6_Logic\Deepak_profile.txt                                                      5.8 KB
+19_VB6_Logic\MENUHELP_PER_USER_ANALYSIS.md                                           2.7 KB
+19_VB6_Logic\MENU_INVENTORY.md                                                      23.8 KB
+19_VB6_Logic\MenuHelp_Deepak_tree.txt                                                4.7 KB
+19_VB6_Logic\MenuHelp_Kitchen_tree.txt                                                660 B
+19_VB6_Logic\MenuHelp_POS_tree.txt                                                    282 B
+19_VB6_Logic\MenuHelp_SA_tree.txt                                                   12.8 KB
+19_VB6_Logic\MenuHelp_kot_tree.txt                                                    104 B
+19_VB6_Logic\menu_tree_raw.txt                                                      16.8 KB
+19_VB6_Logic\vb6_form_inventory.md                                                   6.9 KB
+20_SQL_Tracking\SQL_TRACKING_RESULTS.md                                              5.1 KB
+20_SQL_Tracking\checkin_field_map_raw.txt                                            2.9 KB
+20_SQL_Tracking\raw\hms_all_statements.txt                                           3.0 MB
+20_SQL_Tracking\raw\hms_events.txt                                                  33.4 KB
+20_SQL_Tracking\raw\write_statements.txt                                             4.9 KB
+20_SQL_Tracking\trace_start.sql                                                      3.0 KB
+21_Testing\BUG_REGISTER.md                                                           6.2 KB
+21_Testing\SECURITY_REMEDIATION_NOTE_SRN-001.md                                      8.7 KB
+21_Testing\TEST_CASES.md                                                             3.1 KB
+22_Final_Manual\00_MASTER_INDEX.md                                                   4.6 KB
+22_Final_Manual\FINAL_REPORT.docx                                                   37.7 KB
+22_Final_Manual\FINAL_REPORT.md                                                      5.1 KB
+22_Final_Manual\HMS_Complete_Reverse_Engineering_Manual.docx                        41.6 KB
+22_Final_Manual\HMS_Complete_Reverse_Engineering_Manual_v2.docx                     20.3 MB
+22_Final_Manual\HMS_OPERATIONS_MANUAL.md                                            12.1 KB
+22_Final_Manual\HMS_Operations_Manual.docx                                           7.0 MB
+22_Final_Manual\HMS_SYSTEM_ARCHITECTURE.md                                           3.1 KB
+22_Final_Manual\HMS_WORKFLOWS_PART2.md                                               5.4 KB
+22_Final_Manual\MASTER_DATABASE_DICTIONARY.xlsx                                     27.9 KB
+22_Final_Manual\MASTER_SCREEN_INVENTORY.xlsx                                        27.8 KB
+22_Final_Manual\flowcharts\HMS_REVERSE_ENGINEERING - Shortcut.lnk                    1.0 KB
+23_Modernization_Blueprint\HMS_Modernization_Blueprint.docx                        187.8 KB
+23_Modernization_Blueprint\MODERNIZATION_BLUEPRINT.md                                7.0 KB
+23_Modernization_Blueprint\PHASE_A_TASK_LIST.md                                     11.9 KB
+23_Modernization_Blueprint\build_blueprint_docx.py                                   5.0 KB
+23_Modernization_Blueprint\build_charts.py                                           4.0 KB
+23_Modernization_Blueprint\charts\chart1_top_tables.png                             44.3 KB
+23_Modernization_Blueprint\charts\chart2_module_complexity.png                      44.2 KB
+23_Modernization_Blueprint\charts\chart3_bug_severity.png                           17.3 KB
+23_Modernization_Blueprint\charts\chart4_db_objects.png                             25.6 KB
+23_Modernization_Blueprint\charts\chart5_effort.png                                 40.9 KB
+24_GST_EInvoice\GST_EINVOICE_FLOW.md                                                 7.6 KB
+EXTRAS.text                                                                         51.5 MB
+PROMT.txt                                                                           24.0 KB
+README.md                                                                            2.6 KB
+action_log.csv                                                                      17.1 KB
+build_final_report_docx.py                                                           7.1 KB
+build_inventories.py                                                                14.4 KB
+build_manual.py                                                                     16.2 KB
+build_manual_v2.py                                                                   6.2 KB
+build_menu_inventory.py                                                              2.4 KB
+build_ops_manual.py                                                                  7.1 KB
+gui_explore.py                                                                       5.1 KB
+hms_capture.py                                                                      11.3 KB
+hms_capture2.py                                                                      8.1 KB
+hms_capture3.py                                                                      4.9 KB
+screenshots\00_Project_Discovery\C3_PROPSTAT_Property_Status.png                   186.8 KB
+screenshots\01_Login_Security\001_Login_Screen.png                                 193.1 KB
+screenshots\01_Login_Security\001_Login_Screen_Fresh.png                           377.7 KB
+screenshots\01_Login_Security\002_Login_VirtualKeyboard_ON.png                     194.8 KB
+screenshots\01_Login_Security\003_Login_Filled_NegativeTest.png                    221.4 KB
+screenshots\01_Login_Security\004_Login_InvalidUser_MsgBox.png                     216.8 KB
+screenshots\01_Login_Security\006_Login_Error.png                                  217.4 KB
+screenshots\01_Login_Security\010_CompanyDetails_Grid.png                          204.9 KB
+screenshots\01_Login_Security\010_CompanyGrid.png                                  204.9 KB
+screenshots\01_Login_Security\012_CompanyDetails_State.png                         204.9 KB
+screenshots\01_Login_Security\RBAC_Deepak_LoginError.png                           257.0 KB
+screenshots\02_Main_Setup\014_Main_Menu_AfterLogin.png                             497.0 KB
+screenshots\02_Main_Setup\02-MainSetup_MenuTab.png                                 451.2 KB
+screenshots\02_Main_Setup\C2_Main_Setup__General_Setup__Parameter.png              173.5 KB
+screenshots\02_Main_Setup\C2_Main_Setup__General_Setup__Payment_T.png              205.4 KB
+screenshots\02_Main_Setup\C2_Main_Setup__General_Setup__Printing_.png              175.4 KB
+screenshots\02_Main_Setup\C2_Main_Setup__General_Setup__Tax_Struc.png              181.1 KB
+screenshots\02_Main_Setup\C3_02_Main_Setup__General_Setup__Tax_S.png               180.3 KB
+screenshots\02_Main_Setup\C3_03_Main_Setup__General_Setup__Payme.png               204.7 KB
+screenshots\02_Main_Setup\C3_04_Main_Setup__General_Setup__Param.png               172.8 KB
+screenshots\02_Main_Setup\C3_05_Main_Setup__General_Setup__Print.png               174.7 KB
+screenshots\02_Main_Setup\C3_06_Main_Setup__General_Setup__Print.png               166.7 KB
+screenshots\02_Main_Setup\C3_S1_Main_Setup__General_Setup__Tax_M.png               185.0 KB
+screenshots\02_Main_Setup\C3_S7_Main_Setup__Utility__Menu_Item_C.png               188.5 KB
+screenshots\02_Main_Setup\C3_S8_Main_Setup__Utility__Guest_LookU.png               245.3 KB
+screenshots\03_Finance\01-Finance_MenuTab.png                                      441.6 KB
+screenshots\03_Finance\C2_Finance__Transaction__Voucher_Entry.png                  205.0 KB
+screenshots\03_Finance\C3_02_Finance__Transaction__Expense_Vo.png                  180.3 KB
+screenshots\03_Finance\C3_S1_Finance__Transaction__Voucher_En.png                  204.8 KB
+screenshots\04_Reservation\03-Reservation_MenuTab.png                              451.2 KB
+screenshots\04_Reservation\C2_Reservation__Operations__Look_Up_Roo.png             202.1 KB
+screenshots\04_Reservation\C2_Reservation__Operations__Reservation.png             227.8 KB
+screenshots\04_Reservation\C3_02_Reservation__Operations__Look_Up.png              193.8 KB
+screenshots\04_Reservation\C3_03_Reservation__Operations__Look_Up.png              204.0 KB
+screenshots\04_Reservation\C3_04_Reservation__Operations__Reserva.png              229.7 KB
+screenshots\04_Reservation\C3_S1_Reservation__Operations__Reserva.png              222.2 KB
+screenshots\05_Front_Office\04-FrontOffice_MenuTab.png                             498.5 KB
+screenshots\05_Front_Office\C2_Front_Office__Operations__Bill_Repri.png            199.6 KB
+screenshots\05_Front_Office\C2_Front_Office__Operations__Display_Ra.png            198.8 KB
+screenshots\05_Front_Office\C2_Front_Office__Operations__Expense_En.png            195.7 KB
+screenshots\05_Front_Office\C2_Front_Office__Operations__Room_Statu.png            239.6 KB
+screenshots\05_Front_Office\C3_02_Front_Office__Operations__Room_S.png             241.4 KB
+screenshots\05_Front_Office\C3_03_Front_Office__Operations__Expens.png             197.5 KB
+screenshots\05_Front_Office\C3_04_Front_Office__Operations__Displa.png             200.6 KB
+screenshots\05_Front_Office\C3_05_Front_Office__Operations__Bill_R.png             201.4 KB
+screenshots\05_Front_Office\C3_S1_Front_Office__Operations__WalkIn.png             258.6 KB
+screenshots\05_Front_Office\C4_WalkInCheckIn_Form.png                              258.3 KB
+screenshots\05_Front_Office\P2_FO_DeepStripClick.png                               241.3 KB
+screenshots\05_Front_Office\P2_FO_ModuleClicked.png                                241.1 KB
+screenshots\05_Front_Office\P3_BarState.png                                        377.2 KB
+screenshots\05_Front_Office\P4_FO_FG_Click.png                                       1.4 MB
+screenshots\05_Front_Office\_debug_bar.png                                          10.2 KB
+screenshots\06_House_Keeping\05-HouseKeeping_MenuTab.png                           451.5 KB
+screenshots\06_House_Keeping\C3_01_Complain_Master.png                             175.9 KB
+screenshots\06_House_Keeping\C3_P5S3_House_Keeping__Operations__Compl.png          165.7 KB
+screenshots\06_House_Keeping\C3_S1_House_Keeping__Operations__Compl.png            178.3 KB
+screenshots\07_Inventory\06-Inventory_MenuTab.png                                  498.5 KB
+screenshots\07_Inventory\C2_Complaint_Clearance.png                                186.2 KB
+screenshots\07_Inventory\C2_House_Keeping__Operations__Claim_Ent.png               175.0 KB
+screenshots\07_Inventory\C2_House_Keeping__Operations__Complaint.png               166.0 KB
+screenshots\07_Inventory\C2_House_Keeping__Operations__House_Kee.png               187.7 KB
+screenshots\07_Inventory\C3_02_Inventory__Operations__Purchase_.png                200.1 KB
+screenshots\07_Inventory\C3_03_Inventory__Operations__MR_Entry.png                 202.8 KB
+screenshots\07_Inventory\C3_04_Inventory__Operations__Purchase_.png                212.6 KB
+screenshots\07_Inventory\C3_S1_Inventory__Operations__Indent.png                   195.7 KB
+screenshots\08_POS\07-POS_MenuTab.png                                              451.4 KB
+screenshots\08_POS\C2_Point_Of_Sale__POS_Reports__Payment_.png                     212.4 KB
+screenshots\08_POS\C2_Point_Of_Sale__POS_Reports__Sales_Re.png                     215.7 KB
+screenshots\08_POS\C2_Point_Of_Sale__POS_Reports__Stewardw.png                     210.0 KB
+screenshots\08_POS\C2_Point_Of_Sale__POS_Reports__Table_wi.png                     208.9 KB
+screenshots\08_POS\C3_P5B1_Point_Of_Sale__POS_Reports__Paym.png                    211.8 KB
+screenshots\08_POS\C3_P5C5_Point_Of_Sale__Hight_Way_point__.png                    211.7 KB
+screenshots\08_POS\C3_P5C6_Point_Of_Sale__Hight_Way_point__.png                    190.0 KB
+screenshots\08_POS\C3_P5C7_Point_Of_Sale__Hight_Way_point__.png                    175.5 KB
+screenshots\08_POS\C3_P5D8_Point_Of_Sale__MOON_TEA_CAFE__Bi.png                    172.1 KB
+screenshots\08_POS\C3_S1_Point_Of_Sale__POS_Reports__Paym.png                      213.7 KB
+screenshots\09_Banquet\08-Banquet_MenuTab.png                                      451.5 KB
+screenshots\09_Banquet\C2_Banquet__Operation__Banquet_Booking.png                  239.4 KB
+screenshots\09_Banquet\C2_Banquet__Operation__Catalog_Selectio.png                 212.8 KB
+screenshots\09_Banquet\C2_Banquet__Operation__Chef_Pre-Costing.png                 204.3 KB
+screenshots\09_Banquet\C3_P5D7_Bill_Look_Up.png                                    176.9 KB
+screenshots\09_Banquet\C3_S1_Banquet__Operation__Booking_Inqu.png                  207.6 KB
+screenshots\10_Night_Audit\09-NightAudit_MenuTab.png                               451.4 KB
+screenshots\10_Night_Audit\C2_Night_Audit__GST_Reports__GSTR-23.png                171.2 KB
+screenshots\10_Night_Audit\C2_Night_Audit__GST_Reports__GSTR-24A.png               171.7 KB
+screenshots\10_Night_Audit\C2_Night_Audit__GST_Reports__GSTR-24B.png               171.9 KB
+screenshots\10_Night_Audit\C2_Night_Audit__GST_Reports__Reconcilia.png             173.1 KB
+screenshots\10_Night_Audit\C3_S1_Night_Audit__GST_Reports__GSTR-1.png              172.2 KB
+screenshots\11_HR_Payroll\10-HRPayroll_MenuTab.png                                 497.5 KB
+screenshots\11_HR_Payroll\C2_HRPayroll__Operations__LoanAdvance.png                173.0 KB
+screenshots\11_HR_Payroll\C3_02_HRPayroll__Operations__LoanAdvan.png               173.5 KB
+screenshots\11_HR_Payroll\C3_S1_HRPayroll__Operations__Leave.png                   177.6 KB
+screenshots\12_EPABX\11-EPABX_MenuTab.png                                          331.5 KB
+screenshots\13_Messaging\12-Messaging_MenuTab.png                                  499.5 KB
+screenshots\13_Messaging\C3_INBOX_Inbox.png                                        598.2 KB
+screenshots\13_Messaging\C3_P6S1_EXTRAs__SMS__Sstup__SMS_API.png                   811.6 KB
+screenshots\14_Members_Management\13-Members_MenuTab.png                           498.8 KB
+screenshots\15_Sales_Marketing\14-Sales_MenuTab.png                                487.5 KB
+screenshots\16_Mall_Management\15-Mall_MenuTab.png                                 499.4 KB
+screenshots\CAPTURE_INDEX.md                                                         3.9 KB
+zip_workspace.py                                                                     3.6 KB
+
+* EXTRAS.text = 54 MB decompiled VB6 evidence dump (primary source,
+  referenced by line numbers in all docs). Included in archive.
+* Passwords/secrets: NOT present in this workspace (masked throughout).

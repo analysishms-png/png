@@ -11,10 +11,10 @@ python -m HMS_py.tools.manual_pipeline.collect_logic --module 07_POS
 python -m HMS_py.tools.manual_pipeline.run_module_tests --module 07_POS --layers L1,L2b
 # → L1 410 passed, L2b 27 passed, fails=0 (TEST_RESULTS.md)
 
-# capture (SA/KANPUR) — after modules_map fixes:
+# capture (SA/********) — after modules_map fixes:
 #   Restaurant/Outlet Master → Restaurant Master (registry-only, shell:1447)
 #   reports [] → ["Sales Register"] (shell:1068 opener)
-python -u -m HMS_py.tools.manual_pipeline.capture_module --module 07_POS --username SA --password KANPUR
+python -u -m HMS_py.tools.manual_pipeline.capture_module --module 07_POS --username SA --password ********
 # → captured 5 leaves, failed=[] exit=0
 
 python -m HMS_py.tools.manual_pipeline.check_manual --module 07_POS

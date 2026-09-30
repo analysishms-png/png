@@ -11,7 +11,7 @@ python -m HMS_py.tools.manual_pipeline.run_module_tests --module 10_HRPayroll --
 
 # capture after leaf fixes: HR Payroll Operations → HR Payroll (shell:1494, old key nahi tha),
 #   reports [] → [Pay Slip] (menu_caption_map spread shell:1512; reports.py:1370)
-python -u -m HMS_py.tools.manual_pipeline.capture_module --module 10_HRPayroll --username SA --password KANPUR
+python -u -m HMS_py.tools.manual_pipeline.capture_module --module 10_HRPayroll --username SA --password ********
 # → captured 3 leaves, failed=[] exit=0
 
 python -m HMS_py.tools.manual_pipeline.check_manual --module 10_HRPayroll

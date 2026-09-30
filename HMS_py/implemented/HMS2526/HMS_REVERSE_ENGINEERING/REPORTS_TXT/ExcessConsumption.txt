@@ -1,0 +1,31 @@
+======================================================================
+REPORT NAME   : ExcessConsumption
+REPORT NO.    : 64
+CATEGORY      : STOCK / INVENTORY
+STOCK/INVENTORY: HAAN - is report me stock data aata hai
+MENU PATH     : Material > Reports  [Sub: MatRep_Click]
+SOURCE TABLES : Stock + ItemMast
+DESCRIPTION   : Standard se zyada consumption ka report
+OUTPUT COLUMNS: Item, TotalReceived, TotalIssued, Variance
+----------------------------------------------------------------------
+DATABASE DUMP (visahl.sql) TABLES: Stock, Sale1, Sale2, SunTran, PayCharge
+STOCK TABLE DETAIL: Stock table ke important columns (visahl.sql se): DocId, Sno, Vtype, VNo, Vdate, PartyCode, RestCode, Item, QtyIss, QtyRec, Unit, Rate, Amount, TaxPer, TaxAmt, DiscPer, DiscAmt, GodownCode, ChalQty, RecdQty, AccQty, RejQty, ItemRate, ConvRatio, LandVal, DeptCode, Remarks, U_Name
+----------------------------------------------------------------------
+NOTE: Ye report VB6 software (EXTRAS.text decompiled source) ke menu se mili hai.
+      SQL Server DB me isko chalane ke liye upar di gayi tables ka use hota hai.
+======================================================================
+
+----------------------------------------------------------------------
+READY-TO-RUN SQL QUERY (visahl.sql wali tables par chalegi - SQL Server T-SQL)
+----------------------------------------------------------------------
+-- Tables available in dump: Stock, Sale1, Sale2, SunTran, PayCharge
+-- NOTE: Sirf in 5 tables ka dump hai; ItemMast/PartyMast jaisi master tables dump me NAHI hain
+
+-- EXCESS CONSUMPTION: jis item ki issue > receipt (variance)
+SELECT S.Item, SUM(ISNULL(S.QtyRec,0)) AS TotalReceived,
+       SUM(ISNULL(S.QtyIss,0)) AS TotalIssued,
+       SUM(ISNULL(S.QtyRec,0)-ISNULL(S.QtyIss,0)) AS Variance
+FROM Stock S
+GROUP BY S.Item
+HAVING SUM(ISNULL(S.QtyIss,0)) > SUM(ISNULL(S.QtyRec,0))
+ORDER BY Variance;

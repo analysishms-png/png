@@ -693,4 +693,4 @@ maujood, `Enviro.MultiBillGeneration=''` (-> Sale1 path), `DeliveryBoy`/
   `tests/database/test_smartcard_txn.py`
 - Wrong-target contracts: `tests/unit/test_wrong_target_wiring.py` (strict)
 - DB: MOONData2627 (SQL Server, Native Client 10), 277 tables
-- Login: SA/KANPUR verified working
+- Login: SA/******** verified working (password session-only)

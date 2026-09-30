@@ -11,7 +11,7 @@ python -m HMS_py.tools.manual_pipeline.run_module_tests --module 09_NightAudit -
 
 # capture after leaf fix: Night Audit Reports → Occupancy Analysis (shell:1073 `_na`;
 #   Night Audit Log kept — shell:1071)
-python -u -m HMS_py.tools.manual_pipeline.capture_module --module 09_NightAudit --username SA --password KANPUR
+python -u -m HMS_py.tools.manual_pipeline.capture_module --module 09_NightAudit --username SA --password ********
 # → captured 2 leaves, failed=[] exit=0
 
 python -m HMS_py.tools.manual_pipeline.check_manual --module 09_NightAudit

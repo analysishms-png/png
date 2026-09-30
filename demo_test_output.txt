@@ -1,0 +1,12 @@
+Step 1: Show Login Dialog
+Step 2: Checking login...
+Login accepted
+
+Step 3: Show Company Dialog
+
+Step 4: Trying to select Kanpur company...
+
+Step 5: Show Main Window
+Main window displayed successfully
+
+Demo entry test complete

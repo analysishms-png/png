@@ -11,8 +11,8 @@ python -m HMS_py.tools.manual_pipeline.collect_logic --module 06_Inventory
 python -m pytest HMS_py/tests/unit/test_manual_pipeline.py -q          # 15 passed
 # run_module_tests --module 06_Inventory --layers L1,L2b → fails=0 (TEST_RESULTS.md)
 
-# capture (after party-name fix + modules_map fix; SA/KANPUR)
-python -u -m HMS_py.tools.manual_pipeline.capture_module --module 06_Inventory --username SA --password KANPUR
+# capture (after party-name fix + modules_map fix; SA/********)
+python -u -m HMS_py.tools.manual_pipeline.capture_module --module 06_Inventory --username SA --password ********
 # → captured 6 leaves, failed=[] exit=0
 
 # gate

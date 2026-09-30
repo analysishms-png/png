@@ -32,7 +32,7 @@ Note: `Reservation Status Report` menuHelp caption classify `other` me (group/he
 
 ## 4. Screenshot index
 
-Live capture (SA/KANPUR, manifest `screenshots/manifest.json`, `failed=[]`):
+Live capture (SA/********, manifest `screenshots/manifest.json`, `failed=[]`):
 
 | File | Layer | Leaf | Status |
 |---|---|---|---|

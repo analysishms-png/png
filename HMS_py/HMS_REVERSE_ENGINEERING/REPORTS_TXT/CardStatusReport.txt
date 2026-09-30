@@ -1,0 +1,27 @@
+======================================================================
+REPORT NAME   : CardStatusReport
+REPORT NO.    : 23
+CATEGORY      : OTHER / GENERAL
+STOCK/INVENTORY: NAHI - ye non-stock report hai
+MENU PATH     : Proc_165_2_1E3A588  [code-generated]
+SOURCE TABLES : SunTran, PayCharge
+DESCRIPTION   : General tables se report
+OUTPUT COLUMNS: Vdate, DocId, Amount (generic layout)
+----------------------------------------------------------------------
+DATABASE DUMP (visahl.sql) TABLES: Stock, Sale1, Sale2, SunTran, PayCharge
+STOCK TABLE DETAIL: (is report me Stock table directly use nahi hota)
+----------------------------------------------------------------------
+NOTE: Ye report VB6 software (EXTRAS.text decompiled source) ke menu se mili hai.
+      SQL Server DB me isko chalane ke liye upar di gayi tables ka use hota hai.
+======================================================================
+
+----------------------------------------------------------------------
+GENERIC SQL QUERY (is category ke liye - tables visahl.sql me available hain)
+----------------------------------------------------------------------
+-- Tables available in dump: Stock, Sale1, Sale2, SunTran, PayCharge
+-- NOTE: Sirf in 5 tables ka dump hai; ItemMast/PartyMast jaisi master tables dump me NAHI hain
+
+-- GENERAL LEDGER DATA (SunTran)
+DECLARE @F DATE='2016-09-01', @T DATE='2016-09-30';
+SELECT T.Vdate, T.DocId, T.SunCode, T.Amount FROM SunTran T
+WHERE T.Vdate BETWEEN @F AND @T ORDER BY T.Vdate;

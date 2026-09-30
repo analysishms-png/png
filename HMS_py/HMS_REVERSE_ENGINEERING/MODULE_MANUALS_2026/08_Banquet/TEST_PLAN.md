@@ -12,7 +12,7 @@ python -m HMS_py.tools.manual_pipeline.run_module_tests --module 08_Banquet --la
 
 # capture after leaf fixes: Hall Booking Operations → Banquet Booking (shell:1400),
 #   masters [] → [Venue Master] (shell:1094), reports [] → [Banquet Taxwise Details] (shell:1664)
-python -u -m HMS_py.tools.manual_pipeline.capture_module --module 08_Banquet --username SA --password KANPUR
+python -u -m HMS_py.tools.manual_pipeline.capture_module --module 08_Banquet --username SA --password ********
 # → captured 3 leaves, failed=[] exit=0
 
 python -m HMS_py.tools.manual_pipeline.check_manual --module 08_Banquet

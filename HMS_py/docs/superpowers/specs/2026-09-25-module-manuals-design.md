@@ -60,7 +60,7 @@ Pilot folder = `04_FrontOffice/`. Exact final list confirmed against `menuHelp` 
 
 | Script | Responsibility | Output |
 |---|---|---|
-| `capture_module.py` | Launch `python -m HMS_py.main` with `HMS_GUI=1`, login `KK/kanpur` (from `_qa/login_creds.json`), navigate module (Alt+keys / sidebar dispatcher), find PyQt6 window via win32gui, capture via PIL `ImageGrab`, verify non-blank via pixel-variance check | `screenshots/*.png` + `manifest.json` |
+| `capture_module.py` | Launch `python -m HMS_py.main` with `HMS_GUI=1`, login `KK/********` (password via env `HMS_APP_PASSWORD`; `_qa/login_creds.json` masked), navigate module (Alt+keys / sidebar dispatcher), find PyQt6 window via win32gui, capture via PIL `ImageGrab`, verify non-blank via pixel-variance check | `screenshots/*.png` + `manifest.json` |
 | `collect_logic.py` | Read `menuHelp` (Option, Flag, Opt1-4, Module_Name, OutletCode) for module + read code (`core/*`, `ui/shell.py` registry) to map forms/functions/tables | `<module>/_logic.json` |
 | `run_module_tests.py` | Run L1 unit / L2 database / L3 UI tests with module-relevant `-k` filters; capture pass/fail/skip + duration | `TEST_RESULTS.md` |
 

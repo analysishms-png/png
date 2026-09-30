@@ -1,0 +1,170 @@
+%% 08_POS — workflow
+%% Evidence: EXTRAS.text line cites in the comments; see logic/vb6_logic.md
+%% render: mmdc -i workflow.mmd -o workflow.svg
+
+flowchart TD
+    subgraph ENTRY["Menu / launch  [VERIFIED-VB6]"]
+        M1["Menu row 11|4 Point Of Sale<br/>menu_tree_raw.txt L312"]
+        M2["Menu built by<br/>Proc_165_0_14C1708<br/>EXTRAS.text L476507-L476640"]
+        M3["MDI POS toolbar<br/>index 1-9<br/>EXTRAS.text L680-L800"]
+        M1 --> M2
+        M2 --> D
+        M3 --> D
+        D{"ModuleAdd dispatch<br/>EXTRAS.text L479262-L480192"}
+    end
+
+    D -->|"KOT Entry"| KOT
+    D -->|"Table Change Entry"| TBC
+    D -->|"Sale Bill Entry"| BILL
+    D -->|"Settlement Entry"| SETTLE
+    D -->|"POS Bill Reprint"| REPRINT
+    D -->|"Split Sale Bill"| SPLIT
+    D -->|"Display Table"| DISP
+    D -->|"Order Booking"| OBOOK
+    D -->|"Bill Lookup"| LOOKUP
+    D -->|"Order Booking Advance"| ADV
+    D -->|"KOT Transfer"| KTR
+    D -->|"Token Entry"| TOKEN
+    D -->|"Payment Receive (POS)"| PAY
+    D -->|"Denomination Detail"| DENOM
+    D -->|"Restaurant Change"| RCHG
+    D -->|"POS Status"| STAT
+    D -->|"POS Reports / POS M.I.S."| REP
+
+    subgraph KOT["KOT Entry - RsKOTEntry  L59416"]
+        K1["Validate: Vr.No <> 0<br/>L60308, duplicate Vr.No L60348"]
+        K2["Required: Steward L62321,<br/>Item L62337, Item detail L62348"]
+        K3["Duplicate KOT No. L68565,<br/>duplicate item L68818"]
+        K4["Insert Into KOT L62660<br/>exec L62675"]
+        K5["Insert Into KOTLog L61894<br/>bump SeqNo L62437"]
+        K6{"Print KOT ?<br/>L62923"}
+        K7["Update KOT Set PRINTED='Y'<br/>L67378, L67384"]
+        K1 --> K2 --> K3 --> K4 --> K5 --> K6
+        K6 -->|Yes| K7
+    end
+
+    K6 -->|"No / after print"| KOUT["KOT Pending='Y'<br/>row count 28101  [VERIFIED-SQL]"]
+    KOUT --> BILL
+
+    subgraph TBC["Table Change - RsTbChange  L609682"]
+        T1["Tables = RoomMast TYPE='TB'<br/>L609990  [VERIFIED-SQL]"]
+        T2["Update Kot Set ROOMNO<br/>L609811, L609898"]
+        T1 --> T2
+    end
+
+    subgraph BILL["Sale Bill Entry - RSSaleBill  L320025"]
+        B1{"Discount authorised?<br/>L320115, L321359"}
+        B2["Delete Sale1Log L324095<br/>Delete Sale1 L324253"]
+        B3["Insert Sale1 L324352 / L324430"]
+        B4["Insert Sale2 - tax lines L324754"]
+        B5["Insert SunTran - sundries L324811"]
+        B6["Update KOT Set Pending='N'<br/>L324830"]
+        B7["MsgBox Updation Completed.<br/>L320304"]
+        B1 -->|No| BX["Blocked - not authorised"]
+        B1 -->|Yes| B2 --> B3 --> B4 --> B5 --> B6 --> B7
+    end
+
+    B7 --> SETTLE
+
+    subgraph SETTLE["Settlement - MemVar_1F81F64 / RsPaymentReceice  L479937, L982220"]
+        S1["AdvType = Select 'B'+ShortName<br/>From Depart Where Code=...<br/>L479944-region"]
+        S2{"RestType='Production'?<br/>L698-region"}
+        S3["Block: Operation is not allowed<br/>for Perticular Department"]
+        S4["Delete PayCharge L983400,<br/>Insert PayCharge L983860"]
+        S5["Insert LEDGERADJ L983800"]
+        S6["Update Voucher_Prefix<br/>Start_Srl_No L984012"]
+        S1 --> S2
+        S2 -->|yes| S3
+        S2 -->|no| S4 --> S5 --> S6
+    end
+
+    S6 --> DONE["Bill settled.<br/>Sale1 12686 rows, Sale2 66055,<br/>SunTran 98025  [VERIFIED-SQL]"]
+
+    subgraph REPRINT["POS Bill Reprint - POSBillReprint  L303715"]
+        R1["Fill Bill No # L303964<br/>range check L304139"]
+        R2["Record is Deleted by somebody<br/>L305068"]
+        R1 --> R2
+    end
+
+    subgraph SPLIT["Split Sale Bill - RsSaleBillSplit  L465230"]
+        SP1["Vr.No/duplicate/date guards<br/>L466523, L466563, L466604"]
+        SP2["Please fully adjust the Bill<br/>L468083"]
+        SP3["Insert Sale1 L468372<br/>Sale2 L468557, SunTran L468610"]
+        SP1 --> SP2 --> SP3
+    end
+
+    subgraph DISP["Display Table"]
+        DP1{"TouchScreen = Enviro.TouchScreen?<br/>L477031, L9892  [VERIFIED-VB6]"}
+        DP2["RsTouchDisplayTB  L479316"]
+        DP3["RsPOSDisplay OpenMode=2  L479321"]
+        DP4["Tables are not defined<br/>in this Outlet  L479329-region"]
+        DP1 -->|Yes| DP2
+        DP1 -->|No| DP3
+        DP3 --> DP4
+    end
+
+    subgraph OBOOK["Order Booking - RsBookingEntry  L488666"]
+        OB1["VType = Select V_Type From<br/>Voucher_Type Where Ncat='ORDER'<br/>L479387-region"]
+        OB2["No row -> Contact to your<br/>S/w vendor  L479431-region"]
+        OB1 --> OB2
+    end
+
+    subgraph ADV["Order Booking Advance - POSAdvanceDepDialog  L598418"]
+        AV1["VType from Ncat='PADV'<br/>L479531-region"]
+        AV2["OpenMode=2, OpenType=5<br/>L479363-region"]
+        AV1 --> AV2
+    end
+
+    subgraph LOOKUP["Bill Lookup - RSSaleBillDisplay  L508415"]
+        LK1["SELECT only - 0 writes<br/>L508415-L513953"]
+        LK2["Sale1 join Voucher_Type<br/>L509157"]
+        LK1 --> LK2
+    end
+
+    subgraph KTR["KOT Transfer - RsKOTTransfer  L610453"]
+        KT1["Move KOT rows between kitchens"]
+        KT1 --> KT2["KOT table 28101 rows"]
+    end
+
+    subgraph TOKEN["Token Entry - RsTokenEntry  L613796"]
+        TK1["Session from SessionMast<br/>L613846"]
+        TK2["VType = 'N' + Depart.ShortName<br/>L614187"]
+        TK3["Stock guard: Select count(*)<br/>from Stock Where KOTDocId<br/>L613991"]
+        TK4["Insert KOTLog L614044<br/>Update TOKEN DelFlag='Y' L614055"]
+        TK1 --> TK2 --> TK3 --> TK4
+    end
+
+    subgraph PAY["Payment Receive - RsPaymentReceice  L982220"]
+        PY1["Please Fill Payment Details<br/>Before Saving.. L983732"]
+        PY2["Credit Card has been Expired<br/>L982769 / Credit Not Allowed L982870"]
+        PY3["Voucher Not defined for Entry<br/>L983766"]
+        PY1 --> PY2 --> PY3
+    end
+
+    subgraph DENOM["Denomination - FrmDenomination  L602545"]
+        DN1["Max(Sno)+1  L602893"]
+        DN2["Update / Delete DenominationDetail<br/>L602595, L602939"]
+        DN1 --> DN2
+    end
+
+    subgraph RCHG["Restaurant Change - FrmChangeRest  L480172"]
+        RC1["Select current outlet<br/>sets MemVar_1F811A4"]
+        RC1 --> RC2["Feeds LocalRestCode<br/>into every POS screen"]
+    end
+
+    subgraph STAT["POS Status - RsStatusScreen  L611306"]
+        ST1["Depart Resttype IN<br/>'Outlet','Room Service'<br/>L611554"]
+        ST2["Sale1 FULL OUTER JOIN KOT<br/>L612350-L612381"]
+        ST1 --> ST2
+    end
+
+    subgraph REP["Reports - rPOSRepView / rHallRepView"]
+        RP1{"RestType is BANQ or ODC ?<br/>L479455, L479830"}
+        RP2["rHallRepView<br/>TaxReportHall / TaxSummaryHall<br/>SalesRegister"]
+        RP3["rPOSRepView<br/>TaxReport / TaxSumm / SalesRegister<br/>WaiterWiseSale, PendingKot, ..."]
+        RP1 -->|Yes| RP2
+        RP1 -->|No| RP3
+        RP4["Crystal .rpt resolved from<br/>INI key 2 = C:/PENDRIVE/HMS/Reports<br/>[VERIFIED-CONFIG]"]
+        RP2 --> RP4
+        RP3 --> RP4
+    end

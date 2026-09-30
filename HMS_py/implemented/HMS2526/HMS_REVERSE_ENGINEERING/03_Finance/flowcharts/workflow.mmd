@@ -1,0 +1,120 @@
+flowchart TB
+    subgraph MENU["Menu surfaces - two of them, they disagree"]
+        MTH["Module root<br/>builder: `Financial Setup` &HB L475885<br/>menuHelp: `Finance&#124;11&#124;0&#124;0&#124;0&#124;N`"]
+        MT["Static registrations - 28 calls / 27 unique captions<br/>26 in Proc_165_1 L475885-L475935 (root, 2 groups,<br/>7 screens, 17 report rows)<br/>+ 2 strays: `Expense Voucher` L11645, `Journal Books Log` L11681"]
+        MH["menuHelp rows for user SA - 33 (3 structural + 30 leaves)<br/>5 Flag=E screens · 25 Flag=R reports<br/>MenuHelp_SA_tree.txt OPT1=11"]
+        GRP["Groups<br/>builder: `Transaction` L475887 · `Reports` L475903<br/>menuHelp: `Transaction&#124;11&#124;11` · `Reports&#124;11&#124;13`"]
+    end
+
+    subgraph DISPATCH["Dispatch layer - one dispatcher for the whole app"]
+        LB["Menu build from DB<br/>module tabs L8279 · sub-items L8392"]
+        CK["Click: CmdSubMenu_UnknownEvent_9 L4635<br/>`Select OPT1..4,FLAG,CODE from MenuHelp Where Code=` L4644"]
+        DP["Proc_165_2_1E3A588 L476999<br/>var_188 = Proc_165_3(Code) L477039 / L480844"]
+        PR["Per-item privilege<br/>`Select Param_Str AS UPrivilege,Module_Name,OutletCode` L477046"]
+        EN["Enviro + TouchScreen L477023-L477031"]
+        AUD["Append breadcrumb to C:\\moduleFILE.TXT L477034"]
+    end
+
+    subgraph TXN["Transactions"]
+        V1["FaVrEnt L525401<br/>Voucher Entry L477250"]
+        V2["FaAdjust L546942<br/>Adjustment Entry L477257"]
+        V3["FaAdjustDel L547816<br/>Delete Adjustment L477264"]
+        V4["FaChqClear L548011<br/>Bank Reconciliation L477271"]
+        V5["FaTDSChal L544598<br/>T.D.S. Challan L477278"]
+        V6["FaTDSCertificate L573445<br/>T.D.S. Certificate L477285"]
+        V7["FaTaxVoucher L972429<br/>Expense Voucher L479131"]
+    end
+
+    subgraph STM["Statements - FaMagic L541582 (OpenType)"]
+        S1["BALSHEET L477292 - no menu row"]
+        S2["PROFLOSS L477304 - no menu row"]
+        S3["GROUPTRIAL L477316 - no menu row"]
+        S4["LEDTRIAL L477328 - menuHelp"]
+        S5["CASHFLOW L477340 - menuHelp only"]
+        S6["FUNDFLOW L477352 - menuHelp only"]
+        S7["CASHBANKSUM L477364 - no menu row"]
+    end
+
+    subgraph REPS["Reports - FaReports L558503, keyed by GRepFormName"]
+        R1["DayBook · Ledger · LedInt · CashBook · BankBook"]
+        R2["JournalBook · JournalBookLog · Annexure · BankReg"]
+        R3["AgingDr · AgingCr · Clg · ClgNot · DetailedTrial"]
+        R4["LedDeb · LedCred · DailySumm · NonTrans · RefReport"]
+        R5["AcCheckList · DUELIST · CONTROLLED · RozNamcha"]
+        RP["Crystal .RPT under Reports\\<br/>Method_arg_1C L564664 / L566584 / L569531 / L570135 / L572223"]
+    end
+
+    subgraph SETUP["Finance setup (menu module &HC → group `Financial Setup` L476127)"]
+        G1["FaGrEnt L555999 Group Accounts L478022"]
+        G2["FaSubGroup L521908 Ledger Accounts L478029"]
+        G3["FaNarrMast L557754 · FaTDSCat L572631"]
+        G4["AccountMerg L500575 · FrmSerialiseVr"]
+        G5["FaCurrBalUpdate L552811 L480459"]
+        G6["FA / Voucher Environment - indirect, L478155-L478165"]
+        G7["Year End (Finance) L478170 - EMPTY<br/>Opening Balance L478167 - EMPTY"]
+    end
+
+    subgraph DATA["Tables (rows)"]
+        T1[("Ledger 40818<br/>PK DocId,V_SNo")]
+        T2[("LedgerM 3158<br/>PK DocId")]
+        T3[("ledgerAdj 264")]
+        T4[("ledgerRef 0")]
+        T5[("LedgerTDS 338")]
+        T6[("ACGROUP 73 · SubGroup 3238")]
+        T7[("AcGroupCurrBal 2054<br/>SubGroupCurrBal 6166")]
+        T8[("Voucher_Type 171 · Voucher_Prefix 171<br/>LastVoucher 38")]
+        T9[("FaEnviro 1 · DATELOCK 0")]
+        T10[("LedgerLog 19219 · LedgerMLog 2386")]
+        T11[("TDSChal 0 · TDSChal1 0 · TDSCerti 0")]
+        T12[("menuHelp 9212")]
+    end
+
+    MTH --> MT
+    MTH --> MH
+    MT --> GRP
+    MH --> LB
+    LB --> CK
+    CK --> DP
+    DP --> PR
+    DP --> EN
+    DP --> AUD
+    DP --> TXN
+    DP --> STM
+    DP --> REPS
+    DP --> SETUP
+    MH -.-> T12
+
+    V1 --> T1
+    V1 --> T2
+    V1 --> T5
+    V1 --> T8
+    V1 --> T9
+    V1 -.cascade delete L529418-L529444 .-> T3
+    V1 -.audit copy L535548 .-> T10
+    V2 --> T3
+    V4 --> T1
+    V5 --> T1
+    V5 --> T5
+    V5 --> T11
+    V6 --> T11
+    V7 --> T1
+
+    STM --> T1
+    STM --> T6
+    STM --> T7
+    STM --> T9
+    REPS --> RP
+    REPS --> T1
+    REPS --> T3
+    REPS --> T9
+
+    G1 --> T6
+    G2 --> T6
+    G2 --> T1
+    G3 --> T9
+    G4 --> T6
+    G5 --> T7
+    G5 -.reset CURR_BAL=0 L553111-L553112 .-> T7
+
+    V1 -.guards: "Required Debit/Credit Account" L534965/L534971<br/>"Back Date Entry Blocked" L529493 .-> V1
+    G2 -.guards: "Duplicate A/c Name not Allowed" L523073<br/>"Transactions Exist Can't Delete it" L522841<br/>"Other Site Can't Edit/Delete" L521823 .-> G2

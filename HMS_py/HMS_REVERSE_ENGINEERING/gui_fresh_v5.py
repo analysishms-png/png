@@ -37,7 +37,7 @@ def main():
 
     user_edit.set_text("sa")
     time.sleep(0.5)
-    pass_edit.set_text("kanpur")
+    pass_edit.set_text("********")
     time.sleep(0.5)
 
     snap(dlg, "GUI_003_Login_Filled.png")

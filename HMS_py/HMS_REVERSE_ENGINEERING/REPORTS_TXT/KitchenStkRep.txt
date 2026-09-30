@@ -1,0 +1,54 @@
+======================================================================
+REPORT NAME   : KitchenStkRep
+REPORT NO.    : 113
+CATEGORY      : STOCK / INVENTORY
+STOCK/INVENTORY: HAAN - is report me stock data aata hai
+MENU PATH     : Material > Reports  [Sub: MatRep_Click]
+SOURCE TABLES : Stock + ItemMast
+DESCRIPTION   : Kitchen Stock Report (kitchen ke andar ka stock)
+OUTPUT COLUMNS: Kitchen, GrpName, Item, KitchenStock, Unit
+----------------------------------------------------------------------
+DATABASE DUMP (visahl.sql) TABLES: Stock, Sale1, Sale2, SunTran, PayCharge
+STOCK TABLE DETAIL: Stock table ke important columns (visahl.sql se): DocId, Sno, Vtype, VNo, Vdate, PartyCode, RestCode, Item, QtyIss, QtyRec, Unit, Rate, Amount, TaxPer, TaxAmt, DiscPer, DiscAmt, GodownCode, ChalQty, RecdQty, AccQty, RejQty, ItemRate, ConvRatio, LandVal, DeptCode, Remarks, U_Name
+----------------------------------------------------------------------
+NOTE: Ye report VB6 software (EXTRAS.text decompiled source) ke menu se mili hai.
+      SQL Server DB me isko chalane ke liye upar di gayi tables ka use hota hai.
+======================================================================
+
+----------------------------------------------------------------------
+READY-TO-RUN SQL QUERY (visahl.sql wali tables par chalegi - SQL Server T-SQL)
+----------------------------------------------------------------------
+-- Tables available in dump: Stock, Sale1, Sale2, SunTran, PayCharge
+-- NOTE: Sirf in 5 tables ka dump hai; ItemMast/PartyMast jaisi master tables dump me NAHI hain
+
+-- KITCHEN STOCK REPORT (Kitchen = RestCode/ItemRestCode se identify hota hai)
+SELECT ISNULL(NULLIF(S.ItemRestCode,S.RestCode),'KITCHEN') AS Kitchen,
+       CASE
+         WHEN S.Item LIKE 'RICE%' THEN 'RICE'
+         WHEN S.Item LIKE 'OIL%'  THEN 'OIL'
+         WHEN S.Item LIKE 'WHKY%' THEN 'WHISKY'
+         WHEN S.Item LIKE 'SUGR%' THEN 'SUGAR'
+         WHEN S.Item LIKE 'ATTA%' THEN 'ATTA'
+         WHEN S.Item LIKE 'TEA%'  THEN 'TEA'
+         WHEN S.Item LIKE 'WINE%' THEN 'WINE'
+         WHEN S.Item LIKE 'VODKA%' THEN 'VODKA'
+         WHEN S.Item LIKE 'FRT%'  THEN 'FRUIT'
+         ELSE 'OTHER'
+       END AS GrpName,
+       S.Item, SUM(ISNULL(S.QtyRec,0)-ISNULL(S.QtyIss,0)) AS KitchenStock,
+       MAX(ISNULL(S.Unit,'')) AS Unit
+FROM Stock S
+GROUP BY ISNULL(NULLIF(S.ItemRestCode,S.RestCode),'KITCHEN'),
+         CASE
+           WHEN S.Item LIKE 'RICE%' THEN 'RICE'
+           WHEN S.Item LIKE 'OIL%'  THEN 'OIL'
+           WHEN S.Item LIKE 'WHKY%' THEN 'WHISKY'
+           WHEN S.Item LIKE 'SUGR%' THEN 'SUGAR'
+           WHEN S.Item LIKE 'ATTA%' THEN 'ATTA'
+           WHEN S.Item LIKE 'TEA%'  THEN 'TEA'
+           WHEN S.Item LIKE 'WINE%' THEN 'WINE'
+           WHEN S.Item LIKE 'VODKA%' THEN 'VODKA'
+           WHEN S.Item LIKE 'FRT%'  THEN 'FRUIT'
+           ELSE 'OTHER'
+         END, S.Item
+ORDER BY Kitchen, GrpName, S.Item;

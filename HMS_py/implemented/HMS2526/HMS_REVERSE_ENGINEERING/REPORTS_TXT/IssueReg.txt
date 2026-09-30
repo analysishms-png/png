@@ -1,0 +1,30 @@
+======================================================================
+REPORT NAME   : IssueReg
+REPORT NO.    : 105
+CATEGORY      : STOCK / INVENTORY
+STOCK/INVENTORY: HAAN - is report me stock data aata hai
+MENU PATH     : Material > Reports  [Sub: MatRep_Click]
+SOURCE TABLES : Stock + ItemMast
+DESCRIPTION   : Item Issue Register
+OUTPUT COLUMNS: Vdate, Vtype, VNo, DocId, Item, QtyIss, Unit, Rate, Value, RestCode, U_Name
+----------------------------------------------------------------------
+DATABASE DUMP (visahl.sql) TABLES: Stock, Sale1, Sale2, SunTran, PayCharge
+STOCK TABLE DETAIL: Stock table ke important columns (visahl.sql se): DocId, Sno, Vtype, VNo, Vdate, PartyCode, RestCode, Item, QtyIss, QtyRec, Unit, Rate, Amount, TaxPer, TaxAmt, DiscPer, DiscAmt, GodownCode, ChalQty, RecdQty, AccQty, RejQty, ItemRate, ConvRatio, LandVal, DeptCode, Remarks, U_Name
+----------------------------------------------------------------------
+NOTE: Ye report VB6 software (EXTRAS.text decompiled source) ke menu se mili hai.
+      SQL Server DB me isko chalane ke liye upar di gayi tables ka use hota hai.
+======================================================================
+
+----------------------------------------------------------------------
+READY-TO-RUN SQL QUERY (visahl.sql wali tables par chalegi - SQL Server T-SQL)
+----------------------------------------------------------------------
+-- Tables available in dump: Stock, Sale1, Sale2, SunTran, PayCharge
+-- NOTE: Sirf in 5 tables ka dump hai; ItemMast/PartyMast jaisi master tables dump me NAHI hain
+
+-- ITEM ISSUE REGISTER (saari issue entries, doc-wise)
+DECLARE @F DATE='2016-09-01', @T DATE='2016-09-30';
+SELECT S.Vdate, S.Vtype, S.VNo, S.DocId, S.Item, S.QtyIss, S.Unit, S.Rate,
+       ISNULL(S.QtyIss,0)*ISNULL(S.Rate,0) AS Value, S.RestCode, S.U_Name
+FROM Stock S
+WHERE S.Vdate BETWEEN @F AND @T AND ISNULL(S.QtyIss,0) > 0
+ORDER BY S.Vdate, S.DocId, S.Sno;

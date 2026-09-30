@@ -21,5 +21,5 @@
     "Indent (959 rows)",
     "RoomOcc (11002 rows)"
   ],
-  "note": "kanpur is VB6 login password, SQL Server uses Windows Auth"
+  "note": "VB6 login password (env only, never stored); SQL Server uses Windows Auth"
 }

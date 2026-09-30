@@ -1,7 +1,7 @@
 {
   "username": "KK",
-  "password": "kanpur",
+  "password": "",
   "sql_username": "sa",
   "sql_auth_method": "Windows Auth",
-  "note": "kanpur is VB6 application password, not SQL Server password"
+  "note": "VB6 application password - NOT stored; set env HMS_APP_PASSWORD (was masked 2026-09-30)"
 }

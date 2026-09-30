@@ -166,6 +166,17 @@ def insert(rec: dict, cn=None, commit: bool = True) -> int:
         cn=cn, commit=commit)
 
 
+def _validate_lines(lines: list[dict]):
+    """Whole-structure validation before any INSERT (rollback parity:
+    VB6 FGrid save poora transaction karta hai — koi partial lines nahi).
+    Empty/blank TaxCode lines reject — warna RevMast FK dangling."""
+    for i, line in enumerate(lines, 1):
+        if not str(line.get("taxcode") or "").strip():
+            raise ValueError(
+                f"Line {i}: TaxCode zaroori hai (blank line rejected — "
+                "partial structure save nahi hota)")
+
+
 def insert_structure(code: str, name: str, lines: list[dict], cn=None,
                      commit: bool = True) -> int:
     """Insert a complete tax structure with multiple lines (Sno 1..n).
@@ -173,6 +184,7 @@ def insert_structure(code: str, name: str, lines: list[dict], cn=None,
     """
     if not lines:
         raise ValueError("At least one tax line required")
+    _validate_lines(lines)
 
     own = cn is None
     cn = cn or db.connect()
@@ -217,6 +229,9 @@ def update(code: str, sno: int, rec: dict, cn=None, commit: bool = True) -> int:
 def update_structure(code: str, name: str, lines: list[dict], cn=None,
                      commit: bool = True) -> int:
     """Replace all lines for a tax structure code with new lines."""
+    if not lines:
+        raise ValueError("At least one tax line required")
+    _validate_lines(lines)
     own = cn is None
     cn = cn or db.connect()
     try:

@@ -1,0 +1,37 @@
+flowchart TB
+    subgraph MENUSRC["Menu sources - two, and they disagree"]
+        MTH["Module header `Main Setup`<br/>menu_tree_raw.txt L46 (type 4)"]
+        GRPS["10 group headers (type 3)<br/>General Setup L47 &#183; Front Office Setup L56<br/>Point of Sale Setup L75 &#183; Banquet L93<br/>Members Mgmt Setup L102 &#183; Material Mgmt Setup L113<br/>PayRoll Setup L124 &#183; EPABX Setup L129<br/>Financial Setup L133 &#183; Utility L148"]
+        LEAVES["113 leaf rows<br/>105 type-0 screens + 8 type-2 variants<br/>**0 type-1 reports**"]
+    end
+
+    subgraph DISPATCH["Dispatch"]
+        MENUHELP["menuHelp per-user table<br/>`Select OPT1..4,FLAG,CODE from MenuHelp Where Code=`<br/>EXTRAS.text L4644 [VERIFIED-VB6]"]
+        PROC165["Proc_165_2_1E3A588 L476999<br/>code -> caption -> form class<br/>dispatch tail L480384-L480810"]
+        ENV["frmEnviro / MemberEnviro / FaEnvron<br/>site + logsite parameters<br/>L480529 MemberEnviro"]
+    end
+
+    subgraph MASTERS["Master CRUD pattern - same shape everywhere"]
+        LOAD["Form_Load<br/>`Select ... Where LOGSITE_CODE='.. or LOGSITE_CODE='HO'`<br/>e.g. MembershipRevMast L837828"]
+        SAVE["Save = DELETE-then-INSERT<br/>no transaction wrapper in most masters<br/>0 FKs declared [VERIFIED-SQL]"]
+        AUDIT["audit columns<br/>U_AE / U_Name / U_EntDt<br/>Site_Code / LogSite_Code"]
+    end
+
+    subgraph UTILITY["Utility group L148-L168"]
+        U1["User Master L149 &#183; Permissions L150"]
+        U2["Backup Data L151 &#183; Inconsistency Check L153"]
+        U3["Year End Updation L154 &#183; Data Transfer L155"]
+        U4["POS Bill Deletion L157 &#183; POS Recycle L167"]
+    end
+
+    MENUSRC --> MENUHELP --> PROC165
+    PROC165 --> MASTERS
+    PROC165 --> UTILITY
+    ENV --> PROC165
+    LOAD --> SAVE --> AUDIT
+
+    subgraph QUIRK["Known quirks"]
+        Q1["Duplicate captions across groups:<br/>Country/State/City Master in FO Setup L57-59,<br/>Financial Setup L142-144, Utility L159-161"]
+        Q2["`Item List` L76 vs `Item  List` L122 (double space)<br/>- caption-identity risk"]
+        Q3["Year End Updation appears twice: L140 + L154"]
+    end
