@@ -2805,7 +2805,24 @@ VB6_CAPTION_ALIASES: dict[str, str] = {
     "Kitchen Stock Report I/R Basis": "KitchenStkRep",
     "Form24 Annexure-A": "Form24AnnexureA",
     "UPVAT XXIV": "UPVATXXIV",
-    "Settlement  Report": "SettleRep",
+    "Settlement  Report": "SettleRepHall",
+    "Cashier  Report": "CashierCollection",
+    "Item Wise Sales Report": "ItemWiseSaleHall",
+    "Banquet Taxwise Details": "TaxwiseDetailReportHall",
+    "Taxwise Details (Banquet)": "TaxwiseDetailReportHall",
+    "Monthly Return": "MonthlyStatisticalReturn",
+    "L.T. FORM II": "LTFORMII",
+    "L.T. FORM IV": "LTFORMIV",
+    "Room Status Report": "RoomStatus",
+    "Expected Plan/Package F&&B Details": "PlanPackService",
+    "Expected Plan/Package FB Details": "PlanPackService",
+    "Member Bill Missing Report": "MemBillMissingReport",
+    "Card Transaction Report": "CashCardTransRep",
+    "Card Collection Summary": "CashCardCollectSumm",
+    "Confirmation Letters": "ConfirmLetter",
+    "Cancellation Letters": "CancellLetter",
+    "Cashier Report": "HtCashierSumm",
+    "Cashier Report ": "HtCashierSumm",
     "Bill Change Report": "FOMBillChangeReport",
     "Guest Extra Charges": "ExtraChargesDuringStay",
     "Sales Report": "SalesDayBook",
@@ -2832,7 +2849,7 @@ VB6_CAPTION_ALIASES: dict[str, str] = {
     # menuHelp Flag=R SOON leaves (2026-09-23) -> live engine keys
     "Arrival List": "ArrivalDepList",
     "Attendence Report": "AttendanceRep",          # VB6 typo caption
-    "Cashier  Report": "CashierSummary",           # double-space MDI caption
+    "CashierSummaryMenuHelp": "CashierSummary",
     "Business Source Occupancy Report": "business_source_analysis",  # menuHelp MIS leaf -> existing engine
     "GSTR-2": "GSTR2(3)",                          # menuHelp 'GST Reports -> GSTR-2' (x3, live GSTR2 family)
     "Reconciliation": "Reconciliation(R2A)",        # menuHelp leaf w/o (R2A) suffix
@@ -2850,7 +2867,7 @@ VB6_CAPTION_ALIASES: dict[str, str] = {
     "Stewardwise Sale": "WaiterWiseSale",
     # menuHelp trailing/spacing variants (reason-map audit 2026-09-23)
     "Instant House Count": "InsHouseCount",        # menuHelp me no trailing space
-    "Cashier Report": "CashierSale",               # menuHelp me no trailing space
+    "MonthOutletWiseSaleMenuHelp": "MonthOutletWiseSale",
     "Form  C": "FormC",                            # double-space caption (mdi: 'Form C ')
     "Package Forecast": "PackageForecast",         # menuHelp me no trailing space
     "Journal Books Log": "JournalBookLog",         # menuHelp variant of 'Journal Book Log'
@@ -2866,11 +2883,11 @@ def menu_caption_map() -> dict:
     out = {}
     for r in REPORTS:
         for cap in r.get("menu", []):
-            out[re.sub(r"\s+", " ", cap).strip()] = r["key"]
+            out[cap] = r["key"]
     live = by_key()
     for cap, key in VB6_CAPTION_ALIASES.items():
         if key in live:
-            out[re.sub(r"\s+", " ", cap).strip()] = key
+            out[cap] = key
     return out
 
 

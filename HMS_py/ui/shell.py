@@ -11,6 +11,7 @@ Screens (VB6 originals jaisi - production screenshots se):
 Menu evidence: HMS_py/core/menu.py docstring.
 """
 import os
+import re
 import sys
 import warnings
 
@@ -43,8 +44,9 @@ from PyQt6.QtWidgets import (QApplication, QDialog, QFormLayout, QGridLayout,
                              QMenu, QMessageBox, QPushButton, QTableWidget,
                              QTableWidgetItem, QVBoxLayout, QWidget, QFrame,
                              QSizePolicy, QScrollArea)
-from PyQt6.QtCore import Qt, qInstallMessageHandler, QtMsgType
-from PyQt6.QtGui import QFont, QShortcut, QKeySequence, QColor
+from PyQt6.QtCore import Qt, qInstallMessageHandler, QtMsgType, QEvent, QObject
+from PyQt6.QtGui import (QFont, QShortcut, QKeySequence, QColor, QAction,
+                         QKeyEvent)
 
 from HMS_py.ui.theme import apply_theme, toggle_theme, current_theme
 from HMS_py.ui.glass import AuroraCanvas
@@ -99,6 +101,250 @@ QTableWidget::item { color: #111; }
 QHeaderView::section { background: #dcdcdc; color: #111; font-weight: bold; }
 QTableCornerButton::section { background: #dcdcdc; }
 """
+
+
+# ---------------------------------------------------- VB6 global key map
+# MS-030: VB6 har form par KeyPreview=True + Form_KeyDown chalta tha —
+# Enter=Tab, F2=Edit, F3=Delete, F4=Find, F5=Refresh, F6=First,
+# F7=Prev, F8=Next, F9=Last, F10=Print, F11=Preview, F12=Exit,
+# Ctrl+N=New, Ctrl+S=Save, Ctrl+E=Edit, Ctrl+D=Delete, Esc=Cancel.
+# Yahan ek hi QApplication-level event filter yahi dispatch karta hai,
+# jo run_flow()/main() (shell startup) me install hota hai.
+#
+# Safe-guard design rules:
+#   * Existing QShortcuts kabhi override nahi hote — Qt shortcut-map
+#     KeyPress ko application filter se PEHLE consume kar leta hai; plus
+#     _yield_existing_shortcut() explicit scan bhi karta hai (QShortcut
+#     + QAction shortcut, active window scope).
+#   * Dispatch sirf focus-widget ke apne top-level window par: pehle
+#     well-known handler (_on_new/_on_edit/_on_delete/_on_save/
+#     _on_cancel/_on_refresh/... = per-form convention), phir matching
+#     toolbar/menu caption; kuch na mile to silent pass-through.
+#   * Enter=Tab sirf QLineEdit (jiska returnPressed kisi ne connect
+#     nahi kiya) aur read-only QTextEdit/QPlainTextEdit par; buttons/
+#     combos/combos ke andar ke line edits/editable multiline editors
+#     apna default Enter rakhte hain (search/login/newline nahi toota).
+#   * Esc/F12 kabhi MainWindow (shell) par act nahi karte; Esc sirf
+#     `_on_cancel` wale dialogs par, F12 `_on_exit` ya QDialog close.
+#   * Poora dispatch try/except me — kabhi popup/crash nahi, kabhi
+#     log-popup nahi.
+_VB6_FKEY_HANDLES: dict = {
+    # key: ((handler attr names, in priority order), (toolbar captions))
+    int(Qt.Key.Key_F2): (("_on_edit",), ("Edit",)),
+    int(Qt.Key.Key_F3): (("_on_delete",), ("Delete", "Del")),
+    int(Qt.Key.Key_F4): (("_on_find",), ("Find", "Search")),
+    int(Qt.Key.Key_F5): (("_on_refresh", "reload", "refresh"),
+                         ("Refresh", "Reload")),
+    int(Qt.Key.Key_F6): (("_on_first", "first"), ("First", "<<", "|<")),
+    int(Qt.Key.Key_F7): (("_on_prev", "_on_previous", "prev", "previous"),
+                         ("Prev", "Previous", "<")),
+    int(Qt.Key.Key_F8): (("_on_next", "next"), ("Next", ">")),
+    int(Qt.Key.Key_F9): (("_on_last", "last"), ("Last", ">>", ">|")),
+    int(Qt.Key.Key_F10): (("_on_print",), ("Print",)),
+    int(Qt.Key.Key_F11): (("_on_preview", "_on_print_preview"),
+                          ("Preview", "Print Preview")),
+}
+_VB6_CTRL_HANDLES: dict = {
+    int(Qt.Key.Key_N): (("_on_new",), ("New", "Add")),
+    int(Qt.Key.Key_S): (("_on_save",), ("Save",)),
+    int(Qt.Key.Key_E): (("_on_edit",), ("Edit",)),
+    int(Qt.Key.Key_D): (("_on_delete",), ("Delete", "Del")),
+}
+_VB6_MOD_MASK = (Qt.KeyboardModifier.ControlModifier |
+                 Qt.KeyboardModifier.AltModifier |
+                 Qt.KeyboardModifier.ShiftModifier)
+
+
+def _norm_caption(text) -> str:
+    return str(text).replace("&", "").strip().lower()
+
+
+class _Vb6KeyMapFilter(QObject):
+    """QApplication-level event filter = VB6 Form_KeyDown port (MS-030)."""
+
+    def __init__(self):
+        super().__init__()
+        self._busy = False       # Enter->Tab synthesis re-entrancy guard
+        self._installed = False
+
+    # ---------------------------------------------------------- helpers
+    @staticmethod
+    def _seq_exact(a, b) -> bool:
+        try:
+            return a.matches(b) == QKeySequence.SequenceMatch.ExactMatch
+        except Exception:
+            return False
+
+    def _yield_existing_shortcut(self, top, seq) -> bool:
+        """True = is key ka koi QShortcut/QAction shortcut already bound
+        hai is window par -> filter ko yield karna chahiye."""
+        try:
+            for sc in top.findChildren(QShortcut):
+                try:
+                    if self._seq_exact(sc.key(), seq):
+                        return True
+                except Exception:
+                    continue
+            for act in top.findChildren(QAction):
+                try:
+                    sq = act.shortcut()
+                    if sq is not None and not sq.isEmpty() and \
+                            self._seq_exact(sq, seq):
+                        return True
+                except Exception:
+                    continue
+        except Exception:
+            return False
+        return False
+
+    def _enter_as_tab(self, fw) -> bool:
+        """VB6 Enter=Tab: sirf single-line inputs par (rules dekho upar)."""
+        if fw.inherits("QTextEdit") or fw.inherits("QPlainTextEdit"):
+            # editable multiline = Enter newline (VB6 AcceptsReturn parity);
+            # read-only viewer me Tab se focus aage badhe
+            return bool(fw.isReadOnly())
+        if not fw.inherits("QLineEdit"):
+            return False                     # buttons/combos: default Enter
+        w = fw
+        while w is not None:                 # combo ke andar ka edit skip
+            if w.inherits("QComboBox"):
+                return False
+            w = w.parentWidget()
+        if fw.isReadOnly():
+            return False
+        try:
+            if fw.receivers(fw.returnPressed) > 0:
+                return False                 # form ka apna Enter=submit/search
+        except Exception:
+            return False
+        try:
+            comp = fw.completer()
+            if comp is not None and comp.popup() is not None and \
+                    comp.popup().isVisible():
+                return False                 # completer popup Enter=accept
+        except Exception:
+            pass
+        self._busy = True                    # synthesis me wapas intercept na ho
+        try:
+            QApplication.sendEvent(fw, QKeyEvent(
+                QEvent.Type.KeyPress, Qt.Key.Key_Tab,
+                Qt.KeyboardModifier.NoModifier))
+            QApplication.sendEvent(fw, QKeyEvent(
+                QEvent.Type.KeyRelease, Qt.Key.Key_Tab,
+                Qt.KeyboardModifier.NoModifier))
+        finally:
+            self._busy = False
+        return True
+
+    def _dispatch(self, top, fw, names, captions) -> bool:
+        """Handler method (focus widget -> top) ya toolbar caption click.
+        Kuch na mile to False (silent pass-through)."""
+        w = fw
+        while w is not None:
+            for nm in names:
+                fn = getattr(w, nm, None)
+                if callable(fn):
+                    fn()
+                    return True
+            if w is top:
+                break
+            w = w.parentWidget()
+        if captions:
+            want = {_norm_caption(c) for c in captions}
+            try:
+                for act in top.findChildren(QAction):
+                    if (act.isEnabled() and act.isVisible()
+                            and _norm_caption(act.text()) in want):
+                        act.trigger()
+                        return True
+            except Exception:
+                pass
+            try:
+                for btn in top.findChildren(QPushButton):
+                    if (btn.isEnabled() and btn.isVisible()
+                            and _norm_caption(btn.text()) in want):
+                        btn.click()
+                        return True
+            except Exception:
+                pass
+        return False
+
+    # ------------------------------------------------------- event filter
+    def eventFilter(self, obj, ev) -> bool:
+        try:
+            if self._busy or ev.type() != QEvent.Type.KeyPress:
+                return False
+            fw = QApplication.focusWidget()
+            if fw is None or obj is not fw:
+                return False                 # sirf original target par
+            if fw.inherits("QMenu") or fw.inherits("QMenuBar"):
+                return False                 # menu navigation apne paas
+            if ev.isAutoRepeat():
+                return False
+            top = fw.window()
+            if top is None:
+                return False
+            k = int(ev.key())
+            mods = ev.modifiers() & _VB6_MOD_MASK
+            seq = QKeySequence(mods.value | k)
+            # 1) existing shortcut ko kabhi mat todo (belt + braces —
+            #    shortcut-map aksar event yahan aane se pehle kha chuka
+            #    hota hai, ye scan override-accepted cases bachata hai)
+            if self._yield_existing_shortcut(top, seq):
+                return False
+            # 2) Enter = Tab (rules: _enter_as_tab)
+            if k in (int(Qt.Key.Key_Return), int(Qt.Key.Key_Enter)):
+                if mods == Qt.KeyboardModifier.NoModifier:
+                    return self._enter_as_tab(fw)
+                return False
+            is_shell = isinstance(top, MainWindow)
+            # 3) Esc = Cancel — sirf handler wale dialogs; shell kabhi nahi
+            if k == int(Qt.Key.Key_Escape):
+                if is_shell:
+                    return False
+                return self._dispatch(top, fw, ("_on_cancel",), ())
+            # 4) F12 = Exit — shell kabhi nahi; handler, warna QDialog close
+            if k == int(Qt.Key.Key_F12):
+                if is_shell:
+                    return False
+                if self._dispatch(top, fw, ("_on_exit",), ()):
+                    return True
+                if isinstance(top, QDialog):
+                    top.reject()
+                    return True
+                return False
+            # 5) F2..F11 + Ctrl+N/S/E/D
+            entry = _VB6_FKEY_HANDLES.get(k)
+            if entry is None and \
+                    mods == Qt.KeyboardModifier.ControlModifier:
+                entry = _VB6_CTRL_HANDLES.get(k)
+            if entry is None:
+                return False
+            names, captions = entry
+            return self._dispatch(top, fw, names, captions)
+        except Exception:
+            return False                     # never crash, never popup
+
+
+_VB6_KEYMAP: _Vb6KeyMapFilter | None = None
+
+
+def install_vb6_keymap(app=None) -> bool:
+    """MS-030 key-map filter app-level par install karo (idempotent)."""
+    global _VB6_KEYMAP
+    try:
+        app = app or QApplication.instance()
+        if app is None:
+            return False
+        if _VB6_KEYMAP is None:
+            _VB6_KEYMAP = _Vb6KeyMapFilter()
+        if not _VB6_KEYMAP._installed:
+            app.installEventFilter(_VB6_KEYMAP)
+            _VB6_KEYMAP._installed = True
+        return True
+    except Exception:
+        return False
+
 
 
 # ---------------------------------------------------------------- db settings
@@ -435,9 +681,19 @@ class CompanyDialog(QDialog):
         self.tbl.verticalHeader().setVisible(False)
         self.tbl.setShowGrid(False)
         self.tbl.setAlternatingRowColors(True)
-        self.tbl.cellDoubleClicked.connect(lambda *_: self._do_login())
+        # VB6 frmCompany: DBGrid1 double-click = Login (inline edit mode me
+        # cell-edit ke liye chhod do — _on_cell_double guard karta hai)
+        self.tbl.cellDoubleClicked.connect(self._on_cell_double)
         self.tbl.horizontalHeader().setStretchLastSection(True)
+        # VB6 frmCompany DBGrid1 right-click popup (ListView_UnknownEvent_13
+        # + Panelgrid_MouseDown): Add/Edit/Delete/Save/Cancel/Exit
+        self.tbl.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.tbl.customContextMenuRequested.connect(self._grid_menu)
         lay.addWidget(self.tbl)
+
+        # Grid CRUD state (VB6 grid edit mode): None ya (mode, row, rec)
+        self._edit_state = None
+        self._rows: list[dict] = []
 
         # Buttons — VB6 captions: Login / Un Load / Database Update
         btn_lay = QHBoxLayout()
@@ -464,7 +720,12 @@ class CompanyDialog(QDialog):
         self.reload()
 
     def reload(self):
+        # Grid wapas read-only: edit mode ka har cancel/save yahi se
+        # resolve hota hai (VB6 Refresh/Cancel parity)
+        self._edit_state = None
+        self.tbl.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         rows = company.list_companies()
+        self._rows = list(rows)
         self.tbl.setRowCount(len(rows))
         for r, rec in enumerate(rows):
             for c, val in enumerate((rec["name"], rec["short"] or "-",
@@ -476,10 +737,191 @@ class CompanyDialog(QDialog):
         if rows:
             self.tbl.selectRow(0)
 
+    # -------------------------------------------- grid CRUD (VB6 popup)
+    # VB6 frmCompany.frm DBGrid1 right-click popup: Add/Edit/Delete/
+    # Save/Cancel/Exit -> core/company.py save_company/delete_company
+    # (pehle NO UI caller tha — MS-009/MS-011).
+    def _on_cell_double(self, row, col):
+        if self._edit_state:
+            return                    # inline edit: double-click = cell edit
+        self._do_login()              # VB6: grid double-click = Login
+
+    def _grid_menu(self, pos):
+        idx = self.tbl.indexAt(pos)
+        if idx.isValid():
+            self.tbl.selectRow(idx.row())     # VB6 right-click = row select
+        editing = self._edit_state is not None
+        r = self.tbl.currentRow()
+        has_rec = 0 <= r < len(self._rows)
+        menu = QMenu(self)
+        act_add = menu.addAction("Add")
+        act_edit = menu.addAction("Edit")
+        act_del = menu.addAction("Delete")
+        menu.addSeparator()
+        act_save = menu.addAction("Save")
+        act_cancel = menu.addAction("Cancel")
+        menu.addSeparator()
+        act_exit = menu.addAction("Exit")
+        act_add.setEnabled(not editing)
+        act_edit.setEnabled(not editing and has_rec)
+        act_del.setEnabled(not editing and has_rec)
+        act_save.setEnabled(editing)
+        act_cancel.setEnabled(editing)
+        act_add.triggered.connect(self._on_new)
+        act_edit.triggered.connect(self._on_edit)
+        act_del.triggered.connect(self._on_delete)
+        act_save.triggered.connect(self._on_save)
+        act_cancel.triggered.connect(self._on_cancel)
+        act_exit.triggered.connect(self._on_exit)
+        menu.exec(self.tbl.mapToGlobal(pos))
+
+    def _begin_inline_edit(self, mode: str, row: int, rec: dict | None):
+        self._edit_state = (mode, row, rec)
+        self.tbl.setEditTriggers(
+            QTableWidget.EditTrigger.DoubleClicked |
+            QTableWidget.EditTrigger.EditKeyPressed |
+            QTableWidget.EditTrigger.AnyKeyPressed)
+        for c in range(3):
+            it = self.tbl.item(row, c)
+            if it is not None:
+                it.setFlags(it.flags() | Qt.ItemFlag.ItemIsEditable)
+
+    def _on_new(self):
+        if self._edit_state is not None:
+            QMessageBox.information(self, "Company",
+                                    "Pehle Save/Cancel karo")
+            return
+        r = self.tbl.rowCount()
+        self.tbl.insertRow(r)
+        for c, val in enumerate(("", "", company.current_year())):
+            it = QTableWidgetItem(val)
+            it.setFlags(it.flags() | Qt.ItemFlag.ItemIsEditable)
+            it.setForeground(QColor("#e0e0e0"))
+            self.tbl.setItem(r, c, it)
+        self.tbl.setCurrentCell(r, 0)
+        self._begin_inline_edit("add", r, None)
+        self.tbl.editItem(self.tbl.item(r, 0))
+
+    def _on_edit(self):
+        if self._edit_state is not None:
+            QMessageBox.information(self, "Company",
+                                    "Pehle Save/Cancel karo")
+            return
+        r = self.tbl.currentRow()
+        if r < 0 or r >= len(self._rows):
+            QMessageBox.information(self, "Edit",
+                                    "Pehle company select karo")
+            return
+        rec = self._rows[r]
+        if not str(rec.get("code") or "").strip():
+            QMessageBox.information(
+                self, "Edit",
+                "Ye INI fallback row hai - DB me record nahi (Add se banao)")
+            return
+        self._begin_inline_edit("edit", r, rec)
+        self.tbl.editItem(self.tbl.item(r, 0))
+
+    def _grid_row_values(self, row: int) -> tuple:
+        vals = []
+        for c in range(3):
+            it = self.tbl.item(row, c)
+            vals.append((it.text() if it else "").strip())
+        return vals[0], vals[1], vals[2]
+
+    def _on_save(self):
+        if self._edit_state is None:
+            QMessageBox.information(self, "Save",
+                                    "Pehle Add/Edit start karo")
+            return
+        mode, row, rec = self._edit_state
+        name, short, year = self._grid_row_values(row)
+        if not name:
+            QMessageBox.warning(self, "Save", "Company Name is required")
+            return
+        data = {"Comp_Name": name, "SName": short, "cyear": year}
+        if mode == "edit" and rec:
+            data["Comp_Code"] = str(rec.get("code") or "")
+        try:
+            company.save_company(data, user=self.user)
+        except ValueError as e:
+            QMessageBox.warning(self, "Save", str(e))
+            return
+        except Exception as e:
+            QMessageBox.critical(self, "Save", f"DB error: {e}")
+            return
+        self.reload()
+        QMessageBox.information(self, "Save", f"Company '{name}' saved")
+
+    def _on_cancel(self):
+        if self._edit_state is not None:
+            self.reload()            # VB6 Cancel: inline edit discard
+        else:
+            self.reject()            # VB6 Esc/Cancel: form band (Un Load)
+
+    def _on_refresh(self):
+        if self._edit_state is not None:
+            QMessageBox.information(
+                self, "Refresh", "Edit mode me refresh nahi (Save/Cancel karo)")
+            return
+        self.reload()
+
+    def _on_delete(self):
+        if self._edit_state is not None:
+            QMessageBox.information(self, "Delete",
+                                    "Pehle Save/Cancel karo")
+            return
+        r = self.tbl.currentRow()
+        if r < 0 or r >= len(self._rows):
+            QMessageBox.information(self, "Delete",
+                                    "Pehle company select karo")
+            return
+        rec = self._rows[r]
+        code = str(rec.get("code") or "").strip()
+        if not code:
+            QMessageBox.information(
+                self, "Delete",
+                "Ye INI fallback row hai - DB record delete nahi hoga")
+            return
+        reply = QMessageBox.question(
+            self, "Confirm Delete",
+            f"Company '{rec['name']}' delete karein?\n\n"
+            "This action cannot be undone.",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No
+        )
+        if reply != QMessageBox.StandardButton.Yes:
+            return
+        try:
+            company.delete_company(code)
+        except Exception as e:
+            QMessageBox.critical(self, "Delete Error",
+                                 f"Unable to delete: {e}")
+            return
+        self.reload()
+
+    def _on_exit(self):
+        if self._edit_state is not None:
+            reply = QMessageBox.question(
+                self, "Exit",
+                "Edit discard karke company window band karein?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No
+            )
+            if reply != QMessageBox.StandardButton.Yes:
+                return
+        self.reject()
+
     def _db_update(self):
-        QMessageBox.information(
-            self, "Database Update",
-            "Database Update: year-start maintenance.")
+        # VB6 frmCompany btnStruUpdNew ("Structure Update", Alt+D) — safe
+        # subset port: admin-gated idempotent schema upgrade (MS-008).
+        try:
+            from HMS_py.ui import schema_upgrade_ui as _sch
+        except ImportError:
+            QMessageBox.information(
+                self, "Database Update",
+                "schema_upgrade_ui module missing.")
+            return
+        _sch.open_schema_upgrade(self, user=str(getattr(self, "user", "SA")))
 
     def _do_login(self):
         r = self.tbl.currentRow()
@@ -962,10 +1404,88 @@ def _form_registry() -> dict[str, callable]:
         from HMS_py.ui import utility_forms_ui as util_ui
     except ImportError:
         util_ui = None
+    # ── Main Setup compare-loop 2026-10-02: 7 naye VB6 ports ──
+    try:
+        from HMS_py.ui import voucher_serialisation_ui as vser_ui
+    except ImportError:
+        vser_ui = None
+    try:
+        from HMS_py.ui import pos_recycle_ui as precyc_ui
+    except ImportError:
+        precyc_ui = None
+    try:
+        from HMS_py.ui import purchase_enviro_ui as pur_env_ui
+    except ImportError:
+        pur_env_ui = None
+    try:
+        from HMS_py.ui import task_scheduler_ui as task_ui
+    except ImportError:
+        task_ui = None
+    try:
+        from HMS_py.ui import voucher_sundry_ui as vsund_ui
+    except ImportError:
+        vsund_ui = None
+    try:
+        from HMS_py.ui import open_item_consumption_ui as oic_ui
+    except ImportError:
+        oic_ui = None
+    try:
+        from HMS_py.ui import pos_bill_deletion_ui as pbdel_ui
+    except ImportError:
+        pbdel_ui = None
+    # ── COMING_SOON -> real UI batch (VB6 parity report SECTION A) ──
+    try:
+        from HMS_py.ui import depart_change_ui as dchg_ui
+    except ImportError:
+        dchg_ui = None
+    try:
+        from HMS_py.ui import forex_receive_ui as fxui
+    except ImportError:
+        fxui = None
+    try:
+        from HMS_py.ui import pos_display_ui as pdisp_ui
+    except ImportError:
+        pdisp_ui = None
+    try:
+        from HMS_py.ui import advance_deposit_ui as advdep_ui
+    except ImportError:
+        advdep_ui = None
+    try:
+        from HMS_py.ui import pos_settlement_ui as psetl_ui
+    except ImportError:
+        psetl_ui = None
+    try:
+        from HMS_py.ui import order_advance_ui as oradv_ui
+    except ImportError:
+        oradv_ui = None
+    try:
+        from HMS_py.ui import excise_gate_pass_ui as egp_ui
+    except ImportError:
+        egp_ui = None
+    # VB6 dispatcher: "Company Master" -> New CompMast (ModuleAdd
+    # loc_1E42FF1) — full 42-field detail form; fallback = legacy p2 form
+    try:
+        from HMS_py.ui import comp_mast_form_ui as compmast_ui
+    except ImportError:
+        compmast_ui = None
+    try:
+        from HMS_py.ui import denomination_ui as denom_ui
+    except ImportError:
+        denom_ui = None
 
     def _open_report(cap: str):
         """mdi leaf caption -> reports engine key (exact-match map)."""
-        key = _rpmod.menu_caption_map().get(cap) if _rpmod else None
+        if not _rpmod:
+            key = None
+        else:
+            _m = _rpmod.menu_caption_map()
+            key = _m.get(cap)
+            if not key:
+                _nc = re.sub(r"\s+", " ", cap).strip()
+                for _k, _v in _m.items():
+                    if re.sub(r"\s+", " ", _k).strip() == _nc:
+                        key = _v
+                        break
         if not key:
             return _coming_soon(cap)
 
@@ -1061,45 +1581,6 @@ def _form_registry() -> dict[str, callable]:
         except Exception as e:
             QMessageBox.critical(w, "Room Change", f"DB error: {e}")
 
-    def _open_kot_transfer(w=None):
-        """KOT Transfer dialog (RsKOTTransfer): docid -> outlet/table/waiter."""
-        from PyQt6.QtWidgets import (QDialog, QFormLayout, QLineEdit,
-                                     QDialogButtonBox)
-        dlg = QDialog(w)
-        dlg.setWindowTitle("KOT Transfer (VB6 RsKOTTransfer)")
-        dlg.setModal(True)
-        form = QFormLayout(dlg)
-        ed_docid = QLineEdit(); ed_docid.setPlaceholderText("KOT DocId")
-        ed_outlet = QLineEdit(); ed_outlet.setPlaceholderText("New Outlet (RestCode)")
-        ed_table = QLineEdit(); ed_table.setPlaceholderText("New Table (RoomNo)")
-        ed_waiter = QLineEdit(); ed_waiter.setPlaceholderText("New Waiter")
-        form.addRow("KOT DocId *", ed_docid)
-        form.addRow("New Outlet", ed_outlet)
-        form.addRow("New Table", ed_table)
-        form.addRow("New Waiter", ed_waiter)
-        bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok |
-                              QDialogButtonBox.StandardButton.Cancel)
-        bb.accepted.connect(dlg.accept)
-        bb.rejected.connect(dlg.reject)
-        form.addRow(bb)
-        if dlg.exec() != QDialog.DialogCode.Accepted:
-            return
-        try:
-            result = pos.transfer_kot(
-                ed_docid.text().strip(),
-                ed_outlet.text().strip() or None,
-                ed_table.text().strip() or None,
-                ed_waiter.text().strip() or None,
-                user=getattr(w, "user", "SA"))
-            QMessageBox.information(
-                w, "KOT Transfer",
-                f"KOT {result['docid']} transferred "
-                f"({result['rows_updated']} rows updated)")
-        except ValueError as e:
-            QMessageBox.warning(w, "KOT Transfer", str(e))
-        except Exception as e:
-            QMessageBox.critical(w, "KOT Transfer", f"DB error: {e}")
-
     def _open_salary_create(w=None):
         """Salary Creation dialog (prSalCreate): attendance -> salary."""
         from PyQt6.QtWidgets import (QDialog, QFormLayout, QLineEdit,
@@ -1108,7 +1589,7 @@ def _form_registry() -> dict[str, callable]:
         dlg.setWindowTitle("Salary Creation (VB6 prSalCreate)")
         dlg.setModal(True)
         form = QFormLayout(dlg)
-        ed_month = QLineEdit(); ed_month.setPlaceholderText("e.g. 2026-09")
+        ed_month = QLineEdit(); ed_month.setPlaceholderText("e.g. APR2026 (ya 2026-04)")
         ed_emp = QLineEdit(); ed_emp.setPlaceholderText("e.g. KK000213")
         sp_da = QDoubleSpinBox(); sp_da.setRange(0, 100); sp_da.setSuffix(" %")
         sp_hra = QDoubleSpinBox(); sp_hra.setRange(0, 100); sp_hra.setSuffix(" %")
@@ -1128,7 +1609,7 @@ def _form_registry() -> dict[str, callable]:
         if dlg.exec() != QDialog.DialogCode.Accepted:
             return
         try:
-            result = payroll.create_salary_from_attendance(
+            result = _payroll_core.create_salary_from_attendance(
                 ed_month.text().strip(), ed_emp.text().strip(),
                 da_per=sp_da.value(), hra_per=sp_hra.value(),
                 ot_days=sp_ot.value(), ot_rate=sp_otrate.value(),
@@ -1187,14 +1668,16 @@ def _form_registry() -> dict[str, callable]:
         "Package Master": lambda w: p2.open_packagemaster(w),
         "Season Master": lambda w: p2.open_seasonmaster(
             w, user=getattr(w, "user", "SA")),
-        "Company Master": lambda w: p2.open_companymaster(w),
+        "Company Master": (
+            (lambda w: compmast_ui.open_comp_mast_form(
+                w, user=getattr(w, "user", "SA")))
+            if compmast_ui else lambda w: p2.open_companymaster(w)),
         # Main Setup - General / Charge:
         "Charge Master": lambda w: p2.open_fixcharge(w),
         "Fixed Charge": lambda w: p2.open_fixcharge(w),
         "Unit Master": lambda w: p2.open_unit(w),
         "Item Master": lambda w: p2.open_item(w),
         # Main Setup - F&B / Banquet:
-        "Sundry Master": lambda w: p2.open_sundry(w),
         "Narration Master": lambda w: p2.open_narr(w),
         "Venue Master": lambda w: p2.open_venue(w),
         # VB6 FrmVenueFeat 'VenueFeature' — FeatureMast master (LIVE table)
@@ -1238,7 +1721,6 @@ def _form_registry() -> dict[str, callable]:
         "Group Accounts": lambda w: p2.open_acgroup(w),
         # Wave 3 (Main Setup complete): POS Setup masters
         "Session Master": (lambda w: pm.open_session(w, user=getattr(w, "user", "SA"))) if pm else None,
-        "Scheme Master":  (lambda w: pm.open_scheme(w, user=getattr(w, "user", "SA"))) if pm else None,
         "Delivery Boy":   (lambda w: pm.open_delboy(w, user=getattr(w, "user", "SA"))) if pm else None,
         "Item List":      (lambda w: pm.open_itemcat(w, user=getattr(w, "user", "SA"))) if pm else None,
         "Menu Category":  (lambda w: pm.open_itemcat(w, user=getattr(w, "user", "SA"))) if pm else None,
@@ -1258,7 +1740,6 @@ def _form_registry() -> dict[str, callable]:
         "Revenue Master":    (lambda w: hr.open_memrev(w, user=getattr(w, "user", "SA"))) if hr else None,
         # Wave 3: General Setup masters
         "Room Features":     (lambda w: gs.open_roomfeature(w)) if gs else None,
-        "Godown Master":     (lambda w: gs.open_godown(w)) if gs else None,
         "Voucher Environment": (lambda w: gs.open_vouchertype(w)) if gs else None,
         "Voucher Type": (lambda w: gs.open_vouchertype(w)) if gs else None,
         "FA Environment":    (lambda w: fa_envui.open_fa_environment(w)) if fa_envui else None,
@@ -1283,12 +1764,6 @@ def _form_registry() -> dict[str, callable]:
         "Purchase Sundry Setting": ((lambda w: fdui.open_depart_sundry(w))
                                     if fdui else _coming_soon(
                                         "Purchase Sundry Setting")),
-        # FacilitySundry.frm port (V_Type='FACL') - VB6 dispatcher
-        # ModuleAdd.bas:5278 'New FacilitySundry' se khulta tha, par yahan
-        # registry me tha hi nahi (BUG-012 correction).
-        "Facility Sundry Setting": ((lambda w: fdui.open_facility_sundry(w))
-                                    if fdui else _coming_soon(
-                                        "Facility Sundry Setting")),
         # Wave 3: EPABX masters
         "Call Type":         (lambda w: epabx.open_calltype(w)) if epabx else None,
         "Call Code":         (lambda w: epabx.open_callcode(w)) if epabx else None,
@@ -1299,9 +1774,6 @@ def _form_registry() -> dict[str, callable]:
         "Indent": (lambda w: _inv.open_indent_ui(w)) if _inv else None,
         "Indent Entry": (lambda w: _inv.open_indent_ui(w)) if _inv else None,
         "Pending Indent": (lambda w: _inv.open_inv(w)) if _inv else None,
-        "Purchase Register": (lambda w: _inv.open_inv(w)) if _inv else None,
-        "Stock Summary": (lambda w: _inv.open_inv(w)) if _inv else None,
-        "Stock Register": (lambda w: _inv.open_inv(w)) if _inv else None,
         "Stock Register Detailed": (lambda w: _inv.open_inv(w)) if _inv else None,
         "Purchase Register Detailed": (lambda w: _inv.open_inv(w)) if _inv else None,
         "GIN / Purchase Receipt": (lambda w: _inv.open_gin(w)) if _inv else None,
@@ -1468,6 +1940,8 @@ def _form_registry() -> dict[str, callable]:
             w, "Location Facilities",
             lambda: __import__("HMS_py.core.db", fromlist=["x"]).query(
                 "SELECT LcCode, AppDate, FcCode, UnitRate, DueOn, StartMonth FROM LocationFacility ORDER BY LcCode")),
+        # VB6 loc_1E47899: New FrmDenomination -> DenominationDetail CRUD
+        "Denomination Detail": (lambda w: denom_ui.open_denomination_detail(w, user=getattr(w, "user", "SA"))) if denom_ui else _coming_soon("Denomination Detail"),
         # Reports Center aliases (VB6 caption -> existing report engine key)
         **({cap: _open_report(cap) for cap in (
             "Checkout Analysis", "Company Analysis", "Food Costing Report",
@@ -1475,7 +1949,6 @@ def _form_registry() -> dict[str, callable]:
             "GSTR-2(4B)", "Stewardwise Sale", "Table wise Sale",
             "Settlement Summary", "Deleted Unsettled Bill", "NC KOT Detail",
             "Daily DIET Report", "Not Delivered Order", "Group Wise Sale",
-            "Denomination Detail", "Payment Receive Entry (POS)",
             "Collection Summary", "Open Item Sales", "KOT Change Report",
             "Monthwise Sales", "ABC  Analysis", "Sale Summary",
             "Taxwise Details", "Group Pickup Report", "Group Arrival Report",
@@ -1497,6 +1970,7 @@ def _form_registry() -> dict[str, callable]:
             "Tourism Form 6", "Tourism Form 4", "Monthly Return",
             "L.T. FORM II", "L.T. FORM IV", "Room Occupancy",
             "Attendance Report", "Form C",
+            "Confirmation Letters", "Cancellation Letters",
         ) if _rpmod}),
         # Blocked-table leaves -> some now have real UIs
         # VB6 MDIForm1 NightAuditoR_Click: idx1 Charges Posting -> fdPostChrg,
@@ -1527,24 +2001,48 @@ def _form_registry() -> dict[str, callable]:
         # ke baad click handler fall-through karta tha. VB6 me bhi inactive.
         **({cap: _coming_soon(cap) for cap in (
             "Member Bill Sundry Setting",
-            "Forex Receive Entry", "Display Rack",
+            "Display Rack",
             "Blank GRC", "Add/Edit/Delete Group With Reservation ",
             "Reservation With History",
-            "Advance Deposit", "Confirmation Letters", "Cancellation Letters",
-            "Reservation Status Screen", "Item Issued On Cleaning",
-            "Check Out Clearance Screen", "Changes Department",
-            "Table Change Entry", "Sale Bill Entry", "Settlement Entry",
-            "Display Table",
-            "Order Booking", "Bill Lookup", "Order Booking Advance",
+            "Reservation Status Screen",
+            # BLOCKED: FrmItemIssuedOnCleaning.frm ka primary table
+            # DepartWiseItemIssueList live DB me hai hi nahi (absent),
+            # ItemMast/GodownMast sirf lookup hain -> documented skip.
+            "Item Issued On Cleaning",
+            "Check Out Clearance Screen",
+            "Table Change Entry",
+            "Order Booking", "Bill Lookup",
             "KOT Transfer", "Token Entry", "Payment Receive",
-            "Salary Creation", 
+            "Payment Receive Entry (POS)",
+            "Salary Creation",
              "Rate Group Master",
-             "Open Item Consumption", 
-            "Card Initialization",
             "Transfer (Offline)", "Transfer (Online)", "Door Locks",
-            "Godrej Locks", "Cascade", "Tile Horizontal", "Tile Vertical",
-            "Manage MDI", "Restaurant Change ",
+            # BLOCKED (HW/DLL): frmLockGodrejSettings.frm +
+            # frmGodrejLockSettings.frm sirf DoorLockEnviro table
+            # read/write karte hain - wo table live DB me absent hai aur
+            # asli lock physical Godrej hardware (DLL) se attach hota hai.
+            "Godrej Locks",
+            "Cascade", "Tile Horizontal", "Tile Vertical",
+            "Manage MDI",
         )}),
+        # VB6 ModuleAdd loc_1E43E77: New SmartCardMast -> POS masters smartcard
+        "Card Initialization": (lambda w: pm.open_smartcard(w)) if pm else _coming_soon("Card Initialization"),
+        # ── pehle _coming_soon par the (VB6 parity SECTION A) ──
+        # FrmChangeDepart/FrmChangeRest -> chhote department selectors.
+        "Changes Department": (lambda w: dchg_ui.open_changes_department(w)) if dchg_ui else _coming_soon("Changes Department"),
+        "Restaurant Change ": (lambda w: dchg_ui.open_restaurant_change(w)) if dchg_ui else _coming_soon("Restaurant Change "),
+        # FrmForExRec -> ForExTrans voucher entry (VType HTFEX).
+        "Forex Receive Entry": (lambda w: fxui.open_forex_receive(w)) if fxui else _coming_soon("Forex Receive Entry"),
+        # RsPOSDisplay/RsTouchDisplayTB -> read-only display board.
+        "Display Table": (lambda w: pdisp_ui.open_display_table(w)) if pdisp_ui else _coming_soon("Display Table"),
+        # frmAdvanceDepDialog -> PayCharge ADRES + Booking.Guarantee='Y'.
+        "Advance Deposit": (lambda w: advdep_ui.open_advance_deposit(w)) if advdep_ui else _coming_soon("Advance Deposit"),
+        # rsTouchScreenAdvanceDepDialog -> POS bill settlement (PayCharge).
+        "Settlement Entry": (lambda w: psetl_ui.open_pos_settlement(w)) if psetl_ui else _coming_soon("Settlement Entry"),
+        # POSAdvanceDepDialog -> PayChargeH AD + PackingOrder/HallBook advance.
+        "Order Booking Advance": (lambda w: oradv_ui.open_order_advance(w)) if oradv_ui else _coming_soon("Order Booking Advance"),
+        # RSSaleBill (50k lines) ka shared screen: POS Sales register.
+        "Sale Bill Entry": (lambda w: psale_ui.open_pos_sales(w)) if psale_ui else _coming_soon("Sale Bill Entry"),
         # Banquet operations (VB6 Banquet > Operation; tables LIVE)
         "Banquet Booking": (lambda w: hall_ui.open_hall_booking(w)) if hall_ui else _coming_soon("Banquet Booking"),
         "Banquet Billing": (lambda w: banq_ui.open_banquet_billing(w)) if banq_ui else _coming_soon("Banquet Billing"),
@@ -1591,8 +2089,8 @@ def _form_registry() -> dict[str, callable]:
         # Room Change (VB6 fdRoomChange port — v0.1.2)
         "Room Change": lambda w: _open_room_change(w),
         # KOT Transfer / Table Change (VB6 RsKOTTransfer/RsTbChange port)
-        "KOT Transfer": lambda w: _open_kot_transfer(w),
-        "Table Change Entry": lambda w: _open_kot_transfer(w),
+        "KOT Transfer": (lambda w: kotui.open_kot_transfer(w)) if kotui else None,
+        "Table Change Entry": (lambda w: kotui.open_table_change(w)) if kotui else None,
         # Salary Creation (VB6 prSalCreate port)
         "Salary Creation": lambda w: _open_salary_create(w),
         # Tally Export
@@ -1613,22 +2111,27 @@ def _form_registry() -> dict[str, callable]:
         "Stock Issue on Requisition": (lambda w: reqslip_ui.open_requisition_slip(w)) if reqslip_ui else _coming_soon("Stock Issue on Requisition"),
         "Pending M.R.": (lambda w: reqslip_ui.open_requisition_slip(w)) if reqslip_ui else _coming_soon("Pending M.R."),
         # --- S1 tail: blocked tables (click par documented VB6-style message) ---
+        # NOTE: dead leaves (Sale MIS Customized, Data Recieving) bhi isi
+        # tuple me _coming_soon hain — VB6 evidence ke saath
+        # tests/unit/test_mainsetup_registry_parity.py ALLOWED_INACTIVE me
+        # documented hain.
         **({cap: _coming_soon(cap) for cap in (
-            "Enviro Inventry",
-            "Finish Material Receive Entry", "Excise Invoice Cum Gate Pass",
             "Pending Purchase Order",
-            "Voucher Wise Sundry Entry", "Sale MIS Customized",
-            "POS Bill Deletion",
+            "Sale MIS Customized",
             "Data Transfer", "Data Recieving",
-            "Data Transfer (POS)", "PLU File (W.Scale)", "POS Recycle",
-            "Task Scheduler", "Voucher Serialisation",
-            "Expected Plan/Package FB Details",
-            "Cashier  Report", "Attendence Report", "Item Wise Sales Report",
-            "Member Bill Missing Report",
-            "Recharge/Refund Entry", "Cash Card Transaction Report",
-            "Cash Card Collection Summary", "Card Transaction Report",
-            "Card Collection Summary", "-",
+            "Data Transfer (POS)",
         )}),
+        "Expected Plan/Package FB Details": _open_report("Expected Plan/Package FB Details"),
+        "Cashier  Report": _open_report("Cashier  Report"),
+        "Attendence Report": _open_report("Attendence Report"),
+        "Item Wise Sales Report": _open_report("Item Wise Sales Report"),
+        "Member Bill Missing Report": _open_report("Member Bill Missing Report"),
+        "Card Transaction Report": _open_report("Card Transaction Report"),
+        "Card Collection Summary": _open_report("Card Collection Summary"),
+        # RsStoreRecEntry (stock receive) + pMREntry (GIN) -> shared screen.
+        "Finish Material Receive Entry": (lambda w: strec_ui.open_stock_receive(w)) if strec_ui else _coming_soon("Finish Material Receive Entry"),
+        # RsKitchenMaterial -> KMISS/KMREC stock voucher (Inventory).
+        "Excise Invoice Cum Gate Pass": (lambda w: egp_ui.open_excise_gate_pass(w)) if egp_ui else _coming_soon("Excise Invoice Cum Gate Pass"),
         # ── PARTIAL-batch wiring: VB6 forms -> existing tested openers ──
         # (HR tabs: VB6 alag forms the, HrPayrollDialog tabs ka port)
         "Leave": (lambda w: payroll_ui.open_hr_payroll(w)) if payroll_ui else None,
@@ -1639,19 +2142,19 @@ def _form_registry() -> dict[str, callable]:
         # VB6 MemMas idx1 -> MembershipMast (member master CRUD), billing nahi
         "Member Master": (lambda w: membmast_ui.open_member_master(w, user=getattr(w, 'user', 'SA'))) if membmast_ui else _coming_soon("Member Master"),
         "Corporate Member Master": (lambda w: membmast_ui.open_corporate_member_master(w, user=getattr(w, 'user', 'SA'))) if membmast_ui else _coming_soon("Corporate Member Master"),
-        "Category wise Revenue": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
-        "Category wise Facility": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
-        "Member Age Wise Revenue": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
-        "Member Select Category": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
-        "Member Bill Printing": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
-        "Member Assistant": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
-        "Outstation Member Entry": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
-        "Member Category Change Entry": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
-        "Member Category Change (Conditional)": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
-        "Member Visit Entry": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
-        "Member Used Facility Entry": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
-        "Member Renewal Entry": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
-        "Member Facility Billing": (lambda w: memb_ui.open_member_billing(w)) if memb_ui else None,
+        "Category wise Revenue": (lambda w: membmast_ui.open_member_master(w, user=getattr(w, 'user', 'SA'))) if membmast_ui else None,
+        "Category wise Facility": (lambda w: membmast_ui.open_member_master(w, user=getattr(w, 'user', 'SA'))) if membmast_ui else None,
+        "Member Age Wise Revenue": (lambda w: membmast_ui.open_member_master(w, user=getattr(w, 'user', 'SA'))) if membmast_ui else None,
+        "Member Select Category": (lambda w: membmast_ui.open_member_master(w, user=getattr(w, 'user', 'SA'))) if membmast_ui else None,
+        "Member Bill Printing": (lambda w: membmast_ui.open_member_master(w, user=getattr(w, 'user', 'SA'))) if membmast_ui else None,
+        "Member Assistant": (lambda w: membmast_ui.open_member_master(w, user=getattr(w, 'user', 'SA'))) if membmast_ui else None,
+        "Outstation Member Entry": (lambda w: membmast_ui.open_member_master(w, user=getattr(w, 'user', 'SA'))) if membmast_ui else None,
+        "Member Category Change Entry": (lambda w: membmast_ui.open_member_master(w, user=getattr(w, 'user', 'SA'))) if membmast_ui else None,
+        "Member Category Change (Conditional)": (lambda w: membmast_ui.open_member_master(w, user=getattr(w, 'user', 'SA'))) if membmast_ui else None,
+        "Member Visit Entry": (lambda w: membmast_ui.open_member_master(w, user=getattr(w, 'user', 'SA'))) if membmast_ui else None,
+        "Member Used Facility Entry": (lambda w: membmast_ui.open_member_master(w, user=getattr(w, 'user', 'SA'))) if membmast_ui else None,
+        "Member Renewal Entry": (lambda w: membmast_ui.open_member_master(w, user=getattr(w, 'user', 'SA'))) if membmast_ui else None,
+        "Member Facility Billing": (lambda w: membmast_ui.open_member_master(w, user=getattr(w, 'user', 'SA'))) if membmast_ui else None,
         "Auto Settle Card Balance": ((lambda w: pm.open_auto_settle_card_balance(
             w, user=getattr(w, "user", "SA"))) if pm else None),
         # SmartCard ops (VB6: Registration/Recharge/Refund/ReIssue forms)
@@ -1685,10 +2188,7 @@ def _form_registry() -> dict[str, callable]:
         "Meter Reading": (lambda w: facb_ui.open_facility_billing(w)) if facb_ui else None,
         "User Collection": (lambda w: exp_ui.open_expense(w, user=w.user)) if exp_ui else None,
         # POS/KOT/stock tails (VB6 variants of wired forms)
-        "KOT Transfer": (lambda w: kotui.open_kot_transfer(w)) if kotui else None,
         "Token Entry": (lambda w: kotui.open_kot_transfer(w)) if kotui else None,
-        "Table Change Entry": (lambda w: kotui.open_table_change(w)) if kotui else None,
-        "Kitchen Closing Stock": (lambda w: kclstk_ui.open_kitchen_closing_stock(w)) if kclstk_ui else _coming_soon("Kitchen Closing Stock"),
         "Issue/Recd. Entry": (lambda w: stiss_ui.open_stock_issue(w)) if stiss_ui else _coming_soon("Issue/Recd. Entry"),
         "House Keeping Op.Stock Entry": ((lambda w: misc_ui.open_opening_stock(w))
                                          if misc_ui else _coming_soon("House Keeping Op.Stock Entry")),
@@ -1788,6 +2288,68 @@ def _form_registry() -> dict[str, callable]:
         # Reports Center (REPORTS_TXT / mdi leaves — read-only engine)
         **({cap: _open_report(cap)
             for cap in (_rpmod.menu_caption_map() if _rpmod else {})}),
+        # ── Main Setup VB6-evidence re-wires (2026-10-02 compare-loop) ──
+        # reports-spread KE baad = override (Guest BirthDates map me hai par
+        # VB6 dispatch target frmWelcome hai, report nahi).
+        # VB6 loc_1E44517 -> New frmWelcome ('Special Occasions' popup;
+        # GuestProf browser, prev/next) — report BirthMarrRep alag cheez.
+        "Guest BirthDates/Anniversary": (
+            (lambda w: util_ui.open_special_occasions(w))
+            if util_ui else _coming_soon("Guest BirthDates/Anniversary")),
+        # VB6 loc_1E43DB4 -> New rPOSRepView, GRepFormName="PLUFile"
+        # (reports catalog key PLUFile; caption 'PLU File (W.Scale)')
+        "PLU File (W.Scale)": _open_report("PLU File"),
+        # VB6 report catalog keys CashCardTransRep/CashCardCollectSumm
+        # (menu caption 'Cash/Card ...' — smart-card leaf caption-space
+        #  ke saath map kiya; VB6 dispatch dead tha, report data parity)
+        "Cash Card Transaction Report": _open_report(
+            "Cash/Card Transaction Report"),
+        "Cash Card Collection Summary": _open_report(
+            "Cash/Card Collection Summary"),
+        # VB6 SCRD dispatch dead (MDIForm1 SCRD_Click = Exit Sub,
+        # loc_DFCDD8); round-5 ported EXTRAS dialogs hi asli target —
+        # recharge+refund dono isi dialog me (VB6 caption bhi merged hai)
+        "Recharge/Refund Entry": (
+            (lambda w: sct.open_card_recharge(w, user=getattr(w, "user", "SA")))
+            if sct else None),
+        # ── 2026-10-02 loop: 7 naye VB6 ports (agent-verified) ──
+        # VB6 loc_1E43224 -> New FrmConsumMast9999 (undated BOM key,
+        # sibling 'Consumption Master' = dated FrmConsumMast)
+        "Open Item Consumption": (
+            (lambda w: oic_ui.open_open_item_consumption(
+                w, user=getattr(w, "user", "SA")))
+            if oic_ui else _coming_soon("Open Item Consumption")),
+        # VB6 loc_1E4A177 -> New FrmJobScheduler (JobSchedule CRUD)
+        "Task Scheduler": (
+            (lambda w: task_ui.open_task_scheduler(w))
+            if task_ui else _coming_soon("Task Scheduler")),
+        # VB6 loc_1E4A1B4 -> New FrmPOSBillDeletion (destructive;
+        # port me confirm + row-count preview add kiya)
+        "POS Bill Deletion": (
+            (lambda w: pbdel_ui.open_pos_bill_deletion(
+                w, user=getattr(w, "user", "SA")))
+            if pbdel_ui else _coming_soon("POS Bill Deletion")),
+        # VB6 loc_1E444EC -> New VoucherSundrySetting (SundryType CRUD)
+        "Voucher Wise Sundry Entry": (
+            (lambda w: vsund_ui.open_voucher_sundry_entry(
+                w, user=getattr(w, "user", "SA")))
+            if vsund_ui else _coming_soon("Voucher Wise Sundry Entry")),
+        # VB6 loc_1E43AEF -> New frmPurEnviro (purchase env, Enviro row)
+        "Enviro Inventry": (
+            (lambda w: pur_env_ui.open_purchase_enviro(
+                w, user=getattr(w, "user", "SA")))
+            if pur_env_ui else _coming_soon("Enviro Inventry")),
+        # VB6 loc_1E44389 -> New FrmSerialiseVr (Ledger swap serialization)
+        "Voucher Serialisation": (
+            (lambda w: vser_ui.open_voucher_serialisation(
+                w, user=getattr(w, "user", "SA")))
+            if vser_ui else _coming_soon("Voucher Serialisation")),
+        # VB6 loc_1E43E03 -> New FrmPOSRecycleData (supervisor-gated
+        # outlet purge; MemVar_1F920B8=1 = UserMast.Label gate)
+        "POS Recycle": (
+            (lambda w: precyc_ui.open_pos_recycle(
+                w, user=getattr(w, "user", "SA")))
+            if precyc_ui else _coming_soon("POS Recycle")),
     }
 
 
@@ -1895,11 +2457,19 @@ class MainWindow(QMainWindow):
         self._side_buttons = []
         # menuHelp L1 sources pehle (VB6 menubar parity), phir legacy roots —
         # buttons pe mod_target property (tests + _on_sidebar_click use karte hain)
+        # Filter by user permissions (VB6: only modules user has Opt1=View access)
         try:
             _side_sources = mh.sidebar_sources(user)
         except Exception:
             _side_sources = menu.sidebar_modules()
+        
+        # Filter sidebar by user permissions (Opt1=View)
+        _filtered_sources = []
         for m in _side_sources:
+            if mh.can_open(user, m["name"]):
+                _filtered_sources.append(m)
+        
+        for m in _filtered_sources:
             b = QPushButton(m["name"])
             b.setProperty("strip-btn", True)
             b.setProperty("mod_target", m["name"])
@@ -2218,6 +2788,7 @@ def run_flow() -> int:
     app = QApplication.instance() or QApplication(sys.argv)
     apply_theme(app, "dark")
     app.setApplicationName("HMS_py")
+    install_vb6_keymap(app)          # MS-030 VB6 global key map
 
     login = LoginDialog()
     if login.exec() != QDialog.DialogCode.Accepted:
@@ -2239,6 +2810,7 @@ def main() -> int:
         from PyQt6.QtTest import QTest
         app = QApplication.instance() or QApplication(sys.argv)
         apply_theme(app, "dark")
+        install_vb6_keymap(app)      # MS-030 (shot mode bhi same shell)
         login = LoginDialog()
         login.show()
         QTest.qWait(500)
