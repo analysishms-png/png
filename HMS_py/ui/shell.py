@@ -1111,6 +1111,16 @@ def _form_registry() -> dict[str, callable]:
         from HMS_py.ui import misc_parity_ui as mpu
     except ImportError:
         mpu = None
+    # Item Issued On Cleaning (D2 batch): UI file ban chuki hai par import
+    # missing tha -> _form_registry() NameError se poori registry crash.
+    try:
+        from HMS_py.ui import frm_item_issued_on_cleaning_ui
+    except ImportError:
+        frm_item_issued_on_cleaning_ui = None
+    try:
+        from HMS_py.ui import frm_lock_godrej_settings_ui
+    except ImportError:
+        frm_lock_godrej_settings_ui = None
     try:
         from HMS_py.ui import pos_na as pna
         _pos = lambda w: pna.open_pos(w)
@@ -2006,33 +2016,33 @@ def _form_registry() -> dict[str, callable]:
         # live hai, par decompiled VB6 dispatch chain (EXTRAS.text loc_1E397E3-1E398DD)
         # me is caption ka koi case nahi — menu registration (loc_1EE8F78, kind=2)
         # ke baad click handler fall-through karta tha. VB6 me bhi inactive.
-        **({cap: _coming_soon(cap) for cap in (
-            "Member Bill Sundry Setting",
-            "Display Rack",
-            "Blank GRC", "Add/Edit/Delete Group With Reservation ",
-            "Reservation With History",
-            "Reservation Status Screen",
-            # BLOCKED: FrmItemIssuedOnCleaning.frm ka primary table
-            # DepartWiseItemIssueList live DB me hai hi nahi (absent),
-            # ItemMast/GodownMast sirf lookup hain -> documented skip.
-            "Item Issued On Cleaning",
-            "Check Out Clearance Screen",
-            "Table Change Entry",
-            "Order Booking", "Bill Lookup",
-            "KOT Transfer", "Token Entry", "Payment Receive",
-            "Payment Receive Entry (POS)",
-            "Salary Creation",
+         **({cap: _coming_soon(cap) for cap in (
+             "Member Bill Sundry Setting",
+             "Display Rack",
+             "Blank GRC", "Add/Edit/Delete Group With Reservation ",
+             "Reservation With History",
+             "Reservation Status Screen",
+             # BLOCKED: FrmItemIssuedOnCleaning.frm ka primary table
+             # DepartWiseItemIssueList live DB me hai hi nahi (absent),
+             # ItemMast/GodownMast sirf lookup hain -> documented skip.
+             "Check Out Clearance Screen",
+             "Table Change Entry",
+             "Order Booking", "Bill Lookup",
+             "KOT Transfer", "Token Entry", "Payment Receive",
+             "Payment Receive Entry (POS)",
+             "Salary Creation",
              "Rate Group Master",
-            "Transfer (Offline)", "Transfer (Online)", "Door Locks",
-            # BLOCKED (HW/DLL): frmLockGodrejSettings.frm +
-            # frmGodrejLockSettings.frm sirf DoorLockEnviro table
-            # read/write karte hain - wo table live DB me absent hai aur
-            # asli lock physical Godrej hardware (DLL) se attach hota hai.
-            "Godrej Locks",
-            "Cascade", "Tile Horizontal", "Tile Vertical",
-            "Manage MDI",
-        )}),
-        # VB6 ModuleAdd loc_1E43E77: New SmartCardMast -> POS masters smartcard
+             "Transfer (Offline)", "Transfer (Online)", "Door Locks",
+             # BLOCKED (HW/DLL): frmLockGodrejSettings.frm +
+             # frmGodrejLockSettings.frm sirf DoorLockEnviro table
+             # read/write karte hain - wo table live DB me absent hai aur
+             # asli lock physical Godrej hardware (DLL) se attach hota hai.
+             "Cascade", "Tile Horizontal", "Tile Vertical",
+             "Manage MDI",
+         )}),
+         "Item Issued On Cleaning": (lambda w: frm_item_issued_on_cleaning_ui.open_frm_item_issued_on_cleaning(w)) if frm_item_issued_on_cleaning_ui else _coming_soon("Item Issued On Cleaning"),
+         "Godrej Locks": (lambda w: frm_lock_godrej_settings_ui.open_frm_lock_godrej_settings(w)) if frm_lock_godrej_settings_ui else _coming_soon("Godrej Locks"),
+         # VB6 ModuleAdd loc_1E43E77: New SmartCardMast -> POS masters smartcard
         "Card Initialization": (lambda w: pm.open_smartcard(w)) if pm else _coming_soon("Card Initialization"),
         # ── pehle _coming_soon par the (VB6 parity SECTION A) ──
         # FrmChangeDepart/FrmChangeRest -> chhote department selectors.
@@ -2122,12 +2132,13 @@ def _form_registry() -> dict[str, callable]:
         # tuple me _coming_soon hain — VB6 evidence ke saath
         # tests/unit/test_mainsetup_registry_parity.py ALLOWED_INACTIVE me
         # documented hain.
-        **({cap: _coming_soon(cap) for cap in (
-            "Pending Purchase Order",
-            "Sale MIS Customized",
-            "Data Transfer", "Data Recieving",
-            "Data Transfer (POS)",
-        )}),
+         **({cap: _coming_soon(cap) for cap in (
+             "Pending Purchase Order",
+             "Sale MIS Customized",
+             "Data Transfer", "Data Recieving",
+             "Data Transfer (POS)",
+             "Godrej Lock Settings",
+         )}),
         "Expected Plan/Package FB Details": _open_report("Expected Plan/Package FB Details"),
         "Cashier  Report": _open_report("Cashier  Report"),
         "Attendence Report": _open_report("Attendence Report"),

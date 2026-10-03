@@ -801,6 +801,11 @@ class PackageMasterForm(BaseMasterForm):
             self._load_children(self.edit_pk)
         elif self._child_widgets_ready:
             self._clear_child_tables()
+        # BUG-MS-07 (Main Setup screenshot audit 2026-10-03): ye override
+        # BaseMasterForm.reload() ko bypass karta tha, jisse browse counter
+        # kabhi refresh nahi hota tha - Plan/Package Master me 'Browse 0/0'
+        # dikhta tha jabki list me 9 rows thi.
+        self._update_browse()
 
 
 class PlanMasterForm(PackageMasterForm):

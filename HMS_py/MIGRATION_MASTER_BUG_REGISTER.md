@@ -35,12 +35,14 @@ SmartCardMaster (0), CatalogMast (0), VenueFeatures (0), GuestParam (0),
 DeliveryBoy (0), TelCallType (0), HappyHours (0) — ye screens VB6 me bhi
 is data par khaali dikhtin.
 
+| BUG-MS-07 | Front Office → Plan Master (+ Package Master) | FrmPlanPackMast.frm | Browse counter `1/9` | `Browse 0/0` jabki list me 9 rows | `PackageMasterForm.reload()` base `BaseMasterForm.reload()` override karta tha aur `_update_browse()` kabhi call nahi karta — label construction-time `0/0` hi reh jaata tha | reload() ke end me `self._update_browse()` | HMS_py/ui/p2_masters.py | probe: Plan `Browse 1/9`; Package (0 rows) `0/0` sahi; test_package_plan_parity + wrong_target_wiring + desktop_ui = 54 pass | VERIFIED |
+| BUG-MS-08 | (registry crash) parallel D2-batch wiring | FrmItemIssuedOnCleaning.frm / frmLockGodrejSettings.frm | registry opens | `_form_registry()` NameError → poori registry (738 entries) crash + 11 tests fail | naye leaves (`Item Issued On Cleaning`, `Godrej Locks`) registry me wire hue par imports add nahi hue the (`frm_item_issued_on_cleaning_ui`, `frm_lock_godrej_settings_ui`) | try/except imports add kiye (wave-import pattern) | HMS_py/ui/shell.py | `_form_registry()` OK (738) + 54 tests pass | VERIFIED |
+
 ### Open / next
-- Plan Master: browse label 0/0 vs list 9 rows (show-time fill ka timing ya
-  counter bug — confirm karna baaki; layout bhi squeeze hai).
 - Group Accounts / User Master screenshots me 1/3 aur 1 row dikhe the —
-  probe par 73/68 rows aate hain (mid-fill capture artifact); recapture with
-  longer wait.
+  recapture (1.5s wait) par 73/68 rows + correct browse → mid-fill capture
+  artifact tha, app bug NAHI (screenshot wait 450ms → 1500ms badha).
+- Plan Master layout squeeze (top grids + list ek window me) — cosmetic.
 - Purchase Sundry Setting ki window title "Outlet Bill Sundry Setting" hai
   (VB6: OutLetSundry/DepartSundry reuse — verify caption).
 - Login screen cream-on-white labels + sidebar lowercase module names
