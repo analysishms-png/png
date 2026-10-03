@@ -29,14 +29,20 @@ from HMS_py.ui.base_master import BaseMasterForm, Field, MasterConfig, \
 def taxmaster_config() -> MasterConfig:
     # VB6 FrmTaxMast: flat RevMast FieldType='T' (Name/Short/Ledger/...).
     # P0 fix: pehle LIMITS["taxtype"] KeyError se app crash hota tha.
+    # VB6 parity (2026-10-01 file-by-file pass):
+    #  - Code TXT box VB6 me hai HI NAHI - auto-generate hota tha
+    #    (FrmTaxMast loc_136F270: site-prefix + max+1) -> generated_pk=True.
+    #  - TopCtrl1 ka Print button (loc_1085B60, TaxMast.RPT + Title param)
+    #    -> print_fn se Print Preview button.
     return MasterConfig(
         title="Tax Master - HMS_py",
         columns=[("TaxCode", "code"), ("TaxName", "name"),
                  ("Short", "short"), ("Ledger", "accode"),
                  ("Nature", "nature"), ("Active", "active")],
         fields=[
-            Field("code", "Tax Code", max_len=taxmaster.LIMITS["code"],
-                  required=True),
+            Field("code", "Tax Code",
+                  max_len=taxmaster.LIMITS["code"],
+                  placeholder="(auto: next site code)"),
             Field("name", "Tax Name", max_len=taxmaster.LIMITS["name"],
                   required=True),
             Field("short", "Short Name",
@@ -56,31 +62,99 @@ def taxmaster_config() -> MasterConfig:
             Field("active", "Active Y/N", max_len=1, default="Y"),
         ],
         api=taxmaster,
-        delete_guard=make_delete_guard("PYT"),
+        # VB6 parity: PYT-guard hata diya. Delete chain core/taxmaster.py
+        # me VB6 jaisi hai - 1) TaxStru reference -> block,
+        # 2) SysYN='Y' system entry -> "SYSTEM ENTRY CAN'T BE DELETED".
+        delete_guard=None,
+        generated_pk=True,
+        print_fn=_print_tax_master,
     )
+
+
+def _print_tax_master(form=None):
+    """VB6 TopCtrl1 print (FrmTaxMast loc_1085B60): Crystal TaxMast.RPT
+    + TaxMast.ttx + formula param Title='Tax Master'. Crystal engine Python
+    me nahi hai -> house-standard text preview (print_preview) me same query
+    + Title. Empty set -> VB6 ka exact message 'No Record Present For
+    Printing'."""
+    from PyQt6.QtWidgets import QMessageBox
+    from HMS_py.ui import print_preview as pp
+
+    rows = taxmaster.print_rows()
+    if not rows:
+        QMessageBox.information(
+            form, "Tax Master", "No Record Present For Printing")
+        return
+    headers = ["Code", "Name", "Short", "RoundOff", "Nature",
+               "Ledger A/C", "Payable A/C", "Unregistered A/C", "Sundry"]
+    text = (pp.company_header() + "\nTAX MASTER\n\n"
+            + pp.grid_to_text(headers, rows))
+    pp.preview_text(text, "Tax Master", parent=form)
 
 
 def paymenttype_config() -> MasterConfig:
+    # VB6 FrmPayTypeMast parity (2026-10-01 file-by-file pass):
+    #  - Code textbox VB6 me hai HI NAHI - auto-generate (loc_15468EB,
+    #    ISNULL default 1) -> generated_pk=True.
+    #  - Fields VB6 Txt array se: 0=Name, 1=ShortName, 2=Ledger A/C,
+    #    3=PayType (13 fixed values, loc_12A3F1E), 4=Bank Comm A/C,
+    #    5=Bank Comm %, 6=AC Posting (Detailed/Summarize).
+    #    Purana config me Category/IsDefault the hi nahi VB6 me.
+    #  - Ledger A/C conditional required (Company/Staff/Member exempt) -
+    #    backend _validate enforce karta hai.
+    #  - TopCtrl Print (loc_108C8BB, PayTypeMast.RPT + Title
+    #    'Pay Type Master') -> print_fn se Print Preview button.
     return MasterConfig(
         title="Payment Type Master - HMS_py",
         columns=[("Code", "code"), ("Name", "name"),
-                 ("Category", "category"), ("Default", "isdefault"),
-                 ("Active", "active")],
+                 ("Short", "short"), ("PayType", "paytype"),
+                 ("Ledger A/C", "accode"), ("A/C Posting", "accposting")],
         fields=[
-            Field("code", "Pay Code", max_len=paymenttype.LIMITS.get("code", 6),
-                  required=True),
+            Field("code", "Pay Code",
+                  max_len=paymenttype.LIMITS.get("code", 6),
+                  placeholder="(auto: next site code)"),
             Field("name", "Pay Name", max_len=paymenttype.LIMITS.get("name", 50),
                   required=True),
+            Field("short", "Short Name",
+                  max_len=paymenttype.LIMITS.get("short", 5)),
+            Field("accode", "Ledger A/C (FK->SubGroup)",
+                  max_len=paymenttype.LIMITS.get("accode", 8)),
             Field("paytype", "Pay Type",
-                  max_len=paymenttype.LIMITS.get("paytype", 15)),
-            Field("category", "Category (CASH/CARD/CHEQUE/ONLINE/CREDIT)",
-                  max_len=15),
-            Field("isdefault", "Is Default (Y/N)", max_len=1, default="N"),
-            Field("active", "Active Y/N", max_len=1, default="Y"),
+                  max_len=paymenttype.LIMITS.get("paytype", 15),
+                  placeholder="Cash/Cheque/Complementary/Company/Cash Card/"
+                              "Credit Card/Hold/Member/Other/Room/Staff/UPI/Void"),
+            Field("bankcommper", "Bank Comm %", default="0"),
+            Field("bankcommac", "Bank Comm A/C (FK->SubGroup)",
+                  max_len=paymenttype.LIMITS.get("bankcommac", 8)),
+            Field("accposting", "A/C Posting (Detailed/Summarize)",
+                  max_len=paymenttype.LIMITS.get("accposting", 10)),
         ],
         api=paymenttype,
         delete_guard=make_delete_guard("PYT"),
+        generated_pk=True,
+        print_fn=_print_payment_type,
     )
+
+
+def _print_payment_type(form=None):
+    """VB6 TopCtrl1 print (FrmPayTypeMast loc_108C8BB): Crystal
+    PayTypeMast.RPT + PayTypeMast.ttx + formula param Title='Pay Type
+    Master'. Crystal engine Python me nahi hai -> house-standard text
+    preview (print_preview) me same query + Title. Empty set -> VB6 ka
+    exact message 'No Record Present For Printing'."""
+    from PyQt6.QtWidgets import QMessageBox
+    from HMS_py.ui import print_preview as pp
+
+    rows = paymenttype.print_rows()
+    if not rows:
+        QMessageBox.information(
+            form, "Payment Type", "No Record Present For Printing")
+        return
+    headers = ["Code", "Name", "Short", "Ledger A/C", "Pay Type",
+               "Comm %", "Bank Comm A/C", "A/C Posting"]
+    text = (pp.company_header() + "\nPAY TYPE MASTER\n\n"
+            + pp.grid_to_text(headers, rows))
+    pp.preview_text(text, "Pay Type Master", parent=form)
 
 
 def marketsegment_config() -> MasterConfig:
