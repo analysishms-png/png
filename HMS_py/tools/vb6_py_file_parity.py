@@ -1,4 +1,6 @@
-"""VB6 (FODER\\*.frm,*.bas) vs Python (ui\\*.py, core\\*.py) FILE-BY-FILE parity.
+"""VB6 (HMS_REVERSE_ENGINEERING/HMS/*.frm,*.bas) vs Python (ui/*.py,
+
+core/*.py) FILE-BY-FILE parity.
 
 Output: VB6_VS_PYTHON_FILE_BY_FILE.txt  (project root)
 Sections:
@@ -22,7 +24,16 @@ import sys
 from collections import defaultdict
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-VB6_DIR = os.path.abspath(os.path.join(ROOT, "..", "FODER"))
+VB6_DIR = os.path.join(ROOT, "HMS_REVERSE_ENGINEERING", "HMS")
+if not os.path.isdir(VB6_DIR):
+    # canonical location (2026-10-03 repo restructure): implemented/ tree
+    VB6_DIR = os.path.join(ROOT, "implemented", "HMS_REVERSE_ENGINEERING", "HMS")
+if not os.path.isdir(VB6_DIR):  # purana checkout jahan source FODER/ me tha
+    VB6_DIR = os.path.abspath(os.path.join(ROOT, "..", "FODER"))
+if not os.path.isdir(VB6_DIR):
+    # last resort: nested copy under implemented/HMS2526
+    VB6_DIR = os.path.join(ROOT, "implemented", "HMS2526",
+                           "HMS_REVERSE_ENGINEERING", "HMS")
 PY_UI = os.path.join(ROOT, "ui")
 PY_CORE = os.path.join(ROOT, "core")
 SHELL = os.path.join(PY_UI, "shell.py")
@@ -208,7 +219,16 @@ def parse_py(path: str) -> dict:
 
 
 def parse_registry(path: str) -> dict[str, str]:
-    """{caption: WIRED|COMING_SOON}"""
+    """{caption: WIRED|COMING_SOON} - file-order (last-wins) semantics.
+
+    shell.py ke _form_registry() dict literals me ek hi caption kayi jagah
+    aata hai (tuple-spread `**({cap: _coming_soon(cap) ...})` + baad me
+    `"X": (lambda ...) if mod else _coming_soon(...)`).  Python runtime par
+    **baad wala entry jeet-ta hai**, isliye static scan ko bhi position
+    order me apply karna zaroori hai - warna pehle ka stale _coming_soon
+    tuple baad me wired ho chuke leaves ko dobara COMING_SOON dikhaata
+    tha (Display Rack / KOT Transfer / Salary Creation class of bug).
+    """
     txt = read_text(path)
     start = txt.find("def _form_registry")
     if start < 0:
@@ -217,16 +237,25 @@ def parse_registry(path: str) -> dict[str, str]:
     endm = re.search(r"\n(?:def |class )", body[10:])
     if endm:
         body = body[: endm.start() + 10]
-    reg: dict[str, str] = {}
+
+    # (position, kind, payload) - position ke hisaab se apply honge.
+    events: list[tuple[int, str, object]] = []
     for m in re.finditer(r'"([^"]*)"\s*:\s*(.+)', body):
         cap, rhs = m.group(1), m.group(2).strip()
         if "_coming_soon" in rhs and "lambda" not in rhs.split("_coming_soon")[0]:
-            reg[cap] = "COMING_SOON"
+            kind = "COMING_SOON"
         else:
-            reg[cap] = "WIRED"
-    for blk in re.finditer(r"_coming_soon\(cap\)\s*for\s+cap\s+in\s*\((.*?)\)\}", body, re.S):
+            kind = "WIRED"
+        events.append((m.start(), kind, cap))
+    for blk in re.finditer(
+            r"_coming_soon\(cap\)\s*for\s+cap\s+in\s*\((.*?)\)\}",
+            body, re.S):
         for cap in re.findall(r'"([^"]*)"', blk.group(1)):
-            reg[cap] = "COMING_SOON"
+            events.append((blk.start(), "COMING_SOON", cap))
+
+    reg: dict[str, str] = {}
+    for _pos, kind, cap in sorted(events, key=lambda e: e[0]):
+        reg[cap] = kind
     if "_open_report(cap)" in body:
         reg["__REPORT_ENGINE__"] = "WIRED"
     return reg
@@ -389,6 +418,14 @@ BAS_ALIAS = {
     "validationmodule": ["validation"],
     "errorhandlingmodule": ["error_handling"],
     "modlog": ["error_handling"],
+    # ---- D4 batch: 5 MISSING/SPARSE .bas ports (core/ me naye modules) ----
+    # Module1.bas sirf 86 Win32 Private Declare hai -> native_decls catalog
+    "module1": ["native_decls"],
+    "databasesecuritymodule": ["database_security_module"],
+    "commondialog": ["common_dialog"],
+    "topbarlib": ["top_bar_lib"],
+    "picture": ["picture"],
+    # ---- /D4 batch ----
     "banqmodule": ["banquet_ops", "banquet_masters", "hall_booking"],
     "membermodule": ["members_masters", "member_billing"],
     "modulesmartcard": ["smartcard_ops", "smartcard"],
@@ -396,26 +433,29 @@ BAS_ALIAS = {
     "einvoice": ["einvoice"],
     "favoucher": ["fa_voucher"],
     "codemodule": ["reports", "print_preview"],
-    "commondialog": ["print_preview"],
     "gridprint": ["print_preview", "reports"],
     "hotlib": ["reports", "db"],
     "json": ["url_utils", "http_client"],
     "mainsetup": ["general_setup"],
     "tmpTable": ["inventory", "pos_stock"],
-    "topbarlib": ["shell"],
     "mobwebapi": ["http_client"],
     "msendinput": ["sms_comm"],
     "moduledoorlock": ["door_lock", "godrej_locks"],
     "moduleadd": ["db"],
-    "mdldatatransfer": ["db_maintenance"],
+    "mdldatatransfer": ["data_transfer", "db_maintenance"],
     "sperialfolderpath": ["url_utils"],
-    "picture": ["print_preview"],
-    "databasesecuritymodule": ["auth", "usermaster", "menu_help"],
 }
 
 
-def match_bas(bas: dict, py_core: list[dict]) -> tuple[str, str, list[str], list[str], set[str], set[str]]:
-    """-> (status, core_file, ported_named, missing_named, vb6_tables, py_covered_tables)"""
+def match_bas(bas: dict, py_core: list[dict],
+              live_tables: set[str] | None = None) -> tuple[str, str, list[str], list[str], set[str], set[str]]:
+    """-> (status, core_file, ported_named, missing_named, vb6_tables, py_covered_tables)
+
+    live_tables: lowercased names of tables jo live DB me hain.  Agar diya
+    jaaye to VB6 ke dead/sample references (Patient/Appointment jaise jo
+    DB me exist hi nahi karte) denominator se drop ho jaate hain - fully
+    ported module ko galat SPARSE/MISSING dikhane se bachate hain.
+    """
     nstem = norm(os.path.splitext(bas["file"])[0])
     cands: list[dict] = []
     for c in py_core:
@@ -434,16 +474,22 @@ def match_bas(bas: dict, py_core: list[dict]) -> tuple[str, str, list[str], list
         for t in c["tables"]:
             py_tables[t.lower()].add(c["file"])
 
+    # Dead VB6 references (live DB me nahi) ko coverage denominator se hatao
+    tb: set[str] = set(bas["tables"])
+    if live_tables is not None:
+        tb = {t for t in tb
+              if t.startswith("#") or t.lower() in live_tables}
+
     covered: set[str] = set()
     extra_files: set[str] = set()
-    for t in bas["tables"]:
+    for t in tb:
         tl = t.lower()
         if tl in py_tables:
             covered.add(t)
             extra_files |= py_tables[tl]
 
     if not cands and not extra_files:
-        return "MISSING", "-", list(bas["named"]), list(bas["named"]), set(bas["tables"]), set()
+        return "MISSING", "-", list(bas["named"]), list(bas["named"]), tb, set()
 
     files = [c["file"] for c in cands] + sorted(extra_files - {c["file"] for c in cands})
     py_defs: set[str] = set()
@@ -463,7 +509,6 @@ def match_bas(bas: dict, py_core: list[dict]) -> tuple[str, str, list[str], list
         )
         (ported if hit else missing).append(nm)
 
-    tb = set(bas["tables"])
     if not tb:
         status = "FULL" if not missing else ("PARTIAL" if ported else "NO_SQL")
     else:
@@ -540,10 +585,7 @@ def main() -> int:
                 note = f"prior={prior}"
         rows.append((fr, st, pyf, note))
 
-    # ---------------- bas
-    bas_rows = [(b,) + match_bas(b, py_core) for b in bass]
-
-    # ---------------- tables
+    # ---------------- tables (pehle: match_bas ko live-table set chahiye)
     vb6_tables: dict[str, set[str]] = defaultdict(set)
     for fr in frms:
         for t in fr["tables"]:
@@ -557,6 +599,9 @@ def main() -> int:
             py_tables[t.lower()].add(p["file"])
 
     live, all_live = live_db_probe(set(vb6_tables) | set(py_tables))
+
+    # ---------------- bas
+    bas_rows = [(b,) + match_bas(b, py_core, all_live) for b in bass]
     temps = {t for t in set(vb6_tables) | set(py_tables) if t.startswith("#")}
     real = all_live | temps | {t for t, (ok, _) in live.items() if ok}
 

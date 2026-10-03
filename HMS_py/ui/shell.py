@@ -2025,6 +2025,8 @@ def _form_registry() -> dict[str, callable]:
              # BLOCKED: FrmItemIssuedOnCleaning.frm ka primary table
              # DepartWiseItemIssueList live DB me hai hi nahi (absent),
              # ItemMast/GodownMast sirf lookup hain -> documented skip.
+             # (evidence 2026-10-03: table SELECT karo to 42S02)
+             "Item Issued On Cleaning",
              "Check Out Clearance Screen",
              "Table Change Entry",
              "Order Booking", "Bill Lookup",
@@ -2037,11 +2039,16 @@ def _form_registry() -> dict[str, callable]:
              # frmGodrejLockSettings.frm sirf DoorLockEnviro table
              # read/write karte hain - wo table live DB me absent hai aur
              # asli lock physical Godrej hardware (DLL) se attach hota hai.
+             # (evidence 2026-10-03: DoorLockEnviro/GodrejLockOperations
+             # 42S02; VB6 UI port ui/frm_lock_godrej_settings_ui.py disk
+             # par hai - wiring tab jab table/DLL evidence aaye.)
+             "Godrej Locks",
              "Cascade", "Tile Horizontal", "Tile Vertical",
              "Manage MDI",
          )}),
-         "Item Issued On Cleaning": (lambda w: frm_item_issued_on_cleaning_ui.open_frm_item_issued_on_cleaning(w)) if frm_item_issued_on_cleaning_ui else _coming_soon("Item Issued On Cleaning"),
-         "Godrej Locks": (lambda w: frm_lock_godrej_settings_ui.open_frm_lock_godrej_settings(w)) if frm_lock_godrej_settings_ui else _coming_soon("Godrej Locks"),
+         # BLOCKED leaves "Item Issued On Cleaning" + "Godrej Locks" upar
+         # spread dict me hain (test_no_direct_coming_soon_entries_left +
+         # test_blocked_leaves_stay_documented dono isi liye pass).
          # VB6 ModuleAdd loc_1E43E77: New SmartCardMast -> POS masters smartcard
         "Card Initialization": (lambda w: pm.open_smartcard(w)) if pm else _coming_soon("Card Initialization"),
         # ── pehle _coming_soon par the (VB6 parity SECTION A) ──

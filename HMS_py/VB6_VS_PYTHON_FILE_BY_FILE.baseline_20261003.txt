@@ -1,6 +1,6 @@
 ========================================================================================================
 VB6  vs  PYTHON  -  FILE BY FILE CODE + DATABASE  PARITY  /  MISSING LIST
-VB6 source : C:\Users\LENOVO\Desktop\serialkey\PROJECT_REPAIR - Copy\HMS_py\HMS_py\implemented\HMS_REVERSE_ENGINEERING\HMS
+VB6 source : C:\Users\LENOVO\Desktop\serialkey\PROJECT_REPAIR - Copy\HMS_py\HMS_py\HMS_REVERSE_ENGINEERING\HMS
 Python src : C:\Users\LENOVO\Desktop\serialkey\PROJECT_REPAIR - Copy\HMS_py\HMS_py   (ui/*.py, core/*.py, ui/shell.py registry)
 Live DB    : Moondata2627  (280 base tables)
 ========================================================================================================
@@ -10,8 +10,13 @@ Live DB    : Moondata2627  (280 base tables)
 ########################################################################################################
 STATUS          VB6 .frm                       VB6 FORM                   CAPTION                            PYTHON                   NOTE
 --------------------------------------------------------------------------------------------------------
+MISSING         DMTree.frm                     DMTree                     Form1                              -                        prior=NOT-IN-REG
 MISSING         FrmDataRecieving.frm           FrmDataRecieving           Data Recieving Window . . .        -                        prior=NOT-IN-REG
-COMING_SOON     RsPaymentReceice.frm           RsPaymentReceice           Payment Receive Entry (POS)        ui/shell.py              registry -> _coming_soon()
+MISSING         PrAttend1.frm                  PrAttend1                  Attendence                         -                        prior=NOT-IN-REG
+COMING_SOON     FrmItemIssuedOnCleaning.frm    FrmItemIssuedOnCleaning    Item Issued On Cleaning            ui/shell.py              registry -> _coming_soon()
+COMING_SOON     frmGodrejLockSettings.frm      frmGodrejLockSettings      Godrej Lock Settings               ui/shell.py              fuzzy -> Godrej Locks (score 19, tok 6)
+COMING_SOON     frmLockGodrejSettings.frm      frmLockGodrejSettings      Godrej Locks                       ui/shell.py              registry -> _coming_soon()
+REGISTRY_ONLY   FrmDenomination.frm            FrmDenomination            Denomination Detail                ui/shell.py              foder_parity=WIRED
 REGISTRY        BanqAvailability.frm           BanqAvailability           Venue Availability                 ui/shell.py              registry wired (shared screen)
 REGISTRY        CateringBooking.frm            CateringBooking            Catalog Selection                  ui/shell.py              registry wired (shared screen)
 REGISTRY        DepOpStk.frm                   DepOpStk                   Location wise Opening Stock Entr   ui/shell.py              registry wired (shared screen)
@@ -46,7 +51,6 @@ REGISTRY        FrmComplaintMast.frm           FrmComplaintMast           Compla
 REGISTRY        FrmConsumMast.frm              FrmConsumMast              Consumption Master                 ui/shell.py              registry wired (shared screen)
 REGISTRY        FrmControlPanel.frm            FrmControlPanel            Control Panel                      ui/shell.py              fuzzy -> Night Audit Control Panel (score 22, tok 7)
 REGISTRY        FrmDeliveryBoyMast.frm         FrmDeliveryBoyMast         Delivery Boy Master                ui/shell.py              fuzzy -> Delivery Boy (score 22, tok 8)
-REGISTRY        FrmDenomination.frm            FrmDenomination            Denomination Detail                ui/shell.py              registry wired (shared screen)
 REGISTRY        FrmExpense.frm                 FrmExpense                 Misc.Payment / Received Entry      ui/shell.py              fuzzy -> Payment Receive Entry (score 22, tok 8)
 REGISTRY        FrmForExRec.frm                FrmForExRec                Forex Receive Entry                ui/shell.py              registry wired (shared screen)
 REGISTRY        FrmGuestWakeUp.frm             FrmGuestWakeUp             Register Wake up Calls             ui/shell.py              registry wired (shared screen)
@@ -125,6 +129,7 @@ REGISTRY        RsKOTTransfer.frm              RsKOTTransfer              KOT Tr
 REGISTRY        RsKitchenMaterial.frm          RsKitchenMaterial          Excise Invoice Cum Gate Pass       ui/shell.py              registry wired (shared screen)
 REGISTRY        RsKitchenStk.frm               RsKitchenStk               Stock Transfer                     ui/shell.py              registry wired (shared screen)
 REGISTRY        RsPOSDisplay.frm               RsPOSDisplay               Display Table                      ui/shell.py              registry wired (shared screen)
+REGISTRY        RsPaymentReceice.frm           RsPaymentReceice           Payment Receive Entry (POS)        ui/shell.py              fuzzy -> Payment Receive Entry (score 22, tok 7)
 REGISTRY        RsSaleBillSplit.frm            RsSaleBillSplit            Split Sale Bill                    ui/shell.py              registry wired (shared screen)
 REGISTRY        RsStatusScreen.frm             RsStatusScreen             POS Status Screen                  ui/shell.py              fuzzy -> POS Status (score 22, tok 6)
 REGISTRY        RsStoreRecEntry.frm            RsStoreRecEntry            Finish Material Receive Entry      ui/shell.py              registry wired (shared screen)
@@ -179,6 +184,7 @@ REGISTRY        memOutStationEntry.frm         memOutStationEntry         Out-St
 REGISTRY        pHappyHours.frm                pHappyHours                Happy Hours                        ui/shell.py              registry wired (shared screen)
 REGISTRY        pMREntry.frm                   pMREntry                   Material Receive Entry             ui/shell.py              fuzzy -> Finish Material Receive Entry (score 22, tok 8)
 REGISTRY        pPOrder.frm                    pPOrder                    Purchase Order                     ui/shell.py              registry wired (shared screen)
+REGISTRY        prAttend.frm                   prAttend                   Leave                              ui/shell.py              registry wired (shared screen)
 REGISTRY        prHoliday.frm                  prHoliday                  HoliDay Master                     ui/shell.py              registry wired (shared screen)
 REGISTRY        prOverTime.frm                 prOverTime                 Over Time                          ui/shell.py              registry wired (shared screen)
 REGISTRY        prSalCreate.frm                prSalCreate                Salary Creation                    ui/shell.py              registry wired (shared screen)
@@ -224,7 +230,7 @@ LIKELY          PrLoan.frm                     PrLoan                     Advanc
 LIKELY          RsBookingEntry.frm             RsBookingEntry             Booking Entry                      banquet_ops_ui.py        fuzzy -> banquet_booking (score 13, tok 7)
 LIKELY          RsPOSCustInfo.frm              RsPOSCustInfo              Customer Information               ui/shell.py              fuzzy -> Guest Information (score 11, tok 11)
 LIKELY          RsPOSDisplayNew.frm            RsPOSDisplayNew            Table Status                       finance_masters_ui.py    fuzzy -> gueststatus (score 13, tok 11)
-LIKELY          RsTouchOrderPersonDetails.frm  RsTouchOrderPersonDetail   Customer Information               core/orderpersondetails.py fuzzy -> orderpersondetails (score 18, tok 18)
+LIKELY          RsTouchOrderPersonDetails.frm  RsTouchOrderPersonDetail   Customer Information               order_advance_ui.py      fuzzy -> order_advance (score 13, tok 5)
 LIKELY          RsTouchScreenBookingEntry.frm  RsTouchScreenBookingEntr   Booking Entry                      banquet_ops_ui.py        fuzzy -> banquet_booking (score 13, tok 7)
 LIKELY          RsTouchScreenFAFind.frm        RsTouchScreenFAFind        Frame1                             block_master_ui.py       fuzzy -> fa_find (score 13, tok 6)
 LIKELY          RsTouchScreenSteward.frm       RsTouchScreenSteward       Steward                            utility_forms_ui.py      fuzzy -> touch_keyboard (score 13, tok 5)
@@ -233,13 +239,12 @@ LIKELY          frmCompany.frm                 frmCompany                 User I
 LIKELY          frmFdLeaderRev.frm             frmFdLeaderRev             Leader Revenue Allocation          general_setup_ui.py      fuzzy -> revenuegroupparent (score 13, tok 18)
 LIKELY          frmMessage.frm                 frmMessage                 User Information                   p2_masters.py            fuzzy -> usermaster (score 13, tok 10)
 LIKELY          hAdvanceDepDialog.frm          hAdvanceDepDialog          Settlement                         banquet_ops_ui.py        fuzzy -> banquet_settlement (score 13, tok 10)
-LIKELY          pGIss.frm                      pGIss                      Goods Issue Entry                  frm_item_issued_on_cleaning_ui.py fuzzy -> frm_item_issued_on_cleaning (score 13, tok 6)
+LIKELY          pGIss.frm                      pGIss                      Goods Issue Entry                  smartcard_txn_ui.py      fuzzy -> card_re_issue (score 13, tok 5)
 LIKELY          pReqSlip.frm                   pReqSlip                   Requistion Slip Entry              requisition_slip_ui.py   fuzzy -> requisition_slip (score 13, tok 4)
 LIKELY          rrsAdvanceDepDialog.frm        rrsAdvanceDepDialog        Settlememt Entry                   pos_masters_ui.py        fuzzy -> auto_settle_card_balance (score 13, tok 10)
 LIKELY          rsAdvanceDepDialog.frm         rsAdvanceDepDialog         Settlement                         banquet_ops_ui.py        fuzzy -> banquet_settlement (score 13, tok 10)
 PY_FILE         AccountMerg.frm                AccountMerg                Account Merging                    account_merge_ui.py      ui stem contains
 PY_FILE         CompMast.frm                   CompMast                   Company Master                     comp_mast_form_ui.py     ui stem contains
-PY_FILE         DMTree.frm                     DMTree                     Form1                              dm_tree_ui.py            ui stem contains
 PY_FILE         DepartMast.frm                 DepartMast                 Department Master                  depart_change_ui.py      fuzzy -> changes_department (score 26, tok 10)
 PY_FILE         DepartSundry.frm               DepartSundry               Outlet Bill Sundry Setting         fd_forms_ui.py           open fn = stem
 PY_FILE         FAFind.frm                     FAFind                     Help.?                             block_master_ui.py       open fn = stem
@@ -258,7 +263,6 @@ PY_FILE         FrmFomBillDeletion.frm         FrmFomBillDeletion         Fom Bi
 PY_FILE         FrmGrcBlank.frm                FrmGrcBlank                Guest Registration  Card           pos_masters_ui.py        fuzzy -> card_registration (score 26, tok 12)
 PY_FILE         FrmGuestStat.frm               FrmGuestStat               Guest Status Master                finance_masters_ui.py    fuzzy -> gueststatus (score 39, tok 11)
 PY_FILE         FrmItemGroupMast.frm           FrmItemGroupMast           Item Group Entry                   p2_masters.py            fuzzy -> item_group (score 26, tok 5)
-PY_FILE         FrmItemIssuedOnCleaning.frm    FrmItemIssuedOnCleaning    Item Issued On Cleaning            frm_item_issued_on_cleaning_ui.py ui stem contains
 PY_FILE         FrmMarketSeg.frm               FrmMarketSeg               Market Segment Master              finance_masters_ui.py    fuzzy -> marketsegment (score 26, tok 13)
 PY_FILE         FrmMergeCharge.frm             FrmMergeCharge             Room Merge                         fo_sub_forms_ui.py       fuzzy -> merge_charge (score 26, tok 6)
 PY_FILE         FrmOPStock.frm                 FrmOPStock                 Opening Stock Entry                misc_sub_forms_ui.py     fuzzy -> opening_stock (score 39, tok 7)
@@ -282,8 +286,7 @@ PY_FILE         HallMenuItemEntry.frm          HallMenuItemEntry           Menu 
 PY_FILE         Inbox.frm                      Inbox                      Inbox                              misc_parity_ui.py        open fn = stem
 PY_FILE         MemberEnviro.frm               MemberEnviro               Parameter Setting                  member_environment_ui.py ui stem contains
 PY_FILE         Outbox.frm                     Outbox                     Intelligent Outbox                 misc_parity_ui.py        open fn = stem
-PY_FILE         POSBillReprint.frm             POSBillReprint             OutLet Bill Reprint                fo_sub_forms_ui.py       fuzzy -> fom_bill_reprint (score 39, tok 7)
-PY_FILE         PrAttend1.frm                  PrAttend1                  Attendence                         pr_attend1_ui.py         ui stem contains
+PY_FILE         POSBillReprint.frm             POSBillReprint             OutLet Bill Reprint                pos_sub_forms_ui.py      fuzzy -> bill_reprint (score 39, tok 7)
 PY_FILE         RSSaleBillDisplay.frm          RSSaleBillDisplay          Bill Look Up                       misc_parity_ui.py        fuzzy -> sale_bill_modification (score 26, tok 6)
 PY_FILE         RsKOTEntry.frm                 RsKOTEntry                 KOT                                kot_entry.py             ui stem contains
 PY_FILE         RsMenuItemEntry.frm            RsMenuItemEntry            Menu Item Entry                    pos_masters_ui.py        fuzzy -> menu_item_copy (score 26, tok 4)
@@ -304,16 +307,13 @@ PY_FILE         UserPermission.frm             UserPermission             User P
 PY_FILE         VoucherSundrySetting.frm       VoucherSundrySetting       Voucher Sundry Setting             voucher_sundry_ui.py     fuzzy -> voucher_sundry_entry (score 26, tok 7)
 PY_FILE         fdNDAcPostChrg.frm             fdNDAcPostChrg             Posting Utility                    posting_forms_ui.py      fuzzy -> post_chrg (score 39, tok 7)
 PY_FILE         frmAdvanceDepDialog.frm        frmAdvanceDepDialog        Advance Deposit                    advance_deposit_ui.py    fuzzy -> advance_deposit (score 26, tok 7)
-PY_FILE         frmFomB.frm                    frmFomB                    FOM Bill Reprint                   fo_sub_forms_ui.py       fuzzy -> fom_bill_reprint (score 39, tok 7)
-PY_FILE         frmGodrejLockSettings.frm      frmGodrejLockSettings      Godrej Lock Settings               frm_godrej_lock_settings_ui.py ui stem contains
-PY_FILE         frmLockGodrejSettings.frm      frmLockGodrejSettings      Godrej Locks                       frm_lock_godrej_settings_ui.py ui stem contains
+PY_FILE         frmFomB.frm                    frmFomB                    FOM Bill Reprint                   pos_sub_forms_ui.py      fuzzy -> bill_reprint (score 26, tok 7)
 PY_FILE         frmPassword.frm                frmPassword                Authentication Window              ui/shell.py              login / User Information screen
 PY_FILE         frmRevGroup.frm                frmRevGroup                Revenue Group                      general_setup_ui.py      fuzzy -> revenuegroupparent (score 26, tok 18)
 PY_FILE         frmWelcome.frm                 frmWelcome                 <                                  ui/shell.py              splash / welcome screen
 PY_FILE         hAdvanceDepDialogSecondry.frm  hAdvanceDepDialogSecondr   Advance Deposite                   advance_deposit_ui.py    fuzzy -> advance_deposit (score 26, tok 8)
 PY_FILE         kClStk.frm                     kClStk                     Kitchen Closing Stock Entry        kitchen_clstk_ui.py      fuzzy -> kitchen_closing_stock (score 39, tok 7)
 PY_FILE         pPBill.frm                     pPBill                     Purchase Bill Entry                purchase_bill_ui.py      fuzzy -> purchase_bill (score 39, tok 8)
-PY_FILE         prAttend.frm                   prAttend                   Leave                              pr_attend1_ui.py         ui stem contains
 SHELL           Form1.frm                      Form1                      Form1                              ui/shell.py              generic VB6 test form (VB6 me bhi demo)
 SHELL           MDIForm1.frm                   MDIForm1                   &Finance                           ui/shell.py              VB6 MDI main window -> python MainWindow
 REPORT_VIEWER   FaRepView.frm                  FaRepView                  Form1                              core/reports.py          VB6 report-viewer form -> reports engine
@@ -351,25 +351,25 @@ FULL       FaLib.bas                    26/26/0       6/6        account_merge.p
 FULL       FaVoucher.bas                4/4/0       7/7        fa_voucher.py+account_merge.py+comp_master.p   379
 FULL       Functions.bas                1/1/0       n/a        validation.py+error_handling.py+url_utils.py   42
 FULL       GridPrint.bas                1/1/0       n/a        reports.py                                     376
-PARTIAL    HMS.bas                      2482/1469/1013    482/516    menu.py+reports.py+nightaudit.py+db.py         995855
-PARTIAL    Hotlib.bas                   88/88/0       96/103     reports.py+db.py+account_merge.py+area.py      42858
+PARTIAL    HMS.bas                      2482/1469/1013    450/516    menu.py+reports.py+nightaudit.py+db.py         995855
+PARTIAL    Hotlib.bas                   88/88/0       92/103     reports.py+db.py+account_merge.py+area.py      42858
 FULL       JSON.bas                     11/11/0       n/a        url_utils.py+http_client.py                    736
 FULL       MSendInput.bas               13/13/0       n/a        sms_comm.py                                    387
 PARTIAL    MainLib.bas                  76/76/0       13/14      db.py+menu.py+auth.py+reports.py               6667
-PARTIAL    MemberModule.bas             5/5/0       12/13      members_masters.py+member_billing.py+account   1520
+PARTIAL    MemberModule.bas             5/5/0       11/13      members_masters.py+member_billing.py+account   1520
 FULL       MobWebAPI.bas                2/2/0       n/a        http_client.py                                 46
-FULL       Module1.bas                  0/0/0       n/a        usermodule1.py+native_decls.py                 174
-FULL       ModuleAdd.bas                5/5/0       8/8        module_add.py+db.py+checkout.py+company.py     5477
+FULL       Module1.bas                  0/0/0       n/a        native_decls.py                                174
+PARTIAL    ModuleAdd.bas                5/5/0       7/8        db.py+checkout.py+company.py+consumption_mas   5477
 FULL       ModuleDoorLock.bas           2/2/0       2/2        door_lock.py+godrej_locks.py+checkin.py+chec   151
 FULL       ModuleSmartCard.bas          14/14/0       8/8        smartcard.py+smartcard_ops.py+account_merge.   1642
 FULL       POSBillPrint.bas             13/13/0       32/32      pos.py+pos_sales.py+pos_entry.py+account_mer   11865
 FULL       Picture.bas                  1/1/0       n/a        picture.py                                     136
-FULL       SMSModule.bas                15/15/0       41/41      sms_comm.py+sms_enviro.py+sms_http.py+accoun   2424
+PARTIAL    SMSModule.bas                15/15/0       40/41      sms_comm.py+sms_enviro.py+sms_http.py+accoun   2424
 FULL       SperialFolderPath.bas        0/0/0       n/a        url_utils.py                                   25
 FULL       TmpTable.bas                 24/24/0       n/a        inventory.py+pos_stock.py                      711
 FULL       TopBarLib.bas                3/3/0       n/a        top_bar_lib.py                                 168
 PARTIAL    ValidationModule.bas         11/0/11      n/a        validation.py                                  712
-FULL       eInvoice.bas                 6/6/0       2/2        einvoice.py+einvoicebill.py+inventory.py       1376
+PARTIAL    eInvoice.bas                 6/6/0       1/2        einvoice.py+inventory.py                       1376
 FULL       mdlDataTransfer.bas          4/4/0       3/3        data_transfer.py+db_maintenance.py+account_m   275
 FULL       mdlNightAudit.bas            4/4/0       n/a        nightaudit.py+reports.py                       198
 FULL       modLog.bas                   12/0/12      n/a        error_handling.py                              329
@@ -642,19 +642,20 @@ FULL       modLog.bas                   12/0/12      n/a        error_handling.p
 
 [FaVoucher.bas]  coverage 7/7
 
-[HMS.bas]  coverage 482/516
-   MISSING TABLES: CreditCardHistory, CreditCardhistory, DepartRWScheme, FOMBillChangeDetails, FomBillChangeDetails, GUESTPARAM, GroupFolioMore, GuestParam, GuestProfVeh, Help, LeaderRev, Leaderrev, MemCatRevWise, MemFacilityMast, MemOutStation, MemRevWise, MemRevenueForPeriod, MemTagadaLetter, MemTagadaletter, MemVisitEntry, OutletBarCodePartDetail, ProfileImages, SchemeOutletDiscount, SplitStock, SplitSunTran, SplitedSunTran, SubgroupLog, SunTranLog, TradeInfo_bTwin, TransOut, Transout, UserCollection, groupfoliomore, memFacilityMast
+[HMS.bas]  coverage 450/516
+   MISSING TABLES: BookingDetail, CATEGORY, CreditCardHistory, CreditCardhistory, Depart1, DepartRWScheme, EXPSHEET, ExpSheet, FOMBillChangeDetails, FomBillChangeDetails, GUESTPARAM, GroupFolioMore, GuestParam, GuestProfVeh, Help, LASTVOU, LeaderRev, Leaderrev, MemAddRWA, MemBill1, MemCatFacility, MemCatRevWise, MemFacilityBilling, MemFacilityMast, MemOutStation, MemRevWise, MemRevenueForPeriod, MemTagadaLetter, MemTagadaletter, MemVisitEntry, OrderPersonDetails, OutletBarCodePartDetail, PackingOrderDetail1, PackingOrderDetail2, ProfileImages, ROOMMAST1, ROOMMast1, RawConsumption, RoomCheckOutStatus, RoomMast1, Roommast1, SalaryLog, Sale2Log, SchemeOutletDiscount, SplitStock, SplitSunTran, SplitedSunTran, StockLog, SubgroupLog, SunTranLog, TradeInfo_bTwin, TransOut, Transout, UserCollection, UserModule, UserModule1, eInvoiceBill1, eInvoiceBill2, groupfoliomore, mCurStk, mcurstk, memAddRWA, memFacilityMast, membill1, packingorderdetail2, salarylog
 
-[Hotlib.bas]  coverage 96/103
-   MISSING TABLES: CreditCardHistory, DepartRWScheme, LeaderRev, Leaderrev, SplitStock, SplitSunTran, SplitedSunTran
+[Hotlib.bas]  coverage 92/103
+   MISSING TABLES: CreditCardHistory, DepartRWScheme, ExpSheet, LeaderRev, Leaderrev, RawConsumption, SplitStock, SplitSunTran, SplitedSunTran, eInvoiceBill1, eInvoiceBill2
 
 [MainLib.bas]  coverage 13/14
    MISSING TABLES: Help
 
-[MemberModule.bas]  coverage 12/13
-   MISSING TABLES: MemFacilityMast
+[MemberModule.bas]  coverage 11/13
+   MISSING TABLES: MemFacilityMast, membill1
 
-[ModuleAdd.bas]  coverage 8/8
+[ModuleAdd.bas]  coverage 7/8
+   MISSING TABLES: UserModule
 
 [ModuleDoorLock.bas]  coverage 2/2
 
@@ -662,9 +663,11 @@ FULL       modLog.bas                   12/0/12      n/a        error_handling.p
 
 [POSBillPrint.bas]  coverage 32/32
 
-[SMSModule.bas]  coverage 41/41
+[SMSModule.bas]  coverage 40/41
+   MISSING TABLES: ExpSheet
 
-[eInvoice.bas]  coverage 2/2
+[eInvoice.bas]  coverage 1/2
+   MISSING TABLES: eInvoiceBill1
 
 [mdlDataTransfer.bas]  coverage 3/3
 
@@ -674,16 +677,36 @@ FULL       modLog.bas                   12/0/12      n/a        error_handling.p
 TABLE                              VB6  PY   DB          ROWS   VB6 files / PY files
 --------------------------------------------------------------------------------------------------------
 
---- C1. VB6-ONLY tables  (VB6 use karta hai, PYTHON kabhi query nahi karta)  <-- MISSING   [n=25] ---
+--- C1. VB6-ONLY tables  (VB6 use karta hai, PYTHON kabhi query nahi karta)  <-- MISSING   [n=48] ---
+mcurstk                            Y    -    YES         3498   VB6:HMS.bas,fdNDAcPostChrg.frm,rFomRepView.frm
+usermodule1                        Y    -    YES          617   VB6:DMTree.frm,HMS.bas,MDIForm1.frm
+sale2log                           Y    -    YES          510   VB6:HMS.bas,RSSaleBill.frm,RSTouchScreenSaleBill.frm
+rawconsumption                     Y    -    YES          467   VB6:HMS.bas,Hotlib.bas,rFomRepView.frm
+usermodule                         Y    -    YES          450   VB6:HMS.bas,MDIForm1.frm,ModuleAdd.bas
 suntranlog                         Y    -    YES          329   VB6:HMS.bas,RSSaleBill.frm,RSTouchScreenSaleBill.frm
+stocklog                           Y    -    YES          266   VB6:HMS.bas,RSSaleBill.frm,RSTouchScreenSaleBill.frm
+einvoicebill2                      Y    -    YES          189   VB6:HMS.bas,HallBill.frm,Hotlib.bas
+einvoicebill1                      Y    -    YES           67   VB6:HMS.bas,HallBill.frm,Hotlib.bas
+packingorderdetail2                Y    -    YES           42   VB6:HMS.bas,RSSaleBill.frm,RsBookingEntry.frm
+memaddrwa                          Y    -    YES           31   VB6:HMS.bas,MembershipMast.frm,rMemberRepView.frm
+lastvou                            Y    -    YES           17   VB6:CateringBooking.frm,FaTaxVoucher.frm,HKHouseOpStk.frm
+packingorderdetail1                Y    -    YES           12   VB6:HMS.bas,RSSaleBill.frm,RsBookingEntry.frm
+orderpersondetails                 Y    -    YES            6   VB6:HMS.bas,RSTouchScreenSaleBill.frm,RsBookingEntry.frm
+bookingdetail                      Y    -    YES            0   VB6:FrmBookingInquiry.frm,HMS.bas,HallBooking.frm
+category                           Y    -    YES            0   VB6:CompMast.frm,FaSubGroup.frm,FrmParty.frm
 creditcardhistory                  Y    -    YES            0   VB6:FrmPayTypeMast.frm,HMS.bas,HallAdvanceDepDialog.frm
+depart1                            Y    -    YES            0   VB6:HMS.bas,RSSaleBill.frm,RsBookingEntry.frm
 departrwscheme                     Y    -    YES            0   VB6:HMS.bas,Hotlib.bas,RSSaleBill.frm
+expsheet                           Y    -    YES            0   VB6:FrmExpense.frm,FrmReceivePayment.frm,HMS.bas
 fombillchangedetails               Y    -    YES            0   VB6:FdReSetlement.frm,HMS.bas,frmFomB.frm
 groupfoliomore                     Y    -    YES            0   VB6:HMS.bas,RrRoomReservation.frm,fdWalkInEntry.frm
 guestprofveh                       Y    -    YES            0   VB6:GuestProfile.frm,HMS.bas,fdWalkInEntry.frm
 help                               Y    -    YES            0   VB6:HMS.bas,MainLib.bas
 leaderrev                          Y    -    YES            0   VB6:HMS.bas,Hotlib.bas,fdWalkInEntry.frm
+membill1                           Y    -    YES            0   VB6:HMS.bas,MemAssistant.frm,MemFacilityBilling.frm
+memcatfacility                     Y    -    YES            0   VB6:HMS.bas,MemFacilityEntry.frm,memCategoryFacilities.frm
 memcatrevwise                      Y    -    YES            0   VB6:HMS.bas,MemFacilityBilling.frm,memCatChngEntry.frm
+memfacilitybilling                 Y    -    YES            0   VB6:HMS.bas,MemFacilityEntry.frm,RsStatusScreen.frm
 memfacilitymast                    Y    -    YES            0   VB6:HMS.bas,MemAssistant.frm,MemFacilityBilling.frm
 memoutstation                      Y    -    YES            0   VB6:HMS.bas,memOutStationEntry.frm
 memrevenueforperiod                Y    -    YES            0   VB6:HMS.bas,MemFacilityBilling.frm,memCatChngEntry.frm
@@ -692,6 +715,9 @@ memtagadaletter                    Y    -    YES            0   VB6:HMS.bas,MemT
 memvisitentry                      Y    -    YES            0   VB6:HMS.bas,MemVisitEntry.frm
 outletbarcodepartdetail            Y    -    YES            0   VB6:HMS.bas,OutLetMast.frm,RSSaleBill.frm
 profileimages                      Y    -    YES            0   VB6:GuestProfile.frm,HMS.bas,fdWalkInEntry.frm
+roomcheckoutstatus                 Y    -    YES            0   VB6:FdCheckOut.frm,FdGrpCheckOut.frm,FdGrpdetCheckOut.frm
+roommast1                          Y    -    YES            0   VB6:FdLookUpRoomNo.frm,FrmRoomMast.frm,HMS.bas
+salarylog                          Y    -    YES            0   VB6:HMS.bas,prSalCreate.frm
 schemeoutletdiscount               Y    -    YES            0   VB6:HMS.bas,OutLetMast.frm,RSSaleBill.frm
 splitedsuntran                     Y    -    YES            0   VB6:FrmPOSRecycleData.frm,HMS.bas,Hotlib.bas
 splitstock                         Y    -    YES            0   VB6:FrmPOSRecycleData.frm,HMS.bas,Hotlib.bas
@@ -702,7 +728,7 @@ transout                           Y    -    YES            0   VB6:HMS.bas,Tran
 usercollection                     Y    -    YES            0   VB6:FrmUserPaymentCollection.frm,HMS.bas,rPOSRepView.frm
 
 
---- C2. BOTH sides tables (dono taraf use ho rahi hain)   [n=236] ---
+--- C2. BOTH sides tables (dono taraf use ho rahi hain)   [n=213] ---
 suntran                            Y    Y    YES        45832   VB6:FaTaxVoucher.frm,FrmPOSBillDeletion.frm,FrmPOSBillModificationDate
 sale2                              Y    Y    YES        32580   VB6:FaTaxVoucher.frm,FrmPOSBillDeletion.frm,FrmPOSBillModificationDate
 stock                              Y    Y    YES        30369   VB6:DepOpStk.frm,FaCurrBalUpdate.frm,FaTaxVoucher.frm; PY:db_maintenan
@@ -720,7 +746,6 @@ comp_plandet                       Y    Y    YES         7756   VB6:CompMast.frm
 guestprof                          Y    Y    YES         7215   VB6:FOMModule.bas,FaCurrBalUpdate.frm,FdCheckOut.frm; PY:checkout.py,f
 indent1                            Y    Y    YES         6176   VB6:FrmInc.frm,HMS.bas,PIndent.frm; PY:inventory.py,purchase.py,requis
 sale1                              Y    Y    YES         5952   VB6:FaTaxVoucher.frm,FrmDeliveredItemDetail.frm,FrmPOSBillDeletion.frm
-mcurstk                            Y    Y    YES         3498   VB6:HMS.bas,fdNDAcPostChrg.frm,rFomRepView.frm; PY:mcurstk.py
 itemmast                           Y    Y    YES         3292   VB6:CateringBooking.frm,DepOpStk.frm,FaTaxVoucher.frm; PY:consumption_
 item                               Y    Y    YES         3125   VB6:FrmItemMast.frm,FrmItemMastRaw.frm,HMS.bas; PY:gravy_item.py,kot_e
 subgroup                           Y    Y    YES         3110   VB6:AccountMerg.frm,CompMast.frm,FOMModule.bas; PY:account_merge.py,co
@@ -730,7 +755,7 @@ bom                                Y    Y    YES         2046   VB6:FrmConsumMas
 purch2                             Y    Y    YES         1785   VB6:FaTaxVoucher.frm,FrmInc.frm,HMS.bas; PY:inventory.py,purchase.py,r
 roomdiscount                       Y    Y    YES         1532   VB6:CompMast.frm,HMS.bas,RrRoomReservation.frm; PY:comp_master.py
 ledgerm                            Y    Y    YES         1389   VB6:FaAdjust.frm,FaEnvron.frm,FaVoucher.bas; PY:fa_ledger_ops.py,fa_vo
-menuhelp1                          Y    Y    YES         1234   VB6:DMTree.frm,HMS.bas,MDIForm1.frm; PY:dm_tree_ui.py,sys_config.py,us
+menuhelp1                          Y    Y    YES         1234   VB6:DMTree.frm,HMS.bas,MDIForm1.frm; PY:sys_config.py,usermaster.py
 foliolog                           Y    Y    YES          978   VB6:HMS.bas,Hotlib.bas; PY:checkin.py,checkout.py,folio.py
 acgroupcurrbal                     Y    Y    YES          977   VB6:FaCurrBalUpdate.frm,FaLib.bas,HMS.bas; PY:fa_ledger_ops.py,fa_vouc
 indent                             Y    Y    YES          959   VB6:FrmInc.frm,HMS.bas,PIndent.frm; PY:inventory.py,requisition_slip_u
@@ -738,19 +763,12 @@ itemrate                           Y    Y    YES          697   VB6:CateringBook
 kotlog                             Y    Y    YES          624   VB6:HMS.bas,RsKOTEntry.frm,RsTokenEntry.frm; PY:pos.py,pos_kot.py
 user1                              Y    Y    YES          617   VB6:HMS.bas,MDIForm1.frm,UserMast.frm; PY:menu.py,usermaster.py
 user_module                        Y    Y    YES          617   VB6:HMS.bas,MDIForm1.frm,UserMast.frm; PY:menu.py,user_permission_ui.p
-usermodule1                        Y    Y    YES          617   VB6:DMTree.frm,HMS.bas,MDIForm1.frm; PY:dm_tree_ui.py,usermodule1.py
-sale2log                           Y    Y    YES          510   VB6:HMS.bas,RSSaleBill.frm,RSTouchScreenSaleBill.frm; PY:sale2log.py
-rawconsumption                     Y    Y    YES          467   VB6:HMS.bas,Hotlib.bas,rFomRepView.frm; PY:rawconsumption.py
 city                               Y    Y    YES          463   VB6:AccountMerg.frm,CompMast.frm,FaCityMast.frm; PY:area.py,city.py,co
-usermodule                         Y    Y    YES          450   VB6:HMS.bas,MDIForm1.frm,ModuleAdd.bas; PY:module_add.py
 gin                                Y    Y    YES          421   VB6:FaTaxVoucher.frm,HMS.bas,pMREntry.frm; PY:inventory.py
 guestfolioprofdetail               Y    Y    YES          400   VB6:FdGrpCheckOut.frm,GuestProfile.frm,HMS.bas; PY:checkin.py,folio.py
 purch1                             Y    Y    YES          396   VB6:DepOpStk.frm,FaTaxVoucher.frm,HMS.bas; PY:inventory.py,purchase.py
 attend                             Y    Y    YES          384   VB6:HMS.bas,PrAttend1.frm,PrEmployee.frm; PY:hr_payroll.py,reports.py
 fombilldetails                     Y    Y    YES          330   VB6:FdGrpCheckOut.frm,FrmFomBillDeletion.frm,HMS.bas; PY:checkout.py,f
-stocklog                           Y    Y    YES          266   VB6:HMS.bas,RSSaleBill.frm,RSTouchScreenSaleBill.frm; PY:stocklog.py
-bookinglog                         Y    Y    YES          253   VB6:HMS.bas,Hotlib.bas; PY:reservation.py
-einvoicebill2                      Y    Y    YES          189   VB6:HMS.bas,HallBill.frm,Hotlib.bas; PY:einvoicebill.py
 ledgertds                          Y    Y    YES          179   VB6:FaTDSChal.frm,FaVoucher.bas,FaVrEnt.frm; PY:fa_ledger_ops.py,fa_td
 voucher_prefix                     Y    Y    YES          171   VB6:CateringBooking.frm,CompMast.frm,DepOpStk.frm; PY:fa_ledger_ops.py
 voucher_type                       Y    Y    YES          171   VB6:CateringBooking.frm,CompMast.frm,DepOpStk.frm; PY:fa_reports.py,fa
@@ -762,10 +780,10 @@ employee                           Y    Y    YES          120   VB6:CompMast.frm
 sundrytype                         Y    Y    YES          118   VB6:DepartSundry.frm,FaTaxVoucher.frm,FacilitySundry.frm; PY:sundry_ty
 paychargelog                       Y    Y    YES          117   VB6:FdCheckOut.frm,HMS.bas,RSSaleBill.frm; PY:expenseentry.py,folio.py
 ledgeradj                          Y    Y    YES          100   VB6:FaAdjust.frm,FaAdjustDel.frm,FaReports.frm; PY:account_merge.py,fa
+bookinglog                         Y    Y    YES           97   VB6:HMS.bas,Hotlib.bas; PY:reservation.py
 hallbook                           Y    Y    YES           97   VB6:BanqModule.bas,CateringBooking.frm,FaCurrBalUpdate.frm; PY:banquet
 salary                             Y    Y    YES           93   VB6:HMS.bas,PrAttend1.frm,PrEmployee.frm; PY:hr_payroll.py
 guestfolioamend                    Y    Y    YES           90   VB6:HMS.bas,fdAmendEntry.frm; PY:folio.py
-bookingcanceldetails               Y    Y    YES           88   VB6:FaCurrBalUpdate.frm,HMS.bas,RrRoomReservation.frm; PY:reservation.
 roommast                           Y    Y    YES           86   VB6:FdCheckOut.frm,FdGrpCheckOut.frm,FdGrpdetCheckOut.frm; PY:advance_
 user2                              Y    Y    YES           82   VB6:HMS.bas,UserMast.frm,frmCompany.frm; PY:usermaster.py
 vouchercat                         Y    Y    YES           79   VB6:FaVtype.frm,FrmInc.frm,HMS.bas; PY:general_setup.py,voucher_type.p
@@ -775,7 +793,6 @@ acgroup                            Y    Y    YES           73   VB6:CompMast.frm
 nightauditlog                      Y    Y    YES           69   VB6:HMS.bas,Hotlib.bas,rFomRepView.frm; PY:nightaudit.py
 usermast                           Y    Y    YES           68   VB6:EmptyInbox.frm,FrmUserPaymentCollection.frm,HMS.bas; PY:auth.py,me
 depart                             Y    Y    YES           67   VB6:CateringBooking.frm,DepOpStk.frm,DepartMast.frm; PY:consumption_ma
-einvoicebill1                      Y    Y    YES           67   VB6:HMS.bas,HallBill.frm,Hotlib.bas; PY:einvoicebill.py
 godownmast                         Y    Y    YES           64   VB6:DepOpStk.frm,DepartMast.frm,FaTaxVoucher.frm; PY:depart.py,excise_
 ratelist                           Y    Y    YES           62   VB6:FdLookUpRoomNo.frm,FrmRoomCatMast.frm,FrmRoomMast.frm; PY:ratelist
 desig                              Y    Y    YES           61   VB6:HMS.bas,PrAttend1.frm,PrDesigMast.frm; PY:hr_masters.py,hr_payroll
@@ -785,11 +802,10 @@ state                              Y    Y    YES           55   VB6:FaCityMast.f
 itemcatmast                        Y    Y    YES           50   VB6:CateringBooking.frm,FaTaxVoucher.frm,FrmHallItemCatMast.frm; PY:gr
 sale1log                           Y    Y    YES           47   VB6:HMS.bas,RSSaleBill.frm,RSTouchScreenSaleBill.frm; PY:folio.py,pos_
 grpbookingdetails                  Y    Y    YES           46   VB6:FOMModule.bas,FaCurrBalUpdate.frm,FrmReservationStatus.frm; PY:boo
-packingorderdetail2                Y    Y    YES           42   VB6:HMS.bas,RSSaleBill.frm,RsBookingEntry.frm; PY:packingorderdetail.p
 memberfamily                       Y    Y    YES           37   VB6:FrmSMSMultiType.frm,HMS.bas,MemAssistant.frm; PY:member_billing.py
 unitmast                           Y    Y    YES           32   VB6:FrmInc.frm,FrmItemMastRaw.frm,HMS.bas; PY:gravy_item.py,unit.py
 venuecapacity                      Y    Y    YES           32   VB6:FrmBookingInquiry.frm,FrmVenueMast.frm,HMS.bas; PY:venue.py
-memaddrwa                          Y    Y    YES           31   VB6:HMS.bas,MembershipMast.frm,rMemberRepView.frm; PY:memaddrwa.py
+bookingcanceldetails               Y    Y    YES           30   VB6:FaCurrBalUpdate.frm,HMS.bas,RrRoomReservation.frm; PY:reservation.
 guestproffor                       Y    Y    YES           30   VB6:FOMModule.bas,FdGrpCheckOut.frm,GuestProfile.frm; PY:guest_foreign
 lastvoucher                        Y    Y    YES           26   VB6:FaVrEnt.frm,HMS.bas; PY:fa_ledger_ops.py,year_end.py
 hallsale1                          Y    Y    YES           21   VB6:CateringBooking.frm,HMS.bas,HallAdvanceDepDialog.frm; PY:banquet_o
@@ -797,10 +813,8 @@ booking                            Y    Y    YES           19   VB6:FOMModule.ba
 sundrymast                         Y    Y    YES           19   VB6:DepartSundry.frm,FacilitySundry.frm,FrmInc.frm; PY:banquet_ops_ui.
 emailsmsforward                    Y    Y    YES           18   VB6:FdCheckOut.frm,FrmSMSEnviro.frm,FrmSmsCenterSettings.frm; PY:sms_c
 printformats                       Y    Y    YES           18   VB6:HMS.bas,Hotlib.bas,frmPrintModule.frm; PY:printformats.py
-lastvou                            Y    Y    YES           17   VB6:CateringBooking.frm,FaTaxVoucher.frm,HKHouseOpStk.frm; PY:lastvou.
 nctypemast                         Y    Y    YES           15   VB6:FrmNCType.frm,HMS.bas,RsKOTEntry.frm; PY:pos.py,pos_masters.py
 country                            Y    Y    YES           13   VB6:FOMModule.bas,FaCityMast.frm,FaCountryMast.frm; PY:country.py,gues
-packingorderdetail1                Y    Y    YES           12   VB6:HMS.bas,RSSaleBill.frm,RsBookingEntry.frm; PY:packingorderdetail.p
 marketseg                          Y    Y    YES           10   VB6:CateringBooking.frm,FOMModule.bas,FrmBookingInquiry.frm; PY:market
 venuemast                          Y    Y    YES           10   VB6:BanqAvailability.frm,CateringBooking.frm,FrmBookingInquiry.frm; PY
 planmast                           Y    Y    YES            9   VB6:CompMast.frm,FOMModule.bas,FdGrpCheckOut.frm; PY:comp_master.py,fo
@@ -809,7 +823,6 @@ functiontype                       Y    Y    YES            8   VB6:CateringBook
 porder1                            Y    Y    YES            8   VB6:FrmInc.frm,HMS.bas,PIndent.frm; PY:inventory.py,purchase.py
 busssource                         Y    Y    YES            6   VB6:CateringBooking.frm,FOMModule.bas,FrmBookingInquiry.frm; PY:busine
 dispcolor                          Y    Y    YES            6   VB6:FdLookUpRoomNo.frm,HMS.bas,RsPOSDisplay.frm; PY:pos_display.py,pos
-orderpersondetails                 Y    Y    YES            6   VB6:HMS.bas,RSTouchScreenSaleBill.frm,RsBookingEntry.frm; PY:orderpers
 packingorder                       Y    Y    YES            6   VB6:HMS.bas,Hotlib.bas,POSAdvanceDepDialog.frm; PY:order_advance_ui.py
 packingorderdetail                 Y    Y    YES            6   VB6:HMS.bas,Hotlib.bas,POSAdvanceDepDialog.frm; PY:pos_display.py,pos_
 porder                             Y    Y    YES            6   VB6:HMS.bas,pPOrder.frm; PY:inventory.py
@@ -825,7 +838,7 @@ comp_inclusive                     Y    Y    YES            1   VB6:CompMast.frm
 company                            Y    Y    YES            1   VB6:HMS.bas,Hotlib.bas,MDIForm1.frm; PY:company.py,db_backup.py,pos_re
 einvoiceenviro                     Y    Y    YES            1   VB6:HMS.bas,eInvoice.bas,frmCompany.frm; PY:inventory.py
 enviro                             Y    Y    YES            1   VB6:CateringBooking.frm,CompMast.frm,DepartSundry.frm; PY:checkout.py,
-faenviro                           Y    Y    YES            1   VB6:BanqAvailability.frm,FaChqClear.frm,FaEnvron.frm; PY:fa_enviro.py,
+faenviro                           Y    Y    YES            1   VB6:BanqAvailability.frm,FaChqClear.frm,FaEnvron.frm; PY:fa_enviro.py
 fixedcharge                        Y    Y    YES            1   VB6:FdGrpCheckOut.frm,FrmPackageMast.frm,FrmPlanPackMast.frm; PY:fixch
 jobschedule                        Y    Y    YES            1   VB6:FrmJobScheduler.frm,FrmSMSEnviro.frm,HMS.bas; PY:sms_comm.py,sms_e
 memcatmast                         Y    Y    YES            1   VB6:FdReSetlement.frm,FrmSMSMultiType.frm,HMS.bas; PY:fa_masters_ops.p
@@ -833,27 +846,23 @@ memenviro                          Y    Y    YES            1   VB6:HMS.bas,MemB
 smsenviro                          Y    Y    YES            1   VB6:FdCheckOut.frm,FrmSMSEnviro.frm,FrmSMSMultiType.frm; PY:sms_enviro
 areamast                           Y    Y    YES            0   VB6:HMS.bas,MemAssistant.frm,MembershipMast.frm; PY:area.py
 assigndelivery                     Y    Y    YES            0   VB6:FrmDeliveredItemDetail.frm,FrmPOSBillDeletion.frm,HMS.bas; PY:pos_
-attendence                         Y    Y    YES            0   VB6:HMS.bas,PrAttend1.frm,PrEmployee.frm; PY:hr_payroll.py,pr_attend1_
+attendence                         Y    Y    YES            0   VB6:HMS.bas,PrAttend1.frm,PrEmployee.frm; PY:hr_payroll.py
 blockmast                          Y    Y    YES            0   VB6:HKRoomBlock.frm,HMS.bas,frmBlockMast.frm; PY:blockmast.py
-bookingdetail                      Y    Y    YES            0   VB6:FrmBookingInquiry.frm,HMS.bas,HallBooking.frm; PY:bookingdetail.py
 bookinginquiry                     Y    Y    YES            0   VB6:FrmBookingInquiry.frm,HMS.bas,HallBooking.frm; PY:banquet_ops.py,s
 bookingmore                        Y    Y    YES            0   VB6:FaCurrBalUpdate.frm,HMS.bas,RrRoomReservation.frm; PY:booking.py
 bookingplandetails                 Y    Y    YES            0   VB6:FOMModule.bas,FaCurrBalUpdate.frm,HMS.bas; PY:booking.py
 budget                             Y    Y    YES            0   VB6:FaReports.frm,HMS.bas,rFaRepView.frm; PY:fa_ledger_ops.py,year_end
 budgetdetails                      Y    Y    YES            0   VB6:FrmRevenueWiseBudget.frm,HMS.bas,rFomRepView.frm; PY:revenue_budge
 catalogmast                        Y    Y    YES            0   VB6:CateringBooking.frm,HMS.bas,HallChefPreCosting.frm; PY:banquet_mas
-category                           Y    Y    YES            0   VB6:CompMast.frm,FaSubGroup.frm,FrmParty.frm; PY:category.py
 combopackdetail                    Y    Y    YES            0   VB6:HMS.bas,Hotlib.bas,RsBookingEntry.frm; PY:pos_masters.py
 companyprofile                     Y    Y    YES            0   VB6:HMS.bas,salmarCompProfile.frm; PY:company_profile.py
 complaintcategory                  Y    Y    YES            0   VB6:FrmComplaintClearing.frm,FrmComplaintMast.frm,HMS.bas; PY:guest_se
 complaintdetail                    Y    Y    YES            0   VB6:FrmComplaintClearing.frm,FrmComplaintMast.frm,HMS.bas; PY:guest_se
 datelock                           Y    Y    YES            0   VB6:DepOpStk.frm,FaVrEnt.frm,HMS.bas; PY:sys_config.py,year_end.py
 deliveryboy                        Y    Y    YES            0   VB6:FrmDeliveredItemDetail.frm,FrmDeliveryBoyMast.frm,HMS.bas; PY:pos_
-denominationdetail                 Y    Y    YES            0   VB6:FrmDenomination.frm,HMS.bas; PY:denomination.py,facility_billing.p
-denominationformat                 Y    Y    YES            0   VB6:FrmDenomination.frm,HMS.bas; PY:denomination.py,denomination_ui.py
-depart1                            Y    Y    YES            0   VB6:HMS.bas,RSSaleBill.frm,RsBookingEntry.frm; PY:depart1.py
+denominationdetail                 Y    Y    YES            0   VB6:FrmDenomination.frm,HMS.bas; PY:facility_billing.py
+denominationformat                 Y    Y    YES            0   VB6:FrmDenomination.frm,HMS.bas; PY:facility_billing.py
 epabx_data                         Y    Y    YES            0   VB6:HMS.bas,rRepTel.frm,rRepTelPreview.frm; PY:epabx_ops.py,shell.py
-expsheet                           Y    Y    YES            0   VB6:FrmExpense.frm,FrmReceivePayment.frm,HMS.bas; PY:expsheet.py
 facilitybill                       Y    Y    YES            0   VB6:HMS.bas,frmCompany.frm,frmFacilityBillAdv.frm; PY:facility_billing
 facilitybill1                      Y    Y    YES            0   VB6:HMS.bas,frmCompany.frm,frmFacilityBillAdv.frm; PY:facility_billing
 facilitybill2                      Y    Y    YES            0   VB6:HMS.bas,frmFacilityBillAdv.frm,rFomRepView.frm; PY:facility_billin
@@ -887,10 +896,7 @@ locationfacility                   Y    Y    YES            0   VB6:FrmLocationF
 lostfounddetail                    Y    Y    YES            0   VB6:FrmClaimEntry.frm,FrmLostFound.frm,HMS.bas; PY:guest_services.py,s
 membershiprevmast                  Y    Y    YES            0   VB6:HMS.bas,MemAssistant.frm,MemFacilityBilling.frm; PY:members_master
 membill                            Y    Y    YES            0   VB6:HMS.bas,MemAssistant.frm,MemBillPrintingModule.frm; PY:member_bill
-membill1                           Y    Y    YES            0   VB6:HMS.bas,MemAssistant.frm,MemFacilityBilling.frm; PY:membill1.py
 memcatchngdetail                   Y    Y    YES            0   VB6:HMS.bas,MemberModule.bas,memCatChngEntry.frm; PY:member_billing.py
-memcatfacility                     Y    Y    YES            0   VB6:HMS.bas,MemFacilityEntry.frm,memCategoryFacilities.frm; PY:memcatf
-memfacilitybilling                 Y    Y    YES            0   VB6:HMS.bas,MemFacilityEntry.frm,RsStatusScreen.frm; PY:memfacilitybil
 memproposedmeminf                  Y    Y    YES            0   VB6:HMS.bas,MemberProposedMemInf.frm,MembershipMast.frm; PY:member_bil
 messaging                          Y    Y    YES            0   VB6:EmptyInbox.frm,HMS.bas,Inbox.frm; PY:messaging_ops.py,misc_parity_
 overtime                           Y    Y    YES            0   VB6:HMS.bas,PrEmployee.frm,prOverTime.frm; PY:hr_payroll.py
@@ -901,11 +907,8 @@ pos_sbill                          Y    Y    YES            0   VB6:FrmPOSRecycl
 printersetup                       Y    Y    YES            0   VB6:FaTaxVoucher.frm,FdCheckOut.frm,FdGrpCheckOut.frm; PY:printersetup
 printmast                          Y    Y    YES            0   VB6:HMS.bas,frmMod_Print.frm,frmMod_Print1.frm; PY:printersetup.py,pri
 roomblockout                       Y    Y    YES            0   VB6:FdLookUpRoom.frm,FdLookUpRoomNo.frm,FrmHouseStatus.frm; PY:room_oc
-roomcheckoutstatus                 Y    Y    YES            0   VB6:FdCheckOut.frm,FdGrpCheckOut.frm,FdGrpdetCheckOut.frm; PY:roomchec
 roomfeature                        Y    Y    YES            0   VB6:FdLookUpRoomNo.frm,FrmRoomFeatureMast.frm,FrmRoomMast.frm; PY:gene
-roommast1                          Y    Y    YES            0   VB6:FdLookUpRoomNo.frm,FrmRoomMast.frm,HMS.bas; PY:roommast1.py
 rwparameter                        Y    Y    YES            0   VB6:HMS.bas,Hotlib.bas,RewardPointParam1.frm; PY:rwparameter.py
-salarylog                          Y    Y    YES            0   VB6:HMS.bas,prSalCreate.frm; PY:salarylog.py
 schemeitemdetail                   Y    Y    YES            0   VB6:HMS.bas,NewHappyHours.frm,RSSaleBill.frm; PY:pos_happy.py
 schememast                         Y    Y    YES            0   VB6:HMS.bas,NewHappyHours.frm,OutLetMast.frm; PY:pos_masters.py,scheme
 seasonmast                         Y    Y    YES            0   VB6:HMS.bas,Hotlib.bas,RrRoomReservation.frm; PY:seasonmaster.py
@@ -947,18 +950,22 @@ combopackhead                      -    Y    YES            0   PY:pos_masters.p
 
 --- C4. ABSENT in live DB (refer par DB me table hi nahi)   [n=0] ---
 
---- C5. SQL me refer par LIVE DB me BASE TABLE nahi (view / doosre-saal DB / drop table / typo)  [n=206] ---
-   _create_pk_sql, _create_table_sql, _ensure_column_sql, _guard_create_view, _save_enviro, account, age, analysis, arrival, bal, balance, bhi, bill, billdata, billdet, both, business, button, card, cash, cashregdata, categories, category_emp, cateringbooking, check, cols, complaints, connection, cons, core, counter, create_secure_insert, create_secure_select, createsecureinsert, createsecureselect, current, cvar, database, date, date_to, dates, days, delete_cursor, deleted, department, departmentmaster, departwiseitemissuelist, deposit, desc, detail, dialog, dictionary, display, division, door, doorlockenviro, edit, einvoice, epabx_in, epabx_out, epabxcalls, existing, ezee, failed, false, farm_activities, flag, fmreading, fmreading1, folio, fombillcanceldetails, found, frmcompany, given, godown, godrejlockoperations, godrejlocksettings, grid, hata, hms, hms_py, hona, hone, hue, information_schema, insert, insert_cursor, inserted, inverse, itemdata, itemmaster, its, kanpur_business_logic, karke, khud, last, leader, lines, list, live, location, locationmast, lock, log_tablerecords, memagerevwise, member, membercards, memberledger, members, membervisits, membill2, memcat, memchildrengenpic, memfamily, memhistory, memselectcategory, memspousegen, memsuntran, menu, modernwindow, modlog, module, movement, new_code, nodays, normal, old_code, opennig, outlet, param_str, parts, party_list, partylocation, patients, pattern, paychargeâ, paymentreceive, phone, plain, pos, position, preview, previous, proc_6_32, proc_82_45, pytsecurityprobe, raw, report, reports, reprintlog, res, reservation, restmast, reverse, room, roomoccdet, sandbox, screenshot, security, serial, server, single, smartcardprintparameter, smartcardtransaction, sms, snapshot, source, sp_ordcoun, sql, staging, start_srl_no, statement, statements, string, structure, successfully, suntransaction, sys, sysobjects, systeminfo, table, table_gstr2a, table_searchfield, tax, taxmast, taxstrulines, tbl_eventexc, tbl_eventprameter, tbl_getbooking, telcallcontrol, time, totalrooms, transaction, true, typerooms, ucase, update_cursor, usermenu, vb6, viewbooking, viewledger, viewledgerlog, viewpossale, viewsubgroup, voucher, vouchersundrysetting
+--- C5. SQL me refer par LIVE DB me BASE TABLE nahi (view / doosre-saal DB / drop table / typo)  [n=187] ---
+   _create_pk_sql, _create_table_sql, _ensure_column_sql, _guard_create_view, _save_enviro, account, age, analysis, arrival, bal, balance, bhi, bill, billdata, billdet, business, button, card, cash, cashregdata, categories, category_emp, cateringbooking, check, cols, complaints, connection, cons, core, counter, create_secure_insert, create_secure_select, createsecureinsert, createsecureselect, current, cvar, database, date, dates, days, delete_cursor, deleted, departwiseitemissuelist, deposit, desc, detail, dictionary, display, division, door, doorlockenviro, edit, einvoice, epabx_in, epabx_out, epabxcalls, existing, ezee, failed, false, farm_activities, fmreading, fmreading1, folio, fombillcanceldetails, found, frmcompany, given, godown, grid, hata, hms, hms_py, hona, hone, hue, information_schema, insert, insert_cursor, inserted, inverse, itemdata, its, kanpur_business_logic, karke, khud, last, leader, lines, list, live, location, locationmast, lock, log_tablerecords, memagerevwise, member, membercards, memberledger, members, membervisits, membill2, memcat, memchildrengenpic, memfamily, memhistory, memselectcategory, memspousegen, memsuntran, menu, modernwindow, modlog, module, movement, new_code, nodays, normal, old_code, opennig, outlet, parts, party_list, partylocation, patients, pattern, paychargeâ, paymentreceive, phone, plain, pos, previous, proc_6_32, proc_82_45, pytsecurityprobe, raw, res, reservation, restmast, reverse, room, roomoccdet, sandbox, screenshot, security, serial, server, single, smartcardprintparameter, smartcardtransaction, sms, snapshot, source, sp_ordcoun, sql, staging, start_srl_no, statement, string, structure, successfully, suntransaction, sys, sysobjects, systeminfo, table, table_gstr2a, table_searchfield, tax, tbl_eventexc, tbl_eventprameter, tbl_getbooking, telcallcontrol, time, totalrooms, true, typerooms, ucase, update_cursor, usermenu, vb6, viewbooking, viewledger, viewledgerlog, viewpossale, viewsubgroup, voucher, vouchersundrysetting
    (aur 38 string-noise tokens ignore kiye gaye)
 
 ########################################################################################################
 # SECTION D : MISSING LIST   (kya kya missing hai - consolidated checklist)
 ########################################################################################################
 
-D1. FORMS MISSING IN PYTHON  (na UI file, na registry entry)  [n=1]
+D1. FORMS MISSING IN PYTHON  (na UI file, na registry entry)  [n=3]
 --------------------------------------------------------------------------------------------------------
-  1. FrmDataRecieving.frm             Form=FrmDataRecieving         Caption="Data Recieving Window . . ."
+  1. DMTree.frm                       Form=DMTree                   Caption="Form1"
+     ctrl=1 grid=- lines=461  tables=[UserModule1,menuHelp1]
+  2. FrmDataRecieving.frm             Form=FrmDataRecieving         Caption="Data Recieving Window . . ."
      ctrl=1 grid=- lines=548  (no SQL in form)
+  3. PrAttend1.frm                    Form=PrAttend1                Caption="Attendence"
+     ctrl=1 grid=- lines=1206  tables=[ATTENDENCE,Attend,DESIG,EMPLOYEE,Salary,attend]
 
 D1b. LIKELY matches (fuzzy token match - manually verify karo)  [n=48]
 --------------------------------------------------------------------------------------------------------
@@ -997,7 +1004,7 @@ D1b. LIKELY matches (fuzzy token match - manually verify karo)  [n=48]
  33. RsBookingEntry.frm               "Booking Entry                             " -> banquet_ops_ui.py          fuzzy -> banquet_booking (score 13, tok 7)
  34. RsPOSCustInfo.frm                "Customer Information                      " -> ui/shell.py                fuzzy -> Guest Information (score 11, tok 11)
  35. RsPOSDisplayNew.frm              "Table Status                              " -> finance_masters_ui.py      fuzzy -> gueststatus (score 13, tok 11)
- 36. RsTouchOrderPersonDetails.frm    "Customer Information                      " -> core/orderpersondetails.py fuzzy -> orderpersondetails (score 18, tok 18)
+ 36. RsTouchOrderPersonDetails.frm    "Customer Information                      " -> order_advance_ui.py        fuzzy -> order_advance (score 13, tok 5)
  37. RsTouchScreenBookingEntry.frm    "Booking Entry                             " -> banquet_ops_ui.py          fuzzy -> banquet_booking (score 13, tok 7)
  38. RsTouchScreenFAFind.frm          "Frame1                                    " -> block_master_ui.py         fuzzy -> fa_find (score 13, tok 6)
  39. RsTouchScreenSteward.frm         "Steward                                   " -> utility_forms_ui.py        fuzzy -> touch_keyboard (score 13, tok 5)
@@ -1006,52 +1013,54 @@ D1b. LIKELY matches (fuzzy token match - manually verify karo)  [n=48]
  42. frmFdLeaderRev.frm               "Leader Revenue Allocation                 " -> general_setup_ui.py        fuzzy -> revenuegroupparent (score 13, tok 18)
  43. frmMessage.frm                   "User Information                          " -> p2_masters.py              fuzzy -> usermaster (score 13, tok 10)
  44. hAdvanceDepDialog.frm            "Settlement                                " -> banquet_ops_ui.py          fuzzy -> banquet_settlement (score 13, tok 10)
- 45. pGIss.frm                        "Goods Issue Entry                         " -> frm_item_issued_on_cleaning_ui.py fuzzy -> frm_item_issued_on_cleaning (score 13, tok 6)
+ 45. pGIss.frm                        "Goods Issue Entry                         " -> smartcard_txn_ui.py        fuzzy -> card_re_issue (score 13, tok 5)
  46. pReqSlip.frm                     "Requistion Slip Entry                     " -> requisition_slip_ui.py     fuzzy -> requisition_slip (score 13, tok 4)
  47. rrsAdvanceDepDialog.frm          "Settlememt Entry                          " -> pos_masters_ui.py          fuzzy -> auto_settle_card_balance (score 13, tok 10)
  48. rsAdvanceDepDialog.frm           "Settlement                                " -> banquet_ops_ui.py          fuzzy -> banquet_settlement (score 13, tok 10)
 
-D2. FORMS -> COMING SOON  (registry me entry hai par UI/logic absent)  [n=1]
+D2. FORMS -> COMING SOON  (registry me entry hai par UI/logic absent)  [n=3]
 --------------------------------------------------------------------------------------------------------
-  1. RsPaymentReceice.frm             "Payment Receive Entry (POS)"
+  1. FrmItemIssuedOnCleaning.frm      "Item Issued On Cleaning"
+  2. frmGodrejLockSettings.frm        "Godrej Lock Settings"
+  3. frmLockGodrejSettings.frm        "Godrej Locks"
 
-D3. FORMS registry-wired par DEDICATED python UI file nahi (shared/simplified screen)  [n=177]
+D3. FORMS registry-wired par DEDICATED python UI file nahi (shared/simplified screen)  [n=179]
 --------------------------------------------------------------------------------------------------------
-  1. [REGISTRY] BanqAvailability.frm           "Venue Availability"
-  2. [REGISTRY] CateringBooking.frm            "Catalog Selection"
-  3. [REGISTRY] DepOpStk.frm                   "Location wise Opening Stock Entry"
-  4. [REGISTRY] EmptyInbox.frm                 "Inbox"
-  5. [REGISTRY] FaAdjustDel.frm                "Adjustment Delete"
-  6. [REGISTRY] FaCityMast.frm                 "City Master"
-  7. [REGISTRY] FaCountryMast.frm              "Country Master"
-  8. [REGISTRY] FaCurrBalUpdate.frm            "Current Balance Updation"
-  9. [REGISTRY] FaGrEnt.frm                    "Group Accounts Entry"
- 10. [REGISTRY] FaMagic.frm                    "Magic"
- 11. [REGISTRY] FaNarrMast.frm                 "Narration Master"
- 12. [REGISTRY] FaStateMast.frm                "State Master"
- 13. [REGISTRY] FaSubGroup.frm                 "Ledger Accounts Entry"
- 14. [REGISTRY] FaTDSCat.frm                   "T.D.S.Category Entry"
- 15. [REGISTRY] FaTaxVoucher.frm               "Expense Voucher"
- 16. [REGISTRY] FaVrEnt.frm                    "Voucher Entry"
- 17. [REGISTRY] FaVtype.frm                    "Define Voucher Type"
- 18. [REGISTRY] FdCheckOut.frm                 "Room Check Out"
- 19. [REGISTRY] FdGrpCheckOut.frm              "Room Check Out Entry"
- 20. [REGISTRY] FdGrpdetCheckOut.frm           "Room Check Out Entry"
- 21. [REGISTRY] FdLookUpRoom.frm               "Look Up Room"
- 22. [REGISTRY] FdLookUpRoomNo.frm             "Display Rack"
- 23. [REGISTRY] FdReSetlement.frm              "Post Charges/Payment"
- 24. [REGISTRY] FdRevCheckOut.frm              "Check Out Cancel"
- 25. [REGISTRY] FdRoomDisplay.frm              "Room View"
- 26. [REGISTRY] FrmBookingInquiry.frm          "Booking Inquiry"
- 27. [REGISTRY] FrmCalender.frm                "Calender"
- 28. [REGISTRY] FrmChargeMast.frm              "Charge Master"
- 29. [REGISTRY] FrmClaimEntry.frm              "Claim Entry"
- 30. [REGISTRY] FrmComplaintClearing.frm       "Complaint Clearance"
- 31. [REGISTRY] FrmComplaintMast.frm           "Complain Master"
- 32. [REGISTRY] FrmConsumMast.frm              "Consumption Master"
- 33. [REGISTRY] FrmControlPanel.frm            "Control Panel"
- 34. [REGISTRY] FrmDeliveryBoyMast.frm         "Delivery Boy Master"
- 35. [REGISTRY] FrmDenomination.frm            "Denomination Detail"
+  1. [REGISTRY_ONLY] FrmDenomination.frm            "Denomination Detail"
+  2. [REGISTRY] BanqAvailability.frm           "Venue Availability"
+  3. [REGISTRY] CateringBooking.frm            "Catalog Selection"
+  4. [REGISTRY] DepOpStk.frm                   "Location wise Opening Stock Entry"
+  5. [REGISTRY] EmptyInbox.frm                 "Inbox"
+  6. [REGISTRY] FaAdjustDel.frm                "Adjustment Delete"
+  7. [REGISTRY] FaCityMast.frm                 "City Master"
+  8. [REGISTRY] FaCountryMast.frm              "Country Master"
+  9. [REGISTRY] FaCurrBalUpdate.frm            "Current Balance Updation"
+ 10. [REGISTRY] FaGrEnt.frm                    "Group Accounts Entry"
+ 11. [REGISTRY] FaMagic.frm                    "Magic"
+ 12. [REGISTRY] FaNarrMast.frm                 "Narration Master"
+ 13. [REGISTRY] FaStateMast.frm                "State Master"
+ 14. [REGISTRY] FaSubGroup.frm                 "Ledger Accounts Entry"
+ 15. [REGISTRY] FaTDSCat.frm                   "T.D.S.Category Entry"
+ 16. [REGISTRY] FaTaxVoucher.frm               "Expense Voucher"
+ 17. [REGISTRY] FaVrEnt.frm                    "Voucher Entry"
+ 18. [REGISTRY] FaVtype.frm                    "Define Voucher Type"
+ 19. [REGISTRY] FdCheckOut.frm                 "Room Check Out"
+ 20. [REGISTRY] FdGrpCheckOut.frm              "Room Check Out Entry"
+ 21. [REGISTRY] FdGrpdetCheckOut.frm           "Room Check Out Entry"
+ 22. [REGISTRY] FdLookUpRoom.frm               "Look Up Room"
+ 23. [REGISTRY] FdLookUpRoomNo.frm             "Display Rack"
+ 24. [REGISTRY] FdReSetlement.frm              "Post Charges/Payment"
+ 25. [REGISTRY] FdRevCheckOut.frm              "Check Out Cancel"
+ 26. [REGISTRY] FdRoomDisplay.frm              "Room View"
+ 27. [REGISTRY] FrmBookingInquiry.frm          "Booking Inquiry"
+ 28. [REGISTRY] FrmCalender.frm                "Calender"
+ 29. [REGISTRY] FrmChargeMast.frm              "Charge Master"
+ 30. [REGISTRY] FrmClaimEntry.frm              "Claim Entry"
+ 31. [REGISTRY] FrmComplaintClearing.frm       "Complaint Clearance"
+ 32. [REGISTRY] FrmComplaintMast.frm           "Complain Master"
+ 33. [REGISTRY] FrmConsumMast.frm              "Consumption Master"
+ 34. [REGISTRY] FrmControlPanel.frm            "Control Panel"
+ 35. [REGISTRY] FrmDeliveryBoyMast.frm         "Delivery Boy Master"
  36. [REGISTRY] FrmExpense.frm                 "Misc.Payment / Received Entry"
  37. [REGISTRY] FrmForExRec.frm                "Forex Receive Entry"
  38. [REGISTRY] FrmGuestWakeUp.frm             "Register Wake up Calls"
@@ -1130,70 +1139,72 @@ D3. FORMS registry-wired par DEDICATED python UI file nahi (shared/simplified sc
 111. [REGISTRY] RsKitchenMaterial.frm          "Excise Invoice Cum Gate Pass"
 112. [REGISTRY] RsKitchenStk.frm               "Stock Transfer"
 113. [REGISTRY] RsPOSDisplay.frm               "Display Table"
-114. [REGISTRY] RsSaleBillSplit.frm            "Split Sale Bill"
-115. [REGISTRY] RsStatusScreen.frm             "POS Status Screen"
-116. [REGISTRY] RsStoreRecEntry.frm            "Finish Material Receive Entry"
-117. [REGISTRY] RsTableMast.frm                "Table Master"
-118. [REGISTRY] RsTokenEntry.frm               "Token Entry"
-119. [REGISTRY] RsTouchDisplayTB.frm           "Display Table"
-120. [REGISTRY] RsTouchScreenKeyBoard.frm      "Touch Screen KeyBoard"
-121. [REGISTRY] RsTouchScreenTOKENEntry.frm    "KOT Entry"
-122. [REGISTRY] SchemeMast.frm                 "Scheme Master"
-123. [REGISTRY] SundryMast.frm                 "Sundry Master"
-124. [REGISTRY] SundryVType.frm                "Voucher Wise Sundry Entry"
-125. [REGISTRY] TelCallControlMast.frm         "Call Control Master"
-126. [REGISTRY] TelExtensionMast.frm           "Extension Master"
-127. [REGISTRY] TravelAgencyPost.frm           "Travel Agency Posting"
-128. [REGISTRY] fdAcPostChrg.frm               "Night Audit Process"
-129. [REGISTRY] fdAmendEntry.frm               "Amend Stay"
-130. [REGISTRY] fdCheckIn.frm                  "Look Up Reservation By Guest Name"
-131. [REGISTRY] fdDisplayFolio.frm             "Guest Ledger"
-132. [REGISTRY] fdDisplayFolioSumm.frm         "Summerized Guest Ledger"
-133. [REGISTRY] fdPaymentCharge.frm            "Post Charges & Payment"
-134. [REGISTRY] fdPostChrg.frm                 "Post Charges /Payments"
-135. [REGISTRY] fdPrintScreen.frm              "Guest Charges Summary"
-136. [REGISTRY] fdRoomChange.frm               "Room Change"
-137. [REGISTRY] fdRoomOcc.frm                  "Reservation Look Up Room Wise"
-138. [REGISTRY] fdWalkInEntry.frm              "Walk In / Check In Entry"
-139. [REGISTRY] frmBlockMast.frm               "Block Master"
-140. [REGISTRY] frmEnviro.frm                  "Parameter Settings"
-141. [REGISTRY] frmFacilityBillAdv.frm         "Facility Billing"
-142. [REGISTRY] frmFixedChargeMast.frm         "Fixed Charge Master"
-143. [REGISTRY] frmGuestComments.frm           "Guest Comments"
-144. [REGISTRY] frmGuestInfo.frm               "Guest Information"
-145. [REGISTRY] frmGuestParamMast.frm          "Guest Parameters Master"
-146. [REGISTRY] frmMenuItemCopy.frm            "Menu Item Copy"
-147. [REGISTRY] frmMod_Print.frm               "Printing Setup"
-148. [REGISTRY] frmMod_Print1.frm              "Printing Setup"
-149. [REGISTRY] frmPrintModule.frm             "Printing Parameters"
-150. [REGISTRY] frmPurEnviro.frm               "Purchase Parameter"
-151. [REGISTRY] frmReNightAudit.frm            "Reverse Night Audit"
-152. [REGISTRY] frmSeasonMast.frm              "Season Master"
-153. [REGISTRY] frmSessionMast.frm             "Session Master"
-154. [REGISTRY] frmTallyExport.frm             "Tally Export"
-155. [REGISTRY] frmUnitMast.frm                "Unit Master"
-156. [REGISTRY] frmYearEnd.frm                 "Year End Updation"
-157. [REGISTRY] frmmessageKey.frm              "Key Massage"
-158. [REGISTRY] memAgeRevMast.frm              "Member Category Wise Revenue"
-159. [REGISTRY] memCatChngCond.frm             "Member Category Change (Conditional)"
-160. [REGISTRY] memCatChngEntry.frm            "Out-Station Member Entry"
-161. [REGISTRY] memCatRevMast.frm              "Member Category Wise Revenue"
-162. [REGISTRY] memCategoryFacilities.frm      "Category wise Facility"
-163. [REGISTRY] memFacilityMast.frm            "Facility Master"
-164. [REGISTRY] memOutStationEntry.frm         "Out-Station Member Entry"
-165. [REGISTRY] pHappyHours.frm                "Happy Hours"
-166. [REGISTRY] pMREntry.frm                   "Material Receive Entry"
-167. [REGISTRY] pPOrder.frm                    "Purchase Order"
-168. [REGISTRY] prHoliday.frm                  "HoliDay Master"
-169. [REGISTRY] prOverTime.frm                 "Over Time"
-170. [REGISTRY] prSalCreate.frm                "Salary Creation"
-171. [REGISTRY] repTouchDate.frm               "Select Report Date"
-172. [REGISTRY] resBanq.frm                    "Reservation Look Up Room Wise"
-173. [REGISTRY] resGroup.frm                   "Group Reservation"
-174. [REGISTRY] resRoomNo.frm                  "Reservation Look Up Room Wise"
-175. [REGISTRY] resRoomType.frm                "Room Category Wise Reservation Look Up"
-176. [REGISTRY] rsTouchScreenAdvanceDepDialog.frm "Settlement Entry"
-177. [REGISTRY] salmarCompProfile.frm          "Company Profile"
+114. [REGISTRY] RsPaymentReceice.frm           "Payment Receive Entry (POS)"
+115. [REGISTRY] RsSaleBillSplit.frm            "Split Sale Bill"
+116. [REGISTRY] RsStatusScreen.frm             "POS Status Screen"
+117. [REGISTRY] RsStoreRecEntry.frm            "Finish Material Receive Entry"
+118. [REGISTRY] RsTableMast.frm                "Table Master"
+119. [REGISTRY] RsTokenEntry.frm               "Token Entry"
+120. [REGISTRY] RsTouchDisplayTB.frm           "Display Table"
+121. [REGISTRY] RsTouchScreenKeyBoard.frm      "Touch Screen KeyBoard"
+122. [REGISTRY] RsTouchScreenTOKENEntry.frm    "KOT Entry"
+123. [REGISTRY] SchemeMast.frm                 "Scheme Master"
+124. [REGISTRY] SundryMast.frm                 "Sundry Master"
+125. [REGISTRY] SundryVType.frm                "Voucher Wise Sundry Entry"
+126. [REGISTRY] TelCallControlMast.frm         "Call Control Master"
+127. [REGISTRY] TelExtensionMast.frm           "Extension Master"
+128. [REGISTRY] TravelAgencyPost.frm           "Travel Agency Posting"
+129. [REGISTRY] fdAcPostChrg.frm               "Night Audit Process"
+130. [REGISTRY] fdAmendEntry.frm               "Amend Stay"
+131. [REGISTRY] fdCheckIn.frm                  "Look Up Reservation By Guest Name"
+132. [REGISTRY] fdDisplayFolio.frm             "Guest Ledger"
+133. [REGISTRY] fdDisplayFolioSumm.frm         "Summerized Guest Ledger"
+134. [REGISTRY] fdPaymentCharge.frm            "Post Charges & Payment"
+135. [REGISTRY] fdPostChrg.frm                 "Post Charges /Payments"
+136. [REGISTRY] fdPrintScreen.frm              "Guest Charges Summary"
+137. [REGISTRY] fdRoomChange.frm               "Room Change"
+138. [REGISTRY] fdRoomOcc.frm                  "Reservation Look Up Room Wise"
+139. [REGISTRY] fdWalkInEntry.frm              "Walk In / Check In Entry"
+140. [REGISTRY] frmBlockMast.frm               "Block Master"
+141. [REGISTRY] frmEnviro.frm                  "Parameter Settings"
+142. [REGISTRY] frmFacilityBillAdv.frm         "Facility Billing"
+143. [REGISTRY] frmFixedChargeMast.frm         "Fixed Charge Master"
+144. [REGISTRY] frmGuestComments.frm           "Guest Comments"
+145. [REGISTRY] frmGuestInfo.frm               "Guest Information"
+146. [REGISTRY] frmGuestParamMast.frm          "Guest Parameters Master"
+147. [REGISTRY] frmMenuItemCopy.frm            "Menu Item Copy"
+148. [REGISTRY] frmMod_Print.frm               "Printing Setup"
+149. [REGISTRY] frmMod_Print1.frm              "Printing Setup"
+150. [REGISTRY] frmPrintModule.frm             "Printing Parameters"
+151. [REGISTRY] frmPurEnviro.frm               "Purchase Parameter"
+152. [REGISTRY] frmReNightAudit.frm            "Reverse Night Audit"
+153. [REGISTRY] frmSeasonMast.frm              "Season Master"
+154. [REGISTRY] frmSessionMast.frm             "Session Master"
+155. [REGISTRY] frmTallyExport.frm             "Tally Export"
+156. [REGISTRY] frmUnitMast.frm                "Unit Master"
+157. [REGISTRY] frmYearEnd.frm                 "Year End Updation"
+158. [REGISTRY] frmmessageKey.frm              "Key Massage"
+159. [REGISTRY] memAgeRevMast.frm              "Member Category Wise Revenue"
+160. [REGISTRY] memCatChngCond.frm             "Member Category Change (Conditional)"
+161. [REGISTRY] memCatChngEntry.frm            "Out-Station Member Entry"
+162. [REGISTRY] memCatRevMast.frm              "Member Category Wise Revenue"
+163. [REGISTRY] memCategoryFacilities.frm      "Category wise Facility"
+164. [REGISTRY] memFacilityMast.frm            "Facility Master"
+165. [REGISTRY] memOutStationEntry.frm         "Out-Station Member Entry"
+166. [REGISTRY] pHappyHours.frm                "Happy Hours"
+167. [REGISTRY] pMREntry.frm                   "Material Receive Entry"
+168. [REGISTRY] pPOrder.frm                    "Purchase Order"
+169. [REGISTRY] prAttend.frm                   "Leave"
+170. [REGISTRY] prHoliday.frm                  "HoliDay Master"
+171. [REGISTRY] prOverTime.frm                 "Over Time"
+172. [REGISTRY] prSalCreate.frm                "Salary Creation"
+173. [REGISTRY] repTouchDate.frm               "Select Report Date"
+174. [REGISTRY] resBanq.frm                    "Reservation Look Up Room Wise"
+175. [REGISTRY] resGroup.frm                   "Group Reservation"
+176. [REGISTRY] resRoomNo.frm                  "Reservation Look Up Room Wise"
+177. [REGISTRY] resRoomType.frm                "Room Category Wise Reservation Look Up"
+178. [REGISTRY] rsTouchScreenAdvanceDepDialog.frm "Settlement Entry"
+179. [REGISTRY] salmarCompProfile.frm          "Company Profile"
 
 D4. VB6 .bas MODULES - python core se FULLY nahi mile (status MISSING/SPARSE/NO_SQL):
 --------------------------------------------------------------------------------------------------------
@@ -1718,33 +1729,56 @@ D5b. VB6 control EVENT handlers missing  [n=619]  (Cmd*_Click / Chk*_KeyDown etc
     txtDisc_LostFocus txtPassword_KeyDown txtPassword_Validate txtSite_GotFocus txtSite_KeyDown
     txtSite_KeyPress txtSite_KeyUp txtSite_LostFocus txtSite_Validate txtStatus_Change
 
-D6. DATABASE TABLES MISSING IN PYTHON CODE (VB6 use karta hai)  [n=25]
+D6. DATABASE TABLES MISSING IN PYTHON CODE (VB6 use karta hai)  [n=48]
 --------------------------------------------------------------------------------------------------------
-  1. suntranlog                          rows=      329   VB6: HMS.bas, RSSaleBill.frm, RSTouchScreenSaleBill.frm
-  2. creditcardhistory                   rows=        0   VB6: FrmPayTypeMast.frm, HMS.bas, HallAdvanceDepDialog.frm, Hotlib.bas
-  3. departrwscheme                      rows=        0   VB6: HMS.bas, Hotlib.bas, RSSaleBill.frm
-  4. fombillchangedetails                rows=        0   VB6: FdReSetlement.frm, HMS.bas, frmFomB.frm, rFomRepView.frm
-  5. groupfoliomore                      rows=        0   VB6: HMS.bas, RrRoomReservation.frm, fdWalkInEntry.frm
-  6. guestprofveh                        rows=        0   VB6: GuestProfile.frm, HMS.bas, fdWalkInEntry.frm
-  7. help                                rows=        0   VB6: HMS.bas, MainLib.bas
-  8. leaderrev                           rows=        0   VB6: HMS.bas, Hotlib.bas, fdWalkInEntry.frm
-  9. memcatrevwise                       rows=        0   VB6: HMS.bas, MemFacilityBilling.frm, memCatChngEntry.frm, memCatRevMast.frm
- 10. memfacilitymast                     rows=        0   VB6: HMS.bas, MemAssistant.frm, MemFacilityBilling.frm, MemFacilityEntry.frm
- 11. memoutstation                       rows=        0   VB6: HMS.bas, memOutStationEntry.frm
- 12. memrevenueforperiod                 rows=        0   VB6: HMS.bas, MemFacilityBilling.frm, memCatChngEntry.frm, memOutStationEntry.frm
- 13. memrevwise                          rows=        0   VB6: HMS.bas, MemAssistant.frm, MembershipMast.frm
- 14. memtagadaletter                     rows=        0   VB6: HMS.bas, MemTagadaLetter.frm, rMemberRepView.frm
- 15. memvisitentry                       rows=        0   VB6: HMS.bas, MemVisitEntry.frm
- 16. outletbarcodepartdetail             rows=        0   VB6: HMS.bas, OutLetMast.frm, RSSaleBill.frm
- 17. profileimages                       rows=        0   VB6: GuestProfile.frm, HMS.bas, fdWalkInEntry.frm
- 18. schemeoutletdiscount                rows=        0   VB6: HMS.bas, OutLetMast.frm, RSSaleBill.frm, SchemeMast.frm
- 19. splitedsuntran                      rows=        0   VB6: FrmPOSRecycleData.frm, HMS.bas, Hotlib.bas, POSBillReprint.frm
- 20. splitstock                          rows=        0   VB6: FrmPOSRecycleData.frm, HMS.bas, Hotlib.bas, RSSaleBill.frm
- 21. splitsuntran                        rows=        0   VB6: HMS.bas, Hotlib.bas, RsSaleBillSplit.frm
- 22. subgrouplog                         rows=        0   VB6: HMS.bas, MembershipMast.frm
- 23. tradeinfo_btwin                     rows=        0   VB6: HMS.bas, RSSaleBill.frm
- 24. transout                            rows=        0   VB6: HMS.bas, Transfer.frm
- 25. usercollection                      rows=        0   VB6: FrmUserPaymentCollection.frm, HMS.bas, rPOSRepView.frm
+  1. mcurstk                             rows=     3498   VB6: HMS.bas, fdNDAcPostChrg.frm, rFomRepView.frm, rInventRepView.frm
+  2. usermodule1                         rows=      617   VB6: DMTree.frm, HMS.bas, MDIForm1.frm
+  3. sale2log                            rows=      510   VB6: HMS.bas, RSSaleBill.frm, RSTouchScreenSaleBill.frm
+  4. rawconsumption                      rows=      467   VB6: HMS.bas, Hotlib.bas, rFomRepView.frm, rInventRepView.frm
+  5. usermodule                          rows=      450   VB6: HMS.bas, MDIForm1.frm, ModuleAdd.bas, OutLetMast.frm
+  6. suntranlog                          rows=      329   VB6: HMS.bas, RSSaleBill.frm, RSTouchScreenSaleBill.frm
+  7. stocklog                            rows=      266   VB6: HMS.bas, RSSaleBill.frm, RSTouchScreenSaleBill.frm, frmCompany.frm
+  8. einvoicebill2                       rows=      189   VB6: HMS.bas, HallBill.frm, Hotlib.bas, RSSaleBill.frm
+  9. einvoicebill1                       rows=       67   VB6: HMS.bas, HallBill.frm, Hotlib.bas, RSSaleBill.frm
+ 10. packingorderdetail2                 rows=       42   VB6: HMS.bas, RSSaleBill.frm, RsBookingEntry.frm
+ 11. memaddrwa                           rows=       31   VB6: HMS.bas, MembershipMast.frm, rMemberRepView.frm
+ 12. lastvou                             rows=       17   VB6: CateringBooking.frm, FaTaxVoucher.frm, HKHouseOpStk.frm, HKIssRec.frm
+ 13. packingorderdetail1                 rows=       12   VB6: HMS.bas, RSSaleBill.frm, RsBookingEntry.frm
+ 14. orderpersondetails                  rows=        6   VB6: HMS.bas, RSTouchScreenSaleBill.frm, RsBookingEntry.frm
+ 15. bookingdetail                       rows=        0   VB6: FrmBookingInquiry.frm, HMS.bas, HallBooking.frm, rHallRepView.frm
+ 16. category                            rows=        0   VB6: CompMast.frm, FaSubGroup.frm, FrmParty.frm, HMS.bas
+ 17. creditcardhistory                   rows=        0   VB6: FrmPayTypeMast.frm, HMS.bas, HallAdvanceDepDialog.frm, Hotlib.bas
+ 18. depart1                             rows=        0   VB6: HMS.bas, RSSaleBill.frm, RsBookingEntry.frm, RsKOTEntry.frm
+ 19. departrwscheme                      rows=        0   VB6: HMS.bas, Hotlib.bas, RSSaleBill.frm
+ 20. expsheet                            rows=        0   VB6: FrmExpense.frm, FrmReceivePayment.frm, HMS.bas, Hotlib.bas
+ 21. fombillchangedetails                rows=        0   VB6: FdReSetlement.frm, HMS.bas, frmFomB.frm, rFomRepView.frm
+ 22. groupfoliomore                      rows=        0   VB6: HMS.bas, RrRoomReservation.frm, fdWalkInEntry.frm
+ 23. guestprofveh                        rows=        0   VB6: GuestProfile.frm, HMS.bas, fdWalkInEntry.frm
+ 24. help                                rows=        0   VB6: HMS.bas, MainLib.bas
+ 25. leaderrev                           rows=        0   VB6: HMS.bas, Hotlib.bas, fdWalkInEntry.frm
+ 26. membill1                            rows=        0   VB6: HMS.bas, MemAssistant.frm, MemFacilityBilling.frm, MemberModule.bas
+ 27. memcatfacility                      rows=        0   VB6: HMS.bas, MemFacilityEntry.frm, memCategoryFacilities.frm
+ 28. memcatrevwise                       rows=        0   VB6: HMS.bas, MemFacilityBilling.frm, memCatChngEntry.frm, memCatRevMast.frm
+ 29. memfacilitybilling                  rows=        0   VB6: HMS.bas, MemFacilityEntry.frm, RsStatusScreen.frm, rMemberRepView.frm
+ 30. memfacilitymast                     rows=        0   VB6: HMS.bas, MemAssistant.frm, MemFacilityBilling.frm, MemFacilityEntry.frm
+ 31. memoutstation                       rows=        0   VB6: HMS.bas, memOutStationEntry.frm
+ 32. memrevenueforperiod                 rows=        0   VB6: HMS.bas, MemFacilityBilling.frm, memCatChngEntry.frm, memOutStationEntry.frm
+ 33. memrevwise                          rows=        0   VB6: HMS.bas, MemAssistant.frm, MembershipMast.frm
+ 34. memtagadaletter                     rows=        0   VB6: HMS.bas, MemTagadaLetter.frm, rMemberRepView.frm
+ 35. memvisitentry                       rows=        0   VB6: HMS.bas, MemVisitEntry.frm
+ 36. outletbarcodepartdetail             rows=        0   VB6: HMS.bas, OutLetMast.frm, RSSaleBill.frm
+ 37. profileimages                       rows=        0   VB6: GuestProfile.frm, HMS.bas, fdWalkInEntry.frm
+ 38. roomcheckoutstatus                  rows=        0   VB6: FdCheckOut.frm, FdGrpCheckOut.frm, FdGrpdetCheckOut.frm, HMS.bas
+ 39. roommast1                           rows=        0   VB6: FdLookUpRoomNo.frm, FrmRoomMast.frm, HMS.bas
+ 40. salarylog                           rows=        0   VB6: HMS.bas, prSalCreate.frm
+ 41. schemeoutletdiscount                rows=        0   VB6: HMS.bas, OutLetMast.frm, RSSaleBill.frm, SchemeMast.frm
+ 42. splitedsuntran                      rows=        0   VB6: FrmPOSRecycleData.frm, HMS.bas, Hotlib.bas, POSBillReprint.frm
+ 43. splitstock                          rows=        0   VB6: FrmPOSRecycleData.frm, HMS.bas, Hotlib.bas, RSSaleBill.frm
+ 44. splitsuntran                        rows=        0   VB6: HMS.bas, Hotlib.bas, RsSaleBillSplit.frm
+ 45. subgrouplog                         rows=        0   VB6: HMS.bas, MembershipMast.frm
+ 46. tradeinfo_btwin                     rows=        0   VB6: HMS.bas, RSSaleBill.frm
+ 47. transout                            rows=        0   VB6: HMS.bas, Transfer.frm
+ 48. usercollection                      rows=        0   VB6: FrmUserPaymentCollection.frm, HMS.bas, rPOSRepView.frm
 
 D7. TABLES ABSENT IN LIVE DB (dono taraf refer par DB me nahi)  [n=0]
 --------------------------------------------------------------------------------------------------------
@@ -1764,30 +1798,30 @@ VB6 .bas procs total       : 2874
   named (event/func)       : 1065
   NAMED ported in python   : 50
   NAMED MISSING in python  : 1015
-Python ui/*.py files       : 134
-Python core/*.py files     : 170
-Python core top-level defs : 2359
+Python ui/*.py files       : 126
+Python core/*.py files     : 146
+Python core top-level defs : 2217
 
 Form status:
-  MISSING          1
-  COMING_SOON      1
-  REGISTRY_ONLY    0
-  REGISTRY         177
+  MISSING          3
+  COMING_SOON      3
+  REGISTRY_ONLY    1
+  REGISTRY         178
   LIKELY           48
-  PY_FILE          77
+  PY_FILE          71
   SHELL            2
   REPORT_VIEWER    15
 
 Module (.bas) status:
-  FULL             26
-  PARTIAL          6
+  FULL             23
+  PARTIAL          9
 
 Database (real tables only, live-DB validated):
   live base tables in DB    : 280
   VB6-referenced (real)     : 261
-  Python-referenced (real)  : 237
-  BOTH                      : 236
-  VB6-ONLY (PY MISSING)     : 25
+  Python-referenced (real)  : 214
+  BOTH                      : 213
+  VB6-ONLY (PY MISSING)     : 48
   PY-ONLY                   : 1
   ABSENT in DB              : 0
 
