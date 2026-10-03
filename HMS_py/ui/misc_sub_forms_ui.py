@@ -87,9 +87,14 @@ class OpeningStockWindow(QMainWindow):
     def _load(self):
         try:
             from HMS_py.core import db
+            # BUG-MS-05 (Main Setup screenshot audit 2026-10-03): ItemMast me
+            # ActiveYN='Yes' stored hai (3281 rows), 'Y' nahi - purana filter
+            # ISNULL(ActiveYN,'Y')='Y' 0 rows laata tha -> Opening Stock
+            # screen khaali. Blank = active (VB6 semantics).
             rows = db.query(
                 "SELECT Code, Name, ISNULL(Unit,''), ISNULL(MinStock,0), "
-                "ISNULL(SaleRate,0) FROM ItemMast WHERE ISNULL(ActiveYN,'Y')='Y' "
+                "ISNULL(SaleRate,0) FROM ItemMast "
+                "WHERE ISNULL(ActiveYN,'Yes') IN ('', 'Y', 'Yes') "
                 "ORDER BY Code")
             self.table.setRowCount(len(rows))
             for i, r in enumerate(rows):

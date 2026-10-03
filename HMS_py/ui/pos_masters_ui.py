@@ -525,6 +525,10 @@ def open_menu_item_copy(parent=None, user="SA"):
     btn_copy.clicked.connect(_copy)
     btn_close.clicked.connect(dlg.reject)
     _fill_outlets()
+    # BUG-MS-01 (Main Setup screenshot audit 2026-10-03): dialog kabhi
+    # show/save nahi hota tha -> menu click dead. Baaki sab openers
+    # (open_card_operations etc.) yahi pattern use karte hain: exec().
+    dlg.exec()
 
 # ── Card Operations (VB6: EXTRAs > Smart Card > Operations) ──
 def open_card_operations(parent=None, user: str = "SA"):

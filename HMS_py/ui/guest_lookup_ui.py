@@ -205,12 +205,17 @@ class GuestLookupWindow(QMainWindow):
 
     def _load_data(self):
         try:
+            # BUG-MS-03 (Main Setup screenshot audit 2026-10-03): GuestProf
+            # me 'Phone' column hi nahi hai (asli: PhoneNo/MobileNo) -> query
+            # fail hoti thi aur exception chup-chaap dab jaata tha -> lookup
+            # screen hamesha khaali (VB6 GuestLookUp me list turant dikhti).
             self._all_rows = db.query(
-                "SELECT Code, Name, ISNULL(Phone,''), "
+                "SELECT Code, Name, ISNULL(PhoneNo,''), "
                 "ISNULL(Add1,''), ISNULL(City,'') FROM GuestProf ORDER BY Name")
             self._populate(self._all_rows)
-        except Exception:
+        except Exception as exc:
             self._all_rows = []
+            print(f"GuestLookup _load_data failed: {exc}")
 
     def _populate(self, rows):
         self.table.setRowCount(len(rows))

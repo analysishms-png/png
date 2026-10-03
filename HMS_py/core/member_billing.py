@@ -101,6 +101,12 @@ def list_memenviro(cn=None):
 
 def get_memenviro(site=SITE_CODE, cn=None):
     rows = db.query("SELECT * FROM MemEnviro WHERE Site_Code = ?", (site,), cn=cn)
+    if not rows:
+        # BUG-MS-04 (Main Setup screenshot audit 2026-10-03): legacy row ka
+        # Site_Code '' hai -> site-filter par rows=0 -> Environment Settings
+        # screen khaali. VB6 bina site filter ke `select * from MemEnviro`
+        # padhta tha (HMS.bas evidence) -> fallback to any row.
+        rows = db.query("SELECT TOP 1 * FROM MemEnviro", (), cn=cn)
     return _map_memenviro(rows[0]) if rows else None
 
 

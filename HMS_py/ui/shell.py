@@ -1509,8 +1509,14 @@ def _form_registry() -> dict[str, callable]:
                  "amount": g["bal"]} for g in rows]
 
     def _open_fv_list(parent, title, fn):
-        return fvu.ReportViewer(parent, title=title, fn=fn,
-                                needs_dates=False)
+        # BUG-MS-02 (Main Setup screenshot audit 2026-10-03): viewer ban kar
+        # return hota tha, lekin registry lambdas return value ignore karte
+        # hain -> window kabhi dikhti hi nahi (dead click, jaise
+        # 'Call Control Master'). VB6 forms modal the -> exec().
+        v = fvu.ReportViewer(parent, title=title, fn=fn,
+                             needs_dates=False)
+        v.exec()
+        return v
 
     def _coming_soon(leaf: str):
         def go(w=None):
@@ -1982,9 +1988,10 @@ def _form_registry() -> dict[str, callable]:
         # reports browser NAHI
         "Reverse Night Audit": (lambda w: npu_ui.open_reverse_night_audit(w, user=getattr(w, 'user', None))) if npu_ui else _coming_soon("Reverse Night Audit"),
         "Charges Posting": (lambda w: npu_ui.open_posting_utility(w, user=getattr(w, 'user', None))) if npu_ui else _coming_soon("Charges Posting"),
-        # VB6 fdNDAcPostChrg = Posting Utility (NightAuditoR index 3)
+# VB6 fdNDAcPostChrg = Posting Utility (NightAuditoR index 3)
         "Account Posting": (lambda w: npu_ui.open_posting_utility(w, user=getattr(w, 'user', None))) if npu_ui else _coming_soon("Account Posting"),
-        "Bill Reprint": (lambda w: psub_ui.open_bill_reprint(w)) if psub_ui else _coming_soon("Bill Reprint"),
+        # VB6 frmFomB — FOM Bill Reprint (Front Office)
+        "Bill Reprint": (lambda w: fosub_ui.open_fom_bill_reprint(w)) if fosub_ui else _coming_soon("Bill Reprint"),
         "Merge Room": (lambda w: fosub_ui.open_merge_charge(w)) if fosub_ui else _coming_soon("Merge Room"),
         "Reverse Room Merge": (lambda w: fosub_ui.open_reverse_room_merge(w)) if fosub_ui else _coming_soon("Reverse Room Merge"),
         "Bill Re-Settlement": (lambda w: fosub_ui.open_re_settlement(w)) if fosub_ui else _coming_soon("Bill Re-Settlement"),
@@ -2086,8 +2093,8 @@ def _form_registry() -> dict[str, callable]:
         "Guest Registration": (lambda w: reg_ui.open_registration_entry(w)) if reg_ui else _coming_soon("Guest Registration"),
         # M.R. Entry (VB6 pMREntry port — stock_create MRE via stock_receive_ui pattern)
         "M.R. Entry": (lambda w: strec_ui.open_stock_receive(w)) if strec_ui else _coming_soon("M.R. Entry"),
-        # Room Change (VB6 fdRoomChange port — v0.1.2)
-        "Room Change": lambda w: _open_room_change(w),
+# Room Change (VB6 fdRoomChange port — v0.1.2)
+        "Room Change": (lambda w: fosub_ui.open_room_change(w)) if fosub_ui else _coming_soon("Room Change"),
         # KOT Transfer / Table Change (VB6 RsKOTTransfer/RsTbChange port)
         "KOT Transfer": (lambda w: kotui.open_kot_transfer(w)) if kotui else None,
         "Table Change Entry": (lambda w: kotui.open_table_change(w)) if kotui else None,
