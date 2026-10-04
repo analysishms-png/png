@@ -8,8 +8,10 @@
 `tests/database/test_room_change_parity.py` green (2026-10-04); P2 gaps
 tracked in §6 / research.md OG-1..OG-10
 (verification status: `verified` for the §5 P1 gate — unit + live-DB
-evidence both green; parity-ledger verdict remains **PARTIAL**, see
-PARITY_RECONCILIATION.md Iteration 5 for OG-6/OG-7 blockers)
+evidence both green; ledger verdict **VERIFIED** per
+FORM_MIGRATION_LEDGER.md row + PARITY_RECONCILIATION.md final
+Iteration 5 (DB-001, 1123-green suite) — superseding the earlier
+PARTIAL draft; G8 permission gate + live GUI walkthrough remain OPEN)
 
 **Input**: Delegation RS-001 (@explore): "Implementation-ready spec for the
 Python UI of VB6 form `fdRoomChange` (Room Change): VB6 behaviour, the
