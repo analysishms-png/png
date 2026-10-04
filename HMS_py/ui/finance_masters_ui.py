@@ -34,32 +34,51 @@ def taxmaster_config() -> MasterConfig:
     #    (FrmTaxMast loc_136F270: site-prefix + max+1) -> generated_pk=True.
     #  - TopCtrl1 ka Print button (loc_1085B60, TaxMast.RPT + Title param)
     #    -> print_fn se Print Preview button.
+    # VB6 field/TAB order (FrmTaxMast Txt array, Index -> layout Top):
+    #   0 Tax Name (MaxLength=25), 2 Short Name, 3 Round Off (Visible=0),
+    #   4 Sundry Name, 1 Ledger A/C, 5 Payable A/C, 6 Unregistered A/C.
+    #   Payable/Unregistered ke bagal laal '(Purchase)' (LblLedgerAc 7/8).
+    #   Ledger/Payable/Unregistered/Sundry textbox par NAAM, .Tag me CODE.
     return MasterConfig(
         title="Tax Master - HMS_py",
         columns=[("TaxCode", "code"), ("TaxName", "name"),
-                 ("Short", "short"), ("Ledger", "accode"),
-                 ("Nature", "nature"), ("Active", "active")],
+                 ("Short", "short"), ("Ledger", "ledgername"),
+                 ("Nature", "nature"), ("Active", "active"),
+                 ("System", "sysyn")],
         fields=[
             Field("code", "Tax Code",
                   max_len=taxmaster.LIMITS["code"],
                   placeholder="(auto: next site code)"),
-            Field("name", "Tax Name", max_len=taxmaster.LIMITS["name"],
+            # VB6 Txt(0).MaxLength = 25
+            Field("name", "Tax Name", max_len=25,
                   required=True),
             Field("short", "Short Name",
-                  max_len=taxmaster.LIMITS["short"]),
-            Field("accode", "Ledger A/C (FK->SubGroup)",
-                  max_len=taxmaster.LIMITS["accode"]),
+                  max_len=taxmaster.LIMITS["short"], required=True),
+            Field("sundry", "Sundry Name",
+                  max_len=taxmaster.LIMITS["sundry"],
+                  lookup=taxmaster.sundry_list,
+                  display_key="sundryname"),
+            Field("accode", "Ledger A/C",
+                  max_len=taxmaster.LIMITS["accode"], required=True,
+                  lookup=taxmaster.ledger_list,
+                  display_key="ledgername"),
             Field("payableac", "Payable A/C",
-                  max_len=taxmaster.LIMITS["payableac"]),
+                  max_len=taxmaster.LIMITS["payableac"],
+                  note="(Purchase)",
+                  lookup=taxmaster.ledger_list,
+                  display_key="payableacname"),
             Field("unregisteredac", "Unregistered A/C",
-                  max_len=taxmaster.LIMITS["unregisteredac"]),
-            Field("sundry", "Sundry Code",
-                  max_len=taxmaster.LIMITS["sundry"]),
+                  max_len=taxmaster.LIMITS["unregisteredac"],
+                  note="(Purchase)",
+                  lookup=taxmaster.ledger_list,
+                  display_key="unregisteredacname"),
             Field("nature", "Nature",
                   max_len=taxmaster.LIMITS["nature"]),
-            Field("roundoff", "Round Off (Yes/No)",
-                  max_len=taxmaster.LIMITS["roundoff"], default="No"),
             Field("active", "Active Y/N", max_len=1, default="Y"),
+            # VB6 Txt(3) Round Off: Visible=0 - layout me nahi, value save
+            Field("roundoff", "Round Off (Yes/No)",
+                  max_len=taxmaster.LIMITS["roundoff"], default="No",
+                  hidden=True),
         ],
         api=taxmaster,
         # VB6 parity: PYT-guard hata diya. Delete chain core/taxmaster.py
@@ -68,7 +87,24 @@ def taxmaster_config() -> MasterConfig:
         delete_guard=None,
         generated_pk=True,
         print_fn=_print_tax_master,
+        # --- VB6 FrmTaxMast behaviour (TopCtrl + Txt_Validate + audit) ---
+        confirm_save=True,        # MsgBox "Save Record ?" / "Save Data"
+        confirm_cancel=True,      # MsgBox "Cancel ?" / "Terminate Process"
+        confirm_delete=True,      # MsgBox "Delete Record ?" / "Confirmation"
+        loop_add=True,            # Add-save ke baad wapas Add mode
+        vb6_status=True,          # LblSysYN + LblUser + LblLDt
+        field_validator=_taxmaster_field_validator,
     )
+
+
+def _taxmaster_field_validator(name: str, value: str, edit_pk=None):
+    """VB6 Txt_Validate -> Proc_15_34 (Name) / Proc_15_35 (Short Name):
+    field blur hote hi duplicate check, MsgBox 'Duplicate Name' ya
+    'Duplicate Short Name'. Save-time check se pehla line of defence."""
+    column = {"name": "Name", "short": "ShortName"}.get(name)
+    if column is None:
+        return None
+    return taxmaster.dup_field_error(column, value, exclude_code=edit_pk)
 
 
 def _print_tax_master(form=None):

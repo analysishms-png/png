@@ -1,4 +1,4 @@
-"""HMS_py shell: Login -> Company select -> Main window (VB6 flow, P0).
+444"""HMS_py shell: Login -> Company select -> Main window (VB6 flow, P0).
 
 Screens (VB6 originals jaisi - production screenshots se):
   1. "User Information"  - frmPassword: User Name/Password + Login/Un Load

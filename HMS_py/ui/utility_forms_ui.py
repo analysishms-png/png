@@ -355,6 +355,132 @@ def show_nightaudit_lock(parent=None) -> NightAuditLockOverlay:
     return ov
 
 
+# ── VB6 frmWelcome 'Special Occasions' (Guest BirthDates/Anniversary) ──
+class SpecialOccasionsDialog(QDialog):
+    """VB6 frmWelcome — 'Guest BirthDates/Anniversary' leaf ka dispatch target
+    (ModuleAdd.bas loc_1E44517 -> New frmWelcome).
+
+    VB6 Form_Load (loc_FA34F4-FA35A9): GuestCode prop set ho to usi guest
+    ka record (BirthDate IS NOT NULL AND Code=...), warna poora GuestProf
+    (LOGSITE_CODE=<site> OR 'HO'). Proc_84_9_115FD08 Txt(0..7) me bharta
+    hai: Name, Add1, Add2, CityName, CountryName, EmailId, Anniversary,
+    BirthDate. CmdPev/CmdNext = recordset MovePrevious/MoveNext; BOF/EOF
+    par button disable (loc_EC209A / loc_EC217A). 'Special Occasions'
+    header + X close button (Command1, loc_E15201).
+    """
+
+    _COLUMNS = (
+        "Name", "Add1", "Add2", "CityName",
+        "CountryName", "EmailId", "BirthDate", "Anniversary",
+    )
+    _LABELS = (
+        "Guest Name", "Address 1", "Address 2", "City",
+        "Country", "E-mail Id", "Birth Date", "Anniversary",
+    )
+
+    def __init__(self, parent=None, guest_code: str = ""):
+        super().__init__(parent)
+        apply_desktop_surface(self, "desktopMasterForm")
+        self.setWindowTitle("Special Occasions - HMS_py")
+        self.setFixedSize(470, 410)
+        self._rows: list = []
+        self._idx = -1
+
+        root = QVBoxLayout(self)
+        head = QLabel("Special Occasions")
+        head.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        head.setStyleSheet("font-size: 12pt; font-weight: bold;")
+        root.addWidget(head)
+
+        from PyQt6.QtWidgets import QFormLayout
+        form = QFormLayout()
+        form.setSpacing(6)
+        self._edits: list[QLineEdit] = []
+        for label in self._LABELS:
+            ed = QLineEdit()
+            ed.setReadOnly(True)
+            ed.setPlaceholderText("-")
+            form.addRow(label + ":", ed)
+            self._edits.append(ed)
+        root.addLayout(form)
+
+        nav = QHBoxLayout()
+        self.btn_prev = QPushButton("  <  ")
+        self.btn_next = QPushButton("  >  ")
+        btn_close = QPushButton("X")
+        btn_close.setFixedWidth(34)
+        self.btn_prev.clicked.connect(lambda: self._move(-1))
+        self.btn_next.clicked.connect(lambda: self._move(1))
+        btn_close.clicked.connect(self.close)
+        nav.addWidget(self.btn_prev)
+        nav.addStretch()
+        nav.addWidget(btn_close)
+        nav.addStretch()
+        nav.addWidget(self.btn_next)
+        root.addLayout(nav)
+
+        self._load(guest_code)
+
+    def _load(self, guest_code: str):
+        from HMS_py.core import db
+        try:
+            site = db.get_site_code()
+        except Exception:
+            site = ""
+        sql = ("SELECT Name, Add1, Add2, CityName, CountryName, EmailId, "
+               "BirthDate, Anniversary FROM GuestProf "
+               "WHERE (LOGSITE_CODE=? OR LOGSITE_CODE='HO')")
+        params: list = [site]
+        if guest_code:
+            # VB6 Form_Load branch-2 (loc_FA3565): specific guest
+            sql += " AND BirthDate IS NOT NULL AND Code=?"
+            params.append(guest_code)
+        # VB6 me ORDER BY nahi tha; stable navigation ke liye Code
+        sql += " ORDER BY Code"
+        try:
+            self._rows = db.query(sql, tuple(params))
+        except Exception:
+            self._rows = []
+        if self._rows:
+            self._idx = 0
+            self._show_row()
+        else:
+            self._idx = -1
+            for ed in self._edits:
+                ed.setText("")
+            self.btn_prev.setEnabled(False)
+            self.btn_next.setEnabled(False)
+
+    def _show_row(self):
+        row = self._rows[self._idx]
+        for i, ed in enumerate(self._edits):
+            val = row[i]
+            if val is None:
+                text = ""
+            elif i in (6, 7):  # BirthDate / Anniversary
+                text = str(val)[:10]
+            else:
+                text = str(val).strip()
+            ed.setText(text or "-")
+        # VB6: CmdPev disable at BOF, CmdNext disable at EOF
+        self.btn_prev.setEnabled(self._idx > 0)
+        self.btn_next.setEnabled(self._idx < len(self._rows) - 1)
+
+    def _move(self, delta: int):
+        if not self._rows:
+            return
+        nxt = self._idx + delta
+        if 0 <= nxt < len(self._rows):
+            self._idx = nxt
+            self._show_row()
+
+
+def open_special_occasions(parent=None, guest_code: str = ""):
+    dlg = SpecialOccasionsDialog(parent, guest_code=guest_code)
+    dlg.exec()
+    return dlg
+
+
 # ── Standalone launcher ─────────────────────────────────────────
 def main() -> int:
     from PyQt6.QtWidgets import QApplication, QMainWindow

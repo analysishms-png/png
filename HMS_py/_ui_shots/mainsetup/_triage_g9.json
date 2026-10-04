@@ -1,0 +1,37 @@
+{
+ "g09_00_Com_Port_Properties": {
+  "group": "EPABX",
+  "leaf": "Com Port Properties",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g09_01_Call_Type_Master": {
+  "group": "EPABX",
+  "leaf": "Call Type Master",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g09_02_Extension_Master": {
+  "group": "EPABX",
+  "leaf": "Extension Master",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g09_03_Call_Codes_Master": {
+  "group": "EPABX",
+  "leaf": "Call Codes Master",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g09_04_Call_Control_Master": {
+  "group": "EPABX",
+  "leaf": "Call Control Master",
+  "captured": false,
+  "err": "no-visible-window",
+  "info": {}
+ }
+}

@@ -54,6 +54,12 @@ def folio_balance(folio: int, cn=None,
                   vprefix: str = "2026") -> dict:
     """Outstanding balance for a folio (Dr - Cr from PayCharge).
 
+    FO-BUG-006 FIX: VB6 FdCheckOut.frm (loc_18DF29F):
+      Select Sum(AmtDr)-Sum(AmtCr) as Bal from PayCharge
+      where LogSite_Code='<site>' AND ... and Foliono=<n>
+    Python was missing the LogSite_Code scope — cross-site charges
+    could bleed into balance calculations.
+
     Returns: {folio, docid, charges_dr, payments_cr, balance, currency}
     Positive balance = guest owes money.
     """
@@ -61,8 +67,10 @@ def folio_balance(folio: int, cn=None,
     if not rec:
         raise ValueError(f"Folio #{folio} nahi mila")
     rows = db.query(
-        "SELECT ISNULL(SUM(AmtDr),0), ISNULL(SUM(AmtCr),0) "
-        "FROM PayCharge WHERE FolioNoDocid = ? AND Site_Code = ?",
+        "SELECT ISNULL(SUM(AmtDr), 0), ISNULL(SUM(AmtCr), 0) "
+        "FROM PayCharge "
+        "WHERE FolioNoDocid = ? "
+        "AND (LogSite_Code = ? OR LogSite_Code = 'HO')",
         (rec["docid"], SITE_CODE), cn=cn)
     dr = float(rows[0][0]) if rows else 0.0
     cr = float(rows[0][1]) if rows else 0.0
@@ -76,26 +84,38 @@ def folio_balance(folio: int, cn=None,
 
 def list_active_folios(cn=None, vprefix: str = "2026",
                        top: int = 200) -> list[dict]:
-    """Checked-in folios still open in RoomOcc (ChkOutDate IS NULL)."""
+    """Checked-in folios still open in RoomOcc (ChkOutDate IS NULL).
+
+    FO-BUG-006 FIX: added (LogSite_Code = ? OR LogSite_Code = 'HO') filter,
+    plus RoomNo from RoomOcc, plus GuestStatus from GuestProf.
+    VB6 FdCheckOut Form_Load (loc_18DE61B): complex join with site filter.
+    """
     rows = db.query(
-        f"SELECT TOP {int(top)} ro.DocId, gf.FolioNo, gf.Name, gf.GuestProf, gf.City, "
-        "gf.NoDays, gf.DepDate, ro.ChkOutDate, ro.ChkoutUser, gf.U_Name, gf.U_AE, ro.RoomNo "
-        "FROM RoomOcc ro INNER JOIN GuestFolio gf ON gf.DocId = ro.DocId "
-        "WHERE ro.Site_Code = ? AND ro.Vprefix = ? AND ro.ChkOutDate IS NULL "
+        f"SELECT TOP {int(top)} "
+        "ro.DocId, gf.FolioNo, gf.Name, gf.GuestProf, gf.City, "
+        "gf.NoDays, gf.DepDate, ro.ChkOutDate, ro.ChkoutUser, "
+        "gf.U_Name, gf.U_AE, ro.RoomNo, ro.ChkInDate, ro.RateCode "
+        "FROM RoomOcc ro "
+        "INNER JOIN GuestFolio gf ON gf.DocId = ro.DocId "
+        "WHERE ro.Site_Code = ? AND ro.Vprefix = ? "
+        "AND ro.ChkOutDate IS NULL "
+        "AND (gf.LogSite_Code = ? OR gf.LogSite_Code = 'HO') "
         "ORDER BY gf.FolioNo DESC",
-        (SITE_CODE, vprefix), cn=cn)
+        (SITE_CODE, vprefix, SITE_CODE), cn=cn)
     out = []
     for r in rows:
-        doc, fno, name, gp, city, nod, dep, cod, cou, un, uae, room = r
+        doc, fno, name, gp, city, nod, dep, cod, cou, un, uae, room, arr, rate = r
         out.append({
             "docid": doc, "folio": fno,
             "name": (name or "").strip(),
             "guestprof": gp or "", "city": city or "",
             "roomno": (room or "").strip(),
             "nodays": nod or 0,
+            "arrdate": arr.date() if isinstance(arr, datetime.datetime) else arr,
             "depdate": dep.date() if isinstance(dep, datetime.datetime) else dep,
             "checkout_date": cod,
             "checkout_user": cou or "",
+            "ratecode": (rate or "").strip(),
             "u_name": un or "", "u_ae": uae or "",
         })
     return out
@@ -103,19 +123,26 @@ def list_active_folios(cn=None, vprefix: str = "2026",
 
 def list_checked_out(cn=None, vprefix: str = "2026",
                      top: int = 200) -> list[dict]:
-    """Already checked-out folios via RoomOcc.ChkOutDate IS NOT NULL."""
+    """Already checked-out folios via RoomOcc.ChkOutDate IS NOT NULL.
+    FO-BUG-006 FIX: added LogSite_Code filter + RoomNo."""
     rows = db.query(
-        "SELECT TOP (?) ro.DocId, gf.FolioNo, gf.Name, gf.DepDate, ro.ChkOutDate, ro.ChkoutUser "
-        "FROM RoomOcc ro INNER JOIN GuestFolio gf ON gf.DocId = ro.DocId "
-        "WHERE ro.Site_Code = ? AND ro.Vprefix = ? AND ro.ChkOutDate IS NOT NULL "
+        f"SELECT TOP {int(top)} "
+        "ro.DocId, gf.FolioNo, gf.Name, gf.DepDate, "
+        "ro.ChkOutDate, ro.ChkoutUser, ro.RoomNo "
+        "FROM RoomOcc ro "
+        "INNER JOIN GuestFolio gf ON gf.DocId = ro.DocId "
+        "WHERE ro.Site_Code = ? AND ro.Vprefix = ? "
+        "AND ro.ChkOutDate IS NOT NULL "
+        "AND (gf.LogSite_Code = ? OR gf.LogSite_Code = 'HO') "
         "ORDER BY gf.FolioNo DESC",
-        (int(top), SITE_CODE, vprefix), cn=cn)
+        (SITE_CODE, vprefix, SITE_CODE), cn=cn)
     out = []
     for r in rows:
-        doc, fno, name, dep, cod, cou = r
+        doc, fno, name, dep, cod, cou, room = r
         out.append({
             "docid": doc, "folio": fno,
             "name": (name or "").strip(),
+            "roomno": (room or "").strip(),
             "depdate": dep.date() if isinstance(dep, datetime.datetime) else dep,
             "checkout_date": cod.date() if isinstance(cod, datetime.datetime) else cod,
             "checkout_user": cou or "",
@@ -165,18 +192,58 @@ def do_checkout(folio: int, user: str = USER, cn=None,
     own = cn is None
     cn_use = cn or db.connect()
     try:
-        # VB6 FRONT_OFFICE_LIFECYCLE.md §6: Update RoomOcc set
-        # CHKOUTDATE, CHKOUTTIME, IncInRate, PlanDisc, PlanDiscAmt
+        # ── Step 1: RoomOcc checkout mark ─────────────────────────────
+        # VB6 FdCheckOut.frm (loc_18DF5F8..18DF67B):
+        #   Update RoomOcc set chkouttime='HH:MM', ChkOutDate=<date>,
+        #   UserchkoutDate=<date>, ChkOutUser='<user>', Type='O',
+        #   U_EntDt=<now>, U_AE='E' where Docid='...' and RoomNO='...'
         db.execute(
-            "UPDATE RoomOcc SET ChkOutDate = getdate(), ChkOutTime = CONVERT(varchar(5), getdate(), 108), "
-            "ChkoutUser = ?, Type = 'O', U_Name = ?, U_EntDt = getdate(), U_AE = 'E', "
-            "IncInRate = ISNULL(IncInRate, ''), PlanDisc = ISNULL(PlanDisc, 0), "
-            "PlanDiscAmt = ISNULL(PlanDiscAmt, 0) "
-            "WHERE Site_Code = ? AND Vprefix = ? AND FolioNo = ? AND ChkOutDate IS NULL",
+            "UPDATE RoomOcc "
+            "SET ChkOutDate = getdate(), "
+            "    ChkOutTime = CONVERT(varchar(5), getdate(), 108), "
+            "    UserchkoutDate = getdate(), "
+            "    ChkoutUser = ?, "
+            "    Type = 'O', "
+            "    U_Name = ?, U_EntDt = getdate(), U_AE = 'E', "
+            "    IncInRate  = ISNULL(IncInRate, ''), "
+            "    PlanDisc   = ISNULL(PlanDisc, 0), "
+            "    PlanDiscAmt = ISNULL(PlanDiscAmt, 0) "
+            "WHERE Site_Code = ? AND Vprefix = ? AND FolioNo = ? "
+            "  AND ChkOutDate IS NULL",
             (user, user, site, vprefix, folio),
             cn=cn_use, commit=False)
 
-        # BUG-003/004: race-safe Id (UPDLOCK/HOLDLOCK) - db.py central helper.
+        # ── FO-BUG-001 FIX: RoomMast ROOMSTAT='D' (Dirty) ─────────────
+        # VB6 FdCheckOut.frm (loc_18DF6EB):
+        #   Update RoomMast set ROOMSTAT='D'
+        #   WHERE logsite_code='<site>' and CODE='<roomno>' AND TYPE='RO'
+        # Python me ye step pehle MISSING tha — room rack me "Dirty" nahi
+        # dikhta tha aur housekeeping assignment nahi ho sakti thi.
+        roomno_rows = db.query(
+            "SELECT RTRIM(RoomNo) FROM RoomOcc WHERE DocId = ? "
+            "AND Site_Code = ? AND ChkOutDate IS NOT NULL ORDER BY SNo DESC",
+            (rec["docid"], site), cn=cn_use)
+        if roomno_rows and roomno_rows[0][0]:
+            dirty_room = str(roomno_rows[0][0]).strip()
+            db.execute(
+                "UPDATE RoomMast SET RoomStat = 'D', "
+                "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' "
+                "WHERE RTRIM(Type) = 'RO' AND RTRIM(Code) = ? "
+                "AND (LogSite_Code = ? OR LogSite_Code = 'HO')",
+                (user, dirty_room, site), cn=cn_use, commit=False)
+
+        # ── FO-BUG-002 FIX: PayCharge.SettleDate ──────────────────────
+        # VB6 FdCheckOut.frm (loc_18DF765):
+        #   Update PayCharge set SettleDate=<date>
+        #   where FolioNoDocid='<docid>' and LogSite_Code='<site>'
+        # Python me ye step pehle MISSING tha — settled bills pe
+        # SettleDate NULL rehta tha, reports me wrong data aata tha.
+        db.execute(
+            "UPDATE PayCharge SET SettleDate = getdate() "
+            "WHERE FolioNoDocid = ? AND LogSite_Code = ?",
+            (rec["docid"], site), cn=cn_use, commit=False)
+
+        # ── FolioLog 'C' (Checkout audit) ─────────────────────────────
         logid = db.next_serial("FolioLog", "Id", "LogSite_Code = ?", (site,),
                                cn=cn_use)
         db.execute(
@@ -272,7 +339,8 @@ def reverse_checkout(folio: int, user: str = USER, cn=None,
 def get_clearance_flag(cn=None) -> str:
     """Read RoomCheckOutClearanceYN from Enviro. Returns 'Yes'/'No'."""
     rows = db.query(
-        "SELECT RoomCheckOutClearanceYN FROM Enviro WHERE LogSite_Code = ?",
+        "SELECT RoomCheckOutClearanceYN FROM Enviro WHERE LogSite_Code = ? "
+        "OR LogSite_Code = 'HO'",
         (SITE_CODE,), cn=cn)
     if rows and rows[0][0]:
         return str(rows[0][0]).strip()

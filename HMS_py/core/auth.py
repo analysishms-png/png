@@ -148,13 +148,67 @@ def _stored_passwd(username: str, cn=None) -> str | None:
     return b.decode("latin-1") if isinstance(b, (bytes, bytearray)) else str(b)
 
 
+# ============================================================
+# MS-010 fix: SA user bootstrap (VB6 frmCompany.frm Form_Load)
+# ============================================================
+# VB6 evidence (HMS_REVERSE_ENGINEERING\HMS\frmCompany.frm):
+#   loc_14868AC (line 1817): Execute "select * from usermast order by user_name"
+#   loc_14868D8 (line 1819): If RecordCount <= 0 Then
+#   loc_14868F1 (line 1820): Execute
+#     "insert into usermast(USER_NAME,PASSWD,LABEL,ShortName)
+#      values('SA','\','1','SA')"
+#   (HMS.bas:9885-9889 same seed; HMS.bas:10517-10522 COUNT(*)=0 ->
+#    "insert into userMAST (USER_NAME,PASSWD,LABEL) values('SA','\','1')")
+# Field semantics (UserMast.frm):
+#   PASSWD '\' = encrypt("", seed=65) byte-exact -> default SA password khali
+#   LABEL '1'  = Supervisor "Yes" (TXT(1) -> IIf(Text="Yes","1","0"),
+#                loc_1438944/1438964) -> live DB LABEL smallint 1
+#   ShortName 'SA', ActiveYN 'Y' (live SA row: LABEL=1, ShortName='SA',
+#                ActiveYN='Y'; VB6 insert ActiveYN chhodta tha - column
+#                default/NULL, check_login NULL -> 'Y' maanta hai).
+# Python: idempotent ensure_sa_user() - SA maujood hai to no-op.
+_SA_BOOTSTRAPPED = False
+
+
+def ensure_sa_user(cn=None) -> bool:
+    """Fresh DB par default SA user seed karo (VB6 Form_Load ka exact row).
+
+    Idempotent: SA already exists -> no-op, return False. Naya row bana
+    -> True. DB error par kabhi raise nahi karta (startup/login fail
+    nahi hona chahiye - best-effort, db.ensure_paths jaisa).
+    Process me sirf ek baar try hota hai (_SA_BOOTSTRAPPED flag).
+    """
+    global _SA_BOOTSTRAPPED
+    if _SA_BOOTSTRAPPED:
+        return False
+    from HMS_py.core import db
+    try:
+        if db.query("SELECT 1 FROM UserMast WHERE USER_NAME = 'SA'", cn=cn):
+            _SA_BOOTSTRAPPED = True
+            return False
+        # PASSWD: VB6 literal '\' = encrypt('', seed=65) -> byte-exact
+        enc = enc_bytes("", seed=ord("\\") - SHIFT)
+        n = db.execute(
+            "INSERT INTO UserMast (USER_NAME, PASSWD, LABEL, ShortName, "
+            "ActiveYN) VALUES (?, CAST(? AS varchar(50)), ?, ?, ?)",
+            ("SA", enc, "1", "SA", "Y"), cn=cn, commit=True)
+        if n:
+            _SA_BOOTSTRAPPED = True
+        return bool(n)
+    except Exception:
+        return False
+
+
 def check_login(username: str, password: str, cn=None) -> tuple[bool, str]:
     """frmPassword/frmCompany ka login pattern:
     UCase(Trim(typed)) vs decrypted stored (bhi UCase/Trim).
     Returns (ok, message).
-    SECURITY: brute-force protection (5 attempts / 15 min)."""
+    SECURITY: brute-force protection (5 attempts / 15 min).
+    MS-010: login app ka startup entry hai (login_ui -> yahin) - yahan
+    ek baar ensure_sa_user() chalta hai (idempotent, process me 1 SELECT)."""
     from HMS_py.core import db
     username = (username or "").strip()
+    ensure_sa_user()
     if _is_locked_out(username):
         remaining = int(_LOCKOUT_SECONDS - (time.time() - _login_attempts[username][0][0]))
         return False, f"Account locked. Try again in {max(60, remaining)}s"
@@ -189,6 +243,9 @@ if __name__ == "__main__":
         d = decrypt(e)
         assert d == pwd, f"roundtrip fail {pwd!r} -> {d!r}"
     print("roundtrip OK: encrypt/decrypt VB6-compatible")
+    print(f"VB6 default SA PASSWD '\\': enc_bytes = {enc_bytes('', seed=65)!r}")
+    print(f"ensure_sa_user (idempotent): {ensure_sa_user()}")
+    print(f"ensure_sa_user (2nd call, no-op): {ensure_sa_user()}")
     ok, msg = check_login("SA", "")
     print(f"SA login (empty pass - DB me stored '.' = ''): {ok} - {msg}")
     ok2, msg2 = check_login("SA", "wrongpass")

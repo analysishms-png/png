@@ -1,0 +1,1049 @@
+============================================================
+HMS VB6 → PYTHON COMPLETE MIGRATION
+MASTER MULTI-AGENT CONTINUOUS LOOP PROMPT
+============================================================
+
+MISSION
+-------
+
+Repair, complete and fully migrate the existing Python HMS project by using
+the existing VB6 HMS source and all related legacy files as the functional
+source of truth.
+
+THIS IS NOT A NEW-PROJECT TASK.
+
+The existing Python HMS project must be repaired and completed.
+
+PYTHON PROJECT:
+C:\Users\LENOVO\Desktop\serialkey\PROJECT_REPAIR - Copy\HMS_py\HMS_py
+
+VB6 SOURCE + RELATED LEGACY FILES:
+C:\Users\LENOVO\Desktop\serialkey\PROJECT_REPAIR - Copy\HMS_py\HMS_py\implemented
+
+IMPORTANT:
+The "implemented" directory contains the VB6 source code and related files.
+Treat it as the primary migration evidence repository.
+
+Do not assume filenames. Discover the actual structure first.
+
+
+============================================================
+MASTER OBJECTIVE
+============================================================
+
+Convert the existing Python HMS into a functionally complete migration of
+the VB6 HMS.
+
+The target must preserve the actual legacy behavior while using a clean,
+maintainable Python architecture.
+
+VB6
+ ↓
+VB6 FORM / MODULE / CLASS / REPORT / SQL
+ ↓
+UNDERSTAND ACTUAL BEHAVIOR
+ ↓
+PYTHON FRONTEND
+ ↓
+API
+ ↓
+SERVICE / BUSINESS LOGIC
+ ↓
+REPOSITORY / DATA ACCESS
+ ↓
+SQL SERVER
+ ↓
+REPORT / PREVIEW / PRINT / REPRINT
+ ↓
+TEST
+ ↓
+COMPARE AGAINST VB6
+ ↓
+FIX
+ ↓
+TEST AGAIN
+ ↓
+COMPARE AGAIN
+ ↓
+CONTINUE
+
+
+============================================================
+NON-STOP LOOP
+============================================================
+
+The migration MUST operate as a continuous engineering loop.
+
+Never consider the project complete after one pass.
+
+For every module:
+
+DISCOVER
+→ READ VB6
+→ MAP
+→ COMPARE PYTHON
+→ FIND GAPS
+→ IMPLEMENT
+→ DEBUG
+→ TEST
+→ VERIFY DATABASE
+→ VERIFY UI
+→ VERIFY API
+→ VERIFY REPORTS
+→ VERIFY PRINTING
+→ RE-COMPARE VB6
+→ FIND REMAINING GAPS
+→ FIX AGAIN
+→ TEST AGAIN
+→ RE-COMPARE AGAIN
+
+Repeat until the module passes all available functional checks.
+
+Then continue to the next module.
+
+After all modules appear complete:
+
+RUN A FULL PROJECT RE-SCAN
+→ COMPARE AGAIN
+→ FIND CROSS-MODULE GAPS
+→ FIX
+→ TEST
+→ REPEAT
+
+The project is complete only when the final full-project comparison finds no
+known relevant migration gap or unresolved defect.
+
+
+============================================================
+MASTER AGENT ARCHITECTURE
+============================================================
+
+Create a multi-agent workflow.
+
+Use separate specialized agents/skills for:
+
+1. MASTER ORCHESTRATOR
+2. VB6 REVERSE ENGINEERING AGENT
+3. UI/FRONTEND MIGRATION AGENT
+4. BACKEND/API AGENT
+5. BUSINESS LOGIC/SERVICE AGENT
+6. DATABASE/SQL SERVER AGENT
+7. REPORT AGENT
+8. PRINTING/REPRINT AGENT
+9. AUTHENTICATION/PERMISSION AGENT
+10. DEBUGGING AGENT
+11. TESTING/QA AGENT
+12. WEB RESEARCH AGENT
+13. CODE QUALITY/ARCHITECTURE AGENT
+14. INTEGRATION/REGRESSION AGENT
+
+
+============================================================
+AGENT 1 – MASTER ORCHESTRATOR
+============================================================
+
+Responsibilities:
+
+- discover modules
+- create migration roadmap
+- assign work
+- maintain module status
+- maintain dependency graph
+- prevent duplicate work
+- merge compatible fixes
+- run regression checks
+- trigger re-comparison
+- never declare completion prematurely
+
+Maintain:
+
+MIGRATION_STATUS.md
+MIGRATION_MASTER_BUG_REGISTER.md
+MIGRATION_DEPENDENCY_GRAPH.md
+MIGRATION_COMPLETION_MATRIX.md
+
+
+============================================================
+AGENT 2 – VB6 REVERSE ENGINEERING
+============================================================
+
+Primary source:
+
+C:\Users\LENOVO\Desktop\serialkey\PROJECT_REPAIR - Copy\HMS_py\HMS_py\implemented
+
+Analyze actual:
+
+.frm
+.frx
+.bas
+.cls
+.vbp
+.vbg
+.rpt
+.res
+SQL
+configuration
+resource
+report
+database-related files
+
+For .frm + .frx:
+
+- form structure
+- controls
+- events
+- properties
+- UI behavior
+- validation
+- navigation
+- calls to other procedures
+
+For .bas/.cls:
+
+- business logic
+- functions
+- subroutines
+- globals
+- database operations
+- calculations
+- validation
+- transactions
+- reports
+- dependencies
+
+Do not invent behavior.
+
+VB6 source evidence has priority over assumptions.
+
+
+============================================================
+AGENT 3 – FRONTEND/UI
+============================================================
+
+Compare VB6 UI with the existing Python frontend.
+
+Check:
+
+- forms
+- screens
+- menus
+- controls
+- labels
+- buttons
+- grids
+- search
+- lookup
+- tabs
+- dialogs
+- default values
+- enabled/disabled state
+- validation
+- keyboard behavior
+- navigation
+- messages
+- loading
+- error display
+
+When a live application is available:
+
+LOGIN
+→ OPEN MODULE
+→ OPEN SCREEN
+→ COLLECT SCREEN EVIDENCE
+→ COMPARE WITH VB6
+→ IDENTIFY BUGS
+→ FIX
+→ TEST
+→ RE-COMPARE
+
+Do not replace real data with mock data.
+
+
+============================================================
+AGENT 4 – BACKEND/API
+============================================================
+
+Trace:
+
+Frontend
+→ API
+→ Service
+→ Repository
+→ SQL
+
+Implement missing APIs.
+
+Fix:
+
+- routing
+- request validation
+- response models
+- error handling
+- permissions
+- transactions
+- data mapping
+- session context
+
+Business rules belong in appropriate backend/service layers, not duplicated
+only in the UI.
+
+
+============================================================
+AGENT 5 – BUSINES LOGIC/SERVICE
+============================================================
+
+Translate VB6 business behavior into Python services.
+
+Preserve:
+
+- calculations
+- validation
+- status transitions
+- document numbering
+- dates
+- business date
+- company/site/property
+- user context
+- permissions
+- transaction boundaries
+- audit behavior
+- dependencies
+
+Do not change business behavior merely to make Python code simpler.
+
+
+============================================================
+AGENT 6 – DATABASE / SQL SERVER
+============================================================
+
+SQL Server compatibility is mandatory.
+
+Support the existing SQL Server environment, including SQL Server 2008 R2
+compatibility where required.
+
+Compare VB6 SQL with Python SQL.
+
+Check:
+
+SELECT
+INSERT
+UPDATE
+DELETE
+JOIN
+WHERE
+GROUP BY
+ORDER BY
+stored procedures
+parameters
+NULL behavior
+date behavior
+numeric behavior
+transactions
+locks/concurrency
+audit fields
+
+Use parameterized SQL.
+
+Never hard-code credentials.
+
+Never invent tables or columns.
+
+
+============================================================
+AGENT 7 – REPORT AGENT
+============================================================
+
+For every report determine from actual source:
+
+- report name
+- report file
+- query
+- stored procedure
+- parameters
+- parameter names
+- parameter types
+- default values
+- date range
+- site/property
+- company
+- document number
+- user
+- preview behavior
+- print behavior
+- reprint behavior
+
+Fix the entire chain:
+
+UI
+→ API
+→ Service
+→ Report
+→ Parameters
+→ SQL
+→ Preview
+→ Print
+
+
+============================================================
+AGENT 8 – PRINTING / REPRINT
+============================================================
+
+Compare VB6 and Python printing.
+
+Check:
+
+- printer
+- paper
+- orientation
+- margins
+- copies
+- preview
+- direct print
+- reprint
+- original document identity
+
+Reprint must not accidentally create a new business transaction.
+
+
+============================================================
+AGENT 9 – AUTHENTICATION / PERMISSIONS
+============================================================
+
+Understand the actual VB6 login/session/permission behavior.
+
+Verify:
+
+- user
+- user ID
+- company
+- company code
+- site
+- site code
+- property
+- business date
+- session
+- department
+- outlet
+- permissions
+
+Use the existing configured/local test environment for login.
+
+Do not put passwords into source code, prompts, logs or documentation.
+
+
+============================================================
+AGENT 10 – DEBUGGING
+============================================================
+
+Every bug must follow:
+
+OBSERVE
+→ REPRODUCE
+→ TRACE
+→ FIND ROOT CAUSE
+→ FIX
+→ TEST
+→ VERIFY
+→ REGRESSION TEST
+→ COMPARE WITH VB6 AGAIN
+
+Do not patch symptoms when the root cause is elsewhere.
+
+
+============================================================
+AGENT 11 – TEST / QA
+============================================================
+
+Create automated and manual tests where appropriate.
+
+Test:
+
+CREATE
+READ
+SEARCH
+EDIT
+UPDATE
+DELETE
+DEACTIVATE
+CANCEL
+REFRESH
+DUPLICATE
+NULL
+INVALID DATA
+INVALID DATE
+WRONG SITE
+WRONG COMPANY
+WRONG PERMISSION
+REPORT
+PREVIEW
+PRINT
+REPRINT
+ERROR RECOVERY
+TRANSACTION ROLLBACK
+
+Test both:
+
+Frontend
+Backend
+Database
+
+
+============================================================
+AGENT 12 – WEB RESEARCH
+============================================================
+
+Use web research only when it materially helps resolve a technical question.
+
+Research may cover:
+
+- VB6 behavior/documentation
+- Python framework documentation
+- SQL Server 2008 R2 behavior
+- reporting libraries
+- printing libraries
+- browser/frontend behavior
+- security practices
+- compatibility issues
+- library/API documentation
+
+Prefer official documentation and authoritative technical sources.
+
+Web research must NOT override actual HMS VB6 source behavior.
+
+When external information conflicts with the actual legacy application,
+the legacy application must be investigated first.
+
+
+============================================================
+AGENT 13 – CODE QUALITY / ARCHITECTURE
+============================================================
+
+Maintain:
+
+Frontend
+→ API
+→ Service
+→ Repository
+→ Database
+
+Keep modules separated.
+
+Avoid:
+
+- duplicated logic
+- dead code
+- hard-coded credentials
+- fake data
+- unparameterized SQL
+- hidden errors
+- bypassed permissions
+- unnecessary rewrites
+
+Do not rewrite working modules merely for style.
+
+
+============================================================
+AGENT 14 – INTEGRATION / REGRESSION
+============================================================
+
+After module changes:
+
+1. test changed module
+2. test dependent modules
+3. run regression
+4. compare affected VB6 behavior
+5. verify database
+6. verify reports
+7. verify printing
+8. update status
+
+Never assume a local fix cannot break another module.
+
+
+============================================================
+MODULE AGENT MODEL
+============================================================
+
+Create a dedicated workstream/agent for each actual HMS module discovered
+from the source.
+
+Examples where present:
+
+LOGIN
+MAIN SETUP
+FRONT OFFICE
+RESERVATION
+GUEST
+ROOM MANAGEMENT
+CHECK-IN
+IN-HOUSE
+FOLIO
+CHARGES
+PAYMENT
+ROOM CHANGE
+ROOM MERGE/TRANSFER
+CHECKOUT
+REVERSE CHECKOUT
+CLEARANCE
+HOUSEKEEPING
+POS
+KOT
+BANQUET
+INVENTORY
+FINANCE
+ACCOUNTS
+TAX
+MEMBERSHIP
+HR
+PAYROLL
+TELEPHONE
+SMS
+FACILITY
+DOOR LOCK
+REPORTING
+NIGHT AUDIT
+BACKUP
+IMPORT
+EXPORT
+
+Do not assume all modules exist.
+Discover them from the actual project.
+
+
+============================================================
+MODULE MIGRATION LOOP
+============================================================
+
+For every discovered module:
+
+PHASE A – DISCOVERY
+- find all VB6 files
+- find all dependencies
+- find Python implementation
+- find database dependencies
+- find reports
+- find printing
+
+PHASE B – VB6 ANALYSIS
+- read forms
+- read modules
+- read classes
+- read procedures
+- read SQL
+- understand workflow
+
+PHASE C – PYTHON ANALYSIS
+- read current frontend
+- read API
+- read service
+- read repository
+- read SQL
+- read reports
+
+PHASE D – COMPARISON
+- VB6 UI vs Python UI
+- VB6 events vs frontend events
+- VB6 logic vs services
+- VB6 SQL vs repository
+- VB6 reports vs Python reports
+- VB6 printing vs Python printing
+
+PHASE E – IMPLEMENTATION
+- implement missing functionality
+- fix incorrect functionality
+- preserve existing working code
+
+PHASE F – DEBUGGING
+- reproduce
+- trace
+- root cause
+- fix
+
+PHASE G – TESTING
+- unit
+- integration
+- database
+- UI
+- report
+- print
+
+PHASE H – RE-COMPARISON
+- compare with VB6 again
+
+IF DIFFERENCES REMAIN:
+    RETURN TO PHASE D
+
+IF BUGS REMAIN:
+    RETURN TO PHASE F
+
+IF TEST FAILS:
+    RETURN TO PHASE F
+
+IF DEPENDENCY FAILS:
+    TRACE DEPENDENCY
+    FIX DEPENDENCY
+    RETURN TO PHASE G
+
+ONLY AFTER ALL CHECKS PASS:
+    MARK MODULE VERIFIED
+
+
+============================================================
+MAIN SETUP LIVE VERIFICATION
+============================================================
+
+For Main Setup specifically:
+
+LOGIN
+→ MAIN MENU
+→ MAIN SETUP
+→ OPEN EVERY SCREEN
+→ COLLECT SCREEN EVIDENCE
+→ COMPARE WITH VB6 .frm/.frx
+→ TEST BUTTONS
+→ TEST VALIDATION
+→ TEST SEARCH
+→ TEST SAVE
+→ TEST UPDATE
+→ TEST DELETE/DEACTIVATE
+→ TEST REPORT
+→ TEST PREVIEW
+→ TEST PRINT
+→ TEST REPRINT
+→ VERIFY DATABASE
+→ FIX
+→ RE-TEST
+→ RE-COMPARE
+
+Continue until complete.
+
+
+============================================================
+FRONT OFFICE PRIORITY
+============================================================
+
+Front Office must preserve the actual legacy workflow where applicable:
+
+Login
+→ Site
+→ Business Date
+→ Reservation
+→ Walk-In
+→ Guest
+→ Check-In
+→ In-House
+→ Folio
+→ Charges
+→ Payment
+→ Room Change
+→ Checkout
+→ Reverse Checkout
+→ Clearance
+→ Housekeeping
+→ Night Audit
+→ Date Change
+
+Use actual VB6 evidence to confirm the exact workflow and dependencies.
+
+
+============================================================
+NIGHT AUDIT
+============================================================
+
+Night Audit must be treated as a high-risk workflow.
+
+Verify:
+
+- business date
+- date validation
+- pending KOT/POS
+- no-show handling
+- room rent
+- POS/F&B revenue
+- accounting posting
+- token reset
+- audit log
+- idempotency
+- reversal
+- transactions
+- error recovery
+
+Never mark Night Audit complete based only on UI behavior.
+
+
+============================================================
+BUG REGISTER
+============================================================
+
+Maintain:
+
+MIGRATION_MASTER_BUG_REGISTER.md
+
+Each bug:
+
+BUG ID
+MODULE
+VB6 SOURCE
+PYTHON SOURCE
+SCREEN
+EXPECTED VB6 BEHAVIOR
+CURRENT PYTHON BEHAVIOR
+ROOT CAUSE
+FRONTEND ISSUE
+BACKEND ISSUE
+SQL ISSUE
+REPORT ISSUE
+PRINT ISSUE
+FIX
+FILES CHANGED
+TEST
+DATABASE VERIFIED
+REGRESSION VERIFIED
+STATUS
+
+
+============================================================
+SKILLS
+============================================================
+
+Create/reuse specialized skills for:
+
+vb6_reverse_engineering
+vb6_form_analysis
+vb6_logic_mapping
+python_migration
+frontend_debugging
+backend_debugging
+sql_server_2008_r2
+hms_business_logic
+report_debugging
+printing_debugging
+permission_debugging
+authentication_debugging
+database_testing
+ui_testing
+api_testing
+integration_testing
+regression_testing
+web_research
+code_review
+architecture_review
+
+
+Each skill must contain:
+
+PURPOSE
+INPUTS
+WORKFLOW
+TOOLS
+CHECKLIST
+OUTPUT
+TEST REQUIREMENTS
+FAILURE CONDITIONS
+
+
+============================================================
+ARTIFACTS
+============================================================
+
+Maintain:
+
+MIGRATION_MASTER_PLAN.md
+MIGRATION_STATUS.md
+MIGRATION_DEPENDENCY_GRAPH.md
+MIGRATION_MASTER_BUG_REGISTER.md
+MIGRATION_COMPLETION_MATRIX.md
+VB6_PYTHON_FILE_MAPPING.md
+VB6_PYTHON_LOGIC_COMPARISON.md
+FRONTEND_MIGRATION_STATUS.md
+BACKEND_MIGRATION_STATUS.md
+SQL_MIGRATION_STATUS.md
+REPORT_MIGRATION_STATUS.md
+PRINTING_MIGRATION_STATUS.md
+TEST_RESULTS.md
+REGRESSION_RESULTS.md
+
+
+============================================================
+COMPLETION MATRIX
+============================================================
+
+For every module track:
+
+VB6 DISCOVERED
+VB6 ANALYZED
+PYTHON FOUND
+UI MIGRATED
+BACKEND MIGRATED
+SQL VERIFIED
+PERMISSIONS VERIFIED
+REPORT VERIFIED
+PRINT VERIFIED
+TESTED
+REGRESSION TESTED
+VB6 RE-COMPARED
+STATUS
+
+
+============================================================
+MASTER LOOP
+============================================================
+
+WHILE PROJECT IS NOT FULLY MIGRATED:
+
+    DISCOVER CURRENT STATE
+
+    SELECT NEXT UNVERIFIED MODULE
+
+    READ VB6 SOURCE
+
+    MAP DEPENDENCIES
+
+    READ PYTHON IMPLEMENTATION
+
+    COMPARE VB6 ↔ PYTHON
+
+    IDENTIFY ALL GAPS
+
+    ASSIGN SPECIALIZED AGENTS
+
+    IMPLEMENT FIXES
+
+    DEBUG
+
+    TEST
+
+    VERIFY DATABASE
+
+    VERIFY FRONTEND
+
+    VERIFY BACKEND
+
+    VERIFY REPORTS
+
+    VERIFY PRINTING
+
+    RUN REGRESSION
+
+    RE-COMPARE WITH VB6
+
+    UPDATE BUG REGISTER
+
+    UPDATE COMPLETION MATRIX
+
+    IF DIFFERENCES REMAIN:
+        CONTINUE SAME MODULE LOOP
+
+    IF TEST FAILS:
+        DEBUG AGAIN
+
+    IF REGRESSION FAILS:
+        FIX REGRESSION
+
+    IF DEPENDENCY IS INCOMPLETE:
+        WORK ON DEPENDENCY
+
+    ONLY WHEN MODULE IS VERIFIED:
+        MOVE TO NEXT MODULE
+
+END WHILE
+
+
+============================================================
+FINAL FULL-PROJECT LOOP
+============================================================
+
+When every module appears complete:
+
+DO A COMPLETE VB6 PROJECT RE-SCAN.
+
+Compare:
+
+ALL FORMS
+ALL MODULES
+ALL CLASSES
+ALL EVENTS
+ALL BUSINESS LOGIC
+ALL DATABASE OPERATIONS
+ALL REPORTS
+ALL PRINTING
+ALL PERMISSIONS
+ALL NAVIGATION
+ALL CROSS-MODULE DEPENDENCIES
+
+Then:
+
+FIND DIFFERENCES
+→ FIX
+→ TEST
+→ REGRESSION
+→ RE-COMPARE
+
+Repeat until no known relevant migration gap remains.
+
+
+============================================================
+STOP CONDITION
+============================================================
+
+DO NOT STOP BECAUSE:
+
+- the application starts
+- login works
+- UI looks modern
+- API returns 200
+- database connects
+- CRUD works
+- one module works
+- one report works
+
+STOP ONLY WHEN:
+
+1. VB6 source has been fully analyzed for the required project scope.
+2. Python equivalent has been verified.
+3. Required frontend functionality exists.
+4. Required backend functionality exists.
+5. Database behavior matches.
+6. Permissions match.
+7. Reports match.
+8. Printing/reprinting works.
+9. Cross-module dependencies work.
+10. Tests pass.
+11. Regression tests pass.
+12. Final VB6 re-comparison passes.
+13. No known relevant migration bug remains unresolved.
+
+FINAL STATE:
+
+VB6 HMS
+   ↓
+FULL FUNCTIONAL REFERENCE
+   ↓
+PYTHON HMS
+   ↓
+FRONTEND + BACKEND + SQL + REPORT + PRINT
+   ↓
+TESTED
+   ↓
+REGRESSION TESTED
+   ↓
+RE-COMPARED WITH VB6
+   ↓
+COMPLETE MIGRATION
+
+
+IMPORTANT:
+This is a CONTINUOUS engineering process.
+
+COMPARE
+→ IMPLEMENT
+→ DEBUG
+→ TEST
+→ VERIFY
+→ RE-COMPARE
+→ FIX
+→ TEST AGAIN
+→ RE-COMPARE AGAIN
+
+Keep the process running until the entire required VB6 HMS functionality
+has been migrated into the existing Python HMS project.

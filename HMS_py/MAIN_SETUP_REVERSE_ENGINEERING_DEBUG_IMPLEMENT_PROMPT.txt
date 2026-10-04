@@ -1,0 +1,989 @@
+HMS VB6 -> PYTHON MAIN SETUP MODULE
+REVERSE ENGINEERING + FILE-BY-FILE DEBUG + IMPLEMENTATION MASTER PROMPT
+============================================================
+
+PROJECT ROOT
+------------
+IMPLEMENT\
+    REVERSEENGINEERING\
+        HMS\                 <- LEGACY VB6 SOURCE
+        <PYTHON PROJECT>\    <- CURRENT HMS_py SOURCE
+
+IMPORTANT:
+- Do NOT start by blindly rewriting code.
+- First inspect and compare the legacy VB6 implementation with the current Python implementation.
+- Main Setup is the current priority.
+- Work file-by-file, module-by-module, and logic-by-logic.
+- Do not move to the next file until the current file's relevant logic has been compared, understood, debugged and implemented in Python.
+- Continue until Main Setup is functionally complete and verified.
+- Do not declare completion merely because the UI loads.
+
+============================================================
+1. PRIMARY OBJECTIVE
+============================================================
+
+Reconstruct the Main Setup module in HMS_py so that its:
+
+1. UI appearance and workflow
+2. frontend validation
+3. backend business logic
+4. SQL/database operations
+5. parameter handling
+6. report generation
+7. printing/reprinting
+8. save/update/delete/deactivate behavior
+9. permissions
+10. company/property/site context
+11. audit fields
+12. error handling
+13. keyboard/navigation behavior where relevant
+
+match the behavior of the legacy VB6 HMS application as closely as the
+current Python architecture permits.
+
+The VB6 application is the behavioral reference.
+Python is the target implementation.
+
+Do NOT change business behavior just because a modern implementation
+would be architecturally different. First reproduce the legacy behavior.
+Only improve architecture/security where it does not change the intended
+business result.
+
+============================================================
+2. REQUIRED WORKING METHOD
+============================================================
+
+FOR EACH FILE:
+
+STEP A - LOCATE
+--------------
+Find the corresponding VB6 file and Python file.
+
+Build a mapping:
+
+VB6 file:
+Python file:
+Module:
+Form:
+Class:
+Related report:
+Related SQL:
+Related database tables:
+Related stored procedures:
+Related API:
+Related frontend screen:
+
+If an exact Python equivalent does not exist:
+mark it as MISSING and identify where the logic should be implemented.
+
+STEP B - READ THE COMPLETE FILE
+-------------------------------
+Read the entire relevant VB6 file before changing the Python file.
+
+Do not compare only function names.
+
+Inspect:
+- Form_Load
+- Form_Activate
+- Form_Unload
+- Click events
+- DoubleClick events
+- Change events
+- KeyDown/KeyPress events
+- Combo/List population
+- Grid population
+- validation
+- INSERT
+- UPDATE
+- DELETE
+- SELECT
+- stored procedure calls
+- report calls
+- print calls
+- parameter construction
+- transaction handling
+- permission checks
+- company/site filters
+- environment settings
+- global variables
+- module-level variables
+- error handlers
+- hidden controls
+- enabled/disabled controls
+- default values
+- date handling
+- number/currency handling
+
+STEP C - CREATE LOGIC MAP
+-------------------------
+For each important VB6 procedure create:
+
+VB6 Procedure
+Purpose
+Inputs
+Outputs
+Tables read
+Tables written
+Queries
+Conditions
+Business rules
+UI controls affected
+Reports affected
+Error messages
+Permissions
+Side effects
+Python equivalent
+Status
+
+STEP D - COMPARE PYTHON
+-----------------------
+Compare the corresponding Python implementation.
+
+Classify every difference as:
+
+[MISSING]
+[BUG]
+[LOGIC DIFFERENCE]
+[UI DIFFERENCE]
+[SQL DIFFERENCE]
+[PARAMETER DIFFERENCE]
+[REPORT DIFFERENCE]
+[PRINT DIFFERENCE]
+[VALIDATION DIFFERENCE]
+[PERMISSION DIFFERENCE]
+[DATA DIFFERENCE]
+[ERROR HANDLING DIFFERENCE]
+[PERFORMANCE ISSUE]
+[SECURITY ISSUE]
+[INTENTIONAL MODERNIZATION]
+
+Do not call something a bug without explaining the legacy behavior and
+the observed Python behavior.
+
+STEP E - DEBUG
+--------------
+For each confirmed issue:
+
+1. Explain the root cause.
+2. Identify exact file.
+3. Identify exact function/class/component.
+4. Identify exact line or code block when available.
+5. Explain expected behavior from VB6.
+6. Explain actual Python behavior.
+7. Apply the smallest safe correction.
+8. Preserve existing working logic.
+9. Re-run the relevant test.
+10. Record the result.
+
+STEP F - VERIFY
+---------------
+After every correction verify:
+
+- UI loads
+- data loads
+- save works
+- update works
+- validation works
+- database changes are correct
+- parameters are correct
+- reports receive correct parameters
+- printing/reprinting works
+- errors are handled
+- permissions are respected
+- site/property filtering works
+
+Only after verification proceed to the next relevant file.
+
+============================================================
+3. MAIN SETUP MODULE SCOPE
+============================================================
+
+MAIN SETUP MUST BE TREATED AS A COMPLETE MODULE.
+
+Inspect every Main Setup menu item/screen in the VB6 source.
+
+Do not assume the menu caption tells the complete behavior.
+
+For every Main Setup screen document:
+
+- Screen name
+- VB6 form filename
+- Python equivalent
+- route/page
+- frontend component
+- backend endpoint
+- service/business function
+- repository/database function
+- tables
+- fields
+- SQL
+- parameters
+- validations
+- permissions
+- save behavior
+- edit behavior
+- delete/deactivate behavior
+- print/report behavior
+- audit behavior
+- error handling
+
+============================================================
+4. MAIN SETUP MENU / PERMISSION LOGIC
+============================================================
+
+Trace:
+
+LOGIN
+  ->
+USERMAST
+  ->
+USER1 / USER_MODULE / MENUHELP
+  ->
+COMPANY
+  ->
+SITE / LogSite_Code
+  ->
+ENVIRO
+  ->
+MAIN SETUP MENU
+  ->
+SCREEN PERMISSION
+  ->
+CRUD PERMISSION
+  ->
+REPORT / PRINT PERMISSION
+
+Do not trust permission values from the frontend.
+
+Backend must validate permission again.
+
+============================================================
+5. DATABASE CONTEXT
+============================================================
+
+Preserve the legacy SQL Server schema unless a change is proven necessary.
+
+Important context fields may include:
+
+UserName
+UserId
+CompanyCode
+SiteCode
+LogSite_Code
+BusinessDate
+SessionId
+
+Property/site-specific queries must use the correct legacy site filter.
+
+Do not accidentally remove:
+
+WHERE LogSite_Code = ?
+
+when the legacy application uses property-specific filtering.
+
+Do not replace a legacy query with a generic query until the resulting
+data set has been verified against the VB6 behavior.
+
+============================================================
+6. UI COMPARISON
+============================================================
+
+Compare VB6 screen against Python screen field-by-field.
+
+For every control compare:
+
+Control name
+Caption
+Position
+Size
+Visible
+Enabled
+Read-only state
+Default value
+Required/optional
+Tab order
+Keyboard behavior
+Validation
+Lookup behavior
+Combo population
+Grid columns
+Column order
+Formatting
+Date format
+Number format
+Currency format
+Messages
+Buttons
+Icons where relevant
+Print button
+Preview button
+Save button
+Cancel button
+Close button
+
+The Python UI should reproduce the same workflow even if the technology
+is different.
+
+Do not merely make it "look similar".
+It must behave similarly.
+
+============================================================
+7. FRONTEND BUG INVESTIGATION
+============================================================
+
+Specifically inspect:
+
+- fields not loading
+- dropdowns empty
+- wrong default values
+- wrong date format
+- wrong number format
+- wrong selected company/site
+- Save button not working
+- Edit button not loading existing values
+- Delete/deactivate behaving incorrectly
+- Cancel resetting incorrectly
+- validation missing
+- duplicate records allowed
+- wrong grid columns
+- wrong sorting
+- search not filtering
+- keyboard navigation broken
+- modal/dialog behavior
+- page refresh losing context
+- frontend sending wrong parameter names
+- frontend sending strings where numbers/dates are expected
+- frontend displaying backend errors poorly
+
+============================================================
+8. BACKEND BUG INVESTIGATION
+============================================================
+
+Trace:
+
+UI
+ ->
+HTTP/API
+ ->
+Route
+ ->
+Service
+ ->
+Repository
+ ->
+SQL
+ ->
+Database
+
+For every Main Setup operation confirm the complete chain.
+
+Look for:
+
+- wrong endpoint
+- wrong HTTP method
+- wrong request body
+- wrong parameter name
+- wrong type conversion
+- missing validation
+- missing permission check
+- missing site filter
+- wrong SQL
+- wrong JOIN
+- wrong WHERE
+- missing transaction
+- incorrect commit/rollback
+- incorrect NULL handling
+- incorrect date conversion
+- incorrect decimal handling
+- duplicate insert
+- update affecting multiple records
+- incorrect identity/key handling
+- exception swallowed
+- incorrect response format
+
+============================================================
+9. PRINTING BUG INVESTIGATION
+============================================================
+
+Printing is a mandatory investigation area.
+
+Trace the complete legacy chain:
+
+VB6 screen
+ ->
+report selection
+ ->
+report filename/code
+ ->
+parameters
+ ->
+SQL/data source
+ ->
+report engine
+ ->
+printer
+
+Compare with Python:
+
+screen
+ ->
+API
+ ->
+report service
+ ->
+report template
+ ->
+parameters
+ ->
+data
+ ->
+preview
+ ->
+print
+
+For EVERY Main Setup report record:
+
+Report name:
+VB6 report file:
+Python report file:
+Report code:
+Data source:
+Main query:
+Parameters:
+Parameter names:
+Parameter types:
+Default values:
+Required values:
+Date format:
+Company/site parameter:
+User parameter:
+Output format:
+Print method:
+Preview method:
+Reprint method:
+
+Never guess report parameters.
+
+If a report fails:
+- capture actual parameters
+- compare with VB6 parameters
+- compare parameter names/types
+- compare query result
+- fix the root cause
+
+============================================================
+10. REPORT PARAMETER BUGS
+============================================================
+
+Specifically check:
+
+- wrong parameter name
+- wrong case
+- wrong parameter type
+- missing parameter
+- extra parameter
+- date sent as string in wrong format
+- datetime vs date mismatch
+- site/property omitted
+- company omitted
+- user omitted
+- report code mismatch
+- empty parameter
+- NULL parameter
+- parameter order problem
+- report datasource mismatch
+
+Create a parameter contract for every report.
+
+Example:
+
+REPORT: <name>
+
+Parameter | VB6 Value | Python Value | Type | Required | Status
+----------------------------------------------------------------
+Site      | ...        | ...           | string | Yes | OK/BUG
+FromDate  | ...        | ...           | date   | Yes | OK/BUG
+ToDate    | ...        | ...           | date   | Yes | OK/BUG
+User      | ...        | ...           | string | No  | OK/BUG
+
+============================================================
+11. REPRINT BUGS
+============================================================
+
+Inspect every reprint/reprint-report function.
+
+Confirm that reprint uses the same document/report identity as VB6.
+
+Do not regenerate a different transaction merely to print it again.
+
+Reprint must retrieve the existing document/transaction and pass the
+correct original identifiers.
+
+Check:
+- Bill/Folio/Document ID
+- Report code
+- Site
+- Date
+- User
+- Printer
+- Copy count
+- Preview
+- Direct print
+
+============================================================
+12. SQL COMPARISON
+============================================================
+
+For every important SQL statement:
+
+1. Extract VB6 SQL.
+2. Extract Python SQL.
+3. Normalize whitespace only.
+4. Compare SELECT columns.
+5. Compare JOINs.
+6. Compare WHERE clauses.
+7. Compare parameters.
+8. Compare GROUP BY.
+9. Compare ORDER BY.
+10. Compare INSERT columns.
+11. Compare UPDATE columns.
+12. Compare DELETE/deactivation logic.
+13. Compare transaction boundaries.
+
+Flag even small differences when they can change business behavior.
+
+============================================================
+13. TRANSACTION SAFETY
+============================================================
+
+Critical operations must follow:
+
+VALIDATE
+RECHECK
+BEGIN TRANSACTION
+WRITE
+POST-CONDITION CHECK
+COMMIT
+
+On failure:
+
+ROLLBACK
+AUDIT ERROR
+RETURN SAFE ERROR
+
+Never silently continue after a failed database operation.
+
+============================================================
+14. LEGACY BEHAVIOR PRESERVATION
+============================================================
+
+Do not "improve" these without evidence:
+
+- calculation formulas
+- tax rules
+- revenue mapping
+- document numbering
+- date rules
+- business date
+- site filtering
+- room status codes
+- permission logic
+- report parameters
+- posting logic
+- audit logic
+
+If legacy behavior appears strange:
+document it as LEGACY BEHAVIOR and preserve it unless the user
+explicitly requests a business-rule change.
+
+============================================================
+15. CODE QUALITY RULES
+============================================================
+
+Target architecture:
+
+Frontend
+    ->
+API
+    ->
+Service / Business Logic
+    ->
+Repository
+    ->
+SQL Server
+
+Rules:
+
+- No business-critical rules only in frontend.
+- No raw database credentials in frontend.
+- No arbitrary SQL from frontend.
+- Use parameterized SQL.
+- Preserve SQL Server 2008 R2 compatibility.
+- Avoid SQL Server features unavailable in SQL Server 2008 R2.
+- Keep database access centralized.
+- Keep report generation centralized.
+- Keep printing centralized.
+- Keep audit logging centralized.
+
+============================================================
+16. BUG TRACKING FILE
+============================================================
+
+Create/update:
+
+MAIN_SETUP_BUG_REGISTER.md
+
+Each bug:
+
+ID:
+Priority:
+VB6 File:
+Python File:
+VB6 Procedure:
+Python Function:
+Screen:
+Category:
+Expected Behavior:
+Actual Behavior:
+Root Cause:
+Database Impact:
+UI Impact:
+Report Impact:
+Print Impact:
+Fix:
+Test:
+Status:
+Date:
+
+Statuses:
+
+OPEN
+ANALYZED
+FIXED
+VERIFIED
+BLOCKED
+
+============================================================
+17. FILE MAPPING
+============================================================
+
+Create/update:
+
+MAIN_SETUP_FILE_MAPPING.md
+
+Columns:
+
+# | VB6 File | VB6 Type | Python File | Python Type |
+Main Logic | Database | Reports | Print | Status
+
+Status:
+
+NOT STARTED
+READ
+MAPPED
+COMPARED
+DEBUGGED
+IMPLEMENTED
+VERIFIED
+
+============================================================
+18. LOGIC DIFFERENCE FILE
+============================================================
+
+Create/update:
+
+MAIN_SETUP_LOGIC_DIFF.md
+
+For every difference:
+
+VB6:
+PYTHON:
+Difference:
+Why it matters:
+Required action:
+Status:
+
+============================================================
+19. REPORT PARAMETER FILE
+============================================================
+
+Create/update:
+
+MAIN_SETUP_REPORT_PARAMETERS.md
+
+For every report:
+
+Report:
+VB6 Report:
+Python Report:
+Parameters:
+Types:
+Defaults:
+SQL:
+Data Source:
+Print:
+Preview:
+Reprint:
+Status:
+
+============================================================
+20. IMPLEMENTATION CHECKLIST
+============================================================
+
+Create/update:
+
+MAIN_SETUP_IMPLEMENTATION_CHECKLIST.md
+
+Checklist:
+
+[ ] Main Setup menu discovered
+[ ] Permissions traced
+[ ] All VB6 forms discovered
+[ ] All Python equivalents discovered
+[ ] File mapping completed
+[ ] File-by-file comparison completed
+[ ] UI comparison completed
+[ ] Frontend bugs fixed
+[ ] Backend bugs fixed
+[ ] SQL differences fixed
+[ ] Parameter differences fixed
+[ ] Report differences fixed
+[ ] Printing fixed
+[ ] Reprint fixed
+[ ] Validation fixed
+[ ] Permissions verified
+[ ] Site/property filtering verified
+[ ] Audit verified
+[ ] Error handling verified
+[ ] Regression tests completed
+[ ] Main Setup end-to-end workflow verified
+
+============================================================
+21. TESTING
+============================================================
+
+For every screen create tests for:
+
+CREATE
+READ
+SEARCH
+EDIT
+SAVE
+CANCEL
+DEACTIVATE/DELETE
+DUPLICATE
+INVALID INPUT
+NULL INPUT
+WRONG DATE
+WRONG SITE
+WRONG PERMISSION
+REPORT PREVIEW
+PRINT
+REPRINT
+ERROR RECOVERY
+
+Where database behavior matters, verify actual SQL Server rows before
+and after the operation.
+
+============================================================
+22. END-TO-END MAIN SETUP TEST
+============================================================
+
+Do not mark Main Setup complete until:
+
+LOGIN
+ ->
+COMPANY/SITE CONTEXT
+ ->
+MAIN SETUP MENU
+ ->
+OPEN SCREEN
+ ->
+LOAD MASTER DATA
+ ->
+CREATE
+ ->
+SAVE
+ ->
+READ BACK
+ ->
+EDIT
+ ->
+SAVE
+ ->
+SEARCH
+ ->
+REPORT
+ ->
+PREVIEW
+ ->
+PRINT
+ ->
+REPRINT
+ ->
+PERMISSION TEST
+ ->
+INVALID INPUT TEST
+ ->
+DATABASE VERIFICATION
+
+all work.
+
+============================================================
+23. STOP CONDITION
+============================================================
+
+Do NOT stop merely because:
+
+- code compiles
+- server starts
+- page opens
+- API returns 200
+- UI looks correct
+- one test passes
+
+STOP ONLY when the current Main Setup file/module has been:
+
+READ
+COMPARED
+UNDERSTOOD
+DEBUGGED
+IMPLEMENTED
+TESTED
+VERIFIED
+
+Then move to the next file.
+
+If a dependency blocks the current file:
+do not fake a result.
+Document the blocker, inspect the dependency, resolve it, then continue.
+
+============================================================
+24. FINAL COMPLETION REPORT
+============================================================
+
+Create:
+
+MAIN_SETUP_COMPLETION_REPORT.md
+
+Include:
+
+1. Total VB6 files inspected
+2. Total Python files inspected
+3. Matched files
+4. Missing Python implementations
+5. Bugs found
+6. Bugs fixed
+7. UI bugs fixed
+8. Backend bugs fixed
+9. SQL bugs fixed
+10. Report bugs fixed
+11. Parameter bugs fixed
+12. Printing bugs fixed
+13. Reprint bugs fixed
+14. Permission bugs fixed
+15. Remaining blockers
+16. Test results
+17. Screens verified
+18. Reports verified
+19. Print/reprint verified
+20. Final Main Setup status
+
+============================================================
+25. IMPORTANT EXECUTION RULE
+============================================================
+
+WORK SEQUENTIALLY.
+
+Do NOT compare all files superficially and then make broad changes.
+
+Use this loop:
+
+SELECT NEXT FILE
+    ->
+READ VB6 FILE COMPLETELY
+    ->
+READ PYTHON FILE COMPLETELY
+    ->
+MAP LOGIC
+    ->
+COMPARE CODE
+    ->
+IDENTIFY BUGS
+    ->
+TRACE UI -> API -> SERVICE -> REPOSITORY -> SQL
+    ->
+TRACE REPORT/PARAMETER/PRINT LOGIC
+    ->
+FIX
+    ->
+TEST
+    ->
+VERIFY
+    ->
+UPDATE DOCUMENTATION
+    ->
+SELECT NEXT FILE
+
+Repeat until MAIN SETUP is complete.
+
+============================================================
+26. DO NOT FABRICATE
+============================================================
+
+Never invent:
+
+- VB6 behavior
+- SQL columns
+- table names
+- report parameters
+- report filenames
+- API endpoints
+- business rules
+- permission rules
+- expected output
+
+If something is not present in the source, mark:
+
+NOT FOUND IN VB6
+
+If the Python implementation is incomplete, mark:
+
+MISSING IN PYTHON
+
+If the source conflicts with another source, record:
+
+SOURCE CONFLICT
+
+and inspect the actual executable/database behavior where available.
+
+============================================================
+27. FINAL QUALITY REQUIREMENT
+============================================================
+
+The completed Main Setup module must not only resemble the VB6 UI.
+
+It must preserve the legacy workflow and business logic across:
+
+FRONTEND
+BACKEND
+DATABASE
+REPORTS
+PARAMETERS
+PRINTING
+REPRINTING
+PERMISSIONS
+AUDIT
+ERROR HANDLING
+
+The target is functional parity, not visual imitation.
+
+BEGIN NOW:
+1. Discover the complete IMPLEMENT/REVERSEENGINEERING/HMS VB6 tree.
+2. Discover the complete Python HMS tree.
+3. Build MAIN_SETUP_FILE_MAPPING.md.
+4. Identify the first Main Setup VB6 file.
+5. Compare it with its Python equivalent.
+6. Debug and implement it.
+7. Test and verify it.
+8. Continue sequentially until Main Setup is complete.

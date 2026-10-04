@@ -9,7 +9,9 @@ EVIDENCE (live + VB6 decompiled):
 - Proc_96_14_1F70BE8: Daily bill-wise posting (room charges + POS revenue)
 - Proc_96_16_1F369E4: Summary posting (similar but aggregated)
 - fdNDAcPostChrg.TopCtrl1_UnknownEvent_16: PostingType from Enviro drives mode
-- Room charges: PayCharge Vtype='RC', PayCode='KKRMCH' + CGST/SGST tax
+- Room charges: PayCharge Vtype='RC', PayCode='KKRMCH' + 2.5% CGST +
+  2.5% SGST tax rows (BUG-AUD-10 evidence: live TaxPer=2.5, tax/base=0.025
+  across 400+ VB6-era rows; old Python rows wrote 5% per leg = double tax)
 - POS revenue: PayCharge Vtype='PPOS', grouped by RevCode/RestCode
 - Voucher numbering: Voucher_Type + Voucher_Prefix for Vtype='PPOS'
 - RoomChrgPostingType in Enviro: 'Daily' = per room, else summary
@@ -41,7 +43,9 @@ VTYPE_PPOS = "PPOS"
 PAY_CODE_RC = "KKRMCH"
 CGST_CODE = "KKCGSS"
 SGST_CODE = "KKSGSS"
-GST_RATE = 0.05  # Live evidence: 5% CGST + 5% SGST
+GST_RATE = 0.025  # BUG-AUD-10 fix: live VB6 rows TaxPer=2.5 -> 2.5% CGST +
+                  # 2.5% SGST (tax = base * 0.025, 400+ row evidence;
+                  # was 0.05 = 2x over-charge vs VB6)
 
 
 # ============================================================
@@ -56,7 +60,8 @@ def get_night_audit_flags(cn=None) -> dict:
     """
     rows = db.query(
         "SELECT KOTAtNightAudit, POSBillAtNightAudit, PostingType, "
-        "RoomChrgPostingType, RoomChrgDueAc FROM Enviro WHERE LogSite_Code = ?",
+        "RoomChrgPostingType, RoomChrgDueAc FROM Enviro WHERE LogSite_Code = ? "
+        "OR LogSite_Code = 'HO'",
         (SITE_CODE,), cn=cn)
     if not rows:
         return {"kot_at_na": "No", "pos_bill_at_na": "No",
@@ -223,14 +228,19 @@ def cancel_tentative_no_shows(na_date, user: str = USER, cn=None,
 
 def get_inhouse_rooms(vdate, vprefix: str = VYEAR, cn=None) -> list[dict]:
     """Get occupied rooms for a date (RoomOcc ChkOutDate IS NULL, ChkInDate <= date).
-    Returns list of {folio, docid, roomno, roomrate, guest_name, comp_flag, mfolio}
+    Comp='Y' (complimentary) rooms excluded (VB6 fdPostChrg eligibility).
+    Returns list of {folio, docid, roomno, roomrate, guest_name, mfolio,
+    guestprof, roomcat, roomtype, plancode}
     """
     rows = db.query(
         "SELECT RO.DocId, RO.FolioNo, RO.RoomNo, RO.RoomRate, GF.Name, "
-        "ISNULL(GF.MFOlioNO, 0) AS MFOlioNO "
+        "ISNULL(GF.MFOlioNO, 0) AS MFOlioNO, ISNULL(GF.GuestProf, '') AS GuestProf, "
+        "ISNULL(RO.RoomCat, '') AS RoomCat, ISNULL(RO.RoomType, '') AS RoomType, "
+        "ISNULL(RO.PlanCode, '') AS PlanCode "
         "FROM RoomOcc RO LEFT JOIN GuestFolio GF ON GF.DocId = RO.DocId "
         "WHERE RO.ChkOutDate IS NULL AND RO.Site_Code = ? AND RO.Vprefix = ? "
-        "AND RO.ChkInDate <= ? AND RO.ChkInDate IS NOT NULL",
+        "AND RO.ChkInDate <= ? AND RO.ChkInDate IS NOT NULL "
+        "AND ISNULL(GF.Comp, '') <> 'Y'",
         (SITE_CODE, vprefix, vdate), cn=cn)
     out = []
     for r in rows:
@@ -241,16 +251,46 @@ def get_inhouse_rooms(vdate, vprefix: str = VYEAR, cn=None) -> list[dict]:
             "roomrate": float(r[3] or 0),
             "guest": (r[4] or "").strip(),
             "mfolio": r[5] or 0,
+            "guestprof": (r[6] or "").strip(),
+            "roomcat": (r[7] or "").strip(),
+            "roomtype": (r[8] or "").strip(),
+            "plancode": (r[9] or "").strip(),
         })
     return out
 
 
+def billed_folios_for_date(vdate, vprefix: str = VYEAR, cn=None) -> list[dict]:
+    """fdPostChrg pre-flight guard (VB6 Proc_62_23): in-house rooms whose
+    folio has settled/billed PayCharge rows (Bill_No <> '') for any date.
+    Returns: [{'folio': int, 'roomno': str}] -- posting must be blocked
+    until these bills are settled ("There is some unsettled guest bill").
+    """
+    rows = db.query(
+        "SELECT DISTINCT RO.FolioNo, RTRIM(RO.RoomNo) AS RoomNo "
+        "FROM RoomOcc RO JOIN GuestFolio GF ON GF.DocId = RO.DocId "
+        "JOIN PayCharge PC ON PC.Site_Code = RO.Site_Code "
+        "AND ((PC.FolioNoDocid <> '' AND (PC.FolioNoDocid = GF.DocId "
+        "OR PC.FolioNoDocid = GF.MFolioNoDocid)) OR PC.FolioNo = RO.FolioNo) "
+        "WHERE RO.ChkOutDate IS NULL AND RO.Site_Code = ? AND RO.Vprefix = ? "
+        "AND RO.ChkInDate <= ? AND RO.ChkInDate IS NOT NULL "
+        "AND ISNULL(PC.Bill_No, '') <> ''",
+        (SITE_CODE, vprefix, vdate), cn=cn)
+    return [{"folio": r[0] or 0, "roomno": (r[1] or "").strip()} for r in rows]
+
+
 def post_room_charges_for_date(vdate, vprefix: str = VYEAR,
-                                user: str = USER, cn=None, commit: bool = True) -> dict:
+                                user: str = USER, cn=None, commit: bool = True,
+                                progress=None) -> dict:
     """Post room charges for all in-house guests on a date.
-    VB6 Proc_96_14 pattern: For each in-house room, if not already posted
-    (PayCharge Vtype='RC' for that folio/date), insert RC charge + tax.
-    Returns: {'posted': count, 'skipped': count, 'errors': list}
+    VB6 fdPostChrg Cmd(1) -> TopCtrl posting: for each in-house room, if not
+    already posted (PayCharge Vtype='RC' for that folio/date), insert RC
+    charge + 2.5% CGST + 2.5% SGST tax rows (BUG-AUD-10: TaxPer=2.5 live
+    evidence) with VB6 row shape (GuestProf/RoomCat/RoomType/FolioNoDocid/
+    PlanCode/Comments/OnAmt).
+    progress: optional cb(done, total, roomno) called before each room
+    (VB6 lblDisplay "Posting Charges For Room : <RoomNo>").
+    Returns: {'posted': count, 'skipped': count, 'eligible': count,
+    'errors': list}
     """
     rooms = get_inhouse_rooms(vdate, vprefix, cn=cn)
     posted = 0
@@ -274,7 +314,13 @@ def post_room_charges_for_date(vdate, vprefix: str = VYEAR,
     own = cn is None
     cn = cn or db.connect()
     try:
+        total = len(rooms)
+        done = 0
         for room in rooms:
+            if progress is not None:
+                progress(done, total, room["roomno"])
+                done += 1
+
             # Check if RC already posted for this folio/date
             existing = db.query(
                 "SELECT 1 FROM PayCharge WHERE Vtype = ? AND Vdate = ? AND FolioNo = ? "
@@ -294,37 +340,50 @@ def post_room_charges_for_date(vdate, vprefix: str = VYEAR,
             sno = sno_map.get(room["folio"], 0) + 1
             sno_map[room["folio"]] = sno
 
-            # Room charge row (Dr)
+            # Room charge row (Dr) -- VB6 shape: OnAmt=amount, TaxPer=0,
+            # Comments='Room Charge (Room No : <no>)'
             db.execute(
                 "INSERT INTO PayCharge (DocId, SNo, Vtype, VNo, Site_Code, VPrefix, Vdate, "
-                "GuestProf, Comments, PayCode, FolioNo, RoomNo, AmtDr, U_Name, U_EntDt, U_AE, LogSite_Code) "
-                "VALUES (?, ?, 'RC', ?, ?, ?, ?, '', '', ?, ?, ?, ?, ?, getdate(), 'A', ?)",
-                (docid, sno, vno, SITE_CODE, vprefix, vdate, PAY_CODE_RC,
-                 room["folio"], room["roomno"] or "", amount, user, SITE_CODE),
+                "GuestProf, Comments, PayCode, FolioNo, FolioNoDocid, RoomNo, RoomCat, RoomType, "
+                "PlanCode, AmtDr, TaxPer, OnAmt, U_Name, U_EntDt, U_AE, LogSite_Code) "
+                "VALUES (?, ?, 'RC', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, getdate(), 'A', ?)",
+                (docid, sno, vno, SITE_CODE, vprefix, vdate,
+                 room["guestprof"], f"Room Charge (Room No : {room['roomno']})",
+                 PAY_CODE_RC, room["folio"], room["docid"], room["roomno"] or "",
+                 room["roomcat"], room["roomtype"], room["plancode"],
+                 amount, amount, user, SITE_CODE),
                 cn=cn, commit=False)
 
-            # CGST row
+            # CGST row (VB6: TaxPer=2.5, OnAmt=amount, Comments='CGST (SALES)(Room No : <no>)')
             cgst = round(amount * GST_RATE, 2)
             if cgst > 0:
                 sno += 1
                 db.execute(
                     "INSERT INTO PayCharge (DocId, SNo, Vtype, VNo, Site_Code, VPrefix, Vdate, "
-                    "GuestProf, Comments, PayCode, FolioNo, RoomNo, AmtDr, U_Name, U_EntDt, U_AE, LogSite_Code) "
-                    "VALUES (?, ?, 'RC', ?, ?, ?, ?, '', '', ?, ?, ?, ?, ?, getdate(), 'A', ?)",
-                    (docid, sno, vno, SITE_CODE, vprefix, vdate, CGST_CODE,
-                     room["folio"], room["roomno"] or "", cgst, user, SITE_CODE),
+                    "GuestProf, Comments, PayCode, FolioNo, FolioNoDocid, RoomNo, RoomCat, RoomType, "
+                    "PlanCode, AmtDr, TaxPer, OnAmt, U_Name, U_EntDt, U_AE, LogSite_Code) "
+                    "VALUES (?, ?, 'RC', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 2.5, ?, ?, getdate(), 'A', ?)",
+                    (docid, sno, vno, SITE_CODE, vprefix, vdate,
+                     room["guestprof"], f"CGST (SALES)(Room No : {room['roomno']})",
+                     CGST_CODE, room["folio"], room["docid"], room["roomno"] or "",
+                     room["roomcat"], room["roomtype"], room["plancode"],
+                     cgst, amount, user, SITE_CODE),
                     cn=cn, commit=False)
 
-            # SGST row
+            # SGST row (VB6: TaxPer=2.5, OnAmt=amount)
             sgst = round(amount * GST_RATE, 2)
             if sgst > 0:
                 sno += 1
                 db.execute(
                     "INSERT INTO PayCharge (DocId, SNo, Vtype, VNo, Site_Code, VPrefix, Vdate, "
-                    "GuestProf, Comments, PayCode, FolioNo, RoomNo, AmtDr, U_Name, U_EntDt, U_AE, LogSite_Code) "
-                    "VALUES (?, ?, 'RC', ?, ?, ?, ?, '', '', ?, ?, ?, ?, ?, getdate(), 'A', ?)",
-                    (docid, sno, vno, SITE_CODE, vprefix, vdate, SGST_CODE,
-                     room["folio"], room["roomno"] or "", sgst, user, SITE_CODE),
+                    "GuestProf, Comments, PayCode, FolioNo, FolioNoDocid, RoomNo, RoomCat, RoomType, "
+                    "PlanCode, AmtDr, TaxPer, OnAmt, U_Name, U_EntDt, U_AE, LogSite_Code) "
+                    "VALUES (?, ?, 'RC', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 2.5, ?, ?, getdate(), 'A', ?)",
+                    (docid, sno, vno, SITE_CODE, vprefix, vdate,
+                     room["guestprof"], f"SGST (SALES)(Room No : {room['roomno']})",
+                     SGST_CODE, room["folio"], room["docid"], room["roomno"] or "",
+                     room["roomcat"], room["roomtype"], room["plancode"],
+                     sgst, amount, user, SITE_CODE),
                     cn=cn, commit=False)
 
             # FolioLog for room charge post (use GuestFolio DocId, not PayCharge DocId)
@@ -335,7 +394,12 @@ def post_room_charges_for_date(vdate, vprefix: str = VYEAR,
 
         if commit:
             cn.commit()
-        return {"posted": posted, "skipped": skipped, "errors": errors}
+        return {"posted": posted, "skipped": skipped,
+                "eligible": len(rooms), "errors": errors}
+    except Exception:
+        if own:
+            cn.rollback()
+        raise
     finally:
         if own:
             cn.close()

@@ -4,12 +4,12 @@ Forms ported (DB-verified tables):
   - RoomFeature: Room amenity/feature tags
   - GodownMast:  Inventory locations (shown in Utility section too)
   - Voucher_Type: Browse-only (config table - no user edits)
-  - Enviro: System environment settings viewer (single-row, read-only browse)
+  - Enviro: BUG-006 FIX — Full EDIT dialog for Parameter settings.
+    VB6 frmEnviro.frm is a full edit form (TopCtrl1_UnknownEvent_16 does
+    UPDATE Enviro SET ...). Previous code was READ-ONLY — now editable.
 
 Tables NOT ported (don't exist in this DB):
-  - Parameter/HMSParam - use _coming_soon
   - Revenue Group Setting - use _coming_soon
-  - Printing Parameters / Printing Setup - use _coming_soon
   - Revenue Wise Budget Entry - use _coming_soon
 
 Run: python -m HMS_py.ui.general_setup_ui
@@ -115,51 +115,161 @@ class VoucherTypeBrowser(QDialog):
         if rows: self.tbl.selectRow(0)
 
 
-# ── Enviro / System Settings viewer ──────────────────────────
+# ── Enviro / System Settings EDITOR ──────────────────────────
 class EnviroViewer(QDialog):
-    """Single-row system environment settings viewer
-    (VB6: General Setup -> Parameter / FA Environment)."""
+    """BUG-006 FIX: Full parameter edit dialog.
+
+    VB6 frmEnviro.frm is a FULL edit form (TopCtrl1_UnknownEvent_16 does
+    UPDATE Enviro SET ... WHERE SITECODE=...). Previous Python EnviroViewer
+    was READ-ONLY — now has Save button that calls enviro.update_settings().
+
+    Only EDITABLE (white-listed) settings from core/enviro.py are shown
+    as editable rows. Finance/HR AC-code columns remain read-only (shown
+    greyed out in the lower table as in VB6 — those are changed via
+    FA Environment / HR setup forms).
+    """
 
     def __init__(self, parent=None):
         super().__init__(parent)
         apply_desktop_surface(self, "desktopEnvironmentViewer")
-        self.setWindowTitle("System Environment Settings (Read-Only) - HMS_py")
-        self.resize(720, 480)
+        self.setWindowTitle("Parameter Settings (Enviro) - HMS_py")
+        self.resize(860, 660)
+        self._pending: dict = {}
+
         root = QVBoxLayout(self)
+
+        # Header
+        hdr = QLabel(
+            "System Parameter Settings  |  "
+            "Sirf white-listed operational settings edit ho sakte hain.\n"
+            "Finance A/C columns (Advance A/C, Cash A/C aadi) read-only hain "
+            "— FA Environment se change karo.")
+        hdr.setWordWrap(True)
+        hdr.setStyleSheet("color: #445566; font-size: 11px;")
+        root.addWidget(hdr)
+
+        # ── Editable settings table ──────────────────────────
+        from HMS_py.core.enviro import EDITABLE
+        self.edit_keys = list(EDITABLE.keys())
+
+        root.addWidget(QLabel("Editable Settings:"))
+        self.tblEdit = QTableWidget(len(self.edit_keys), 3)
+        self.tblEdit.setHorizontalHeaderLabels(["Setting", "Type", "Value"])
+        self.tblEdit.horizontalHeader().setStretchLastSection(True)
+        self.tblEdit.setAlternatingRowColors(True)
+        root.addWidget(self.tblEdit)
+
+        # ── All settings read-only table (full view) ─────────
         root.addWidget(QLabel(
-            "System Enviro settings (read-only — VB6 se configure hoti hain)"))
-        self.tbl = QTableWidget(0, 2)
-        self.tbl.setHorizontalHeaderLabels(["Setting", "Value"])
-        self.tbl.setAlternatingRowColors(True)
-        self.tbl.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
-        self.tbl.horizontalHeader().setStretchLastSection(True)
-        root.addWidget(self.tbl)
+            "All Settings (full row — for reference, read-only):"))
+        self.tblAll = QTableWidget(0, 2)
+        self.tblAll.setHorizontalHeaderLabels(["Setting", "Value"])
+        self.tblAll.setAlternatingRowColors(True)
+        self.tblAll.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        self.tblAll.horizontalHeader().setStretchLastSection(True)
+        self.tblAll.setMaximumHeight(150)
+        root.addWidget(self.tblAll)
+
+        # ── Buttons ──────────────────────────────────────────
         btns = QHBoxLayout()
-        btnR = QPushButton("Refresh"); mark_desktop_action(btnR); btnR.setToolTip("Reload settings from database")
-        btnC = QPushButton("Close"); mark_desktop_action(btnC); btnC.setToolTip("Close this window")
-        btnR.clicked.connect(self.reload); btnC.clicked.connect(self.reject)
-        btns.addStretch(); btns.addWidget(btnR); btns.addWidget(btnC)
+        self.btnSave = QPushButton("&Save Changes")
+        self.btnSave.setToolTip(
+            "VB6 frmEnviro Cmd_Click: UPDATE Enviro SET ... WHERE SITECODE=...")
+        mark_desktop_action(self.btnSave, "primary")
+        btnR = QPushButton("&Refresh")
+        mark_desktop_action(btnR)
+        btnC = QPushButton("&Close")
+        mark_desktop_action(btnC)
+        btns.addWidget(self.btnSave)
+        btns.addStretch()
+        btns.addWidget(btnR)
+        btns.addWidget(btnC)
         root.addLayout(btns)
+
+        self.btnSave.clicked.connect(self._on_save)
+        btnR.clicked.connect(self.reload)
+        btnC.clicked.connect(self.reject)
+        QShortcut(QKeySequence("F5"), self, activated=self.reload)
+
         self.reload()
 
     def reload(self):
-        from HMS_py.core import db
-        cn = db.connect()
+        from HMS_py.core import enviro as _env
+        from HMS_py.core.enviro import EDITABLE
         try:
-            cur = cn.cursor()
-            cur.execute("SELECT TOP 1 * FROM Enviro")
-            if cur.description:
-                cols = [d[0] for d in cur.description]
-                row = cur.fetchone()
-                data = list(zip(cols, row)) if row else []
-                self.tbl.setRowCount(len(data))
-                for r, (k, v) in enumerate(data):
-                    self.tbl.setItem(r, 0, _vcell(k))
-                    self.tbl.setItem(r, 1, _vcell(v))
+            full = _env.get()
         except Exception as e:
             QMessageBox.warning(self, "Enviro", f"Load error: {e}")
-        finally:
-            cn.close()
+            return
+
+        # ── Populate editable table ──────────────────────────
+        self.tblEdit.setRowCount(len(self.edit_keys))
+        for r, key in enumerate(self.edit_keys):
+            val = full.get(key, "")
+            val_str = "" if val is None else str(val)
+            typ = EDITABLE.get(key, "str")
+
+            it_key = QTableWidgetItem(key)
+            it_key.setFlags(it_key.flags() & ~Qt.ItemFlag.ItemIsEditable)
+            it_key.setForeground(QColor("#2255aa"))
+            it_type = QTableWidgetItem(typ)
+            it_type.setFlags(it_type.flags() & ~Qt.ItemFlag.ItemIsEditable)
+            it_type.setForeground(QColor("#887766"))
+            it_val = QTableWidgetItem(val_str)
+
+            self.tblEdit.setItem(r, 0, it_key)
+            self.tblEdit.setItem(r, 1, it_type)
+            self.tblEdit.setItem(r, 2, it_val)
+
+        self.tblEdit.resizeColumnToContents(0)
+        self.tblEdit.resizeColumnToContents(1)
+
+        # ── Populate full read-only table ────────────────────
+        pairs = sorted(full.items())
+        self.tblAll.setRowCount(len(pairs))
+        for r, (k, v) in enumerate(pairs):
+            self.tblAll.setItem(r, 0, _vcell(k))
+            self.tblAll.setItem(r, 1, _vcell(v))
+
+    def _on_save(self):
+        """BUG-006 FIX: Collect changed cells and call enviro.update_settings().
+
+        VB6 TopCtrl1_UnknownEvent_16 equivalent:
+          UPDATE Enviro SET col1=?, col2=? ... WHERE LOGSITE_CODE=?
+        """
+        from HMS_py.core import enviro as _env
+        try:
+            full = _env.get()
+        except Exception as e:
+            QMessageBox.critical(self, "Save", f"Load error: {e}")
+            return
+
+        changes = {}
+        for r, key in enumerate(self.edit_keys):
+            it = self.tblEdit.item(r, 2)
+            if it is None:
+                continue
+            new_val = it.text()
+            old_val = full.get(key, "")
+            old_str = "" if old_val is None else str(old_val)
+            if new_val != old_str:
+                changes[key] = new_val
+
+        if not changes:
+            QMessageBox.information(self, "Save", "Koi changes nahi hain")
+            return
+
+        try:
+            _env.update_settings(changes)
+            QMessageBox.information(
+                self, "Save",
+                f"{len(changes)} setting(s) save ho gayi:\n"
+                + "\n".join(f"  {k} = {v!r}" for k, v in changes.items()))
+            self.reload()
+        except ValueError as e:
+            QMessageBox.warning(self, "Save — Validation Error", str(e))
+        except Exception as e:
+            QMessageBox.critical(self, "Save — DB Error", str(e))
 
 
 # ── GuestParam viewer ─────────────────────────────────────────
@@ -187,7 +297,6 @@ class GuestParamViewer(QDialog):
         self.reload()
 
     def reload(self):
-        from HMS_py.core import db
         cn = db.connect()
         try:
             cur = cn.cursor()

@@ -1,0 +1,42 @@
+[]
+[]
+[]
+[]
+[]
+[]
+[]
+[]
+[]
+[
+ {
+  "group": "Utility",
+  "leaf": "Menu Item Copy",
+  "captured": false,
+  "err": "no-visible-window",
+  "info": {}
+ },
+ {
+  "group": "Utility",
+  "leaf": "Sale MIS Customized",
+  "captured": false,
+  "err": "no-visible-window",
+  "info": {}
+ },
+ {
+  "group": "Utility",
+  "leaf": "Data Recieving",
+  "captured": false,
+  "err": "no-visible-window",
+  "info": {}
+ }
+]
+[
+ {
+  "group": "EPABX",
+  "leaf": "Call Control Master",
+  "captured": false,
+  "err": "no-visible-window",
+  "info": {}
+ }
+]
+[]

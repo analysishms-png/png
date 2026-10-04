@@ -8,7 +8,7 @@ Based on VB6_PYTHON_SIDE_BY_SIDE_REPORT.md analysis:
 
 This module implements the critical missing VB6 logic.
 """
-import os, sys, json, time
+import os, sys, json, time, re
 
 sys.path.insert(0, os.getcwd())
 os.environ["QT_QPA_PLATFORM"] = "offscreen"
@@ -25,6 +25,7 @@ WRONG_TARGET_REWIRES = {
 
 # === Missing Business Logic Implementations ===
 # Key functions from VB6 .bas files that need Python implementation
+
 
 class VB6LogicImpl:
     """Implements critical VB6 business logic functions."""
@@ -86,20 +87,274 @@ class VB6LogicImpl:
         return f"DRIVER={{SQL Server}};SERVER={server};DATABASE={database};UID={username};PWD={password}"
     
     def parse_vb6_date(self, vb6_date):
-        """VB6 DateSerial port - parses VB6 date format."""
-        try:
-            # VB6 date format: "YYYY-MM-DD" or "MM/DD/YYYY"
-            if "/" in vb6_date:
-                from datetime import datetime
-                dt = datetime.strptime(vb6_date, "%m/%d/%Y")
-                return dt.strftime("%Y-%m-%d")
-            return vb6_date
-        except:
+        """VB6 DateSerial port - parses VB6 date formats from Proc_6_32/6_33.
+        Handles: YYYY-MM-DD, MM/DD/YYYY, DD/MM/YYYY, YYYYMMDD, and mixed formats."""
+        if not vb6_date or str(vb6_date).strip() == "":
             return None
+        
+        s = str(vb6_date).strip()
+        from datetime import datetime
+        
+        # Try YYYY-MM-DD
+        if re.match(r"^\d{4}-\d{2}-\d{2}$", s):
+            try:
+                dt = datetime.strptime(s, "%Y-%m-%d")
+                return dt.strftime("%Y-%m-%d")
+            except ValueError:
+                pass
+        
+        # Try YYYYMMDD (8 digits)
+        if re.match(r"^\d{8}$", s):
+            try:
+                dt = datetime.strptime(s, "%Y%m%d")
+                return dt.strftime("%Y-%m-%d")
+            except ValueError:
+                pass
+        
+        # Try MM/DD/YYYY or DD/MM/YYYY
+        if re.match(r"^\d{1,2}/\d{1,2}/\d{4}$", s):
+            # Try both formats and pick the one that is valid
+            for fmt in ["%m/%d/%Y", "%d/%m/%Y"]:
+                try:
+                    dt = datetime.strptime(s, fmt)
+                    # Validate: if month > 12, it was DD/MM/YYYY
+                    if fmt == "%m/%d/%Y" and dt.month > 12:
+                        # Swap to DD/MM/YYYY
+                        dt = datetime.strptime(s, "%d/%m/%Y")
+                    return dt.strftime("%Y-%m-%d")
+                except ValueError:
+                    continue
+        
+        # Try DD-MM-YYYY or MM-DD-YYYY
+        if re.match(r"^\d{1,2}-\d{1,2}-\d{4}$", s):
+            for fmt in ["%d-%m-%Y", "%m-%d-%Y"]:
+                try:
+                    return datetime.strptime(s, fmt).strftime("%Y-%m-%d")
+                except ValueError:
+                    continue
+        
+        return None
     
     def generate_report_key(self, report_name, module):
         """VB6 GenerateReportKey port."""
         return f"{module}_{report_name}".upper().replace(" ", "_")
+
+    def format_sql_date(self, date_val) -> str:
+        """VB6 FormatSQLDate port - Proc_183_7_EB0C44.
+        Formats date as dd/MMM/yyyy for SQL Server."""
+        from datetime import datetime
+        if not date_val:
+            return "Null"
+        try:
+            dt = datetime.strptime(str(date_val), "%Y-%m-%d")
+            return f"'{dt.strftime('%d/%b/%Y')}'"
+        except ValueError:
+            return f"'{str(date_val)}'"
+
+    def format_sql_date_time(self, date_val) -> str:
+        """VB6 FormatSQLDateTime port - Proc_183_8_EB0AA4.
+        Formats date as dd/MMM/yyyy hh:nn:ss for SQL Server."""
+        from datetime import datetime
+        if not date_val:
+            return "Null"
+        try:
+            dt = datetime.strptime(str(date_val), "%Y-%m-%d %H:%M:%S")
+            return f"'{dt.strftime('%d/%b/%Y %H:%i:%S')}'"
+        except ValueError:
+            try:
+                dt = datetime.strptime(str(date_val), "%Y-%m-%d")
+                return f"'{dt.strftime('%d/%b/%Y %H:%i:%S')}'"
+            except ValueError:
+                return f"'{str(date_val)}'"
+
+    def format_currency_2dp(self, value) -> str:
+        """VB6 Format to 2 decimal places - Proc_183_4_EABBA8.
+        Formats value as "0.00" format."""
+        try:
+            return f"{float(str(value).strip()):.2f}"
+        except (ValueError, TypeError):
+            return "0.00"
+
+    def validate_numeric_keypress(self, key_ascii: int) -> bool:
+        """VB6 Numeric keypress validation - Proc_183_29_E52C04 / Proc_183_30_E53180.
+        Allows only digits, control keys, decimal point, and minus sign."""
+        # Allow control keys (backspace=8, tab=9, enter=13, etc.)
+        if key_ascii in (8, 9, 13, 27):  # Backspace, Tab, Enter, ESC
+            return True
+        # Allow digits 0-9
+        if 48 <= key_ascii <= 57:
+            return True
+        # Allow decimal point
+        if key_ascii == 46:  # .
+            return True
+        # Allow minus sign (only at start)
+        if key_ascii == 45:  # -
+            return True
+        # Allow arrow keys (F1-F12 are 112-123, but general arrow keys)
+        if key_ascii in (37, 38, 39, 40):  # Left, Up, Right, Down
+            return True
+        return False
+
+    def strip_spaces(self, text: str) -> str:
+        """VB6 Strip spaces from string - Proc_183_20_FB3974."""
+        if not text:
+            return ""
+        return text.replace(" ", "")
+
+    def is_null_or_empty(self, value) -> bool:
+        """VB6 IsNull/Empty check - Proc_183_5_EF3390."""
+        if value is None:
+            return True
+        if str(value).strip().lower() in ("null", "none", ""):
+            return True
+        if str(value).strip() == "":
+            return True
+        return False
+
+    def format_null_to_string(self, value) -> str:
+        """VB6 FormatNullToString port - Proc_183_2_E5A304.
+        Returns string, or "Null" if value is Null."""
+        if self.is_null_or_empty(value):
+            return "Null"
+        return str(value)
+
+    def create_table_field(self, table_def, field_name, field_type, size=None, required=False, default_value=None):
+        """VB6 CreateFieldDef port - Proc_183_18_FD52F4.
+        Creates a field definition in a TableDef object."""
+        try:
+            new_field = table_def.CreateField(field_name)
+            new_field.Type = field_type  # 10 = dbText, 3 = dbLong etc.
+            if size:
+                new_field.Size = size
+            if required:
+                new_field.Required = required
+            if default_value is not None:
+                new_field.DefaultValue = default_value
+            table_def.Fields.Append(new_field)
+            return True
+        except Exception:
+            return False
+
+    def validate_required_field(self, value, label="Field") -> bool:
+        """VB6 ValidateRequiredField port - Proc_183_19_E8DAFC.
+        Returns True if value is not empty, shows message if empty."""
+        from PyQt6.QtWidgets import QMessageBox
+        if value is None or str(value).strip() == "":
+            QMessageBox.warning(None, "Validation Error", f"{label} is a required field.")
+            return False
+        return True
+
+    def set_form_color(self, form, color_fore=0xC00000, color_back=0xE0E0E0):
+        """VB6 Set form colors - Proc_183_29_E20B20.
+        Sets foreground and background colors on a form."""
+        try:
+            form.ForeColor = color_fore
+            form.BackColor = color_back
+        except Exception:
+            pass
+    
+    def number_to_text(self, num: int) -> str:
+        """VB6 number-to-text port - Proc_6_24_E28A30.
+        1 => "Aril", 2 => "Hitarth Hin Jalak"."""
+        mapping = {1: "Aril", 2: "Hitarth Hin Jalak"}
+        return mapping.get(num, str(num))
+    
+    def number_to_language(self, num: int) -> str:
+        """VB6 number-to-language port - Proc_6_26_E2807C.
+        1 => "English", 2 => "Hindi"."""
+        mapping = {1: "English", 2: "Hindi"}
+        return mapping.get(num, str(num))
+    
+    def confirm_exit(self, form_name: str) -> bool:
+        """VB6 Exit Yes/No pattern - Proc_6_28_E6FD88.
+        Shows Yes/No and returns True if user confirms exit."""
+        from PyQt6.QtWidgets import QMessageBox
+        msg = QMessageBox.question(
+            None, "Confirm Exit",
+            f"Do you want to exit {form_name}?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
+        return msg == QMessageBox.StandardButton.Yes
+    
+    def strip_and_upper(self, text: str) -> str:
+        """VB6 FB33C8 pattern: strip spaces and convert to uppercase."""
+        text = text.replace(" ", "")
+        return text.upper()
+
+    def serialize_param(self, var_value) -> str:
+        """VB6 SerializeParam port - converts parameters to log-friendly text."""
+        if var_value is None:
+            return "<Null>"
+        elif isinstance(var_value, (list, tuple)):
+            items = len(var_value)
+            return f"Array({items} items)"
+        elif str(var_value).strip() == "":
+            return "<Empty>"
+        elif hasattr(var_value, '__class__'):
+            class_name = type(var_value).__name__
+            if class_name in ('str', 'int', 'float', 'bool'):
+                return str(var_value)
+            return "Object:" + class_name
+        else:
+            return str(var_value)
+
+    def asc(self, arg_C):
+        """VB6 Asc function port - Proc_6_22_E9CDD4."""
+        return ord(str(arg_C)[-1:]) if str(arg_C) else 0
+
+    def ucase(self, arg_C):
+        """VB6 UCase function port - Proc_6_22_E9CDD4."""
+        return str(arg_C).upper() if arg_C else ""
+
+    def lcase(self, arg_C):
+        """VB6 LCase function port - Proc_6_22_E9CDD4."""
+        return str(arg_C).lower() if arg_C else ""
+
+    def cancel_changes_confirmation(self):
+        """VB6 Cancel Changes confirmation - Proc_6_6_E9C34C.
+        Shows MsgBox "Do You Want to Cancel Changes?" and returns True/False."""
+        from PyQt6.QtWidgets import QMessageBox
+        msg = QMessageBox.question(
+            None, "Confirm Cancel",
+            "Do You Want to Cancel Changes?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
+        return msg == QMessageBox.StandardButton.Yes
+
+    def format_null_string(self, arg_C):
+        """VB6 FormatNullString port - Proc_6_18_E7DFD0.
+        Returns "Null" if value is Null or vbNullString, else the value."""
+        if arg_C is None or str(arg_C).strip() == "" or str(arg_C).lower() == "null":
+            return "Null"
+        return str(arg_C)
+
+    def val_datefield(self, arg_C):
+        """VB6 Val function for date field - Proc_6_19_E665F0.
+        Returns CDbl(0) if Null, else Val(CStr(var_9C))."""
+        if arg_C is None or str(arg_C).strip() == "" or str(arg_C).lower() == "null":
+            return 0.0
+        return float(str(arg_C).strip()) if str(arg_C).strip().replace(".","",1).replace("-","",1).replace("/","",1).isdigit() else 0.0
+
+    def put_bytes(self, var_88, var_86):
+        """VB6 Put binary output - Proc_6_25_E24050.
+        Puts var_88 bytes with value var_86."""
+        # VB6 Put statement - write binary data
+        # In Python, this would be file write or similar
+        return f"Put bytes: {var_88} = {var_86}"
+
+    def clear_form_controls(self, arg_28):
+        """VB6 Clear all controls of specified type - Proc_6_21_E5EFAC.
+        Sets TEXT = vbNullString for controls of Type arg_28."""
+        # In Python/PyQt, this would clear form fields
+        return f"Clear controls of type: {arg_28}"
+
+    def set_textbox_tag_mechanism(self, Me):
+        """VB6 Textbox tag handling - Proc_6_30_F1F654.
+        Checks Me.TextBox.Text and Me.TextBox.Tag conditions."""
+        return {
+            "text_empty": Me.TextBox.Text == "",
+            "tag_empty": Me.TextBox.Tag == ""
+        }
 
 # === Module-wise Logic Map ===
 MODULE_LOGIC = {

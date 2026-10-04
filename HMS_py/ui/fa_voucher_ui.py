@@ -12,6 +12,7 @@ PYT-guard: test/docid rows only delete.
 from __future__ import annotations
 
 import datetime
+import inspect
 import os
 import sys
 
@@ -34,12 +35,16 @@ def _cell(v) -> QTableWidgetItem:
     return it
 
 
+from HMS_py.ui.desktop_style import apply_desktop_surface, mark_desktop_action
+
+
 class VoucherEntryDialog(QDialog):
     """VB6 FaVrEnt: date/type/narration + DR/CR lines grid + Post."""
 
     def __init__(self, parent=None, user: str = "SA"):
         super().__init__(parent)
         self.user = user
+        apply_desktop_surface(self, "faVoucher")
         self.setWindowTitle("Voucher Entry - HMS_py")
         self.resize(820, 520)
         root = QVBoxLayout(self)
@@ -108,6 +113,16 @@ class VoucherEntryDialog(QDialog):
         self.lblStatus = QLabel("Debit must equal Credit (double entry)")
         self.lblStatus.setStyleSheet(f"font-size: 11px; color: {_theme.palette()['text_dim']}; padding: 2px 0;")
         root.addWidget(self.lblStatus)
+
+        # FIX #6: Set tab order matching VB6 TabIndex
+        # VB6 order: TXT_DATE(0) -> TXT_ACCOUNT -> TXT_Group -> BTSAVE(22) -> ADJ_OK(9) -> ADJ_CANCLE(8)
+        # Python voucher entry tab sequence
+        self.setTabOrder(self.dtVdate, self.cmbVType)
+        self.setTabOrder(self.cmbVType, self.edNarr)
+        self.setTabOrder(self.edNarr, self.tbl)
+        self.setTabOrder(self.tbl, self.tbl.item(0, 0) if self.tbl.rowCount() > 0 else self.tbl)
+        self.setTabOrder(self.tbl, self.lblStatus)
+
         self._add_line()
         self._add_line()
 
@@ -274,18 +289,48 @@ class ReportViewer(QDialog):
         root.addWidget(self.lbl)
         self._run()
 
+    def _accepts_dates(self) -> bool:
+        """ReportViewer supports both fn(f, t) and fn() query callables."""
+        try:
+            params = inspect.signature(self.fn).parameters
+        except (TypeError, ValueError):
+            return True
+        if any(p.kind is p.VAR_POSITIONAL for p in params.values()):
+            return True
+        positional = [p for p in params.values()
+                      if p.kind in (p.POSITIONAL_ONLY, p.POSITIONAL_OR_KEYWORD)]
+        return len(positional) > 0
+
     def _run(self):
         try:
-            f = self.dtFrom.date().toPyDate()
-            t = self.dtTo.date().toPyDate()
-            try:
-                data = self.fn(f, t)
-            except TypeError:
-                data = self.fn(t if not self.dtFrom.isEnabled() else f, t)
+            if self._accepts_dates():
+                data = self.fn(self.dtFrom.date().toPyDate(),
+                               self.dtTo.date().toPyDate())
+            else:
+                data = self.fn()
         except Exception as e:
             QMessageBox.critical(self, "Report", str(e)[:300])
             return
         self._fill(data)
+
+    @staticmethod
+    def _as_dicts(data):
+        if not data:
+            return []
+        out = []
+        for w in data:
+            if hasattr(w, "get"):
+                out.append(w)
+                continue
+            d = {}
+            for k in dir(w):
+                if k.startswith("_"):
+                    continue
+                v = getattr(w, k)
+                if not callable(v):
+                    d[k] = v
+            out.append(d)
+        return out
 
     def _fill(self, data):
         if isinstance(data, dict):
@@ -306,6 +351,11 @@ class ReportViewer(QDialog):
                     f"{len(rows)} groups | read-only")
                 return
             rows = [data]
+        if not data:
+            self.tbl.setRowCount(0)
+            self.lbl.setText("0 rows")
+            return
+        data = self._as_dicts(data)
         if not data:
             self.tbl.setRowCount(0)
             self.lbl.setText("0 rows")
@@ -435,11 +485,11 @@ def open_currbal_update(parent=None, user: str = "SA"):
         cn = _db.connect()
         try:
             rows = cn.cursor().execute(
-                "SELECT s.SubCode, s.Name, s.CurrBal, "
+                "SELECT s.GroupCode, s.GroupName, s.CurrBal, "
                 "ISNULL(SUM(l.AmtDr - l.AmtCr), 0) AS LedgerBal "
-                "FROM SubGroup s "
-                "LEFT JOIN Ledger l ON RTRIM(l.SubCode) = RTRIM(s.SubCode) "
-                "GROUP BY s.SubCode, s.Name, s.CurrBal"
+                "FROM ACGROUP s "
+                "LEFT JOIN Ledger l ON RTRIM(l.SubCode) = RTRIM(s.GroupCode) "
+                "GROUP BY s.GroupCode, s.GroupName, s.CurrBal"
             ).fetchall()
         except Exception as e:
             QMessageBox.critical(dlg, "Load", f"DB error: {e}")
@@ -478,7 +528,7 @@ def open_currbal_update(parent=None, user: str = "SA"):
                 "SELECT ISNULL(SUM(AmtDr - AmtCr), 0) FROM Ledger "
                 "WHERE RTRIM(SubCode) = ?", (subcode,))
             bal = float(cur.fetchone()[0] or 0)
-            cur.execute("UPDATE SubGroup SET CurrBal = ? WHERE SubCode = ?",
+            cur.execute("UPDATE ACGROUP SET CurrBal = ? WHERE GroupCode = ?",
                         (bal, subcode))
             cn.commit()
             QMessageBox.information(dlg, "Rebuild",

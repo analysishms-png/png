@@ -83,9 +83,14 @@ def _make_printer(title: str) -> QPrinter:
     return printer
 
 
-def print_text(text, title: str = "Print", parent=None) -> bool:
+def print_text(text, title: str = "Print", parent=None,
+               printer_name: str = None, copies: int = None) -> bool:
     """QPrintDialog kholkar plain-text print karo. True = print hua."""
     printer = _make_printer(title)
+    if printer_name:
+        printer.setPrinterName(str(printer_name))
+    if copies is not None:
+        printer.setCopyCount(max(1, int(copies)))
     dlg = QPrintDialog(printer, parent)
     if dlg.exec() != int(QDialog.DialogCode.Accepted):
         return False

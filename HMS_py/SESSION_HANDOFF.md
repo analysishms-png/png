@@ -694,3 +694,264 @@ maujood, `Enviro.MultiBillGeneration=''` (-> Sale1 path), `DeliveryBoy`/
 - Wrong-target contracts: `tests/unit/test_wrong_target_wiring.py` (strict)
 - DB: MOONData2627 (SQL Server, Native Client 10), 277 tables
 - Login: SA/******** verified working (password session-only)
+
+---
+
+# SESSION HANDOFF — 2026-10-02 (Main Setup dispatcher-stub compare loop)
+
+## What was asked
+Continuous VB6->Python compare->debug->test->verify loop over Main Setup until no
+relevant VB6 logic is missing. This round: close every `_coming_soon` leaf under
+`&Main Setup` by comparing against the VB6 dispatcher (ModuleAdd.bas
+Proc_165_2_1E4B100) + MDIForm1 static menu (UTL_Click/SCRD_Click).
+
+## Done (all verified)
+- Evidence pass: every stub leaf traced to VB6 dispatch loc or proven dead
+  (no-case fall-through / UTL case empty / menu Visible=0 / SCRD=Exit Sub).
+- Parity test guard FIXED (tests/unit/test_mainsetup_registry_parity.py):
+  exact-match qualname -> `_COMING_SOON_QUALNAME_SUFFIX` + endswith (MS-031).
+  Guard now really detects stubs (was silently passing while 9 leaves red).
+- ALLOWED_INACTIVE expanded with VB6 evidence: Rate Group Master, Sale MIS
+  Customized, Data Recieving, Data Transfer, Data Transfer (POS) (+ carried
+  Member Bill Sundry Setting). Evidence in test comments (MS-036).
+- 7 forms ported (NEW files only, agent-written, py_compile + offscreen
+  construct + read-only live-DB smoke each):
+  1. Voucher Serialisation: core/voucher_serialisation_ops.py +
+     ui/voucher_serialisation_ui.py -> open_voucher_serialisation
+  2. POS Recycle: core/pos_recycle_ops.py + ui/pos_recycle_ui.py ->
+     open_pos_recycle (supervisor gate)
+  3. Enviro Inventry: core/purchase_enviro_ops.py + ui/purchase_enviro_ui.py
+     -> open_purchase_enviro (14 Enviro cols; overlap w/ enviro_ui documented)
+  4. Task Scheduler: core/task_scheduler_ops.py + ui/task_scheduler_ui.py ->
+     open_task_scheduler (JobSchedule CRUD, KK+Max+1 code rule)
+  5. Voucher Wise Sundry Entry: core/voucher_sundry_ops.py +
+     ui/voucher_sundry_ui.py -> open_voucher_sundry_entry (SundryType CRUD)
+  6. Open Item Consumption: core/open_item_consumption_ops.py +
+     ui/open_item_consumption_ui.py -> open_open_item_consumption
+     (undated FinItem+RestCode; DELETE->re-INSERT + ItemMast cost rollup)
+  7. POS Bill Deletion: core/pos_bill_deletion_ops.py +
+     ui/pos_bill_deletion_ui.py -> open_pos_bill_deletion
+     (VB6-exact order; confirm+pending-count added, MS-035)
+- frmWelcome port: ui/utility_forms_ui.py SpecialOccasionsDialog +
+  open_special_occasions (MS-033; Guest BirthDates/Anniversary now correct).
+- ui/shell.py wiring: 7 try/except imports; blocked-tuple trims; explicit
+  wires for 7 ports + Guest BirthDates + PLU File (W.Scale) + Cash Card x2 +
+  Recharge/Refund -> sct.open_card_recharge (MS-034).
+- Lint: ruff --fix on 3 new files (E401/F401 x2) -> new files clean; shell.py
+  findings pre-existing (HEAD had 47).
+
+## Test state (authoritative)
+- Baseline before round: 873 passed, 1 skipped.
+- Parity: `python -m pytest tests/unit/test_mainsetup_registry_parity.py -q`
+  -> 5 passed (was 4 passed/1 failed w/ 9 red leaves).
+- Full: `python -m pytest -q -p no:cacheprovider` -> 907 passed, 1 skipped,
+  2 warnings (pre-existing utcnow), 101.27s.
+
+## Docs updated
+- MAIN_SETUP_VB6_VS_PYTHON_COMPARISON.md: sec 10 refreshed + new sec 11
+  (round-2 tables: ported/re-wired/allowlisted + verification).
+- MAIN_SETUP_BUG_REGISTER.md: MS-031..MS-036 added; summary 36 total
+  (16 P0/20 P1); DOCUMENTED legend.
+- MAIN_SETUP_IMPLEMENTATION_STATUS.md: round-2 section (7-port table,
+  re-wires, guard fix, next steps).
+- MAIN_SETUP_TEST_RESULTS.md: sec 8 (parity 5/5, suite 907, per-port
+  verification table, lint).
+
+## Known gaps / next
+- MS-001..MS-030 (round-1 register): CompMast 42-field form, FA Enviro editable
+  UI, TopCtrl machines, UserPermission UI, keyboard map, permission menu —
+  outside dispatcher loop, still OPEN.
+- Data Transfer / Data Transfer (POS): non-portable Jet .mdb protocol; needs
+  product decision for SQL Server-native design.
+- Rerun full suite before any commit (nothing committed this round; all work
+  untracked/modified in working tree).
+
+---
+
+# SESSION HANDOFF - 2026-10-02 round 3 (waves 1-3: schema upgrade, site sweep, register rebuild)
+
+## What was asked
+Continue the Main Setup compare->debug->test->verify loop per user decisions:
+(a) fix broken general_setup_tabs (FIELD_TYPES) and keep going on register
+items; (b) MS-008 = port SAFE SUBSET only (admin-gated Schema Upgrade dialog,
+no DROP COLUMN / no SerialKeyNo reset / no app-kill), also fix folio.py
+divergences.
+
+## Done this round (all verified)
+### Fixes I applied directly
+- ui/general_setup_tabs_ui.py: FIELD_TYPES/FIELD_MAXLEN were locals inside
+  _build - calls changed to `FIELD_TYPES.get`/`FIELD_MAXLEN.get`; added
+  QSpinBox/QDoubleSpinBox to PyQt6 import. test_general_setup_tabs 19/19.
+- core/fa_enviro.py MS-006 (re-open): removed U_Name/U_AE/U_EntDt injection
+  from update_settings (live FAEnviro 58 cols has NO audit cols; VB6 UPDATE
+  loc_160F419-160F6C1 also none). Test renamed
+  test_fa_enviro_update_settings_matches_vb6_no_audit pins parity.
+- core/folio.py run_startup_normalization (Chain-B divergences, VB6 verbatim):
+  * guestprof_fom += `AND FOM IS NULL` (loc_195AE9D) - pehle FOM=0 rows ko
+    1 palat deta tha (data-flip bug).
+  * planmast_taxstru: galat `INNER JOIN RevMast ON Code=Code` -> VB6
+    `LEFT JOIN RoomCat LEFT JOIN RevMast` + `WHERE ISNULL(...)=''` (loc_195AC15).
+  * roomocc_taxstru: fill-only guard add (loc_195AC36).
+  * depart_kot_na: constant 'No' default -> VB6 Enviro subselect
+    `SELECT ISNULL(MAX(KOTAtNightAudit),'') FROM Enviro WHERE LogSite_Code=?`
+    + `OutletYN='Y'` (loc_195AE65-75).
+  * statements normalized to (name, sql, params) tuples; loop passes params.
+  Verified: py_compile + nightaudit tests 10/10 (no test refs the fn).
+- ui/shell.py _db_update (:914): stub -> lazy import + open_schema_upgrade
+  (admin gate lives in dialog).
+
+### Wave-1 (5 parallel agents, all green)
+- MS-010/017: core/auth.ensure_sa_user (frmCompany.frm:1817-1823) at
+  check_login entry; usermaster._validate VB6 rules (Short Name required,
+  Y/N validation, password <=8).
+- MS-001..004/027: NEW ui/comp_mast_form_ui.py (CompMastForm :151,
+  CompanySearchDialog :71, open_comp_mast_form :832) + core/comp_master.py
+  (validate/save 43-col/delete/get + 4 DG lookups); no ContractType col live;
+  F_AO opening-balance write NOT ported (risky, documented). Registry
+  "Company Master" rewired with p2 fallback.
+- MS-030/009/011: _Vb6KeyMapFilter + install_vb6_keymap(app) from run_flow()
+  + main(); F2-F11 caption handler, Enter=Tab busy guard, Esc/F12 pass-through;
+  company grid context menu Add/Edit/Delete/Save/Cancel/Exit.
+- MS-012/014/015/028/029: general_setup_tabs nav toolbar, lookup pickers +
+  LookupDialog, roundoff_save/delete_module, RoundOffSetting grid, radios;
+  6 grids bound (DGHelp/DGGroup/DGRevenue/DGPurchaseGodown/
+  DGPurchItem/DGDepart) via LOOKUPS + _grid_rows + lookup_* fetchers
+  (DGDepart via PrintingParametersTab RestCode browse).
+- MS-005/007/026: ui/fa_enviro_ui.py 22 missing widgets, Tagada maxLength(75),
+  Debit/CreditLimit checkboxes, 42-col btnok harvest.
+
+### Wave-2
+- MS-016: UserMast GodCode/FloorCode/BackColor/AllowDtChng persisted
+  (SELECT_COLS/_map/insert/update) + UI fields/swatch.
+- MS-037: NEW core/permission.py (operation/role_of/clear_cache; a/e/d/p =
+  UserPermission.frm Param_Str slots :1636/:2282/:2353, u = HMS.bas:18788;
+  fail-open: None/""/SA/unknown -> True); consumed by shell _rbac_guard;
+  live verified SA open / ADITYA denied.
+
+### MS-008 Schema Upgrade (user decision: port safe subset)
+- NEW core/schema_upgrade.py: 630 idempotent statements in VB6 order
+  (frmCompany:2773 -> Hotlib:608 hop -> 2776..2831); guard_audit() at import
+  630/630 guarded, guarded-drop allowlist = 3 (RoomDiscount PK, 2 view drops);
+  plan(); run(CONFIRM_TOKEN) per-stmt try/except. NO DDL executed in verify.
+- NEW ui/schema_upgrade_ui.py: admin-gated (permission.role_of), preview +
+  confirm + results; opener open_schema_upgrade(parent, user).
+- EXCLUDED (hard): 4 irreversible one-time statements (DROP COLUMN kdate,
+  SerialKeyNo='', DF drop, Company add Comp_Id), 47 login-normalization
+  writes, VB6 End, any auto-run.
+
+### MS-020 site sweep (evidence-driven) + MS-021 correction
+- 118 candidates classified vs VB6: 7 FIXED (forex_txn:66, pos_advance:88,
+  pos_display:52, excise_gate_pass:85, nightaudit:59, checkout:342,
+  plan_definition:39), 100 KEPT with loc refs, 3 UNCERTAIN kept
+  (excise_gate_pass:54/62, travel_post:88 - exact VB6 twins site-only),
+  5 excluded-file rows classified only (folio.py, comp_master.py).
+- MS-021 register claim "VB6 consistently uses OR-HO" CORRECTED: Enviro 622
+  site-scoped vs 2 HO; rule = per-query exact VB6 evidence.
+- Live smoke of 7 fixed queries OK; targeted 50 passed.
+
+### Incident: concurrent parallel session (5 opencode.exe running)
+- ui/general_setup_tabs_ui.py + core/fa_enviro.py were being written by
+  another session mid-run (fa_enviro content hash stayed identical - my
+  MS-006 fix survived).
+- core/__init__.py got a giant NEW import block (~11:37) naming 7
+  non-existent flat channel_* modules + duplicate travel_post +
+  auth.dec_bytes -> suite could not even load conftest (transient
+  ImportError voucher_type_ops then channel_config). REPAIRED: channel -> 1
+  name (real layout = core/channel/ package), dedup travel_post, dropped
+  dec_bytes, added __all__ (96 names) -> ruff clean.
+- DELIVERABLE CLOBBER: MAIN_SETUP_BUG_REGISTER.md (child),
+  MAIN_SETUP_IMPLEMENTATION_STATUS.md, MAIN_SETUP_TEST_RESULTS.md
+  overwritten by parallel session 10:47-10:48 (legacy BUG-001 content).
+  Superseded copies preserved as *.superseded_20261002_1047.
+  BUG REGISTER REBUILT (MS-001..037 + round-2 verification counts + wave
+  logs) with reconstruction notice - MS-018/019/022-025/032 entries [LOST]
+  (no git history; only ids + scope known). STATUS + TEST_RESULTS rebuilt
+  from facts. COMPARISON got new sec 12 (round-3). NOTE: parent-dir
+  ../MAIN_SETUP_BUG_REGISTER.md is a DIFFERENT lineage (Oct-1 Tax/PayType
+  MS-001..018) - do not merge.
+
+## Test state (authoritative)
+- Final: `QT_QPA_PLATFORM=offscreen python -m pytest -q -p no:cacheprovider`
+  -> **1033 passed, 1 skipped, 0 failed**, 2 pre-existing utcnow warnings,
+  134.94s (entire tests/ tree).
+- Earlier baselines: 873 -> 907 (round-2) -> 918+10err (mid wave-2,
+  FIELD_TYPES breakage) -> 1033 final.
+- Lint: schema_upgrade/ui + core/__init__ + comp_mast/permission files all
+  ruff clean; ui/shell.py 30 findings (HEAD had 47, rest pre-existing
+  E402/E702/E731/F401); folio E741 + nightaudit F401 pre-existing at HEAD.
+
+## Known gaps / next (authoritative open items)
+1. [CLOSED 2026-10-02 round-4] MS-004 - premise disproven: live callers
+   ui/shell.py:845/895 + CompanyDialog; delegation impossible (different
+   table/semantics). Docstring wrong-target guards added (core/company.py).
+2. MS-013 Tier-2: remaining Enviro finance AC columns (AdvanceAc, Loan_Ac,
+   Salary_Ac, Cash_Ac, CashCard*, ~21 cols) - product decision pending
+   (expose VB6-parity vs read-only display; 0 live-schema gaps, no ALTER
+   needed). Tier-1 DONE 2026-10-02: 6 Outlet/Banquet AC cols (OutdoorSaleAC/
+   IndoorSaleAC/OutdoorPartyAC/IndoorPartyAC/HallDiscAC/HallRoundOff) in
+   EDITABLE + SubGroup existence check + DGHelp pickers; removed from
+   READ_ONLY.
+3. [RECOVERED 2026-10-02 round-4] register entries MS-018/019/022..025/032 -
+   all 7 restored verbatim from pre-clobber opencode session DB + re-verified
+   against code; see register + MAIN_SETUP_REAUDIT_FRAGMENT.md. 0 [LOST] left.
+4. [RESOLVED 2026-10-02 round-4] 3 uncertain MS-020 rows - all KEEP with VB6
+   loc + HMS.exe binary evidence (excise_gate_pass:54/62 =
+   RsKitchenMaterial.frm:1775 site-only; travel_post:88 =
+   TravelAgencyPost.frm:597/:861 site-only). Tally: 7 fixed/103 kept/0
+   uncertain.
+5. [DONE 2026-10-02] 6 general-setup grids (DGHelp/DGGroup/DGRevenue/
+   DGPurchaseGodown/DGPurchItem/DGDepart) bound in ui/general_setup_tabs_ui.py
+   (LOOKUPS + _grid_rows + lookup_* fetchers; DGDepart via
+   PrintingParametersTab RestCode browse button). Smoke: 3107/73/67/64/768/67
+   rows; missing table -> [] graceful.
+6. Data Transfer / Data Transfer (POS): Jet .mdb protocol - product decision;
+   research complete (round-4): recommendation = SQL Server-native transfer,
+   decision gate = "field sites networked to HO SQL Server?" (air-gapped ->
+   same workflow with BCP/CSV/zip carrier; optional read-only .mdb importer
+   hedge for mixed rollout). Details in register Open items.
+7. Crystal .RPT layouts remain app-wide stub (text fallback standard).
+8. Nothing committed this round; all work untracked/modified. Watch for the
+   parallel session re-clobbering the three rebuilt deliverables (re-check
+   mtimes before relying on them).
+9. menu_help Opt5-7: fixed 2026-10-02 (see TEST_RESULTS §5). VB6 has NO
+   Opt5/6/7 anywhere; if the parallel session's User Permission UI wants
+   Print/Report/Admin rights columns, that is a SCHEMA + product decision
+   (add columns only with user approval) — do not re-add to `_cols` blindly.
+
+## Round-3 addendum (2026-10-02 afternoon)
+- menu_help Opt5-7 regression (parallel session, 11:46) fixed at 13:32:
+  `_load_user` restored to Opt1-4 cols (456 SA rows), `get_permissions`
+  fallback hardened against Code-as-Opt5 false positive.
+- Parallel session wrote `ui/shell.py` at 13:37 (registry edits) mid-suite;
+  3 transient failures all pass on re-run (65/4 files).
+- `test_currbal_rebuild` ×2 failed on SQL Server deadlock/lock-timeout under
+  parallel-session DB contention (suite 452.75s) — pass on re-run.
+- **AUTHORITATIVE final suite: 1038 passed, 1 skipped, 0 failed — 59.42s,
+  exit=0** (1038 = 1033 + parallel session's 5 new
+  `tests/database/test_main_setup_isolation.py`). Deliverables intact
+  (register 11:56, status 12:00, test-results 12:00→updated, comparison 12:04,
+  handoff 12:04→updated).
+
+## Round-4 addendum (2026-10-02, "CONTINUE WITH ALL" batch)
+- 6 work packages run in parallel; results integrated into register
+  (Wave-4 log + entries), this handoff, STATUS, TEST_RESULTS.
+- **[LOST] → RECOVERED**: MS-018 (UserPermission UI), MS-019 (permission
+  menu build), MS-022 (Printing Setup INI keys), MS-023/024/025 (FA Enviro
+  ageing/Tagada/stock editables), MS-032 (7 stub menus) — verbatim rows from
+  pre-clobber opencode DB, HIGH confidence, re-verified. Stubs' scope guesses
+  (TopCtrl etc.) were wrong.
+- **MS-004 CLOSED**: "orphan CRUD" claim disproven (shell.py:845/895 live);
+  docstring wrong-target guards added (core/company.py); 10 tests pass.
+- **MS-020 closed out**: 3 uncertain → KEEP ×3 (VB6 loc + HMS.exe binary
+  scan evidence); no code changes.
+- **MS-028 grids DONE** (6 bound, smoke 3107/73/67/64/768/67 rows) +
+  3 core/enviro.py type fixes (CatalogLimit/KitchenStockReport/SmartCardItem
+  were aborting every Parameter save with ValueError).
+- **MS-013 Tier-1 FIXED**: 6 AC cols → EDITABLE + SubGroup existence check;
+  save smoke 40 keys / 0 validation failures / 0 value drift. Tier-2 +
+  Data Transfer = open product decisions (evidence in register Open items).
+- Parallel-session breakage fixed (2-line diff): stray `PYEOF`
+  (ui/fa_voucher_ui.py:128, heredoc artifact → 65 collection errors) +
+  invalid `setTabOrder(..., focusNextChild())` (:124 → TypeError).
+- Verification after batch: registry/general-setup 24 passed, ui_modules
+  5 passed; full-suite confirmation recorded in TEST_RESULTS §6.

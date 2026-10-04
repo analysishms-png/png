@@ -1,0 +1,53 @@
+........................................................................ [  6%]
+........................................................................ [ 13%]
+........................................................................ [ 20%]
+........................................................................ [ 26%]
+........................................................................ [ 33%]
+........................................................................ [ 40%]
+..................s..................................................... [ 46%]
+........................................................................ [ 53%]
+........................................................................ [ 60%]
+........................................................................ [ 66%]
+........................................................................ [ 73%]
+........................................................................ [ 80%]
+........................................................................ [ 87%]
+........................................................................ [ 93%]
+...................................................................      [100%]
+============================== warnings summary ===============================
+tests/database/test_main_setup_isolation.py::test_site_isolation
+  C:\Users\LENOVO\AppData\Roaming\Python\Python314\site-packages\_pytest\python.py:170: PytestReturnNotNoneWarning: Test functions should return None, but tests/database/test_main_setup_isolation.py::test_site_isolation returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/database/test_main_setup_isolation.py::test_business_date
+  C:\Users\LENOVO\AppData\Roaming\Python\Python314\site-packages\_pytest\python.py:170: PytestReturnNotNoneWarning: Test functions should return None, but tests/database/test_main_setup_isolation.py::test_business_date returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/database/test_main_setup_isolation.py::test_report_parameters
+  C:\Users\LENOVO\AppData\Roaming\Python\Python314\site-packages\_pytest\python.py:170: PytestReturnNotNoneWarning: Test functions should return None, but tests/database/test_main_setup_isolation.py::test_report_parameters returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/database/test_main_setup_isolation.py::test_print_engine
+  C:\Users\LENOVO\AppData\Roaming\Python\Python314\site-packages\_pytest\python.py:170: PytestReturnNotNoneWarning: Test functions should return None, but tests/database/test_main_setup_isolation.py::test_print_engine returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/database/test_main_setup_isolation.py::test_reprint_manager
+  C:\Users\LENOVO\AppData\Roaming\Python\Python314\site-packages\_pytest\python.py:170: PytestReturnNotNoneWarning: Test functions should return None, but tests/database/test_main_setup_isolation.py::test_reprint_manager returned <class 'bool'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/database/test_taxstru_inline_save.py::test_inline_grid_save_roundtrip
+tests/unit/test_general_setup_tabs.py::test_general_setup_window_six_vb6_tabs
+  C:\Users\LENOVO\Desktop\serialkey\PROJECT_REPAIR - Copy\HMS_py\HMS_py\ui\general_setup_tabs_ui.py:230: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    utc_now = _dt.datetime.utcnow()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+1074 passed, 1 skipped, 7 warnings in 270.33s (0:04:30)

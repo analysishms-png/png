@@ -169,11 +169,14 @@ def _log(docid: str, flag: str, user: str, cn, site: str = SITE_CODE):
 # EVIDENCE (HMS.bas:90023 31-col INSERT + live folio #462):
 #   DocId 'DKKRC    2026  <VNo:8>'  (Vtype='RC') | VNo = MAX(VNo)+1 per
 #   FY-RC series (live: 599 @ folio 462) | SNo = MAX(SNo)+1 us folio me |
-#   KKRMCH=Room, KKCGSS=CGST5%, KKSGSS=SGST5% | AmtDr=charge, AmtCr=receipt.
+#   KKRMCH=Room, KKCGSS=CGST2.5%, KKSGSS=SGST2.5% | AmtDr=charge,
+#   AmtCr=receipt | TaxPer=0 (RMCH) / 2.5 (CGST,SGST), OnAmt=base
+#   (BUG-AUD-10: 400+ live rows, tax/base = 0.025 uniform).
 PAY_CODE = "KKRMCH"
 CGST_CODE = "KKCGSS"
 SGST_CODE = "KKSGSS"
-GST_RATE = 0.05  # live #462: 3000 -> 75 + 75
+GST_RATE = 0.025  # BUG-AUD-10: live #462 3000 -> 75 + 75 = 2.5% per leg
+                  # (old 0.05 = 2x over-charge vs VB6)
 VTYPE_RC = "RC"  # live census: Vtype 'RC   ' 1350 rows, VNo max 602
 
 
@@ -184,7 +187,8 @@ def post_room_charge(folio: int, amount: float, roomno: str = "",
                      with_gst: bool = True) -> int:
     """Room charge post (VB6 FoGuestFolio charge-entry, HMS.bas:90023
     31-col INSERT pattern): PayCharge row + FolioLog 'P'.
-    GST: amount*5% CGST + amount*5% SGST (live #462 evidence) - sirf
+    GST: amount*2.5% CGST + amount*2.5% SGST (BUG-AUD-10 live evidence:
+    TaxPer=2.5, 3000 -> 75 + 75) - sirf
     KKRMCH (room charge) pe, ek baar me teen rows banti hain."""
     rows = db.query(
         "SELECT DocId, Name, GuestProf FROM GuestFolio WHERE Site_Code = ? AND "
@@ -207,31 +211,34 @@ def post_room_charge(folio: int, amount: float, roomno: str = "",
                                   (folio, site), cn=cn) - 1
         today = datetime.date.today()
 
-        def _pc(sno, paycode, amt):
+        def _pc(sno, paycode, amt, taxper=0.0):
             # FolioNoDocid = GuestFolio.DocId link (live pattern: production
             # RC/REC rows carry the folio link; VB6 fdPaymentCharge INSERT).
             # Use GuestProf code (auto-generated KK#######) not guest name.
             # GuestProf column is varchar(8) - use actual code from GuestFolio
+            # TaxPer/OnAmt: VB6 shape (RMCH TaxPer=0, CGST/SGST TaxPer=2.5,
+            # OnAmt=base amount on every row).
             guestprof_code = (rows[0][2] or "")[:8]  # GuestProf - max 8 chars
             db.execute(
                 "INSERT INTO PayCharge (DocId, SNo, Vtype, VNo, Site_Code, "
                 "VPrefix, Vdate, GuestProf, Comments, PayCode, FolioNo, "
-                "FolioNoDocid, RoomNo, AmtDr, U_Name, U_EntDt, U_AE, "
-                "LogSite_Code) "
+                "FolioNoDocid, RoomNo, AmtDr, TaxPer, OnAmt, U_Name, "
+                "U_EntDt, U_AE, LogSite_Code) "
                 "VALUES (?, ?, 'RC', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
-                "getdate(), 'A', ?)",
+                "?, ?, getdate(), 'A', ?)",
                 (make_pc_docid(site, vprefix, vno), sno, vno, site,
                  vprefix, today, guestprof_code, "", paycode, folio,
-                 rows[0][0], roomno or "", amt, user, site), cn=cn, commit=False)
+                 rows[0][0], roomno or "", amt, taxper, float(amount),
+                 user, site), cn=cn, commit=False)
 
         _pc(base_sno + 1, paycode, float(amount))
         next_sno = base_sno + 2
         if with_gst and paycode == PAY_CODE:
             gst = round(float(amount) * GST_RATE, 2)
             if gst > 0:
-                _pc(next_sno, CGST_CODE, gst)
+                _pc(next_sno, CGST_CODE, gst, taxper=2.5)
                 next_sno += 1
-                _pc(next_sno, SGST_CODE, gst)
+                _pc(next_sno, SGST_CODE, gst, taxper=2.5)
         _log(rows[0][0], "P", user, cn, site)
         if commit:
             cn.commit()
@@ -1059,35 +1066,45 @@ def run_startup_normalization(cn=None, site: str = SITE_CODE) -> dict:
     results = {}
     statements = [
         ("sale1_au", "UPDATE Sale1 SET AU_Name = ISNULL(U_Name, '') "
-         "WHERE AU_Name IS NULL"),
+         "WHERE AU_Name IS NULL", ()),
         ("sale1log_au", "UPDATE Sale1Log SET AU_Name = ISNULL(U_Name, '') "
-         "WHERE AU_Name IS NULL"),
+         "WHERE AU_Name IS NULL", ()),
         ("splitsale1_au", "UPDATE SplitSale1 SET AU_Name = ISNULL(U_Name, '') "
-         "WHERE AU_Name IS NULL"),
+         "WHERE AU_Name IS NULL", ()),
         ("paycharge_au", "UPDATE Paycharge SET AU_Name = ISNULL(U_Name, '') "
-         "WHERE AU_Name IS NULL"),
+         "WHERE AU_Name IS NULL", ()),
         ("paychargelog_au", "UPDATE PaychargeLog SET AU_Name = ISNULL(U_Name, '') "
-         "WHERE AU_Name IS NULL"),
+         "WHERE AU_Name IS NULL", ()),
         ("smartcard_reward", "UPDATE SmartCardRegistration SET RewardBal = "
-         "ISNULL(RewardBal, 0) WHERE RewardBal IS NULL"),
-        ("depart_kot_na", "UPDATE Depart SET KOTAtNightAudit = "
-         "ISNULL(KOTAtNightAudit, 'No') WHERE KOTAtNightAudit IS NULL"),
+         "ISNULL(RewardBal, 0) WHERE RewardBal IS NULL", ()),
+        ("depart_kot_na", "UPDATE Depart SET KOTAtNightAudit = (SELECT "
+         "ISNULL(MAX(KOTAtNightAudit), '') FROM Enviro WHERE LogSite_Code = ?) "
+         "WHERE ISNULL(KOTAtNightAudit, '') = '' AND OutletYN = 'Y'", (site,)),
+        # VB6 frmCompany.frm loc_195AE9D: `And FOM Is Null` guard missing
+        # tha (FOM=0 wale rows ko 1 palat deta tha) — 2026-10-02 fix.
         ("guestprof_fom", "UPDATE GuestProf SET FOM = 1 WHERE Code IN "
-         "(SELECT GuestProf FROM Booking)"),
+         "(SELECT GuestProf FROM Booking) AND FOM IS NULL", ()),
+        # VB6 loc_195AC15: PlanMast -> RoomCat -> RevMast (LEFT JOIN chain)
+        # + `WHERE IsNull(RoomTaxStru,'')=''` guard; pehle seedha
+        # PlanMast.Code=RevMast.Code INNER JOIN tha (galat join).
         ("planmast_taxstru", "UPDATE PlanMast SET RoomTaxStru = RevMast.TaxStru "
-         "FROM PlanMast INNER JOIN RevMast ON PlanMast.Code = RevMast.Code"),
+         "FROM PlanMast LEFT JOIN RoomCat ON RoomCat.Code = PlanMast.RoomCat "
+         "LEFT JOIN RevMast ON RevMast.Code = RoomCat.RevCode "
+         "WHERE ISNULL(PlanMast.RoomTaxStru, '') = ''", ()),
+        # VB6 loc_195AC36: fill-only guard (same semantics, RoomCat key)
         ("roomocc_taxstru", "UPDATE RoomOcc SET RoomTaxStru = Q.TaxStru "
          "FROM RoomOcc INNER JOIN (SELECT RoomCat.Code, RevMast.TaxStru "
          "FROM RoomCat INNER JOIN RevMast ON RoomCat.Revcode = RevMast.Code) Q "
-         "ON RoomOcc.RoomCat = Q.Code"),
-        ("gfpd_cleanup", "DELETE FROM GuestFolioProfDetail WHERE Docid = ''"),
+         "ON RoomOcc.RoomCat = Q.Code "
+         "WHERE ISNULL(RoomOcc.RoomTaxStru, '') = ''", ()),
+        ("gfpd_cleanup", "DELETE FROM GuestFolioProfDetail WHERE Docid = ''", ()),
     ]
     own = cn is None
     cn = cn or db.connect()
     try:
-        for name, sql in statements:
+        for name, sql, params in statements:
             try:
-                n = db.execute(sql, cn=cn, commit=False)
+                n = db.execute(sql, params, cn=cn, commit=False)
                 results[name] = n
             except Exception as e:
                 results[name] = f"skip: {e}"

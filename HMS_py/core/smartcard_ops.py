@@ -257,7 +257,6 @@ def auto_settle_card(code: str, secur_settle: str = "C",
         raise ValueError(f"Card '{code}' SmartCardRegistration me nahi mila")
     curr = float(head[0].CurrBal or 0)
     sec = float(head[0].SecurBal or 0)
-    cardno = str(head[0].CardNo or "")
     hw = str(head[0].SerialNo or "")[:20]
 
     def _go(c, commit_):

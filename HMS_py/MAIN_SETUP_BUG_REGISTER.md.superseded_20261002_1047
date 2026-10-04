@@ -1,0 +1,148 @@
+# MAIN SETUP — BUG REGISTER
+
+## BUG-001: PrintMast/PrinterSetup/PrintFormats tables missing
+- **MODULE**: General Setup > Printing Parameters / Printing Setup
+- **VB6 SOURCE**: frmPrintModule.frm, frmMod_Print.frm
+- **PYTHON SOURCE**: core/printmast.py, core/printersetup.py, core/printformats.py
+- **SCREEN**: Printing Parameters, Printing Setup
+- **FRONTEND ISSUE**: N/A (backend issue)
+- **BACKEND ISSUE**: Tables did not exist in database
+- **SQL ISSUE**: N/A
+- **REPORT ISSUE**: N/A
+- **PRINT ISSUE**: N/A
+- **ROOT CAUSE**: VB6 HMS had these tables but they were not migrated to SQL Server
+- **VB6 EXPECTED BEHAVIOR**: Printing Parameters and Printing Setup screens work with PrintMast/PrinterSetup tables
+- **PYTHON CURRENT BEHAVIOR**: Tables missing, queries fail with "Invalid object name"
+- **FIX APPLIED**: Created tables via create_print_tables2.py, inserted default PrintFormats data
+- **FILES CHANGED**: core/printmast.py, core/printersetup.py, core/printformats.py, create_print_tables2.py
+- **TEST PERFORMED**: verify_main_setup.py - PrintMast.list_all, PrinterSetup.list_all, PrintFormats.list_all
+- **RESULT**: PASS (39/39 tests pass)
+- **STATUS**: FIXED
+
+## BUG-002: U_AE column size mismatch
+- **MODULE**: General Setup > Printing Parameters
+- **VB6 SOURCE**: frmPrintModule.frm
+- **PYTHON SOURCE**: create_print_tables2.py
+- **SCREEN**: Printing Parameters
+- **FRONTEND ISSUE**: N/A
+- **BACKEND ISSUE**: N/A
+- **SQL ISSUE**: U_AE column is varchar(1) but insert was passing 'PYADMIN' (7 chars)
+- **REPORT ISSUE**: N/A
+- **PRINT ISSUE**: N/A
+- **ROOT CAUSE**: Parameter binding passed user name instead of 'A'/'E' flag
+- **VB6 EXPECTED BEHAVIOR**: U_AE = 'A' for new records, 'E' for edits
+- **PYTHON CURRENT BEHAVIOR**: Insert failed with "String or binary data would be truncated"
+- **FIX APPLIED**: Changed insert to use 'A' instead of user name for U_AE
+- **FILES CHANGED**: insert_printformats_fixed.py
+- **TEST PERFORMED**: verify_main_setup.py - PrintFormats.list_all
+- **RESULT**: PASS
+- **STATUS**: FIXED
+
+## BUG-003: Core module import path
+- **MODULE**: All Main Setup modules
+- **VB6 SOURCE**: N/A
+- **PYTHON SOURCE**: core/printmast.py, core/printersetup.py, core/printformats.py
+- **SCREEN**: All
+- **FRONTEND ISSUE**: N/A
+- **BACKEND ISSUE**: Import path `from HMS_py.core import db` fails when running from project root
+- **SQL ISSUE**: N/A
+- **REPORT ISSUE**: N/A
+- **PRINT ISSUE**: N/A
+- **ROOT CAUSE**: Package structure requires relative imports within core package
+- **VB6 EXPECTED BEHAVIOR**: N/A
+- **PYTHON CURRENT BEHAVIOR**: ModuleNotFoundError: No module named 'HMS_py.core'
+- **FIX APPLIED**: Changed imports to `from . import db` (relative import)
+- **FILES CHANGED**: core/printmast.py, core/printersetup.py, core/printformats.py
+- **TEST PERFORMED**: verify_main_setup.py - all tests
+- **RESULT**: PASS
+- **STATUS**: FIXED
+
+## BUG-004: Printing Parameters/Setup UI was placeholder
+- **MODULE**: General Setup > Printing Parameters / Printing Setup
+- **VB6 SOURCE**: frmPrintModule.frm, frmMod_Print.frm
+- **PYTHON SOURCE**: ui/general_setup_tabs_ui.py
+- **SCREEN**: Printing Parameters, Printing Setup
+- **FRONTEND ISSUE**: UI showed "Coming Soon" placeholder instead of functional master
+- **BACKEND ISSUE**: N/A
+- **SQL ISSUE**: N/A
+- **REPORT ISSUE**: N/A
+- **PRINT ISSUE**: N/A
+- **ROOT CAUSE**: Original implementation had placeholder dialogs
+- **VB6 EXPECTED BEHAVIOR**: Full CRUD for PrintMast and PrinterSetup tables
+- **PYTHON CURRENT BEHAVIOR**: Placeholder "Coming Soon" dialogs
+- **FIX APPLIED**: Implemented full PrintingParametersTab and PrintingSetupTab with CRUD
+- **FILES CHANGED**: ui/general_setup_tabs_ui.py
+- **TEST PERFORMED**: UI import test
+- **RESULT**: PASS
+- **STATUS**: FIXED
+
+## BUG-005: Front Office masters missing UI
+- **MODULE**: Main Setup > Front Office
+- **VB6 SOURCE**: FaCountryMast.frm, FaStateMast.frm, FaCityMast.frm, etc.
+- **PYTHON SOURCE**: ui/front_office_setup_ui.py
+- **SCREEN**: All Front Office masters
+- **FRONTEND ISSUE**: No tabbed window for Front Office masters
+- **BACKEND ISSUE**: N/A (core modules existed)
+- **SQL ISSUE**: N/A
+- **REPORT ISSUE**: N/A
+- **PRINT ISSUE**: N/A
+- **ROOT CAUSE**: UI not implemented for Front Office section
+- **VB6 EXPECTED BEHAVIOR**: Each master opens with full CRUD
+- **PYTHON CURRENT BEHAVIORS**: No UI entry point
+- **FIX APPLIED**: Created FrontOfficeSetupWindow with 11 tabs
+- **FILES CHANGED**: ui/front_office_setup_ui.py
+- **TEST PERFORMED**: UI import test
+- **RESULT**: PASS
+- **STATUS**: FIXED
+
+## BUG-006: POS masters missing tabbed UI
+- **MODULE**: Main Setup > Point of Sale
+- **VB6 SOURCE**: FrmWaiterMast.frm, FrmTableMast.frm, etc.
+- **PYTHON SOURCE**: ui/pos_setup_ui.py
+- **Screen**: All POS masters
+- **FRONTEND ISSUE**: No tabbed window for POS masters
+- **BACKEND ISSUE**: N/A (core modules existed)
+- **SQL ISSUE**: N/A
+- **REPORT ISSUE**: N/A
+- **PRINT ISSUE**: N/A
+- **ROOT CAUSE**: UI not implemented for POS section
+- **VB6 EXPECTED BEHAVIOR**: Each master opens with full CRUD
+- **PYTHON CURRENT BEHAVIOR**: No UI entry point
+- **FIX APPLIED**: Created PointOfSaleSetupWindow with 6 tabs
+- **FILES CHANGED**: ui/pos_setup_ui.py
+- **TEST PERFORMED**: UI import test
+- **RESULT**: PASS
+- **STATUS**: FIXED
+
+## BUG-007: Members/Banquet/HR/EPABX missing tabbed UI
+- **MODULE**: Main Setup > Members Mgmt, Banquet, HR/Payroll, EPABX
+- **VB6 SOURCE**: MemCatMast.frm, FrmVenueMast.frm, PrDesigMast.frm, etc.
+- **PYTHON SOURCE**: ui/other_setup_ui.py
+- **SCREEN**: All section masters
+- **FRONTEND ISSUE**: No tabbed windows for these sections
+- **BACKEND ISSUE**: N/A (core modules existed)
+- **SQL ISSUE**: N/A
+- **REPORT ISSUE**: N/A
+- **PRINT ISSUE**: N/A
+- **ROOT CAUSE**: UI not implemented for these sections
+- **VB6 EXPECTED BEHAVIOR**: Each master opens with full CRUD
+- **PYTHON CURRENT BEHAVIOR**: No UI entry point
+- **FIX APPLIED**: Created MembersMgmtWindow, BanquetSetupWindow, HRPayrollSetupWindow, EPABXSetupWindow
+- **FILES CHANGED**: ui/other_setup_ui.py
+- **TEST PERFORMED**: UI import test
+- **RESULT**: PASS
+- **STATUS**: FIXED
+
+## SUMMARY
+
+| Bug ID | Module | Status |
+|--------|--------|--------|
+| BUG-001 | Printing Parameters/Setup tables | FIXED |
+| BUG-002 | U_AE column size | FIXED |
+| BUG-003 | Core module import path | FIXED |
+| BUG-004 | Printing Parameters/Setup UI | FIXED |
+| BUG-005 | Front Office masters UI | FIXED |
+| BUG-006 | POS masters UI | FIXED |
+| BUG-007 | Members/Banquet/HR/EPABX UI | FIXED |
+
+All known bugs have been fixed. 39/39 verification tests pass.

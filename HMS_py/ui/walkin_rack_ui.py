@@ -9,7 +9,9 @@ VB6 originals (../FODER/*.frm) -> windows here:
 Core ops:
   HMS_py.core.roomstatus — room_rack (Occupied/Blocked/Dirty/Vacant rules)
   HMS_py.core.checkin    — create_checkin (GuestFolio+RoomOcc+FolioLog,
-                           adult/children/chkintime — FO-7), get
+                           adult/children/chkintime — FO-7; G1/G2 field-map
+                           extension: Add1..Remark/RODisc + RoomCat/RoomRate/
+                           DepTime, CHECKIN_FIELD_MAP §4), get
   HMS_py.core.checkout   — list_active_folios
 
 VB6 evidence (frm line refs):
@@ -33,13 +35,14 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))))
 
-from PyQt6.QtCore import Qt, QDate
+from PyQt6.QtCore import Qt, QDate, QTime
 from PyQt6.QtGui import QColor
 from PyQt6.QtWidgets import (QApplication, QComboBox, QDateEdit, QFormLayout,
                              QGridLayout, QHBoxLayout, QLabel, QLineEdit,
                              QMainWindow, QMessageBox, QPushButton,
                              QTableWidget, QTableWidgetItem, QVBoxLayout,
-                             QFrame, QScrollArea, QStackedWidget, QWidget)
+                             QFrame, QScrollArea, QStackedWidget, QTimeEdit,
+                             QWidget)
 
 from HMS_py.core import checkin, checkout, roomstatus
 from HMS_py.ui.theme import palette
@@ -384,6 +387,7 @@ class WalkInEntryWindow(QMainWindow, _StatusBar):
         stay_form.addRow("Guest Name*", self.txt_name)
         self.txt_city = QLineEdit()
         self.txt_city.setPlaceholderText("City code, optional")
+        self.txt_city.setMaxLength(6)  # GuestFolio.City varchar(6)
         stay_form.addRow("City", self.txt_city)
         today = datetime.date.today()
         self.dt_arr = QDateEdit(QDate(today.year, today.month, today.day))
@@ -404,6 +408,7 @@ class WalkInEntryWindow(QMainWindow, _StatusBar):
         # VB6 fdCheckIn.frm:942284 Plan fields
         self.txt_plancode = QLineEdit()
         self.txt_plancode.setPlaceholderText("Plan code, optional")
+        self.txt_plancode.setMaxLength(5)  # RoomOcc.PlanCode varchar(5)
         stay_form.addRow("Plan Code", self.txt_plancode)
         self.txt_planamt = QLineEdit()
         self.txt_planamt.setPlaceholderText("Plan amount, optional")
@@ -435,6 +440,12 @@ class WalkInEntryWindow(QMainWindow, _StatusBar):
         self.txt_roomtaxstru = QLineEdit()
         self.txt_roomtaxstru.setPlaceholderText("Room tax structure, optional")
         stay_form.addRow("Room Tax Stru", self.txt_roomtaxstru)
+        # CHECKIN_FIELD_MAP right-zone: RoomRate + DepTime
+        self.txt_roomrate = QLineEdit()
+        self.txt_roomrate.setPlaceholderText("Negotiated room rate, optional")
+        stay_form.addRow("Room Rate", self.txt_roomrate)
+        self.time_dep = QTimeEdit(QTime(10, 0))
+        stay_form.addRow("Departure Time", self.time_dep)
 
         self.guest_page = QFrame()
         self.guest_page.setObjectName("formPage")
@@ -452,7 +463,51 @@ class WalkInEntryWindow(QMainWindow, _StatusBar):
         guest_form.addRow("Booking Document", self.txt_booking)
         self.txt_rate = QLineEdit()
         self.txt_rate.setPlaceholderText("Optional rate code")
+        self.txt_rate.setMaxLength(1)  # RoomOcc.RateCode varchar(1)
         guest_form.addRow("Rate Code", self.txt_rate)
+        # CHECKIN_FIELD_MAP left-zone guest fields (VB6 fdWalkInEntry
+        # 40-col GuestFolio pattern): Address/Nationality/ArrFrom/Travel/
+        # Company/TA/RoDisc/Remark — MaxLength = DB width (VB6 TextBox
+        # MaxLength behavior; overflow 8152 se bachata hai)
+        self.txt_add1 = QLineEdit()
+        self.txt_add1.setPlaceholderText("Address line 1, optional")
+        self.txt_add1.setMaxLength(50)
+        guest_form.addRow("Address 1", self.txt_add1)
+        self.txt_add2 = QLineEdit()
+        self.txt_add2.setPlaceholderText("Address line 2, optional")
+        self.txt_add2.setMaxLength(50)
+        guest_form.addRow("Address 2", self.txt_add2)
+        self.txt_nationality = QLineEdit()
+        self.txt_nationality.setPlaceholderText("Nationality, optional")
+        self.txt_nationality.setMaxLength(15)
+        guest_form.addRow("Nationality", self.txt_nationality)
+        self.txt_arrfrom = QLineEdit()
+        self.txt_arrfrom.setPlaceholderText("Arrival from, optional")
+        self.txt_arrfrom.setMaxLength(50)
+        guest_form.addRow("Arr From", self.txt_arrfrom)
+        self.txt_destination = QLineEdit()
+        self.txt_destination.setPlaceholderText("Destination, optional")
+        self.txt_destination.setMaxLength(50)
+        guest_form.addRow("Destination", self.txt_destination)
+        self.txt_travelmode = QLineEdit()
+        self.txt_travelmode.setPlaceholderText("Travel mode, optional")
+        self.txt_travelmode.setMaxLength(30)
+        guest_form.addRow("Travel Mode", self.txt_travelmode)
+        self.txt_company = QLineEdit()
+        self.txt_company.setPlaceholderText("Company code, optional")
+        self.txt_company.setMaxLength(8)
+        guest_form.addRow("Company", self.txt_company)
+        self.txt_travelagent = QLineEdit()
+        self.txt_travelagent.setPlaceholderText("Travel agent code, optional")
+        self.txt_travelagent.setMaxLength(8)
+        guest_form.addRow("Travel Agent", self.txt_travelagent)
+        self.txt_rodisc = QLineEdit()
+        self.txt_rodisc.setPlaceholderText("Room discount % (e.g. 10)")
+        guest_form.addRow("RoDisc %", self.txt_rodisc)
+        self.txt_remark = QLineEdit()
+        self.txt_remark.setPlaceholderText("Remarks, optional")
+        self.txt_remark.setMaxLength(100)
+        guest_form.addRow("Remarks", self.txt_remark)
         guest_note = QLabel(
             "These identifiers are carried into the existing check-in engine.")
         guest_note.setObjectName("formNote")
@@ -763,7 +818,10 @@ class WalkInEntryWindow(QMainWindow, _StatusBar):
             f"{self.spin_child.currentText()} children\n"
             f"Booking: {booking}\n"
             f"Rate: {rate}\n"
-            f"City: {self.txt_city.text().strip() or '(none)'}"
+            f"City: {self.txt_city.text().strip() or '(none)'}\n"
+            f"Address: {self.txt_add1.text().strip() or '(none)'}\n"
+            f"Room Rate: {self.txt_roomrate.text().strip() or '(default)'}"
+            f" | Dep: {self.time_dep.time().toString('HH:mm')}"
         )
 
     # ── VB6 action-rail slots (B034) ──────────────────────────────
@@ -834,7 +892,19 @@ class WalkInEntryWindow(QMainWindow, _StatusBar):
                 rrservicechrg=self.txt_rrservicechrg.text().strip(),
                 roomtarrif=float(self.txt_roomtarrif.text().strip() or 0) or None,
                 rackrate=float(self.txt_rackrate.text().strip() or 0) or None,
-                roomtaxstru=self.txt_roomtaxstru.text().strip())
+                roomtaxstru=self.txt_roomtaxstru.text().strip(),
+                add1=self.txt_add1.text().strip(),
+                add2=self.txt_add2.text().strip(),
+                nationality=self.txt_nationality.text().strip(),
+                arrfrom=self.txt_arrfrom.text().strip(),
+                destination=self.txt_destination.text().strip(),
+                travelmode=self.txt_travelmode.text().strip(),
+                company=self.txt_company.text().strip(),
+                travelagent=self.txt_travelagent.text().strip(),
+                remarks=self.txt_remark.text().strip(),
+                rodisc=float(self.txt_rodisc.text().strip() or 0) or None,
+                roomrate=float(self.txt_roomrate.text().strip() or 0) or None,
+                deptime=self.time_dep.time().toString("HH:mm"))
             rec = checkin.get(fno) or {}
             self.lbl_done.setText(
                 f"Checked-in: folio #{fno}, room "

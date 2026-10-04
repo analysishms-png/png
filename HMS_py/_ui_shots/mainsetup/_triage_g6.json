@@ -1,0 +1,30 @@
+{
+ "g06_00_Designation_Master": {
+  "group": "HR/Payroll",
+  "leaf": "Designation Master",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g06_01_Category_Master": {
+  "group": "HR/Payroll",
+  "leaf": "Category  Master",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g06_02_Holiday_Master": {
+  "group": "HR/Payroll",
+  "leaf": "Holiday Master",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g06_03_Employee_Master": {
+  "group": "HR/Payroll",
+  "leaf": "Employee Master",
+  "captured": true,
+  "err": null,
+  "info": {}
+ }
+}

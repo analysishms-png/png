@@ -753,31 +753,33 @@ class TestDepartValidationExtended:
 
 
 class TestFolioRoomCharge:
-    """Test room charge posting with GST."""
+    """Test room charge posting with GST (BUG-AUD-10: 2.5% + 2.5%)."""
 
     def test_room_charge_gst_calculation(self):
-        """Room charge 3000 -> CGST 150 (5%) + SGST 150 (5%)."""
+        """Room charge 3000 -> CGST 75 (2.5%) + SGST 75 (2.5%).
+        BUG-AUD-10 evidence: live VB6 rows TaxPer=2.5, tax/base=0.025
+        across 400+ rows (purana 5% per leg = 2x over-charge tha)."""
         amount = 3000.0
-        gst_rate = 0.05
+        gst_rate = 0.025
         
         cgst = round(amount * gst_rate, 2)
         sgst = round(amount * gst_rate, 2)
         
-        assert cgst == 150.0
-        assert sgst == 150.0
-        assert cgst + sgst == 300.0
+        assert cgst == 75.0
+        assert sgst == 75.0
+        assert cgst + sgst == 150.0
 
     def test_room_charge_gst_different_amounts(self):
         test_cases = [
-            (1000.0, 50.0, 50.0),
-            (2500.0, 125.0, 125.0),
-            (5000.0, 250.0, 250.0),
-            (1234.56, 61.73, 61.73),  # Rounding test
+            (1000.0, 25.0, 25.0),
+            (2500.0, 62.5, 62.5),
+            (5000.0, 125.0, 125.0),
+            (1234.56, 30.86, 30.86),  # Rounding test
         ]
         
         for amount, expected_cgst, expected_sgst in test_cases:
-            cgst = round(amount * 0.05, 2)
-            sgst = round(amount * 0.05, 2)
+            cgst = round(amount * 0.025, 2)
+            sgst = round(amount * 0.025, 2)
             assert cgst == expected_cgst, f"CGST mismatch for {amount}"
             assert sgst == expected_sgst, f"SGST mismatch for {amount}"
 
@@ -1233,8 +1235,9 @@ class TestCheckoutBalanceGuard:
                 raise AssertionError("checkout allowed with non-zero balance in Strict mode")
             except ValueError as e:
                 assert "Checkout type 'Strict' requires zero balance" in str(e)
-            # folio stays open; 500 + 25 CGST + 25 SGST = 550
-            assert checkout.folio_balance(folio_no)["balance"] == 550.0
+            # folio stays open; 500 + 12.5 CGST + 12.5 SGST = 525
+            # (BUG-AUD-10: 2.5% per leg, live TaxPer=2.5)
+            assert checkout.folio_balance(folio_no)["balance"] == 525.0
         finally:
             if folio_no:
                 try:
@@ -1280,7 +1283,7 @@ class TestCheckoutBalanceGuard:
             # Standard mode should ALLOW checkout with non-zero balance
             # (settlement is separate flow)
             bal = checkout.do_checkout(folio_no, user="PYADMIN")
-            assert bal["balance"] == 550.0  # balance preserved
+            assert bal["balance"] == 525.0  # preserved (BUG-AUD-10 2.5%)
         finally:
             if folio_no:
                 try:

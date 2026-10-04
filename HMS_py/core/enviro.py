@@ -43,6 +43,16 @@ EVIDENCE (decompiled frmEnviro.frm + live Enviro row):
   Loan_Ac, Salary_Ac, Cash_Ac aadi) READ-ONLY rahenge (finance-integrity;
   VB6 me bhi ye FaEnviro side se hote the). Rejected: HR/GAppCompYear
   numbers bhi guarded (GL approval note MIGRATION_STATUS me).
+- MS-013 Tier-1 (2026-10-02): 6 AC-cols jo VB6 frmEnviro me editable the
+  par port ke white-list/read-only dono se bahar the (save poori fail ho
+  jaati thi) — ab EDITABLE me: OutdoorSaleAC, IndoorSaleAC,
+  OutdoorPartyAC, IndoorPartyAC, HallDiscAC, HallRoundOff.
+  CASE NOTE: VB6 SQL `OutDoorSaleAC`/`OutDoorPartyAC` likhta hai (SQL
+  Server case-insensitive) par live declared col casing hai
+  `OutdoorSaleAC`/`OutdoorPartyAC` — r.keys() declared casing return
+  karta hai, isliye port keys declared casing use karta hai.
+  Save par light SubGroup existence check (VB6 reverse-resolve
+  `Select Name From SubGroup Where Code=?`).
 
 NOTE: FrmControlPanel.frm (Winsock LockSystem#/Shutdown#, port 0x1F45)
 alag hidden utility hai — woh separate ticket; is module ka scope =
@@ -111,18 +121,78 @@ EDITABLE = {
     "NCKOTPercentage": "int",      # smallint
     "AddModifyEntryInBackDate": "yn3",
     "ImprestAmount": "float",
+    "CashPayType": "str",
+    "RoomPayType": "str",
+    # MS-013 Tier-1: VB6 frmEnviro AC-cols (loader :4690ff, UPDATE :2216ff)
+    # live-editable; declared casing (VB6 me OutDoor* likha jaata tha).
+    "OutdoorSaleAC": "str",   # 'KK000004' live
+    "IndoorSaleAC": "str",    # 'KK000004' live
+    "OutdoorPartyAC": "str",  # 'KK000003' live
+    "IndoorPartyAC": "str",   # 'KK000003' live
+    "HallDiscAC": "str",      # 'KKDISC' live
+    "HallRoundOff": "str",    # 'KKROFF' live
+    "OutDoorCatering": "yn3",
+    "CatalogLimit": "yn3",  # VB6 IIf(IsNull,"No",...) — Y/N, live 'Yes'
+    "OrderBookingPrintType": "str",
+    "ExciseInvoiceTaxStru": "str",
+    "PurchaseTaxVAT": "str",
+    "SaleTaxVAT": "str",
+    "ResInstruction1": "yn3",
+    "ResInstruction2": "yn3",
+    "ResInstruction3": "yn3",
+    "ResInstruction4": "yn3",
+    "ResInstruction5": "yn3",
+    "ResInstruction6": "yn3",
+    "ResInstruction7": "yn3",
+    "ResInstruction8": "yn3",
+    "ResInstruction9": "yn3",
+    "ResInstruction10": "yn3",
+    "ResInstruction11": "yn3",
+    "ResInstruction12": "yn3",
+    "FPInstruction1": "yn3",
+    "FPInstruction2": "yn3",
+    "FPInstruction3": "yn3",
+    "FPInstruction4": "yn3",
+    "FPInstruction5": "yn3",
+    "FPInstruction6": "yn3",
+    "FPInstruction7": "yn3",
+    "FPInstruction8": "yn3",
+    "FPInstruction9": "yn3",
+    "FPInstruction10": "yn3",
+    "FPInstruction11": "yn3",
+    "FPInstruction12": "yn3",
+    "PlanTariffNarration": "str",
+    # MS-038: plan/tariff switches. VB6 frmEnviro Cmd_Click writes all three
+    # in its UPDATE SET chain -- PlanMastType at loc_1CB268B/1CB26B1,
+    # PlanSelectionBasedOn + PlanCalc at loc_1CB2801 -- and each has a bound
+    # edit control (loc_1DE1F76 / loc_1DE1510). They were missing here, so
+    # ParameterTab._save_enviro silently dropped them on Save even though the
+    # HR/Payroll group renders all three controls.
+    # Spec "str" (not yn3): VB6 wraps these in Proc_6_38_E68A98 (string
+    # escape) with NO Yes/No check, so no enum validation is invented here.
+    # PlanMastType additionally drives the "Plan Master" form choice --
+    # see core/plan_definition.plan_master_mode.
+    "PlanMastType": "str",
+    "PlanCalc": "str",
+    "PlanSelectionBasedOn": "str",
+    "KitchenStockReport": "str",  # VB6 IIf(Trim(..)="","Standard",..) — live 'Standard'
+    "ItemRateInMRBasedOn": "str",
+    "SmartCardItem": "str",  # VB6 ItemMast.Code (varchar 8) — Yes/No nahi hai
 }
 
 # Finance/HR AC-code cols — VB6 frmEnviro inhe update karta hai par hum
 # GL-integrity ke liye read-only rakhte hain (documented decision).
+# MS-013 Tier-1: Outlet/Banquet ke 6 AC-cols ab EDITABLE (upar) — yahan se
+# taaki koi col EDITABLE + READ_ONLY dono na dikhe:
+# OutdoorSaleAC, IndoorSaleAC, OutdoorPartyAC, IndoorPartyAC,
+# HallDiscAC, HallRoundOff.
 READ_ONLY = (
     "Cash_Ac", "DiscountAc", "RoundOffAc", "CommAC", "SALARY_AC",
     "Loan_AC", "AdvanceAc", "RoomChrgDueAc", "RoomTaxDueAc",
-    "CancellationAC", "HallDiscAC", "HallRoundOff", "CashPurchAc",
+    "CancellationAC", "CashPurchAc",
     "OutletDiscAc", "OutletRoundAc", "CommissionAc", "DummyTravelAc",
     "BookingPartyAc", "CashCardDebitAc", "CashCardCreditAc",
-    "CashCardSecurityAc", "OutdoorSaleAC", "IndoorSaleAC",
-    "OutdoorPartyAC", "IndoorPartyAC", "DefCompGroup", "SmartCardItem",
+    "CashCardSecurityAc", "DefCompGroup", "SmartCardItem",
     "PF_LIMIT", "PF_EMPLOYEE", "PF_EMPLOYER", "ESI_LIMIT", "esi_employee",
     "GAppCompYear", "GMonthConsidered", "GWorkingDaysInAMonth",
     "GDaysSalary", "ESIBasic", "ESIDA", "ESIHRA", "ESIConvey", "ESIOther",
@@ -157,8 +227,20 @@ def get_setting(key: str, default="", cn=None):
     return v
 
 
-def _validate(key: str, value):
-    """VB6 validation rules (type-wise) — frmEnviro ke IIf/Left(1) logic."""
+# MS-013 Tier-1: ye6 AC-cols VB6 frmEnviro me SubGroup se reverse-resolve
+# hote hain — save par light existence check (parameterized, RTRIM style
+# core/account_merge.py jaisa). Blank = cleared, skip.
+AC_SUBGROUP_KEYS = frozenset({
+    "OutdoorSaleAC", "IndoorSaleAC", "OutdoorPartyAC", "IndoorPartyAC",
+    "HallDiscAC", "HallRoundOff",
+})
+
+
+def _validate(key: str, value, cn=None):
+    """VB6 validation rules (type-wise) — frmEnviro ke IIf/Left(1) logic.
+
+    MS-013 Tier-1: AC-cols par SubGroup existence check bhi (VB6
+    reverse-resolve `Select Name From SubGroup Where Code=?`)."""
     if key not in EDITABLE:
         raise ValueError(
             f"'{key}' editable nahi hai (white-list dekho; finance/HR "
@@ -193,6 +275,15 @@ def _validate(key: str, value):
             return float(s)
         except Exception:
             raise ValueError(f"{key}: number chahiye")
+    if key in AC_SUBGROUP_KEYS and s:
+        # VB6: `Select Name From SubGroup Where Code=?` reverse-resolve
+        # (light existence check; bad code save ko rokta hai).
+        if not db.query(
+                "SELECT 1 FROM [SubGroup] WHERE RTRIM([SubCode]) = ?",
+                (s,), cn=cn):
+            raise ValueError(
+                f"{key}: SubGroup me code '{s}' nahi mila "
+                "(Help/ledger grid se code chuno)")
     return s  # str
 
 
@@ -204,13 +295,16 @@ def update_settings(changes: dict, user: str = USER, cn=None,
     Return: affected rows (0/1)."""
     if not changes:
         raise ValueError("Khaali changes")
-    validated = {k: _validate(k, v) for k, v in changes.items()}
     # LIVE-SCHEMA NOTE: Enviro me U_Name/U_EntDt cols NAHI hain (222 cols
     # checked) — audit trail EnviroLog nahi, bas U_AE bhi nahi. VB6 ne bhi
     # plain UPDATE kiya tha. Audit yahan: caller-side logging.
+    # cn pehle kholte hain kyunki _validate ka AC/SubGroup check isi cn
+    # ko reuse karta hai (extra connections nahi).
     own = cn is None
     cn = cn or db.connect()
     try:
+        validated = {k: _validate(k, v, cn=cn)
+                     for k, v in changes.items()}
         sets = ", ".join(f"[{k}] = ?" for k in validated)
         n = db.execute(
             f"UPDATE Enviro SET {sets} WHERE LogSite_Code = ? "

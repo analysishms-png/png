@@ -3,6 +3,7 @@
   "sys": "<module 'sys' (built-in)>",
   "json": "<module 'json' from 'C:\\\\Python314\\\\Lib\\\\json\\\\__init__.py'>",
   "time": "<module 'time' (built-in)>",
+  "re": "<module 're' from 'C:\\\\Python314\\\\Lib\\\\re\\\\__init__.py'>",
   "WRONG_TARGET_REWIRES": {
     "frmGuestProf": {
       "correct_target": "GuestProf",
@@ -330,7 +331,7 @@
       "Indent (959 rows)",
       "RoomOcc (11002 rows)"
     ],
-    "note": "VB6 login password (env only, never stored); SQL Server uses Windows Auth"
+    "note": "VB6 application login password (env only, never stored); SQL Server uses Windows Auth"
   },
   "SCREENSHOTS": {
     "total": 18,
@@ -382,6 +383,6 @@
     "sql_auth_method": "Windows Auth",
     "note": "VB6 application password (env only, never stored), not SQL Server password"
   },
-  "impl": "<__main__.VB6LogicImpl object at 0x000001A54EAF7770>",
+  "impl": "<__main__.VB6LogicImpl object at 0x000001FCA18678C0>",
   "qa_dir": "C:\\Users\\LENOVO\\Desktop\\serialkey\\PROJECT_REPAIR - Copy\\HMS_py\\HMS_py\\_qa"
 }

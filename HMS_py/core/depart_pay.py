@@ -113,15 +113,9 @@ def set_for_paycode(paycode: str, restcodes, user: str = USER,
     own = cn is None
     cn = cn or db.connect()
     try:
-        # existing rows pehle padh lo (restcode ke original case ke saath)
-        cur = db.query(
-            "SELECT RestCode FROM DepartPay WHERE PayCode = ? "
-            "AND LogSite_Code = ?", (paycode, SITE_CODE), cn=cn)
-        keep = [(r.RestCode or "").strip() for r in cur]
+        # existing rows padhna zaroori nahi — VB6 bhi full delete+reinsert
+        # karta hai; case SQL Server me CI hai.
         _delete_for_paycode(cn, paycode)
-        # jo outlets already the aur ab bhi selected hain unka original
-        # case/row preserve karne ki zaroorat nahi — VB6 bhi full
-        # delete+reinsert karta hai; case SQL Server me CI hai.
         for rc in sorted(restcodes):
             _insert_row(cn, rc, paycode, user)
         # BANQ auto-row (VB6 loc_105CC94) — selected na ho to bhi

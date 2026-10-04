@@ -1,0 +1,424 @@
+{
+ "g02_00_Setup_Outlet": {
+  "group": "Point of Sale",
+  "leaf": "Setup Outlet",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g02_01_Outlet_Bill_Sundry_Setting": {
+  "group": "Point of Sale",
+  "leaf": "Outlet Bill Sundry Setting",
+  "captured": true,
+  "err": null,
+  "info": {
+   "class": "DepartSundryWindow",
+   "title": "Outlet Bill Sundry Setting",
+   "tables": [
+    {
+     "rows": 21,
+     "cols": 12,
+     "hdr": [
+      "V_Type",
+      "AppDate",
+      "Code",
+      "Sundry",
+      "SNo",
+      "DispName",
+      "Formula",
+      "P/A",
+      "Rev",
+      "Sign",
+      "Sys",
+      "Post"
+     ],
+     "first_row": [
+      "KKPURC",
+      "01/04/2018",
+      "KKTOT",
+      "AMOUNT",
+      "1",
+      "Total",
+      "",
+      "A",
+      "",
+      "+",
+      "Y",
+      "Yes"
+     ],
+     "objectName": ""
+    }
+   ],
+   "lists": [],
+   "buttons": [
+    {
+     "text": "Add",
+     "enabled": true
+    },
+    {
+     "text": "Refresh",
+     "enabled": true
+    },
+    {
+     "text": "Exit",
+     "enabled": true
+    }
+   ],
+   "edits": [
+    {
+     "name": "",
+     "text": ""
+    }
+   ],
+   "texts": []
+  }
+ },
+ "g02_02_Server_Master": {
+  "group": "Point of Sale",
+  "leaf": "Server Master",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g02_03_Table_Master": {
+  "group": "Point of Sale",
+  "leaf": "Table Master",
+  "captured": true,
+  "err": null,
+  "info": {
+   "class": "PosTableWindow",
+   "title": "POS Table Management",
+   "tables": [
+    {
+     "rows": 58,
+     "cols": 6,
+     "hdr": [
+      "Code",
+      "RoomName",
+      "RoomNo",
+      "Type",
+      "SeatingCapacity",
+      "Status"
+     ],
+     "first_row": [
+      ".",
+      ".",
+      ".",
+      "TB",
+      "",
+      "Active"
+     ],
+     "objectName": ""
+    }
+   ],
+   "lists": [],
+   "buttons": [
+    {
+     "text": "New",
+     "enabled": true
+    },
+    {
+     "text": "Edit",
+     "enabled": true
+    },
+    {
+     "text": "Delete",
+     "enabled": true
+    },
+    {
+     "text": "Refresh",
+     "enabled": true
+    },
+    {
+     "text": "Exit",
+     "enabled": true
+    }
+   ],
+   "edits": [
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    }
+   ],
+   "texts": []
+  }
+ },
+ "g02_04_Item_List": {
+  "group": "Point of Sale",
+  "leaf": "Item List",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g02_05_Menu_Group": {
+  "group": "Point of Sale",
+  "leaf": "Menu Group",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g02_06_Menu_Category": {
+  "group": "Point of Sale",
+  "leaf": "Menu Category",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g02_07_Menu_Item": {
+  "group": "Point of Sale",
+  "leaf": "Menu Item",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g02_08_Menu_Item_Rate": {
+  "group": "Point of Sale",
+  "leaf": "Menu Item Rate",
+  "captured": true,
+  "err": null,
+  "info": {
+   "class": "ItemRateDialog",
+   "title": "Menu Item Rate",
+   "tables": [
+    {
+     "rows": 697,
+     "cols": 6,
+     "hdr": [
+      "Item Code",
+      "Outlet",
+      "App Date",
+      "Rate",
+      "MRP",
+      "Party"
+     ],
+     "first_row": [
+      "KK000005",
+      "KKM001",
+      "2023-04-01",
+      "70.0",
+      "0.0",
+      ""
+     ],
+     "objectName": ""
+    }
+   ],
+   "lists": [],
+   "buttons": [
+    {
+     "text": "Refresh",
+     "enabled": true
+    },
+    {
+     "text": "+ Rate Row",
+     "enabled": true
+    },
+    {
+     "text": "Save",
+     "enabled": true
+    },
+    {
+     "text": "Delete",
+     "enabled": true
+    },
+    {
+     "text": "Close",
+     "enabled": true
+    }
+   ],
+   "edits": [
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    }
+   ],
+   "texts": []
+  }
+ },
+ "g02_09_Session_Master": {
+  "group": "Point of Sale",
+  "leaf": "Session Master",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g02_10_Open_Item_Consumption": {
+  "group": "Point of Sale",
+  "leaf": "Open Item Consumption",
+  "captured": true,
+  "err": null,
+  "info": {
+   "class": "OpenItemConsumptionWindow",
+   "title": "Open Item Consumption Master",
+   "tables": [
+    {
+     "rows": 171,
+     "cols": 6,
+     "hdr": [
+      "FinItem",
+      "Finish Name",
+      "Outlet",
+      "FinQty",
+      "Unit",
+      "App Date"
+     ],
+     "first_row": [
+      "KK000121",
+      "AFGANI MUSHROOM TIKKA",
+      "Garden Aroma",
+      "1",
+      "PTN",
+      "2023-05-01"
+     ],
+     "objectName": ""
+    },
+    {
+     "rows": 0,
+     "cols": 8,
+     "hdr": [
+      "S.No",
+      "",
+      "Name",
+      "Qty",
+      "Unit",
+      "Cost",
+      "Total",
+      "Waste %"
+     ],
+     "first_row": [],
+     "objectName": ""
+    }
+   ],
+   "lists": [],
+   "buttons": [
+    {
+     "text": "Edit",
+     "enabled": true
+    },
+    {
+     "text": "Delete",
+     "enabled": true
+    },
+    {
+     "text": "Refresh",
+     "enabled": true
+    },
+    {
+     "text": "New",
+     "enabled": true
+    },
+    {
+     "text": "Add Raw",
+     "enabled": true
+    },
+    {
+     "text": "Del Row",
+     "enabled": true
+    },
+    {
+     "text": "Save",
+     "enabled": false
+    },
+    {
+     "text": "Cancel",
+     "enabled": false
+    },
+    {
+     "text": "Exit",
+     "enabled": true
+    }
+   ],
+   "edits": [
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": "AAM KAIRI MURGH TIKKA  (KK001575  |  Garden Aroma)"
+    },
+    {
+     "name": "",
+     "text": "1"
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "qt_spinbox_lineedit",
+     "text": "03-10-2026"
+    }
+   ],
+   "texts": []
+  }
+ },
+ "g02_11_NC_Type": {
+  "group": "Point of Sale",
+  "leaf": "NC Type",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g02_12_Customer_History": {
+  "group": "Point of Sale",
+  "leaf": "Customer History",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g02_13_Happy_Hours_Free_Items": {
+  "group": "Point of Sale",
+  "leaf": "Happy Hours [ Free Items ]",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g02_14_Combo_Pack": {
+  "group": "Point of Sale",
+  "leaf": "Combo Pack",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g02_15_NC_Type": {
+  "group": "Point of Sale",
+  "leaf": "NC Type",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g02_16_Customer_History": {
+  "group": "Point of Sale",
+  "leaf": "Customer History",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g02_17_Delivery_Boy": {
+  "group": "Point of Sale",
+  "leaf": "Delivery Boy",
+  "captured": true,
+  "err": null,
+  "info": {}
+ }
+}

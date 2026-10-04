@@ -1,0 +1,333 @@
+==============================================================================================================
+VB6 MAIN SETUP - menu index -> VB6 form (decompiled 'New <Form>' dispatch)
+==============================================================================================================
+__DISPATCH__ CCenterMas : {0: 'FrmParty', 1: 'DepartMast', 2: 'FrmItemGroupMastRaw', 3: 'FrmItemCatRaw', 4: 'FrmItemMastRaw', 5: 'FrmConsumMast', 6: 'DepartSundry', 7: 'Godown', 8: 'FrmOPStock', 9: 'FrmItemMast'}
+CCenterMas  [ 0] Party Master                           Inventory         -> FrmParty   (handler@5923)
+__DISPATCH__ CCenterMas : {0: 'FrmParty', 1: 'DepartMast', 2: 'FrmItemGroupMastRaw', 3: 'FrmItemCatRaw', 4: 'FrmItemMastRaw', 5: 'FrmConsumMast', 6: 'DepartSundry', 7: 'Godown', 8: 'FrmOPStock', 9: 'FrmItemMast'}
+CCenterMas  [ 1] Department                             Inventory         -> DepartMast   (handler@5923)
+__DISPATCH__ CCenterMas : {0: 'FrmParty', 1: 'DepartMast', 2: 'FrmItemGroupMastRaw', 3: 'FrmItemCatRaw', 4: 'FrmItemMastRaw', 5: 'FrmConsumMast', 6: 'DepartSundry', 7: 'Godown', 8: 'FrmOPStock', 9: 'FrmItemMast'}
+CCenterMas  [ 2] Item Group                             Inventory         -> FrmItemGroupMastRaw   (handler@5923)
+__DISPATCH__ CCenterMas : {0: 'FrmParty', 1: 'DepartMast', 2: 'FrmItemGroupMastRaw', 3: 'FrmItemCatRaw', 4: 'FrmItemMastRaw', 5: 'FrmConsumMast', 6: 'DepartSundry', 7: 'Godown', 8: 'FrmOPStock', 9: 'FrmItemMast'}
+CCenterMas  [ 3] Item Category                          Inventory         -> FrmItemCatRaw   (handler@5923)
+__DISPATCH__ CCenterMas : {0: 'FrmParty', 1: 'DepartMast', 2: 'FrmItemGroupMastRaw', 3: 'FrmItemCatRaw', 4: 'FrmItemMastRaw', 5: 'FrmConsumMast', 6: 'DepartSundry', 7: 'Godown', 8: 'FrmOPStock', 9: 'FrmItemMast'}
+CCenterMas  [ 4] Item Entry                             Inventory         -> FrmItemMastRaw   (handler@5923)
+__DISPATCH__ CCenterMas : {0: 'FrmParty', 1: 'DepartMast', 2: 'FrmItemGroupMastRaw', 3: 'FrmItemCatRaw', 4: 'FrmItemMastRaw', 5: 'FrmConsumMast', 6: 'DepartSundry', 7: 'Godown', 8: 'FrmOPStock', 9: 'FrmItemMast'}
+CCenterMas  [ 5] Consumption Master                     Inventory          [HIDDEN]  -> FrmConsumMast   (handler@5923)
+__DISPATCH__ CCenterMas : {0: 'FrmParty', 1: 'DepartMast', 2: 'FrmItemGroupMastRaw', 3: 'FrmItemCatRaw', 4: 'FrmItemMastRaw', 5: 'FrmConsumMast', 6: 'DepartSundry', 7: 'Godown', 8: 'FrmOPStock', 9: 'FrmItemMast'}
+CCenterMas  [ 6] Purchase Sundry Setting                Inventory         -> DepartSundry   (handler@5923)
+__DISPATCH__ CCenterMas : {0: 'FrmParty', 1: 'DepartMast', 2: 'FrmItemGroupMastRaw', 3: 'FrmItemCatRaw', 4: 'FrmItemMastRaw', 5: 'FrmConsumMast', 6: 'DepartSundry', 7: 'Godown', 8: 'FrmOPStock', 9: 'FrmItemMast'}
+CCenterMas  [ 7] Location Master                        Inventory          [HIDDEN]  -> Godown   (handler@5923)
+__DISPATCH__ CCenterMas : {0: 'FrmParty', 1: 'DepartMast', 2: 'FrmItemGroupMastRaw', 3: 'FrmItemCatRaw', 4: 'FrmItemMastRaw', 5: 'FrmConsumMast', 6: 'DepartSundry', 7: 'Godown', 8: 'FrmOPStock', 9: 'FrmItemMast'}
+CCenterMas  [ 8] Opening Stock                          Inventory         -> FrmOPStock   (handler@5923)
+__DISPATCH__ CCenterMas : {0: 'FrmParty', 1: 'DepartMast', 2: 'FrmItemGroupMastRaw', 3: 'FrmItemCatRaw', 4: 'FrmItemMastRaw', 5: 'FrmConsumMast', 6: 'DepartSundry', 7: 'Godown', 8: 'FrmOPStock', 9: 'FrmItemMast'}
+CCenterMas  [ 9] Item  List                             Inventory         -> FrmItemMast   (handler@5923)
+__DISPATCH__ CCenterMas : {0: 'FrmParty', 1: 'DepartMast', 2: 'FrmItemGroupMastRaw', 3: 'FrmItemCatRaw', 4: 'FrmItemMastRaw', 5: 'FrmConsumMast', 6: 'DepartSundry', 7: 'Godown', 8: 'FrmOPStock', 9: 'FrmItemMast'}
+CCenterMas  [10] Shift Master                           Inventory          [HIDDEN]  -> <no New>   (handler@5923)
+__DISPATCH__ CCenterMas : {0: 'FrmParty', 1: 'DepartMast', 2: 'FrmItemGroupMastRaw', 3: 'FrmItemCatRaw', 4: 'FrmItemMastRaw', 5: 'FrmConsumMast', 6: 'DepartSundry', 7: 'Godown', 8: 'FrmOPStock', 9: 'FrmItemMast'}
+CCenterMas  [11] Enviro Inventry                        Inventory         -> <no New>   (handler@5923)
+__DISPATCH__ GENMas : {0: 'FrmTaxMast', 1: 'FrmTaxStruMast', 2: 'FrmPayTypeMast', 4: 'frmEnviro', 5: 'frmRevGroup', 6: 'frmPrintModule', 7: 'frmMod_Print', 8: 'FrmRevenueWiseBudget'}
+GENMas      [ 0] Tax Master                             General Setup     -> FrmTaxMast   (handler@7108)
+__DISPATCH__ GENMas : {0: 'FrmTaxMast', 1: 'FrmTaxStruMast', 2: 'FrmPayTypeMast', 4: 'frmEnviro', 5: 'frmRevGroup', 6: 'frmPrintModule', 7: 'frmMod_Print', 8: 'FrmRevenueWiseBudget'}
+GENMas      [ 1] Tax Structure                          General Setup     -> FrmTaxStruMast   (handler@7108)
+__DISPATCH__ GENMas : {0: 'FrmTaxMast', 1: 'FrmTaxStruMast', 2: 'FrmPayTypeMast', 4: 'frmEnviro', 5: 'frmRevGroup', 6: 'frmPrintModule', 7: 'frmMod_Print', 8: 'FrmRevenueWiseBudget'}
+GENMas      [ 2] Payment Type                           General Setup     -> FrmPayTypeMast   (handler@7108)
+__DISPATCH__ GENMas : {0: 'FrmTaxMast', 1: 'FrmTaxStruMast', 2: 'FrmPayTypeMast', 4: 'frmEnviro', 5: 'frmRevGroup', 6: 'frmPrintModule', 7: 'frmMod_Print', 8: 'FrmRevenueWiseBudget'}
+GENMas      [ 4] Parameter                              General Setup     -> frmEnviro   (handler@7108)
+__DISPATCH__ GENMas : {0: 'FrmTaxMast', 1: 'FrmTaxStruMast', 2: 'FrmPayTypeMast', 4: 'frmEnviro', 5: 'frmRevGroup', 6: 'frmPrintModule', 7: 'frmMod_Print', 8: 'FrmRevenueWiseBudget'}
+GENMas      [ 5] Revenue Group Setting                  General Setup      [HIDDEN]  -> frmRevGroup   (handler@7108)
+__DISPATCH__ GENMas : {0: 'FrmTaxMast', 1: 'FrmTaxStruMast', 2: 'FrmPayTypeMast', 4: 'frmEnviro', 5: 'frmRevGroup', 6: 'frmPrintModule', 7: 'frmMod_Print', 8: 'FrmRevenueWiseBudget'}
+GENMas      [ 6] Printing Parameters                    General Setup     -> frmPrintModule   (handler@7108)
+__DISPATCH__ GENMas : {0: 'FrmTaxMast', 1: 'FrmTaxStruMast', 2: 'FrmPayTypeMast', 4: 'frmEnviro', 5: 'frmRevGroup', 6: 'frmPrintModule', 7: 'frmMod_Print', 8: 'FrmRevenueWiseBudget'}
+GENMas      [ 7] Printing Setup                         General Setup     -> frmMod_Print   (handler@7108)
+__DISPATCH__ GENMas : {0: 'FrmTaxMast', 1: 'FrmTaxStruMast', 2: 'FrmPayTypeMast', 4: 'frmEnviro', 5: 'frmRevGroup', 6: 'frmPrintModule', 7: 'frmMod_Print', 8: 'FrmRevenueWiseBudget'}
+GENMas      [ 8] Revenue Wise Budget Entry              General Setup      [HIDDEN]  -> FrmRevenueWiseBudget   (handler@7108)
+__DISPATCH__ HallM : {}
+HallM       [ 0] Events                                 Banquet           -> <no New>   (handler@4592)
+__DISPATCH__ HallM : {}
+HallM       [ 1] Venue Features                         Banquet           -> <no New>   (handler@4592)
+__DISPATCH__ HallM : {}
+HallM       [ 2] Venue Master                           Banquet           -> <no New>   (handler@4592)
+__DISPATCH__ HallM : {}
+HallM       [ 3] Menu Category                          Banquet           -> <no New>   (handler@4592)
+__DISPATCH__ HallM : {}
+HallM       [ 4] Item Group                             Banquet           -> <no New>   (handler@4592)
+__DISPATCH__ HallM : {}
+HallM       [ 5] Menu Item                              Banquet           -> <no New>   (handler@4592)
+__DISPATCH__ HallM : {}
+HallM       [ 6] Catalog Master                         Banquet           -> <no New>   (handler@4592)
+__DISPATCH__ HallM : {}
+HallM       [ 7] Banquet Bill Sundry Setting            Banquet           -> <no New>   (handler@4592)
+__DISPATCH__ Mas : {4: 'FrmMarketSeg', 5: 'FrmBusinessSrc', 6: 'FrmGuestStat', 7: 'FrmChargeMast', 8: 'frmFixedChargeMast', 9: 'FrmPackageMast'}
+Mas         [ 0] Country Master                         Front Office       [HIDDEN]  -> <no New>   (handler@7217)
+__DISPATCH__ Mas : {4: 'FrmMarketSeg', 5: 'FrmBusinessSrc', 6: 'FrmGuestStat', 7: 'FrmChargeMast', 8: 'frmFixedChargeMast', 9: 'FrmPackageMast'}
+Mas         [ 1] State Master                           Front Office       [HIDDEN]  -> <no New>   (handler@7217)
+__DISPATCH__ Mas : {4: 'FrmMarketSeg', 5: 'FrmBusinessSrc', 6: 'FrmGuestStat', 7: 'FrmChargeMast', 8: 'frmFixedChargeMast', 9: 'FrmPackageMast'}
+Mas         [ 2] City Master                            Front Office       [HIDDEN]  -> <no New>   (handler@7217)
+__DISPATCH__ Mas : {4: 'FrmMarketSeg', 5: 'FrmBusinessSrc', 6: 'FrmGuestStat', 7: 'FrmChargeMast', 8: 'frmFixedChargeMast', 9: 'FrmPackageMast'}
+Mas         [ 4] Market Segment                         Front Office      -> FrmMarketSeg   (handler@7217)
+__DISPATCH__ Mas : {4: 'FrmMarketSeg', 5: 'FrmBusinessSrc', 6: 'FrmGuestStat', 7: 'FrmChargeMast', 8: 'frmFixedChargeMast', 9: 'FrmPackageMast'}
+Mas         [ 5] Business Source                        Front Office      -> FrmBusinessSrc   (handler@7217)
+__DISPATCH__ Mas : {4: 'FrmMarketSeg', 5: 'FrmBusinessSrc', 6: 'FrmGuestStat', 7: 'FrmChargeMast', 8: 'frmFixedChargeMast', 9: 'FrmPackageMast'}
+Mas         [ 6] Guest Status                           Front Office      -> FrmGuestStat   (handler@7217)
+__DISPATCH__ Mas : {4: 'FrmMarketSeg', 5: 'FrmBusinessSrc', 6: 'FrmGuestStat', 7: 'FrmChargeMast', 8: 'frmFixedChargeMast', 9: 'FrmPackageMast'}
+Mas         [ 7] Charge Master                          Front Office      -> FrmChargeMast   (handler@7217)
+__DISPATCH__ Mas : {4: 'FrmMarketSeg', 5: 'FrmBusinessSrc', 6: 'FrmGuestStat', 7: 'FrmChargeMast', 8: 'frmFixedChargeMast', 9: 'FrmPackageMast'}
+Mas         [ 8] Fixed Charge                           Front Office      -> frmFixedChargeMast   (handler@7217)
+__DISPATCH__ Mas : {4: 'FrmMarketSeg', 5: 'FrmBusinessSrc', 6: 'FrmGuestStat', 7: 'FrmChargeMast', 8: 'frmFixedChargeMast', 9: 'FrmPackageMast'}
+Mas         [ 9] Package Master                         Front Office      -> FrmPackageMast   (handler@7217)
+__DISPATCH__ Mas : {4: 'FrmMarketSeg', 5: 'FrmBusinessSrc', 6: 'FrmGuestStat', 7: 'FrmChargeMast', 8: 'frmFixedChargeMast', 9: 'FrmPackageMast'}
+Mas         [12] Plan Master                            Front Office      -> <no New>   (handler@7217)
+__DISPATCH__ Mas : {4: 'FrmMarketSeg', 5: 'FrmBusinessSrc', 6: 'FrmGuestStat', 7: 'FrmChargeMast', 8: 'frmFixedChargeMast', 9: 'FrmPackageMast'}
+Mas         [13] Season Master                          Front Office       [HIDDEN]  -> <no New>   (handler@7217)
+__DISPATCH__ Mas : {4: 'FrmMarketSeg', 5: 'FrmBusinessSrc', 6: 'FrmGuestStat', 7: 'FrmChargeMast', 8: 'frmFixedChargeMast', 9: 'FrmPackageMast'}
+Mas         [14] Room Features                          Front Office      -> <no New>   (handler@7217)
+__DISPATCH__ Mas : {4: 'FrmMarketSeg', 5: 'FrmBusinessSrc', 6: 'FrmGuestStat', 7: 'FrmChargeMast', 8: 'frmFixedChargeMast', 9: 'FrmPackageMast'}
+Mas         [15] Room Category                          Front Office      -> <no New>   (handler@7217)
+__DISPATCH__ Mas : {4: 'FrmMarketSeg', 5: 'FrmBusinessSrc', 6: 'FrmGuestStat', 7: 'FrmChargeMast', 8: 'frmFixedChargeMast', 9: 'FrmPackageMast'}
+Mas         [16] Room Master                            Front Office      -> <no New>   (handler@7217)
+__DISPATCH__ Mas : {4: 'FrmMarketSeg', 5: 'FrmBusinessSrc', 6: 'FrmGuestStat', 7: 'FrmChargeMast', 8: 'frmFixedChargeMast', 9: 'FrmPackageMast'}
+Mas         [17] Company Master                         Front Office      -> <no New>   (handler@7217)
+__DISPATCH__ Mas : {4: 'FrmMarketSeg', 5: 'FrmBusinessSrc', 6: 'FrmGuestStat', 7: 'FrmChargeMast', 8: 'frmFixedChargeMast', 9: 'FrmPackageMast'}
+Mas         [20] Forex Master                           Front Office      -> <no New>   (handler@7217)
+__DISPATCH__ Mas : {4: 'FrmMarketSeg', 5: 'FrmBusinessSrc', 6: 'FrmGuestStat', 7: 'FrmChargeMast', 8: 'frmFixedChargeMast', 9: 'FrmPackageMast'}
+Mas         [21] Guest History                          Front Office      -> <no New>   (handler@7217)
+__DISPATCH__ Mas : {4: 'FrmMarketSeg', 5: 'FrmBusinessSrc', 6: 'FrmGuestStat', 7: 'FrmChargeMast', 8: 'frmFixedChargeMast', 9: 'FrmPackageMast'}
+Mas         [22] Group Profile                          Front Office       [HIDDEN]  -> <no New>   (handler@7217)
+__DISPATCH__ Mas : {4: 'FrmMarketSeg', 5: 'FrmBusinessSrc', 6: 'FrmGuestStat', 7: 'FrmChargeMast', 8: 'frmFixedChargeMast', 9: 'FrmPackageMast'}
+Mas         [23] Room Display                           Front Office      -> <no New>   (handler@7217)
+__DISPATCH__ MemMas : {0: 'MemCatMast', 1: 'MembershipMast', 3: 'MemberShipRevenueMast', 4: 'memFacilityMast', 5: 'memCatRevMast', 6: 'memCategoryFacilities', 8: 'MemberEnviro', 9: 'MemSelectCategory'}
+MemMas      [ 0] Category Master                        Members Mgmt      -> MemCatMast   (handler@8973)
+__DISPATCH__ MemMas : {0: 'MemCatMast', 1: 'MembershipMast', 3: 'MemberShipRevenueMast', 4: 'memFacilityMast', 5: 'memCatRevMast', 6: 'memCategoryFacilities', 8: 'MemberEnviro', 9: 'MemSelectCategory'}
+MemMas      [ 1] Member Master                          Members Mgmt      -> MembershipMast   (handler@8973)
+__DISPATCH__ MemMas : {0: 'MemCatMast', 1: 'MembershipMast', 3: 'MemberShipRevenueMast', 4: 'memFacilityMast', 5: 'memCatRevMast', 6: 'memCategoryFacilities', 8: 'MemberEnviro', 9: 'MemSelectCategory'}
+MemMas      [ 2] Corporate Member Master                Members Mgmt      -> <no New>   (handler@8973)
+__DISPATCH__ MemMas : {0: 'MemCatMast', 1: 'MembershipMast', 3: 'MemberShipRevenueMast', 4: 'memFacilityMast', 5: 'memCatRevMast', 6: 'memCategoryFacilities', 8: 'MemberEnviro', 9: 'MemSelectCategory'}
+MemMas      [ 3] Revenue Master                         Members Mgmt      -> MemberShipRevenueMast   (handler@8973)
+__DISPATCH__ MemMas : {0: 'MemCatMast', 1: 'MembershipMast', 3: 'MemberShipRevenueMast', 4: 'memFacilityMast', 5: 'memCatRevMast', 6: 'memCategoryFacilities', 8: 'MemberEnviro', 9: 'MemSelectCategory'}
+MemMas      [ 4] Facility Master                        Members Mgmt      -> memFacilityMast   (handler@8973)
+__DISPATCH__ MemMas : {0: 'MemCatMast', 1: 'MembershipMast', 3: 'MemberShipRevenueMast', 4: 'memFacilityMast', 5: 'memCatRevMast', 6: 'memCategoryFacilities', 8: 'MemberEnviro', 9: 'MemSelectCategory'}
+MemMas      [ 5] Category wise Revenue                  Members Mgmt      -> memCatRevMast   (handler@8973)
+__DISPATCH__ MemMas : {0: 'MemCatMast', 1: 'MembershipMast', 3: 'MemberShipRevenueMast', 4: 'memFacilityMast', 5: 'memCatRevMast', 6: 'memCategoryFacilities', 8: 'MemberEnviro', 9: 'MemSelectCategory'}
+MemMas      [ 6] Category wise Facility                 Members Mgmt      -> memCategoryFacilities   (handler@8973)
+__DISPATCH__ MemMas : {0: 'MemCatMast', 1: 'MembershipMast', 3: 'MemberShipRevenueMast', 4: 'memFacilityMast', 5: 'memCatRevMast', 6: 'memCategoryFacilities', 8: 'MemberEnviro', 9: 'MemSelectCategory'}
+MemMas      [ 7] Member Bill Sundry Setting             Members Mgmt      -> <no New>   (handler@8973)
+__DISPATCH__ MemMas : {0: 'MemCatMast', 1: 'MembershipMast', 3: 'MemberShipRevenueMast', 4: 'memFacilityMast', 5: 'memCatRevMast', 6: 'memCategoryFacilities', 8: 'MemberEnviro', 9: 'MemSelectCategory'}
+MemMas      [ 8] Environment Settings                   Members Mgmt      -> MemberEnviro   (handler@8973)
+__DISPATCH__ MemMas : {0: 'MemCatMast', 1: 'MembershipMast', 3: 'MemberShipRevenueMast', 4: 'memFacilityMast', 5: 'memCatRevMast', 6: 'memCategoryFacilities', 8: 'MemberEnviro', 9: 'MemSelectCategory'}
+MemMas      [ 9] Member Age Wise Revenue                Members Mgmt      -> MemSelectCategory   (handler@8973)
+__DISPATCH__ MemMas : {0: 'MemCatMast', 1: 'MembershipMast', 3: 'MemberShipRevenueMast', 4: 'memFacilityMast', 5: 'memCatRevMast', 6: 'memCategoryFacilities', 8: 'MemberEnviro', 9: 'MemSelectCategory'}
+MemMas      [10] Member Select Category                 Members Mgmt      -> <no New>   (handler@8973)
+__DISPATCH__ POSMas : {0: 'OutLetMast', 1: 'OutLetSundry', 2: 'FrmWaiterMast', 3: 'RsTableMast', 4: 'FrmItemMast', 5: 'FrmItemGroupMast', 6: 'FrmItemCatMast', 7: 'RsMenuItemEntry', 8: 'FrmMenuRate'}
+POSMas      [ 0] Setup Outlet                           Point of Sale     -> OutLetMast   (handler@9885)
+__DISPATCH__ POSMas : {0: 'OutLetMast', 1: 'OutLetSundry', 2: 'FrmWaiterMast', 3: 'RsTableMast', 4: 'FrmItemMast', 5: 'FrmItemGroupMast', 6: 'FrmItemCatMast', 7: 'RsMenuItemEntry', 8: 'FrmMenuRate'}
+POSMas      [ 1] Outlet Bill Sundry Setting             Point of Sale     -> OutLetSundry   (handler@9885)
+__DISPATCH__ POSMas : {0: 'OutLetMast', 1: 'OutLetSundry', 2: 'FrmWaiterMast', 3: 'RsTableMast', 4: 'FrmItemMast', 5: 'FrmItemGroupMast', 6: 'FrmItemCatMast', 7: 'RsMenuItemEntry', 8: 'FrmMenuRate'}
+POSMas      [ 2] Server Master                          Point of Sale     -> FrmWaiterMast   (handler@9885)
+__DISPATCH__ POSMas : {0: 'OutLetMast', 1: 'OutLetSundry', 2: 'FrmWaiterMast', 3: 'RsTableMast', 4: 'FrmItemMast', 5: 'FrmItemGroupMast', 6: 'FrmItemCatMast', 7: 'RsMenuItemEntry', 8: 'FrmMenuRate'}
+POSMas      [ 3] Table Master                           Point of Sale     -> RsTableMast   (handler@9885)
+__DISPATCH__ POSMas : {0: 'OutLetMast', 1: 'OutLetSundry', 2: 'FrmWaiterMast', 3: 'RsTableMast', 4: 'FrmItemMast', 5: 'FrmItemGroupMast', 6: 'FrmItemCatMast', 7: 'RsMenuItemEntry', 8: 'FrmMenuRate'}
+POSMas      [ 4] Item List                              Point of Sale     -> FrmItemMast   (handler@9885)
+__DISPATCH__ POSMas : {0: 'OutLetMast', 1: 'OutLetSundry', 2: 'FrmWaiterMast', 3: 'RsTableMast', 4: 'FrmItemMast', 5: 'FrmItemGroupMast', 6: 'FrmItemCatMast', 7: 'RsMenuItemEntry', 8: 'FrmMenuRate'}
+POSMas      [ 5] Menu Group                             Point of Sale     -> FrmItemGroupMast   (handler@9885)
+__DISPATCH__ POSMas : {0: 'OutLetMast', 1: 'OutLetSundry', 2: 'FrmWaiterMast', 3: 'RsTableMast', 4: 'FrmItemMast', 5: 'FrmItemGroupMast', 6: 'FrmItemCatMast', 7: 'RsMenuItemEntry', 8: 'FrmMenuRate'}
+POSMas      [ 6] Menu Category                          Point of Sale     -> FrmItemCatMast   (handler@9885)
+__DISPATCH__ POSMas : {0: 'OutLetMast', 1: 'OutLetSundry', 2: 'FrmWaiterMast', 3: 'RsTableMast', 4: 'FrmItemMast', 5: 'FrmItemGroupMast', 6: 'FrmItemCatMast', 7: 'RsMenuItemEntry', 8: 'FrmMenuRate'}
+POSMas      [ 7] Menu Item                              Point of Sale     -> RsMenuItemEntry   (handler@9885)
+__DISPATCH__ POSMas : {0: 'OutLetMast', 1: 'OutLetSundry', 2: 'FrmWaiterMast', 3: 'RsTableMast', 4: 'FrmItemMast', 5: 'FrmItemGroupMast', 6: 'FrmItemCatMast', 7: 'RsMenuItemEntry', 8: 'FrmMenuRate'}
+POSMas      [ 8] Menu Item Rate                         Point of Sale     -> FrmMenuRate   (handler@9885)
+__DISPATCH__ POSMas : {0: 'OutLetMast', 1: 'OutLetSundry', 2: 'FrmWaiterMast', 3: 'RsTableMast', 4: 'FrmItemMast', 5: 'FrmItemGroupMast', 6: 'FrmItemCatMast', 7: 'RsMenuItemEntry', 8: 'FrmMenuRate'}
+POSMas      [ 9] Rate Group Master                      Point of Sale      [HIDDEN]  -> <no New>   (handler@9885)
+__DISPATCH__ POSMas : {0: 'OutLetMast', 1: 'OutLetSundry', 2: 'FrmWaiterMast', 3: 'RsTableMast', 4: 'FrmItemMast', 5: 'FrmItemGroupMast', 6: 'FrmItemCatMast', 7: 'RsMenuItemEntry', 8: 'FrmMenuRate'}
+POSMas      [10] Session Master                         Point of Sale     -> <no New>   (handler@9885)
+__DISPATCH__ POSMas : {0: 'OutLetMast', 1: 'OutLetSundry', 2: 'FrmWaiterMast', 3: 'RsTableMast', 4: 'FrmItemMast', 5: 'FrmItemGroupMast', 6: 'FrmItemCatMast', 7: 'RsMenuItemEntry', 8: 'FrmMenuRate'}
+POSMas      [11] Open Item Consumption                  Point of Sale     -> <no New>   (handler@9885)
+__DISPATCH__ POSMas : {0: 'OutLetMast', 1: 'OutLetSundry', 2: 'FrmWaiterMast', 3: 'RsTableMast', 4: 'FrmItemMast', 5: 'FrmItemGroupMast', 6: 'FrmItemCatMast', 7: 'RsMenuItemEntry', 8: 'FrmMenuRate'}
+POSMas      [12] Scheme Master                          Point of Sale     -> <no New>   (handler@9885)
+__DISPATCH__ POSMas : {0: 'OutLetMast', 1: 'OutLetSundry', 2: 'FrmWaiterMast', 3: 'RsTableMast', 4: 'FrmItemMast', 5: 'FrmItemGroupMast', 6: 'FrmItemCatMast', 7: 'RsMenuItemEntry', 8: 'FrmMenuRate'}
+POSMas      [15] Happy Hours                            Point of Sale      [HIDDEN]  -> <no New>   (handler@9885)
+__DISPATCH__ POSMas : {0: 'OutLetMast', 1: 'OutLetSundry', 2: 'FrmWaiterMast', 3: 'RsTableMast', 4: 'FrmItemMast', 5: 'FrmItemGroupMast', 6: 'FrmItemCatMast', 7: 'RsMenuItemEntry', 8: 'FrmMenuRate'}
+POSMas      [16] Happy Hours [ Free Items ]             Point of Sale     -> <no New>   (handler@9885)
+__DISPATCH__ POSMas : {0: 'OutLetMast', 1: 'OutLetSundry', 2: 'FrmWaiterMast', 3: 'RsTableMast', 4: 'FrmItemMast', 5: 'FrmItemGroupMast', 6: 'FrmItemCatMast', 7: 'RsMenuItemEntry', 8: 'FrmMenuRate'}
+POSMas      [17] Combo Pack                             Point of Sale     -> <no New>   (handler@9885)
+__DISPATCH__ POSMas : {0: 'OutLetMast', 1: 'OutLetSundry', 2: 'FrmWaiterMast', 3: 'RsTableMast', 4: 'FrmItemMast', 5: 'FrmItemGroupMast', 6: 'FrmItemCatMast', 7: 'RsMenuItemEntry', 8: 'FrmMenuRate'}
+POSMas      [18] NC Type                                Point of Sale     -> <no New>   (handler@9885)
+__DISPATCH__ POSMas : {0: 'OutLetMast', 1: 'OutLetSundry', 2: 'FrmWaiterMast', 3: 'RsTableMast', 4: 'FrmItemMast', 5: 'FrmItemGroupMast', 6: 'FrmItemCatMast', 7: 'RsMenuItemEntry', 8: 'FrmMenuRate'}
+POSMas      [19] Customer History                       Point of Sale     -> <no New>   (handler@9885)
+__DISPATCH__ POSMas : {0: 'OutLetMast', 1: 'OutLetSundry', 2: 'FrmWaiterMast', 3: 'RsTableMast', 4: 'FrmItemMast', 5: 'FrmItemGroupMast', 6: 'FrmItemCatMast', 7: 'RsMenuItemEntry', 8: 'FrmMenuRate'}
+POSMas      [20] Delivery Boy                           Point of Sale     -> <no New>   (handler@9885)
+__DISPATCH__ PRM : {0: 'PrDesigMast', 1: 'PrCategoryMast', 2: 'prHoliday', 3: 'PrEmployee'}
+PRM         [ 0] Designation Master                     HR/Payroll        -> PrDesigMast   (handler@10121)
+__DISPATCH__ PRM : {0: 'PrDesigMast', 1: 'PrCategoryMast', 2: 'prHoliday', 3: 'PrEmployee'}
+PRM         [ 1] Category  Master                       HR/Payroll        -> PrCategoryMast   (handler@10121)
+__DISPATCH__ PRM : {0: 'PrDesigMast', 1: 'PrCategoryMast', 2: 'prHoliday', 3: 'PrEmployee'}
+PRM         [ 2] Holiday Master                         HR/Payroll        -> prHoliday   (handler@10121)
+__DISPATCH__ PRM : {0: 'PrDesigMast', 1: 'PrCategoryMast', 2: 'prHoliday', 3: 'PrEmployee'}
+PRM         [ 3] Employee Master                        HR/Payroll        -> PrEmployee   (handler@10121)
+__DISPATCH__ SCRD : {}
+SCRD        [ 1] Registration Entry                     Smart Card        -> <no New>   (handler@10754)
+__DISPATCH__ SCRD : {}
+SCRD        [ 2] Recharge/Refund Entry                  Smart Card        -> <no New>   (handler@10754)
+__DISPATCH__ SCRD : {}
+SCRD        [40] -                                      Smart Card        -> <no New>   (handler@10754)
+__DISPATCH__ SCRD : {}
+SCRD        [41] Cash Card Transaction Report           Smart Card        -> <no New>   (handler@10754)
+__DISPATCH__ SCRD : {}
+SCRD        [42] Cash Card Collection Summary           Smart Card        -> <no New>   (handler@10754)
+__DISPATCH__ TelMaast : {}
+TelMaast    [ 0] Com Port Properties                    EPABX              [HIDDEN]  -> <no New>   (handler@10290)
+__DISPATCH__ TelMaast : {}
+TelMaast    [ 1] Call Type Master                       EPABX             -> <no New>   (handler@10290)
+__DISPATCH__ TelMaast : {}
+TelMaast    [ 2] Extension Master                       EPABX             -> <no New>   (handler@10290)
+__DISPATCH__ TelMaast : {}
+TelMaast    [ 3] Call Codes Master                      EPABX             -> <no New>   (handler@10290)
+__DISPATCH__ TelMaast : {}
+TelMaast    [ 4] Call Control Master                    EPABX              [HIDDEN]  -> <no New>   (handler@10290)
+__DISPATCH__ UTL : {8: 'CGZipFiles', 9: 'frmGuestParamMast'}
+UTL         [ 0] User Master                            Utility           -> <no New>   (handler@3991)
+__DISPATCH__ UTL : {8: 'CGZipFiles', 9: 'frmGuestParamMast'}
+UTL         [ 1] Permissions                            Utility           -> <no New>   (handler@3991)
+__DISPATCH__ UTL : {8: 'CGZipFiles', 9: 'frmGuestParamMast'}
+UTL         [ 6] Update Database Nulls                  Utility            [HIDDEN]  -> <no New>   (handler@3991)
+__DISPATCH__ UTL : {8: 'CGZipFiles', 9: 'frmGuestParamMast'}
+UTL         [ 8] Backup Data                            Utility           -> CGZipFiles   (handler@3991)
+__DISPATCH__ UTL : {8: 'CGZipFiles', 9: 'frmGuestParamMast'}
+UTL         [ 9] Account Merging                        Utility            [HIDDEN]  -> frmGuestParamMast   (handler@3991)
+__DISPATCH__ UTL : {8: 'CGZipFiles', 9: 'frmGuestParamMast'}
+UTL         [11] Guest Parameters Setting               Utility            [HIDDEN]  -> <no New>   (handler@3991)
+__DISPATCH__ UTL : {8: 'CGZipFiles', 9: 'frmGuestParamMast'}
+UTL         [12] Sundry Master                          Utility           -> <no New>   (handler@3991)
+__DISPATCH__ UTL : {8: 'CGZipFiles', 9: 'frmGuestParamMast'}
+UTL         [13] Voucher Wise Sundry Entry              Utility            [HIDDEN]  -> <no New>   (handler@3991)
+__DISPATCH__ UTL : {8: 'CGZipFiles', 9: 'frmGuestParamMast'}
+UTL         [14] Sale MIS Customized                    Utility            [HIDDEN]  -> <no New>   (handler@3991)
+__DISPATCH__ UTL : {8: 'CGZipFiles', 9: 'frmGuestParamMast'}
+UTL         [15] Guest BirthDates/Anniversary           Utility            [HIDDEN]  -> <no New>   (handler@3991)
+__DISPATCH__ UTL : {8: 'CGZipFiles', 9: 'frmGuestParamMast'}
+UTL         [16] Inconsistency Check                    Utility           -> <no New>   (handler@3991)
+__DISPATCH__ UTL : {8: 'CGZipFiles', 9: 'frmGuestParamMast'}
+UTL         [17] Year End Updation                      Utility           -> <no New>   (handler@3991)
+__DISPATCH__ UTL : {8: 'CGZipFiles', 9: 'frmGuestParamMast'}
+UTL         [18] Data Transfer                          Utility            [HIDDEN]  -> <no New>   (handler@3991)
+__DISPATCH__ UTL : {8: 'CGZipFiles', 9: 'frmGuestParamMast'}
+UTL         [19] Data Recieving                         Utility            [HIDDEN]  -> <no New>   (handler@3991)
+__DISPATCH__ UTL : {8: 'CGZipFiles', 9: 'frmGuestParamMast'}
+UTL         [20] Menu Item Copy                         Utility           -> <no New>   (handler@3991)
+__DISPATCH__ UTL : {8: 'CGZipFiles', 9: 'frmGuestParamMast'}
+UTL         [21] POS Bill Deletion                      Utility           -> <no New>   (handler@3991)
+__DISPATCH__ UTL : {8: 'CGZipFiles', 9: 'frmGuestParamMast'}
+UTL         [22] Guest LookUp                           Utility           -> <no New>   (handler@3991)
+__DISPATCH__ UTL : {8: 'CGZipFiles', 9: 'frmGuestParamMast'}
+UTL         [23] Country Master                         Utility           -> <no New>   (handler@3991)
+__DISPATCH__ UTL : {8: 'CGZipFiles', 9: 'frmGuestParamMast'}
+UTL         [24] State Master                           Utility           -> <no New>   (handler@3991)
+__DISPATCH__ UTL : {8: 'CGZipFiles', 9: 'frmGuestParamMast'}
+UTL         [25] City Master                            Utility           -> <no New>   (handler@3991)
+__DISPATCH__ UTL : {8: 'CGZipFiles', 9: 'frmGuestParamMast'}
+UTL         [26] Company Master                         Utility           -> <no New>   (handler@3991)
+__DISPATCH__ UTL : {8: 'CGZipFiles', 9: 'frmGuestParamMast'}
+UTL         [27] Department                             Utility           -> <no New>   (handler@3991)
+__DISPATCH__ UTL : {8: 'CGZipFiles', 9: 'frmGuestParamMast'}
+UTL         [28] Ledger Accounts                        Utility           -> <no New>   (handler@3991)
+__DISPATCH__ UTL : {8: 'CGZipFiles', 9: 'frmGuestParamMast'}
+UTL         [29] Data Transfer (POS)                    Utility            [HIDDEN]  -> <no New>   (handler@3991)
+__DISPATCH__ UTL : {8: 'CGZipFiles', 9: 'frmGuestParamMast'}
+UTL         [30] PLU File (W.Scale)                     Utility            [HIDDEN]  -> <no New>   (handler@3991)
+__DISPATCH__ UTL : {8: 'CGZipFiles', 9: 'frmGuestParamMast'}
+UTL         [31] User Permissions (Advanced)            Utility            [HIDDEN]  -> <no New>   (handler@3991)
+__DISPATCH__ UTL : {8: 'CGZipFiles', 9: 'frmGuestParamMast'}
+UTL         [32] POS Recycle                            Utility           -> <no New>   (handler@3991)
+__DISPATCH__ UTL : {8: 'CGZipFiles', 9: 'frmGuestParamMast'}
+UTL         [33] Unit Master                            Utility           -> <no New>   (handler@3991)
+__DISPATCH__ UTL : {8: 'CGZipFiles', 9: 'frmGuestParamMast'}
+UTL         [34] Task Scheduler                         Utility           -> <no New>   (handler@3991)
+__DISPATCH__ fame : {0: 'FaGrEnt', 1: 'FaSubGroup', 2: 'FaNarrMast', 3: 'FaTDSCat', 8: 'FaCurrBalUpdate', 9: 'FaCountryMast'}
+fame        [ 0] Group Accounts                         Finance           -> FaGrEnt   (handler@6130)
+__DISPATCH__ fame : {0: 'FaGrEnt', 1: 'FaSubGroup', 2: 'FaNarrMast', 3: 'FaTDSCat', 8: 'FaCurrBalUpdate', 9: 'FaCountryMast'}
+fame        [ 1] Ledger Accounts                        Finance           -> FaSubGroup   (handler@6130)
+__DISPATCH__ fame : {0: 'FaGrEnt', 1: 'FaSubGroup', 2: 'FaNarrMast', 3: 'FaTDSCat', 8: 'FaCurrBalUpdate', 9: 'FaCountryMast'}
+fame        [ 2] Narration Master                       Finance           -> FaNarrMast   (handler@6130)
+__DISPATCH__ fame : {0: 'FaGrEnt', 1: 'FaSubGroup', 2: 'FaNarrMast', 3: 'FaTDSCat', 8: 'FaCurrBalUpdate', 9: 'FaCountryMast'}
+fame        [ 3] T.D.S. Category                        Finance           -> FaTDSCat   (handler@6130)
+__DISPATCH__ fame : {0: 'FaGrEnt', 1: 'FaSubGroup', 2: 'FaNarrMast', 3: 'FaTDSCat', 8: 'FaCurrBalUpdate', 9: 'FaCountryMast'}
+fame        [ 4] FA Environment                         Finance           -> <no New>   (handler@6130)
+__DISPATCH__ fame : {0: 'FaGrEnt', 1: 'FaSubGroup', 2: 'FaNarrMast', 3: 'FaTDSCat', 8: 'FaCurrBalUpdate', 9: 'FaCountryMast'}
+fame        [ 5] Voucher Environment                    Finance           -> <no New>   (handler@6130)
+__DISPATCH__ fame : {0: 'FaGrEnt', 1: 'FaSubGroup', 2: 'FaNarrMast', 3: 'FaTDSCat', 8: 'FaCurrBalUpdate', 9: 'FaCountryMast'}
+fame        [ 6] Opening Balance Updation               Finance            [HIDDEN]  -> <no New>   (handler@6130)
+__DISPATCH__ fame : {0: 'FaGrEnt', 1: 'FaSubGroup', 2: 'FaNarrMast', 3: 'FaTDSCat', 8: 'FaCurrBalUpdate', 9: 'FaCountryMast'}
+fame        [ 7] Year End Updation                      Finance           -> <no New>   (handler@6130)
+__DISPATCH__ fame : {0: 'FaGrEnt', 1: 'FaSubGroup', 2: 'FaNarrMast', 3: 'FaTDSCat', 8: 'FaCurrBalUpdate', 9: 'FaCountryMast'}
+fame        [ 8] Current Balance Updation               Finance           -> FaCurrBalUpdate   (handler@6130)
+__DISPATCH__ fame : {0: 'FaGrEnt', 1: 'FaSubGroup', 2: 'FaNarrMast', 3: 'FaTDSCat', 8: 'FaCurrBalUpdate', 9: 'FaCountryMast'}
+fame        [ 9] Country Master                         Finance            [HIDDEN]  -> FaCountryMast   (handler@6130)
+__DISPATCH__ fame : {0: 'FaGrEnt', 1: 'FaSubGroup', 2: 'FaNarrMast', 3: 'FaTDSCat', 8: 'FaCurrBalUpdate', 9: 'FaCountryMast'}
+fame        [10] State Master                           Finance            [HIDDEN]  -> <no New>   (handler@6130)
+__DISPATCH__ fame : {0: 'FaGrEnt', 1: 'FaSubGroup', 2: 'FaNarrMast', 3: 'FaTDSCat', 8: 'FaCurrBalUpdate', 9: 'FaCountryMast'}
+fame        [11] City Master                            Finance            [HIDDEN]  -> <no New>   (handler@6130)
+__DISPATCH__ fame : {0: 'FaGrEnt', 1: 'FaSubGroup', 2: 'FaNarrMast', 3: 'FaTDSCat', 8: 'FaCurrBalUpdate', 9: 'FaCountryMast'}
+fame        [12] Delete Message                         Finance           -> <no New>   (handler@6130)
+__DISPATCH__ fame : {0: 'FaGrEnt', 1: 'FaSubGroup', 2: 'FaNarrMast', 3: 'FaTDSCat', 8: 'FaCurrBalUpdate', 9: 'FaCountryMast'}
+fame        [13] Account Merging                        Finance           -> <no New>   (handler@6130)
+__DISPATCH__ fame : {0: 'FaGrEnt', 1: 'FaSubGroup', 2: 'FaNarrMast', 3: 'FaTDSCat', 8: 'FaCurrBalUpdate', 9: 'FaCountryMast'}
+fame        [14] Voucher Serialisation                  Finance           -> <no New>   (handler@6130)
+
+resolved forms: 53 of 135 menu items
+
+== form source presence ==
+  Account Merging                        frmGuestParamMast        frm OK
+  Backup Data                            CGZipFiles               !! .frm NOT FOUND
+  Business Source                        FrmBusinessSrc           frm OK
+  Category  Master                       PrCategoryMast           frm OK
+  Category Master                        MemCatMast               frm OK
+  Category wise Facility                 memCategoryFacilities    frm OK
+  Category wise Revenue                  memCatRevMast            frm OK
+  Charge Master                          FrmChargeMast            frm OK
+  Consumption Master                     FrmConsumMast            frm OK
+  Country Master                         FaCountryMast            frm OK
+  Current Balance Updation               FaCurrBalUpdate          frm OK
+  Department                             DepartMast               frm OK
+  Designation Master                     PrDesigMast              frm OK
+  Employee Master                        PrEmployee               frm OK
+  Environment Settings                   MemberEnviro             frm OK
+  Facility Master                        memFacilityMast          frm OK
+  Fixed Charge                           frmFixedChargeMast       frm OK
+  Group Accounts                         FaGrEnt                  frm OK
+  Guest Status                           FrmGuestStat             frm OK
+  Holiday Master                         prHoliday                frm OK
+  Item  List                             FrmItemMast              frm OK
+  Item Category                          FrmItemCatRaw            frm OK
+  Item Entry                             FrmItemMastRaw           frm OK
+  Item Group                             FrmItemGroupMastRaw      frm OK
+  Item List                              FrmItemMast              frm OK
+  Ledger Accounts                        FaSubGroup               frm OK
+  Location Master                        Godown                   frm OK
+  Market Segment                         FrmMarketSeg             frm OK
+  Member Age Wise Revenue                MemSelectCategory        frm OK
+  Member Master                          MembershipMast           frm OK
+  Menu Category                          FrmItemCatMast           frm OK
+  Menu Group                             FrmItemGroupMast         frm OK
+  Menu Item                              RsMenuItemEntry          frm OK
+  Menu Item Rate                         FrmMenuRate              frm OK
+  Narration Master                       FaNarrMast               frm OK
+  Opening Stock                          FrmOPStock               frm OK
+  Outlet Bill Sundry Setting             OutLetSundry             frm OK
+  Package Master                         FrmPackageMast           frm OK
+  Parameter                              frmEnviro                frm OK
+  Party Master                           FrmParty                 frm OK
+  Payment Type                           FrmPayTypeMast           frm OK
+  Printing Parameters                    frmPrintModule           frm OK
+  Printing Setup                         frmMod_Print             frm OK
+  Purchase Sundry Setting                DepartSundry             frm OK
+  Revenue Group Setting                  frmRevGroup              frm OK
+  Revenue Master                         MemberShipRevenueMast    frm OK
+  Revenue Wise Budget Entry              FrmRevenueWiseBudget     frm OK
+  Server Master                          FrmWaiterMast            frm OK
+  Setup Outlet                           OutLetMast               frm OK
+  T.D.S. Category                        FaTDSCat                 frm OK
+  Table Master                           RsTableMast              frm OK
+  Tax Master                             FrmTaxMast               frm OK
+  Tax Structure                          FrmTaxStruMast           frm OK
+
+forms referenced but .frm missing: 1
+   Backup Data -> CGZipFiles

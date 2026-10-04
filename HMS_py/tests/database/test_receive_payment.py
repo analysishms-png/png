@@ -106,10 +106,11 @@ def main():
             check("T7c unknown paycode reject", True)
 
         # ---- T8: room charge bhi post karke payment ke saath balance dekho
+        # BUG-AUD-10: room charge GST = 2.5% + 2.5% (live TaxPer=2.5)
         folio.post_room_charge(folio_no, 1000.0)
         bal = folio.folio_balance(folio_no)
         check("T8 charge+payment balance",
-              abs(bal - (1000.0 * 1.10 - 5000.0)) < 0.01, f"bal={bal}")
+              abs(bal - (1000.0 * 1.05 - 5000.0)) < 0.01, f"bal={bal}")
 
         # ---- T9: delete_payment (PYT-guarded test hygiene)
         folio.delete_payment(vno)

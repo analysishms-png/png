@@ -1,0 +1,1210 @@
+{
+ "Sales Day Book": [
+  "rPOSRepView"
+ ],
+ "Daily Report-II": [
+  "rFomRepView"
+ ],
+ "Night Audit Control Panel": [
+  "FrmControlPanel"
+ ],
+ "Food Costing Report": [
+  "rFomRepView"
+ ],
+ "Revenue Analysis": [
+  "rFomRepView"
+ ],
+ "FOCC Report": [
+  "rFomRepView"
+ ],
+ "Budget Analysis": [
+  "rFomRepView"
+ ],
+ "Night Audit Log": [
+  "rFomRepView"
+ ],
+ "Guest Audit Ledger": [
+  "rFomRepView"
+ ],
+ "Checkout Analysis": [
+  "rFomRepView"
+ ],
+ "Charges Remove Log": [
+  "rFomRepView"
+ ],
+ "Ageing Analysis (Debtors)": [
+  "FaReports"
+ ],
+ "Ageing Analysis (Creditors)": [
+  "FaReports"
+ ],
+ "FB Cost Statement": [
+  "rFomRepView"
+ ],
+ "Tally POS Report": [
+  "rFomRepView"
+ ],
+ "GSTR-1": [
+  "rFomRepView"
+ ],
+ "GSTR-2(3)": [
+  "rFomRepView"
+ ],
+ "GSTR-2(4A)": [
+  "rFomRepView"
+ ],
+ "GSTR-2(4B)": [
+  "rFomRepView"
+ ],
+ "Reconciliation (GSTR-2A)": [
+  "rFomRepView"
+ ],
+ "Upload Process": [
+  "FrmUploadProcess"
+ ],
+ "Package Master": [
+  "FrmPackageMast"
+ ],
+ "Year End Updation": [
+  "frmYearEnd"
+ ],
+ "Plan Master": [
+  "FrmPackageMast"
+ ],
+ "Account Posting": [
+  "fdNDAcPostChrg"
+ ],
+ "Voucher Entry": [
+  "FaVrEnt"
+ ],
+ "Adjustment Entry": [
+  "FaAdjust"
+ ],
+ "Delete Adjustment Entry": [
+  "FaAdjustDel"
+ ],
+ "Bank Reconciliation": [
+  "FaChqClear"
+ ],
+ "T.D.S. Challan Entry": [
+  "FaTDSChal"
+ ],
+ "T.D.S. Certificate Entry": [
+  "FaTDSCertificate"
+ ],
+ "Balance Sheet": [
+  "FaMagic"
+ ],
+ "Profit And Loss Account": [
+  "FaMagic"
+ ],
+ "Trial Balance (Group)": [
+  "FaMagic"
+ ],
+ "Trial Balance": [
+  "FaMagic"
+ ],
+ "Cash Flow": [
+  "FaMagic"
+ ],
+ "Fund Flow": [
+  "FaMagic"
+ ],
+ "Cash And Bank Books": [
+  "FaMagic"
+ ],
+ "Day Book": [
+  "FaReports"
+ ],
+ "Ledger": [
+  "FaReports"
+ ],
+ "Interest Ledger": [
+  "FaReports"
+ ],
+ "Cash Book": [
+  "FaReports"
+ ],
+ "Bank Book": [
+  "FaReports"
+ ],
+ "Journal Books": [
+  "FaReports"
+ ],
+ "Annexure": [
+  "FaReports"
+ ],
+ "Bank Register": [
+  "FaReports"
+ ],
+ "Ageing Analysis for Debtors": [
+  "FaReports"
+ ],
+ "Ageing Analysis for Creditors": [
+  "FaReports"
+ ],
+ "Cheque Cleared Register": [
+  "FaReports"
+ ],
+ "Cheque Not Cleared Register": [
+  "FaReports"
+ ],
+ "Outstanding Report For Debtors": [
+  "FaReports"
+ ],
+ "Outstanding Report For Creditors": [
+  "FaReports"
+ ],
+ "Daily Transaction Summary": [
+  "FaReports"
+ ],
+ "Non Transaction Report": [
+  "FaReports"
+ ],
+ "Reference Report": [
+  "FaReports"
+ ],
+ "Detailed Trial Ledger": [
+  "FaReports"
+ ],
+ "A/c Check List": [
+  "FaReports"
+ ],
+ "Bill Wise Outstanding Report For Debtors": [
+  "FaReports"
+ ],
+ "Control Ledger": [
+  "FaReports"
+ ],
+ "Day  Book": [
+  "FaReports"
+ ],
+ "Journal Books Log": [
+  "FaReports"
+ ],
+ "Tax Master": [
+  "FrmTaxMast"
+ ],
+ "Tax Structure": [
+  "FrmTaxStruMast"
+ ],
+ "Payment Type": [
+  "FrmPayTypeMast"
+ ],
+ "Parameter": [
+  "frmEnviro"
+ ],
+ "Revenue Group Setting": [
+  "frmRevGroup"
+ ],
+ "Country Master": [
+  "FaCountryMast"
+ ],
+ "State Master": [
+  "FaStateMast"
+ ],
+ "City Master": [
+  "FaCityMast"
+ ],
+ "Market Segment": [
+  "FrmMarketSeg"
+ ],
+ "Business Source": [
+  "FrmBusinessSrc"
+ ],
+ "Guest Status": [
+  "FrmGuestStat"
+ ],
+ "Charge Master": [
+  "FrmChargeMast"
+ ],
+ "Plan/Package Master": [
+  "FrmPlanPackMast"
+ ],
+ "Season Master": [
+  "frmSeasonMast"
+ ],
+ "Room Features": [
+  "FrmRoomFeatureMast"
+ ],
+ "Room Category": [
+  "FrmRoomCatMast"
+ ],
+ "Room Master": [
+  "FrmRoomMast"
+ ],
+ "Company Master": [
+  "CompMast"
+ ],
+ "Forex Master": [
+  "FrmForeignExMast"
+ ],
+ "Guest Profile": [
+  "GuestProfile"
+ ],
+ "Group Profile": [
+  "GroupProfile"
+ ],
+ "Item  List": [
+  "FrmItemMast"
+ ],
+ "Scheme Master": [
+  "SchemeMast"
+ ],
+ "Server Master": [
+  "FrmWaiterMast"
+ ],
+ "Fixed Charge": [
+  "frmFixedChargeMast"
+ ],
+ "Guest History": [
+  "GuestProfile"
+ ],
+ "Room Display": [
+  "FdRoomDisplay"
+ ],
+ "Open Item Consumption": [
+  "FrmConsumMast9999"
+ ],
+ "Member Master": [
+  "MembershipMast"
+ ],
+ "Purchase Sundry Setting": [
+  "DepartSundry"
+ ],
+ "Location Master": [
+  "Godown"
+ ],
+ "Opening Stock": [
+  "FrmOPStock"
+ ],
+ "Delete Message": [
+  "EmptyInbox"
+ ],
+ "Inconsistency Check": [
+  "FrmInc"
+ ],
+ "WalkIn CheckIn": [
+  "fdWalkInEntry"
+ ],
+ "Reverse Check Out": [
+  "FdRevCheckOut"
+ ],
+ "Merge Room": [
+  "FrmMergeCharge"
+ ],
+ "Bill Re-Settlement": [
+  "FdReSetlement"
+ ],
+ "Reverse Room Merge": [
+  "FrmRevMergeCharge"
+ ],
+ "Setup Outlet": [
+  "OutLetMast"
+ ],
+ "Table Master": [
+  "RsTableMast"
+ ],
+ "Menu Category": [
+  "FrmHallItemCatMast"
+ ],
+ "Menu Group": [
+  "FrmItemGroupMast"
+ ],
+ "Menu Item": [
+  "HallMenuItemEntry"
+ ],
+ "Outlet Sundry Setting": [
+  "OutLetSundry"
+ ],
+ "Menu Item Rate": [
+  "FrmMenuRate"
+ ],
+ "Session Master": [
+  "frmSessionMast"
+ ],
+ "NC Type": [
+  "FrmNCType"
+ ],
+ "Customer History": [
+  "frmGuestInfo"
+ ],
+ "Delivery Boy": [
+  "FrmDeliveryBoyMast"
+ ],
+ "Reward Points Parameter I": [
+  "RewardPointParam1"
+ ],
+ "Party Master": [
+  "FrmParty"
+ ],
+ "Department": [
+  "DepartMast"
+ ],
+ "Item Group": [
+  "HallItemGroupMast"
+ ],
+ "Item Category": [
+  "FrmItemCatRaw"
+ ],
+ "Item Entry ": [
+  "FrmItemMastRaw"
+ ],
+ "Consumption Master": [
+  "FrmConsumMast"
+ ],
+ "Enviro Inventry": [
+  "frmPurEnviro"
+ ],
+ "FOM Bill Deletion": [
+  "FrmFomBillDeletion"
+ ],
+ "Designation Master": [
+  "PrDesigMast"
+ ],
+ "Category  Master": [
+  "PrCategoryMast"
+ ],
+ "Holiday Master": [
+  "prHoliday"
+ ],
+ "Employee Master": [
+  "PrEmployee"
+ ],
+ "Group Accounts": [
+  "FaGrEnt"
+ ],
+ "Ledger Accounts": [
+  "FaSubGroup"
+ ],
+ "Data Transfer (POS)": [
+  "FrmPOSSaleDataTransfer"
+ ],
+ "PLU File (W.Scale)": [
+  "rPOSRepView"
+ ],
+ "POS Recycle": [
+  "FrmPOSRecycleData"
+ ],
+ "Card Transaction Report": [
+  "rPOSRepView"
+ ],
+ "Card Collection Summary": [
+  "rPOSRepView"
+ ],
+ "Card Status Report": [
+  "rPOSRepView"
+ ],
+ "Narration Master": [
+  "FaNarrMast"
+ ],
+ "T.D.S. Category": [
+  "FaTDSCat"
+ ],
+ "Account Merging": [
+  "AccountMerg"
+ ],
+ "Voucher Serialisation": [
+  "FrmSerialiseVr"
+ ],
+ "User Master": [
+  "UserMast"
+ ],
+ "Permissions": [
+  "UserPermission"
+ ],
+ "Guest Parameters Setting": [
+  "frmGuestParamMast"
+ ],
+ "Sundry Master": [
+  "SundryMast"
+ ],
+ "Voucher Wise Sundry Entry": [
+  "VoucherSundrySetting"
+ ],
+ "Guest BirthDates/Anniversary": [
+  "frmWelcome"
+ ],
+ "Check In Entry": [
+  "fdCheckIn"
+ ],
+ "Check In With Walk In History": [
+  "HWIHistory"
+ ],
+ "Duplicate Last Guest Check In": [
+  "fdWalkInEntry"
+ ],
+ "Look-up Room": [
+  "FdLookUpRoom"
+ ],
+ "Look-up Guest by Name or Room": [
+  "InHouseGuestFolio"
+ ],
+ "Post Charges/Payments": [
+  "fdPaymentCharge"
+ ],
+ "Display Folio": [
+  "fdDisplayFolio"
+ ],
+ "Room Change Entry": [
+  "fdRoomChange"
+ ],
+ "Amend Stay": [
+  "fdAmendEntry"
+ ],
+ "Expense Entry": [
+  "FrmExpense"
+ ],
+ "Blank GRC": [
+  "FrmGrcBlank"
+ ],
+ "In House Guest Message": [
+  "FrmHouGuestMsg"
+ ],
+ "Register Wake up Calls": [
+  "FrmGuestWakeUp"
+ ],
+ "Forex Receive Entry": [
+  "FrmForExRec"
+ ],
+ "Check-out/reverse check-out": [
+  "FdCheckOut"
+ ],
+ "Cashier Report": [
+  "rFomRepView"
+ ],
+ "Settlement Report": [
+  "rFomRepView"
+ ],
+ "Cancel Bill Details": [
+  "rFomRepView"
+ ],
+ "FOM Sales Register": [
+  "rFomRepView"
+ ],
+ "Room Wise Plan Detail": [
+  "rFomRepView"
+ ],
+ "Expected Plan/Package F&B Details": [
+  "rFomRepView"
+ ],
+ "Occupancy Report": [
+  "rFomRepView"
+ ],
+ "Company wise Nights": [
+  "rFomRepView"
+ ],
+ "Revenue During the stay": [
+  "rFomRepView"
+ ],
+ "EPBAX Call Report": [
+  "rHallRepView",
+  "rRepTelPreview"
+ ],
+ "Instant House Count ": [
+  "rFomRepView"
+ ],
+ "Room Change History": [
+  "rFomRepView"
+ ],
+ "Arrival And Departure Register": [
+  "rFomRepView"
+ ],
+ "Occupancy Display": [
+  "rFomRepView"
+ ],
+ "Guest wise Analysis": [
+  "rFomRepView"
+ ],
+ "Company wise Analysis": [
+  "rFomRepView"
+ ],
+ "Guestwise Charges Detail": [
+  "rFomRepView"
+ ],
+ "Room Occupancy": [
+  "rFomRepView"
+ ],
+ "Room Type Occupancy": [
+  "rFomRepView"
+ ],
+ "Room Wise Room Revenue": [
+  "rFomRepView"
+ ],
+ "Occupancy Analysis": [
+  "rFomRepView"
+ ],
+ "Room Status Report": [
+  "rRepHousePreview"
+ ],
+ "Complaint Detail": [
+  "rRepHousePreview"
+ ],
+ "Stock Register ": [
+  "rInventRepView"
+ ],
+ "Stock Summary ": [
+  "rInventRepView"
+ ],
+ "VAT Register": [
+  "rInventRepView"
+ ],
+ "Purchase Ledger": [
+  "rInventRepView"
+ ],
+ "Issue CheckList": [
+  "rInventRepView"
+ ],
+ "Store Issue Report": [
+  "rInventRepView"
+ ],
+ "Pending M.R.": [
+  "rInventRepView"
+ ],
+ "Stock Summary P/S Basis": [
+  "rInventRepView"
+ ],
+ "ABC Analysis": [
+  "rInventRepView"
+ ],
+ "Production Report I/R Basis": [
+  "rInventRepView"
+ ],
+ "VAT Register II": [
+  "rInventRepView"
+ ],
+ "VAT Register III": [
+  "rInventRepView"
+ ],
+ "Form24 Annexure-A": [
+  "rInventRepView"
+ ],
+ "Form III": [
+  "rInventRepView"
+ ],
+ "UPVAT XXIV": [
+  "rInventRepView"
+ ],
+ "Pending Indent": [
+  "rInventRepView"
+ ],
+ "KOT Wise Details": [
+  "rPOSRepView"
+ ],
+ "Deleted Unsettled Bill": [
+  "rPOSRepView"
+ ],
+ "Requisition Slip": [
+  "pReqSlip"
+ ],
+ "Stock Transfer": [
+  "RsKitchenStk"
+ ],
+ "Finish Material Receive Entry": [
+  "RsStoreRecEntry"
+ ],
+ "Excise Invoice Cum Gate Pass": [
+  "RsKitchenMaterial"
+ ],
+ "Block Master": [
+  "frmBlockMast"
+ ],
+ "Complaint Master": [
+  "FrmComplaintMast"
+ ],
+ "Complaint Clearance": [
+  "FrmComplaintClearing"
+ ],
+ "Lost / Found Entry": [
+  "FrmLostFound"
+ ],
+ "Claim Entry": [
+  "FrmClaimEntry"
+ ],
+ "Display Rack": [
+  "FdLookUpRoomNo"
+ ],
+ "House Keeping Screen": [
+  "HHouseKeeping"
+ ],
+ "Check Out Clearance Screen": [
+  "HRoomCheckOutClearance"
+ ],
+ "Room Block": [
+  "HKRoomBlock"
+ ],
+ "Travel Agency Posting": [
+  "TravelAgencyPost"
+ ],
+ "Instant House Count": [
+  "rFomRepView"
+ ],
+ "Room Inventory": [
+  "rFomRepView"
+ ],
+ "Guest In House": [
+  "rFomRepView"
+ ],
+ "House Keeping Report": [
+  "rFomRepView"
+ ],
+ "Arrival & Departure List": [
+  "rFomRepView"
+ ],
+ "Charge Payment Detail": [
+  "rFomRepView"
+ ],
+ "Payments By Cashier": [
+  "rFomRepView"
+ ],
+ "Form  C": [
+  "rRepReserv"
+ ],
+ "Tourism Form 1": [
+  "rRepReserv"
+ ],
+ "Tourism Form 2": [
+  "rRepReserv"
+ ],
+ "Tourism Form 5": [
+  "rRepReserv"
+ ],
+ "Form -3 (Luxury Tax Register)": [
+  "rRepReserv"
+ ],
+ "Tourism Form 6": [
+  "rRepReserv"
+ ],
+ "Tourism Form 4": [
+  "rRepReserv"
+ ],
+ "Luxury Tax Report": [
+  "rRepReserv"
+ ],
+ "Monthly Return": [
+  "rRepReserv"
+ ],
+ "L.T. FORM II": [
+  "rRepReserv"
+ ],
+ "L.T. FORM IV": [
+  "rRepReserv"
+ ],
+ "Reservation Status Screen": [
+  "FrmReservationStatus"
+ ],
+ "Confirmation Letters": [
+  "rRepReserv"
+ ],
+ "Cancellation Letters": [
+  "rRepReserv"
+ ],
+ "Registration Card": [
+  "rRepReserv"
+ ],
+ "Reservation Status": [
+  "rFomRepView"
+ ],
+ "Reservation Status Arrival": [
+  "rFomRepView"
+ ],
+ "Reservation Status In-House": [
+  "rFomRepView"
+ ],
+ "Movement List": [
+  "rFomRepView"
+ ],
+ "Arrival List": [
+  "rFomRepView"
+ ],
+ "Bill Change Report": [
+  "rFomRepView"
+ ],
+ "Check In Register": [
+  "rFomRepView"
+ ],
+ "Expected Check Out": [
+  "rFomRepView"
+ ],
+ "Advance Recd.": [
+  "rFomRepView"
+ ],
+ "Advance Recd. Arrival": [
+  "rFomRepView"
+ ],
+ "Advance Recd. In-House": [
+  "rFomRepView"
+ ],
+ "7-730 Days Forecast": [
+  "rFomRepView"
+ ],
+ "23 Day Room Availability Forecast": [
+  "resRoomNo"
+ ],
+ "23 Day Room Type Availability Forecast": [
+  "resRoomType"
+ ],
+ "Package Forecast ": [
+  "rFomRepView"
+ ],
+ "Rooms Op.Stock Entry": [
+  "FrmChangeDepart"
+ ],
+ "House Keeping Op.Stock Entry": [
+  "FrmChangeDepart"
+ ],
+ "Issue/Recd. Entry": [
+  "FrmStockTransfer"
+ ],
+ "Issue Register": [
+  "rRepHousePreview"
+ ],
+ "Changes Department": [
+  "FrmChangeDepart"
+ ],
+ "Godown Master": [
+  "Godown"
+ ],
+ "Gravy Item Entry": [
+  "RsGravyItemEntry"
+ ],
+ "Indent": [
+  "PIndent"
+ ],
+ "Purchase Order": [
+  "pPOrder"
+ ],
+ "M.R. Entry": [
+  "pMREntry"
+ ],
+ "Purchase Bill": [
+  "pPBill"
+ ],
+ "Expense Voucher": [
+  "FaTaxVoucher"
+ ],
+ "Requistion Slip Entry": [
+  "pReqSlip"
+ ],
+ "Stock Issue on Requisition": [
+  "pGIss"
+ ],
+ "Kitchen Closing Stock": [
+  "kClStk"
+ ],
+ "Kitchen stock Transfer": [
+  "RsKitchenStk"
+ ],
+ "Kitchen Stock Report I/R Basis": [
+  "rInventRepView"
+ ],
+ "Purchase Register ": [
+  "rInventRepView"
+ ],
+ "Purchase Summary ": [
+  "rInventRepView"
+ ],
+ "Pending Purchase Order": [
+  "rInventRepView"
+ ],
+ "Cash/Credit Purchase": [
+  "rInventRepView"
+ ],
+ "Stock Summary  ": [
+  "rInventRepView"
+ ],
+ "Daily Store Issue Reports": [
+  "rInventRepView"
+ ],
+ "Stock In Hand ": [
+  "rInventRepView"
+ ],
+ "Excess Consumption Report": [
+  "rInventRepView"
+ ],
+ "Restaurant Issue Report": [
+  "rInventRepView"
+ ],
+ "Store Issue Register": [
+  "rInventRepView"
+ ],
+ "Liquor Sale Report": [
+  "rInventRepView"
+ ],
+ "Change Kitchen/Store": [
+  "FrmChangeKitch"
+ ],
+ "LOT Entry": [
+  "RsKOTEntry"
+ ],
+ "Table Change Entry": [
+  "RsTbChange"
+ ],
+ "Laundry Memo": [
+  "RSSaleBill"
+ ],
+ "Split Sale Bill": [
+  "RsSaleBillSplit"
+ ],
+ "Memo Reprint": [
+  "POSBillReprint"
+ ],
+ "Display Table": [
+  "RsTouchDisplayTB"
+ ],
+ "Order Booking": [
+  "RsBookingEntry"
+ ],
+ "Bill Lookup": [
+  "RSSaleBillDisplay"
+ ],
+ "Order Booking Advance": [
+  "POSAdvanceDepDialog"
+ ],
+ "LOT Transfer": [
+  "RsKOTTransfer"
+ ],
+ "Token Entry": [
+  "RsTouchScreenTOKENEntry"
+ ],
+ "Assign Delivery": [
+  "RsAssignDelivery"
+ ],
+ "Payment Receive": [
+  "RsPaymentReceice"
+ ],
+ "Stewardwise Sale": [
+  "FrmChangeRest",
+  "rPOSRepView"
+ ],
+ "Table wise Sale": [
+  "rPOSRepView"
+ ],
+ "Payment Receive Entry (POS)": [
+  "RsPaymentReceice"
+ ],
+ "Settlement Summary": [
+  "rPOSRepView"
+ ],
+ "Tax Register": [
+  "rPOSRepView"
+ ],
+ "Tax Report": [
+  "rHallRepView"
+ ],
+ "Taxwise  Details": [
+  "rPOSRepView"
+ ],
+ "NC KOT Summary": [
+  "rPOSRepView"
+ ],
+ "Daily DIET Report": [
+  "rPOSRepView"
+ ],
+ "Discount Register": [
+  "rPOSRepView"
+ ],
+ "Not Delivered Order": [
+  "FrmDeliveredItemDetail"
+ ],
+ "Group Wise Sale": [
+  "rPOSRepView"
+ ],
+ "Customer Detail": [
+  "rPOSRepView"
+ ],
+ "Registered Guest Detail": [
+  "rPOSRepView"
+ ],
+ "Delivery Status": [
+  "rPOSRepView"
+ ],
+ "Denomination Detail": [
+  "FrmDenomination"
+ ],
+ "Bill Wise Adjustment Report": [
+  "rPOSRepView"
+ ],
+ "Monthwise Sales": [
+  "rPOSRepView"
+ ],
+ "ABC  Analysis": [
+  "rPOSRepView"
+ ],
+ "Sale Summary": [
+  "FrmChangeRest",
+  "rPOSRepView"
+ ],
+ "Edited Bills": [
+  "rPOSRepView"
+ ],
+ "Cover Analysis": [
+  "rHallRepView"
+ ],
+ "Pending KOT": [
+  "FrmChangeRest",
+  "rPOSRepView"
+ ],
+ "Item wise Sale": [
+  "FrmChangeRest",
+  "rPOSRepView"
+ ],
+ "NC KOT Detail": [
+  "rPOSRepView"
+ ],
+ "Order Detail Report": [
+  "rPOSRepView"
+ ],
+ "Discount Register (PartyWise)": [
+  "rPOSRepView"
+ ],
+ "Collection Summary": [
+  "rHallRepView"
+ ],
+ "Open Item Sales": [
+  "rPOSRepView"
+ ],
+ "Void Bills": [
+  "rPOSRepView"
+ ],
+ "KOT Change Report": [
+  "rPOSRepView"
+ ],
+ "Tax Summary": [
+  "rHallRepView"
+ ],
+ "Discount Summary": [
+  "rPOSRepView"
+ ],
+ "Events": [
+  "FrmEventMast"
+ ],
+ "Venue Features": [
+  "FrmVenueFeat"
+ ],
+ "Venue Master": [
+  "FrmVenueMast"
+ ],
+ "Catalog Master": [
+  "HallMenuCatalog"
+ ],
+ "Banquet Bill Sundry Setting": [
+  "HallSundry"
+ ],
+ "Booking Inquiry": [
+  "FrmBookingInquiry"
+ ],
+ "Banquet Booking": [
+  "HallBooking"
+ ],
+ "Catalog Selection": [
+  "CateringBooking"
+ ],
+ "Chef Pre-Costing": [
+  "HallChefPreCosting"
+ ],
+ "Banquet Billing": [
+  "HallBill"
+ ],
+ "Banquet Settlement": [
+  "HallAdvanceDepDialog"
+ ],
+ "Venue Availability": [
+  "BanqAvailability"
+ ],
+ "Guest Comments": [
+  "frmGuestComments"
+ ],
+ "Banquet Estimate Billing": [
+  "HallBillEstimate"
+ ],
+ "Banquet Booking Advance": [
+  "HallAdvanceDepDialog"
+ ],
+ "Sales Register": [
+  "rHallRepView"
+ ],
+ "OutStanding Report": [
+  "rHallRepView"
+ ],
+ "Party wise OutStanding": [
+  "rHallRepView"
+ ],
+ "Cashier  Report": [
+  "rHallRepView"
+ ],
+ "Booking Inquiry Detail": [
+  "rHallRepView"
+ ],
+ "Banquet Settlement Report": [
+  "rHallRepView"
+ ],
+ "Daily Function Sheet": [
+  "rHallRepView"
+ ],
+ "Item Wise Sales Report": [
+  "rHallRepView"
+ ],
+ "Company Wise Sale Report": [
+  "rHallRepView"
+ ],
+ "Function Wise Item Detail": [
+  "rHallRepView"
+ ],
+ "Banquet Taxwise Details": [
+  "rHallRepView"
+ ],
+ "Telephone Call Entry": [
+  "TelCallEntry"
+ ],
+ "Sale Summary Consolidated": [
+  "FrmChangeRest"
+ ],
+ "Taxwise Sale Report": [
+  "FrmChangeRest"
+ ],
+ "KOT Edit/Delete Report": [
+  "FrmChangeRest"
+ ],
+ "Cashier Summary": [
+  "FrmChangeRest"
+ ],
+ "Cashier Sale": [
+  "FrmChangeRest"
+ ],
+ "Sales Register per cover": [
+  "FrmChangeRest"
+ ],
+ "Tablewise Sales": [
+  "FrmChangeRest"
+ ],
+ "Cost Analysis": [
+  "FrmChangeRest"
+ ],
+ "Stock Register": [
+  "FrmChangeRest"
+ ],
+ "Stock Summary": [
+  "FrmChangeRest"
+ ],
+ "Kitchen Stock Summary": [
+  "FrmChangeRest"
+ ],
+ "Item Sale Report": [
+  "rHallRepView"
+ ],
+ "Birthday/Marriage Report": [
+  "rHallRepView"
+ ],
+ "Guest Observation Report": [
+  "rHallRepView"
+ ],
+ "Charges Posting": [],
+ "Guest Trail": [],
+ "Market Segment Analysis": [],
+ "Business Source Analysis": [],
+ "Company Analysis": [],
+ "Travel Agent Analysis": [],
+ "Night Audit Report": [],
+ "A/C Posting": [],
+ "Automated Morning Report (A.M.R.)": [],
+ "Daily Report ": [],
+ "Leave": [],
+ "Attendance": [],
+ "Loan/Advance": [],
+ "Salary Creation": [],
+ "Leave Encashment": [],
+ "Over Time": [],
+ "Attendence Report": [],
+ "Pay Slip": [],
+ "Loan Register": [],
+ "Loan/Advance Summary": [],
+ "Payroll Register": [],
+ "PF Statement": [],
+ "Loan/Advance Ledger": [],
+ "Form C": [],
+ "Gratuity Report": [],
+ "Telephone": [],
+ "Printing Parameters": [],
+ "Printing Setup": [],
+ "Revenue Wise Budget Entry": [],
+ "Outlet Bill Sundry Setting": [],
+ "Room Status": [],
+ "Bill Reprint": [],
+ "Reverse check-out": [],
+ "Settelment Report": [],
+ "Night Audit Process": [],
+ "Reverse Night Audit": [],
+ "Data Transfer": [],
+ "Transfer (Offline)": [],
+ "Transfer (Online)": [],
+ "Tally Export(XML)": [],
+ "Godrej Locks": [],
+ "Current Balance Updation": [],
+ "Menu Item Copy": [],
+ "Unit Master": [],
+ "Task Scheduler": [],
+ "POS Bill Deletion": [],
+ "Category Master": [],
+ "Revenue Master": [],
+ "Facility Master": [],
+ "Category wise Revenue": [],
+ "Category wise Facility": [],
+ "Member Age Wise Revenue": [],
+ "Member Select Category": [],
+ "Environment Settings": [],
+ "Member Visit Entry": [],
+ "Member Renewal Entry": [],
+ "Member Used Facility Entry": [],
+ "Member Facility Billing": [],
+ "Member Bill Printing": [],
+ "Member Assistant": [],
+ "Outstation Member Entry": [],
+ "Member Category Change Entry": [],
+ "Payment Receive Entry": [],
+ "Auto Settle Card Balance": [],
+ "Payment Due Letter Entry": [],
+ "Member Category Change (Conditional)": [],
+ "Member Visit Detail": [],
+ "Member Mailing Labels": [],
+ "Member Bill Missing Report": [],
+ "Member Sales Register": [],
+ "Member Ledger": [],
+ "Member Tax Report": [],
+ "Payment Due Letter Report": [],
+ "Member Birthday/Anniversary Details": [],
+ "SMS Center Settings": [],
+ "SMS Environment Settings": [],
+ "Multiple SMS Type": [],
+ "GRC Printing": [],
+ "Check Out Register": [],
+ "Credit Report": [],
+ "EInvoice Report": [],
+ "TDS Report": [],
+ "Guest Extra Charges": [],
+ "Room Type Occupancy Analysis": [],
+ "Plan Report": [],
+ "Business Source Occupancy Report": [],
+ "Plan Meal Tokens": [],
+ "FOM Tax Detail": [],
+ "Checked In Guest Detail": [],
+ "Room Rent Audit Report": [],
+ "Sales Report": [],
+ "Guest Payments": [],
+ "Tax Wise Charge Detail": [],
+ "Company Profile": [],
+ "Happy Hours": [],
+ "Happy Hours [ Free Items ]": [],
+ "Combo Pack": [],
+ "Guest LookUp": [],
+ "SMS (API)": [],
+ "SMS (Scheduled)": [],
+ "SMS (Conditional)": [],
+ "Location-Master": [],
+ "Location Facilities": [],
+ "Party Locations": [],
+ "Meter Reading": [],
+ "Facility Billing": [],
+ "Facility Sundry Setting": [],
+ "Facility Bill Register": []
+}

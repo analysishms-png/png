@@ -5,8 +5,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QTableWidget, QTableWidgetItem, QPushButton, QLineEdit, QLabel,
     QComboBox, QMessageBox, QGroupBox, QFormLayout, QDateEdit, QTabWidget,
-    QDialog, QAbstractItemView)
-from PyQt6.QtCore import Qt, QDate
+    QDialog, QAbstractItemView, QCompleter)
+from PyQt6.QtCore import Qt, QDate, QStringListModel
 from PyQt6.QtGui import QColor, QFont
 from core import fa_ledger_ops as falo
 from core import fa_tds_ops as tds
@@ -52,9 +52,8 @@ class FaAdjustWindow(QMainWindow):
         self.txt_sno1 = QLineEdit(); self.txt_sno1.setPlaceholderText("Debit SNo")
         self.txt_docid2 = QLineEdit(); self.txt_docid2.setPlaceholderText("Credit DocId")
         self.txt_sno2 = QLineEdit(); self.txt_sno2.setPlaceholderText("Credit SNo")
-        self.txt_amt = QLineEdit(); self.txt_amt.setPlaceholderText("Amount (0.00)")
-        self.txt_amt.setValidator(None)
         from PyQt6.QtGui import QDoubleValidator, QValidator
+        self.txt_amt = QLineEdit(); self.txt_amt.setPlaceholderText("Amount (0.00)")
         val = QDoubleValidator(0.0, 9999999999.99, 2, self.txt_amt)
         val.setNotation(QDoubleValidator.Notation.StandardNotation)
         self.txt_amt.setValidator(val)
@@ -95,6 +94,11 @@ class FaAdjustWindow(QMainWindow):
         layout.addLayout(btn_lay)
 
         self.table = QTableWidget()
+        self.table.setColumnCount(6)
+        self.table.setHorizontalHeaderLabels(
+            ["DocId1", "SNo1", "DocId2", "SNo2", "Amount", "SubCode"])
+        self.table.setAlternatingRowColors(True)
+        layout.addWidget(self.table)
 
     def _load_acgroup_names(self):
         """BUG #2 fix: live ACGROUP list (VB6 Proc_183_43_EF7D54 equivalent).
@@ -112,11 +116,6 @@ class FaAdjustWindow(QMainWindow):
             self._acgroup_map[(a.get("code") or "").strip()] = a
         self._acgroup_names = sorted(
             {(a.get("name") or "").strip() for a in accounts if a.get("name")})
-        self.table.setColumnCount(6)
-        self.table.setHorizontalHeaderLabels(
-            ["DocId1", "SNo1", "DocId2", "SNo2", "Amount", "SubCode"])
-        self.table.setAlternatingRowColors(True)
-        layout.addWidget(self.table)
 
     def _load_data(self):
         try:
@@ -209,11 +208,6 @@ class FaAdjustWindow(QMainWindow):
         """Like VB6 Form_Resize - recalculate caption width based on form width."""
         # VB6: Me.LblFormCaption.Left = CDbl(0)
         # VB6: Me.LblFormCaption.Width = var_90 (form width)
-        # Python equivalent: maintain proportional layout
-        central = self.centralWidget()
-        if central:
-            central.setMinimumWidth(self.width())
-            central.setMinimumHeight(max(self.height() * 0.8, 400))
         super().resizeEvent(event)
 
 

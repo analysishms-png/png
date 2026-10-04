@@ -581,6 +581,7 @@ class MainWindow(QWidget):
         layout.addWidget(self.content)
         
         # Apply styles
+        from HMS_py.ui.theme_v2 import get_qss
         self.setStyleSheet(get_qss("dark"))
     
     def show_dashboard(self):
@@ -642,7 +643,7 @@ def create_ui_demo():
     """Create a demo of the redesigned UI"""
     from PyQt6.QtWidgets import QApplication
     
-    app = QApplication(sys.argv)
+    _app = QApplication(sys.argv)  # noqa: F841 — dialog lifetime ke liye
     window = MainWindow()
     window.show()
     

@@ -350,6 +350,54 @@ def get_context(cn=None) -> dict:
     }
 
 
+def get_business_date(cn=None) -> str:
+    """Business date (VB6: Enviro.BusinessDate ya Analysis.ini key 5 fallback).
+    
+    VB6 HMS.bas: Business Date set hota hai login/Form_Load me. Live DB me
+    Enviro table me BusinessDate column nahi mila — VB6 jaisa fallback:
+    Analysis.ini key 5 (backup path date) ya current date fallback.
+    Format: dd/MMM/yyyy (VB6 default).
+    """
+    import datetime
+    import configparser
+    import os
+    
+    # Try Enviro table first (if BusinessDate column exists)
+    try:
+        rows = query(
+            "SELECT BusinessDate FROM Enviro WHERE LogSite_Code = ? OR LogSite_Code = 'HO'",
+            (get_site_code(),), cn=cn)
+        if rows and rows[0][0]:
+            d = rows[0][0]
+            if isinstance(d, datetime.date):
+                return d.strftime("%d/%b/%Y")
+            return str(d)
+    except Exception:
+        pass
+    
+    # Fallback: Analysis.ini key 5 (backup path me date)
+    try:
+        ini_path = find_analysis_ini() or os.path.join(
+            os.path.abspath(os.path.join(os.path.dirname(__file__), "..")),
+            "Analysis.ini")
+        cp = configparser.ConfigParser()
+        cp.read(ini_path, encoding="latin-1")
+        if cp.has_section("HMS") and cp.has_option("HMS", "5"):
+            val = cp.get("HMS", "5").strip()
+            # Try parse as date
+            for fmt in ("%d/%m/%Y", "%d-%m-%Y", "%Y-%m-%d", "%d/%b/%Y"):
+                try:
+                    d = datetime.datetime.strptime(val, fmt).date()
+                    return d.strftime("%d/%b/%Y")
+                except ValueError:
+                    continue
+    except Exception:
+        pass
+    
+    # Ultimate fallback: today
+    return datetime.date.today().strftime("%d/%b/%Y")
+
+
 # ============================================================
 # BUG-015 fix: race-safe next document number (UPDLOCK/HOLDLOCK)
 # ============================================================

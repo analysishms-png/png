@@ -1,0 +1,97 @@
+HMS_py Project Exploration Report (Read-Only, Medium Thoroughness)
+
+Project Path: C:\Users\LENOVO\Desktop\serialkey\PROJECT_REPAIR - Copy\HMS_py\HMS_py
+
+1. ui/shell.py - Form Registry
+---
+
+- Function: def _form_registry() -> dict[str, callable] (ui/shell.py:1079)
+- Signature: takes no arguments as defined; returns dict[str, callable].
+- Registry type: dict mapping caption -> callable(w=None, ...). Callables are mostly lambdas that call UI opener functions (e.g. fo.open_*, wrui.open_*, p2.open_*, etc.), or wrapped with _rbac_guard, or return _coming_soon() closures.
+- Arguments: none; builds registry by importing UI modules at call time and defining helpers (_open_report, _open_res_report, _open_tally, _open_room_change, _open_salary_create, _open_enviro, _open_main_setup).
+- Live window/globals required for registry construction? No - _form_registry() builds and returns dict without requiring MainWindow initialized; it only does module imports and helper definitions. Openers typically expect a parent window w (and read w.user in many cases), so actual execution of registry callables requires passing a window instance with user/comp context. Registry construction itself does not depend on session globals.
+- Relevant code lines (quoted conceptually): L1079 def _form_registry(), L1709+ 'return {' starts registry dict, L2458 end of dict return. Example entries: L1745-1751 ('Guest Profile', 'Check In'), L1774-1777 ('Company Master' prefers compmast_ui if present else p2 fallback), L1793 ('User Master' wrapped with _rbac_guard('u','User Master')).
+- _reg_ci (case-insensitive lookup): constructed in MainWindow.__init__ as {k.strip().lower(): v for k,v in self.registry.items()} (L2475-2476); _opener uses self._reg_ci.get(str(caption).strip().lower()) (L2774-2782).
+
+2. MainWindow construction and prerequisites
+---
+
+- Class: MainWindow(QMainWindow) (ui/shell.py:2461)
+- Constructor: __init__(self, user: str, comp: dict) (L2465). comp is expected to have keys like 'name', 'short', 'year' (see L2469, L2495, L2907, L2927-2929).
+- Construction steps: sets window title and size; stores user/comp; builds UI (topbar with lblTitle and theme toggle), module/sub rows, sidebar strip, central canvas/area, status bar; calls self.registry = _form_registry() (L2471); builds self._reg_ci (L2475-2476); builds menus via mh.menubar_for and sidebar via mh.sidebar_sources(user) filtered by mh.can_open(user, m['name']) (L2566-2578); adds keyboard shortcuts (L2620+); sets up event filters/shortcuts. Also installs VB6 keymap in run_flow (L2896).
+- Prerequisites before registry callables can run (for actual opening): QApplication must exist (run_flow L2893; main.py also calls shell.run_flow()); user authenticated via LoginDialog (run_flow L2898-2900); company selected via CompanyDialog(login.user) which returns comp_dlg.selected (L2902-2906); MainWindow instance created with (user, selected) and shown (L2906-2908). Session state stored as win.user, win.comp. Some openers also call company.current_year() or core functions that may expect DB config/paths (db.ensure_paths() called in main.py).
+- Exact function names in flow: main.py main() -> shell.run_flow() (imported from HMS_py.ui import shell). run_flow() creates app, applies theme, calls install_vb6_keymap(app), shows LoginDialog, CompanyDialog, creates MainWindow(user, comp.selected), shows it, returns app.exec(). MainWindow methods: _on_sidebar_click, _on_module, _on_group, _opener, open_leaf, _add_item, _add_leaf_action, crumb_title, etc.
+
+3. How registry callables open forms
+---
+
+- Callables signature pattern: (w=None, *a, **kw). Example lambdas: 'lambda w: fo.open_checkin(w, user=w.user)' (L1751), 'lambda w: wrui.open_walkin_entry(w, user=getattr(w, \
+user\, \PYADMIN\))' (L1749), 'lambda w: ReservationBrowser(w).exec()' (L1791), or wrappers like _rbac_guard(...) returning wrapped opener.
+- Common helpers used: _coming_soon(cap) returns a function go(w=None) that shows QMessageBox.information (L1585-1592); _open_report(cap) builds key from reports.menu_caption_map() and returns go(w=None) that calls _rpt.open_reports(w, report_key=key) (L1540-1558); _open_fv_list(parent, title, fn) creates v=fvu.ReportViewer(parent,...), calls v.exec(), returns v (L1575-1583); various other local helpers (_open_room_change, _open_salary_create) create QDialog and call exec() (L1615-1696).
+- Opening mechanism: they invoke UI module opener with parent w (MainWindow) and often pass user. The UI modules create QWidget/QDialog subclasses and typically show() or exec() depending on dialog modality. Registry values are the callables that perform the open when invoked with the window instance. There is no explicit 'set as MDI subwidget' call visible in the registry lambdas themselves - opening is delegated to UI module functions. (MainWindow has UI layout including canvas/body; MDI area usage not explicitly shown in the excerpt but standard PyQt forms are opened as dialogs/widgets by UI modules.)
+
+4. Error-banner mechanism in UI
+---
+
+- Searched strings: 'Error:', 'error_banner', 'show_error', 'QMessageBox.critical', 'last_error', 'banner', objectName/accessibleName patterns with 'error', lbl_err/errorLabel.
+- Findings:
+  * No 'error_banner', 'show_error', 'last_error' function/attribute names found in ui/*.py or repo-wide (grep results empty).
+  * 'banner' appears only in comments/docs strings (ui/excise_gate_pass_ui.py:14, ui/misc_vb6_ui.py references 'Key Massage banner').
+  * QMessageBox.critical appears frequently: 440 occurrences across ui/*.py (examples: ui/depart_change_ui.py:125 shows 'DB error: {exc}' via QMessageBox.critical; ui/checkout_ui.py:354 uses statusBar showMessage with 'Error: {e}').
+  * 'Error:' string appears in error messages (e.g. ui/checkout_ui.py:354 sets status.showMessage(f'Error: {e}'); ui/data_receiving_ui.py:367 sets lbl_status.setText('Error: ' + msg)).
+- How SQL/runtime failures surface in child form windows: errors are reported via QMessageBox.critical (modal popup) in many forms, or via status bar messages (self.status.showMessage) or label updates (lbl_status.setText). No specific QLabel with fixed objectName/accessibleName named 'error'/'error_banner' was found in ui codebase. Surface is form-specific - typically modal error dialogs for critical failures or inline status text for non-critical cases.
+
+5. Headless/offscreen mode support
+---
+
+- Environment variables checked: QT_QPA_PLATFORM, offscreen, HMS_GUI, HMS_HEADLESS, HMS_TEST, HMS_FORCE_HEADLESS
+- Findings in code:
+  * main.py:configure_qt_headless() (lines ~14-35):
+      - If QT_QPA_PLATFORM is set, returns (respects existing setting).
+      - If DISPLAY or WAYLAND_DISPLAY set, returns (assumes GUI available).
+      - If HMS_FORCE_HEADLESS=='1', sets QT_QPA_PLATFORM='offscreen'.
+      - On Windows (os.name=='nt', not WSL): if HMS_GUI=='1' returns; else sets QT_QPA_PLATFORM='offscreen'.
+  * ui/shell.py:2912 has comment '# offscreen screenshot mode (testing ke liye)' in run_flow/main paths (related to HMS_POC_SHOT handling).
+- Summary: App supports headless via QT_QPA_PLATFORM/offscreen. Controlled by env vars: HMS_FORCE_HEADLESS (forces offscreen), HMS_GUI (prevents auto-offscreen on Windows), and respects existing QT_QPA_PLATFORM. No HMS_HEADLESS or HMS_TEST vars are read in codebase (only HMS_FORCE_HEADLESS, HMS_GUI appear). Also shell has screenshot mode via HMS_POC_SHOT.
+
+6. Existing test files and smoke-test scripts
+---
+
+- Test files (pytest):
+  * tests/conftest.py (root tests/)
+  * tests/unit/*.py (many files, e.g. test_form_registry.py, test_shell_opener_refs.py, test_wrong_target_wiring.py, test_mainsetup_registry_parity.py, etc.)
+  * tests/database/*.py (many DB-backed tests)
+  * tests/integration/*.py, tests/regression/*.py, tests/fixtures/test_data.py
+  * Also pytest files in repo root like test_*.py (e.g. test_form_registry.py at root, test_all_fixes.py, test_core_db_queries.py, etc.)
+- Smoke-test scripts:
+  * _qa/shell_integration_smoke.py - Shell integration smoke (offscreen), sets QT_QPA_PLATFORM='offscreen', instantiates MainWindow, tests sidebar/module clicks and direct registry opens; run via 'python _qa/shell_integration_smoke.py'
+  * _qa/smoke_live_writes.py - Live writes smoke test
+  * _smoke_taxstru.py (repo root) - Tax structure smoke test
+- Harness files found: .opencode/ commands/skills reference 'harness' (agent-harness-construction, eval-harness, etc.) but these appear to be tooling/docs; no obvious code harness scripts named *_harness*.py in main codebase (only docs under .opencode/).
+- Config files for running tests:
+  * pytest.ini present (root): testpaths = HMS_py/tests tests; markers defined (unit, integration, database, regression, slow, vb6_compare); addopts = --tb=short
+  * pyproject.toml present: also defines pytest config (testpaths=[\
+tests\], markers including unit/integration/database/regression/slow/vb6_compare), dependencies PyQt6, pyodbc, Pillow
+  * requirements.txt present
+  * tox.ini and Makefile: not found
+- Typical commands:
+  * pytest (uses pytest.ini/pyproject.toml configs)
+  * python _qa/shell_integration_smoke.py
+
+7. Application entry point
+---
+
+- Exact module path: HMS_py.main (main.py at repo root: C:\Users\LENOVO\Desktop\serialkey\PROJECT_REPAIR - Copy\HMS_py\HMS_py\main.py)
+- Flow in main.py:
+  * configure_qt_headless() sets QT_QPA_PLATFORM to 'offscreen' in headless environments (respects DISPLAY/WAYLAND_DISPLAY, HMS_GUI, HMS_FORCE_HEADLESS) - L14-35
+  * Tries to ensure DB paths via _db.ensure_paths() (best-effort) - L38-45
+  * Calls shell.run_flow() and returns its result - L46
+  * __main__ does raise SystemExit(main()) - L49-50
+- Flow in shell.run_flow() (ui/shell.py:2892-2909):
+  * Creates QApplication (or uses instance), applies dark theme, sets app name, installs VB6 keymap via install_vb6_keymap(app) (L2893-2896)
+  * Creates LoginDialog() and if not accepted returns 0 (L2898-2900) - builds login window (User Information form per docstring)
+  * Creates CompanyDialog(login.user) and if not accepted returns 0 (L2902-2904) - builds company select window
+  * Creates win = MainWindow(login.user, comp_dlg.selected) (L2906) - builds main window
+  * win.show() and returns app.exec() (L2907-2908)
+- So entry: python -m HMS_py.main (or running main.py) -> configure headless, ensure paths, shell.run_flow() shows LoginDialog, then CompanyDialog, then MainWindow.
+

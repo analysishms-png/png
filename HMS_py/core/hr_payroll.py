@@ -1,5 +1,8 @@
 """HR/Payroll - Salary, Attendence, Loan, Leave_Ench, OverTime CRUD."""
 from __future__ import annotations
+import re
+from datetime import date, timedelta
+
 from HMS_py.core import db
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
@@ -31,13 +34,18 @@ def search_salary(term, cn=None, limit=100):
 
 
 def insert_salary(rec, cn=None, commit=True, site=SITE_CODE, user=USER):
-    code_rows = db.query("SELECT MAX(Emp_Code) FROM Salary", cn=cn)
-    new_pk = (code_rows[0][0] or 0) + 1 if code_rows and code_rows[0][0] else 1
+    """Salary row insert (VB6 prSalCreate save).
+
+    PK = (Mth_Year, Emp_Code) — Emp_Code varchar hai, isliye pehle wala
+    ``MAX(Emp_Code) + 1`` logic TypeError deta tha (str + int) aur return
+    value galat PK se fetch hoti thi. Ab insert ke turant baad sahi PK se
+    row wapas return hoti hai.
+    """
     db.execute(
         "INSERT INTO Salary (Mth_Year,Emp_Code,Work_Day,CL,Leave,Sunday,Holiday,Absent,Basic,DA,HRA,Income_Tax,Other_Allow,Other_Deduc,Conveyance,Medical,LTA,PF,EPF,ESI,Loan,Advance,Net_Salary,Loan_Bal,OverTime,OverTimeAmt,Site_Code,U_Name,U_EntDt,U_AE,LogSite_Code) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,getdate(),'A',?)",
         (rec.get("mth_year",""), rec.get("emp_code",""), rec.get("work_day",0.0), rec.get("cl",0.0), rec.get("leave",0.0), rec.get("sunday",0.0), rec.get("holiday",0.0), rec.get("absent",0.0), rec.get("basic",0.0), rec.get("da",0.0), rec.get("hra",0.0), rec.get("income_tax",0.0), rec.get("other_allow",0.0), rec.get("other_deduc",0.0), rec.get("conveyance",0.0), rec.get("medical",0.0), rec.get("lta",0.0), rec.get("pf",0.0), rec.get("epf",0.0), rec.get("esi",0.0), rec.get("loan",0.0), rec.get("advance",0.0), rec.get("net_salary",0.0), rec.get("loan_bal",0.0), rec.get("overtime",0.0), rec.get("overtime_amt",0.0), site, user, site),
         cn=cn, commit=commit)
-    return get_salary(rec.get("mth_year",""), new_pk, cn=cn)
+    return get_salary(rec.get("mth_year", ""), rec.get("emp_code", ""), cn=cn)
 
 
 def delete_salary(Mth_Year, Emp_Code, cn=None, commit=True):
@@ -498,3 +506,172 @@ def update_overtime(empcode, date_or_none, rec, cn=None, commit=True,
     db.execute("UPDATE OverTime SET " + ", ".join(sets) +
                " WHERE EmpCode = ?", params, cn=cn, commit=commit)
     return get_overtime(empcode, cn=cn)
+
+
+# ============================================================
+# VB6 prSalCreate port — Attend (daily) se monthly Salary banao
+# ============================================================
+# VB6 prSalCreate.frm evidence (live Moondata2627):
+#   * Mth_Year format = 'APR2026' (MON + YYYY), YYYY-MM nahi
+#   * Salary.Basic = Employee.Basic * Work_Day / days_in_month
+#     (live row check: Emp.Basic 10500, Work_Day 14/30 -> 4900.0)
+#   * Net_Salary  = earning components - deductions
+#   * Attend.FirstShift/SecondShift codes: 'P' present, 'A' absent
+#     (live distinct = (A,A) (A,P) (P,A)); VB6 grid baaki codes
+#     C/L/E/H/S bhi support karta hai.
+_MONTH_ABBR = ("JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+               "JUL", "AUG", "SEP", "OCT", "NOV", "DEC")
+_MON_NUM = {name: i + 1 for i, name in enumerate(_MONTH_ABBR)}
+_ATT_PRESENT = "P"
+_ATT_CL = {"C"}
+_ATT_LEAVE = {"L", "E"}
+_ATT_HOLIDAY = {"H"}
+_ATT_SUNDAY = {"S", "W"}
+
+
+def _parse_mth_year(mth_year) -> tuple[str, date, date]:
+    """'APR2026' / '2026-04' / '04-2026' -> ('APR2026', 1st, last-day)."""
+    s = str(mth_year or "").strip().upper().replace(" ", "")
+    m = re.fullmatch(r"([A-Z]{3})(\d{4})", s)
+    if m:
+        if m.group(1) not in _MON_NUM:
+            raise ValueError(f"Month '{m.group(1)}' galat hai (APR, MAY, ...)")
+        mon, year = _MON_NUM[m.group(1)], int(m.group(2))
+    else:
+        m = re.fullmatch(r"(\d{4})[-/.](\d{1,2})", s)
+        if m:
+            year, mon = int(m.group(1)), int(m.group(2))
+        else:
+            m = re.fullmatch(r"(\d{1,2})[-/.](\d{4})", s)
+            if not m:
+                raise ValueError("Month/Year 'APR2026' ya '2026-04' format me dijiye")
+            mon, year = int(m.group(1)), int(m.group(2))
+    if not 1 <= mon <= 12:
+        raise ValueError(f"Month '{mon}' galat hai (1-12)")
+    if not 1990 <= year <= 2200:
+        raise ValueError(f"Year '{year}' galat hai")
+    start = date(year, mon, 1)
+    end = (date(year + (1 if mon == 12 else 0),
+                1 if mon == 12 else mon + 1, 1) - timedelta(days=1))
+    return f"{_MONTH_ABBR[mon - 1]}{year}", start, end
+
+
+def create_salary_from_attendance(mth_year: str, emp_code: str,
+                                  da_per: float = 0.0, hra_per: float = 0.0,
+                                  ot_days: float = 0.0, ot_rate: float = 0.0,
+                                  user: str = USER, site: str = SITE_CODE,
+                                  cn=None, commit: bool = True) -> dict:
+    """VB6 prSalCreate: Attend table se month ki salary generate karke
+    Salary table me insert/update karta hai.
+
+    Args:
+        mth_year: 'APR2026' ya '2026-04'
+        da_per / hra_per: % of Basic (0 = Employee master ki DA/HRA use karo)
+        ot_days / ot_rate: overtime days x rate (rate 0 = Employee.OTRate)
+
+    Returns: Salary row dict + ``basic_earned``.
+    Raises: ValueError (bad month / unknown employee).
+    """
+    key, d1, d2 = _parse_mth_year(mth_year)
+    code = str(emp_code or "").strip()
+    if not code:
+        raise ValueError("Employee Code zaroori hai")
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        emp = db.query(
+            "SELECT TOP 1 Code, Basic, DA, HRA, Income_Tax, Other_Allow, "
+            "Other_Deduc, Conveyance, Medical, LTA, PF, ESI, OTRate "
+            "FROM Employee WHERE Code = ?", (code,), cn=cn)
+        if not emp:
+            raise ValueError(f"Employee '{code}' Employee master me nahi mila")
+        e = emp[0]
+
+        rows = db.query(
+            "SELECT CONVERT(date, V_Date) AS D, "
+            "RTRIM(ISNULL(FirstShift, '')) AS F, "
+            "RTRIM(ISNULL(SecondShift, '')) AS S FROM Attend "
+            "WHERE Emp_Code = ? AND CONVERT(date, V_Date) BETWEEN ? AND ? "
+            "AND Site_Code = ? ORDER BY V_Date",
+            (code, d1, d2, site), cn=cn)
+        by_day = {}
+        for r in rows:
+            d = r.D.date() if hasattr(r.D, "date") else r.D
+            by_day[d] = (r.F or "", r.S or "")
+
+        total_days = (d2 - d1).days + 1
+        work_day = cl = leave = holiday = sunday = 0
+        for i in range(total_days):
+            d = d1 + timedelta(days=i)
+            f, s = by_day.get(d, ("", ""))
+            codes = [c.strip().upper() for c in (f, s) if c and c.strip()]
+            if _ATT_PRESENT in codes:
+                work_day += 1
+            elif any(c in _ATT_CL for c in codes):
+                cl += 1
+            elif any(c in _ATT_LEAVE for c in codes):
+                leave += 1
+            elif any(c in _ATT_HOLIDAY for c in codes):
+                holiday += 1
+            elif any(c in _ATT_SUNDAY for c in codes):
+                sunday += 1
+        absent = total_days - work_day - cl - leave - holiday - sunday
+
+        ratio = work_day / total_days if total_days else 0.0
+
+        def _earn(val) -> float:
+            return round(float(val or 0) * ratio, 2)
+
+        emp_basic = float(e.Basic or 0)
+        da_rate = float(da_per or 0)
+        hra_rate = float(hra_per or 0)
+        da_amt = (emp_basic * da_rate / 100.0) if da_rate else float(e.DA or 0)
+        hra_amt = (emp_basic * hra_rate / 100.0) if hra_rate else float(e.HRA or 0)
+
+        basic = _earn(emp_basic)
+        da = _earn(da_amt)
+        hra = _earn(hra_amt)
+        other_allow = _earn(e.Other_Allow)
+        conveyance = _earn(e.Conveyance)
+        medical = _earn(e.Medical)
+        lta = _earn(e.LTA)
+
+        rate = float(ot_rate or 0) or float(e.OTRate or 0)
+        overtime_amt = round(float(ot_days or 0) * rate, 2)
+
+        income_tax = float(e.Income_Tax or 0)
+        other_deduc = float(e.Other_Deduc or 0)
+        pf = float(e.PF or 0)
+        esi = float(e.ESI or 0)
+
+        net = round(basic + da + hra + other_allow + conveyance + medical + lta
+                    + overtime_amt
+                    - (income_tax + other_deduc + pf + esi), 2)
+
+        rec = {
+            "mth_year": key, "emp_code": code,
+            "work_day": work_day, "cl": cl, "leave": leave,
+            "sunday": sunday, "holiday": holiday, "absent": absent,
+            "basic": basic, "da": da, "hra": hra,
+            "income_tax": income_tax, "other_allow": other_allow,
+            "other_deduc": other_deduc, "conveyance": conveyance,
+            "medical": medical, "lta": lta, "pf": pf, "epf": 0.0,
+            "esi": esi, "loan": 0.0, "advance": 0.0,
+            "net_salary": net, "loan_bal": 0.0,
+            "overtime": float(ot_days or 0), "overtime_amt": overtime_amt,
+        }
+
+        if get_salary(key, code, cn=cn):
+            out = update_salary(key, code, rec, cn=cn, commit=False, user=user)
+        else:
+            out = insert_salary(rec, cn=cn, commit=False, site=site, user=user)
+        if commit:
+            cn.commit()
+        out = get_salary(key, code, cn=cn) or out or {}
+        out["basic_earned"] = basic
+        out["days_in_month"] = total_days
+        out["rate_ratio"] = round(ratio, 4)
+        return out
+    finally:
+        if own:
+            cn.close()

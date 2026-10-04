@@ -44,6 +44,10 @@ def _load_user(username: str) -> list[dict]:
     key = (username or "SA").upper()
     if key in _CACHE:
         return _CACHE[key]
+    # Live MenuHelp has NO Opt5/Opt6/Opt7 columns (19 cols, ends OutletCode);
+    # VB6 UserPermission.frm uses only Opt1-Opt4 + Param_Str. The Opt5-7
+    # SELECT raised 42S22 -> except -> rows=[] -> empty menus everywhere
+    # (silent blast radius, 2026-10-02 fix).
     _cols = "[Option], Param_Str, Flag, Module_Name, Opt1, Opt2, Opt3, Opt4, Code"
     try:
         rows = db.query(
@@ -281,22 +285,47 @@ def flag_for(caption: str, username: str = "SA") -> str | None:
 
 
 def rights(username: str, caption: str) -> str:
-    """Param_Str for leaf. Missing row/leaf => 'AEDP' (full access)."""
+    """Param_Str for leaf. Missing row/leaf => 'AEDP' (full access).
+
+    Now includes Opt5-Opt7: returns 'AEDP' + Opt5 + Opt6 + Opt7
+    """
     row = by_caption(username).get(_norm_caption(caption))
     if not row:
         return "AEDP"
     p = row.get("param") or ""
+    # If Param_Str is empty, derive from Opt1-Opt7
+    if not p:
+        parts = []
+        for i in range(1, 8):
+            opt = row.get(f"opt{i}") or row.get(f"Opt{i}")
+            if str(opt).strip().upper() in ("Y", "1", "TRUE"):
+                parts.append("AEDP"[i-1] if i <= 4 else "PR"[i-5] if i <= 6 else "A")
+        if parts:
+            return "".join(parts)
     return p if p else "AEDP"
 
 
 def can(username: str, caption: str, right: str) -> bool:
-    """True if right in Param_Str (A/E/D/P). Right is case-insensitive.
+    """True if right in permissions (A/E/D/P/P/R/A). Right is case-insensitive.
 
-    VB6 pattern: SubString(Param_Str,1..4) = A/E/D/P.
+    VB6 pattern: Opt1=View(A), Opt2=Add(E), Opt3=Edit(D), Opt4=Delete(P),
+    Opt5=Print(P), Opt6=Report(R), Opt7=Admin(A).
+    Right can be: 'view', 'add', 'edit', 'delete', 'print', 'report', 'admin'
     """
     if not right:
         return True
-    return str(right).upper() in (rights(username, caption) or "AEDP").upper()
+    r = rights(username, caption)
+    right_map = {
+        "view": "A",
+        "add": "E",
+        "edit": "D",
+        "delete": "P",
+        "print": "P",
+        "report": "R",
+        "admin": "A",
+    }
+    needed = right_map.get(str(right).lower(), str(right).upper())
+    return needed.upper() in r.upper()
 
 
 def can_open(username: str, caption: str) -> bool:
@@ -672,3 +701,175 @@ def sidebar_sources(username: str = "SA") -> list[dict]:
               {_alnum(x) for x in ("-", "Windows", "Exit", "MDI",
                                    "PlanPopup", "Sale Bill Modification")}]
     return mh + legacy
+
+
+# ==============================================================
+# User Permission UI backend (VB6 UserPermission.frm parity)
+# ==============================================================
+def list_modules(cn=None) -> list[dict]:
+    """Distinct Module_Name from menuHelp (VB6 UserPermission module list)."""
+    try:
+        rows = db.query(
+            "SELECT DISTINCT Module_Name FROM menuHelp "
+            "WHERE Module_Name IS NOT NULL AND Module_Name <> '' "
+            "ORDER BY Module_Name", cn=cn)
+        return [{"name": str(r[0] or "").strip()} for r in rows if str(r[0] or "").strip()]
+    except Exception:
+        return []
+
+
+def get_permissions(username: str, module: str, cn=None) -> dict:
+    """Get Opt1-Opt7 permissions for user/module.
+    
+    VB6 UserPermission.frm maps:
+    Opt1=View (Param_Str[0]='A'), Opt2=Add (Param_Str[1]='E'),
+    Opt3=Edit (Param_Str[2]='D'), Opt4=Delete (Param_Str[3]='P'),
+    Opt5=Print, Opt6=Report, Opt7=Admin.
+    """
+    _cols = "[Option], Param_Str, Flag, Module_Name, Opt1, Opt2, Opt3, Opt4, Opt5, Opt6, Opt7, Code"
+    # Try with Opt5, Opt6, Opt7 columns first (live schema lacks them -> 42S22)
+    have_opt57 = True
+    try:
+        rows = db.query(
+            f"SELECT {_cols} FROM menuHelp WHERE UserName = ? AND Module_Name = ? "
+            "AND CompCode = ? ORDER BY Code",
+            (username, module, _comp()), cn=cn)
+    except Exception:
+        # Fallback to Opt1-Opt4 only (live path)
+        have_opt57 = False
+        _cols_old = "[Option], Param_Str, Flag, Module_Name, Opt1, Opt2, Opt3, Opt4, Code"
+        rows = db.query(
+            f"SELECT {_cols_old} FROM menuHelp WHERE UserName = ? AND Module_Name = ? "
+            "AND CompCode = ? ORDER BY Code",
+            (username, module, _comp()), cn=cn)
+    
+    perms = {
+        "Opt1": "N", "Opt2": "N", "Opt3": "N", "Opt4": "N",
+        "Opt5": "N", "Opt6": "N", "Opt7": "N"
+    }
+    for r in rows:
+        # Try Opt5, Opt6, Opt7 from columns (only when those cols were read;
+        # in fallback mode r[8]=Code — mapping it as opt5 would false-positive
+        # when Code=="1")
+        if have_opt57:
+            try:
+                opt5 = str(r[8] or "").strip() if len(r) > 8 else ""
+                opt6 = str(r[9] or "").strip() if len(r) > 9 else ""
+                opt7 = str(r[10] or "").strip() if len(r) > 10 else ""
+            except Exception:
+                opt5 = opt6 = opt7 = ""
+        else:
+            opt5 = opt6 = opt7 = ""
+        
+        # Fallback: derive from Param_Str (A/E/D/P = Opt1-Opt4)
+        param = str(r[1] or "").strip().upper() if len(r) > 1 else ""
+        opt1 = str(r[4] or "").strip().upper() if len(r) > 4 else ""
+        opt2 = str(r[5] or "").strip().upper() if len(r) > 5 else ""
+        opt3 = str(r[6] or "").strip().upper() if len(r) > 6 else ""
+        opt4 = str(r[7] or "").strip().upper() if len(r) > 7 else ""
+        
+        # Map Opt1-Opt4
+        if opt1 in ("Y", "1", "TRUE"):
+            perms["Opt1"] = "Y"
+        elif param and len(param) > 0 and param[0] == "A":
+            perms["Opt1"] = "Y"
+        
+        if opt2 in ("Y", "1", "TRUE"):
+            perms["Opt2"] = "Y"
+        elif param and len(param) > 1 and param[1] == "E":
+            perms["Opt2"] = "Y"
+            
+        if opt3 in ("Y", "1", "TRUE"):
+            perms["Opt3"] = "Y"
+        elif param and len(param) > 2 and param[2] == "D":
+            perms["Opt3"] = "Y"
+            
+        if opt4 in ("Y", "1", "TRUE"):
+            perms["Opt4"] = "Y"
+        elif param and len(param) > 3 and param[3] == "P":
+            perms["Opt4"] = "Y"
+        
+        # Opt5-Opt7 from columns if available
+        if opt5 in ("Y", "1", "TRUE"):
+            perms["Opt5"] = "Y"
+        if opt6 in ("Y", "1", "TRUE"):
+            perms["Opt6"] = "Y"
+        if opt7 in ("Y", "1", "TRUE"):
+            perms["Opt7"] = "Y"
+    
+    return perms
+
+
+def set_permissions(username: str, module: str, perms: dict, cn=None, commit: bool = True) -> int:
+    """Set Opt1-Opt7 permissions for user/module.
+    
+    Updates menuHelp rows for the module (Param_Str + Opt1-Opt7).
+    """
+    if not perms:
+        raise ValueError("No permissions to set")
+    
+    # Build Param_Str from Opt1-Opt4 (A/E/D/P)
+    param_chars = []
+    if perms.get("Opt1", "N") == "Y":
+        param_chars.append("A")
+    else:
+        param_chars.append("*")
+    if perms.get("Opt2", "N") == "Y":
+        param_chars.append("E")
+    else:
+        param_chars.append("*")
+    if perms.get("Opt3", "N") == "Y":
+        param_chars.append("D")
+    else:
+        param_chars.append("*")
+    if perms.get("Opt4", "N") == "Y":
+        param_chars.append("P")
+    else:
+        param_chars.append("*")
+    param_str = "".join(param_chars)
+    
+    # Update each row in the module
+    affected = 0
+    try:
+        rows = db.query(
+            "SELECT Code, [Option] FROM menuHelp WHERE UserName = ? AND Module_Name = ? AND CompCode = ?",
+            (username, module, _comp()))
+    except Exception:
+        return 0
+    
+    for r in rows:
+        code = r[0]
+        # Build update with Param_Str + Opt1-Opt7
+        set_parts = ["Param_Str = ?"]
+        vals = [param_str]
+        
+        for i in range(1, 8):
+            opt_key = f"Opt{i}"
+            if opt_key in perms:
+                set_parts.append(f"Opt{i} = ?")
+                vals.append("Y" if perms[opt_key] == "Y" else "N")
+        
+        sql = f"UPDATE menuHelp SET {', '.join(set_parts)} WHERE Code = ?"
+        vals.append(r[0])
+        
+        try:
+            n = db.execute(sql, tuple(vals), cn=cn, commit=False)
+            affected += n
+        except Exception:
+            # Try without Opt5-Opt7 if columns don't exist
+            set_parts = ["Param_Str = ?", "Opt1 = ?, Opt2 = ?, Opt3 = ?, Opt4 = ?"]
+            vals2 = [param_str,
+                     "Y" if perms.get("Opt1") == "Y" else "N",
+                     "Y" if perms.get("Opt2") == "Y" else "N",
+                     "Y" if perms.get("Opt3") == "Y" else "N",
+                     "Y" if perms.get("Opt4") == "Y" else "N",
+                     r[0]]
+            db.execute(
+                f"UPDATE menuHelp SET {', '.join(set_parts)} WHERE Code = ?",
+                tuple(vals2), cn=cn, commit=False)
+            affected += 1
+    
+    if commit:
+        cn.commit()
+        clear_cache()
+    return affected

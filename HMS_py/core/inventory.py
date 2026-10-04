@@ -588,11 +588,15 @@ def stock_create(vtype: str, lines: list[dict], vdate=None, vprefix: str = "2026
     try:
         for i, line in enumerate(lines, 1):
             qty = float(line.get("qty", 0))
-            if vtype == "RQI":      # Issue
+            # VB6 direction: STOCK_VTYPE_MAP se (RQI/KSISS/KMISS = issue;
+            # RQR/KSREC/KMREC/BKREC = receive).  ADJ jaise unmapped type par
+            # sign decide karta hai (positive = receive, negative = issue).
+            direction = STOCK_VTYPE_MAP.get(vtype, ("", ""))[1]
+            if direction == "issue":
                 qty_iss, qty_rec = qty, 0
-            elif vtype == "RQR":    # Receive
+            elif direction == "receive":
                 qty_iss, qty_rec = 0, qty
-            else:                   # ADJ - positive = receive, negative = issue
+            else:
                 qty_iss, qty_rec = (0, qty) if qty >= 0 else (-qty, 0)
             
             db.execute(

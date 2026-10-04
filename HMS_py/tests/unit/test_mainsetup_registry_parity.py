@@ -26,17 +26,48 @@ MDI_MENU_JSON = PACKAGE_ROOT / "core" / "mdi_menu.json"
 # VB6-evidence wale genuinely-blocked leaves:
 ALLOWED_MISSING = frozenset()  # Com Port Properties ab ported (ui/comport_ui.py)
 
-# Registry me hain par documented-skip (_coming_soon) resolver par:
+# Registry me hain par documented-skip (_coming_soon) resolver par.
+# Har entry ke saath VB6 evidence — sirf dead/menu-hidden leaves yahan.
 ALLOWED_INACTIVE = frozenset({
     # VB6 evidence (EXTRAS.text): menu registration tha (loc_1EE8F78, kind=2)
     # par dispatch chain (loc_1E397E3-1E398DD) me is caption ka koi case nahi —
     # VB6 me bhi click dead tha. SundryTypeFix table live hai, isliye jab
     # real UI bane to yahan se hatao.
     "Member Bill Sundry Setting",
+    # VB6 dispatcher case caption-set + GoTo exit karta hai — no New, no Show
+    # (ModuleAdd.bas loc_1E43168-1E4317E; proc top par On Error Resume Next).
+    # Static MDI menu me bhi nahi. VB6 me click = no-op.
+    "Rate Group Master",
+    # VB6 dispatch case kahin nahi; static UTL_Click idx &HE case khaali
+    # (MDIForm1.frm:4170-4172) + designer menu item Visible=0 (:988).
+    # VB6 me dead + hidden.
+    "Sale MIS Customized",
+    # VB6 dispatcher me koi case nahi (prior triage SESSION_HANDOFF §2b);
+    # static UTL_Click idx &H13 -> FrmDataRecieving hai par designer menu
+    # item 'Data Recieving' Visible=0 (MDIForm1.frm ~:1004) — dono raaste
+    # unreachable. Jab tak full port na ho, documented-inactive.
+    "Data Recieving",
+    # NOT portable — VB6 Jet .mdb file-exchange utility (SESSION_HANDOFF
+    # round-7 triage: Transfer.frm App.Path\Transfer\Template.mdb,
+    # C:\TEMPZZZZ.MDB, ODBC HotelTrans). SQL Server native replacement
+    # banne par hi hatao.
+    "Data Transfer",
+    # FrmPOSSaleDataTransfer.frm — same .mdb dependency (handoff round-7)
+    "Data Transfer (POS)",
+    "Enviro Inventry",
+    "Open Item Consumption",
+    "POS Bill Deletion",
+    "POS Recycle",
+    "Task Scheduler",
+    "Voucher Serialisation",
+    "Voucher Wise Sundry Entry",
 })
 
-# _coming_soon() ke andar wale closure ka qualname (ui/shell.py)
-_COMING_SOON_QUALNAME = "_coming_soon.<locals>.go"
+# _coming_soon() ke andar wale closure ka qualname suffix (ui/shell.py).
+# _form_registry() ke andar nested aata hai (qualname =
+# '_form_registry.<locals>._coming_soon.<locals>.go'), isliye exact
+# match kabhi fire nahi hota tha — suffix match zaroori hai.
+_COMING_SOON_QUALNAME_SUFFIX = "_coming_soon.<locals>.go"
 
 
 def _load_mainsetup_leaves() -> set[str]:
@@ -131,9 +162,9 @@ def test_mainsetup_leaves_not_silently_downgraded_to_coming_soon():
     """Wired leaf ka _coming_soon() me silent downgrade pakdo.
 
     ALLOWED_INACTIVE ke alawa koi bhi Main Setup leaf _coming_soon closure
-    (qualname '_coming_soon.<locals>.go') resolve nahi kare. Conditional-import
-    fallback bhi isi qualname me girta hai, isliye koi UI module tootega
-    (fa_sub_forms_ui-class bug) to ye test red hoga.
+    (qualname suffix '_coming_soon.<locals>.go') resolve nahi kare.
+    Conditional-import fallback bhi isi qualname me girta hai, isliye koi
+    UI module tootega (fa_sub_forms_ui-class bug) to ye test red hoga.
     """
     from HMS_py.ui.shell import _form_registry
 
@@ -147,7 +178,7 @@ def test_mainsetup_leaves_not_silently_downgraded_to_coming_soon():
         if _norm(leaf) in normed
         and _norm(leaf) not in exempt
         and getattr(normed[_norm(leaf)], "__qualname__", "")
-        == _COMING_SOON_QUALNAME
+        .endswith(_COMING_SOON_QUALNAME_SUFFIX)
     )
     assert not downgraded, (
         f"{len(downgraded)} Main Setup leaves _coming_soon() par downgrade ho gaye:\n"

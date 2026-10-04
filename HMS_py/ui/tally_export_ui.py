@@ -102,5 +102,8 @@ class TallyExportWindow(QMainWindow):
             QMessageBox.critical(self, "Error", str(e))
 
 
-def open_tally_export(parent=None):
+def open_tally(parent=None):
     w = TallyExportWindow(parent); w.show(); return w
+
+
+open_tally_export = open_tally

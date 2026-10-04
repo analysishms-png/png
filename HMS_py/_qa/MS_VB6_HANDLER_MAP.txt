@@ -1,0 +1,276 @@
+====================================================================================================
+VB6 MAIN SETUP: menu index -> handler code / target form / SQL tables
+====================================================================================================
+
+CCenterMas   [ 0] Party Master                       Inventory                NO Case 0 branch
+
+CCenterMas   [ 1] Department                         Inventory                NO Case 1 branch
+
+CCenterMas   [ 2] Item Group                         Inventory                NO Case 2 branch
+
+CCenterMas   [ 3] Item Category                      Inventory                NO Case 3 branch
+
+CCenterMas   [ 4] Item Entry                         Inventory                NO Case 4 branch
+
+CCenterMas   [ 5] Consumption Master                 Inventory                NO Case 5 branch
+
+CCenterMas   [ 6] Purchase Sundry Setting            Inventory                NO Case 6 branch
+
+CCenterMas   [ 7] Location Master                    Inventory                NO Case 7 branch
+
+CCenterMas   [ 8] Opening Stock                      Inventory                NO Case 8 branch
+
+CCenterMas   [ 9] Item  List                         Inventory                NO Case 9 branch
+
+CCenterMas   [10] Shift Master                       Inventory                NO Case 10 branch
+
+CCenterMas   [11] Enviro Inventry                    Inventory                NO Case 11 branch
+
+GENMas       [ 0] Tax Master                         General Setup            NO Case 0 branch
+
+GENMas       [ 1] Tax Structure                      General Setup            NO Case 1 branch
+
+GENMas       [ 2] Payment Type                       General Setup            NO Case 2 branch
+
+GENMas       [ 4] Parameter                          General Setup            NO Case 4 branch
+
+GENMas       [ 5] Revenue Group Setting              General Setup            NO Case 5 branch
+
+GENMas       [ 6] Printing Parameters                General Setup            NO Case 6 branch
+
+GENMas       [ 7] Printing Setup                     General Setup            NO Case 7 branch
+
+GENMas       [ 8] Revenue Wise Budget Entry          General Setup            NO Case 8 branch
+
+HallM        [ 0] Events                             Banquet                  NO Case 0 branch
+
+HallM        [ 1] Venue Features                     Banquet                  NO Case 1 branch
+
+HallM        [ 2] Venue Master                       Banquet                  NO Case 2 branch
+
+HallM        [ 3] Menu Category                      Banquet                  NO Case 3 branch
+
+HallM        [ 4] Item Group                         Banquet                  NO Case 4 branch
+
+HallM        [ 5] Menu Item                          Banquet                  NO Case 5 branch
+
+HallM        [ 6] Catalog Master                     Banquet                  NO Case 6 branch
+
+HallM        [ 7] Banquet Bill Sundry Setting        Banquet                  NO Case 7 branch
+
+Mas          [ 0] Country Master                     Front Office             NO Case 0 branch
+
+Mas          [ 1] State Master                       Front Office             NO Case 1 branch
+
+Mas          [ 2] City Master                        Front Office             NO Case 2 branch
+
+Mas          [ 4] Market Segment                     Front Office             NO Case 4 branch
+
+Mas          [ 5] Business Source                    Front Office             NO Case 5 branch
+
+Mas          [ 6] Guest Status                       Front Office             NO Case 6 branch
+
+Mas          [ 7] Charge Master                      Front Office             NO Case 7 branch
+
+Mas          [ 8] Fixed Charge                       Front Office             NO Case 8 branch
+
+Mas          [ 9] Package Master                     Front Office             NO Case 9 branch
+
+Mas          [12] Plan Master                        Front Office             NO Case 12 branch
+
+Mas          [13] Season Master                      Front Office             NO Case 13 branch
+
+Mas          [14] Room Features                      Front Office             NO Case 14 branch
+
+Mas          [15] Room Category                      Front Office             NO Case 15 branch
+
+Mas          [16] Room Master                        Front Office             NO Case 16 branch
+
+Mas          [17] Company Master                     Front Office             NO Case 17 branch
+
+Mas          [20] Forex Master                       Front Office             NO Case 20 branch
+
+Mas          [21] Guest History                      Front Office             NO Case 21 branch
+
+Mas          [22] Group Profile                      Front Office             NO Case 22 branch
+
+Mas          [23] Room Display                       Front Office             NO Case 23 branch
+
+MemMas       [ 0] Category Master                    Members Mgmt             NO Case 0 branch
+
+MemMas       [ 1] Member Master                      Members Mgmt             NO Case 1 branch
+
+MemMas       [ 2] Corporate Member Master            Members Mgmt             NO Case 2 branch
+
+MemMas       [ 3] Revenue Master                     Members Mgmt             NO Case 3 branch
+
+MemMas       [ 4] Facility Master                    Members Mgmt             NO Case 4 branch
+
+MemMas       [ 5] Category wise Revenue              Members Mgmt             NO Case 5 branch
+
+MemMas       [ 6] Category wise Facility             Members Mgmt             NO Case 6 branch
+
+MemMas       [ 7] Member Bill Sundry Setting         Members Mgmt             NO Case 7 branch
+
+MemMas       [ 8] Environment Settings               Members Mgmt             NO Case 8 branch
+
+MemMas       [ 9] Member Age Wise Revenue            Members Mgmt             NO Case 9 branch
+
+MemMas       [10] Member Select Category             Members Mgmt             NO Case 10 branch
+
+POSMas       [ 0] Setup Outlet                       Point of Sale            NO Case 0 branch
+
+POSMas       [ 1] Outlet Bill Sundry Setting         Point of Sale            NO Case 1 branch
+
+POSMas       [ 2] Server Master                      Point of Sale            NO Case 2 branch
+
+POSMas       [ 3] Table Master                       Point of Sale            NO Case 3 branch
+
+POSMas       [ 4] Item List                          Point of Sale            NO Case 4 branch
+
+POSMas       [ 5] Menu Group                         Point of Sale            NO Case 5 branch
+
+POSMas       [ 6] Menu Category                      Point of Sale            NO Case 6 branch
+
+POSMas       [ 7] Menu Item                          Point of Sale            NO Case 7 branch
+
+POSMas       [ 8] Menu Item Rate                     Point of Sale            NO Case 8 branch
+
+POSMas       [ 9] Rate Group Master                  Point of Sale            NO Case 9 branch
+
+POSMas       [10] Session Master                     Point of Sale            NO Case 10 branch
+
+POSMas       [11] Open Item Consumption              Point of Sale            NO Case 11 branch
+
+POSMas       [12] Scheme Master                      Point of Sale            NO Case 12 branch
+
+POSMas       [15] Happy Hours                        Point of Sale            NO Case 15 branch
+
+POSMas       [16] Happy Hours [ Free Items ]         Point of Sale            NO Case 16 branch
+
+POSMas       [17] Combo Pack                         Point of Sale            NO Case 17 branch
+
+POSMas       [18] NC Type                            Point of Sale            NO Case 18 branch
+
+POSMas       [19] Customer History                   Point of Sale            NO Case 19 branch
+
+POSMas       [20] Delivery Boy                       Point of Sale            NO Case 20 branch
+
+PRM          [ 0] Designation Master                 HR/Payroll               NO Case 0 branch
+
+PRM          [ 1] Category  Master                   HR/Payroll               NO Case 1 branch
+
+PRM          [ 2] Holiday Master                     HR/Payroll               NO Case 2 branch
+
+PRM          [ 3] Employee Master                    HR/Payroll               NO Case 3 branch
+
+SCRD         [ 1] Registration Entry                 Smart Card               NO Case 1 branch
+
+SCRD         [ 2] Recharge/Refund Entry              Smart Card               NO Case 2 branch
+
+SCRD         [40] -                                  Smart Card               NO Case 40 branch
+
+SCRD         [41] Cash Card Transaction Report       Smart Card               NO Case 41 branch
+
+SCRD         [42] Cash Card Collection Summary       Smart Card               NO Case 42 branch
+
+TelMaast     [ 0] Com Port Properties                EPABX                    NO Case 0 branch
+
+TelMaast     [ 1] Call Type Master                   EPABX                    NO Case 1 branch
+
+TelMaast     [ 2] Extension Master                   EPABX                    NO Case 2 branch
+
+TelMaast     [ 3] Call Codes Master                  EPABX                    NO Case 3 branch
+
+TelMaast     [ 4] Call Control Master                EPABX                    NO Case 4 branch
+
+UTL          [ 0] User Master                        Utility                  NO Case 0 branch
+
+UTL          [ 1] Permissions                        Utility                  NO Case 1 branch
+
+UTL          [ 6] Update Database Nulls              Utility                  NO Case 6 branch
+
+UTL          [ 8] Backup Data                        Utility                  NO Case 8 branch
+
+UTL          [ 9] Account Merging                    Utility                  NO Case 9 branch
+
+UTL          [11] Guest Parameters Setting           Utility                  NO Case 11 branch
+
+UTL          [12] Sundry Master                      Utility                  NO Case 12 branch
+
+UTL          [13] Voucher Wise Sundry Entry          Utility                  NO Case 13 branch
+
+UTL          [14] Sale MIS Customized                Utility                  NO Case 14 branch
+
+UTL          [15] Guest BirthDates/Anniversary       Utility                  NO Case 15 branch
+
+UTL          [16] Inconsistency Check                Utility                  NO Case 16 branch
+
+UTL          [17] Year End Updation                  Utility                  NO Case 17 branch
+
+UTL          [18] Data Transfer                      Utility                  NO Case 18 branch
+
+UTL          [19] Data Recieving                     Utility                  NO Case 19 branch
+
+UTL          [20] Menu Item Copy                     Utility                  NO Case 20 branch
+
+UTL          [21] POS Bill Deletion                  Utility                  NO Case 21 branch
+
+UTL          [22] Guest LookUp                       Utility                  NO Case 22 branch
+
+UTL          [23] Country Master                     Utility                  NO Case 23 branch
+
+UTL          [24] State Master                       Utility                  NO Case 24 branch
+
+UTL          [25] City Master                        Utility                  NO Case 25 branch
+
+UTL          [26] Company Master                     Utility                  NO Case 26 branch
+
+UTL          [27] Department                         Utility                  NO Case 27 branch
+
+UTL          [28] Ledger Accounts                    Utility                  NO Case 28 branch
+
+UTL          [29] Data Transfer (POS)                Utility                  NO Case 29 branch
+
+UTL          [30] PLU File (W.Scale)                 Utility                  NO Case 30 branch
+
+UTL          [31] User Permissions (Advanced)        Utility                  NO Case 31 branch
+
+UTL          [32] POS Recycle                        Utility                  NO Case 32 branch
+
+UTL          [33] Unit Master                        Utility                  NO Case 33 branch
+
+UTL          [34] Task Scheduler                     Utility                  NO Case 34 branch
+
+fame         [ 0] Group Accounts                     Finance                  NO Case 0 branch
+
+fame         [ 1] Ledger Accounts                    Finance                  NO Case 1 branch
+
+fame         [ 2] Narration Master                   Finance                  NO Case 2 branch
+
+fame         [ 3] T.D.S. Category                    Finance                  NO Case 3 branch
+
+fame         [ 4] FA Environment                     Finance                  NO Case 4 branch
+
+fame         [ 5] Voucher Environment                Finance                  NO Case 5 branch
+
+fame         [ 6] Opening Balance Updation           Finance                  NO Case 6 branch
+
+fame         [ 7] Year End Updation                  Finance                  NO Case 7 branch
+
+fame         [ 8] Current Balance Updation           Finance                  NO Case 8 branch
+
+fame         [ 9] Country Master                     Finance                  NO Case 9 branch
+
+fame         [10] State Master                       Finance                  NO Case 10 branch
+
+fame         [11] City Master                        Finance                  NO Case 11 branch
+
+fame         [12] Delete Message                     Finance                  NO Case 12 branch
+
+fame         [13] Account Merging                    Finance                  NO Case 13 branch
+
+fame         [14] Voucher Serialisation              Finance                  NO Case 14 branch
+
+====================================================================================================
+items with resolved VB6 form: 0 ; items with inline SQL: 0

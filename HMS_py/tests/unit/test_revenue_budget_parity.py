@@ -324,11 +324,18 @@ def test_revenue_group_window_reorders_without_crud_actions(monkeypatch):
 
 
 def test_revenue_budget_window_collects_grid_before_save(monkeypatch):
+    from datetime import datetime
+
     from HMS_py.core import revenue_budget as rb
     from HMS_py.ui import revenue_budget_ui as ui
 
+    # Month rollover-proof: UI combo me current month insert hota hai
+    # (revenue_budget_ui._load_months line 263-265) - list bhi wahi rakho
+    # warna Oct 1 jaise din test fail hota tha (Sep/2026 hardcode).
+    current_month = datetime.now().strftime("%b/%Y")
+
     saved = []
-    monkeypatch.setattr(rb, "budget_months", lambda: ["Sep/2026"])
+    monkeypatch.setattr(rb, "budget_months", lambda: [current_month])
     monkeypatch.setattr(rb, "budget_list", lambda month: [{
         "sno": 1,
         "month_year": month,
@@ -346,6 +353,6 @@ def test_revenue_budget_window_collects_grid_before_save(monkeypatch):
     finally:
         window.close()
 
-    assert saved[0][0] == "Sep/2026"
+    assert saved[0][0] == current_month
     assert saved[0][1][0]["rev_code"] == "RMCH"
     assert saved[0][1][0]["budget"] == "25.50"

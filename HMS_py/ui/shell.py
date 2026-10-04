@@ -1076,6 +1076,39 @@ def _rbac_guard(right: str, leaf: str):
     return _wrap
 
 
+def _open_plan_master(parent=None, p2=None, fm=None):
+    """Main Setup -> Front Office -> "Plan Master" (VB6 Mas index 12).
+
+    VB6 does NOT open a dedicated Plan Master form. MDIForm1.frm:7281-7300
+    (loc_132BBBD / loc_132BC19 / loc_132BC3B / loc_132BC48 / loc_132BCB5)
+    reads the site-level Enviro switch first:
+
+        Select PlanMastType from Enviro where logsite_code='<site>'
+        If PlanMastType = "Advanced" Then
+            Set global_52 = New FrmPackageMast   'MyType = "Plan"
+        Else
+            Set global_52 = New FrmPlanPackMast   'standard plan definition
+        End If
+
+    Ported: 'Advanced' -> p2_masters.open_planmaster (FrmPackageMast/MyType
+    "Plan"), anything else -> finance_masters_ui.open_plan_definition
+    (FrmPlanPackMast).
+
+    If the Enviro switch cannot be read we fail over to the Advanced form,
+    which is what this leaf always opened before MS-038 and what the live
+    KK site uses (Enviro.PlanMastType = 'Advanced').
+    """
+    from HMS_py.core import plan_definition as pd
+    try:
+        standard = pd.mode_is_standard()
+    except Exception:
+        standard = False
+    if standard and fm is not None:
+        return fm.open_plan_definition(parent,
+                                       user=getattr(parent, "user", "SA"))
+    return p2.open_planmaster(parent)
+
+
 def _form_registry() -> dict[str, callable]:
     from HMS_py.ui import p2_masters as p2
     from HMS_py.ui import item_rate_ui as item_rate
@@ -1135,6 +1168,33 @@ def _form_registry() -> dict[str, callable]:
         from HMS_py.ui import smartcard_txn_ui as sct
     except ImportError:
         sct = None
+    # NEW: Item Issued On Cleaning, Godrej Lock Settings
+    try:
+        from HMS_py.ui import hall_item_issued_on_cleaning_ui
+    except ImportError:
+        hall_item_issued_on_cleaning_ui = None
+    try:
+        from HMS_py.ui import hall_lock_godrej_settings_ui
+    except ImportError:
+        hall_lock_godrej_settings_ui = None
+    # NEW: Banquet master UIs
+    try:
+        from HMS_py.ui import hall_item_group_mast_ui as himg_ui
+    except ImportError:
+        himg_ui = None
+    try:
+        from HMS_py.ui import hall_menu_catalog_ui as hmc_ui
+    except ImportError:
+        hmc_ui = None
+    try:
+        from HMS_py.ui import hall_menu_item_entry_ui as hmi_ui
+    except ImportError:
+        hmi_ui = None
+    try:
+        from HMS_py.ui import hall_item_cat_mast_ui as hicm_ui
+    except ImportError:
+        hicm_ui = None
+    # Wave 6 imports (posting/settlement — VB6 fdPostChrg/fdPaymentCharge/
     # Wave 6 imports (posting/settlement — VB6 fdPostChrg/fdPaymentCharge/
     # FdReSetlement/FdRevCheckOut)
     try:
@@ -1175,7 +1235,7 @@ def _form_registry() -> dict[str, callable]:
         from HMS_py.ui import fa_voucher_ui as fvu
     except ImportError:
         fvu = None
-    # Wave 4 imports (new UI forms for 26+ core modules)
+# Wave 4 imports (new UI forms for 26+ core modules)
     try:
         from HMS_py.ui import booking_ops_ui as book_ui
     except ImportError:
@@ -1188,6 +1248,27 @@ def _form_registry() -> dict[str, callable]:
         from HMS_py.ui import banquet_ops_ui as banq_ui
     except ImportError:
         banq_ui = None
+    # NEW: Additional banquet UIs (HallBillEstimate, ChefPreCosting, Sundry, AcPostChrg, Catering)
+    try:
+        from HMS_py.ui import hall_bill_estimate_ui as hbe_ui
+    except ImportError:
+        hbe_ui = None
+    try:
+        from HMS_py.ui import hall_chef_pre_costing_ui as hcp_ui
+    except ImportError:
+        hcp_ui = None
+    try:
+        from HMS_py.ui import hall_sundry_ui as hsun_ui
+    except ImportError:
+        hsun_ui = None
+    try:
+        from HMS_py.ui import hall_ac_post_chrg_ui as hacp_ui
+    except ImportError:
+        hacp_ui = None
+    try:
+        from HMS_py.ui import catering_booking_ui as catb_ui
+    except ImportError:
+        catb_ui = None
     try:
         from HMS_py.ui import hr_payroll_ui as payroll_ui
     except ImportError:
@@ -1443,6 +1524,12 @@ def _form_registry() -> dict[str, callable]:
         from HMS_py.ui import pos_bill_deletion_ui as pbdel_ui
     except ImportError:
         pbdel_ui = None
+    # VB6 RsPaymentReceice — POS payment receipt voucher (VType PPOS);
+    # core/rs_payment_receive.py me VB6 evidence map + transaction port.
+    try:
+        from HMS_py.ui import rs_payment_receive_ui as rspay_ui
+    except ImportError:
+        rspay_ui = None
     # ── COMING_SOON -> real UI batch (VB6 parity report SECTION A) ──
     try:
         from HMS_py.ui import depart_change_ui as dchg_ui
@@ -1653,6 +1740,39 @@ def _form_registry() -> dict[str, callable]:
         MainSetupWorkbench(parent=w, user=getattr(w, "user", "SA")).exec()
 
     return {
+        # Report-engine aliases SABSE PEHLE bind karo — neeche wale
+        # explicit keys (master screens) unhe override karte hain.
+        **({cap: _open_report(cap) for cap in (
+            "Checkout Analysis", "Company Analysis", "Food Costing Report",
+            "Ageing Analysis (Debtors)", "GSTR-1", "GSTR-2(3)", "GSTR-2(4A)",
+            "GSTR-2(4B)", "Stewardwise Sale", "Table wise Sale",
+            "Settlement Summary", "Deleted Unsettled Bill", "NC KOT Detail",
+            "Daily DIET Report", "Not Delivered Order", "Group Wise Sale",
+            "Collection Summary", "Open Item Sales", "KOT Change Report",
+            "Monthwise Sales", "ABC  Analysis", "Sale Summary",
+            "Taxwise Details", "Group Pickup Report", "Group Arrival Report",
+            "Arrival List", "23 Day Room Availability Forecast",
+            "23 Day Room Type Availability Forecast", "Cover Analysis Report",
+            "OutStanding Report", "Party wise OutStanding",
+            "Bill Wise Outstanding Report For Debtors",
+            "Excess Consumption Report", "Restaurant Issue Report",
+            "Stock Summary P/S Basis", "ABC Analysis",
+            "Production Report I/R Basis", "Issue CheckList",
+            "Stock Summary ", "Stock Register ", "Stock In Hand ",
+            "Kitchen Stock Report I/R Basis", "Change Kitchen/Store",
+            "Form24 Annexure-A", "UPVAT XXIV", "Room Status Report",
+            "Settlement  Report", "Banquet Taxwise Details", "Taxwise Details (Banquet)",
+            "Charge Payment Detail", "Room Wise Plan Detail",
+            "Bill Change Report", "Guest Extra Charges", "Sales Report",
+            "Guest Payments", "FOM Tax Detail", "Tax Wise Charge Detail",
+            "Tourism Form 1", "Tourism Form 2", "Tourism Form 5",
+            "Tourism Form 6", "Tourism Form 4", "Monthly Return",
+            "L.T. FORM II", "L.T. FORM IV", "Room Occupancy",
+            "Attendance Report", "Form C",
+            "Confirmation Letters", "Cancellation Letters",
+        ) if _rpmod}),
+        **({cap: _open_report(cap)
+            for cap in (_rpmod.menu_caption_map() if _rpmod else {})}),
         "Main Setup": _open_main_setup,
         # P4-a Front Office:
         "Guest Profile": lambda w: fo.open_guestprof(w),
@@ -1673,7 +1793,7 @@ def _form_registry() -> dict[str, callable]:
         "Daily Report": _na,
         "Occupancy Analysis": _na,
         "Guest Audit Ledger": _na,
-        "Plan Master": lambda w: p2.open_planmaster(w),
+        "Plan Master": lambda w: _open_plan_master(w, p2, fm),
         # Main Setup - Front Office masters (P2-complete):
         "City Master": lambda w: p2.open_city(w),
         "Country Master": lambda w: p2.open_country(w),
@@ -1786,6 +1906,11 @@ def _form_registry() -> dict[str, callable]:
         "Extension":         (lambda w: epabx.open_extension(w)) if epabx else None,
         # Wave 3: Item masters
         "Item Group":        (lambda w: p2.open_item_group(w)) if p2 else None,
+        # Banquet Master UIs (NEW)
+        "Hall Item Group Master": (lambda w: himg_ui.open_hall_item_group_mast(w)) if himg_ui else _coming_soon("Hall Item Group Master"),
+        "Hall Menu Catalog": (lambda w: hmc_ui.open_hall_menu_catalog(w)) if hmc_ui else _coming_soon("Hall Menu Catalog"),
+        "Hall Menu Item Entry": (lambda w: hmi_ui.open_hall_menu_item_entry(w)) if hmi_ui else _coming_soon("Hall Menu Item Entry"),
+        "Hall Item Category & Charge Master": (lambda w: hicm_ui.open_hall_item_cat_mast(w)) if hicm_ui else _coming_soon("Hall Item Category & Charge Master"),
         # P5 Inventory:
         "Indent": (lambda w: _inv.open_indent_ui(w)) if _inv else None,
         "Indent Entry": (lambda w: _inv.open_indent_ui(w)) if _inv else None,
@@ -1958,36 +2083,6 @@ def _form_registry() -> dict[str, callable]:
                 "SELECT LcCode, AppDate, FcCode, UnitRate, DueOn, StartMonth FROM LocationFacility ORDER BY LcCode")),
         # VB6 loc_1E47899: New FrmDenomination -> DenominationDetail CRUD
         "Denomination Detail": (lambda w: denom_ui.open_denomination_detail(w, user=getattr(w, "user", "SA"))) if denom_ui else _coming_soon("Denomination Detail"),
-        # Reports Center aliases (VB6 caption -> existing report engine key)
-        **({cap: _open_report(cap) for cap in (
-            "Checkout Analysis", "Company Analysis", "Food Costing Report",
-            "Ageing Analysis (Debtors)", "GSTR-1", "GSTR-2(3)", "GSTR-2(4A)",
-            "GSTR-2(4B)", "Stewardwise Sale", "Table wise Sale",
-            "Settlement Summary", "Deleted Unsettled Bill", "NC KOT Detail",
-            "Daily DIET Report", "Not Delivered Order", "Group Wise Sale",
-            "Collection Summary", "Open Item Sales", "KOT Change Report",
-            "Monthwise Sales", "ABC  Analysis", "Sale Summary",
-            "Taxwise Details", "Group Pickup Report", "Group Arrival Report",
-            "Arrival List", "23 Day Room Availability Forecast",
-            "23 Day Room Type Availability Forecast", "Cover Analysis Report",
-            "OutStanding Report", "Party wise OutStanding",
-            "Bill Wise Outstanding Report For Debtors",
-            "Excess Consumption Report", "Restaurant Issue Report",
-            "Stock Summary P/S Basis", "ABC Analysis",
-            "Production Report I/R Basis", "Issue CheckList",
-            "Stock Summary ", "Stock Register ", "Stock In Hand ",
-            "Kitchen Stock Report I/R Basis", "Change Kitchen/Store",
-            "Form24 Annexure-A", "UPVAT XXIV", "Room Status Report",
-            "Settlement  Report", "Banquet Taxwise Details", "Taxwise Details (Banquet)",
-            "Charge Payment Detail", "Room Wise Plan Detail",
-            "Bill Change Report", "Guest Extra Charges", "Sales Report",
-            "Guest Payments", "FOM Tax Detail", "Tax Wise Charge Detail",
-            "Tourism Form 1", "Tourism Form 2", "Tourism Form 5",
-            "Tourism Form 6", "Tourism Form 4", "Monthly Return",
-            "L.T. FORM II", "L.T. FORM IV", "Room Occupancy",
-            "Attendance Report", "Form C",
-            "Confirmation Letters", "Cancellation Letters",
-        ) if _rpmod}),
         # Blocked-table leaves -> some now have real UIs
         # VB6 MDIForm1 NightAuditoR_Click: idx1 Charges Posting -> fdPostChrg,
         # idx2 Night Audit Process -> fdAcPostChrg, idx5 Reverse -> frmReNightAudit
@@ -2030,8 +2125,7 @@ def _form_registry() -> dict[str, callable]:
              "Check Out Clearance Screen",
              "Table Change Entry",
              "Order Booking", "Bill Lookup",
-             "KOT Transfer", "Token Entry", "Payment Receive",
-             "Payment Receive Entry (POS)",
+             "KOT Transfer", "Token Entry",
              "Salary Creation",
              "Rate Group Master",
              "Transfer (Offline)", "Transfer (Online)", "Door Locks",
@@ -2067,17 +2161,20 @@ def _form_registry() -> dict[str, callable]:
         "Order Booking Advance": (lambda w: oradv_ui.open_order_advance(w)) if oradv_ui else _coming_soon("Order Booking Advance"),
         # RSSaleBill (50k lines) ka shared screen: POS Sales register.
         "Sale Bill Entry": (lambda w: psale_ui.open_pos_sales(w)) if psale_ui else _coming_soon("Sale Bill Entry"),
-        # Banquet operations (VB6 Banquet > Operation; tables LIVE)
+# Banquet operations (VB6 Banquet > Operation; tables LIVE)
         "Banquet Booking": (lambda w: hall_ui.open_hall_booking(w)) if hall_ui else _coming_soon("Banquet Booking"),
         "Banquet Billing": (lambda w: banq_ui.open_banquet_billing(w)) if banq_ui else _coming_soon("Banquet Billing"),
+        "Hall Bill Estimate": (lambda w: hbe_ui.open_hall_bill_estimate(w)) if hbe_ui else _coming_soon("Hall Bill Estimate"),
         "Banquet Estimate Billing": (lambda w: banq_ui.open_banquet_estimate(w)) if banq_ui else _coming_soon("Banquet Estimate Billing"),
         "Banquet Booking Advance": (lambda w: banq_ui.open_banquet_advance(w)) if banq_ui else _coming_soon("Banquet Booking Advance"),
         "Banquet Settlement": (lambda w: banq_ui.open_banquet_settlement(w)) if banq_ui else _coming_soon("Banquet Settlement"),
         "Venue Availability": (lambda w: banq_ui.open_venue_availability(w)) if banq_ui else _coming_soon("Venue Availability"),
-        "Chef Pre-Costing": (lambda w: banq_ui.open_chef_precosting(w)) if banq_ui else _coming_soon("Chef Pre-Costing"),
+        "Chef Pre-Costing": (lambda w: hcp_ui.open_hall_chef_pre_costing(w)) if hcp_ui else _coming_soon("Chef Pre-Costing"),
         "Catalog Selection": (lambda w: banq_ui.open_catalog_selection(w)) if banq_ui else _coming_soon("Catalog Selection"),
-        "Banquet Bill Sundry Setting": (lambda w: banq_ui.open_banquet_sundry_setting(w)) if banq_ui else _coming_soon("Banquet Bill Sundry Setting"),
+        "Banquet Bill Sundry Setting": (lambda w: hsun_ui.open_hall_sundry(w)) if hsun_ui else _coming_soon("Banquet Bill Sundry Setting"),
         "Guest Comments": (lambda w: banq_ui.open_guest_comments(w)) if banq_ui else _coming_soon("Guest Comments"),
+        "Hall A/C Posting Charge": (lambda w: hacp_ui.open_hall_ac_post_chrg(w)) if hacp_ui else _coming_soon("Hall A/C Posting Charge"),
+        "Catering Booking": (lambda w: catb_ui.open_catering_booking(w)) if catb_ui else _coming_soon("Catering Booking"),
         # --- S1 tail: last live-schema leaves ---
         "Menu Item Rate": lambda w: item_rate.open_item_rate(
             w, user=getattr(w, "user", "SA")),
@@ -2146,6 +2243,20 @@ def _form_registry() -> dict[str, callable]:
              "Data Transfer (POS)",
              "Godrej Lock Settings",
          )}),
+        # VB6 RsPaymentReceice (menu leaves 'Payment Receive' POS
+        # Operations + 'Payment Receive Entry (POS)' POS Reports — dono
+        # ek hi form kholte hain: ModuleAdd.bas loc_1E47255/loc_1E47396)
+        # -> POS payment receipt voucher, PayCharge VType='RPV' +
+        # LEDGERADJ bill allocation (core/rs_payment_receive.py).
+        # Pehle dono blocked spread me the — port banne par wire kiye.
+        "Payment Receive Entry (POS)": (
+            (lambda w: rspay_ui.open_payment_receive_pos(
+                w, user=getattr(w, "user", "SA")))
+            if rspay_ui else _coming_soon("Payment Receive Entry (POS)")),
+        "Payment Receive": (
+            (lambda w: rspay_ui.open_payment_receive_pos(
+                w, user=getattr(w, "user", "SA")))
+            if rspay_ui else _coming_soon("Payment Receive")),
         "Expected Plan/Package FB Details": _open_report("Expected Plan/Package FB Details"),
         "Cashier  Report": _open_report("Cashier  Report"),
         "Attendence Report": _open_report("Attendence Report"),
@@ -2310,9 +2421,11 @@ def _form_registry() -> dict[str, callable]:
         "Display Rack": (lambda w: wrui.open_display_rack(w)) if wrui else _coming_soon("Display Rack"),
         "Reservation Look Up Room Wise": (lambda w: wrui.open_roomocc_lookup(w)) if wrui else _coming_soon("Reservation Look Up Room Wise"),
         "Walk In / Check In Entry": (lambda w: wrui.open_walkin_entry(w, user=getattr(w, 'user', 'PYADMIN'))) if wrui else _coming_soon("Walk In / Check In Entry"),
-        # Reports Center (REPORTS_TXT / mdi leaves — read-only engine)
-        **({cap: _open_report(cap)
-            for cap in (_rpmod.menu_caption_map() if _rpmod else {})}),
+        # (report-engine aliases ab literal ke top par — explicit keys
+        #  neeche override karte hain; 'Printing Setup'/'Printing Parameters'
+        #  ka VB6 dispatch master screen hai, report nahi.)
+        "Printing Parameters": (lambda w: gs.open_printing(w)) if gs else None,
+        "Printing Setup": (lambda w: gs.open_printing(w)) if gs else None,
         # ── Main Setup VB6-evidence re-wires (2026-10-02 compare-loop) ──
         # reports-spread KE baad = override (Guest BirthDates map me hai par
         # VB6 dispatch target frmWelcome hai, report nahi).

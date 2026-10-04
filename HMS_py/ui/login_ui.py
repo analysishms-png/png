@@ -28,7 +28,8 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor, QFont, QShortcut, QKeySequence
 from PyQt6.QtWidgets import (QApplication, QDialog, QFormLayout, QHBoxLayout,
                              QLabel, QLineEdit, QMessageBox, QPushButton,
-                             QVBoxLayout, QWidget, QComboBox)
+                             QVBoxLayout, QWidget, QComboBox, QFrame)
+from HMS_py.core import auth
 from HMS_py.ui import theme as _theme
 from HMS_py.ui.desktop_style import apply_desktop_surface, mark_desktop_action
 
@@ -72,8 +73,14 @@ class LoginDialog(QDialog):
 
         # White app surface (VB6 white client area)
         # (screenshot: white panel on desktop)
+        # BUG 2026-10-03: pehle yahan inline `setStyleSheet("background:
+        # #ffffff;")` tha — ek widget ka apna QSS uske SABHI descendants par
+        # app-level QSS se zyada priority rakhta hai, isliye andar ka
+        # `QFrame[vbPanel]` blue gradient dab gaya tha aur cream (#fdfdd0)
+        # labels white background par dikh rahe the (cream-on-white).
+        # Ab property rule = theme.py ka app-level QSS apply hota hai.
         white = QFrame()
-        white.setStyleSheet("background: #ffffff;")
+        white.setProperty("vbSurface", True)
         wlay = QVBoxLayout(white)
         wlay.setContentsMargins(28, 24, 28, 16)
         wlay.setSpacing(12)
@@ -192,6 +199,7 @@ class LoginDialog(QDialog):
         username = self.txtUser.text().strip()
         password = self.txtPass.text().strip()
         company = self.cb_company.currentText().strip()
+        self.company = company  # VB6 login ke baad Company Details screen
 
         if not username or not password:
             self.lblMsg.setText("Username and password required")
@@ -200,7 +208,9 @@ class LoginDialog(QDialog):
 
         # Authentication: check against DB with RBAC
         # (per reverse engineering: valid user must exist in USERMAST table)
-        ok, msg = auth.check_login(username, password, company)
+        # core.auth.check_login(username, password, cn=None) — company select
+        # baad me hota hai (VB6 bhi login ke baad Company Details dikhata hai).
+        ok, msg = auth.check_login(username, password)
         if ok:
             self.user = username
             self.accept()
@@ -221,7 +231,7 @@ def show_login(parent=None) -> int:
 
 def main() -> int:
     import sys
-    app = QApplication(sys.argv)
+    _app = QApplication(sys.argv)
     result = show_login()
     return result if result != 0 else 1  # 0=Accepted, 1=Rejected
 

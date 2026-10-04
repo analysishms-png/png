@@ -53,6 +53,22 @@ def norm(s: str) -> str:
     return re.sub(r"[^a-z0-9]", "", (s or "").lower())
 
 
+_REPORT_KEYS: set[str] | None = None
+
+
+def report_keys() -> set[str]:
+    """core/reports.py report keys (normalized) - VB6 report procs ka python port
+    function nahi, dict-key ban kar hota hai; name-match warna 100+ false missing."""
+    global _REPORT_KEYS
+    if _REPORT_KEYS is None:
+        try:
+            txt = read_text(os.path.join(PY_CORE, "reports.py"))
+            _REPORT_KEYS = {norm(k) for k in re.findall(r'"key"\s*:\s*"([^"]+)"', txt)}
+        except Exception:
+            _REPORT_KEYS = set()
+    return _REPORT_KEYS
+
+
 LIT_RE = re.compile(
     r'"""(.*?)"""|\'\'\'(.*?)\'\'\'|"((?:[^"\\\n]|\\.)*)"|\'((?:[^\'\\\n]|\\.)*)\'',
     re.S,
@@ -135,6 +151,18 @@ KNOWN_PORT = {
     "frmpassword": ("PY_FILE", "ui/shell.py", "login / User Information screen"),
     "frmwelcome": ("PY_FILE", "ui/shell.py", "splash / welcome screen"),
     "form1": ("SHELL", "ui/shell.py", "generic VB6 test form (VB6 me bhi demo)"),
+    # VB6 spelling typos — fuzzy token match inko miss karta hai, par port
+    # file ka docstring khud VB6 form-name + caption quote karta hai
+    # (evidence: ui/data_receiving_ui.py:1-3, ui/rs_payment_receive_ui.py:1-5).
+    "frmdatarecieving": (
+        "PY_FILE", "ui/data_receiving_ui.py",
+        'spelling-variant match (VB6 "Recieving"); port docstring cites '
+        'Form=FrmDataRecieving Caption="Data Recieving Window . . ." - '
+        "registry leaf documented-inactive (VB6 menu Visible=0)"),
+    "rspaymentreceice": (
+        "PY_FILE", "ui/rs_payment_receive_ui.py",
+        'spelling-variant match (VB6 "Receice" typo); RPV payment-receipt '
+        "voucher port (core/rs_payment_receive.py), dono menu leaves wired"),
 }
 REPORT_VIEWER_RE = re.compile(r"repview|reportview|repviewfrm|reprtform", re.I)
 
@@ -489,6 +517,12 @@ def match_bas(bas: dict, py_core: list[dict],
             extra_files |= py_tables[tl]
 
     if not cands and not extra_files:
+        # module ka koi python twin nahi - phir bhi report-key ports ko credit do
+        rk = report_keys()
+        ported = [nm for nm in bas["named"] if norm(nm) in rk]
+        missing = [nm for nm in bas["named"] if norm(nm) not in rk]
+        if ported:
+            return ("FULL" if not missing else "PARTIAL"), "core/reports.py", ported, missing, tb, set()
         return "MISSING", "-", list(bas["named"]), list(bas["named"]), tb, set()
 
     files = [c["file"] for c in cands] + sorted(extra_files - {c["file"] for c in cands})
@@ -502,11 +536,12 @@ def match_bas(bas: dict, py_core: list[dict],
                 py_defs.update(norm(d) for d in c["defs"])
 
     ported, missing = [], []
+    rk = report_keys()
     for nm in bas["named"]:
         n = norm(nm)
         hit = n in py_defs or ("get_" + n) in py_defs or (
             n.startswith("get_") and n[4:] in py_defs
-        )
+        ) or n in rk
         (ported if hit else missing).append(nm)
 
     if not tb:
@@ -522,10 +557,11 @@ def match_bas(bas: dict, py_core: list[dict],
 # ------------------------------------------------------------------------------ main
 
 
-def live_db_probe(candidates: set[str]) -> tuple[dict[str, tuple[bool, int | None]], set[str]]:
-    """-> ({table: (exists, rowcount)}, set_of_all_live_tables)"""
+def live_db_probe(candidates: set[str]) -> tuple[dict[str, tuple[bool, int | None]], set[str], set[str]]:
+    """-> ({table: (exists, rowcount)}, set_of_all_live_base_tables, set_of_live_views)"""
     live: dict[str, tuple[bool, int | None]] = {}
     all_live: set[str] = set()
+    all_views: set[str] = set()
     try:
         sys.path.insert(0, ROOT)
         from core import db  # noqa
@@ -535,6 +571,8 @@ def live_db_probe(candidates: set[str]) -> tuple[dict[str, tuple[bool, int | Non
             "WHERE TABLE_TYPE='BASE TABLE'"
         )
         all_live = {r[0] for r in rows if r[0]}
+        vrows = db.query("SELECT LOWER(TABLE_NAME) FROM INFORMATION_SCHEMA.VIEWS")
+        all_views = {r[0] for r in vrows if r[0]}
         names = {n.lower() for n in candidates if re.fullmatch(r"[A-Za-z_][\w#\$]*", n)}
         names |= all_live
         for n in sorted(names):
@@ -548,7 +586,7 @@ def live_db_probe(candidates: set[str]) -> tuple[dict[str, tuple[bool, int | Non
                 live[n] = (False, None)
     except Exception as e:  # pragma: no cover
         print("DB probe failed/skipped:", e)
-    return live, all_live
+    return live, all_live, all_views
 
 
 def main() -> int:
@@ -598,19 +636,25 @@ def main() -> int:
         for t in p["tables"]:
             py_tables[t.lower()].add(p["file"])
 
-    live, all_live = live_db_probe(set(vb6_tables) | set(py_tables))
+    live, all_live, all_views = live_db_probe(set(vb6_tables) | set(py_tables))
 
     # ---------------- bas
     bas_rows = [(b,) + match_bas(b, py_core, all_live) for b in bass]
     temps = {t for t in set(vb6_tables) | set(py_tables) if t.startswith("#")}
     real = all_live | temps | {t for t, (ok, _) in live.items() if ok}
 
-    both, vb6only, pyonly, absent, junk = [], [], [], [], []
+    both, vb6only, pyonly, absent, junk, vws = [], [], [], [], [], []
     for t in sorted(set(vb6_tables) | set(py_tables)):
         v, p = t in vb6_tables, t in py_tables
         is_live, cnt = live.get(t, (False if t not in real else True, None))
         if t not in real:
-            junk.append((t, v, p, None, None))
+            # base table nahi: view hai, SQL-stopword noise hai, ya genuinely absent
+            if t in all_views:
+                vws.append((t, v, p, False, None))
+            elif t in SQL_STOP or re.match(r"^(var|loc)_[0-9a-f]+$", t):
+                junk.append((t, v, p, None, None))
+            else:
+                absent.append((t, v, p, False, None))
             continue
         rec = (t, v, p, is_live, cnt)
         if not is_live:
@@ -704,7 +748,8 @@ def main() -> int:
         ("C1. VB6-ONLY tables  (VB6 use karta hai, PYTHON kabhi query nahi karta)  <-- MISSING", vb6only),
         ("C2. BOTH sides tables (dono taraf use ho rahi hain)", both),
         ("C3. PYTHON-ONLY tables (VB6 me nahi mili)", pyonly),
-        ("C4. ABSENT in live DB (refer par DB me table hi nahi)", absent),
+        ("C4. ABSENT in live DB (SQL me refer par base table/view dono nahi)  <-- TABLE MISSING", absent),
+        ("C5. VIEW hain par BASE TABLE nahi (probe TABLE_TYPE='BASE TABLE' se bahar)", vws),
     ):
         w(f"\n--- {title}   [n={len(group)}] ---")
         for t, v, p, is_live, cnt in sorted(group, key=lambda x: (-(x[4] or 0), x[0])):
@@ -718,13 +763,8 @@ def main() -> int:
               f"{('YES' if is_live else 'NO'):<5} {(str(cnt) if cnt is not None else '-'):>10}   {src[:70]}")
         w("")
     if junk:
-        jnoise = [t for t, *_ in junk
-                  if re.match(r"^(var|loc)_[0-9a-f]+$", t) or t in SQL_STOP]
-        jobj = [t for t, *_ in junk if t not in jnoise]
-        w(f"--- C5. SQL me refer par LIVE DB me BASE TABLE nahi "
-          f"(view / doosre-saal DB / drop table / typo)  [n={len(jobj)}] ---")
-        w("   " + ", ".join(sorted(jobj)))
-        w(f"   (aur {len(jnoise)} string-noise tokens ignore kiye gaye)")
+        w(f"--- C6. SQL-stopword / var-loc noise tokens (ignore)  [n={len(junk)}] ---")
+        w("   " + ", ".join(sorted(t for t, *_ in junk)))
         w("")
 
     # ---- SECTION D
@@ -777,7 +817,7 @@ def main() -> int:
     EVT_RE = re.compile(
         r"_(Click|DblClick|Change|KeyDown|KeyPress|KeyUp|GotFocus|LostFocus|"
         r"Validate|SelChange|RowColChange|Scroll|MouseDown|MouseUp|MouseMove|"
-        r"Activate|Unload|Load|Initialize|Resize|Timer|UnknownEvent|GotTopic|"
+        r"Activate|Unload|Load|Initialize|Resize|Timer|UnknownEvent(_\w+)?|GotTopic|"
         r"PathChange|ScrollChange|SelChange|TabClick|CheckClick)$", re.I,
     )
     named_all = sum(len(b["named"]) for b, *_ in bas_rows)
@@ -820,7 +860,7 @@ def main() -> int:
         w(f"{i:>3}. {t[:34]:<35} rows={(cnt if cnt is not None else '-'):>9}   VB6: {src}")
     w("")
 
-    w(f"D7. TABLES ABSENT IN LIVE DB (dono taraf refer par DB me nahi)  [n={len(absent)}]")
+    w(f"D7. TABLES ABSENT IN LIVE DB (SQL me refer par base table/view dono nahi)  [n={len(absent)}]")
     w("-" * 104)
     for i, (t, v, p, is_live, cnt) in enumerate(sorted(absent), 1):
         w(f"{i:>3}. {t[:40]:<41} vb6={'Y' if v else '-'} py={'Y' if p else '-'}")
@@ -869,6 +909,8 @@ def main() -> int:
     w(f"  VB6-ONLY (PY MISSING)     : {len(vb6only)}")
     w(f"  PY-ONLY                   : {len(pyonly)}")
     w(f"  ABSENT in DB              : {len(absent)}")
+    w(f"  VIEW (not base)           : {len(vws)}")
+    w(f"  SQL-stopword noise        : {len(junk)}")
     w("")
     w("=" * 104)
     w("END OF REPORT")
@@ -887,6 +929,7 @@ def main() -> int:
         "missing_event_handlers": evt_missing,
         "vb6_only_tables": [r[0] for r in vb6only],
         "absent_tables": [r[0] for r in absent],
+        "view_tables": [r[0] for r in vws],
         "py_only_tables": [r[0] for r in pyonly],
     }
     os.makedirs(os.path.dirname(JSON_OUT), exist_ok=True)

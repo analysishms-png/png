@@ -602,6 +602,12 @@ QFrame[vbPanel="true"] {{
 QFrame[vbPanel="true"] QLabel {{
     background: transparent; color: {t['vb_header_text']};
 }}
+/* VB6 login/company ka white client area — inline setStyleSheet ki jagah
+   property rule (inline QSS descendant QFrame[vbPanel] gradient ko dabata
+   tha -> cream labels white par). */
+QFrame[vbSurface="true"] {{
+    background: #ffffff;
+}}
 QFrame[vbDesktop="true"], QDialog[vbDesktop="true"] {{
     background: #636363;
 }}

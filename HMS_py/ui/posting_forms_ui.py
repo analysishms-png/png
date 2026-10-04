@@ -1,7 +1,8 @@
 """PARTIAL bucket UI ports — Wave 6 (posting/settlement batch).
 
 VB6 originals (../FODER/*.frm) -> windows here:
-  fdPostChrg       -> PostChrgWindow          ('Post Charges For Room')
+  fdPostChrg       -> PostChrgWindow          ('Post Charges /Payments'
+                                               batch posting for a date)
   fdPaymentCharge  -> PaymentChargeWindow     ('Post Charges & Payment' —
                                                REC receipt register view)
   FdReSetlement    -> ReSettlementWindow      ('Post Charges/Payment' —
@@ -9,14 +10,23 @@ VB6 originals (../FODER/*.frm) -> windows here:
   FdRevCheckOut    -> RevCheckOutWindow       ('Check Out Cancel')
 
 Core ops (verified signatures):
+  HMS_py.core.nightaudit — post_room_charges_for_date (batch engine,
+                          progress cb, eligible/posted/skipped), get_inhouse_rooms,
+                          billed_folios_for_date (fdPostChrg pre-flight guard),
+                          get_night_audit_flags (RoomChrgPostingType gate)
   HMS_py.core.folio    — post_room_charge, receive_payment, list_payments,
                          settle_folio, delete_settle, folio_balance (float),
                          folio_charges
   HMS_py.core.checkout — list_checked_out, reverse_checkout
 
 VB6 evidence (frm line refs):
-  fdPostChrg.frm:1755DA9 — 'Posting Charges For Room : <RoomNo>' label;
-    grid of in-house rooms, charge post (PayCharge AmtDr rows).
+  fdPostChrg.frm: caption 'Post Charges /Payments'; Txt(0) 'Date For'
+    default = MemVar business date; Cmd(1) 'Post Charges' ->
+    Proc_62_23 pre-flight (billed-room guard, exact message 'There is some
+    unsettled guest bill, First Settle it then Process this operation') ->
+    gate RoomChrgPostingType='While Printing Bill' exits ->
+    per-room lblDisplay 'Posting Charges For Room : <RoomNo>' ->
+    'Posting Room Charges Completed'. No confirm dialog, no amount field.
   fdPaymentCharge.frm:4467,4579,4721... — 7x 'Insert Into PayCharge
     (DocId,SNo,...AmtCr/AmtDr...)' 35-col patterns (payments/charges).
   FdReSetlement.frm:3718,3870 — PayCharge INSERT + SettleDate col;
@@ -35,12 +45,12 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))))
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import (QApplication, QComboBox, QHBoxLayout, QLabel,
-                             QLineEdit, QMainWindow, QMessageBox,
+from PyQt6.QtWidgets import (QApplication, QComboBox, QDateEdit, QHBoxLayout,
+                             QLabel, QLineEdit, QMainWindow, QMessageBox,
                              QPushButton, QTableWidget, QTableWidgetItem,
                              QVBoxLayout, QWidget)
 
-from HMS_py.core import checkout, folio, roomstatus
+from HMS_py.core import checkout, db, folio, nightaudit, roomstatus
 from HMS_py.ui.desktop_style import make_vb6_header
 from HMS_py.ui.theme import palette
 
@@ -88,13 +98,18 @@ class _StatusBar:
 
 
 # ────────────────────────────────────────────────────────────────
-# 1. Post Charges For Room (fdPostChrg -> folio.post_room_charge)
+# 1. Post Charges /Payments (fdPostChrg -> nightaudit batch engine)
 # ────────────────────────────────────────────────────────────────
 class PostChrgWindow(QMainWindow, _StatusBar):
+    """VB6 fdPostChrg: batch room-charge posting for a business date.
+    Manual single-charge entry ka VB6 fdPostChrg me koi entry point nahi
+    tha (wo fdPaymentCharge/fdReceipt ka kaam hai) - isliye yahan sirf
+    batch posting hai."""
+
     def __init__(self, parent=None, user: str = "PYADMIN"):
         super().__init__(parent)
         self.user = user
-        self.setWindowTitle("Post Charges For Room")
+        self.setWindowTitle("Post Charges /Payments")
         self.resize(980, 540)
         self._build()
         self._fill()
@@ -102,26 +117,35 @@ class PostChrgWindow(QMainWindow, _StatusBar):
     def _build(self):
         c = QWidget(); self.setCentralWidget(c)
         lay = QVBoxLayout(c)
-        lay.addWidget(_title("Post Charges For Room"))
+        lay.addWidget(_title("Post Charges /Payments"))
         top = QHBoxLayout()
-        top.addWidget(QLabel("Room (in-house)"))
-        self.cmb_room = QComboBox()
-        top.addWidget(self.cmb_room, 1)
-        top.addWidget(QLabel("Amount"))
-        self.txt_amt = QLineEdit()
-        self.txt_amt.setPlaceholderText("0.00")
-        top.addWidget(self.txt_amt)
-        top.addWidget(QLabel("Code"))
-        self.cmb_code = QComboBox()
-        self.cmb_code.addItems(["KKRMCH", "KKREST", "KKOTHR"])
-        top.addWidget(self.cmb_code)
-        b = QPushButton("Post Charge")
+        top.addWidget(QLabel("Date For"))
+        self.dt = QDateEdit()
+        self.dt.setCalendarPopup(True)
+        self.dt.setDisplayFormat("dd/MM/yyyy")
+        bd = None
+        try:
+            bd = datetime.datetime.strptime(
+                str(db.get_business_date()).strip(), "%d/%b/%Y").date()
+        except Exception:
+            bd = None
+        self.dt.setDate(bd or datetime.date.today())
+        top.addWidget(self.dt)
+        b = QPushButton("Post Charges")
         b.clicked.connect(self._post)
         top.addWidget(b)
         b2 = QPushButton("Refresh")
         b2.clicked.connect(self._fill)
         top.addWidget(b2)
+        b3 = QPushButton("Exit")
+        b3.clicked.connect(self.close)
+        top.addWidget(b3)
+        top.addStretch(1)
         lay.addLayout(top)
+        self.lbl_display = QLabel("")
+        self.lbl_display.setStyleSheet(
+            "color:#b00000; font-weight:bold; font-size:13px;")
+        lay.addWidget(self.lbl_display)
         self.grid = QTableWidget()
         self.grid.setSelectionBehavior(
             QTableWidget.SelectionBehavior.SelectRows)
@@ -129,60 +153,107 @@ class PostChrgWindow(QMainWindow, _StatusBar):
         self.lbl_bal = QLabel("")
         lay.addWidget(self.lbl_bal)
 
+    def _vdate(self) -> datetime.date:
+        qd = self.dt.date()
+        return datetime.date(qd.year(), qd.month(), qd.day())
+
     def _fill(self):
         try:
-            rows = checkout.list_active_folios()
-            self.cmb_room.clear()
-            for r in rows:
-                self.cmb_room.addItem(
-                    f"{r['roomno']}  #{r['folio']}  {r['name']}", r["folio"])
-            self.grid.clear()
-            self.grid.setColumnCount(3)
-            self.grid.setHorizontalHeaderLabels(
-                ["Folio", "Guest", "Room"])
-            self.grid.setRowCount(0)
-            for rec in rows:
-                row = self.grid.rowCount()
-                self.grid.insertRow(row)
-                self.grid.setItem(row, 0, _cell(rec["folio"]))
-                self.grid.setItem(row, 1, _cell(rec["name"]))
-                self.grid.setItem(row, 2, _cell(rec["roomno"]))
-            self.grid.resizeColumnsToContents()
-            self._say(f"{len(rows)} in-house folio(s)")
+            vdate = self._vdate()
+            rooms = nightaudit.get_inhouse_rooms(vdate)
+            billed = {r["folio"] for r in
+                      nightaudit.billed_folios_for_date(vdate)}
+            posted = set()
+            rows_pc = db.query(
+                "SELECT DISTINCT FolioNo FROM PayCharge WHERE Vtype = 'RC' "
+                "AND Vdate = ? AND Site_Code = ?",
+                (vdate, db.get_site_code()))
+            posted = {r[0] for r in rows_pc}
+            out = []
+            for r in rooms:
+                if r["folio"] in billed:
+                    status = "Billed — settle first"
+                elif r["folio"] in posted:
+                    status = "Posted"
+                else:
+                    status = "To post"
+                out.append([r["roomno"], r["folio"], r["guest"],
+                            f"{r['roomrate']:.2f}", r["plancode"], status])
+            _fill_grid(self.grid,
+                       ["Room", "Folio", "Guest", "Rate", "Plan", "Status"],
+                       out)
+            self._say(f"{len(rooms)} in-house room(s) for {vdate}")
         except Exception as e:
             _msgbox_err(self, e)
 
     def _post(self):
-        fno = self.cmb_room.currentData()
-        if not fno:
-            QMessageBox.warning(self, "Post", "Koi in-house folio nahi.")
-            return
+        vdate = self._vdate()
         try:
-            amt = float(self.txt_amt.text().strip())
-            assert amt > 0, "Amount > 0 hona chahiye"
-        except Exception as e:
-            QMessageBox.warning(self, "Amount", f"Invalid amount: {e}")
-            return
-        code = self.cmb_code.currentText()
-        if QMessageBox.question(
-                self, "Post Charge",
-                f"Folio #{fno} pe {code} {amt:.2f} post karna hai?") != \
-                QMessageBox.StandardButton.Yes:
-            return
-        try:
-            n = folio.post_room_charge(int(fno), amt,
-                                       paycode=code, user=self.user)
-            self._say(f"{n} PayCharge row(s) posted ({code} {amt:.2f})")
-            self._show_bal(int(fno))
-        except Exception as e:
-            _msgbox_err(self, e)
+            # VB6 Cmd(1) pre-flight: billed rooms block posting
+            # (Proc_62_23) - exact VB6 message.
+            billed = nightaudit.billed_folios_for_date(vdate)
+            if billed:
+                rooms = ", ".join(str(b["roomno"]) for b in billed)
+                QMessageBox.warning(
+                    self, "Post Charges",
+                    "There is some unsettled guest bill,\n"
+                    "First Settle it then Process this operation\n\n"
+                    f"Re-Check Room No : {rooms}")
+                self.lbl_display.setText("Blocked: unsettled guest bill")
+                self._fill()
+                return
 
-    def _show_bal(self, fno: int):
-        try:
-            bal = float(folio.folio_balance(fno))
-            self.lbl_bal.setText(f"Folio #{fno} balance: {bal:.2f}")
-        except Exception:
-            self.lbl_bal.setText("")
+            # Enviro gate (VB6 TopCtrl_UnknownEvent_16 first lines)
+            flags = nightaudit.get_night_audit_flags()
+            if flags.get("room_chrg_type") == "While Printing Bill":
+                QMessageBox.information(
+                    self, "Post Charges",
+                    "Room charge posting type = 'While Printing Bill'. "
+                    "Posting disabled (VB6 enviro gate).")
+                self.lbl_display.setText(
+                    "Posting disabled: RoomChrgPostingType = "
+                    "'While Printing Bill'")
+                return
+
+            inhouse = nightaudit.get_inhouse_rooms(vdate)
+            already = {r[0] for r in db.query(
+                "SELECT DISTINCT FolioNo FROM PayCharge WHERE Vtype = 'RC' "
+                "AND Vdate = ? AND Site_Code = ?",
+                (vdate, db.get_site_code()))}
+            to_post = [r for r in inhouse
+                       if r["folio"] not in already and r["roomrate"] > 0]
+            if not to_post:
+                msg = ("Nothing to post for "
+                       f"{vdate} — all rooms already posted or no charge.")
+                self.lbl_display.setText("Nothing to post")
+                QMessageBox.information(self, "Post Charges", msg)
+                self._fill()
+                return
+
+            def _prog(done, total, roomno):
+                # VB6 lblDisplay exact text
+                self.lbl_display.setText(
+                    f"Posting Charges For Room : {roomno}")
+                QApplication.processEvents()
+
+            res = nightaudit.post_room_charges_for_date(
+                vdate, user=self.user, progress=_prog)
+            self.lbl_display.setText("Posting Room Charges Completed")
+            summary = (f"Eligible: {res.get('eligible', 0)}\n"
+                       f"Posted: {res.get('posted', 0)}\n"
+                       f"Already posted: {res.get('skipped', 0)}")
+            if res.get("posted", 0) == 0:
+                QMessageBox.information(
+                    self, "Post Charges",
+                    f"Nothing to post — all already posted.\n\n{summary}")
+            else:
+                QMessageBox.information(
+                    self, "Post Charges",
+                    f"Room charges posted for {vdate}.\n\n{summary}")
+            self._fill()
+        except Exception as e:
+            self.lbl_display.setText("Posting failed")
+            _msgbox_err(self, e)
 
 
 # ────────────────────────────────────────────────────────────────

@@ -99,8 +99,8 @@ NOT_YET_MIGRATED until evidence says otherwise.
 | purch1 | Y | Y | YES | 396 | BOTH_SIDES | VB6:DepOpStk.frm,FaTaxVoucher.frm,HMS.bas; PY:inventory.py,purchase.py |
 | attend | Y | Y | YES | 384 | BOTH_SIDES | VB6:HMS.bas,PrAttend1.frm,PrEmployee.frm; PY:hr_payroll.py,reports.py |
 | fombilldetails | Y | Y | YES | 330 | BOTH_SIDES | VB6:FdGrpCheckOut.frm,FrmFomBillDeletion.frm,HMS.bas; PY:checkout.py,f |
+| bookinglog | Y | Y | YES | 269 | BOTH_SIDES | VB6:HMS.bas,Hotlib.bas; PY:reservation.py |
 | stocklog | Y | Y | YES | 266 | BOTH_SIDES | VB6:HMS.bas,RSSaleBill.frm,RSTouchScreenSaleBill.frm; PY:stocklog.py |
-| bookinglog | Y | Y | YES | 253 | BOTH_SIDES | VB6:HMS.bas,Hotlib.bas; PY:reservation.py |
 | einvoicebill2 | Y | Y | YES | 189 | BOTH_SIDES | VB6:HMS.bas,HallBill.frm,Hotlib.bas; PY:einvoicebill.py |
 | ledgertds | Y | Y | YES | 179 | BOTH_SIDES | VB6:FaTDSChal.frm,FaVoucher.bas,FaVrEnt.frm; PY:fa_ledger_ops.py,fa_td |
 | voucher_prefix | Y | Y | YES | 171 | BOTH_SIDES | VB6:CateringBooking.frm,CompMast.frm,DepOpStk.frm; PY:fa_ledger_ops.py |
@@ -114,9 +114,9 @@ NOT_YET_MIGRATED until evidence says otherwise.
 | paychargelog | Y | Y | YES | 117 | BOTH_SIDES | VB6:FdCheckOut.frm,HMS.bas,RSSaleBill.frm; PY:expenseentry.py,folio.py |
 | ledgeradj | Y | Y | YES | 100 | BOTH_SIDES | VB6:FaAdjust.frm,FaAdjustDel.frm,FaReports.frm; PY:account_merge.py,fa |
 | hallbook | Y | Y | YES | 97 | BOTH_SIDES | VB6:BanqModule.bas,CateringBooking.frm,FaCurrBalUpdate.frm; PY:banquet |
+| bookingcanceldetails | Y | Y | YES | 94 | BOTH_SIDES | VB6:FaCurrBalUpdate.frm,HMS.bas,RrRoomReservation.frm; PY:reservation. |
 | salary | Y | Y | YES | 93 | BOTH_SIDES | VB6:HMS.bas,PrAttend1.frm,PrEmployee.frm; PY:hr_payroll.py |
 | guestfolioamend | Y | Y | YES | 90 | BOTH_SIDES | VB6:HMS.bas,fdAmendEntry.frm; PY:folio.py |
-| bookingcanceldetails | Y | Y | YES | 88 | BOTH_SIDES | VB6:FaCurrBalUpdate.frm,HMS.bas,RrRoomReservation.frm; PY:reservation. |
 | roommast | Y | Y | YES | 86 | BOTH_SIDES | VB6:FdCheckOut.frm,FdGrpCheckOut.frm,FdGrpdetCheckOut.frm; PY:advance_ |
 | user2 | Y | Y | YES | 82 | BOTH_SIDES | VB6:HMS.bas,UserMast.frm,frmCompany.frm; PY:usermaster.py |
 | vouchercat | Y | Y | YES | 79 | BOTH_SIDES | VB6:FaVtype.frm,FrmInc.frm,HMS.bas; PY:general_setup.py,voucher_type.p |
@@ -220,7 +220,7 @@ NOT_YET_MIGRATED until evidence says otherwise.
 | gueststat | Y | Y | YES | 0 | BOTH_SIDES | VB6:FOMModule.bas,FdCheckOut.frm,FdGrpCheckOut.frm; PY:guest_services. |
 | guestwakeup | Y | Y | YES | 0 | BOTH_SIDES | VB6:FrmGuestWakeUp.frm,HMS.bas; PY:guest_services.py |
 | hallbook1 | Y | Y | YES | 0 | BOTH_SIDES | VB6:CateringBooking.frm,FaCurrBalUpdate.frm,HMS.bas; PY:banquet_ops.py |
-| hallprecosting | Y | Y | YES | 0 | BOTH_SIDES | VB6:HMS.bas,HallChefPreCosting.frm; PY:banquet_ops_ui.py,pos_hall.py |
+| hallprecosting | Y | Y | YES | 0 | BOTH_SIDES | VB6:HMS.bas,HallChefPreCosting.frm; PY:banquet_ops_ui.py,hall_chef_pre |
 | hallsale1est | Y | Y | YES | 0 | BOTH_SIDES | VB6:HMS.bas,HallBillEstimate.frm; PY:pos_hall.py |
 | hallsale2 | Y | Y | YES | 0 | BOTH_SIDES | VB6:HMS.bas,HallBill.frm,rFomRepView.frm; PY:banquet_ops.py,reports.py |
 | hallstock | Y | Y | YES | 0 | BOTH_SIDES | VB6:HMS.bas,HallBill.frm,HallEstimate.frm; PY:hall_booking.py,pos_hall |

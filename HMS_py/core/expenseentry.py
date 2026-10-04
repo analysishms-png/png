@@ -51,8 +51,12 @@ def list_folio_charges(folio, cn=None,
     if not rec:
         return []
     rows = db.query(
-        "SELECT DocId, Vtype, VNo, PayCode, Amount, AmtDr, AmtCr, "
-        "Remarks, TaxAmt, U_Name, U_EntDt, U_AE "
+        # VB6 RsFolioEntry parity: amount = CASE When AmtCr<>0 Then AmtCr
+        # Else AmtDr END. Thambe 'Amount'/'TaxAmt' PayCharge me nahi hai
+        # (42S22). TaxCondAmt/OnAmt tax-calc ke liye, TaxAmt nahi.
+        "SELECT DocId, Vtype, VNo, PayCode, "
+        "CASE WHEN AmtCr <> 0 THEN AmtCr ELSE AmtDr END AS Amount, "
+        "AmtDr, AmtCr, Remarks, TaxCondAmt AS TaxAmt, U_Name, U_EntDt, U_AE "
         "FROM PayCharge WHERE FolioNoDocid = ? AND Site_Code = ? "
         "ORDER BY VNo",
         (rec["docid"], SITE_CODE), cn=cn)

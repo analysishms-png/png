@@ -1,0 +1,25 @@
+from core.vb6_logic import VB6LogicImpl
+from core.validation import validate_not_negative, validate_greater_than_zero
+
+impl = VB6LogicImpl()
+
+print('=== Testing VB6 Logic Implementation ===')
+print('format_currency(1234.56):', impl.format_currency(1234.56))
+print('format_date("2024-01-15"):', impl.format_date('2024-01-15'))
+print('validate_not_negative(-5):', validate_not_negative(-5))
+print('validate_not_negative(5):', validate_not_negative(5))
+print('validate_greater_than_zero(0):', validate_greater_than_zero(0))
+print('validate_greater_than_zero(5):', validate_greater_than_zero(5))
+print('number_to_text(1):', impl.number_to_text(1))
+print('number_to_text(2):', impl.number_to_text(2))
+print('number_to_text(5):', impl.number_to_text(5))
+print('number_to_language(1):', impl.number_to_language(1))
+print('number_to_language(2):', impl.number_to_language(2))
+print('number_to_language(5):', impl.number_to_language(5))
+print('confirm_exit result: True/False tested separately')
+print('strip_and_upper("hello world"):', impl.strip_and_upper('hello world'))
+print('strip_and_upper("  test  "):', impl.strip_and_upper('  test  '))
+print('parse_vb6_date("2024-01-15"):', impl.parse_vb6_date('2024-01-15'))
+print('parse_vb6_date("15/01/2024"):', impl.parse_vb6_date('15/01/2024'))
+print('parse_vb6_date("20241025"):', impl.parse_vb6_date('20241025'))
+print('parse_vb6_date(""):', impl.parse_vb6_date(''))

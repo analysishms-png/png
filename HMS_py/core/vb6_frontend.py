@@ -25,7 +25,15 @@ from PyQt6.QtWidgets import (
     QHeaderView, QProgressBar, QGroupBox, QFrame
 )
 from PyQt6.QtCore import Qt, QTimer, QDateTime, QSize, pyqtSignal
-from PyQt6.QtGui import QFont, QIcon, QColor, QPalette, QActionKeySequence
+from PyQt6.QtGui import QFont, QIcon, QColor, QPalette
+
+from core.validation import (
+    validate_required_field, validate_numeric_field, validate_patient_name,
+    validate_age_field, validate_phone_number, validate_email_field,
+    validate_date_field, validate_all, validate_not_negative,
+    validate_greater_than_zero
+)
+from core.vb6_logic import VB6LogicImpl
 
 
 class VB6Form(QMainWindow):
@@ -101,6 +109,7 @@ class VB6Form(QMainWindow):
         for btn in [self.btnNew, self.btnSave, self.btnEdit, self.btnDelete,
                      self.btnRefresh, self.btnPrint, self.btnExit]:
             btn.setFixedHeight(30)
+            btn.clicked.connect(self._on_button_click)
         toolbar.addWidget(self.btnNew)
         toolbar.addWidget(self.btnSave)
         toolbar.addWidget(self.btnEdit)
@@ -119,12 +128,56 @@ class VB6Form(QMainWindow):
         self._timer.timeout.connect(self._update_clock)
         self._timer.start(1000)
 
-    def _update_clock(self):
-        self.lblDateTime.setText(datetime.now().strftime("%d-%b-%Y %I:%M:%S %p"))
+    def _on_button_click(self):
+        """Route toolbar button clicks to handlers."""
+        btn = self.sender()
+        if btn == self.btnNew:
+            self._on_new()
+        elif btn == self.btnSave:
+            self._on_save()
+        elif btn == self.btnEdit:
+            self._on_edit()
+        elif btn == self.btnDelete:
+            self._on_delete()
+        elif btn == self.btnRefresh:
+            self._on_refresh()
+        elif btn == self.btnPrint:
+            self._on_print()
+        elif btn == self.btnExit:
+            self._on_exit()
 
     def closeEvent(self, event):
         self._timer.stop()
         super().closeEvent(event)
+
+    def _on_new(self):
+        """VB6 New button click - to be overridden by modules."""
+        pass
+
+    def _on_save(self):
+        """VB6 Save button click - to be overridden by modules."""
+        pass
+
+    def _on_edit(self):
+        """VB6 Edit button click - to be overridden by modules."""
+        pass
+
+    def _on_delete(self):
+        """VB6 Delete button click - to be overridden by modules."""
+        pass
+
+    def _on_refresh(self):
+        """VB6 Refresh button click - to be overridden by modules."""
+        pass
+
+    def _on_print(self):
+        """VB6 Print button click - to be overridden by modules."""
+        pass
+
+    def _on_exit(self):
+        """VB6 Exit button click - to be overridden by modules."""
+        from PyQt6.QtWidgets import QApplication
+        QApplication.quit()
 
 
 class FinanceModule(VB6Form):

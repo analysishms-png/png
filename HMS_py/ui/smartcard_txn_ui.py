@@ -25,7 +25,7 @@ from PyQt6.QtCore import QDate, Qt
 from PyQt6.QtWidgets import (
     QApplication, QDateEdit, QDialog, QFormLayout, QGroupBox,
     QHBoxLayout, QHeaderView, QLabel, QLineEdit, QMessageBox, QPushButton,
-    QTableWidget, QTableWidgetItem, QVBoxLayout)
+    QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget)
 
 from HMS_py.core import menu as menu_core
 from HMS_py.core import smartcard_ops as sc

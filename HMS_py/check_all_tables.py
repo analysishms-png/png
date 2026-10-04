@@ -1,0 +1,9 @@
+import sys
+sys.path.insert(0, '.')
+from core import db
+cn = db.connect()
+cursor = cn.cursor()
+cursor.execute("SELECT name FROM sysobjects WHERE xtype='U' ORDER BY name")
+for row in cursor.fetchall():
+    print(row[0])
+cn.close()

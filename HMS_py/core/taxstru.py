@@ -27,6 +27,10 @@ LIMITS = {"code": 6, "name": 35, "taxcode": 6, "nature": 25,
 SELECT_COLS = ("Code, Name, Sno, TaxCode, Nature, Rate, "
                "Limit, Limit1, CondApp, CompOperator, TaxBeforeDisc, "
                "U_Name, U_EntDt, U_AE")
+# VB6 FrmTaxStruMast property filter (Form_Load header recordset,
+# DGHelp, Search loc_EC8611, dup-name check loc_1095526):
+#   (LOGSITE_CODE='<site>' or LOGSITE_CODE='HO')
+SITE_FILTER = "(LogSite_Code = ? OR LogSite_Code = 'HO')"
 
 
 def _map(r) -> dict:
@@ -103,7 +107,11 @@ def _validate(rec: dict):
 
 
 def list_all(cn=None) -> list[dict]:
-    rows = db.query(f"SELECT {SELECT_COLS} FROM TaxStru ORDER BY Code, Sno", cn=cn)
+    # VB6 header recordset: ... From TaxStru WHERE (LOGSITE... or 'HO')
+    rows = db.query(
+        f"SELECT {SELECT_COLS} FROM TaxStru WHERE {SITE_FILTER} "
+        "ORDER BY Code, Sno",
+        (SITE_CODE,), cn=cn)
     return [_map(r) for r in rows]
 
 
@@ -133,13 +141,23 @@ def exists_code(code: str, cn=None) -> bool:
 
 
 def next_code(cn=None) -> str:
-    """VB6 pattern: 'KK' + max 4-digit suffix + 1."""
+    """VB6 auto-code (FrmTaxStruMast loc_145C39D):
+
+      Select IsNull(Max(CAST(SUBSTRING(Code,3,4) AS NUMERIC)),1)+1 AS MyCode
+      From TaxStru WHERE ISNumeric(substring(Code,3,4))=1
+      AND SITE_CODE='<site>'
+
+    prefix = Proc_6_45(site, 2) = Left$(site, 2); number 4-digit padded.
+    NOTE: yahan SITE_CODE filter hai (LogSite nahi) + ISNUMERIC guard -
+    FrmTaxMast ke code-gen se alag, legacy jaisa hi.
+    """
     rows = db.query(
-        "SELECT MAX(Code) FROM TaxStru WHERE Code LIKE 'KK%' AND LEN(Code) = 6 "
-        "AND ISNUMERIC(SUBSTRING(Code, 3, 4)) = 1",
-        cn=cn)
-    mx = rows[0][0] if rows and rows[0][0] else "KK0000"
-    return f"KK{int(mx[2:]) + 1:04d}"
+        "SELECT ISNULL(MAX(CAST(SUBSTRING(Code,3,4) AS NUMERIC)),1)+1 "
+        "AS MyCode FROM TaxStru "
+        "WHERE ISNUMERIC(SUBSTRING(Code,3,4)) = 1 AND SITE_CODE = ?",
+        (SITE_CODE,), cn=cn)
+    n = int(rows[0][0]) if rows else 2
+    return f"{SITE_CODE[:2]}{n:04d}"
 
 
 def next_sno(code: str, cn=None) -> int:
@@ -185,6 +203,7 @@ def insert_structure(code: str, name: str, lines: list[dict], cn=None,
     if not lines:
         raise ValueError("At least one tax line required")
     _validate_lines(lines)
+    require_unique_name(name, cn=cn)
 
     own = cn is None
     cn = cn or db.connect()
@@ -228,23 +247,33 @@ def update(code: str, sno: int, rec: dict, cn=None, commit: bool = True) -> int:
 
 def update_structure(code: str, name: str, lines: list[dict], cn=None,
                      commit: bool = True) -> int:
-    """Replace all lines for a tax structure code with new lines."""
+    """Replace all lines for a tax structure code with new lines.
+
+    VB6 TopCtrl save (loc_145C4BE): BeginTrans -> Delete From TaxStru
+    Where Code=... -> saari grid lines dobara INSERT (U_AE = 'E' kyunki
+    state Edit hai - loc_145C8F0 ka IIf(Add,'A','E')). Dup-name check
+    exclude karta hai purana naam (VB6 global_80 = Edit click ka naam).
+    """
     if not lines:
         raise ValueError("At least one tax line required")
     _validate_lines(lines)
     own = cn is None
     cn = cn or db.connect()
     try:
+        old = db.query("SELECT Name FROM TaxStru WHERE Code = ?",
+                       (code,), cn=cn)
+        old_name = (old[0][0] or "").strip() if old else ""
+        require_unique_name(name, exclude_name=old_name, cn=cn)
         # Delete existing lines for this code
         db.execute("DELETE FROM TaxStru WHERE Code = ?", (code,), cn=cn, commit=False)
-        # Insert new lines
+        # Insert new lines (VB6 edit-save: U_AE='E')
         for i, line in enumerate(lines, 1):
             sno = i
             db.execute(
                 "INSERT INTO TaxStru (Code, Name, Sno, TaxCode, Nature, Rate, "
                 "Limit, Limit1, Site_Code, U_Name, U_EntDt, U_AE, "
                 "CondApp, LogSite_Code, CompOperator, TaxBeforeDisc) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, getdate(), 'A', ?, ?, ?, ?)",
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, getdate(), 'E', ?, ?, ?, ?)",
                 (code, name, sno, line["taxcode"],
                  line.get("nature", "On Base Amt"), float(line.get("rate") or 0),
                  float(line.get("limit") or 0), float(line.get("limit1") or 0),
@@ -268,8 +297,51 @@ def delete(code: str, sno: int, cn=None, commit: bool = True) -> int:
 
 
 def delete_structure(code: str, cn=None, commit: bool = True) -> int:
-    """Delete entire tax structure (all Sno lines)."""
-    return db.execute("DELETE FROM TaxStru WHERE Code = ?", (code,), cn=cn, commit=commit)
+    """Delete entire tax structure (all Sno lines).
+
+    VB6 delete chain (FrmTaxStruMast TopCtrl1_UnknownEvent_C loc_11E6AAB):
+    teen dependency checks (MainLib Proc_6_108) - koi bhi row mili toh
+    delete BLOCK:
+      1. RevMast.TaxStru      -> 'Related Record Exist in RevMast, ...'
+      2. ItemCatMast.TaxStru  -> 'Related Record Exist in ItemCatMast, ...'
+      3. TelCallType.TaxStru  -> display name explicit 'Tax Structure'
+    Live evidence: RevMast 55 + ItemCatMast 50 rows reference TaxStru,
+    isliye ye checks na hone se orphan rows ban rahe the.
+    NOTE: display arg VB6 ke pehle 2 calls me decompile me drop hai -
+    table-name fallback use kiya (3rd call me 'Tax Structure' explicit).
+    """
+    checks = (("RevMast", "RevMast"),
+              ("ItemCatMast", "ItemCatMast"),
+              ("TelCallType", "Tax Structure"))
+    for table, display in checks:
+        rows = db.query(
+            f"SELECT COUNT(*) FROM [{table}] WHERE TaxStru = ?",
+            (code,), cn=cn)
+        if rows and int(rows[0][0]) > 0:
+            raise ValueError(
+                f"Related Record Exist in {display}, Entry Can't Be Deleted")
+    return db.execute("DELETE FROM TaxStru WHERE Code = ?", (code,),
+                      cn=cn, commit=commit)
+
+
+def print_rows(cn=None) -> list[tuple]:
+    """VB6 print query (FrmTaxStruMast loc_1087EE7) - Crystal
+    TaxStructureMast.RPT/.ttx + formula param Title='Tax Structure
+    Master'. Koi structure filter NAHI (sab structures print), order
+    VB6 jaisa global Sno. Filter RevMast side se (join) hai - LogSite
+    bhi RevMast ka (legacy literal)."""
+    rows = db.query(
+        "SELECT TaxStru.Code, TaxStru.Name, TaxStru.Sno, TaxStru.TaxCode, "
+        "TaxStru.Rate, TaxStru.Nature, TaxStru.Limit, TaxStru.Limit1, "
+        "TaxStru.CompOperator, TaxStru.CondApp, TaxStru.TaxBeforeDisc, "
+        "RevMast.Name AS TaxName "
+        "FROM TaxStru "
+        "LEFT JOIN RevMast ON RevMast.Code = TaxStru.TaxCode "
+        "WHERE (RevMast.LogSite_Code = ? OR RevMast.LogSite_Code = 'HO') "
+        "AND RevMast.FieldType = 'T' "
+        "ORDER BY Sno",
+        (SITE_CODE,), cn=cn)
+    return [tuple(r) for r in rows]
 
 
 def get_tax_codes(cn=None) -> list[dict]:
@@ -282,10 +354,32 @@ def get_tax_codes(cn=None) -> list[dict]:
 
 
 def get_structures_summary(cn=None) -> list[dict]:
-    """Get unique tax structures (Code + Name) for dropdown/list."""
+    """Unique tax structures (Code + Name) - VB6 Search/edit picker scope
+    (Search loc_EC8611: distinct Code,Name FROM TaxStru WHERE LOGSITE...)."""
     rows = db.query(
-        "SELECT DISTINCT Code, Name FROM TaxStru ORDER BY Code", cn=cn)
+        f"SELECT DISTINCT Code, Name FROM TaxStru WHERE {SITE_FILTER} "
+        "ORDER BY Code",
+        (SITE_CODE,), cn=cn)
     return [{"code": r[0], "name": (r[1] or "").strip()} for r in rows]
+
+
+def require_unique_name(name: str, exclude_name: str | None = None,
+                        cn=None) -> None:
+    """VB6 duplicate-header check (FrmTaxStruMast Proc_19_51 loc_1095526):
+
+      Select Count(*) From TaxStru Where (LOGSITE_CODE='<site>' or 'HO')
+      and Name='...' [And Name <>'<old name during edit>']
+
+    Message bhi legacy jaisa: 'Duplicate Name'.
+    """
+    sql = f"SELECT COUNT(*) FROM TaxStru WHERE {SITE_FILTER} AND Name = ?"
+    params = [SITE_CODE, name]
+    if exclude_name is not None:
+        sql += " AND Name <> ?"
+        params.append(exclude_name)
+    rows = db.query(sql, tuple(params), cn=cn)
+    if rows and int(rows[0][0]) > 0:
+        raise ValueError("Duplicate Name")
 
 
 # ============================================================

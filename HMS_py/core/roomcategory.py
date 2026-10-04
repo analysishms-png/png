@@ -94,6 +94,14 @@ def update(code: str, rec: dict, cn=None, commit: bool = True) -> int:
 
 def delete(code: str, cn=None, commit: bool = True,
            type: str = DEFAULT_TYPE) -> int:
+    """BUG-008 FIX: VB6 FrmRoomCatMast checks RoomMast before delete.
+    A category in use by rooms cannot be deleted.
+    """
+    rows = db.query(
+        "SELECT COUNT(*) FROM RoomMast WHERE RoomCat = ?", (code,), cn=cn)
+    if rows and int(rows[0][0]) > 0:
+        raise ValueError(
+            "Related Record Exist in RoomMast, Entry Can't Be Deleted")
     return db.execute(
         "DELETE FROM RoomCat WHERE Code = ? AND Type = ?", (code, type),
         cn=cn, commit=commit)

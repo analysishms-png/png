@@ -1,0 +1,234 @@
+{
+ "g05_00_Party_Master": {
+  "group": "Inventory",
+  "leaf": "Party Master",
+  "captured": true,
+  "err": null,
+  "info": {
+   "class": "PartyMasterWindow",
+   "title": "Party Master (Suppliers)",
+   "tables": [
+    {
+     "rows": 758,
+     "cols": 8,
+     "hdr": [
+      "SubCode",
+      "Name",
+      "Under Group",
+      "City",
+      "Phone",
+      "Mobile",
+      "GSTIN",
+      "Active"
+     ],
+     "first_row": [
+      "KK001550",
+      "(Amit Ballone Decoration)",
+      "SUNDRY CREDITORS",
+      "",
+      "",
+      "",
+      "",
+      "Yes"
+     ],
+     "objectName": ""
+    }
+   ],
+   "lists": [],
+   "buttons": [
+    {
+     "text": "Add",
+     "enabled": true
+    },
+    {
+     "text": "Edit",
+     "enabled": true
+    },
+    {
+     "text": "Delete",
+     "enabled": true
+    },
+    {
+     "text": "Exit",
+     "enabled": true
+    }
+   ],
+   "edits": [
+    {
+     "name": "",
+     "text": ""
+    }
+   ],
+   "texts": []
+  }
+ },
+ "g05_01_Department": {
+  "group": "Inventory",
+  "leaf": "Department",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g05_02_Item_Group": {
+  "group": "Inventory",
+  "leaf": "Item Group",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g05_03_Item_Category": {
+  "group": "Inventory",
+  "leaf": "Item Category",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g05_04_Item_Entry": {
+  "group": "Inventory",
+  "leaf": "Item Entry",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g05_05_Purchase_Sundry_Setting": {
+  "group": "Inventory",
+  "leaf": "Purchase Sundry Setting",
+  "captured": true,
+  "err": null,
+  "info": {
+   "class": "DepartSundryWindow",
+   "title": "Outlet Bill Sundry Setting",
+   "tables": [
+    {
+     "rows": 21,
+     "cols": 12,
+     "hdr": [
+      "V_Type",
+      "AppDate",
+      "Code",
+      "Sundry",
+      "SNo",
+      "DispName",
+      "Formula",
+      "P/A",
+      "Rev",
+      "Sign",
+      "Sys",
+      "Post"
+     ],
+     "first_row": [
+      "KKPURC",
+      "01/04/2018",
+      "KKTOT",
+      "AMOUNT",
+      "1",
+      "Total",
+      "",
+      "A",
+      "",
+      "+",
+      "Y",
+      "Yes"
+     ],
+     "objectName": ""
+    }
+   ],
+   "lists": [],
+   "buttons": [
+    {
+     "text": "Add",
+     "enabled": true
+    },
+    {
+     "text": "Refresh",
+     "enabled": true
+    },
+    {
+     "text": "Exit",
+     "enabled": true
+    }
+   ],
+   "edits": [
+    {
+     "name": "",
+     "text": ""
+    }
+   ],
+   "texts": []
+  }
+ },
+ "g05_06_Opening_Stock": {
+  "group": "Inventory",
+  "leaf": "Opening Stock",
+  "captured": true,
+  "err": null,
+  "info": {
+   "class": "OpeningStockWindow",
+   "title": "Opening Stock Entry - HMS_py",
+   "tables": [
+    {
+     "rows": 0,
+     "cols": 6,
+     "hdr": [
+      "Code",
+      "Item Name",
+      "Unit",
+      "Opening Qty",
+      "Rate",
+      "Amount"
+     ],
+     "first_row": [],
+     "objectName": ""
+    }
+   ],
+   "lists": [],
+   "buttons": [
+    {
+     "text": "Save Opening Stock",
+     "enabled": true
+    },
+    {
+     "text": "Exit",
+     "enabled": true
+    }
+   ],
+   "edits": [],
+   "texts": []
+  }
+ },
+ "g05_07_Item_List": {
+  "group": "Inventory",
+  "leaf": "Item  List",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g05_08_Enviro_Inventry": {
+  "group": "Inventory",
+  "leaf": "Enviro Inventry",
+  "captured": true,
+  "err": null,
+  "info": {
+   "class": "PurchaseEnviroForm",
+   "title": "Purchase Parameter - Enviro Inventry - HMS_py",
+   "tables": [],
+   "lists": [],
+   "buttons": [
+    {
+     "text": "Save && Exit",
+     "enabled": true
+    },
+    {
+     "text": "Cancel && Exit",
+     "enabled": true
+    },
+    {
+     "text": "Reload",
+     "enabled": true
+    }
+   ],
+   "edits": [],
+   "texts": []
+  }
+ }
+}

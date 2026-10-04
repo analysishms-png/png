@@ -83,46 +83,6 @@ def check_room_conflict(roomno: str, arr_date, dep_date,
     return conflicts
 
 
-def insert(rec: dict, cn=None, commit: bool = True, site: str = SITE_CODE,
-           user: str = USER) -> dict:
-    _validate(rec)
-    # VB6 duplicate-check rule: same room + overlapping dates = conflict.
-    # RoomNo + dates diye gaye hain to conflict pe insert block karo
-    # (check_conflict=False se caller opt-out kar sakta hai).
-    if rec.get("check_conflict", True) and rec.get("roomno") and \
-            rec.get("arrdate") and rec.get("depdate"):
-        conflicts = check_room_conflict(
-            rec["roomno"], rec["arrdate"], rec["depdate"], site=site, cn=cn)
-        if conflicts:
-            c = conflicts[0]
-            src = (f"Booking #{c['bookno']} ({c['guestname']})"
-                   if c["source"] == "booking"
-                   else f"In-house folio {c['docid']}")
-            raise ValueError(
-                f"Room {rec['roomno']} pe {src} ka conflict hai "
-                f"({c['arr']} -> {c['dep']}) — dusra room ya date chunein")
-    from datetime import date
-    from HMS_py.core.reservation import next_bookno, make_docid, VTYPE, VPREFIX
-    bookno = next_bookno(cn=cn, site=site)
-    docid = make_docid(site, VPREFIX, bookno, vtype=VTYPE)
-    db.execute(
-        "INSERT INTO Booking (DocId, Vtype, BookNo, Site_Code, Vprefix, "
-        "VDate, GuestName, ArrDate, DepDate, NoDays, Adult, Child, "
-        "NoofRooms, RoomRate, Remarks, Cancel, U_Name, U_EntDt, U_AE, "
-        "LogSite_Code, MobNo, Email, GuestProf, ResStatus) "
-        "VALUES (?, ?, ?, ?, ?, getdate(), ?, ?, ?, ?, ?, ?, ?, ?, ?, 'N', "
-        "?, getdate(), 'A', ?, ?, ?, ?, 'Confirm')",
-        (docid, VTYPE, bookno, site, VPREFIX,
-         rec.get("guestname", ""), rec.get("arrdate"), rec.get("depdate"),
-         rec.get("nodays", 1), rec.get("adult", 1), rec.get("child", 0),
-         rec.get("noofrooms", 1), rec.get("roomrate", 0.0),
-         rec.get("remarks", "."), user, site,
-         rec.get("mobno", ""), rec.get("email", ""),
-         rec.get("guestprof", "")),
-        cn=cn, commit=commit)
-    return get(bookno, site=site, cn=cn)
-
-
 def list_all(cn=None, limit=500) -> list[dict]:
     rows = db.query(
         f"SELECT TOP {int(limit)} DocId, BookNo, Vtype, Vprefix, VDate, GuestName, "
@@ -179,22 +139,46 @@ def insert(rec: dict, cn=None, commit: bool = True, site: str = SITE_CODE,
     from HMS_py.core.reservation import next_bookno, make_docid, VTYPE, VPREFIX
     bookno = next_bookno(cn=cn, site=site)
     docid = make_docid(site, VPREFIX, bookno, vtype=VTYPE)
-    db.execute(
-        "INSERT INTO Booking (DocId, Vtype, BookNo, Site_Code, Vprefix, "
-        "VDate, GuestName, ArrDate, DepDate, NoDays, Adult, Child, "
-        "NoofRooms, RoomRate, Remarks, Cancel, U_Name, U_EntDt, U_AE, "
-        "LogSite_Code, MobNo, Email, GuestProf, ResStatus) "
-        "VALUES (?, ?, ?, ?, ?, getdate(), ?, ?, ?, ?, ?, ?, ?, ?, ?, 'N', "
-        "?, getdate(), 'A', ?, ?, ?, ?, 'Confirm')",
-        (docid, VTYPE, bookno, site, VPREFIX,
-         rec.get("guestname", ""), rec.get("arrdate"), rec.get("depdate"),
-         rec.get("nodays", 1), rec.get("adult", 1), rec.get("child", 0),
-         rec.get("noofrooms", 1), rec.get("roomrate", 0.0),
-         rec.get("remarks", "."), user, site,
-         rec.get("mobno", ""), rec.get("email", ""),
-         rec.get("guestprof", "")),
-        cn=cn, commit=commit)
-    return get(bookno, site=site, cn=cn)
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        db.execute(
+            "INSERT INTO Booking (DocId, Vtype, BookNo, Site_Code, Vprefix, "
+            "VDate, GuestName, ArrDate, DepDate, NoDays, Adult, Child, "
+            "NoofRooms, RoomRate, Remarks, Cancel, U_Name, U_EntDt, U_AE, "
+            "LogSite_Code, MobNo, Email, GuestProf, ResStatus) "
+            "VALUES (?, ?, ?, ?, ?, getdate(), ?, ?, ?, ?, ?, ?, ?, ?, ?, 'N', "
+            "?, getdate(), 'A', ?, ?, ?, ?, 'Confirm')",
+            (docid, VTYPE, bookno, site, VPREFIX,
+             rec.get("guestname", ""), rec.get("arrdate"), rec.get("depdate"),
+             rec.get("nodays", 1), rec.get("adult", 1), rec.get("child", 0),
+             rec.get("noofrooms", 1), rec.get("roomrate", 0.0),
+             rec.get("remarks", "."), user, site,
+             rec.get("mobno", ""), rec.get("email", ""),
+             rec.get("guestprof", "")),
+            cn=cn, commit=False)
+        # VB6: har booking par NoofRooms GrpBookingDetails rows — live
+        # evidence 19/19 bookings (count == NoofRooms, singles included);
+        # fdCheckIn arrivals anti-join is table par depend karta hai.
+        nrooms = max(1, int(rec.get("noofrooms") or 1))
+        details = [{
+            "adult": rec.get("adult", 1), "child": rec.get("child", 0),
+            "tarrif": rec.get("roomrate", 0.0),
+            "arrdate": rec.get("arrdate"),
+            "arrtime": rec.get("arrtime", "10:00"),
+            "nodays": rec.get("nodays", 1), "depdate": rec.get("depdate"),
+            "roomno": rec.get("roomno", ""),
+            "ratecode": rec.get("ratecode", ""),
+            "roomcat": rec.get("roomcat", ""),
+        }] * nrooms
+        insert_group_booking(docid, details, user=user, cn=cn,
+                             commit=False, site=site)
+        if commit:
+            cn.commit()
+        return get(bookno, site=site, cn=cn)
+    finally:
+        if own:
+            cn.close()
 
 
 def update(bookno: int, rec: dict, cn=None, commit: bool = True,
@@ -233,6 +217,57 @@ def cancel(bookno: int, user: str = USER, cn=None,
     BookingCancelDetails INSERT and BookingLog audit)."""
     from HMS_py.core.reservation import cancel as _res_cancel
     return _res_cancel(bookno, user=user, cn=cn, commit=commit, site=site)
+
+
+def list_arrivals(business_date=None, site: str = SITE_CODE, cn=None,
+                  name_like: str = "", top: int = 200) -> list[dict]:
+    """VB6 fdCheckIn.frm Form_Load 'Look Up Reservation By Guest Name' —
+    pending arrivals (abhi tak check-in nahi hue).
+
+    VB6 SQL (fdCheckIn.frm:234-236): Booking + GuestProf.Name join,
+    B.CANCEL='N' + LogSite match, phir per-SNO anti-join —
+    GrpBookingDetails EXISTS (Cancel<>'Y') with NOT EXISTS GuestFolio
+    (BookingDocId+BookingSno match); ORDER BY GuestProf.Name.
+
+    Date filter: VB6 Form_Load ka date-param decompile me opaque hai
+    (Proc_6_7_F25D88 sirf SQL-literal format karta hai). Python uses
+    ArrDate <= business_date = same-day arrivals + overdue superset
+    (live evidence: 1 overdue un-checked-in booking exact-equality me
+    invisible reh jaati; VB6 side early-arrival warn bhi isle rakha).
+    NOT EXISTS me OR F.BookingSno IS NULL = legacy Python check-ins jinme
+    BookingSno NULL tha unke booking kabhi list me atke na — deviation
+    documented (live VB6 data me sno hamesha bhara hai).
+    """
+    import datetime as _dt
+    bdate = business_date or _dt.date.today()
+    if hasattr(bdate, "date"):
+        bdate = bdate.date()
+    sql = (
+        "SELECT TOP {top} B.DocId, B.BookNo, GP.Name, B.GuestProf, "
+        "B.ArrDate, B.DepDate, B.NoDays, B.NoofRooms, B.RoomCat, "
+        "B.RoomType, B.RoomNo, B.RoomRate "
+        "FROM Booking B INNER JOIN GuestProf GP ON B.GuestProf = GP.Code "
+        "WHERE B.Cancel = 'N' AND B.Site_Code = ? AND B.ArrDate <= ? "
+        "AND EXISTS (SELECT 1 FROM GrpBookingDetails G "
+        "WHERE G.BookingDocid = B.DocId "
+        "AND ISNULL(G.Cancel, '') <> 'Y' "
+        "AND NOT EXISTS (SELECT 1 FROM GuestFolio F "
+        "WHERE F.BookingDocId = G.BookingDocid "
+        "AND (F.BookingSno = G.Sno OR F.BookingSno IS NULL)))")
+    params = [site, bdate]
+    if name_like:
+        sql += " AND GP.Name LIKE ?"
+        params.append(f"%{name_like}%")
+    sql += " ORDER BY GP.Name"
+    rows = db.query(sql.format(top=int(top)), tuple(params), cn=cn)
+    return [{
+        "docid": r[0] or "", "bookno": r[1] or 0,
+        "name": (r[2] or "").strip(), "guestprof": r[3] or "",
+        "arrdate": r[4], "depdate": r[5], "nodays": r[6] or 0,
+        "noofrooms": r[7] or 0, "roomcat": r[8] or "",
+        "roomtype": r[9] or "", "roomno": r[10] or "",
+        "roomrate": r[11] or 0.0,
+    } for r in rows]
 
 
 # ── BookingMore CRUD ──
@@ -413,28 +448,41 @@ class BookingAPI:
 def insert_group_booking(booking_docid: str, room_details: list[dict],
                          user: str = USER, cn=None, commit: bool = True,
                          site: str = SITE_CODE) -> int:
-    """VB6 FRONT_OFFICE_LIFECYCLE.md §1: Group bookings — GrpBookingDetails.
-    
-    VB6: 43 references to GrpBookingDetails table in decompiled code.
-    Each group booking has multiple room details.
-    
-    room_details = [{"roomno": "101", "guestname": "...", "adult": 2, ...}, ...]
+    """GrpBookingDetails per-room rows.
+
+    VB6: is table par har booking ke NoofRooms rows jaate hain (live
+    evidence: 19/19 bookings, count == NoofRooms — singles included);
+    fdCheckIn 'Look Up Reservation By Guest Name' is table ka anti-join
+    use karta hai. Columns live schema se verified (BookingDocid — DOCID
+    nahi; Adults/Childs — ADULT/CHILD nahi).
+
+    room_details = [{"adult": 2, "child": 0, "tarrif": 3000.0,
+                     "arrdate": date, "arrtime": "10:00", "nodays": 1,
+                     "depdate": date, "roomno": "", "ratecode": "",
+                     "roomcat": "", "roomdet": 1}, ...]
     Returns: number of GrpBookingDetails rows inserted.
     """
     if not room_details:
-        raise ValueError("Group booking ke liye kam se kam 1 room detail chahiye")
+        raise ValueError("Booking detail ke liye kam se kam 1 room chahiye")
     own = cn is None
     cn = cn or db.connect()
     try:
         n = 0
         for i, rd in enumerate(room_details, 1):
             db.execute(
-                "INSERT INTO GrpBookingDetails (DocId, Sno, RoomNo, GuestName, "
-                "Adult, Child, Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, getdate(), 'A', ?)",
-                (booking_docid, i, rd.get("roomno", ""),
-                 rd.get("guestname", ""), rd.get("adult", 1),
-                 rd.get("child", 0), site, user, site),
+                "INSERT INTO GrpBookingDetails (BookingDocid, Sno, RoomDet, "
+                "Adults, Childs, Tarrif, RateCode, RoomNo, RoomCat, "
+                "ArrDate, ArrTime, NoDays, DepDate, Cancel, Remarks, "
+                "Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'N', '.', "
+                "?, ?, getdate(), 'A', ?)",
+                (booking_docid, i, rd.get("roomdet", 1),
+                 rd.get("adult", 1), rd.get("child", 0),
+                 rd.get("tarrif", 0.0), rd.get("ratecode", ""),
+                 rd.get("roomno", ""), rd.get("roomcat", ""),
+                 rd.get("arrdate"), rd.get("arrtime", "10:00"),
+                 rd.get("nodays", 1), rd.get("depdate"),
+                 site, user, site),
                 cn=cn, commit=False)
             n += 1
         if commit:

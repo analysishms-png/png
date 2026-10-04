@@ -1,0 +1,275 @@
+{
+ "g01_00_Market_Segment": {
+  "group": "Front Office",
+  "leaf": "Market Segment",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g01_01_Business_Source": {
+  "group": "Front Office",
+  "leaf": "Business Source",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g01_02_Guest_Status": {
+  "group": "Front Office",
+  "leaf": "Guest Status",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g01_03_Charge_Master": {
+  "group": "Front Office",
+  "leaf": "Charge Master",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g01_04_Fixed_Charge": {
+  "group": "Front Office",
+  "leaf": "Fixed Charge",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g01_05_Plan_Master": {
+  "group": "Front Office",
+  "leaf": "Plan Master",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g01_06_Room_Features": {
+  "group": "Front Office",
+  "leaf": "Room Features",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g01_07_Room_Category": {
+  "group": "Front Office",
+  "leaf": "Room Category",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g01_08_Room_Master": {
+  "group": "Front Office",
+  "leaf": "Room Master",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g01_09_Company_Master": {
+  "group": "Front Office",
+  "leaf": "Company Master",
+  "captured": true,
+  "err": null,
+  "info": {
+   "class": "CompMastForm",
+   "title": "Company Master - HMS_py (VB6 CompMast)",
+   "tables": [
+    {
+     "rows": 0,
+     "cols": 6,
+     "hdr": [
+      "S.No",
+      "Ref. Date",
+      "Narration",
+      "Amount",
+      "Cr/Dr",
+      "Voucher No"
+     ],
+     "first_row": [],
+     "objectName": ""
+    }
+   ],
+   "lists": [],
+   "buttons": [
+    {
+     "text": "  Search A/C ...  ",
+     "enabled": true
+    },
+    {
+     "text": "  New Company  ",
+     "enabled": true
+    },
+    {
+     "text": "...",
+     "enabled": false
+    },
+    {
+     "text": "...",
+     "enabled": false
+    },
+    {
+     "text": "...",
+     "enabled": false
+    },
+    {
+     "text": "...",
+     "enabled": false
+    },
+    {
+     "text": "  Add  ",
+     "enabled": true
+    },
+    {
+     "text": "  Edit  ",
+     "enabled": false
+    },
+    {
+     "text": "  Delete  ",
+     "enabled": false
+    },
+    {
+     "text": "  Save  ",
+     "enabled": false
+    },
+    {
+     "text": "  Cancel  ",
+     "enabled": false
+    },
+    {
+     "text": "  Close  ",
+     "enabled": true
+    }
+   ],
+   "edits": [
+    {
+     "name": "qt_spinbox_lineedit",
+     "text": ""
+    },
+    {
+     "name": "qt_spinbox_lineedit",
+     "text": "0.00"
+    },
+    {
+     "name": "qt_spinbox_lineedit",
+     "text": "0.00"
+    },
+    {
+     "name": "qt_spinbox_lineedit",
+     "text": "0.00"
+    },
+    {
+     "name": "qt_spinbox_lineedit",
+     "text": "0.00"
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    }
+   ],
+   "texts": []
+  }
+ },
+ "g01_10_Guest_History": {
+  "group": "Front Office",
+  "leaf": "Guest History",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g01_11_Room_Display": {
+  "group": "Front Office",
+  "leaf": "Room Display",
+  "captured": true,
+  "err": null,
+  "info": {}
+ }
+}

@@ -13,6 +13,9 @@ PyQt6==6.7.1
 # SQL Server ODBC connectivity
 pyodbc==5.1.0
 
+# Image validation for desktop capture / QA pipeline
+Pillow==10.4.0
+
 # Serial port communication (Godrej door locks)
 pyserial==3.5
 

@@ -1,0 +1,111 @@
+{
+ "g10_00_Smart_Card": {
+  "group": "Smart Card",
+  "leaf": "Smart Card",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g10_01_Registration_Entry": {
+  "group": "Smart Card",
+  "leaf": "Registration Entry",
+  "captured": true,
+  "err": null,
+  "info": {
+   "class": "RegistrationEntryWindow",
+   "title": "Registration Entry",
+   "tables": [
+    {
+     "rows": 100,
+     "cols": 8,
+     "hdr": [
+      "Folio",
+      "VDate",
+      "Name",
+      "GuestProf",
+      "City",
+      "Days",
+      "DepDate",
+      "Status"
+     ],
+     "first_row": [
+      "463",
+      "2026-05-31",
+      "SUMIT TOMAR",
+      "KK007216",
+      "KK0461",
+      "1",
+      "2026-06-01",
+      "A"
+     ],
+     "objectName": ""
+    }
+   ],
+   "lists": [],
+   "buttons": [
+    {
+     "text": "Save Registration",
+     "enabled": true
+    },
+    {
+     "text": "Exit",
+     "enabled": true
+    }
+   ],
+   "edits": [
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": "KK0002"
+    },
+    {
+     "name": "qt_spinbox_lineedit",
+     "text": "03/Oct/2026"
+    },
+    {
+     "name": "qt_spinbox_lineedit",
+     "text": "04/Oct/2026"
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": "1"
+    },
+    {
+     "name": "",
+     "text": "0"
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": "07:48"
+    }
+   ],
+   "texts": []
+  }
+ },
+ "g10_02_Recharge_Refund_Entry": {
+  "group": "Smart Card",
+  "leaf": "Recharge/Refund Entry",
+  "captured": true,
+  "err": null,
+  "info": {}
+ }
+}

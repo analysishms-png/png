@@ -4,7 +4,7 @@ import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QTableWidget, QTableWidgetItem, QPushButton, QLineEdit, QLabel,
-    QMessageBox, QGroupBox, QFormLayout, QDateEdit, QHeaderView)
+    QMessageBox, QGroupBox, QFormLayout, QDateEdit, QHeaderView, QDialog)
 from PyQt6.QtCore import Qt, QDate
 from PyQt6.QtGui import QColor, QFont
 from core import db

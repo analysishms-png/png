@@ -537,7 +537,12 @@ def re_settlement(docid: str, lines: list[dict], user: str = USER,
 # Folio charge summary (merge/preview ke liye)
 # ------------------------------------------------------------
 def folio_charge_total(docid: str, site: str = SITE_CODE, cn=None) -> float:
+    """FO-BUG-003/010 FIX: column was 'DrAmt' (does not exist).
+    Correct column is 'AmtDr' (live PayCharge schema verified).
+    VB6 FdCheckOut balance check: Select Sum(AmtDr)-Sum(AmtCr) as Bal
+    from PayCharge where LogSite_Code=... and FolioNoDocid='...'"""
     rows = db.query(
-        "SELECT SUM(DrAmt) FROM PayCharge WHERE FolioNoDocid = ? "
-        "AND Site_Code = ?", (docid, site), cn=cn)
+        "SELECT ISNULL(SUM(AmtDr), 0) FROM PayCharge "
+        "WHERE FolioNoDocid = ? AND Site_Code = ?",
+        (docid, site), cn=cn)
     return float(rows[0][0] or 0) if rows and rows[0] else 0.0

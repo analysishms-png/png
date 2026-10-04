@@ -3,5 +3,5 @@
   "password": "",
   "sql_username": "sa",
   "sql_auth_method": "Windows Auth",
-  "note": "VB6 application password - NOT stored; set env HMS_APP_PASSWORD (was masked 2026-09-30)"
+  "note": "VB6 application password (env only, never stored), not SQL Server password"
 }

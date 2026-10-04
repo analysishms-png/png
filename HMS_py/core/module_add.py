@@ -44,7 +44,7 @@ def proc_165_0_14cc_ec0(
 ) -> int:
     """
     VB6 Proc_165_0_14CCEC0 migrated to Python.
-    
+
     Original VB6 logic:
     - Takes 9 arguments handling UserModule and MenuHelp database operations
     - Based on arg_28 flag, executes different SELECT queries
@@ -67,8 +67,7 @@ def proc_165_0_14cc_ec0(
             # Path: arg_28 = 0
             # Execute: "Select * from UserModule where OutletCode='" & arg_2C & "' and [OPtion]="
             query = (
-                f"SELECT * FROM UserModule "
-                f"WHERE OutletCode = ? AND {option_col} = ''"
+                f"SELECT * FROM UserModule WHERE OutletCode = ? AND {option_col} = ''"
             )
             cursor = connection.execute(query, (arg_2C,))
             var_A0 = cursor.fetchall()
@@ -244,7 +243,7 @@ def migrate_user_module(
 ) -> int:
     """
     Helper function to migrate UserModule operations from VB6.
-    
+
     Original VB6 inserts into UserModule table with various OPT1-OPT4 flags.
     """
     try:
@@ -279,7 +278,7 @@ def migrate_menu_help(
 ) -> int:
     """
     Helper function to migrate MenuHelp operations from VB6.
-    
+
     Original VB6 inserts into MenuHelp table with various fields.
     """
     try:
@@ -299,7 +298,7 @@ def migrate_menu_help(
 # Proc_165_1_1EF78BC - VB6 to Python migration
 # Original VB6: Menu processing procedure that handles different module
 # setups based on character codes in MemVar_1F92228 string.
-# 
+#
 # Maps VB6 characters to module types and calls Proc_165_0_14CCEC0
 # for various database operations.
 # ============================================================================
@@ -311,7 +310,7 @@ def proc_165_1_1ef78bc(
 ) -> int:
     """
     VB6 Proc_165_1_1EF78BC migrated to Python.
-    
+
     Original VB6 logic:
     - Takes MemVar_1F92228 string parameter (menu/option codes)
     - First character (uppercase) maps to MemVar_1F92224 value:
@@ -361,7 +360,9 @@ def proc_165_1_1ef78bc(
             # Get the character at position var_8A
             # Mid(MemVar_1F92228, CLng(var_8A), var_BC) with var_BC = 1
             if var_8a <= len(mem_var_1f92228):
-                char_at_pos = mem_var_1f92228[var_8a - 1:var_8a]  # 1-indexed to 0-indexed
+                char_at_pos = mem_var_1f92228[
+                    var_8a - 1 : var_8a
+                ]  # 1-indexed to 0-indexed
 
                 # If CBool(InStr(1, var_100, Mid(...), 0) <> 0) Then GoTo loc_1EEACF1
                 # InStr checks if char is in var_100 string
@@ -370,9 +371,10 @@ def proc_165_1_1ef78bc(
                     # loc_1EEACF1: ' Referenced from: 1EEACE5
 
                     # Delete From MenuHelp Where CompCode='" & MemVar_1F92128 & "' And UserName='SA'
-                    # In our migration, we'll use default values or parameters
+                    # VB6 CompCode comes from global MemVar_1F92128 (not in this
+                    # port's scope) - keep the same literals the sibling INSERTs use.
                     try:
-                        conn.execute(
+                        connection.execute(
                             "DELETE FROM MenuHelp WHERE CompCode = 'MEM' AND UserName = 'SA'"
                         )
                     except Exception:
@@ -380,7 +382,7 @@ def proc_165_1_1ef78bc(
 
                     # Delete From UserModule
                     try:
-                        conn.execute("DELETE FROM UserModule")
+                        connection.execute("DELETE FROM UserModule")
                     except Exception:
                         pass
 
@@ -401,7 +403,11 @@ def proc_165_1_1ef78bc(
                             # Args: arg_C="Financial Setup", arg_10=&HB (11), arg_14=4, arg_18="", arg_1C="", arg_20="", arg_24="", arg_28=0, arg_2C=?
                             # In original: arg_28=0 (first path), arg_14=4 (V or N flag)
                             # We need an outlet code - using a default or from context
-                            outlet_code = mem_var_1f92228[2:] if len(mem_var_1f92228) > 2 else "DEFAULT"
+                            outlet_code = (
+                                mem_var_1f92228[2:]
+                                if len(mem_var_1f92228) > 2
+                                else "DEFAULT"
+                            )
                             result = proc_165_0_14cc_ec0(
                                 arg_C="Financial Setup",
                                 arg_10=0x0B,  # &HB = 11
@@ -421,7 +427,11 @@ def proc_165_1_1ef78bc(
                     if len(mem_var_1f92228) >= 2 and mem_var_1f92228[1] == "L":
                         # Front Office Setup
                         try:
-                            outlet_code = mem_var_1f92228[2:] if len(mem_var_1f92228) > 2 else "DEFAULT"
+                            outlet_code = (
+                                mem_var_1f92228[2:]
+                                if len(mem_var_1f92228) > 2
+                                else "DEFAULT"
+                            )
                             result = proc_165_0_14cc_ec0(
                                 arg_C="Front Office Setup",
                                 arg_10=0x0C,  # &HC = 12
@@ -435,13 +445,19 @@ def proc_165_1_1ef78bc(
                                 connection=connection,
                             )
                         except Exception as e:
-                            log_error(e, context="proc_165_1_1ef78bc Front Office Setup")
+                            log_error(
+                                e, context="proc_165_1_1ef78bc Front Office Setup"
+                            )
 
                     # Check for "!" at position 2 (POS Setup)
                     if len(mem_var_1f92228) >= 2 and mem_var_1f92228[1] == "!":
                         # Point of Sale Setup
                         try:
-                            outlet_code = mem_var_1f92228[2:] if len(mem_var_1f92228) > 2 else "DEFAULT"
+                            outlet_code = (
+                                mem_var_1f92228[2:]
+                                if len(mem_var_1f92228) > 2
+                                else "DEFAULT"
+                            )
                             result = proc_165_0_14cc_ec0(
                                 arg_C="Point of Sale Setup",
                                 arg_10=0x0E,  # &HE = 14
@@ -455,13 +471,19 @@ def proc_165_1_1ef78bc(
                                 connection=connection,
                             )
                         except Exception as e:
-                            log_error(e, context="proc_165_1_1ef78bc Point of Sale Setup")
+                            log_error(
+                                e, context="proc_165_1_1ef78bc Point of Sale Setup"
+                            )
 
                     # Check for "Q" at position 2 (Indoor Catering / Banquet)
                     if len(mem_var_1f92228) >= 2 and mem_var_1f92228[1] == "Q":
                         # Indoor Catering
                         try:
-                            outlet_code = mem_var_1f92228[2:] if len(mem_var_1f92228) > 2 else "DEFAULT"
+                            outlet_code = (
+                                mem_var_1f92228[2:]
+                                if len(mem_var_1f92228) > 2
+                                else "DEFAULT"
+                            )
                             result = proc_165_0_14cc_ec0(
                                 arg_C="Indoor Catering",
                                 arg_10=0x14,  # &H14 = 20
@@ -481,7 +503,11 @@ def proc_165_1_1ef78bc(
                     if len(mem_var_1f92228) >= 2 and mem_var_1f92228[1] == "G":
                         # Members Mgmt Setup
                         try:
-                            outlet_code = mem_var_1f92228[2:] if len(mem_var_1f92228) > 2 else "DEFAULT"
+                            outlet_code = (
+                                mem_var_1f92228[2:]
+                                if len(mem_var_1f92228) > 2
+                                else "DEFAULT"
+                            )
                             result = proc_165_0_14cc_ec0(
                                 arg_C="Members Mgmt Setup",
                                 arg_10=0x19,  # &H19 = 25
@@ -495,13 +521,19 @@ def proc_165_1_1ef78bc(
                                 connection=connection,
                             )
                         except Exception as e:
-                            log_error(e, context="proc_165_1_1ef78bc Members Mgmt Setup")
+                            log_error(
+                                e, context="proc_165_1_1ef78bc Members Mgmt Setup"
+                            )
 
                     # Check for "J" at position 2 (Material Mgmt Setup)
                     if len(mem_var_1f92228) >= 2 and mem_var_1f92228[1] == "J":
                         # Material Mgmt Setup
                         try:
-                            outlet_code = mem_var_1f92228[2:] if len(mem_var_1f92228) > 2 else "DEFAULT"
+                            outlet_code = (
+                                mem_var_1f92228[2:]
+                                if len(mem_var_1f92228) > 2
+                                else "DEFAULT"
+                            )
                             result = proc_165_0_14cc_ec0(
                                 arg_C="Material Mgmt Setup",
                                 arg_10=0x1A,  # &H1A = 26
@@ -515,13 +547,19 @@ def proc_165_1_1ef78bc(
                                 connection=connection,
                             )
                         except Exception as e:
-                            log_error(e, context="proc_165_1_1ef78bc Material Mgmt Setup")
+                            log_error(
+                                e, context="proc_165_1_1ef78bc Material Mgmt Setup"
+                            )
 
                     # Check for "*" at position 2 (PayRoll Setup)
                     if len(mem_var_1f92228) >= 2 and mem_var_1f92228[1] == "*":
                         # PayRoll Setup
                         try:
-                            outlet_code = mem_var_1f92228[2:] if len(mem_var_1f92228) > 2 else "DEFAULT"
+                            outlet_code = (
+                                mem_var_1f92228[2:]
+                                if len(mem_var_1f92228) > 2
+                                else "DEFAULT"
+                            )
                             result = proc_165_0_14cc_ec0(
                                 arg_C="PayRoll Setup",
                                 arg_10=0x1B,  # &H1B = 27
@@ -541,7 +579,11 @@ def proc_165_1_1ef78bc(
                     if len(mem_var_1f92228) >= 2 and mem_var_1f92228[1] == "B":
                         # EPABX Setup
                         try:
-                            outlet_code = mem_var_1f92228[2:] if len(mem_var_1f92228) > 2 else "DEFAULT"
+                            outlet_code = (
+                                mem_var_1f92228[2:]
+                                if len(mem_var_1f92228) > 2
+                                else "DEFAULT"
+                            )
                             result = proc_165_0_14cc_ec0(
                                 arg_C="EPABX Setup",
                                 arg_10=0x1C,  # &H1C = 28

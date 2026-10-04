@@ -37,7 +37,7 @@ def _map(r) -> dict:
             "ratecode": r.RateCode or "",
             "roomrate": r.RoomRate or 0.0,
             "chkindate": r.ChkInDate,
-            "chkinime": r.ChkInTime or "",
+            "chkintime": r.ChkInTime or "",   # FO-BUG-004 FIX: was "chkinime" (typo)
             "adult": r.Adult or 0,
             "children": r.Children or 0,
             "depdate": r.DepDate,
@@ -125,7 +125,7 @@ def insert(rec: dict, cn=None, commit: bool = True,
          rec.get("guestprof", ""), rec.get("roomcat", ""),
          rec.get("roomtype", ""), rec.get("roomno", ""),
          rec.get("ratecode", ""), rec.get("roomrate", 0.0),
-         rec.get("chkindate"), rec.get("chkinime", "10:00"),
+         rec.get("chkindate"), rec.get("chkintime", "10:00"),  # FO-BUG-004 FIX: was chkinime
          rec.get("adult", 1), rec.get("children", 0),
          rec.get("depdate"), rec.get("deptime", "10:00"),
          user, site),

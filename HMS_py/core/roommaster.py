@@ -146,6 +146,30 @@ def update(code: str, rec: dict, cn=None, commit: bool = True) -> int:
 
 def delete(code: str, cn=None, commit: bool = True,
            type: str = DEFAULT_TYPE, restcode: str = "") -> int:
+    """BUG-007 FIX: VB6 FrmRoomMast checks RoomOcc before delete.
+    A room that has ever been occupied cannot be deleted — it would corrupt
+    historical folio data. Also check RoomBlockOut for future blocks.
+    VB6 MainLib Proc_6_108 pattern: if related rows exist, block delete.
+    """
+    # Dependency: RoomOcc (historical occupancy records)
+    rows = db.query(
+        "SELECT COUNT(*) FROM RoomOcc WHERE RoomNo = ?", (code,), cn=cn)
+    if rows and int(rows[0][0]) > 0:
+        raise ValueError(
+            "Related Record Exist in RoomOcc, Entry Can't Be Deleted")
+    # Dependency: RoomBlockOut (future blocks)
+    try:
+        rows = db.query(
+            "SELECT COUNT(*) FROM RoomBlockOut WHERE RoomNo = ?",
+            (code,), cn=cn)
+        if rows and int(rows[0][0]) > 0:
+            raise ValueError(
+                "Related Record Exist in RoomBlockOut, Entry Can't Be Deleted")
+    except Exception as e:
+        if "Can't Be Deleted" in str(e):
+            raise
+        # RoomBlockOut table may not exist in all instances
+        pass
     return db.execute(
         "DELETE FROM RoomMast WHERE Code = ? AND Type = ? AND RestCode = ?",
         (code, type, restcode), cn=cn, commit=commit)

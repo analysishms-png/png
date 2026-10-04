@@ -1,0 +1,562 @@
+{
+ "g07_00_Group_Accounts": {
+  "group": "Finance",
+  "leaf": "Group Accounts",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g07_01_Ledger_Accounts": {
+  "group": "Finance",
+  "leaf": "Ledger Accounts",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g07_02_Narration_Master": {
+  "group": "Finance",
+  "leaf": "Narration Master",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g07_03_T_D_S_Category": {
+  "group": "Finance",
+  "leaf": "T.D.S. Category",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g07_04_FA_Environment": {
+  "group": "Finance",
+  "leaf": "FA Environment",
+  "captured": true,
+  "err": null,
+  "info": {
+   "class": "FAEnviroDialog",
+   "title": "FA Environment Settings - HMS_py",
+   "tables": [],
+   "lists": [],
+   "buttons": [
+    {
+     "text": "&Save",
+     "enabled": true
+    },
+    {
+     "text": "&Cancel",
+     "enabled": true
+    },
+    {
+     "text": "E&xit",
+     "enabled": true
+    }
+   ],
+   "edits": [
+    {
+     "name": "",
+     "text": "Middle"
+    },
+    {
+     "name": "",
+     "text": "-"
+    },
+    {
+     "name": "",
+     "text": "0.0"
+    },
+    {
+     "name": "",
+     "text": "712047.41"
+    },
+    {
+     "name": "",
+     "text": "0.0"
+    },
+    {
+     "name": "",
+     "text": "0.0"
+    },
+    {
+     "name": "",
+     "text": "Dear Sirs,"
+    },
+    {
+     "name": "",
+     "text": "                 SUB : Outstanding Letter"
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": "We Wish to draw your immediate attention towards our bills.details of which"
+    },
+    {
+     "name": "",
+     "text": "are given below for your ready reference."
+    },
+    {
+     "name": "",
+     "text": "The payment of the bills have become late and as such, we request you to"
+    },
+    {
+     "name": "",
+     "text": "send payment of the same at earliest,preferably vide draft drawn at kanpur."
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": "                                                       For ABC & Company"
+    },
+    {
+     "name": "",
+     "text": "0"
+    },
+    {
+     "name": "",
+     "text": "1000.0"
+    },
+    {
+     "name": "",
+     "text": "5"
+    },
+    {
+     "name": "",
+     "text": "2000.0"
+    },
+    {
+     "name": "",
+     "text": "10"
+    },
+    {
+     "name": "",
+     "text": "3000.0"
+    },
+    {
+     "name": "",
+     "text": "25"
+    },
+    {
+     "name": "",
+     "text": "4000.0"
+    },
+    {
+     "name": "",
+     "text": "60"
+    },
+    {
+     "name": "",
+     "text": "5000.0"
+    },
+    {
+     "name": "",
+     "text": "90"
+    },
+    {
+     "name": "",
+     "text": "6000.0"
+    }
+   ],
+   "texts": []
+  }
+ },
+ "g07_05_Voucher_Environment": {
+  "group": "Finance",
+  "leaf": "Voucher Environment",
+  "captured": true,
+  "err": null,
+  "info": {
+   "class": "VoucherEnvironmentDialog",
+   "title": "Voucher Environment",
+   "tables": [
+    {
+     "rows": 0,
+     "cols": 4,
+     "hdr": [
+      "Group Code",
+      "Dr",
+      "Cr",
+      "Site"
+     ],
+     "first_row": [],
+     "objectName": ""
+    },
+    {
+     "rows": 0,
+     "cols": 4,
+     "hdr": [
+      "Group Code",
+      "Dr",
+      "Cr",
+      "Site"
+     ],
+     "first_row": [],
+     "objectName": ""
+    },
+    {
+     "rows": 1,
+     "cols": 5,
+     "hdr": [
+      "Date From",
+      "Date To",
+      "Prefix",
+      "Start Srl No",
+      "Site"
+     ],
+     "first_row": [
+      "2026-04-01 00:00:00",
+      "2027-03-31 00:00:00",
+      "2026",
+      "0",
+      "KK"
+     ],
+     "objectName": ""
+    },
+    {
+     "rows": 79,
+     "cols": 4,
+     "hdr": [
+      "Category",
+      "NCat",
+      "Site",
+      "LogSite"
+     ],
+     "first_row": [
+      "AD",
+      "PC",
+      "HO",
+      "HO"
+     ],
+     "objectName": ""
+    },
+    {
+     "rows": 171,
+     "cols": 8,
+     "hdr": [
+      "V_Type",
+      "Category",
+      "NCat",
+      "Description",
+      "Method",
+      "Start No",
+      "Short Name",
+      "LogSite"
+     ],
+     "first_row": [
+      "PCH",
+      "AD",
+      "PC",
+      "Pay Charge",
+      "Automatic",
+      "1",
+      "PC",
+      "KK"
+     ],
+     "objectName": ""
+    }
+   ],
+   "lists": [],
+   "buttons": [
+    {
+     "text": "Refresh",
+     "enabled": true
+    },
+    {
+     "text": "Close",
+     "enabled": true
+    }
+   ],
+   "edits": [],
+   "texts": []
+  }
+ },
+ "g07_06_Year_End_Updation": {
+  "group": "Finance",
+  "leaf": "Year End Updation",
+  "captured": true,
+  "err": null,
+  "info": {
+   "class": "YearEndPreflightDialog",
+   "title": "Year End Updation - Preflight",
+   "tables": [],
+   "lists": [],
+   "buttons": [
+    {
+     "text": "Refresh",
+     "enabled": true
+    },
+    {
+     "text": "Close",
+     "enabled": true
+    }
+   ],
+   "edits": [],
+   "texts": []
+  }
+ },
+ "g07_07_Current_Balance_Updation": {
+  "group": "Finance",
+  "leaf": "Current Balance Updation",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g07_08_Account_Merging": {
+  "group": "Finance",
+  "leaf": "Account Merging",
+  "captured": true,
+  "err": null,
+  "info": {
+   "class": "AccountMergeWindow",
+   "title": "Account Merging",
+   "tables": [
+    {
+     "rows": 0,
+     "cols": 2,
+     "hdr": [
+      "Table",
+      "Records to Merge"
+     ],
+     "first_row": [],
+     "objectName": ""
+    }
+   ],
+   "lists": [],
+   "buttons": [
+    {
+     "text": "Preview",
+     "enabled": true
+    },
+    {
+     "text": "MERGE",
+     "enabled": true
+    },
+    {
+     "text": "Exit",
+     "enabled": true
+    }
+   ],
+   "edits": [
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    }
+   ],
+   "texts": []
+  }
+ },
+ "g07_09_Voucher_Serialisation": {
+  "group": "Finance",
+  "leaf": "Voucher Serialisation",
+  "captured": true,
+  "err": null,
+  "info": {
+   "class": "VoucherSerialisationWindow",
+   "title": "Voucher Serialisation",
+   "tables": [
+    {
+     "rows": 21,
+     "cols": 0,
+     "hdr": [],
+     "first_row": [],
+     "objectName": ""
+    }
+   ],
+   "lists": [],
+   "buttons": [
+    {
+     "text": "  Serialise  ",
+     "enabled": true
+    },
+    {
+     "text": "Refresh",
+     "enabled": true
+    },
+    {
+     "text": "Exit",
+     "enabled": true
+    }
+   ],
+   "edits": [
+    {
+     "name": "",
+     "text": "0"
+    },
+    {
+     "name": "",
+     "text": "2026"
+    },
+    {
+     "name": "",
+     "text": "KK"
+    }
+   ],
+   "texts": []
+  }
+ },
+ "g07_10_Delete_Message": {
+  "group": "Finance",
+  "leaf": "Delete Message",
+  "captured": true,
+  "err": null,
+  "info": {
+   "class": "DeleteMessageWindow",
+   "title": "Delete Message",
+   "tables": [
+    {
+     "rows": 0,
+     "cols": 10,
+     "hdr": [
+      "Sel",
+      "Type",
+      "VNo",
+      "Date/Time",
+      "Sender",
+      "Receiver",
+      "Read",
+      "Cleared",
+      "Subject",
+      "Message"
+     ],
+     "first_row": [],
+     "objectName": ""
+    }
+   ],
+   "lists": [],
+   "buttons": [
+    {
+     "text": "Show",
+     "enabled": true
+    },
+    {
+     "text": "Delete",
+     "enabled": true
+    },
+    {
+     "text": "Close",
+     "enabled": true
+    }
+   ],
+   "edits": [
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    }
+   ],
+   "texts": []
+  }
+ },
+ "g07_11_Account_Merging": {
+  "group": "Finance",
+  "leaf": "Account Merging",
+  "captured": true,
+  "err": null,
+  "info": {
+   "class": "AccountMergeWindow",
+   "title": "Account Merging",
+   "tables": [
+    {
+     "rows": 0,
+     "cols": 2,
+     "hdr": [
+      "Table",
+      "Records to Merge"
+     ],
+     "first_row": [],
+     "objectName": ""
+    }
+   ],
+   "lists": [],
+   "buttons": [
+    {
+     "text": "Preview",
+     "enabled": true
+    },
+    {
+     "text": "MERGE",
+     "enabled": true
+    },
+    {
+     "text": "Exit",
+     "enabled": true
+    }
+   ],
+   "edits": [
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    }
+   ],
+   "texts": []
+  }
+ },
+ "g07_12_Voucher_Serialisation": {
+  "group": "Finance",
+  "leaf": "Voucher Serialisation",
+  "captured": true,
+  "err": null,
+  "info": {
+   "class": "VoucherSerialisationWindow",
+   "title": "Voucher Serialisation",
+   "tables": [
+    {
+     "rows": 21,
+     "cols": 0,
+     "hdr": [],
+     "first_row": [],
+     "objectName": ""
+    }
+   ],
+   "lists": [],
+   "buttons": [
+    {
+     "text": "  Serialise  ",
+     "enabled": true
+    },
+    {
+     "text": "Refresh",
+     "enabled": true
+    },
+    {
+     "text": "Exit",
+     "enabled": true
+    }
+   ],
+   "edits": [
+    {
+     "name": "",
+     "text": "0"
+    },
+    {
+     "name": "",
+     "text": "2026"
+    },
+    {
+     "name": "",
+     "text": "KK"
+    }
+   ],
+   "texts": []
+  }
+ }
+}

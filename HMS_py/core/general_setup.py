@@ -83,6 +83,10 @@ ENVIRO_EDITABLE_FIELDS = frozenset({
     # Other operational
     "Editopen", "AcFieldAlterable", "AddModifyEntryInBackDate",
     "PlanSelectionBasedOn", "PlanTariffNarration",
+    # MS-038: plan/tariff switches -- VB6 frmEnviro inhe UPDATE SET chain
+    # me likhta hai (loc_1CB268B / loc_1CB2801). Ye operational flags hain,
+    # GL/AC codes nahi, isliye ENVIRO_FINANCE_FIELDS se nahi, EDITABLE me.
+    "PlanMastType", "PlanCalc",
     "GuestChargesDeleteLog", "FOMBillReprintAutoRefresh",
     "UserWiseShowOutletYN",
 })
@@ -112,8 +116,10 @@ ENVIRO_FINANCE_FIELDS = frozenset({
     "Postingtype", "calcMethod", "NCUR",
     "SiteCode", "GAppCompYear", "GMonthConsidered",
     "GWorkingDaysInAMonth", "GDaysSalary",
-    "AttendType", "PlanMastType", "PlanCalc", "PlanTariffNarration",
-    "PlanSelectionBasedOn",
+    # MS-038: PlanMastType / PlanCalc / PlanTariffNarration / AttendType yahan
+    # se hata diye gaye -- ye plan/HR operational flags hain, finance account
+    # codes nahi. VB6 frmEnviro inhe likhta hai (loc_1CB268B, loc_1CB2801,
+    # loc_1CB2CCF). PlanMastType/PlanCalc ab ENVIRO_EDITABLE_FIELDS me hain.
     # System
     "LogSite_Code", "U_AE_FOMBillSetE",
     "DTCPETakeEffectHeadToSite",
@@ -426,6 +432,69 @@ def enviro_get(field: str, cn=None) -> str | None:
         return rows[0][0] if rows else None
     except Exception:
         return None
+
+
+# ============================================================
+# RoundOffSetting - VB6 frmEnviro Parameter > "Round Off Setting"
+# MS-015: Enviro Save ke saath RoundOffSetting CRUD
+#
+# VB6 evidence (frmEnviro TopCtrl1_UnknownEvent_16 / Delete event C,
+# compiled HMS.exe p-code string table se confirm):
+#   "Please choose any type of RoundOff!"   <- OptRoundOff koi bhi na ho
+#   "Please Check Module Name!"             <- ModuleName me " Bill" chahiye
+#   "DELETE FROM RoundOffSetting WHERE ModuleName='" & "' AND lOGSITE_CODE='"
+#   "Insert Into RoundOffSetting(ModuleName,RoundOFFType,Site_Code,U_Name,
+#    U_EntDt,U_AE,logSite_Code) Values('"
+# ============================================================
+ROUNDOFF_MODULES = (
+    "Guest Bill", "Purchase Bill", "Sale Bill",
+    "Member Bill", "Taxes Member Bill",
+)
+
+
+def roundoff_list(cn=None) -> list[dict]:
+    """frmEnviro FGrid row source (Form_Load round-off recordset)."""
+    from HMS_py.core import sys_config
+    return sys_config.roundoff_list(cn=cn)
+
+
+def roundoff_delete_module(module_name: str, cn=None,
+                           commit: bool = True) -> int:
+    """VB6 Delete event: ek module ki saari round off rows hatao."""
+    module = (module_name or "").strip()
+    if not module:
+        raise ValueError("ModuleName zaroori hai")
+    return db.execute(
+        "DELETE FROM RoundOffSetting WHERE ModuleName = ? "
+        "AND LogSite_Code = ?",
+        (module, SITE_CODE), cn=cn, commit=commit)
+
+
+def roundoff_save(module_name: str, roundoff_type: str, *,
+                  code: str = "", department: str = "",
+                  cn=None, commit: bool = True) -> int:
+    """VB6 frmEnviro TopCtrl Save (event 16) — validate + module replace.
+
+    VB6 order: OptRoundOff caption (global_88) empty na ho, ModuleName me
+    " Bill" ho, phir module ki purani rows DELETE + fresh INSERT
+    (LogSite_Code = site) — dono ek transaction me (VB6 On Error → rollback).
+    """
+    from HMS_py.core import sys_config
+    module = (module_name or "").strip()
+    rtype = (roundoff_type or "").strip()
+    if not rtype:
+        raise ValueError("Please choose any type of RoundOff!")
+    if " Bill" not in module:
+        raise ValueError("Please Check Module Name!")
+    with db.transaction(cn) as tx:
+        db.execute(
+            "DELETE FROM RoundOffSetting WHERE ModuleName = ? "
+            "AND LogSite_Code = ?",
+            (module, SITE_CODE), cn=tx, commit=False)
+        return sys_config.roundoff_insert(
+            {"code": code, "department": department,
+             "roundoff_type": rtype, "module_name": module},
+            cn=tx, commit=False)
 
 
 VOUCHCAT_LIMITS = {"category": 10, "ncat": 5}

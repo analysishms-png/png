@@ -1,0 +1,58 @@
+{
+ "g03_00_Category_Master": {
+  "group": "Members Mgmt",
+  "leaf": "Category Master",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g03_01_Member_Master": {
+  "group": "Members Mgmt",
+  "leaf": "Member Master",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g03_02_Environment_Settings": {
+  "group": "Members Mgmt",
+  "leaf": "Environment Settings",
+  "captured": true,
+  "err": null,
+  "info": {
+   "class": "MemberEnvironmentDialog",
+   "title": "Member Environment Settings (Read-Only)",
+   "tables": [
+    {
+     "rows": 0,
+     "cols": 2,
+     "hdr": [
+      "Setting",
+      "Value"
+     ],
+     "first_row": [],
+     "objectName": ""
+    }
+   ],
+   "lists": [],
+   "buttons": [
+    {
+     "text": "Refresh",
+     "enabled": true
+    },
+    {
+     "text": "Close",
+     "enabled": true
+    }
+   ],
+   "edits": [],
+   "texts": []
+  }
+ },
+ "g03_03_Member_Select_Category": {
+  "group": "Members Mgmt",
+  "leaf": "Member Select Category",
+  "captured": true,
+  "err": null,
+  "info": {}
+ }
+}

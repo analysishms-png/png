@@ -52,6 +52,16 @@ WIRED = {
     "Excise Invoice Cum Gate Pass": ("excise_gate_pass_ui",
                                      "open_excise_gate_pass",
                                      "ExciseGatePassDialog"),
+    # VB6 RsPaymentReceice (Payment Receive Entry (POS)) — VType RPV,
+    # PayCharge + LEDGERADJ transaction (core/rs_payment_receive.py)
+    "Payment Receive Entry (POS)": ("rs_payment_receive_ui",
+                                    "open_payment_receive_pos",
+                                    "PaymentReceivePosDialog"),
+    # VB6 dispatch ModuleAdd.bas loc_1E47255 — leaf "Payment Receive"
+    # (POS Operations) bhi EK HI RsPaymentReceice form kholta hai
+    "Payment Receive": ("rs_payment_receive_ui",
+                        "open_payment_receive_pos",
+                        "PaymentReceivePosDialog"),
     # VB6 RSSaleBill -> shared POS Sales register screen
     "Sale Bill Entry": ("pos_sales_ui", "open_pos_sales", None),
     # VB6 RsStoreRecEntry -> shared Stock Receive screen

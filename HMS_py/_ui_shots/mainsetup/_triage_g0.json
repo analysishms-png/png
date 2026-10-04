@@ -1,0 +1,77 @@
+{
+ "g00_00_Tax_Master": {
+  "group": "General Setup",
+  "leaf": "Tax Master",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g00_01_Tax_Structure": {
+  "group": "General Setup",
+  "leaf": "Tax Structure",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g00_02_Payment_Type": {
+  "group": "General Setup",
+  "leaf": "Payment Type",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g00_03_Parameter": {
+  "group": "General Setup",
+  "leaf": "Parameter",
+  "captured": true,
+  "err": null,
+  "info": {
+   "class": "EnviroScreen",
+   "title": "Parameter - Enviro Settings - HMS_py",
+   "tables": [
+    {
+     "rows": 87,
+     "cols": 3,
+     "hdr": [
+      "Setting",
+      "Value (editable)",
+      "Type"
+     ],
+     "first_row": [
+      "AddModifyEntryInBackDate",
+      "No",
+      "yn3"
+     ],
+     "objectName": ""
+    }
+   ],
+   "lists": [],
+   "buttons": [
+    {
+     "text": "Reload",
+     "enabled": true
+    },
+    {
+     "text": "Save Changes",
+     "enabled": true
+    }
+   ],
+   "edits": [],
+   "texts": []
+  }
+ },
+ "g00_04_Printing_Parameters": {
+  "group": "General Setup",
+  "leaf": "Printing Parameters",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g00_05_Printing_Setup": {
+  "group": "General Setup",
+  "leaf": "Printing Setup",
+  "captured": true,
+  "err": null,
+  "info": {}
+ }
+}

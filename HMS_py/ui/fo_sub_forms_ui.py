@@ -6,12 +6,13 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QTableWidget, QTableWidgetItem, QPushButton, QLineEdit, QLabel,
     QMessageBox, QGroupBox, QFormLayout, QHeaderView, QComboBox,
-    QDoubleSpinBox)
-from PyQt6.QtCore import Qt
+    QDoubleSpinBox, QDateEdit, QCheckBox, QTextEdit, QSpinBox, QDateTimeEdit)
+from PyQt6.QtCore import Qt, QDate
 from PyQt6.QtGui import QColor, QFont
 from core import db, fo_ops
 from core.folio import PAY_TYPES as _PAY_TYPES
 from ui.theme import palette
+from ui.desktop_style import make_vb6_header
 
 
 class RoomLookupWindow(QMainWindow):
@@ -576,3 +577,139 @@ def open_reverse_room_merge(parent=None):
 
 def open_re_settlement(parent=None):
     w = ReSettlementWindow(parent); w.show(); return w
+
+
+# ============================================================
+# FOM Bill Reprint (VB6: frmFomB — FOM Bill Reprint)
+# ============================================================
+class FomBillReprintWindow(QMainWindow):
+    """FOM Bill Reprint (VB6: frmFomB) — reprint checked-out folio bills."""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("FOM Bill Reprint")
+        self.resize(900, 560)
+        self._build_ui()
+        self._load_data()
+
+    def _build_ui(self):
+        central = QWidget()
+        self.setCentralWidget(central)
+        layout = QVBoxLayout(central)
+        layout.addWidget(make_vb6_header("FOM Bill Reprint"))
+
+        # Search controls
+        search_lay = QHBoxLayout()
+        search_lay.addWidget(QLabel("From Date:"))
+        self.dt_from = QDateEdit()
+        self.dt_from.setCalendarPopup(True)
+        self.dt_from.setDate(QDate.currentDate().addMonths(-1))
+        search_lay.addWidget(self.dt_from)
+        search_lay.addWidget(QLabel("To Date:"))
+        self.dt_to = QDateEdit()
+        self.dt_to.setCalendarPopup(True)
+        self.dt_to.setDate(QDate.currentDate())
+        search_lay.addWidget(self.dt_to)
+        search_lay.addWidget(QLabel("Folio No:"))
+        self.txt_folio = QLineEdit()
+        self.txt_folio.setPlaceholderText("Folio No (optional)")
+        self.txt_folio.returnPressed.connect(self._load_data)
+        search_lay.addWidget(self.txt_folio)
+        search_lay.addWidget(QLabel("Room No:"))
+        self.txt_room = QLineEdit()
+        self.txt_room.setPlaceholderText("Room No (optional)")
+        self.txt_room.returnPressed.connect(self._load_data)
+        search_lay.addWidget(self.txt_room)
+        self.btn_search = QPushButton("Search")
+        self.btn_search.setToolTip("Search checked-out folios for reprint")
+        self.btn_search.clicked.connect(self._load_data)
+        search_lay.addWidget(self.btn_search)
+        search_lay.addStretch(1)
+        layout.addLayout(search_lay)
+
+        # Results table
+        self.table = QTableWidget()
+        self.table.setColumnCount(6)
+        self.table.setHorizontalHeaderLabels(
+            ["Folio No", "Guest Name", "Room", "Departure Date", "Bill Amount", "DocId"]
+        )
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        self.table.setAlternatingRowColors(True)
+        self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        layout.addWidget(self.table)
+
+        # Buttons
+        btn_lay = QHBoxLayout()
+        self.btn_reprint = QPushButton("Reprint Selected Bill")
+        self.btn_reprint.setToolTip("Reprint the selected checked-out folio bill")
+        self.btn_reprint.setProperty("success", True)
+        self.btn_reprint.clicked.connect(self._reprint)
+        self.btn_exit = QPushButton("Exit")
+        self.btn_exit.setToolTip("Close the FOM Bill Reprint window")
+        self.btn_exit.clicked.connect(self.close)
+        btn_lay.addWidget(self.btn_reprint)
+        btn_lay.addWidget(self.btn_exit)
+        layout.addLayout(btn_lay)
+
+    def _load_data(self):
+        try:
+            from HMS_py.core import checkout as co_mod
+            rows = co_mod.list_checked_out(top=200)
+            # Filter by date range if specified
+            from_date = self.dt_from.date().toPyDate()
+            to_date = self.dt_to.date().toPyDate()
+            folio_filter = self.txt_folio.text().strip()
+            room_filter = self.txt_room.text().strip()
+
+            filtered = []
+            for r in rows:
+                dep = r.get("checkout_date") or r.get("depdate")
+                if dep:
+                    if hasattr(dep, "date"):
+                        dep = dep.date()
+                    if dep < from_date or dep > to_date:
+                        continue
+                if folio_filter and folio_filter not in str(r.get("folio", "")):
+                    continue
+                if room_filter and room_filter not in str(r.get("roomno", "")):
+                    continue
+                filtered.append(r)
+
+            self.table.setRowCount(len(filtered))
+            for i, r in enumerate(filtered):
+                for j, v in enumerate([
+                    r.get("folio", ""),
+                    r.get("name", ""),
+                    r.get("roomno", ""),
+                    str(r.get("checkout_date") or r.get("depdate") or ""),
+                    f"{r.get('balance', 0):,.2f}",
+                    r.get("docid", ""),
+                ]):
+                    it = QTableWidgetItem(str(v))
+                    it.setForeground(QColor(palette()["text"]))
+                    self.table.setItem(i, j, it)
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Load failed: {e}")
+
+    def _reprint(self):
+        row = self.table.currentRow()
+        if row < 0:
+            QMessageBox.warning(self, "Select", "Pehle bill select karo")
+            return
+        docid = self.table.item(row, 5).text()
+        folio = self.table.item(row, 0).text()
+        guest = self.table.item(row, 1).text()
+        QMessageBox.information(
+            self,
+            "Reprint",
+            f"FOM Bill Reprint for Folio #{folio} ({guest})\\n"
+            f"DocId: {docid}\\n\\n"
+            f"VB6 me Crystal Report (BillPrint.rpt) se print hota tha.\\n"
+            f"Yahan print preview / PDF generation implement karna hoga."
+        )
+
+
+def open_fom_bill_reprint(parent=None):
+    w = FomBillReprintWindow(parent)
+    w.show()
+    return w

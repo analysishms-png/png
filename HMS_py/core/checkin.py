@@ -71,10 +71,16 @@ def _map(r) -> dict:
 
 
 def list_checkins(cn=None, vprefix: str = "2026", top: int = 200) -> list:
+    """FO-BUG-005 FIX: VB6 fdCheckIn.frm Form_Load SQL (loc_F1DA0E) uses
+    BOOKING.LOGSITE_CODE='<site>' — all multi-site queries include the HO filter.
+    Python me sirf Site_Code filter tha, LogSite_Code/HO missing tha.
+    VB6 FdCheckOut list also: (LOGSITE_CODE='x' or LOGSITE_CODE='HO')."""
     rows = db.query(
         f"SELECT TOP {int(top)} {SELECT_COLS} FROM GuestFolio "
-        "WHERE Site_Code = ? AND Vprefix = ? ORDER BY FolioNo DESC",
-        (SITE_CODE, vprefix), cn=cn)
+        "WHERE Site_Code = ? "
+        "AND (LogSite_Code = ? OR LogSite_Code = 'HO') "
+        "AND Vprefix = ? ORDER BY FolioNo DESC",
+        (SITE_CODE, SITE_CODE, vprefix), cn=cn)
     return [_map(r) for r in rows]
 
 
@@ -114,6 +120,7 @@ def _log(docid: str, flag: str, user: str, cn, site: str = SITE_CODE):
 
 def create_checkin(guestprof: str, name: str, arr_date, dep_date,
                    city: str = "", bookingdocid: str = "",
+                   bookingsno: int | None = None,
                    roomno: str = "", user: str = USER, cn=None,
                    commit: bool = True,
                    site: str = SITE_CODE, vprefix: str = "2026",
@@ -126,7 +133,14 @@ def create_checkin(guestprof: str, name: str, arr_date, dep_date,
                    rrtaxinc: str = "", rrservicechrg: str = "",
                    roomtarrif: float | None = None,
                    rackrate: float | None = None,
-                   roomtaxstru: str = "") -> int:
+                   roomtaxstru: str = "",
+                   add1: str = "", add2: str = "", nationality: str = "",
+                   arrfrom: str = "", destination: str = "",
+                   travelmode: str = "", company: str = "",
+                   travelagent: str = "", remarks: str = "",
+                   rodisc: float | None = None,
+                   roomcat: str = "", roomrate: float | None = None,
+                   deptime: str = "") -> int:
     """Naya check-in (VB6 CHK doc-engine): DocId + FolioNo + FolioLog 'A'
     + RoomOcc row (P4-c MISSING-LOGIC FIX).
 
@@ -151,7 +165,21 @@ def create_checkin(guestprof: str, name: str, arr_date, dep_date,
     — VB6 fdCheckIn.frm:942284 30-col INSERT pattern.
 
     PYT-guard caller-side (UI sirf PYT* naam likhta hai; production
-    check-ins VB6 EXE se hi)."""
+    check-ins VB6 EXE se hi).
+
+    CHECKIN_FIELD_MAP G1/G2 EXTENSION (Phase 11 walk-in parity loop):
+    left-zone guest fields (Add1/Add2/Nationality/ArrFrom/Destination/
+    TravelMode/Company/TravelAgent/Remark/RODisc) + right-zone
+    RoomCat/RoomRate/DepTime — VB6 fdWalkInEntry 40-col GuestFolio /
+    33-col RoomOcc pattern. RoomCat blank -> RoomMast se derive
+    (fo_ops.room_change pattern), DepTime blank -> '10:00' (live default),
+    RODisc numeric % (live: 0/20).
+
+    W3 (Phase 11 fdCheckIn iteration): bookingdocid + bookingsno —
+    GuestFolio.BookingSno arrives anti-join (fdCheckIn Form_Load) ka
+    match-key hai; booking-driven check-in par sno auto-sequential
+    (MAX+1, VB6 live 1,2,3 pattern), caller explicit sno de sakta hai.
+    Walk-in me bookingdocid blank -> dono NULL."""
     name = (name or "").strip()
     if not name:
         raise ValueError("Guest Name zaroori hai")
@@ -193,17 +221,52 @@ def create_checkin(guestprof: str, name: str, arr_date, dep_date,
             if not free:
                 raise ValueError("Koi free room nahi (full house)")
             roomno = free[0][0]
-        # 13 cols = 13 params (site_code bugfix: ordinal-shift live-caught -
-        # Site_Code '' jaa raha tha, get() fail)
+        # CHECKIN_FIELD_MAP right-zone: RoomCat (VB6 form field; blank ->
+        # RoomMast se derive — fo_ops.room_change pattern), DepTime default
+        # '10:00' (live RoomOcc values), RoomRate numeric.
+        # RoomType: VB6 RoomOcc INSERT (fdWalkInEntry:5663,
+        # HMS.bas:149593) includes RoomType — live VB6 rows me sab 'RO'
+        # hain (RoomMast.TYPE copy); purana Python insert ye column
+        # chhod deta tha (fdPostChrg RoomType stamp gap).
+        mrows = db.query(
+            "SELECT TOP 1 RTRIM(RoomCat), RTRIM(TYPE) FROM RoomMast WHERE "
+            "RTRIM(Code) = ? AND (LogSite_Code = ? OR LogSite_Code = 'HO')",
+            (roomno, site), cn=cn)
+        if not (roomcat or "").strip():
+            roomcat = str(mrows[0][0] or "").strip() if mrows else ""
+        roomtype = str(mrows[0][1] or "").strip() if mrows else ""
+        t_out = (deptime or "").strip() or "10:00"
+        rodisc_v = rodisc or 0.0
+        roomrate_v = roomrate or 0.0
+        # W3 (fdCheckIn arrivals anti-join): GuestFolio.BookingSno — live
+        # VB6 data me booking-driven folios ka sno bhara hota hai (1,2,3...);
+        # bookingdocid + sno NULL -> per-SNO NOT EXISTS match kabhi nahi
+        # hoga aur booking arrivals list me atki reh jaayegi. Auto =
+        # MAX(existing sno) + 1 (VB6 live sequential pattern; multi-room
+        # walk-in flow: har save agla sno lega, booking per-SNO exit karti
+        # rahegi). Walk-in (bookingdocid blank) me NULL.
+        if bookingdocid and bookingsno is None:
+            mx = db.query(
+                "SELECT ISNULL(MAX(BookingSno), 0) FROM GuestFolio "
+                "WHERE BookingDocId = ?", (bookingdocid,), cn=cn)
+            bookingsno = int(mx[0][0] or 0) + 1
+        # 27 cols = 25 params + getdate() + 'A' (site_code bugfix:
+        # ordinal-shift live-caught - Site_Code '' jaa raha tha, get())
         db.execute(
             "INSERT INTO GuestFolio (DocId, FolioNo, Vtype, Vprefix, "
-            "Vdate, GuestProf, Name, City, NoDays, DepDate, BookingDocId, "
+            "Vdate, GuestProf, Name, Add1, Add2, City, Nationality, "
+            "ArrFrom, Destination, TravelMode, Company, TravelAgent, "
+            "Remark, RODisc, NoDays, DepDate, BookingDocId, BookingSno, "
             "Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
-            "getdate(), 'A', ?)",
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
+            "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, getdate(), 'A', ?)",
             (docid, folio, VTYPE, vprefix, arr_date, guestprof or "",
-             name, city or "", nodays, dep_date, bookingdocid or "",
-             site, user, site), cn=cn, commit=False)
+             name, add1 or "", add2 or "", city or "",
+             nationality or "", arrfrom or "", destination or "",
+             travelmode or "", company or "", travelagent or "",
+             remarks or "", rodisc_v, nodays, dep_date,
+             bookingdocid or "", bookingsno, site, user, site),
+            cn=cn, commit=False)
         # --- P4-c: RoomOcc row (fdRoomChange:3639 pattern + fdCheckIn:942284
         # 30-col INSERT pattern). Vtype discrimination via GuestFolio.Vtype='CHK'.
         # RoomOcc.Type='I' = in-house (dashboard rack/report joins).
@@ -214,16 +277,18 @@ def create_checkin(guestprof: str, name: str, arr_date, dep_date,
         # RRTaxInc, RRServiceChrg, RoomTarrif, RackRate, RoomTaxStru).
         db.execute(
             "INSERT INTO RoomOcc (DocId, SNo, FolioNo, Vtype, Site_Code, "
-            "Vprefix, GuestProf, RoomNo, RateCode, ChkInDate, ChkInTime, "
-            "Adult, Children, DepDate, DepTime, Type, U_Name, U_EntDt, "
-            "U_AE, LogSite_Code, Plancode, PlanAmt, IncInRate, PlanDisc, "
-            "PlanDiscAmt, PlanDiscAppOn, RRTaxInc, RRServiceChrg, "
-            "RoomTarrif, RackRate, RoomTaxStru) "
-            "VALUES (?, 1, ?, 'CHK', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
-            "'10:00', 'I', ?, getdate(), 'A', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "Vprefix, GuestProf, RoomNo, RoomCat, RoomType, RoomRate, "
+            "RateCode, "
+            "ChkInDate, ChkInTime, Adult, Children, DepDate, DepTime, "
+            "Type, U_Name, U_EntDt, U_AE, LogSite_Code, Plancode, PlanAmt, "
+            "IncInRate, PlanDisc, PlanDiscAmt, PlanDiscAppOn, RRTaxInc, "
+            "RRServiceChrg, RoomTarrif, RackRate, RoomTaxStru) "
+            "VALUES (?, 1, ?, 'CHK', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
+            "?, 'I', ?, getdate(), 'A', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (docid, folio, site, vprefix, guestprof, roomno,
+             roomcat, roomtype, roomrate_v,
              (ratecode or "").strip(), arr_date, t_in, n_adult, n_child,
-             dep_date, user, site,
+             dep_date, t_out, user, site,
              plancode or "", planamt or 0.0, incinrate or "",
              plandisc or 0.0, plandiscamt or 0.0, plandiscon or "",
              rrtaxinc or "", rrservicechrg or "",

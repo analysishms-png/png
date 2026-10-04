@@ -53,7 +53,8 @@ from PyQt6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDateEdit,
                              QMessageBox, QPushButton, QTableWidget,
                              QTableWidgetItem, QVBoxLayout, QWidget)
 
-from HMS_py.core import checkin, checkout, folio, guest_folio, roomstatus
+from HMS_py.core import booking, checkin, checkout, folio, guest_folio, \
+    roomstatus
 from HMS_py.core import sundry_type
 from HMS_py.ui.theme import palette
 
@@ -191,11 +192,23 @@ class AmendStayWindow(QMainWindow, _StatusBar):
 # 2. Look Up Reservation By Guest Name (fdCheckIn)
 # ────────────────────────────────────────────────────────────────
 class LookupReservationWindow(QMainWindow, _StatusBar):
+    """VB6 fdCheckIn.frm — pending arrivals list + Check In -> Walk In entry.
+
+    Spec (fdCheckIn.frm read): Form_Load Booking+GuestProf join with
+    GrpBookingDetails anti-join vs GuestFolio (per-SNO); Txt(0) =
+    incremental guest-name filter; OK (CmdOK) = early-arrival warn ->
+    fdWalkInEntry.AdvType='CHK' + prefill (SEARCHBACKPARENT GuestProf)
+    + no_Rooms copy -> self close. Python: booking.list_arrivals() +
+    OK button WalkInEntryWindow ko booking docid/GuestProf se prefill
+    karta hai (early-arrival warn retained VB6-faithful)."""
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Look Up Reservation By Guest Name")
         self.resize(960, 520)
+        self._rows: list[dict] = []
         self._build()
+        self._search()
 
     def _build(self):
         c = QWidget(); self.setCentralWidget(c)
@@ -203,13 +216,16 @@ class LookupReservationWindow(QMainWindow, _StatusBar):
         lay.addWidget(_title("Look Up Reservation By Guest Name"))
         top = QHBoxLayout()
         self.txt_search = QLineEdit()
-        self.txt_search.setPlaceholderText("Guest name / folio / GuestProf")
+        self.txt_search.setPlaceholderText("Guest name (arrivals filter)")
         self.txt_search.returnPressed.connect(self._search)
         b = QPushButton("Search")
         b.clicked.connect(self._search)
         top.addWidget(QLabel("Guest Name"))
         top.addWidget(self.txt_search, 1)
         top.addWidget(b)
+        self.btn_ok = QPushButton("Check In")
+        self.btn_ok.clicked.connect(self._checkin_selected)
+        top.addWidget(self.btn_ok)
         lay.addLayout(top)
         self.grid = QTableWidget()
         self.grid.setSelectionBehavior(
@@ -219,15 +235,47 @@ class LookupReservationWindow(QMainWindow, _StatusBar):
     def _search(self):
         term = self.txt_search.text().strip()
         try:
-            rows = (guest_folio.search(term)
-                    if term else guest_folio.list_all(limit=100))
+            rows = booking.list_arrivals(name_like=term)
+            self._rows = rows
             _fill_grid(self.grid,
-                       ["Folio", "Guest", "City", "Company", "Days",
-                        "Departure", "BookingDocId"],
-                       [[r["folio"], r["name"], r["city"], r["company"],
-                         r["nodays"], _d(r["depdate"]), r["bookingdocid"]]
-                        for r in rows])
-            self._say(f"{len(rows)} record(s)")
+                       ["Booking", "Guest Name", "GuestProf", "Arrival",
+                        "Days", "Rooms", "Room Type"],
+                       [[r["docid"], r["name"], r["guestprof"],
+                         _d(r["arrdate"]), r["nodays"], r["noofrooms"],
+                         r["roomtype"] or r["roomcat"]] for r in rows])
+            self._say(f"{len(rows)} arrival(s)")
+        except Exception as e:
+            _msgbox_err(self, e)
+
+    def _checkin_selected(self):
+        r = self.grid.currentRow()
+        if r < 0 or r >= len(self._rows):
+            QMessageBox.warning(self, "Check In",
+                                "Pehle arrivals row select karo.")
+            return
+        row = self._rows[r]
+        # VB6 CmdOK early-arrival warn (fdCheckIn.frm): business date <
+        # booking Arr_Date -> "Guest Arrived Before Arrival Date !".
+        # Retained VB6-faithful (list me ArrDate <= aaj hai, parity guard).
+        arr = row.get("arrdate")
+        arr_d = arr.date() if hasattr(arr, "date") else arr
+        today = datetime.date.today()
+        if isinstance(arr_d, datetime.date) and today < arr_d:
+            ans = QMessageBox.question(
+                self, "Check In",
+                "Guest Arrived Before Arrival Date !\nChecked in Anyway?")
+            if ans != QMessageBox.StandardButton.Yes:
+                return
+        try:
+            from HMS_py.ui import walkin_rack_ui
+            w = walkin_rack_ui.open_walkin_entry(parent=None)
+            w.txt_guestprof.setText(row.get("guestprof", ""))
+            w.txt_booking.setText(row.get("docid", ""))
+            w._show_step(0)
+            w._say(f"booking {row.get('docid', '')} se prefill "
+                   f"({row.get('name', '')})")
+            self._say(f"Walk-in entry khula: {row.get('name', '')}")
+            self.close()
         except Exception as e:
             _msgbox_err(self, e)
 

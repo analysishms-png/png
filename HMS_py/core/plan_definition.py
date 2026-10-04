@@ -31,13 +31,35 @@ SITE_CODE = db.get_site_code()
 USER = db.get_user()
 
 
-def mode_is_standard(cn=None) -> bool:
-    """VB6 dispatcher branch: Enviro.PlanMastType 'Advanced' nahi to
-    FrmPlanPackMast (ye form) khulta tha."""
+def plan_master_mode(cn=None) -> str:
+    """VB6 dispatcher read (MDIForm1.frm:7282 / loc_132BBD4):
+
+        var_D8 = "Select PlanMastType from Enviro where logsite_code='" & _
+                 MemVar_1F92078 & "'"
+
+    Note the WHERE is `logsite_code = <site>` ONLY -- VB6 does NOT union the
+    'HO' row here (unlike most other Enviro reads in this codebase). Kept
+    verbatim so a multi-site install cannot pick up an HO-level PlanMastType
+    that VB6 would have ignored. MS-039.
+    """
     rows = db.query(
         "SELECT ISNULL(PlanMastType, '') AS T FROM Enviro "
         "WHERE LogSite_Code = ?", (SITE_CODE,), cn=cn)
-    return bool(rows) and (rows[0].T or "").strip().lower() != "advanced"
+    return (rows[0].T or "").strip() if rows else ""
+
+
+def mode_is_standard(cn=None) -> bool:
+    """VB6 dispatcher branch (MDIForm1.frm:7285 / loc_132BC3B):
+
+        If var_D4.Value = "Advanced" Then
+            global_52 = New FrmPackageMast : MyType = "Plan"
+        Else
+            global_52 = New FrmPlanPackMast
+        End If
+
+    So True (standard) == PlanMastType is NOT 'Advanced'.
+    """
+    return plan_master_mode(cn).lower() != "advanced"
 
 
 def next_plan_code(cn=None) -> str:

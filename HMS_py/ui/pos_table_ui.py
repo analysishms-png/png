@@ -12,12 +12,6 @@ from HMS_py.core import pos_table
 from HMS_py.ui import theme as _theme
 
 
-def table_delete_guard(code: str) -> str | None:
-    if not str(code or "").upper().startswith("PYT"):
-        return "Only PYT* test tables can be deleted (production data protected)"
-    return None
-
-
 class PosTableWindow(QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)

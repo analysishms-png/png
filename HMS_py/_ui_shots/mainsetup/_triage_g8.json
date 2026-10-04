@@ -1,0 +1,849 @@
+{
+ "g08_00_User_Master": {
+  "group": "Utility",
+  "leaf": "User Master",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g08_01_Permissions": {
+  "group": "Utility",
+  "leaf": "Permissions",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g08_02_Backup_Data": {
+  "group": "Utility",
+  "leaf": "Backup Data",
+  "captured": true,
+  "err": null,
+  "info": {
+   "class": "DbBackupWindow",
+   "title": "Database Backup",
+   "tables": [],
+   "lists": [],
+   "buttons": [
+    {
+     "text": "Full Backup + Log Truncate + Shrink (Recommended)",
+     "enabled": true
+    },
+    {
+     "text": "Backup Only",
+     "enabled": true
+    },
+    {
+     "text": "Truncate Transaction Log Only",
+     "enabled": true
+    },
+    {
+     "text": "Shrink Database Only",
+     "enabled": true
+    },
+    {
+     "text": "Exit",
+     "enabled": true
+    }
+   ],
+   "edits": [],
+   "texts": [
+    {
+     "name": "",
+     "len": 0
+    }
+   ]
+  }
+ },
+ "g08_03_Sundry_Master": {
+  "group": "Utility",
+  "leaf": "Sundry Master",
+  "captured": true,
+  "err": null,
+  "info": {
+   "class": "SundryMasterWindow",
+   "title": "Sundry Master - HMS_py",
+   "tables": [
+    {
+     "rows": 19,
+     "cols": 4,
+     "hdr": [
+      "Code",
+      "Name",
+      "Nature",
+      "CalcSign"
+     ],
+     "first_row": [
+      "KK0002",
+      "COMPENCESSION CESS",
+      "Sale Tax",
+      "+"
+     ],
+     "objectName": ""
+    }
+   ],
+   "lists": [],
+   "buttons": [
+    {
+     "text": "Add",
+     "enabled": true
+    },
+    {
+     "text": "Delete Selected",
+     "enabled": true
+    },
+    {
+     "text": "Exit",
+     "enabled": true
+    }
+   ],
+   "edits": [
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    }
+   ],
+   "texts": []
+  }
+ },
+ "g08_04_Inconsistency_Check": {
+  "group": "Utility",
+  "leaf": "Inconsistency Check",
+  "captured": true,
+  "err": null,
+  "info": {
+   "class": "InconsistencyCheckWindow",
+   "title": "Inconsistency Check",
+   "tables": [
+    {
+     "rows": 0,
+     "cols": 0,
+     "hdr": [],
+     "first_row": [],
+     "objectName": ""
+    },
+    {
+     "rows": 0,
+     "cols": 0,
+     "hdr": [],
+     "first_row": [],
+     "objectName": ""
+    },
+    {
+     "rows": 0,
+     "cols": 0,
+     "hdr": [],
+     "first_row": [],
+     "objectName": ""
+    },
+    {
+     "rows": 0,
+     "cols": 0,
+     "hdr": [],
+     "first_row": [],
+     "objectName": ""
+    },
+    {
+     "rows": 0,
+     "cols": 0,
+     "hdr": [],
+     "first_row": [],
+     "objectName": ""
+    },
+    {
+     "rows": 0,
+     "cols": 0,
+     "hdr": [],
+     "first_row": [],
+     "objectName": ""
+    }
+   ],
+   "lists": [],
+   "buttons": [
+    {
+     "text": "Run Check",
+     "enabled": true
+    },
+    {
+     "text": "Exit",
+     "enabled": true
+    }
+   ],
+   "edits": [],
+   "texts": []
+  }
+ },
+ "g08_05_Year_End_Updation": {
+  "group": "Utility",
+  "leaf": "Year End Updation",
+  "captured": true,
+  "err": null,
+  "info": {
+   "class": "YearEndPreflightDialog",
+   "title": "Year End Updation - Preflight",
+   "tables": [],
+   "lists": [],
+   "buttons": [
+    {
+     "text": "Refresh",
+     "enabled": true
+    },
+    {
+     "text": "Close",
+     "enabled": true
+    }
+   ],
+   "edits": [],
+   "texts": []
+  }
+ },
+ "g08_06_Menu_Item_Copy": {
+  "group": "Utility",
+  "leaf": "Menu Item Copy",
+  "captured": false,
+  "err": "no-visible-window",
+  "info": {}
+ },
+ "g08_07_Guest_LookUp": {
+  "group": "Utility",
+  "leaf": "Guest LookUp",
+  "captured": true,
+  "err": null,
+  "info": {
+   "class": "GuestLookupWindow",
+   "title": "Guest Lookup",
+   "tables": [
+    {
+     "rows": 0,
+     "cols": 5,
+     "hdr": [
+      "Code",
+      "Name",
+      "Phone",
+      "Address",
+      "City"
+     ],
+     "first_row": [],
+     "objectName": ""
+    }
+   ],
+   "lists": [],
+   "buttons": [
+    {
+     "text": "Foreigner Details (Form-C)",
+     "enabled": true
+    },
+    {
+     "text": "Exit",
+     "enabled": true
+    }
+   ],
+   "edits": [
+    {
+     "name": "",
+     "text": ""
+    }
+   ],
+   "texts": []
+  }
+ },
+ "g08_08_Country_Master": {
+  "group": "Utility",
+  "leaf": "Country Master",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g08_09_State_Master": {
+  "group": "Utility",
+  "leaf": "State Master",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g08_10_City_Master": {
+  "group": "Utility",
+  "leaf": "City Master",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g08_11_Company_Master": {
+  "group": "Utility",
+  "leaf": "Company Master",
+  "captured": true,
+  "err": null,
+  "info": {
+   "class": "CompMastForm",
+   "title": "Company Master - HMS_py (VB6 CompMast)",
+   "tables": [
+    {
+     "rows": 0,
+     "cols": 6,
+     "hdr": [
+      "S.No",
+      "Ref. Date",
+      "Narration",
+      "Amount",
+      "Cr/Dr",
+      "Voucher No"
+     ],
+     "first_row": [],
+     "objectName": ""
+    }
+   ],
+   "lists": [],
+   "buttons": [
+    {
+     "text": "  Search A/C ...  ",
+     "enabled": true
+    },
+    {
+     "text": "  New Company  ",
+     "enabled": true
+    },
+    {
+     "text": "...",
+     "enabled": false
+    },
+    {
+     "text": "...",
+     "enabled": false
+    },
+    {
+     "text": "...",
+     "enabled": false
+    },
+    {
+     "text": "...",
+     "enabled": false
+    },
+    {
+     "text": "  Add  ",
+     "enabled": true
+    },
+    {
+     "text": "  Edit  ",
+     "enabled": false
+    },
+    {
+     "text": "  Delete  ",
+     "enabled": false
+    },
+    {
+     "text": "  Save  ",
+     "enabled": false
+    },
+    {
+     "text": "  Cancel  ",
+     "enabled": false
+    },
+    {
+     "text": "  Close  ",
+     "enabled": true
+    }
+   ],
+   "edits": [
+    {
+     "name": "qt_spinbox_lineedit",
+     "text": ""
+    },
+    {
+     "name": "qt_spinbox_lineedit",
+     "text": "0.00"
+    },
+    {
+     "name": "qt_spinbox_lineedit",
+     "text": "0.00"
+    },
+    {
+     "name": "qt_spinbox_lineedit",
+     "text": "0.00"
+    },
+    {
+     "name": "qt_spinbox_lineedit",
+     "text": "0.00"
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": ""
+    }
+   ],
+   "texts": []
+  }
+ },
+ "g08_12_Department": {
+  "group": "Utility",
+  "leaf": "Department",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g08_13_Ledger_Accounts": {
+  "group": "Utility",
+  "leaf": "Ledger Accounts",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g08_14_Unit_Master": {
+  "group": "Utility",
+  "leaf": "Unit Master",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g08_15_Task_Scheduler": {
+  "group": "Utility",
+  "leaf": "Task Scheduler",
+  "captured": true,
+  "err": null,
+  "info": {
+   "class": "TaskSchedulerWindow",
+   "title": "Task Scheduler",
+   "tables": [
+    {
+     "rows": 1,
+     "cols": 2,
+     "hdr": [
+      "Code",
+      "Name"
+     ],
+     "first_row": [
+      "KK000000001",
+      "NIGHT AUDIT"
+     ],
+     "objectName": ""
+    }
+   ],
+   "lists": [],
+   "buttons": [
+    {
+     "text": "Scheduled Tasks",
+     "enabled": true
+    },
+    {
+     "text": "New",
+     "enabled": true
+    },
+    {
+     "text": "Edit",
+     "enabled": true
+    },
+    {
+     "text": "Save",
+     "enabled": false
+    },
+    {
+     "text": "Delete",
+     "enabled": true
+    },
+    {
+     "text": "Cancel",
+     "enabled": false
+    },
+    {
+     "text": "Refresh",
+     "enabled": true
+    },
+    {
+     "text": "Close",
+     "enabled": true
+    }
+   ],
+   "edits": [
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": "NIGHT AUDIT"
+    },
+    {
+     "name": "qt_spinbox_lineedit",
+     "text": "13/Jun/2021"
+    },
+    {
+     "name": "qt_spinbox_lineedit",
+     "text": "00:00:00"
+    },
+    {
+     "name": "qt_spinbox_lineedit",
+     "text": "1"
+    },
+    {
+     "name": "qt_spinbox_lineedit",
+     "text": "1"
+    },
+    {
+     "name": "qt_spinbox_lineedit",
+     "text": "1"
+    },
+    {
+     "name": "qt_spinbox_lineedit",
+     "text": "1"
+    },
+    {
+     "name": "qt_spinbox_lineedit",
+     "text": "00:00:00"
+    },
+    {
+     "name": "qt_spinbox_lineedit",
+     "text": "1"
+    },
+    {
+     "name": "qt_spinbox_lineedit",
+     "text": "00:00:00"
+    },
+    {
+     "name": "qt_spinbox_lineedit",
+     "text": "23:59:59"
+    },
+    {
+     "name": "qt_spinbox_lineedit",
+     "text": "11/Jun/2021"
+    },
+    {
+     "name": "qt_spinbox_lineedit",
+     "text": "31/Dec/9999"
+    }
+   ],
+   "texts": [
+    {
+     "name": "",
+     "len": 170
+    }
+   ]
+  }
+ },
+ "g08_16_Guest_Parameters_Setting": {
+  "group": "Utility",
+  "leaf": "Guest Parameters Setting",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g08_17_Sale_MIS_Customized": {
+  "group": "Utility",
+  "leaf": "Sale MIS Customized",
+  "captured": false,
+  "err": "no-visible-window",
+  "info": {}
+ },
+ "g08_18_Guest_BirthDates_Anniversary": {
+  "group": "Utility",
+  "leaf": "Guest BirthDates/Anniversary",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g08_19_Data_Recieving": {
+  "group": "Utility",
+  "leaf": "Data Recieving",
+  "captured": false,
+  "err": "no-visible-window",
+  "info": {}
+ },
+ "g08_20_PLU_File_W_Scale": {
+  "group": "Utility",
+  "leaf": "PLU File (W.Scale)",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g08_21_User_Permissions_Advanced": {
+  "group": "Utility",
+  "leaf": "User Permissions (Advanced)",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g08_22_POS_Recycle": {
+  "group": "Utility",
+  "leaf": "POS Recycle",
+  "captured": true,
+  "err": null,
+  "info": {
+   "class": "PosRecycleWindow",
+   "title": "POS Recycle - HMS_py",
+   "tables": [
+    {
+     "rows": 5,
+     "cols": 5,
+     "hdr": [
+      "",
+      "RestCode",
+      "Outlet",
+      "RestType",
+      "LogSite_Code"
+     ],
+     "first_row": [
+      "",
+      "KKE001",
+      "ECOMERSE SALES",
+      "Outlet",
+      "KK"
+     ],
+     "objectName": ""
+    }
+   ],
+   "lists": [],
+   "buttons": [
+    {
+     "text": "Refresh",
+     "enabled": true
+    },
+    {
+     "text": "  Delete  ",
+     "enabled": true
+    },
+    {
+     "text": "  Exit  ",
+     "enabled": true
+    }
+   ],
+   "edits": [
+    {
+     "name": "qt_spinbox_lineedit",
+     "text": "01/04/2026"
+    },
+    {
+     "name": "qt_spinbox_lineedit",
+     "text": "31/03/2027"
+    }
+   ],
+   "texts": []
+  }
+ },
+ "g08_23_Unit_Master": {
+  "group": "Utility",
+  "leaf": "Unit Master",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g08_24_Task_Scheduler": {
+  "group": "Utility",
+  "leaf": "Task Scheduler",
+  "captured": true,
+  "err": null,
+  "info": {
+   "class": "TaskSchedulerWindow",
+   "title": "Task Scheduler",
+   "tables": [
+    {
+     "rows": 1,
+     "cols": 2,
+     "hdr": [
+      "Code",
+      "Name"
+     ],
+     "first_row": [
+      "KK000000001",
+      "NIGHT AUDIT"
+     ],
+     "objectName": ""
+    }
+   ],
+   "lists": [],
+   "buttons": [
+    {
+     "text": "Scheduled Tasks",
+     "enabled": true
+    },
+    {
+     "text": "New",
+     "enabled": true
+    },
+    {
+     "text": "Edit",
+     "enabled": true
+    },
+    {
+     "text": "Save",
+     "enabled": false
+    },
+    {
+     "text": "Delete",
+     "enabled": true
+    },
+    {
+     "text": "Cancel",
+     "enabled": false
+    },
+    {
+     "text": "Refresh",
+     "enabled": true
+    },
+    {
+     "text": "Close",
+     "enabled": true
+    }
+   ],
+   "edits": [
+    {
+     "name": "",
+     "text": ""
+    },
+    {
+     "name": "",
+     "text": "NIGHT AUDIT"
+    },
+    {
+     "name": "qt_spinbox_lineedit",
+     "text": "13/Jun/2021"
+    },
+    {
+     "name": "qt_spinbox_lineedit",
+     "text": "00:00:00"
+    },
+    {
+     "name": "qt_spinbox_lineedit",
+     "text": "1"
+    },
+    {
+     "name": "qt_spinbox_lineedit",
+     "text": "1"
+    },
+    {
+     "name": "qt_spinbox_lineedit",
+     "text": "1"
+    },
+    {
+     "name": "qt_spinbox_lineedit",
+     "text": "1"
+    },
+    {
+     "name": "qt_spinbox_lineedit",
+     "text": "00:00:00"
+    },
+    {
+     "name": "qt_spinbox_lineedit",
+     "text": "1"
+    },
+    {
+     "name": "qt_spinbox_lineedit",
+     "text": "00:00:00"
+    },
+    {
+     "name": "qt_spinbox_lineedit",
+     "text": "23:59:59"
+    },
+    {
+     "name": "qt_spinbox_lineedit",
+     "text": "11/Jun/2021"
+    },
+    {
+     "name": "qt_spinbox_lineedit",
+     "text": "31/Dec/9999"
+    }
+   ],
+   "texts": [
+    {
+     "name": "",
+     "len": 170
+    }
+   ]
+  }
+ }
+}

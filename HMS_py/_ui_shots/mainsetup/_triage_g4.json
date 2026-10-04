@@ -1,0 +1,58 @@
+{
+ "g04_00_Events": {
+  "group": "Banquet",
+  "leaf": "Events",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g04_01_Venue_Features": {
+  "group": "Banquet",
+  "leaf": "Venue Features",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g04_02_Venue_Master": {
+  "group": "Banquet",
+  "leaf": "Venue Master",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g04_03_Menu_Category": {
+  "group": "Banquet",
+  "leaf": "Menu Category",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g04_04_Item_Group": {
+  "group": "Banquet",
+  "leaf": "Item Group",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g04_05_Menu_Item": {
+  "group": "Banquet",
+  "leaf": "Menu Item",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g04_06_Catalog_Master": {
+  "group": "Banquet",
+  "leaf": "Catalog Master",
+  "captured": true,
+  "err": null,
+  "info": {}
+ },
+ "g04_07_Banquet_Bill_Sundry_Setting": {
+  "group": "Banquet",
+  "leaf": "Banquet Bill Sundry Setting",
+  "captured": true,
+  "err": null,
+  "info": {}
+ }
+}

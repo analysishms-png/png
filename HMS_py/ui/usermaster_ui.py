@@ -14,13 +14,31 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
 
 from PyQt6.QtWidgets import (QApplication, QDialog, QFormLayout, QHBoxLayout,
                              QLabel, QLineEdit, QMessageBox, QPushButton,
-                             QTableWidget, QTableWidgetItem, QVBoxLayout)
+                             QTableWidget, QTableWidgetItem, QVBoxLayout,
+                             QWidget)
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor
 
 from HMS_py.core import usermaster
 from HMS_py.ui import theme as _theme
 from HMS_py.ui.desktop_style import apply_desktop_surface, mark_desktop_action
+from HMS_py.ui.glass import SwatchButton
+
+
+def _ole_to_hex(value: int) -> str:
+    """MS-016: VB6 CLng(color) (OLE/BGR int) -> #rrggbb.
+
+    VB6 RGB(r,g,b) = r + g*256 + b*65536 - isliye low byte = red.
+    Example: 255 (live row 'ANUJ', VB6 RGB(255,0,0)) -> "#ff0000".
+    """
+    v = int(value or 0) & 0xFFFFFF
+    return "#%02x%02x%02x" % (v & 0xFF, (v >> 8) & 0xFF, (v >> 16) & 0xFF)
+
+
+def _hex_to_ole(color_hex: str) -> int:
+    """MS-016: #rrggbb -> VB6 CLng(color) int (store VB6 jaisa hi int)."""
+    c = QColor(color_hex)
+    return c.red() + (c.green() << 8) + (c.blue() << 16)
 
 
 class UserMasterForm(QDialog):
@@ -65,11 +83,42 @@ class UserMasterForm(QDialog):
         self.edActive = QLineEdit("Y")
         self.edActive.setMaxLength(1)
         self.edActive.setPlaceholderText("Y or N")
+        # BUG-004 FIX: AllowDtChng field added (VB6 TXT(1))
+        self.edAllowDtChng = QLineEdit("N")
+        self.edAllowDtChng.setMaxLength(1)
+        self.edAllowDtChng.setPlaceholderText("Y or N — Allow Date Change")
+        # MS-016: live UserMast columns GodCode/FloorCode/BackColor.
+        # VB6 UserMast.frm mein sirf BackColor ka control hai
+        # (Label1(13) "Color Selection" + Label1(14) swatch + CommonDialog
+        # CDLG.ShowColor); GodCode/FloorCode ka form par koi control ya
+        # lookup grid nahi (DGGod/DGFloor jaisa kuch nahi) - isliye wo
+        # plain line edits hain, koi picker nahi.
+        self.edGodCode = QLineEdit()
+        self.edGodCode.setMaxLength(usermaster.LIMITS["godcode"])
+        self.edGodCode.setPlaceholderText(
+            "Godown code (GodownMast.Code) — optional")
+        self.edFloorCode = QLineEdit()
+        self.edFloorCode.setMaxLength(usermaster.LIMITS["floorcode"])
+        self.edFloorCode.setPlaceholderText("Floor code — optional")
+        self.edBackColor = QLineEdit("0")
+        self.edBackColor.setMaxLength(10)
+        self.edBackColor.setPlaceholderText("VB6 color int (0..16777215)")
+        self.swBackColor = SwatchButton(_ole_to_hex(0), self._on_color_picked)
+        color_row = QHBoxLayout()
+        color_row.setContentsMargins(0, 0, 0, 0)
+        color_row.addWidget(self.edBackColor)
+        color_row.addWidget(self.swBackColor)
+        color_wrap = QWidget()
+        color_wrap.setLayout(color_row)
         form.addRow("Username *", self.edUser)
         form.addRow("Full Name (LABEL)", self.edLabel)
         form.addRow("Short Name", self.edShort)
         form.addRow("Password", self.edPass)
         form.addRow("Active (Y/N)", self.edActive)
+        form.addRow("Allow Date Change (Y/N)", self.edAllowDtChng)
+        form.addRow("God Code (GodownMast)", self.edGodCode)
+        form.addRow("Floor Code", self.edFloorCode)
+        form.addRow("Color Selection (BackColor)", color_wrap)
         root.addLayout(form)
 
         # Buttons
@@ -105,6 +154,8 @@ class UserMasterForm(QDialog):
         self.btnCancel.clicked.connect(self._on_cancel)
         self.btnChgPwd.clicked.connect(self._on_change_pwd)
         self.btnExit.clicked.connect(self.reject)
+        # MS-016: type karne par swatch turant update (VB6 swatch hi value)
+        self.edBackColor.textChanged.connect(self._on_backcolor_text)
 
         from PyQt6.QtGui import QShortcut, QKeySequence
         QShortcut(QKeySequence("Ctrl+N"), self, activated=self._on_new)
@@ -119,8 +170,12 @@ class UserMasterForm(QDialog):
     # ---- state machine ----
     def _set_state(self, enabled: bool):
         for e in (self.edUser, self.edLabel, self.edShort,
-                  self.edPass, self.edActive):
+                  self.edPass, self.edActive, self.edAllowDtChng,
+                  self.edGodCode, self.edFloorCode, self.edBackColor):
             e.setEnabled(enabled)
+        # MS-016: VB6 Label1(14) swatch sirf Browse mode ke bahar clickable
+        # (Label1_Click root frm :917 `If CStr() <> "Browse"`)
+        self.swBackColor.setEnabled(enabled)
         for b in (self.btnNew, self.btnEdit, self.btnDelete, self.btnChgPwd):
             b.setEnabled(not enabled)
         for b in (self.btnSave, self.btnCancel):
@@ -130,9 +185,29 @@ class UserMasterForm(QDialog):
         self.lblState.setText(f"State: {self.state}")
 
     def _clear(self):
-        for e in (self.edUser, self.edLabel, self.edShort, self.edPass):
+        for e in (self.edUser, self.edLabel, self.edShort, self.edPass,
+                  self.edGodCode, self.edFloorCode):
             e.clear()
         self.edActive.setText("Y")
+        self.edAllowDtChng.setText("N")
+        # MS-016: naye user ka BackColor 0 (DB default ((0))); VB6 mein
+        # swatch designer value &H8080FF& rakhta par MoveRec pehle loaded
+        # record ka color copy kar deta tha (non-deterministic) - isliye
+        # DB default 0 rakha.
+        self.edBackColor.setText("0")
+        self.swBackColor.set_color(_ole_to_hex(0))
+
+    # ---- MS-016: BackColor (VB6 CommonDialog CDLG) ----
+    def _on_color_picked(self, color_hex: str) -> None:
+        """VB6 Label1_Click: CDLG.Color -> CLng -> swatch; store int."""
+        self.edBackColor.setText(str(_hex_to_ole(color_hex)))
+
+    def _on_backcolor_text(self, text: str) -> None:
+        """Type ki hui int par swatch turant dikhao (VB6 wahi swatch tha)."""
+        try:
+            self.swBackColor.set_color(_ole_to_hex(int(text.strip() or 0)))
+        except ValueError:
+            pass
 
     # ---- data ----
     def reload(self):
@@ -178,6 +253,12 @@ class UserMasterForm(QDialog):
         self.edPass.clear()
         self.edPass.setPlaceholderText("Blank rakho = password nahi badlega")
         self.edActive.setText(rec["active"])
+        self.edAllowDtChng.setText(rec.get("allowdtchng", "N"))
+        # MS-016: GodCode/FloorCode/BackColor load (VB6 MoveRec:
+        # Fields.Item("BackColor") -> Label1.BackColor)
+        self.edGodCode.setText(rec.get("godcode", ""))
+        self.edFloorCode.setText(rec.get("floorcode", ""))
+        self.edBackColor.setText(str(rec.get("backcolor", 0)))
         self._set_state(True)
         self.state = "Edit"
         self.lblState.setText("State: Edit")
@@ -193,6 +274,11 @@ class UserMasterForm(QDialog):
             "label": self.edLabel.text().strip(),
             "short": self.edShort.text().strip(),
             "active": (self.edActive.text().strip().upper() or "Y"),
+            "allowdtchng": (self.edAllowDtChng.text().strip().upper() or "N"),
+            # MS-016
+            "godcode": self.edGodCode.text().strip(),
+            "floorcode": self.edFloorCode.text().strip(),
+            "backcolor": (self.edBackColor.text().strip() or "0"),
         }
         pwd = self.edPass.text()  # blank = keep (edit mode)
         try:
@@ -227,8 +313,9 @@ class UserMasterForm(QDialog):
         if not uname:
             QMessageBox.information(self, "Delete", "Pehle row select karo")
             return
-        # SA aur current user delete nahi hote
-        if uname.upper() in ("SA",):
+        # BUG-005 FIX: VB6 only protects SA user; any other user can be deleted.
+        # Previous Python code incorrectly blocked all non-PYT* users.
+        if uname.upper() == "SA":
             QMessageBox.warning(self, "Delete",
                                 "SA user delete nahi ho sakta (system user)")
             return
@@ -236,16 +323,13 @@ class UserMasterForm(QDialog):
             QMessageBox.warning(self, "Delete",
                                 "Aap khud ko delete nahi kar sakte")
             return
-        # PYT* safety guard
-        if not uname.upper().startswith("PYT"):
-            QMessageBox.warning(
-                self, "Delete",
-                "Safety: sirf PYT* test-users delete ho sakte hain\n"
-                "(production users protected)")
-            return
         if QMessageBox.question(
                 self, "Delete",
-                f"User '{uname}' delete karein?") == \
+                f"User '{uname}' delete karein?\n\n"
+                "Yeh user1, user2, menuhelp1 aur userMAST se bhi delete ho "
+                "jaayega.",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No) == \
                 QMessageBox.StandardButton.Yes:
             try:
                 usermaster.delete(uname)
