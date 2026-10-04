@@ -276,6 +276,30 @@ zaroori hai` (108), `Is folio ki koi open RoomOcc row nahi mila` (118),
 | G9 | EPABX gated by env var + Dial Facility prompt (3469-3502) | always attempted when table exists, no prompt | audit rows may appear where VB6 would not write them |
 | G10 | `Reason` copied to old row | same (182) | match |
 
+### 2.1.1 DB-001 dispositions (Iteration 5, 2026-10-04)
+
+Proven live by `tests/database/test_roomchange_parity.py` (4/4 green, rollback-safe):
+
+| # | Disposition | Rationale |
+|---|---|---|
+| G1 | **Python wins** (keep `'I'`) | VB6's `Type=''` makes rows invisible to `dashboard.py:168` + `fo_sub_forms_ui.py:59` — VB6 bug; test asserts reader-visibility of the new row. |
+| G2 | **Match (net no-op)** | VB6 checkout step (spec §1.6) rewrites old-row `IncInRate/PlanDisc/PlanDiscAmt` to their own values → omitting it is observationally identical; test asserts old-row slice unchanged. |
+| G3 | **FIXED** | `PlanDiscAppon` now written with plan UPDATE (`fo_ops.py:224`), VB6 evidence frm **3664**. Test asserts new row carries the flag. |
+| G4 | **Accepted (P2)** | Delete scoped to `DocId` (+ `Site_Code`), broader than VB6's `PlanAppDate` filter (3721); live DB has zero PlanDetails rows, and delete+re-insert in one txn re-points everything the change touches. |
+| G5 | **Accepted (P2)** | Always re-insert vs VB6's `PlanCalc='Yes'` gate (3731) — same net result on the P1 path (staged rows re-pointed, asserted); gate it if PlanCalc-off flows ever port. |
+| G6 | **Match (UI layer)** | KOT guard at `fo_sub_forms_ui.py:358-363` runs **before** the transaction; test proves guard fires pre-save. Core has no guard by design (documented). |
+| G7 | **Match (UI layer)** | Reason/Adult/tariff checks live in UI validations (18 UI tests); core defaults `reason=""`. |
+| G8 | **Deferred** | `UserPermission.ChangeRoomDtl` gate is Form_Load UX (frm 2881-2917); pre-save core path never had it — tracked in §6. |
+| G9 | **Accepted (P2)** | No env-var gate / Dial prompt; live DB has no `EPABX_IN` → feature-detect skip has same net effect as VB6-no-audit. P2 = real gate when table exists. |
+| G10 | **Match** | reason copied, asserted. |
+
+**Core fixes applied this iteration** (both proven by the test, both VB6-evidenced):
+
+1. `core/fo_ops.py:224` — plan UPDATE writes `PlanDiscAppOn` (frm **3664**).
+2. `core/fo_ops.py:298-314` — `PlanDetails` rows snapshotted **before** DELETE (frm **3788**: VB6 reads FGrid3 before delete/re-insert). Previously DELETE-then-SELECT returned 0 rows inside the same txn → plan rows silently lost.
+
+Note: sibling file `tests/database/test_room_change_parity.py` (feature-003 T011, concurrent session) left untouched per BUG-AUD-08.
+
 ---
 
 ## 3. Proposed Python UI design
