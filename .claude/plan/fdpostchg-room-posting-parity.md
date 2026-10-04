@@ -243,7 +243,7 @@ Missing tables ⇒ prerequisite notice (`BLOCKED-TBL`), never simulated success.
 - None (this phase). Plan written to: `HMS_py\.claude\plan\fdpostchg-room-posting-parity.md` (parent dir created).
 
 **Open Questions**
-1. Assumption #1 (`fdPostChrg` ≡ `fdPostChg`) — needs VB6-001 attestation before merge.
+1. ~~Assumption #1 (`fdPostChrg` ≡ `fdPostChg`)~~ — RESOLVED by VB6-001 attestation (see §13).
 2. Python `_make_rc_docid` uses `"D"` prefix vs VB6 DocId build (decompiler-noise at `Hotlib.bas` 528–538) — confirm real format from QA-001 trace.
 3. `PostNilLT` config source (VB6 reads it from where?) — resolve during PY-005.
 4. `CODEX_SESSION` / `GEMINI_SESSION` still uncaptured.
@@ -253,3 +253,21 @@ Missing tables ⇒ prerequisite notice (`BLOCKED-TBL`), never simulated success.
 2. Run QA-001 in parallel with DB-001 — it gates only G10 column sign-off and open question #2.
 3. Treat each gap fix as one commit with its fails-on-revert test recorded in regression output (REG-001).
 4. Do not start payment/re-settlement work until this slice passes §6 T8 acceptance.
+
+---
+
+## 13. VB6-001 Attestation (2026-10-04) — PASSED
+
+**Assumption #1 CONFIRMED.** Recursive search of `C:\Users\LENOVO\Desktop\serialkey` → zero `fdPostChg.frm`/`.frx` anywhere (only this plan's `.md` matches the name). Both `Project.vbp` copies register `Form=fdPostChrg.frm` only (`HMS2526\...\PROJECT.vbp` ×2) — the form compiled into HMS.exe is `fdPostChrg`; "fdPostChg" is Python-side shorthand.
+
+**Assumption #2 CONFIRMED.** `root.txt` SHA256 = `D28EB194B6DEC0EC7059EC10562A09B09B31D2EA29BF1548AAAFB95C901C9CD0` (prefix matches); 727 total lines / **701 non-blank** (plan's "701" = non-blank count, not raw count). `imp609.txt` = 728 lines, `foderFD.txt` = 726 lines.
+
+**Corrections to §0 wording:**
+- `.frx` copies: **8, not six** — all 1,090 B, all SHA256 prefix `147E0ABB95` (identity claim substance holds).
+- Three `.frm` variants (all 24 procedures declared, semantically identical):
+  - `FD7013831C` ×5 — 725 L, 36,143 B, full designer (`Begin TextBox/CommandButton/Label` blocks) — dominant original.
+  - `609C2EA68C` ×2 — 727 L, 36,205 B (source of `imp609.txt`).
+  - `63DCCDE890` ×1 — root copy (`PROJECT_REPAIR - Copy\fdPostChrg.frm`), 727 L, 28,340 B, logic-only (designer blocks + `loc_*` decompiler labels stripped) — source of `root.txt`. Size gap = declarative blocks, not code.
+  - Only proc-level diff across variants: `Proc_62_23_10A996C` (root) vs `Proc_62_23_10A7834` (FODER) — same `Proc_62_23` billed-folio guard, decompiler address suffix only.
+
+**Gate:** PY-* merge gate lifted. Open question §12.1 closed. Remaining gates: QA-001 (column list + DocId format, §12.2), DB-001 (feeds PY-*).
