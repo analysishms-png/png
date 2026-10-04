@@ -2684,7 +2684,10 @@ def _form_registry() -> dict[str, callable]:
         if strec_ui
         else _coming_soon("M.R. Entry"),
         # Room Change (VB6 fdRoomChange port — v0.1.2)
-        "Room Change": (lambda w: fosub_ui.open_room_change(w))
+        # RV-001 #1: session user bhejo — audit column me PYADMIN/env na jaye
+        "Room Change": (
+            lambda w: fosub_ui.open_room_change(w, user=getattr(w, "user", None))
+        )
         if fosub_ui
         else _coming_soon("Room Change"),
         # KOT Transfer / Table Change (VB6 RsKOTTransfer/RsTbChange port)

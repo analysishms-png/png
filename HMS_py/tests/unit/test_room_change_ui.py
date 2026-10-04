@@ -181,6 +181,98 @@ def test_load_folio_not_found_keeps_save_disabled(window, msgbox, monkeypatch):
 
 
 # ---------------------------------------------------------------
+# RV-001 fixes: partial-load stale state + guarded load + emit contract
+# ---------------------------------------------------------------
+def test_load_folio_partial_no_open_roomocc_clears_stale_state(
+    window, msgbox, monkeypatch
+):
+    """RV-001 #2: GuestFolio mili par open RoomOcc nahi → stale stay clear + save band."""
+    from HMS_py.ui import fo_sub_forms_ui as m
+
+    rec = {
+        "docid": _DOCID,
+        "folio": 10,
+        "name": "GUEST ONE",
+        "guestprof": "GP01",
+        "bookingdocid": "",
+        "vprefix": "DKKCHK",
+        "vdate": None,
+    }
+    monkeypatch.setattr(m.fo_ops, "open_folio_by_docid", lambda q, cn=None: rec)
+    monkeypatch.setattr(m.fo_ops, "open_folio_by_room", lambda q, cn=None: None)
+    monkeypatch.setattr(m, "db", SimpleNamespace(query=lambda *a, **k: []))
+    # purane successful load ka state seed karo
+    _set_loaded(window)
+    window.btn_save.setEnabled(True)
+    window.txt_search.setText(_DOCID)
+    window._load_folio()
+    # stale stay block gaya + save band + user ko bata diya
+    assert not window.btn_save.isEnabled()
+    assert window._roomtype == ""
+    assert window._adult == 0
+    assert window._tariff == 0.0
+    assert window.lbl_oldroom.text() == "-"
+    assert window.lbl_roomtype.text() == "-"
+    assert window.lbl_tariff.text() == "-"
+    assert window.lbl_change.text() == "-"
+    assert msgbox.has("information", "Koi in-house guest nahi mila", "Not found")
+
+
+def test_load_folio_db_error_no_raise_clears_and_disables_save(
+    window, msgbox, monkeypatch
+):
+    """RV-001 #3: _load_folio DB fail → raise nahi, message + stale clear."""
+    from HMS_py.ui import fo_sub_forms_ui as m
+
+    def _boom(q, cn=None):
+        raise RuntimeError("db down")
+
+    monkeypatch.setattr(m.fo_ops, "open_folio_by_docid", _boom)
+    # purane load ka stale state
+    _set_loaded(window)
+    window.btn_save.setEnabled(True)
+    window.txt_search.setText("101")
+    window._load_folio()  # slot ko throw nahi karna chahiye
+    assert msgbox.has("critical", "DB error: db down", "Room Change")
+    assert not window.btn_save.isEnabled()
+    assert window._roomtype == ""
+    assert window.lbl_oldroom.text() == "-"
+
+
+def test_save_emits_even_if_post_save_reload_fails(
+    window, msgbox, monkeypatch, room_change_rec
+):
+    """RV-001 #3: write + reload fail → room_changed emit abhi bhi ho, failure dikhe."""
+    from HMS_py.ui import fo_sub_forms_ui as m
+
+    _set_loaded(window)  # valid loaded state → save pre-checks pass
+
+    def _q(sql, params=(), cn=None):
+        if "RoomMast" in sql:
+            return [(1,)]
+        if "KOT" in sql:
+            return [(0,)]
+        return []
+
+    monkeypatch.setattr(m, "db", SimpleNamespace(query=_q))
+
+    def _boom(q, cn=None):
+        raise RuntimeError("db down")
+
+    monkeypatch.setattr(m.fo_ops, "open_folio_by_docid", _boom)
+
+    emitted: list[dict] = []
+    window.room_changed.connect(emitted.append)
+    window._save()
+    # write hua, reload fail hua — lekin emit + failure message dono mile
+    assert len(room_change_rec) == 1
+    assert len(emitted) == 1, "reload fail hone par emit nahi hua (stale grid)"
+    assert emitted[0]["docid"] == _DOCID
+    assert emitted[0]["new_room"] == "201"
+    assert msgbox.has("critical", "DB error: db down", "Room Change")
+
+
+# ---------------------------------------------------------------
 # FR-3 / §1.4: exact VB6 save pre-checks (order: frm 3385-3468)
 # ---------------------------------------------------------------
 def test_save_empty_reason_vb6_msg(window, msgbox, dbq, room_change_rec):
@@ -309,6 +401,9 @@ def test_happy_path_stay_block_and_change_datetime(
     w.txt_search.setText("101")  # FR-1: docid miss -> room se resolve
     w._load_folio()
     assert w.btn_save.isEnabled()
+    # RV-001 #4: emitter contract — success par room_changed ek baar emit ho
+    emitted: list[dict] = []
+    w.room_changed.connect(emitted.append)
     assert w.lbl_oldroom.text() == "101"
     assert "GUEST ONE" in w.lbl_guest.text()
     # stay block (§3.2) ek hi query se bhara
@@ -344,6 +439,14 @@ def test_happy_path_stay_block_and_change_datetime(
     )
     assert w.txt_search.text() == _DOCID
     assert w.btn_save.isEnabled()
+    # RV-001 #4: emitter payload — emit hata do to ye test fail hona chahiye
+    assert len(emitted) == 1, "room_changed emit nahi hua"
+    assert emitted[0] == {
+        "docid": _DOCID,
+        "old_room": "101",
+        "new_room": "201",
+        "folio": 10,
+    }
 
 
 # ---------------------------------------------------------------
@@ -355,7 +458,7 @@ def test_registry_room_change_is_real_p1_dialog(monkeypatch):
 
     opened = []
     monkeypatch.setattr(
-        m, "open_room_change", lambda w=None, user=None: opened.append(w)
+        m, "open_room_change", lambda w=None, user=None: opened.append((w, user))
     )
     reg = {str(k).strip().lower(): v for k, v in _form_registry().items()}
     fn = reg.get("room change")
@@ -363,8 +466,15 @@ def test_registry_room_change_is_real_p1_dialog(monkeypatch):
     assert "coming_soon" not in getattr(fn, "__qualname__", ""), (
         "Room Change _coming_soon par downgrade ho gaya"
     )
+    # RV-001 #1: registry session user pass kare — audit me PYADMIN/env na jaye
+    w = SimpleNamespace(user="OP1")
+    fn(w)
+    assert opened == [(w, "OP1")], (
+        "registry open_room_change ko session user nahi bhej raha"
+    )
+    # user attr nahi hai → None fallback (sibling getattr pattern)
     fn("PARENT")
-    assert opened == ["PARENT"], "registry fosub_ui.open_room_change nahi bulati"
+    assert opened[-1] == ("PARENT", None)
 
 
 def test_shell_legacy_open_room_change_removed():
@@ -391,7 +501,7 @@ def test_frontoffice_toolbar_opens_window_not_qinputdialog(monkeypatch):
     class _Win:
         def __init__(self):
             self._q = ""
-            self._loaded = False
+            self._events: list[str] = []
             self._cb = None
             self.txt_search = SimpleNamespace(setText=self._set_text)
             self.btn_load = SimpleNamespace(click=self._click)
@@ -401,9 +511,10 @@ def test_frontoffice_toolbar_opens_window_not_qinputdialog(monkeypatch):
             self._q = t
 
         def _click(self):
-            self._loaded = True
+            self._events.append("click")
 
         def _connect(self, cb):
+            self._events.append("connect")
             self._cb = cb
 
     win = _Win()
@@ -449,7 +560,10 @@ def test_frontoffice_toolbar_opens_window_not_qinputdialog(monkeypatch):
     assert parent is fo and user == "T1"
     assert fo._rc_win is win
     assert win._q == _DOCID  # selected folio context pre-fill
-    assert win._loaded  # auto FR-1 load
+    # RV-001 #3: connect click se pehle — load fail ho to bhi signal wired
+    assert win._events == ["connect", "click"], (
+        "room_changed connect btn_load.click() ke baad ho raha hai"
+    )
     assert win._cb is not None  # room_changed -> grid reload wired
     win._cb({"old_room": "101", "new_room": "201"})
     assert fo._reload_timer.started == 1

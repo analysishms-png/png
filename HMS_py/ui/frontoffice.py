@@ -1008,8 +1008,9 @@ class CheckInBrowser(QDialog):
         win = fosub_ui.open_room_change(self, user=self.user)
         self._rc_win = win
         win.txt_search.setText(str(rec.get("docid", "")))
-        win.btn_load.click()
+        # RV-001 #3: connect click se pehle — load fail ho to bhi signal wired rahe
         win.room_changed.connect(lambda _info: self._reload_timer.start(300))
+        win.btn_load.click()
 
     def _on_discount(self):
         rec = self._selected()

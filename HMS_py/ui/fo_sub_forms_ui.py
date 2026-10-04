@@ -231,31 +231,70 @@ class RoomChangeWindow(QMainWindow):
         if not q:
             QMessageBox.warning(self, "Input", "Room No ya DocId likho")
             return
-        rec = fo_ops.open_folio_by_docid(q, cn=None)
-        if not rec:
-            rec = fo_ops.open_folio_by_room(q, cn=None)
-        if not rec:
-            QMessageBox.information(self, "Not found", "Koi in-house guest nahi mila")
-            return
-        # FR-1: docid resolve ho chuka, ek hi query se poora stay block
-        self._docid = rec["docid"]
-        self.lbl_folio.setText(str(rec["folio"]))
-        self.lbl_guest.setText(f"{rec['name']}  ({rec['guestprof']})")
-        rows = db.query(
-            "SELECT TOP 1 ro.RoomNo, ro.ChkInDate, ro.ChkInTime, "
-            "ro.RoomType, ro.RoomCat, ro.RateCode, ro.RoomRate, ro.Adult, "
-            "ro.Children, ro.DepDate, ISNULL(gf.Company, '') AS Company, "
-            "ISNULL(sg.Name, '') AS CompanyName "
-            "FROM RoomOcc ro "
-            "LEFT JOIN GuestFolio gf ON gf.DocId = ro.DocId "
-            "LEFT JOIN SubGroup sg ON gf.Company = sg.SubCode "
-            "WHERE ro.DocId = ? AND ro.ChkOutDate IS NULL",
-            (rec["docid"],),
-        )
-        if rows:
-            self._fill_stay(rows[0])
-        self._fill_free_rooms()
-        self.btn_save.setEnabled(True)
+        # RV-001 #3: programmatic callers hain (auto-click, post-save reload) —
+        # DB failure yahan hi handle ho, warna exception slot ko kha jayega.
+        try:
+            rec = fo_ops.open_folio_by_docid(q, cn=None)
+            if not rec:
+                rec = fo_ops.open_folio_by_room(q, cn=None)
+            if not rec:
+                QMessageBox.information(
+                    self, "Not found", "Koi in-house guest nahi mila"
+                )
+                return
+            # FR-1: docid resolve ho chuka, ek hi query se poora stay block
+            rows = db.query(
+                "SELECT TOP 1 ro.RoomNo, ro.ChkInDate, ro.ChkInTime, "
+                "ro.RoomType, ro.RoomCat, ro.RateCode, ro.RoomRate, ro.Adult, "
+                "ro.Children, ro.DepDate, ISNULL(gf.Company, '') AS Company, "
+                "ISNULL(sg.Name, '') AS CompanyName "
+                "FROM RoomOcc ro "
+                "LEFT JOIN GuestFolio gf ON gf.DocId = ro.DocId "
+                "LEFT JOIN SubGroup sg ON gf.Company = sg.SubCode "
+                "WHERE ro.DocId = ? AND ro.ChkOutDate IS NULL",
+                (rec["docid"],),
+            )
+            self._docid = rec["docid"]
+            self.lbl_folio.setText(str(rec["folio"]))
+            self.lbl_guest.setText(f"{rec['name']}  ({rec['guestprof']})")
+            if rows:
+                self._fill_stay(rows[0])
+            else:
+                # RV-001 #2: open RoomOcc nahi → purane folio ka stale stay
+                # block hatao + save band (warna confirm old room dikhata).
+                self._clear_stay()
+                QMessageBox.information(
+                    self, "Not found", "Koi in-house guest nahi mila"
+                )
+                return
+            self._fill_free_rooms()
+            self.btn_save.setEnabled(True)
+        except Exception as e:
+            self._clear_stay()
+            QMessageBox.critical(self, "Room Change", f"DB error: {e}")
+
+    def _clear_stay(self):
+        """RV-001 #2: stale/unknown stay block hatao + save band."""
+        self._roomtype = ""
+        self._adult = 0
+        self._tariff = 0.0
+        self._change_date = None
+        self._change_time = ""
+        for lbl in (
+            self.lbl_oldroom,
+            self.lbl_chk_in,
+            self.lbl_change,
+            self.lbl_company,
+            self.lbl_roomtype,
+            self.lbl_roomcat,
+            self.lbl_ratecode,
+            self.lbl_adult,
+            self.lbl_children,
+            self.lbl_nodays,
+            self.lbl_tariff,
+        ):
+            lbl.setText("-")
+        self.btn_save.setEnabled(False)
 
     def _fill_stay(self, r):
         """VB6 Txt_Validate idx 0 (frm 2027-2193) ka read-only stay block."""
@@ -366,9 +405,8 @@ class RoomChangeWindow(QMainWindow):
             f"Room changed to {res['new_room']}\n"
             f"Old room {res['old_room']} dirty marked.",
         )
-        # FR-1: docid se reload (purana room ab occupied nahi)
-        self.txt_search.setText(self._docid)
-        self._load_folio()
+        # RV-001 #3: emit reload se pehle — reload fail ho to bhi
+        # frontoffice grid stale nahi rahe.
         self.room_changed.emit(
             {
                 "docid": self._docid,
@@ -377,6 +415,9 @@ class RoomChangeWindow(QMainWindow):
                 "folio": res.get("folio"),
             }
         )
+        # FR-1: docid se reload (purana room ab occupied nahi)
+        self.txt_search.setText(self._docid)
+        self._load_folio()
 
 
 class MergeChargeWindow(QMainWindow):
