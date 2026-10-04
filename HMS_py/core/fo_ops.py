@@ -15,6 +15,7 @@ Port scope (EXTRAS.text P-code se transcribe kiya):
 Saare SQL param-bound hain (kabhi string-concat nahi). Tables verified
 against KailashData2526 schema via codebase SELECT_COLS / VB6 sources.
 """
+
 from __future__ import annotations
 
 import datetime
@@ -40,31 +41,42 @@ def open_folio_by_room(room: str, site: str = SITE_CODE, cn=None):
         "FROM RoomOcc ro INNER JOIN GuestFolio gf ON gf.DocId = ro.DocId "
         "WHERE RTRIM(ro.RoomNo) = ? AND ro.ChkOutDate IS NULL "
         "AND ro.Site_Code = ? ORDER BY ro.ChkInDate DESC",
-        (room, site), cn=cn)
+        (room, site),
+        cn=cn,
+    )
     if not rows:
         return None
     r = rows[0]
-    return {"docid": (r.DocId or "").strip(), "folio": int(r.FolioNo or 0),
-            "guestprof": (r.GuestProf or "").strip(),
-            "name": (r.Name or "").strip(),
-            "bookingdocid": (r.BookingDocId or "").strip(),
-            "vprefix": (r.Vprefix or "").strip(),
-            "vdate": r.Vdate}
+    return {
+        "docid": (r.DocId or "").strip(),
+        "folio": int(r.FolioNo or 0),
+        "guestprof": (r.GuestProf or "").strip(),
+        "name": (r.Name or "").strip(),
+        "bookingdocid": (r.BookingDocId or "").strip(),
+        "vprefix": (r.Vprefix or "").strip(),
+        "vdate": r.Vdate,
+    }
 
 
 def open_folio_by_docid(docid: str, site: str = SITE_CODE, cn=None):
     rows = db.query(
         "SELECT FolioNo, GuestProf, Name, BookingDocId, Vprefix, Vdate "
-        "FROM GuestFolio WHERE DocId = ?", (docid,), cn=cn)
+        "FROM GuestFolio WHERE DocId = ?",
+        (docid,),
+        cn=cn,
+    )
     if not rows:
         return None
     r = rows[0]
-    return {"docid": docid.strip(), "folio": int(r.FolioNo or 0),
-            "guestprof": (r.GuestProf or "").strip(),
-            "name": (r.Name or "").strip(),
-            "bookingdocid": (r.BookingDocId or "").strip(),
-            "vprefix": (r.Vprefix or "").strip(),
-            "vdate": r.Vdate}
+    return {
+        "docid": docid.strip(),
+        "folio": int(r.FolioNo or 0),
+        "guestprof": (r.GuestProf or "").strip(),
+        "name": (r.Name or "").strip(),
+        "bookingdocid": (r.BookingDocId or "").strip(),
+        "vprefix": (r.Vprefix or "").strip(),
+        "vdate": r.Vdate,
+    }
 
 
 def free_rooms(site: str = SITE_CODE, cn=None) -> list[str]:
@@ -75,17 +87,27 @@ def free_rooms(site: str = SITE_CODE, cn=None) -> list[str]:
         "WHERE RTRIM(rm.Type) = 'RO' AND (rm.LogSite_Code = ? OR "
         "rm.LogSite_Code = 'HO') AND rm.Code NOT IN "
         "(SELECT RTRIM(ro.RoomNo) FROM RoomOcc ro WHERE ro.ChkOutDate IS "
-        "NULL AND ro.Site_Code = ?) ORDER BY rm.Code", (site, site), cn=cn)
+        "NULL AND ro.Site_Code = ?) ORDER BY rm.Code",
+        (site, site),
+        cn=cn,
+    )
     return [r[0] for r in rows]
 
 
 # ------------------------------------------------------------
 # Room Change (VB6 fdRoomChange.frm save transaction)
 # ------------------------------------------------------------
-def room_change(docid: str, new_room: str, reason: str = "",
-                change_date=None, change_time: str = "",
-                user: str = USER, site: str = SITE_CODE, cn=None,
-                commit: bool = True) -> dict:
+def room_change(
+    docid: str,
+    new_room: str,
+    reason: str = "",
+    change_date=None,
+    change_time: str = "",
+    user: str = USER,
+    site: str = SITE_CODE,
+    cn=None,
+    commit: bool = True,
+) -> dict:
     """In-house guest ko dusre room me shift karo.
 
     VB6 fdRoomChange save (EXTRAS.text loc_18AE13D.. loc_18AEBA5):
@@ -113,7 +135,10 @@ def room_change(docid: str, new_room: str, reason: str = "",
     try:
         rows = db.query(
             f"SELECT {_ROOM_OCC_COLS} FROM RoomOcc WHERE DocId = ? AND "
-            "ChkOutDate IS NULL AND Site_Code = ?", (docid, site), cn=cn)
+            "ChkOutDate IS NULL AND Site_Code = ?",
+            (docid, site),
+            cn=cn,
+        )
         if not rows:
             raise ValueError("Is folio ki koi open RoomOcc row nahi mili")
         r = rows[0]
@@ -124,25 +149,30 @@ def room_change(docid: str, new_room: str, reason: str = "",
         rm = db.query(
             "SELECT TOP 1 RoomCat FROM RoomMast WHERE RTRIM(Code) = ? AND "
             "(LogSite_Code = ? OR LogSite_Code = 'HO')",
-            (new_room, site), cn=cn)
+            (new_room, site),
+            cn=cn,
+        )
         if not rm:
             raise ValueError(f"Room {new_room} RoomMast me nahi mila")
         new_cat = (rm[0].RoomCat or "").strip()
         busy = db.query(
             "SELECT COUNT(*) FROM RoomOcc WHERE RTRIM(RoomNo) = ? AND "
             "ChkOutDate IS NULL AND Site_Code = ? AND DocId <> ?",
-            (new_room, site, docid), cn=cn)
+            (new_room, site, docid),
+            cn=cn,
+        )
         if busy and busy[0][0]:
             raise ValueError(f"Room {new_room} pehle se occupied hai")
         gf = db.query(
-            "SELECT TOP 1 FolioNo, Name, BookingDocId FROM GuestFolio "
-            "WHERE DocId = ?", (docid,), cn=cn)
+            "SELECT TOP 1 FolioNo, Name, BookingDocId FROM GuestFolio WHERE DocId = ?",
+            (docid,),
+            cn=cn,
+        )
         folio = int(gf[0].FolioNo or 0) if gf else 0
         guest_name = (gf[0].Name or "").strip() if gf else ""
         bookingdocid = (gf[0].BookingDocId or "").strip() if gf else ""
         old_sno = int(r.SNo or 0)
-        mx = db.query("SELECT MAX(SNo) FROM RoomOcc WHERE DocId = ?",
-                      (docid,), cn=cn)
+        mx = db.query("SELECT MAX(SNo) FROM RoomOcc WHERE DocId = ?", (docid,), cn=cn)
         new_sno = int((mx[0][0] or 0) if mx else old_sno) + 1
         raised_dates = (chng_date, chng_time)
         # --- 1. nayi RoomOcc row (VB6 30-col INSERT pattern) ---
@@ -155,22 +185,60 @@ def room_change(docid: str, new_room: str, reason: str = "",
             "RackRate, RoomTaxStru) "
             "VALUES (?, ?, ?, 'CHK', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
             "?, ?, 'I', ?, getdate(), 'A', ?, ?, ?, ?, ?, ?, ?, ?)",
-            (docid, new_sno, r.FolioNo, site, r.Vprefix or "", r.GuestProf,
-             r.RoomCat or "", r.RoomType or "", new_room, r.RateCode or "",
-             r.RoomRate or 0, raised_dates[0], raised_dates[1],
-             int(r.Adult or 1), int(r.Children or 0), r.DepDate, r.DepTime,
-             user, site, r.RRTaxInc or "", r.RRServiceChrg or "",
-             raised_dates[0], r.ExtraBed or "", r.RoomTarrif or 0,
-             r.RackRate or 0, r.RoomTaxStru or ""), cn=cn, commit=False)
+            (
+                docid,
+                new_sno,
+                r.FolioNo,
+                site,
+                r.Vprefix or "",
+                r.GuestProf,
+                r.RoomCat or "",
+                r.RoomType or "",
+                new_room,
+                r.RateCode or "",
+                r.RoomRate or 0,
+                raised_dates[0],
+                raised_dates[1],
+                int(r.Adult or 1),
+                int(r.Children or 0),
+                r.DepDate,
+                r.DepTime,
+                user,
+                site,
+                r.RRTaxInc or "",
+                r.RRServiceChrg or "",
+                raised_dates[0],
+                r.ExtraBed or "",
+                r.RoomTarrif or 0,
+                r.RackRate or 0,
+                r.RoomTaxStru or "",
+            ),
+            cn=cn,
+            commit=False,
+        )
         # --- 2. nayi row par plan fields ---
+        # G3 (DB-001): PlanDiscAppon carry — VB6 frm 3664 plan UPDATE me
+        # PlanDiscAppOn=.. likhta tha; Python me missing tha → flag loss.
         db.execute(
             "UPDATE RoomOcc SET PlanCode = ?, PlanAmt = ?, IncInRate = ?, "
-            "PlanDisc = ?, PlanDiscAmt = ?, U_AE = 'E' "
+            "PlanDisc = ?, PlanDiscAmt = ?, PlanDiscAppon = ?, U_AE = 'E' "
             "WHERE SNo = ? AND DocId = ? AND Site_Code = ? AND "
             "RTRIM(RoomNo) = ?",
-            (r.PlanCode or "", r.PlanAmt or 0, r.IncInRate or "",
-             r.PlanDisc or 0, r.PlanDiscAmt or 0, new_sno, docid, site,
-             new_room), cn=cn, commit=False)
+            (
+                r.PlanCode or "",
+                r.PlanAmt or 0,
+                r.IncInRate or "",
+                r.PlanDisc or 0,
+                r.PlanDiscAmt or 0,
+                r.PlanDiscAppon or "",
+                new_sno,
+                docid,
+                site,
+                new_room,
+            ),
+            cn=cn,
+            commit=False,
+        )
         # --- 3. old row checkout ---
         db.execute(
             "UPDATE RoomOcc SET ChkOutDate = ?, ChkOutTime = ?, "
@@ -178,39 +246,72 @@ def room_change(docid: str, new_room: str, reason: str = "",
             "U_EntDt = getdate(), U_AE = 'E' "
             "WHERE SNo = ? AND DocId = ? AND Site_Code = ? AND "
             "RTRIM(RoomNo) = ?",
-            (raised_dates[0], raised_dates[1], new_room,
-             (reason or "").strip()[:100], user, old_sno, docid, site,
-             old_room), cn=cn, commit=False)
+            (
+                raised_dates[0],
+                raised_dates[1],
+                new_room,
+                (reason or "").strip()[:100],
+                user,
+                old_sno,
+                docid,
+                site,
+                old_room,
+            ),
+            cn=cn,
+            commit=False,
+        )
         # --- 4. GuestMessage room move ---
         if folio:
             db.execute(
                 "UPDATE GuestMessage SET RoomNo = ?, RoomCat = ? "
                 "WHERE FolioNo = ? AND LogSite_Code = ? AND "
                 "RTRIM(RoomNo) = ?",
-                (new_room, new_cat, folio, site, old_room), cn=cn,
-                commit=False)
+                (new_room, new_cat, folio, site, old_room),
+                cn=cn,
+                commit=False,
+            )
         # --- 5. Booking.OccRoom link ---
         if bookingdocid:
-            db.execute("UPDATE Booking SET OccRoom = ? WHERE DocId = ?",
-                       (new_room, bookingdocid), cn=cn, commit=False)
+            db.execute(
+                "UPDATE Booking SET OccRoom = ? WHERE DocId = ?",
+                (new_room, bookingdocid),
+                cn=cn,
+                commit=False,
+            )
         # --- 6. old room dirty ---
         db.execute(
             "UPDATE RoomMast SET RoomStat = 'D', U_Name = ?, "
             "U_EntDt = getdate(), U_AE = 'E' "
             "WHERE RTRIM(Type) = 'RO' AND RTRIM(Code) = ? AND "
             "(LogSite_Code = ? OR LogSite_Code = 'HO')",
-            (user, old_room, site), cn=cn, commit=False)
+            (user, old_room, site),
+            cn=cn,
+            commit=False,
+        )
         # --- 7. PlanDetails: delete + re-insert (nayi RoomNo) ---
+        # DB-001 fix: DELETE se pehle rows ka snapshot lo — DELETE ke baad
+        # SELECT hamesha 0 deta tha (plan rows loss hoti thin). VB6
+        # FGrid3 ko form-load state se 3788 se re-insert karta hai;
+        # Python equivalent = delete-se-pehle ka snapshot. Scope DELETE
+        # ke saath aligned (DocId + Site_Code) — doosre site ki rows na
+        # delete hoti hain na duplicate.
+        plan_rows = db.query(
+            "SELECT FolioNo, RevCode, Chrgcode, TaxInc, TaxStru, "
+            "PrintOption, PostingMethod, ChargeType, FlatRate, Adult, "
+            "Child, ExtraAdult, ExtraChild, NoOfDays, PlanPer, "
+            "App_Date, FixRate, Amount, PlanCode, NetPackageAmount, "
+            "Logsite_Code, DiscAmt, PlanAppDate "
+            "FROM PlanDetails WHERE DocId = ? AND Site_Code = ?",
+            (docid, site),
+            cn=cn,
+        )
         db.execute(
             "DELETE FROM PlanDetails WHERE DocId = ? AND Site_Code = ?",
-            (docid, site), cn=cn, commit=False)
-        for pl in db.query(
-                "SELECT FolioNo, RevCode, Chrgcode, TaxInc, TaxStru, "
-                "PrintOption, PostingMethod, ChargeType, FlatRate, Adult, "
-                "Child, ExtraAdult, ExtraChild, NoOfDays, PlanPer, "
-                "App_Date, FixRate, Amount, PlanCode, NetPackageAmount, "
-                "Logsite_Code, DiscAmt, PlanAppDate "
-                "FROM PlanDetails WHERE DocId = ?", (docid,), cn=cn):
+            (docid, site),
+            cn=cn,
+            commit=False,
+        )
+        for pl in plan_rows:
             db.execute(
                 "INSERT INTO PlanDetails (FolioNo, RoomNo, RevCode, "
                 "Chrgcode, TaxInc, TaxStru, PrintOption, PostingMethod, "
@@ -221,33 +322,62 @@ def room_change(docid: str, new_room: str, reason: str = "",
                 "PlanAppDate) "
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
                 "?, ?, ?, ?, getdate(), 'A', ?, ?, ?, ?, ?, ?, ?)",
-                (pl.FolioNo, new_room, pl.RevCode, pl.Chrgcode, pl.TaxInc,
-                 pl.TaxStru, pl.PrintOption, pl.PostingMethod,
-                 pl.ChargeType, pl.FlatRate, pl.Adult, pl.Child,
-                 pl.ExtraAdult, pl.ExtraChild, pl.NoOfDays, pl.PlanPer,
-                 pl.App_Date, pl.FixRate, site, user, pl.Amount,
-                 pl.PlanCode, docid, pl.NetPackageAmount, pl.Logsite_Code,
-                 pl.DiscAmt, pl.PlanAppDate), cn=cn, commit=False)
+                (
+                    pl.FolioNo,
+                    new_room,
+                    pl.RevCode,
+                    pl.Chrgcode,
+                    pl.TaxInc,
+                    pl.TaxStru,
+                    pl.PrintOption,
+                    pl.PostingMethod,
+                    pl.ChargeType,
+                    pl.FlatRate,
+                    pl.Adult,
+                    pl.Child,
+                    pl.ExtraAdult,
+                    pl.ExtraChild,
+                    pl.NoOfDays,
+                    pl.PlanPer,
+                    pl.App_Date,
+                    pl.FixRate,
+                    site,
+                    user,
+                    pl.Amount,
+                    pl.PlanCode,
+                    docid,
+                    pl.NetPackageAmount,
+                    pl.Logsite_Code,
+                    pl.DiscAmt,
+                    pl.PlanAppDate,
+                ),
+                cn=cn,
+                commit=False,
+            )
         # --- 8. EPABX_IN audit (VB6 loc_18AD546 pattern) ---
         # OPTIONAL (live DB me EPABX_IN nahi hai - epabx_ops.py docs).
         # Feature-detect: MAX(ID) query 208 (Invalid object name) pe
         # audit skip; room_change ke 7 core steps phir bhi commit.
         epabx_n = 0
         try:
-            eid = db.query("SELECT COALESCE(MAX(ID), 0) + 1 FROM EPABX_IN",
-                           cn=cn)
+            eid = db.query("SELECT COALESCE(MAX(ID), 0) + 1 FROM EPABX_IN", cn=cn)
             id1 = int((eid[0][0] or 1) if eid else 1)
             db.execute(
                 "INSERT INTO EPABX_IN (ID, V_TYPE, ROOM_NO, ROOM_NO_NEW, "
                 "GUEST_NAME) VALUES (?, 'CHKOT', ?, ?, ?)",
-                (id1, old_room, new_room, guest_name), cn=cn, commit=False)
-            eid2 = db.query("SELECT COALESCE(MAX(ID), 0) + 1 FROM EPABX_IN",
-                            cn=cn)
+                (id1, old_room, new_room, guest_name),
+                cn=cn,
+                commit=False,
+            )
+            eid2 = db.query("SELECT COALESCE(MAX(ID), 0) + 1 FROM EPABX_IN", cn=cn)
             id2 = int((eid2[0][0] or 1) if eid2 else 1)
             db.execute(
                 "INSERT INTO EPABX_IN (ID, V_TYPE, ROOM_NO, ROOM_NO_NEW, "
                 "GUEST_NAME) VALUES (?, 'CHKIN', ?, ?, ?)",
-                (id2, new_room, old_room, guest_name), cn=cn, commit=False)
+                (id2, new_room, old_room, guest_name),
+                cn=cn,
+                commit=False,
+            )
             epabx_n = 2
         except db.pyodbc.Error as e:
             msg = str(e)
@@ -257,9 +387,14 @@ def room_change(docid: str, new_room: str, reason: str = "",
                 raise
         if commit:
             cn.commit()
-        return {"new_sno": new_sno, "folio": folio, "old_room": old_room,
-                "new_room": new_room, "affected": 7 + epabx_n,
-                "epabx_audited": bool(epabx_n)}
+        return {
+            "new_sno": new_sno,
+            "folio": folio,
+            "old_room": old_room,
+            "new_room": new_room,
+            "affected": 7 + epabx_n,
+            "epabx_audited": bool(epabx_n),
+        }
     finally:
         if own:
             cn.close()
@@ -268,8 +403,14 @@ def room_change(docid: str, new_room: str, reason: str = "",
 # ------------------------------------------------------------
 # Merge Charge (VB6 FrmMergeCharge)
 # ------------------------------------------------------------
-def merge_charge(from_room: str, to_room: str, user: str = USER,
-                 site: str = SITE_CODE, cn=None, commit: bool = True) -> dict:
+def merge_charge(
+    from_room: str,
+    to_room: str,
+    user: str = USER,
+    site: str = SITE_CODE,
+    cn=None,
+    commit: bool = True,
+) -> dict:
     """Source room ke folio ke saare PayCharge lines target room ke folio
     pe shift karo (VB6 FrmMergeCharge/cmdTransferCharge transaction):
 
@@ -298,23 +439,40 @@ def merge_charge(from_room: str, to_room: str, user: str = USER,
         n1 = db.execute(
             "UPDATE GuestFolio SET mFolioNoDocid = ?, mFolioNo = ?, "
             "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' WHERE DocId = ?",
-            (tgt["docid"], tgt["folio"], user, src["docid"]), cn=cn,
-            commit=False)
+            (tgt["docid"], tgt["folio"], user, src["docid"]),
+            cn=cn,
+            commit=False,
+        )
         n2 = db.execute(
             "UPDATE PayCharge SET RelatedFolioNo = ?, RelatedFolioNoDocId = ? "
             "WHERE FolioNoDocid = ? AND (ContraDocID IS NULL OR "
             "ContraDocID = '')",
-            (tgt["folio"], tgt["docid"], src["docid"]), cn=cn, commit=False)
+            (tgt["folio"], tgt["docid"], src["docid"]),
+            cn=cn,
+            commit=False,
+        )
         n3 = db.execute(
             "UPDATE PayCharge SET FolioNoDocid = ?, FolioNo = ?, "
             "RelatedFolioNo = ?, RelatedFolioNoDocId = ?, U_Name = ?, "
             "U_EntDt = getdate(), U_AE = 'E' WHERE FolioNoDocid = ?",
-            (tgt["docid"], tgt["folio"], src["folio"], src["docid"], user,
-             src["docid"]), cn=cn, commit=False)
+            (
+                tgt["docid"],
+                tgt["folio"],
+                src["folio"],
+                src["docid"],
+                user,
+                src["docid"],
+            ),
+            cn=cn,
+            commit=False,
+        )
         if commit:
             cn.commit()
-        return {"rows_moved": n1 + n2 + n3, "folio_from": src["folio"],
-                "folio_to": tgt["folio"]}
+        return {
+            "rows_moved": n1 + n2 + n3,
+            "folio_from": src["folio"],
+            "folio_to": tgt["folio"],
+        }
     finally:
         if own:
             cn.close()
@@ -323,8 +481,7 @@ def merge_charge(from_room: str, to_room: str, user: str = USER,
 # ------------------------------------------------------------
 # Reverse Room Merge (VB6 FrmRevMergeCharge.cmdTransferCharge)
 # ------------------------------------------------------------
-def list_merge_children(master_room: str, site: str = SITE_CODE,
-                        cn=None) -> list[dict]:
+def list_merge_children(master_room: str, site: str = SITE_CODE, cn=None) -> list[dict]:
     """Master folio se linked child rooms (GuestFolio.mFolioNoDocid = master).
 
     Reverse Room Merge grid: har child ke saath uske current open room aur
@@ -339,17 +496,31 @@ def list_merge_children(master_room: str, site: str = SITE_CODE,
         "(SELECT COUNT(*) FROM PayCharge pc WHERE pc.FolioNoDocid = ? "
         "AND pc.RelatedFolioNoDocId = gf.DocId) AS ChargeCount "
         "FROM GuestFolio gf WHERE RTRIM(gf.mFolioNoDocid) = ? "
-        "ORDER BY gf.FolioNo", (m["docid"], m["docid"]), cn=cn)
-    return [{"docid": (r.DocId or "").strip(), "folio": int(r.FolioNo or 0),
-             "name": (r.Name or "").strip(),
-             "guestprof": (r.GuestProf or "").strip(),
-             "room": (r.RoomNo or "").strip() if r.RoomNo else "",
-             "charges": int(r.ChargeCount or 0)} for r in rows]
+        "ORDER BY gf.FolioNo",
+        (m["docid"], m["docid"]),
+        cn=cn,
+    )
+    return [
+        {
+            "docid": (r.DocId or "").strip(),
+            "folio": int(r.FolioNo or 0),
+            "name": (r.Name or "").strip(),
+            "guestprof": (r.GuestProf or "").strip(),
+            "room": (r.RoomNo or "").strip() if r.RoomNo else "",
+            "charges": int(r.ChargeCount or 0),
+        }
+        for r in rows
+    ]
 
 
-def reverse_merge_charge(master_room: str, child_room: str,
-                         user: str = USER, site: str = SITE_CODE,
-                         cn=None, commit: bool = True) -> dict:
+def reverse_merge_charge(
+    master_room: str,
+    child_room: str,
+    user: str = USER,
+    site: str = SITE_CODE,
+    cn=None,
+    commit: bool = True,
+) -> dict:
     """Merged (master) folio se ek child room ko alag karo — uske charges
     wapas uske apne folio par le jao.
 
@@ -378,11 +549,14 @@ def reverse_merge_charge(master_room: str, child_room: str,
     if m["docid"] == c["docid"]:
         raise ValueError("Master aur child same folio nahi ho sakte")
     link = db.query(
-        "SELECT RTRIM(ISNULL(mFolioNoDocid, '')) FROM GuestFolio "
-        "WHERE DocId = ?", (c["docid"],), cn=cn)
+        "SELECT RTRIM(ISNULL(mFolioNoDocid, '')) FROM GuestFolio WHERE DocId = ?",
+        (c["docid"],),
+        cn=cn,
+    )
     if not link or (link[0][0] or "") != m["docid"]:
-        raise ValueError(f"Room {child_room} ka folio master {master_room} "
-                         "se merged nahi hai")
+        raise ValueError(
+            f"Room {child_room} ka folio master {master_room} se merged nahi hai"
+        )
     own = cn is None
     cn = cn or db.connect()
     try:
@@ -392,12 +566,17 @@ def reverse_merge_charge(master_room: str, child_room: str,
             "U_EntDt = getdate(), U_AE = 'E' "
             "WHERE FolioNoDocid = ? AND RelatedFolioNoDocId = ?",
             (c["docid"], c["folio"], user, m["docid"], c["docid"]),
-            cn=cn, commit=False)
+            cn=cn,
+            commit=False,
+        )
         n2 = db.execute(
             "UPDATE GuestFolio SET mFolioNoDocid = '', mFolioNo = 0, "
             "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' "
             "WHERE DocId = ? AND RTRIM(ISNULL(mFolioNoDocid, '')) = ?",
-            (user, c["docid"], m["docid"]), cn=cn, commit=False)
+            (user, c["docid"], m["docid"]),
+            cn=cn,
+            commit=False,
+        )
         master_cleared = False
         still = db.query(
             "SELECT "
@@ -405,22 +584,34 @@ def reverse_merge_charge(master_room: str, child_room: str,
             "RTRIM(ISNULL(mFolioNoDocid, '')) = ?) + "
             "(SELECT COUNT(*) FROM PayCharge WHERE FolioNoDocid = ? AND "
             "ISNULL(RelatedFolioNoDocId, '') <> '') AS N",
-            (m["docid"], m["docid"]), cn=cn)
+            (m["docid"], m["docid"]),
+            cn=cn,
+        )
         if not still or int(still[0][0] or 0) == 0:
             master_cleared = True
             db.execute(
                 "UPDATE PayCharge SET RelatedFolioNo = 0, "
                 "RelatedFolioNoDocId = '', U_Name = ?, U_EntDt = getdate(), "
                 "U_AE = 'E' WHERE FolioNoDocid = ?",
-                (user, m["docid"]), cn=cn, commit=False)
+                (user, m["docid"]),
+                cn=cn,
+                commit=False,
+            )
             db.execute(
                 "UPDATE GuestFolio SET mFolioNoDocid = '', mFolioNo = 0, "
                 "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' WHERE DocId = ?",
-                (user, m["docid"]), cn=cn, commit=False)
+                (user, m["docid"]),
+                cn=cn,
+                commit=False,
+            )
         if commit:
             cn.commit()
-        return {"rows_moved": n1 + n2, "folio_child": c["folio"],
-                "folio_master": m["folio"], "master_cleared": master_cleared}
+        return {
+            "rows_moved": n1 + n2,
+            "folio_child": c["folio"],
+            "folio_master": m["folio"],
+            "master_cleared": master_cleared,
+        }
     finally:
         if own:
             cn.close()
@@ -435,19 +626,33 @@ def list_settlements(docid: str, site: str = SITE_CODE, cn=None) -> list[dict]:
         "SELECT DocId, VNo, Vdate, VTime, PayCode, PayType, AmtCr, Comments, "
         "ModeSet FROM PayCharge WHERE FolioNoDocid = ? AND ModeSet = 'S' "
         "AND PayCode <> ? ORDER BY Vdate DESC, VNo, U_EntDt",
-        (docid, site + "ROFF"), cn=cn)
-    return [{"docid": (r.DocId or "").strip(), "vno": int(r.VNo or 0),
-             "vdate": r.Vdate, "vtime": r.VTime or "",
-             "paycode": (r.PayCode or "").strip(),
-             "paytype": (r.PayType or "").strip(),
-             "amount": float(r.AmtCr or 0),
-             "comments": (r.Comments or "").strip(),
-             "modeset": (r.ModeSet or "").strip()} for r in rows]
+        (docid, site + "ROFF"),
+        cn=cn,
+    )
+    return [
+        {
+            "docid": (r.DocId or "").strip(),
+            "vno": int(r.VNo or 0),
+            "vdate": r.Vdate,
+            "vtime": r.VTime or "",
+            "paycode": (r.PayCode or "").strip(),
+            "paytype": (r.PayType or "").strip(),
+            "amount": float(r.AmtCr or 0),
+            "comments": (r.Comments or "").strip(),
+            "modeset": (r.ModeSet or "").strip(),
+        }
+        for r in rows
+    ]
 
 
-def re_settlement(docid: str, lines: list[dict], user: str = USER,
-                  site: str = SITE_CODE, cn=None,
-                  commit: bool = True) -> dict:
+def re_settlement(
+    docid: str,
+    lines: list[dict],
+    user: str = USER,
+    site: str = SITE_CODE,
+    cn=None,
+    commit: bool = True,
+) -> dict:
     """FdReSetlement core: pichhla REC settlement receipt reverse karke
     nayi payment lines re-post karo.
 
@@ -465,38 +670,50 @@ def re_settlement(docid: str, lines: list[dict], user: str = USER,
     cn = cn or db.connect()
     try:
         gf = db.query(
-            "SELECT FolioNo, GuestProf, Vprefix FROM GuestFolio "
-            "WHERE DocId = ?", (docid,), cn=cn)
+            "SELECT FolioNo, GuestProf, Vprefix FROM GuestFolio WHERE DocId = ?",
+            (docid,),
+            cn=cn,
+        )
         if not gf:
             raise ValueError("GuestFolio nahi mila (DocId galt hai?)")
         folio = int(gf[0].FolioNo or 0)
         guestprof = (gf[0].GuestProf or "").strip()
         vprefix = (gf[0].Vprefix or "2026").strip()
-        rc = db.query("SELECT TOP 1 RoomCat, RoomType, RoomNo FROM RoomOcc "
-                      "WHERE DocId = ?", (docid,), cn=cn)
+        rc = db.query(
+            "SELECT TOP 1 RoomCat, RoomType, RoomNo FROM RoomOcc WHERE DocId = ?",
+            (docid,),
+            cn=cn,
+        )
         roomcat = (rc[0].RoomCat or "") if rc else ""
         roomtype = (rc[0].RoomType or "") if rc else ""
         roomno = (rc[0].RoomNo or "") if rc else ""
         last = db.query(
             "SELECT TOP 1 DocId, AmtCr FROM PayCharge WHERE FolioNoDocid = ? "
             "AND ModeSet = 'S' AND PayCode <> ? ORDER BY VNo DESC",
-            (docid, site + "ROFF"), cn=cn)
+            (docid, site + "ROFF"),
+            cn=cn,
+        )
         if not last:
-            raise ValueError("Pichhla settlement receipt nahi mila "
-                             "(re-settle possible nahi)")
+            raise ValueError(
+                "Pichhla settlement receipt nahi mila (re-settle possible nahi)"
+            )
         old_docid = (last[0].DocId or "").strip()
         old_amt = float(last[0].AmtCr or 0)
         new_amt = sum(float(l.get("amount") or 0) for l in lines)
         if abs(new_amt - old_amt) > 0.005:
             raise ValueError(
                 f"Nayi settlement sum {new_amt:.2f} purane receipt "
-                f"{old_amt:.2f} se match nahi karta")
+                f"{old_amt:.2f} se match nahi karta"
+            )
         # reverse + delete old receipt (VB6: Delete From PayCharge
         # Where DocId=<receipt> And FolioNoDocid=<docid>)
         db.execute(
             "DELETE FROM PayCharge WHERE DocId = ? AND FolioNoDocid = ? "
             "AND Site_Code = ? AND ModeSet = 'S'",
-            (old_docid, docid, site), cn=cn, commit=False)
+            (old_docid, docid, site),
+            cn=cn,
+            commit=False,
+        )
         # nayi receipt lines re-post
         new_vnos = []
         for line in lines:
@@ -504,11 +721,12 @@ def re_settlement(docid: str, lines: list[dict], user: str = USER,
             paytype = _PAY_TYPES.get(paycode)
             if paytype is None:
                 raise ValueError(
-                    f"Unknown paycode '{paycode}' (known: " +
-                    ", ".join(sorted(_PAY_TYPES)) + ")")
+                    f"Unknown paycode '{paycode}' (known: "
+                    + ", ".join(sorted(_PAY_TYPES))
+                    + ")"
+                )
             vno = db.next_vno("PayCharge", "REC", vprefix, site=site, cn=cn)
-            ndocid = ("D" + site + "REC".ljust(6) + vprefix.ljust(4) +
-                      str(vno).rjust(8))
+            ndocid = "D" + site + "REC".ljust(6) + vprefix.ljust(4) + str(vno).rjust(8)
             db.execute(
                 "INSERT INTO PayCharge (DocId, SNo, Vtype, VNo, Site_Code, "
                 "VPrefix, Vdate, VTime, GuestProf, Comments, PayCode, "
@@ -517,17 +735,33 @@ def re_settlement(docid: str, lines: list[dict], user: str = USER,
                 "FolioNoDocid, LogSite_Code) "
                 "VALUES (?, 1, 'REC', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0.0, ?, "
                 "?, ?, ?, ?, getdate(), 'A', 'KKFOM', 'S', ?, ?)",
-                (ndocid, vno, site, vprefix, datetime.date.today(),
-                 datetime.datetime.now().strftime("%H:%M"), guestprof,
-                 (line.get("comments") or "RE-SETTLEMENT").strip(),
-                 paycode, paytype, float(line.get("amount") or 0),
-                 roomcat, roomtype, roomno, folio, user, docid, site),
-                cn=cn, commit=False)
+                (
+                    ndocid,
+                    vno,
+                    site,
+                    vprefix,
+                    datetime.date.today(),
+                    datetime.datetime.now().strftime("%H:%M"),
+                    guestprof,
+                    (line.get("comments") or "RE-SETTLEMENT").strip(),
+                    paycode,
+                    paytype,
+                    float(line.get("amount") or 0),
+                    roomcat,
+                    roomtype,
+                    roomno,
+                    folio,
+                    user,
+                    docid,
+                    site,
+                ),
+                cn=cn,
+                commit=False,
+            )
             new_vnos.append(vno)
         if commit:
             cn.commit()
-        return {"old_receipt": old_docid, "new_vnos": new_vnos,
-                "total": new_amt}
+        return {"old_receipt": old_docid, "new_vnos": new_vnos, "total": new_amt}
     finally:
         if own:
             cn.close()
@@ -544,5 +778,7 @@ def folio_charge_total(docid: str, site: str = SITE_CODE, cn=None) -> float:
     rows = db.query(
         "SELECT ISNULL(SUM(AmtDr), 0) FROM PayCharge "
         "WHERE FolioNoDocid = ? AND Site_Code = ?",
-        (docid, site), cn=cn)
+        (docid, site),
+        cn=cn,
+    )
     return float(rows[0][0] or 0) if rows and rows[0] else 0.0

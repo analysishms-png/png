@@ -1003,13 +1003,36 @@ class CheckInBrowser(QDialog):
         if not rec:
             QMessageBox.information(self, "Room Change", "Pehle folio select karo")
             return
-        from HMS_py.ui import fo_sub_forms_ui as fosub_ui
+        # RV-001 #9: shell pattern — guarded import, coming-soon fallback
+        try:
+            from HMS_py.ui import fo_sub_forms_ui as fosub_ui
+        except ImportError:
+            fosub_ui = None
+        if fosub_ui is None:
+            QMessageBox.information(
+                self,
+                "Room Change",
+                "Room Change abhi available nahi hai "
+                "(module nahi load ho paya — _rebuild/ALL_MODULES_PLAN.md dekho).",
+            )
+            return
 
-        win = fosub_ui.open_room_change(self, user=self.user)
-        self._rc_win = win
+        # RV-001 #10: reuse/focus existing window (no window pile-up)
+        old = getattr(self, "_rc_win", None)
+        try:
+            alive = old is not None and old.isVisible()
+        except RuntimeError:
+            alive = False  # C++ object deleted
+        if alive:
+            win = old
+            win.raise_()
+            win.activateWindow()
+        else:
+            win = fosub_ui.open_room_change(self, user=self.user)
+            self._rc_win = win
+            # RV-001 #3: connect click se pehle — load fail ho to bhi signal wired rahe
+            win.room_changed.connect(lambda _info: self._reload_timer.start(300))
         win.txt_search.setText(str(rec.get("docid", "")))
-        # RV-001 #3: connect click se pehle — load fail ho to bhi signal wired rahe
-        win.room_changed.connect(lambda _info: self._reload_timer.start(300))
         win.btn_load.click()
 
     def _on_discount(self):

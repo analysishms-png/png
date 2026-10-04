@@ -140,6 +140,52 @@ def test_room_change_rejects_same_room(monkeypatch):
     assert not calls
 
 
+def test_room_change_g1_type_decision(monkeypatch):
+    """G1 decision (specs/003-fdroomchange-ui/research.md D1, owner
+    2026-10-04): Python naya RoomOcc row Type='I' likhta hai (VB6 Type=''
+    likhta hai) — INTENTIONALLY DIFFERENT. Old row par Type='C' +
+    NewRoomNo + Reason (100-char truncate) VB6 jaisa."""
+    rec, calls = _recorder()
+
+    def fq(sql, params=(), cn=None):
+        if sql.startswith("SELECT DocId, SNo, FolioNo"):
+            return [_roomocc_row()]
+        if "SELECT TOP 1 RoomCat FROM RoomMast" in sql:
+            return [SimpleNamespace(RoomCat="STD")]
+        if "SELECT COUNT(*) FROM RoomOcc WHERE RTRIM(RoomNo) = ?" in sql:
+            return [(0,)]
+        if "SELECT TOP 1 FolioNo, Name, BookingDocId" in sql:
+            return [SimpleNamespace(FolioNo=10, Name="PYT Guest",
+                                    BookingDocId="")]
+        if "SELECT MAX(SNo) FROM RoomOcc" in sql:
+            return [(2,)]
+        if "FROM PlanDetails WHERE DocId = ?" in sql:
+            return []
+        if "FROM EPABX_IN" in sql:
+            return [(1,)]
+        return []
+
+    _apply(monkeypatch, query=fq, execute=rec)
+    long_reason = "R" * 150
+    fo_ops.room_change("DKKCHK   2025    1000", "201", long_reason,
+                       user="T1", cn=FakeCn())
+    # --- G1: nayi row ka Type literal 'I' hai, param nahi (positional) ---
+    inserts = [c for c in calls if "INSERT INTO RoomOcc" in c["sql"]]
+    assert len(inserts) == 1
+    isql = " ".join(inserts[0]["sql"].split())
+    assert "DepDate, DepTime, Type, U_Name, U_EntDt, U_AE" in isql
+    # DepDate=?, DepTime=?, Type='I', U_Name=?, U_EntDt=getdate(), U_AE='A'
+    assert "?, ?, 'I', ?, getdate(), 'A'" in isql
+    # --- old row: Type='C' + NewRoomNo + Reason (VB6 MaxLength 100) ---
+    checkout = [c for c in calls if "UPDATE RoomOcc" in c["sql"]
+                and "Type = 'C'" in c["sql"]]
+    assert len(checkout) == 1
+    assert "NewRoomNo = ?" in checkout[0]["sql"]
+    assert "Reason = ?" in checkout[0]["sql"]
+    assert checkout[0]["params"][2] == "201"
+    assert checkout[0]["params"][3] == long_reason[:100]
+
+
 # ------------------------------------------------------------
 # Merge Charge
 # ------------------------------------------------------------

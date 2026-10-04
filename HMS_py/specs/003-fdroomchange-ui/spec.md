@@ -4,8 +4,12 @@
 
 **Created**: 2026-10-03
 
-**Status**: Spec only — research complete, implementation not started
-(verification status: `partially_verified`, see §6)
+**Status**: P1 implemented + tested — unit gate 33 green, live-DB parity
+`tests/database/test_room_change_parity.py` green (2026-10-04); P2 gaps
+tracked in §6 / research.md OG-1..OG-10
+(verification status: `verified` for the §5 P1 gate — unit + live-DB
+evidence both green; parity-ledger verdict remains **PARTIAL**, see
+PARITY_RECONCILIATION.md Iteration 5 for OG-6/OG-7 blockers)
 
 **Input**: Delegation RS-001 (@explore): "Implementation-ready spec for the
 Python UI of VB6 form `fdRoomChange` (Room Change): VB6 behaviour, the
@@ -105,6 +109,12 @@ Second copy: `implemented/HMS2526/serialkey/PROJECT2/PROJECT/fdRoomChange.frm`
 | Save error handler | `RollbackTrans` + `MsgBox(err)` | 3809-3813 |
 | Room-change history rows | `Invalid Package Amount` (report-side) | 6727, 7012, 7094 |
 
+**Approved G-delta (RV-001 #5):** the port adds two user-facing messages that
+VB6 did not show (VB6 only set focus and aborted): `Reason is a required
+field.` when Reason is empty, and `Room No is a required field.` when the new
+room is blank/`none found` (`ui/fo_sub_forms_ui.py` `_save`). UX improvement,
+approved — does not change any VB6 string above.
+
 ### 1.5 Keyboard / grid behaviour
 
 - `Txt_KeyDown` (1506-1732):
@@ -137,6 +147,13 @@ roomtype='RO' and VoidYN='N' and NCKOT<>'Y' and DelFlag<>'Y'` (3442-3445) →
 tariff(16)>0 (3454) → if `MemVar_1F921D0="Y"` insert `EPABX_IN`
 `('CHKOT')` + optional `('CHKIN')` behind the Dial Facility prompt
 (3469-3502).
+
+**Approved G-delta (RV-001 #6):** the Python KOT guard uses null-safe
+predicates — `ISNULL(VoidYN,'N')<>'Y'` / `ISNULL(NCKOT,'N')<>'Y'` /
+`ISNULL(DelFlag,'')<>'Y'` — vs VB6's strict `VoidYN='N' AND NCKOT<>'Y'
+AND DelFlag<>'Y'` (§1.6, 3442-3445). NULL columns now count as *not*
+void/not-NC/not-deleted, so the guard blocks **more** often than VB6
+(fail-safe direction, over-blocking only). Accepted.
 
 Then `BeginTrans` (3503) and, in order:
 

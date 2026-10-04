@@ -599,3 +599,39 @@ branch (Checkout='Standard', RoomRentBefChkOut='No'); guard per-room
 OPEN: live GUI walkthrough of the window (Phase 7 end-to-end), parity
 regen deferred to next iteration (concurrent session), historical
 Python-era double-tax rows (Vdate 10-02) flagged for ops — not rewritten.
+
+### Iteration 5 — fdRoomChange (Room Change) — 2026-10-04
+
+**READ (spec-kit):** `specs/003-fdroomchange-ui/` (spec, plan, research,
+data-model, contracts, quickstart, tasks) — VB6 `fdRoomChange.frm` (7373-line
+decompile) save path + validation strings evidenced in spec §1.
+
+**MAP (P1 implemented in place):** one dialog `ui/fo_sub_forms_ui.py::`
+`RoomChangeWindow` (L119) + `open_room_change` (L893); menu registry
+`ui/shell.py:2686-2692`; toolbar `ui/frontoffice.py:1000` (selected-folio
+prefill, no `QInputDialog`); legacy `_open_room_change` (called nonexistent
+`checkin_mod.room_change`) removed + guarded by test; persistence only via
+`core/fo_ops.py:85 room_change` (12 steps, single commit / rollback-on-error).
+
+**DECISION — G1 `INTENTIONALLY DIFFERENT` (documented; owner 2026-10-04):**
+VB6 nayi `RoomOcc` row me `Type=''` likhta hai (fdRoomChange.frm 3632);
+Python `Type='I'` likhta hai (fo_ops INSERT literal). Readers
+`ui/fo_sub_forms_ui.py:87` + `ui/dashboard.py:168` dono `Type='I'` par
+filter karte hain → writer unchanged (core edit dashboards ko break karta).
+Row-level semantics (`'I'` open vs VB6 `''` open, old `'C'` + `NewRoomNo` +
+`Reason`) identical; literal-only delta. Follow-up: VB6-written `''` rows
+Python readers ko nahi dikhti (research OG-8) — VB6 retire hone par revisit.
+
+**EVIDENCE (2026-10-04, live env):**
+- Unit gate `QT_QPA_PLATFORM=offscreen python -m pytest tests/unit/test_room_change_ui.py tests/unit/test_missing_logic_core.py -q` → **33 passed, exit 0** (18 UI incl. registry/toolbar/legacy wiring + 15 core incl. new G1 positional test `test_room_change_g1_type_decision`).
+- DB-state gate `python -m pytest tests/database/test_room_change_parity.py -q` → **1 passed** on live DB (rollback-safe txn): new row `SNo=MAX+1`, `RoomNo=new`, `Type='I'`, `ChngDate` set; old row `Type='C'`+`NewRoomNo`+`Reason`+`ChkOutDate`; `RoomMast.RoomStat='D'`; row count old+1; `Type='I'` reader count finds new row; negatives (same-room / occupied / RoomMast-miss) raise with **zero partial rows**; GuestMessage/Booking/PlanDetails re-point asserted conditionally on pre-data.
+- Validation strings byte-exact vs VB6 (spec §1.4 table ↔ contract C3.1-C3.8), save order preserved (research D7).
+- **Core fix landed 2026-10-04 19:0x (coordinated with DB-001 session):** `fo_ops.room_change` step 7 ab DELETE se **pehle** PlanDetails snapshot leta hai (DELETE-ke-baad-SELECT hamesha 0 rows → plan loss), scope `DocId + Site_Code` DELETE ke saath aligned. Evidence: DB-001 `tests/database/test_roomchange_parity.py` **4/4 green** (12-step + atomic), full regression `tests/unit + tests/database` → **1019 passed, 1 skipped, 0 failed, exit 0**.
+
+**VERDICT:** fdRoomChange = **PARTIAL** (ledger) — P1 parity core has
+behavioral + DB-state evidence, but constitution VERIFIED requires the
+remaining surfaces: OG-6 `UserPermission.ChangeRoomDtl` + `enviro` gating
+(Form_Load frm 2881-2917 not ported anywhere in Python), OG-7 room-change
+history/report rows (frm 6727-7094 — separate migration unit), OG-1..OG-5
+P2 plan/package, rate/season, Remarks/Auth, Yes-No, EPABX-dial (spec §3.4
+deferred). Spec-side P1 §5 gate (unit + live-DB) = met 2026-10-04.

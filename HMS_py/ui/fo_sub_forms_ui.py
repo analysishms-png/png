@@ -192,6 +192,7 @@ class RoomChangeWindow(QMainWindow):
         self.cmb_newroom.setToolTip("Free 'RO' rooms (RoomMast - open RoomOcc)")
         self._fill_free_rooms()
         self.txt_reason = QLineEdit()
+        self.txt_reason.setMaxLength(100)
         self.txt_reason.setPlaceholderText("e.g. AC fault, guest request...")
         cf.addRow("New Room:", self.cmb_newroom)
         cf.addRow("Reason:", self.txt_reason)
