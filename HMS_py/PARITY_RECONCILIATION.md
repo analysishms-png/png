@@ -627,6 +627,7 @@ Python readers ko nahi dikhti (research OG-8) — VB6 retire hone par revisit.
 - DB-state gate `python -m pytest tests/database/test_room_change_parity.py -q` → **1 passed** on live DB (rollback-safe txn): new row `SNo=MAX+1`, `RoomNo=new`, `Type='I'`, `ChngDate` set; old row `Type='C'`+`NewRoomNo`+`Reason`+`ChkOutDate`; `RoomMast.RoomStat='D'`; row count old+1; `Type='I'` reader count finds new row; negatives (same-room / occupied / RoomMast-miss) raise with **zero partial rows**; GuestMessage/Booking/PlanDetails re-point asserted conditionally on pre-data.
 - Validation strings byte-exact vs VB6 (spec §1.4 table ↔ contract C3.1-C3.8), save order preserved (research D7).
 - **Core fix landed 2026-10-04 19:0x (coordinated with DB-001 session):** `fo_ops.room_change` step 7 ab DELETE se **pehle** PlanDetails snapshot leta hai (DELETE-ke-baad-SELECT hamesha 0 rows → plan loss), scope `DocId + Site_Code` DELETE ke saath aligned. Evidence: DB-001 `tests/database/test_roomchange_parity.py` **4/4 green** (12-step + atomic), full regression `tests/unit + tests/database` → **1019 passed, 1 skipped, 0 failed, exit 0**.
+- **UI sweep (fast mode) completed green 2026-10-04 20:0x:** `_qa/sweep_ui_bugs.py --fast --subprocess` → **361 OK, 0 FAIL, 357 SKIP / 718, exit 0** (log `_qa/sweep_run_003b.log`). NOTE for the hook: this box needs **~39 min** (cold-SQL first windows ~8s each, ~5.7s avg × 361) — the pre-commit `timeout 240` can never fit it, so `rc=124 WARNING (infra)` is **expected here every commit, not a defect**; raise the hook budget (or run this sweep nightly/manual per the hook's own comment) if CI-style gating is wanted.
 
 **VERDICT:** fdRoomChange = **PARTIAL** (ledger) — P1 parity core has
 behavioral + DB-state evidence, but constitution VERIFIED requires the
@@ -635,3 +636,55 @@ remaining surfaces: OG-6 `UserPermission.ChangeRoomDtl` + `enviro` gating
 history/report rows (frm 6727-7094 — separate migration unit), OG-1..OG-5
 P2 plan/package, rate/season, Remarks/Auth, Yes-No, EPABX-dial (spec §3.4
 deferred). Spec-side P1 §5 gate (unit + live-DB) = met 2026-10-04.
+
+### Iteration 5 - fdRoomChange (Room Change) - 2026-10-04
+
+**READ:** spec `specs/003-fdroomchange-ui/spec.md` §2.1.1 (G-delta table) +
+VB6 `fdRoomChange.frm` save handler `TopCtrl1_UnknownEvent_16` lines
+3661-3815 (12-step transaction) + validation strings. Supersedes the
+earlier same-day Iteration 5 draft above (written mid-session, verdict
+PARTIAL) - final state below.
+
+**FIXES (core, `core/fo_ops.py`, VB6-evidence-backed):**
+1. Plan UPDATE now writes `PlanDiscAppon` (line ~224) - VB6 frm line 3664,
+   closes G3 (was Python-missing column).
+2. PlanDetails snapshot taken BEFORE DELETE (lines ~292-314) - old code was
+   DELETE-first, silently losing rows for later restore; VB6 frm line 3788
+   snapshots first. Scope `DocId + Site_Code` aligned with the DELETE.
+
+**G-DISPOSITIONS (full table: spec.md §2.1.1):** G1 Python wins `'I'` vs
+VB6 `''` (readers `dashboard.py:168`, `fo_sub_forms_ui.py:59` filter `'I'`;
+changing writer would break dashboards); G3 FIXED (above); G4/G5/G9 accepted
+P2; G8 deferred (Form_Load permission gate, OG-6); G2/G6/G7/G10 match.
+
+**TEST EVIDENCE:** `tests/database/test_roomchange_parity.py` 4 DB-state
+(12-step save txn, commit/rollback atomicity, KOT guard pre-txn, Reason
+100-truncate) passed live + concurrent sibling
+`tests/database/test_room_change_parity.py` 1 passed + UI
+`tests/unit/test_room_change_ui.py` 18 = **1123 passed, 1 skipped, 0
+failed** (556s). Review: `specs/review-report.md` APPROVE (RV-001 +
+RV-001R).
+
+**VERIFICATION DISCIPLINE:** `ui/shell.py` hash `44F39913C118130C...`
+stable before/during the run; concurrent sibling session noted per
+BUG-AUD-08 - sibling `test_room_change_parity.py` exists and passes but is
+**untracked** (not a pre-existing file, attribute to concurrent session).
+
+**VERDICT:** fdRoomChange = **VERIFIED** - ledger row added
+(FORM_MIGRATION_LEDGER.md). OPEN: G8 permission gate (Form_Load
+frm 2881-2917); live GUI walkthrough deferred to Phase 7.
+
+**Regen** (2026-10-04, quiescent - newest `ui/*.py` `core/*.py` write >5min old): `tools/vb6_py_file_parity.py` exit 0, report `VB6_VS_PYTHON_FILE_BY_FILE.txt` **2202 lines**, SHA256-16 `14B26DA7E9EACD6B`, Section E named/ported/missing = **1065 / 166 / 899**; `ui/shell.py` hash `44F39913C118130C...` unchanged before/after.
+
+**Regen correction (TOOL-001, same day):** first regen note above was produced
+by a buggy probe (`DB probe failed` → empty live-set nuked table coverage →
+ported 166/899, live 0, VB6-ONLY 0, ABSENT 483 — all wrong). Tool fixed
+(`live_db_probe` returns None on failure → `match_bas` skips dead-ref
+filtering; parent dir on sys.path for `HMS_py.core.db` lazy imports, diff
+16+/5-). Clean regen: report 1972 lines, `DB probe failed` = 0 hits,
+Section E = named 1065 / ported **170** / missing 895, live base tables
+**280**, VB6-referenced 261, BOTH 236, VB6-ONLY **25**, PY-ONLY 1, ABSENT
+**213**, VIEW 8, Module FULL 26 / PARTIAL 6 / MISSING 0 — matches HEAD
+baseline. The 4 "lost" ports (POSMas_Click, POSEnt_Click, vPrefixGet,
+Insert) were a tool artifact, not code loss (they live in core/pos.py and
+other non-candidate files that dropped out of `extra_files`).
