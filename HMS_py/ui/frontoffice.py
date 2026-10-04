@@ -14,24 +14,46 @@ VB6 parity (fdCheckIn.frm / fdWalkInEntry.frm / fdDisplayFolio.frm):
 
 Run: python -m HMS_py.ui.frontoffice
 """
+
 from __future__ import annotations
 
 import datetime
 import os
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
-    os.path.abspath(__file__)))))
+sys.path.insert(
+    0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+)
 
 from PyQt6.QtCore import Qt, QDate, QTimer, QSize
 from PyQt6.QtGui import QColor, QFont, QShortcut, QKeySequence, QIcon, QBrush
 from PyQt6.QtWidgets import (
-    QApplication, QDateEdit, QDialog, QFormLayout, QFrame,
-    QGroupBox, QHBoxLayout, QHeaderView, QInputDialog, QLabel,
-    QLineEdit, QMessageBox, QPushButton, QSizePolicy,
-    QSplitter, QTableWidget, QTableWidgetItem, QTabWidget,
-    QVBoxLayout, QWidget, QScrollArea, QGridLayout, QComboBox,
-    QSpinBox, QDoubleSpinBox, QStatusBar,
+    QApplication,
+    QDateEdit,
+    QDialog,
+    QFormLayout,
+    QFrame,
+    QGroupBox,
+    QHBoxLayout,
+    QHeaderView,
+    QInputDialog,
+    QLabel,
+    QLineEdit,
+    QMessageBox,
+    QPushButton,
+    QSizePolicy,
+    QSplitter,
+    QTableWidget,
+    QTableWidgetItem,
+    QTabWidget,
+    QVBoxLayout,
+    QWidget,
+    QScrollArea,
+    QGridLayout,
+    QComboBox,
+    QSpinBox,
+    QDoubleSpinBox,
+    QStatusBar,
 )
 
 from HMS_py.core import checkin, guestprof, checkout as co_mod
@@ -57,7 +79,9 @@ def _cell_color(val, color: str, bold: bool = False) -> QTableWidgetItem:
     it = _cell(val)
     it.setForeground(QColor(color))
     if bold:
-        f = it.font(); f.setBold(True); it.setFont(f)
+        f = it.font()
+        f.setBold(True)
+        it.setFont(f)
     return it
 
 
@@ -68,7 +92,8 @@ def _header_label(text: str) -> QLabel:
         f"stop:0 {_PAL()['header_grad_top']},"
         f"stop:1 {_PAL()['header_grad_bottom']});"
         "color: #1e3a5f; font-size: 12pt; font-weight: bold;"
-        "padding: 8px 16px; border-bottom: 2px solid #2563eb;")
+        "padding: 8px 16px; border-bottom: 2px solid #2563eb;"
+    )
     lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
     return lbl
 
@@ -78,7 +103,8 @@ def _section_label(text: str) -> QLabel:
     lbl.setStyleSheet(
         "color: #1e3a5f; font-size: 10pt; font-weight: bold;"
         f"background: {_PAL()['header_grad_top']};"
-        "padding: 4px 8px; border-radius: 3px; margin-top: 4px;")
+        "padding: 4px 8px; border-radius: 3px; margin-top: 4px;"
+    )
     return lbl
 
 
@@ -89,8 +115,9 @@ def _separator() -> QFrame:
     return f
 
 
-def _toolbar_btn(text: str, tip: str = "", role: str = "normal",
-                 icon_text: str = "") -> QPushButton:
+def _toolbar_btn(
+    text: str, tip: str = "", role: str = "normal", icon_text: str = ""
+) -> QPushButton:
     b = QPushButton(f"{icon_text}  {text}".strip() if icon_text else text)
     b.setToolTip(tip)
     b.setMinimumHeight(34)
@@ -102,22 +129,26 @@ def _toolbar_btn(text: str, tip: str = "", role: str = "normal",
             f"QPushButton{{background:{p['accent']};color:white;"
             f"font-weight:bold;border:none;border-radius:5px;padding:5px 14px;}}"
             f"QPushButton:hover{{background:{p['accent_hover']};}}"
-            f"QPushButton:pressed{{background:#1e40af;}}")
+            f"QPushButton:pressed{{background:#1e40af;}}"
+        )
     elif role == "danger":
         b.setStyleSheet(
             f"QPushButton{{background:{st['danger']};color:white;"
             f"font-weight:bold;border:none;border-radius:5px;padding:5px 14px;}}"
-            f"QPushButton:hover{{background:{st['danger_dark'] if 'danger_dark' in st else '#b91c1c'};}}")
+            f"QPushButton:hover{{background:{st['danger_dark'] if 'danger_dark' in st else '#b91c1c'};}}"
+        )
     elif role == "warning":
         b.setStyleSheet(
             f"QPushButton{{background:{st['warning']};color:white;"
             f"font-weight:bold;border:none;border-radius:5px;padding:5px 14px;}}"
-            f"QPushButton:hover{{background:#b45309;}}")
+            f"QPushButton:hover{{background:#b45309;}}"
+        )
     else:
         b.setStyleSheet(
             f"QPushButton{{background:{p['surface_solid']};color:{p['text']};"
             f"border:1px solid {p['border_strong']};border-radius:5px;padding:5px 14px;}}"
-            f"QPushButton:hover{{background:{p['surface_hover']};border-color:{p['accent']};}}")
+            f"QPushButton:hover{{background:{p['surface_hover']};border-color:{p['accent']};}}"
+        )
     mark_desktop_action(b)
     return b
 
@@ -126,24 +157,47 @@ def _toolbar_btn(text: str, tip: str = "", role: str = "normal",
 def guestprof_config() -> MasterConfig:
     return MasterConfig(
         title="Guest Profile - HMS Front Office",
-        columns=[("Code", "code"), ("Name", "name"), ("Add1", "add1"),
-                 ("City", "city"), ("Phone", "phone"), ("Mobile", "mobile")],
+        columns=[
+            ("Code", "code"),
+            ("Name", "name"),
+            ("Add1", "add1"),
+            ("City", "city"),
+            ("Phone", "phone"),
+            ("Mobile", "mobile"),
+        ],
         fields=[
-            Field("code", "Code (auto if blank)",
-                  max_len=guestprof.LIMITS["code"],
-                  placeholder="Leave blank for auto (KK######)"),
-            Field("name", "Full Name *", max_len=guestprof.LIMITS["name"],
-                  required=True, placeholder="Guest full name"),
+            Field(
+                "code",
+                "Code (auto if blank)",
+                max_len=guestprof.LIMITS["code"],
+                placeholder="Leave blank for auto (KK######)",
+            ),
+            Field(
+                "name",
+                "Full Name *",
+                max_len=guestprof.LIMITS["name"],
+                required=True,
+                placeholder="Guest full name",
+            ),
             Field("add1", "Address", max_len=guestprof.LIMITS["add1"]),
-            Field("city", "City Code", max_len=guestprof.LIMITS["city"],
-                  placeholder="e.g. KK0002"),
-            Field("type", "Type", max_len=guestprof.LIMITS["type"],
-                  placeholder="India or Foreign"),
+            Field(
+                "city",
+                "City Code",
+                max_len=guestprof.LIMITS["city"],
+                placeholder="e.g. KK0002",
+            ),
+            Field(
+                "type",
+                "Type",
+                max_len=guestprof.LIMITS["type"],
+                placeholder="India or Foreign",
+            ),
             Field("phone", "Phone", max_len=guestprof.LIMITS["phone"]),
             Field("mobile", "Mobile", max_len=guestprof.LIMITS["mobile"]),
             Field("email", "Email", max_len=guestprof.LIMITS["email"]),
-            Field("nationality", "Nationality",
-                  max_len=guestprof.LIMITS["nationality"]),
+            Field(
+                "nationality", "Nationality", max_len=guestprof.LIMITS["nationality"]
+            ),
         ],
         api=guestprof,
         delete_guard=make_delete_guard("PYT"),
@@ -176,20 +230,22 @@ class FolioDetailPanel(QWidget):
             f"QGroupBox{{font-weight:bold;color:{_PAL()['text']};"
             f"border:1px solid {_PAL()['border_strong']};border-radius:5px;"
             f"margin-top:8px;padding:6px;}} "
-            f"QGroupBox::title{{subcontrol-origin:margin;left:10px;padding:0 3px;}}")
+            f"QGroupBox::title{{subcontrol-origin:margin;left:10px;padding:0 3px;}}"
+        )
         grid = QGridLayout(info_box)
         grid.setSpacing(6)
 
         def _lbl(t, bold=False):
             l = QLabel(t)
-            l.setStyleSheet(f"color:{_PAL()['text_dim']};font-size:9pt;" +
-                            ("font-weight:bold;" if bold else ""))
+            l.setStyleSheet(
+                f"color:{_PAL()['text_dim']};font-size:9pt;"
+                + ("font-weight:bold;" if bold else "")
+            )
             return l
 
         def _val():
             v = QLabel("—")
-            v.setStyleSheet(
-                f"color:{_PAL()['text']};font-size:10pt;font-weight:bold;")
+            v.setStyleSheet(f"color:{_PAL()['text']};font-size:10pt;font-weight:bold;")
             v.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
             return v
 
@@ -202,16 +258,18 @@ class FolioDetailPanel(QWidget):
         self.lbl_days = _val()
         self.lbl_rate = _val()
 
-        for row, (caption, widget) in enumerate([
-            ("Folio #",      self.lbl_folio),
-            ("Room",         self.lbl_room),
-            ("Guest",        self.lbl_guest),
-            ("Guest Prof",   self.lbl_prof),
-            ("Arrival",      self.lbl_arr),
-            ("Departure",    self.lbl_dep),
-            ("Days",         self.lbl_days),
-            ("Rate Code",    self.lbl_rate),
-        ]):
+        for row, (caption, widget) in enumerate(
+            [
+                ("Folio #", self.lbl_folio),
+                ("Room", self.lbl_room),
+                ("Guest", self.lbl_guest),
+                ("Guest Prof", self.lbl_prof),
+                ("Arrival", self.lbl_arr),
+                ("Departure", self.lbl_dep),
+                ("Days", self.lbl_days),
+                ("Rate Code", self.lbl_rate),
+            ]
+        ):
             grid.addWidget(_lbl(caption), row, 0)
             grid.addWidget(widget, row, 1)
         lay.addWidget(info_box)
@@ -221,22 +279,27 @@ class FolioDetailPanel(QWidget):
         bal_frame.setStyleSheet(
             f"background:{_PAL()['surface_solid']};"
             f"border:1px solid {_PAL()['border_strong']};"
-            "border-radius:5px; padding:6px;")
+            "border-radius:5px; padding:6px;"
+        )
         bal_lay = QHBoxLayout(bal_frame)
         bal_lay.setSpacing(20)
-        for attr, caption in [("lbl_dr", "Charges (Dr)"),
-                               ("lbl_cr", "Payments (Cr)"),
-                               ("lbl_bal", "Balance")]:
+        for attr, caption in [
+            ("lbl_dr", "Charges (Dr)"),
+            ("lbl_cr", "Payments (Cr)"),
+            ("lbl_bal", "Balance"),
+        ]:
             col = QVBoxLayout()
             cap = QLabel(caption)
             cap.setStyleSheet(
-                f"color:{_PAL()['text_dim']};font-size:8pt;font-weight:bold;")
+                f"color:{_PAL()['text_dim']};font-size:8pt;font-weight:bold;"
+            )
             cap.setAlignment(Qt.AlignmentFlag.AlignCenter)
             val = QLabel("—")
             val.setStyleSheet("font-size:13pt;font-weight:bold;")
             val.setAlignment(Qt.AlignmentFlag.AlignCenter)
             setattr(self, attr, val)
-            col.addWidget(cap); col.addWidget(val)
+            col.addWidget(cap)
+            col.addWidget(val)
             bal_lay.addLayout(col)
         lay.addWidget(bal_frame)
 
@@ -255,14 +318,22 @@ class FolioDetailPanel(QWidget):
             f"QHeaderView::section{{background:{_PAL()['header_grad_top']};"
             f"color:{_PAL()['text']};font-weight:bold;padding:3px;border:none;"
             f"border-bottom:1px solid {_PAL()['border_strong']};}}"
-            "QTableWidget::item{padding:2px;}")
+            "QTableWidget::item{padding:2px;}"
+        )
         self.tbl_charges.setMaximumHeight(220)
         lay.addWidget(self.tbl_charges)
 
     def clear(self):
-        for w in (self.lbl_folio, self.lbl_room, self.lbl_guest,
-                  self.lbl_prof, self.lbl_arr, self.lbl_dep,
-                  self.lbl_days, self.lbl_rate):
+        for w in (
+            self.lbl_folio,
+            self.lbl_room,
+            self.lbl_guest,
+            self.lbl_prof,
+            self.lbl_arr,
+            self.lbl_dep,
+            self.lbl_days,
+            self.lbl_rate,
+        ):
             w.setText("—")
         for w in (self.lbl_dr, self.lbl_cr, self.lbl_bal):
             w.setText("—")
@@ -284,19 +355,28 @@ class FolioDetailPanel(QWidget):
     def load_balance(self, bal: dict | None):
         if bal is None:
             for w in (self.lbl_dr, self.lbl_cr, self.lbl_bal):
-                w.setText("—"); w.setStyleSheet("font-size:13pt;font-weight:bold;")
+                w.setText("—")
+                w.setStyleSheet("font-size:13pt;font-weight:bold;")
             return
         dr = float(bal.get("charges_dr") or 0)
         cr = float(bal.get("payments_cr") or 0)
         b = float(bal.get("balance") or 0)
         st = _theme.status_colors()
         self.lbl_dr.setText(f"₹{dr:,.2f}")
-        self.lbl_dr.setStyleSheet(f"font-size:13pt;font-weight:bold;color:{st['danger_text']};")
+        self.lbl_dr.setStyleSheet(
+            f"font-size:13pt;font-weight:bold;color:{st['danger_text']};"
+        )
         self.lbl_cr.setText(f"₹{cr:,.2f}")
-        self.lbl_cr.setStyleSheet(f"font-size:13pt;font-weight:bold;color:{st['success_text']};")
-        color = (st['danger_text'] if b > 0.005
-                 else st['success_text'] if abs(b) < 0.005
-                 else st['warning'])
+        self.lbl_cr.setStyleSheet(
+            f"font-size:13pt;font-weight:bold;color:{st['success_text']};"
+        )
+        color = (
+            st["danger_text"]
+            if b > 0.005
+            else st["success_text"]
+            if abs(b) < 0.005
+            else st["warning"]
+        )
         self.lbl_bal.setText(f"₹{b:,.2f}")
         self.lbl_bal.setStyleSheet(f"font-size:14pt;font-weight:bold;color:{color};")
 
@@ -305,7 +385,11 @@ class FolioDetailPanel(QWidget):
         st = _theme.status_colors()
         for r, ch in enumerate(charges):
             vdate = ch.get("vdate") or ch.get("date")
-            date_str = f"{vdate:%d/%b/%Y}" if isinstance(vdate, (datetime.date, datetime.datetime)) else str(vdate or "")
+            date_str = (
+                f"{vdate:%d/%b/%Y}"
+                if isinstance(vdate, (datetime.date, datetime.datetime))
+                else str(vdate or "")
+            )
             dr = float(ch.get("amt_dr") or ch.get("dr") or 0)
             cr = float(ch.get("amt_cr") or ch.get("cr") or 0)
             vals = [
@@ -367,12 +451,14 @@ class NewCheckInDialog(QDialog):
             f"QLineEdit:focus, QDateEdit:focus, QSpinBox:focus, "
             f"QDoubleSpinBox:focus, QComboBox:focus {{"
             f"border:2px solid {p['accent']};}}"
-            f"QLabel{{color:{p['text']};font-size:10pt;}}")
+            f"QLabel{{color:{p['text']};font-size:10pt;}}"
+        )
         content.setStyleSheet(field_style)
 
         # ── Section: Guest ────────────────────────────────────────
         form_lay.addWidget(_section_label("Guest Information"))
-        g_form = QFormLayout(); g_form.setSpacing(8)
+        g_form = QFormLayout()
+        g_form.setSpacing(8)
 
         self.ed_name = QLineEdit()
         self.ed_name.setMaxLength(50)
@@ -394,21 +480,28 @@ class NewCheckInDialog(QDialog):
 
         # ── Section: Stay ─────────────────────────────────────────
         form_lay.addWidget(_section_label("Stay Details"))
-        s_form = QFormLayout(); s_form.setSpacing(8)
+        s_form = QFormLayout()
+        s_form.setSpacing(8)
 
         today = QDate.currentDate()
-        self.de_arr = QDateEdit(today); self.de_arr.setCalendarPopup(True)
+        self.de_arr = QDateEdit(today)
+        self.de_arr.setCalendarPopup(True)
         self.de_arr.setDisplayFormat("dd/MMM/yyyy")
         s_form.addRow("Arrival Date", self.de_arr)
 
-        self.de_dep = QDateEdit(today.addDays(1)); self.de_dep.setCalendarPopup(True)
+        self.de_dep = QDateEdit(today.addDays(1))
+        self.de_dep.setCalendarPopup(True)
         self.de_dep.setDisplayFormat("dd/MMM/yyyy")
         s_form.addRow("Departure Date", self.de_dep)
 
-        self.sp_adult = QSpinBox(); self.sp_adult.setRange(1, 20); self.sp_adult.setValue(1)
+        self.sp_adult = QSpinBox()
+        self.sp_adult.setRange(1, 20)
+        self.sp_adult.setValue(1)
         s_form.addRow("Adults", self.sp_adult)
 
-        self.sp_child = QSpinBox(); self.sp_child.setRange(0, 10); self.sp_child.setValue(0)
+        self.sp_child = QSpinBox()
+        self.sp_child.setRange(0, 10)
+        self.sp_child.setValue(0)
         s_form.addRow("Children", self.sp_child)
 
         self.ed_chkintime = QLineEdit(datetime.datetime.now().strftime("%H:%M"))
@@ -418,7 +511,8 @@ class NewCheckInDialog(QDialog):
 
         # ── Section: Room ─────────────────────────────────────────
         form_lay.addWidget(_section_label("Room & Rate"))
-        r_form = QFormLayout(); r_form.setSpacing(8)
+        r_form = QFormLayout()
+        r_form.setSpacing(8)
 
         self.ed_room = QLineEdit()
         self.ed_room.setPlaceholderText("Room No (blank = auto assign first free room)")
@@ -429,11 +523,13 @@ class NewCheckInDialog(QDialog):
         r_form.addRow("Rate Code", self.ed_rate)
 
         self.ed_tarrif = QDoubleSpinBox()
-        self.ed_tarrif.setRange(0, 999999); self.ed_tarrif.setDecimals(2)
+        self.ed_tarrif.setRange(0, 999999)
+        self.ed_tarrif.setDecimals(2)
         r_form.addRow("Room Tariff", self.ed_tarrif)
 
         self.ed_rack = QDoubleSpinBox()
-        self.ed_rack.setRange(0, 999999); self.ed_rack.setDecimals(2)
+        self.ed_rack.setRange(0, 999999)
+        self.ed_rack.setDecimals(2)
         r_form.addRow("Rack Rate", self.ed_rack)
 
         self.ed_taxstru = QLineEdit()
@@ -443,27 +539,33 @@ class NewCheckInDialog(QDialog):
 
         # ── Section: Plan ─────────────────────────────────────────
         form_lay.addWidget(_section_label("Plan / Package (Optional)"))
-        pl_form = QFormLayout(); pl_form.setSpacing(8)
+        pl_form = QFormLayout()
+        pl_form.setSpacing(8)
 
-        self.ed_plan = QLineEdit(); self.ed_plan.setPlaceholderText("Plan code")
+        self.ed_plan = QLineEdit()
+        self.ed_plan.setPlaceholderText("Plan code")
         pl_form.addRow("Plan Code", self.ed_plan)
 
         self.ed_planamt = QDoubleSpinBox()
-        self.ed_planamt.setRange(0, 999999); self.ed_planamt.setDecimals(2)
+        self.ed_planamt.setRange(0, 999999)
+        self.ed_planamt.setDecimals(2)
         pl_form.addRow("Plan Amount", self.ed_planamt)
 
-        self.ed_incinrate = QLineEdit(); self.ed_incinrate.setPlaceholderText("Y/N")
+        self.ed_incinrate = QLineEdit()
+        self.ed_incinrate.setPlaceholderText("Y/N")
         self.ed_incinrate.setMaxLength(1)
         pl_form.addRow("Incl in Rate", self.ed_incinrate)
 
         self.ed_plandisc = QDoubleSpinBox()
-        self.ed_plandisc.setRange(0, 100); self.ed_plandisc.setDecimals(2)
+        self.ed_plandisc.setRange(0, 100)
+        self.ed_plandisc.setDecimals(2)
         pl_form.addRow("Plan Discount %", self.ed_plandisc)
         form_lay.addLayout(pl_form)
 
         # ── Buttons ───────────────────────────────────────────────
         root.addWidget(_separator())
-        btns = QHBoxLayout(); btns.setSpacing(10)
+        btns = QHBoxLayout()
+        btns.setSpacing(10)
         self.btn_save = _toolbar_btn("Save Check-In", "Save (Enter)", "primary")
         self.btn_cancel = _toolbar_btn("Cancel", "Discard (Esc)")
         btns.addStretch()
@@ -482,21 +584,24 @@ class NewCheckInDialog(QDialog):
         name = self.ed_name.text().strip()
         if not name:
             QMessageBox.warning(self, "Check-In", "Guest Name zaroori hai")
-            self.ed_name.setFocus(); return
+            self.ed_name.setFocus()
+            return
 
         arr = self.de_arr.date().toPyDate()
         dep = self.de_dep.date().toPyDate()
         if dep <= arr:
-            QMessageBox.warning(self, "Check-In",
-                                "Departure date must be after Arrival date")
+            QMessageBox.warning(
+                self, "Check-In", "Departure date must be after Arrival date"
+            )
             return
 
         gcode = self.ed_code.text().strip()
         try:
             if not gcode:
                 gcode = guestprof.next_code()
-                guestprof.insert({"code": gcode, "name": name,
-                                  "city": self.ed_city.text().strip()})
+                guestprof.insert(
+                    {"code": gcode, "name": name, "city": self.ed_city.text().strip()}
+                )
 
             planamt = self.ed_planamt.value() or None
             plandisc = self.ed_plandisc.value() or None
@@ -504,7 +609,10 @@ class NewCheckInDialog(QDialog):
             rack = self.ed_rack.value() or None
 
             self.result_folio = checkin.create_checkin(
-                gcode, name, arr, dep,
+                gcode,
+                name,
+                arr,
+                dep,
                 city=self.ed_city.text().strip(),
                 bookingdocid=self.ed_book.text().strip(),
                 roomno=self.ed_room.text().strip(),
@@ -537,8 +645,17 @@ class CheckInBrowser(QDialog):
     Status bar: house count
     """
 
-    FOLIO_COLS = ["Room", "Folio #", "Guest Name", "Guest Prof",
-                  "Arrival", "Departure", "Days", "Balance", "Status"]
+    FOLIO_COLS = [
+        "Room",
+        "Folio #",
+        "Guest Name",
+        "Guest Prof",
+        "Arrival",
+        "Departure",
+        "Days",
+        "Balance",
+        "Status",
+    ]
 
     def __init__(self, parent=None, user: str = "SA"):
         super().__init__(parent)
@@ -550,6 +667,7 @@ class CheckInBrowser(QDialog):
         self._reload_timer = QTimer(self)
         self._reload_timer.setSingleShot(True)
         self._reload_timer.timeout.connect(self.reload)
+        self._rc_win = None
         self.reload()
 
     def _build(self):
@@ -567,22 +685,43 @@ class CheckInBrowser(QDialog):
         tb = QFrame()
         tb.setStyleSheet(
             f"background:{p['header_grad_bottom']};"
-            f"border-bottom:1px solid {p['border_strong']};")
+            f"border-bottom:1px solid {p['border_strong']};"
+        )
         tb_lay = QHBoxLayout(tb)
         tb_lay.setContentsMargins(10, 6, 10, 6)
         tb_lay.setSpacing(8)
 
-        self.btn_new    = _toolbar_btn("New Check-In", "Create new check-in (Ctrl+N)", "primary", "➕")
-        self.btn_amend  = _toolbar_btn("Amend Departure", "Change departure date (Ctrl+A)", icon_text="✏️")
-        self.btn_room   = _toolbar_btn("Room Change", "Move guest to another room", icon_text="🔄")
-        self.btn_disc   = _toolbar_btn("Discount", "Apply room/service discount", icon_text="🏷️")
-        self.btn_merge  = _toolbar_btn("Merge Folio", "Merge folios (Ctrl+M)", icon_text="🔗")
-        self.btn_print  = _toolbar_btn("Print Folio", "Print folio bill (Ctrl+P)", icon_text="🖨️")
-        self.btn_ref    = _toolbar_btn("Refresh", "Reload (F5)", icon_text="🔃")
-        self.btn_close  = _toolbar_btn("Close", "Close window (Esc)", icon_text="✖")
+        self.btn_new = _toolbar_btn(
+            "New Check-In", "Create new check-in (Ctrl+N)", "primary", "➕"
+        )
+        self.btn_amend = _toolbar_btn(
+            "Amend Departure", "Change departure date (Ctrl+A)", icon_text="✏️"
+        )
+        self.btn_room = _toolbar_btn(
+            "Room Change", "Move guest to another room", icon_text="🔄"
+        )
+        self.btn_disc = _toolbar_btn(
+            "Discount", "Apply room/service discount", icon_text="🏷️"
+        )
+        self.btn_merge = _toolbar_btn(
+            "Merge Folio", "Merge folios (Ctrl+M)", icon_text="🔗"
+        )
+        self.btn_print = _toolbar_btn(
+            "Print Folio", "Print folio bill (Ctrl+P)", icon_text="🖨️"
+        )
+        self.btn_ref = _toolbar_btn("Refresh", "Reload (F5)", icon_text="🔃")
+        self.btn_close = _toolbar_btn("Close", "Close window (Esc)", icon_text="✖")
 
-        for b in (self.btn_new, self.btn_amend, self.btn_room, self.btn_disc,
-                  self.btn_merge, self.btn_print, self.btn_ref, self.btn_close):
+        for b in (
+            self.btn_new,
+            self.btn_amend,
+            self.btn_room,
+            self.btn_disc,
+            self.btn_merge,
+            self.btn_print,
+            self.btn_ref,
+            self.btn_close,
+        ):
             tb_lay.addWidget(b)
         tb_lay.addStretch()
 
@@ -593,7 +732,8 @@ class CheckInBrowser(QDialog):
         self.ed_search.setStyleSheet(
             f"background:{p['surface_solid']};color:{p['text']};"
             f"border:1px solid {p['border_strong']};border-radius:16px;"
-            "padding:5px 14px;font-size:10pt;")
+            "padding:5px 14px;font-size:10pt;"
+        )
         self.ed_search.textChanged.connect(self._on_search)
         tb_lay.addWidget(self.ed_search)
         root.addWidget(tb)
@@ -627,17 +767,28 @@ class CheckInBrowser(QDialog):
             f"border:none;border-bottom:2px solid {p['accent']};}}"
             "QTableWidget::item{padding:4px;}"
             f"QTableWidget::item:selected{{background:{p['accent_soft']};"
-            f"color:{p['text']};}}")
+            f"color:{p['text']};}}"
+        )
         # Column widths
-        self.tbl.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
-        self.tbl.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
-        self.tbl.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
-        self.tbl.currentCellChanged.connect(lambda r, c, pr, pc: self._on_row_changed(r))
+        self.tbl.horizontalHeader().setSectionResizeMode(
+            0, QHeaderView.ResizeMode.ResizeToContents
+        )
+        self.tbl.horizontalHeader().setSectionResizeMode(
+            1, QHeaderView.ResizeMode.ResizeToContents
+        )
+        self.tbl.horizontalHeader().setSectionResizeMode(
+            2, QHeaderView.ResizeMode.Stretch
+        )
+        self.tbl.currentCellChanged.connect(
+            lambda r, c, pr, pc: self._on_row_changed(r)
+        )
         self.tbl.cellDoubleClicked.connect(self._on_amend)
         left_lay.addWidget(self.tbl)
 
         self._lbl_count = QLabel("0 in-house")
-        self._lbl_count.setStyleSheet(f"color:{p['text_dim']};font-size:9pt;padding:2px;")
+        self._lbl_count.setStyleSheet(
+            f"color:{p['text_dim']};font-size:9pt;padding:2px;"
+        )
         left_lay.addWidget(self._lbl_count)
 
         splitter.addWidget(left)
@@ -652,7 +803,8 @@ class CheckInBrowser(QDialog):
         self.status = QStatusBar()
         self.status.setStyleSheet(
             f"background:{p['header_grad_bottom']};color:{p['text_dim']};"
-            "font-size:9pt;border-top:1px solid #c0c0d0;")
+            "font-size:9pt;border-top:1px solid #c0c0d0;"
+        )
         root.addWidget(self.status)
 
         # ── Signal wiring ─────────────────────────────────────────
@@ -669,7 +821,7 @@ class CheckInBrowser(QDialog):
         QShortcut(QKeySequence("Ctrl+A"), self, activated=self._on_amend)
         QShortcut(QKeySequence("Ctrl+M"), self, activated=self._on_merge)
         QShortcut(QKeySequence("Ctrl+P"), self, activated=self._on_print)
-        QShortcut(QKeySequence("F5"),     self, activated=self.reload)
+        QShortcut(QKeySequence("F5"), self, activated=self.reload)
         QShortcut(QKeySequence("Escape"), self, activated=self.reject)
 
         self._all_rows: list[dict] = []
@@ -701,7 +853,7 @@ class CheckInBrowser(QDialog):
                 rec.get("arrdate") or rec.get("vdate"),
                 dep,
                 rec.get("nodays", ""),
-                "—",          # balance loaded on demand
+                "—",  # balance loaded on demand
                 "Overdue" if overdue else "In-House",
             ]
             for c, v in enumerate(vals):
@@ -719,7 +871,8 @@ class CheckInBrowser(QDialog):
         if keep_folio:
             for r, rec in enumerate(rows):
                 if rec["folio"] == keep_folio:
-                    self.tbl.selectRow(r); return
+                    self.tbl.selectRow(r)
+                    return
         if rows:
             self.tbl.selectRow(0)
 
@@ -728,19 +881,24 @@ class CheckInBrowser(QDialog):
         if not t:
             self._populate(self._all_rows)
             return
-        filtered = [r for r in self._all_rows
-                    if t in str(r.get("folio", "")).lower()
-                    or t in (r.get("name") or "").lower()
-                    or t in (r.get("roomno") or "").lower()
-                    or t in (r.get("guestprof") or "").lower()]
+        filtered = [
+            r
+            for r in self._all_rows
+            if t in str(r.get("folio", "")).lower()
+            or t in (r.get("name") or "").lower()
+            or t in (r.get("roomno") or "").lower()
+            or t in (r.get("guestprof") or "").lower()
+        ]
         self._populate(filtered)
 
     def _on_row_changed(self, row: int):
         if row < 0 or row >= self.tbl.rowCount():
-            self.detail.clear(); return
+            self.detail.clear()
+            return
         rec = self._all_rows[row] if row < len(self._all_rows) else None
         if not rec:
-            self.detail.clear(); return
+            self.detail.clear()
+            return
         self.detail.load(rec)
         # Load balance + charges
         try:
@@ -749,9 +907,13 @@ class CheckInBrowser(QDialog):
             # Update balance cell in grid with colour
             b = bal["balance"]
             st = _theme.status_colors()
-            color = (st["danger_text"] if b > 0.005
-                     else st["success_text"] if abs(b) < 0.005
-                     else st["warning"])
+            color = (
+                st["danger_text"]
+                if b > 0.005
+                else st["success_text"]
+                if abs(b) < 0.005
+                else st["warning"]
+            )
             it = _cell_color(f"₹{b:,.2f}", color, bold=True)
             self.tbl.setItem(row, 7, it)
         except Exception:
@@ -759,11 +921,13 @@ class CheckInBrowser(QDialog):
         # Charges
         try:
             from HMS_py.core import expenseentry
+
             charges = expenseentry.list_folio_charges(rec["folio"])
             self.detail.load_charges(charges)
         except Exception:
             try:
                 from HMS_py.core import folio as folio_mod
+
                 charges = folio_mod.charges_detail(rec["folio"])
                 self.detail.load_charges(charges)
             except Exception:
@@ -774,7 +938,8 @@ class CheckInBrowser(QDialog):
         dlg = NewCheckInDialog(self)
         if dlg.exec() == QDialog.DialogCode.Accepted and dlg.result_folio:
             self.status.showMessage(
-                f"✅  Check-In #{dlg.result_folio} saved successfully")
+                f"✅  Check-In #{dlg.result_folio} saved successfully"
+            )
             self.reload(keep_folio=dlg.result_folio)
 
     def _selected(self) -> dict | None:
@@ -804,19 +969,28 @@ class CheckInBrowser(QDialog):
         form.addRow(f"Current Departure: {cur_dep}", QLabel(""))
         form.addRow("New Departure Date *", de_new)
         btns = QHBoxLayout()
-        ok = _toolbar_btn("Save", role="primary"); cancel = _toolbar_btn("Cancel")
-        ok.clicked.connect(dlg.accept); cancel.clicked.connect(dlg.reject)
-        btns.addStretch(); btns.addWidget(ok); btns.addWidget(cancel)
-        main_lay = QVBoxLayout(); main_lay.addLayout(form); main_lay.addLayout(btns)
-        QWidget().setLayout(dlg.layout()); dlg.setLayout(main_lay)
+        ok = _toolbar_btn("Save", role="primary")
+        cancel = _toolbar_btn("Cancel")
+        ok.clicked.connect(dlg.accept)
+        cancel.clicked.connect(dlg.reject)
+        btns.addStretch()
+        btns.addWidget(ok)
+        btns.addWidget(cancel)
+        main_lay = QVBoxLayout()
+        main_lay.addLayout(form)
+        main_lay.addLayout(btns)
+        QWidget().setLayout(dlg.layout())
+        dlg.setLayout(main_lay)
         if dlg.exec() != QDialog.DialogCode.Accepted:
             return
         new_dep = de_new.date().toPyDate()
         try:
             from HMS_py.core import folio as folio_mod
+
             folio_mod.amend_departure(rec["folio"], new_dep, user=self.user)
             self.status.showMessage(
-                f"✅  Folio #{rec['folio']} departure amended to {new_dep:%d/%b/%Y}")
+                f"✅  Folio #{rec['folio']} departure amended to {new_dep:%d/%b/%Y}"
+            )
             self._reload_timer.start(300)
         except ValueError as e:
             QMessageBox.warning(self, "Amend Departure", str(e))
@@ -824,39 +998,18 @@ class CheckInBrowser(QDialog):
             QMessageBox.critical(self, "Amend Departure", f"DB error: {e}")
 
     def _on_room_change(self):
-        """Room Change (VB6 fdRoomChange parity)."""
+        """Room Change (VB6 fdRoomChange parity) — P1 dialog khole."""
         rec = self._selected()
         if not rec:
             QMessageBox.information(self, "Room Change", "Pehle folio select karo")
             return
-        from HMS_py.core import fo_ops
-        try:
-            free = fo_ops.free_rooms()
-        except Exception:
-            free = []
-        new_room, ok = QInputDialog.getText(
-            self, f"Room Change — {rec['name']}",
-            f"Current Room: {rec.get('roomno', '?')}\n"
-            f"Free rooms: {', '.join(free[:10]) if free else 'none found'}\n\n"
-            "New Room No:")
-        if not ok or not new_room.strip():
-            return
-        reason, ok2 = QInputDialog.getText(
-            self, "Room Change", "Reason (optional):")
-        if not ok2:
-            return
-        try:
-            result = fo_ops.room_change(
-                rec["docid"], new_room.strip(),
-                reason=reason.strip(), user=self.user)
-            self.status.showMessage(
-                f"✅  Room changed: {result['old_room']} → {result['new_room']}"
-                f" (Folio #{result['folio']})")
-            self._reload_timer.start(300)
-        except ValueError as e:
-            QMessageBox.warning(self, "Room Change", str(e))
-        except Exception as e:
-            QMessageBox.critical(self, "Room Change", f"DB error: {e}")
+        from HMS_py.ui import fo_sub_forms_ui as fosub_ui
+
+        win = fosub_ui.open_room_change(self, user=self.user)
+        self._rc_win = win
+        win.txt_search.setText(str(rec.get("docid", "")))
+        win.btn_load.click()
+        win.room_changed.connect(lambda _info: self._reload_timer.start(300))
 
     def _on_discount(self):
         rec = self._selected()
@@ -864,23 +1017,38 @@ class CheckInBrowser(QDialog):
             QMessageBox.information(self, "Discount", "Pehle folio select karo")
             return
         from HMS_py.core import folio as folio_mod
+
         dlg = QDialog(self)
         dlg.setWindowTitle(f"Apply Discount — Folio #{rec['folio']}")
         dlg.setModal(True)
         form = QFormLayout()
-        sp_ro = QDoubleSpinBox(); sp_ro.setRange(0, 100); sp_ro.setSuffix(" %"); sp_ro.setDecimals(2)
-        sp_rs = QDoubleSpinBox(); sp_rs.setRange(0, 100); sp_rs.setSuffix(" %"); sp_rs.setDecimals(2)
+        sp_ro = QDoubleSpinBox()
+        sp_ro.setRange(0, 100)
+        sp_ro.setSuffix(" %")
+        sp_ro.setDecimals(2)
+        sp_rs = QDoubleSpinBox()
+        sp_rs.setRange(0, 100)
+        sp_rs.setSuffix(" %")
+        sp_rs.setDecimals(2)
         form.addRow("Room Discount %", sp_ro)
         form.addRow("Service Discount %", sp_rs)
         btns = QHBoxLayout()
-        ok = _toolbar_btn("Apply", role="primary"); cancel = _toolbar_btn("Cancel")
-        ok.clicked.connect(dlg.accept); cancel.clicked.connect(dlg.reject)
-        btns.addStretch(); btns.addWidget(ok); btns.addWidget(cancel)
-        lay = QVBoxLayout(dlg); lay.addLayout(form); lay.addLayout(btns)
+        ok = _toolbar_btn("Apply", role="primary")
+        cancel = _toolbar_btn("Cancel")
+        ok.clicked.connect(dlg.accept)
+        cancel.clicked.connect(dlg.reject)
+        btns.addStretch()
+        btns.addWidget(ok)
+        btns.addWidget(cancel)
+        lay = QVBoxLayout(dlg)
+        lay.addLayout(form)
+        lay.addLayout(btns)
         if dlg.exec() != QDialog.DialogCode.Accepted:
             return
         try:
-            folio_mod.apply_discount(rec["folio"], sp_ro.value(), sp_rs.value(), user=self.user)
+            folio_mod.apply_discount(
+                rec["folio"], sp_ro.value(), sp_rs.value(), user=self.user
+            )
             self.status.showMessage(f"✅  Discount applied on Folio #{rec['folio']}")
         except Exception as e:
             QMessageBox.critical(self, "Discount", str(e))
@@ -891,16 +1059,17 @@ class CheckInBrowser(QDialog):
             QMessageBox.information(self, "Merge Folio", "Pehle folio select karo")
             return
         target, ok = QInputDialog.getInt(
-            self, "Merge Folio",
-            f"Source: Folio #{rec['folio']} — {rec['name']}\n"
-            "Target Folio No:")
+            self,
+            "Merge Folio",
+            f"Source: Folio #{rec['folio']} — {rec['name']}\nTarget Folio No:",
+        )
         if not ok:
             return
         try:
             from HMS_py.core import folio as folio_mod
+
             folio_mod.merge_folio(rec["folio"], target, user=self.user)
-            self.status.showMessage(
-                f"✅  Folio #{rec['folio']} merged into #{target}")
+            self.status.showMessage(f"✅  Folio #{rec['folio']} merged into #{target}")
         except Exception as e:
             QMessageBox.critical(self, "Merge Folio", str(e))
 
@@ -912,10 +1081,13 @@ class CheckInBrowser(QDialog):
         try:
             bal = co_mod.folio_balance(rec["folio"])
             from HMS_py.core import folio as folio_mod
+
             charges = folio_mod.charges_detail(rec["folio"])
         except Exception as e:
-            QMessageBox.critical(self, "Print", str(e)); return
+            QMessageBox.critical(self, "Print", str(e))
+            return
         from HMS_py.ui import print_preview as _pp
+
         text = _build_folio_bill_text(rec["folio"], bal, charges)
         _pp.preview_text(text, f"Folio Bill #{rec['folio']}", self)
 
@@ -923,10 +1095,12 @@ class CheckInBrowser(QDialog):
 def _build_folio_bill_text(folio_no: int, bal: dict, charges: list) -> str:
     """VB6 FomBill print parity — text-based folio bill."""
     from HMS_py.ui import print_preview as _pp
+
     lines = []
     co = _pp.company_header()
     if co:
-        lines.append(co); lines.append("=" * 66)
+        lines.append(co)
+        lines.append("=" * 66)
     lines.append(f"{'GUEST FOLIO BILL':^66}")
     lines.append("-" * 66)
     lines.append(f"Folio No : {folio_no}")
@@ -938,17 +1112,23 @@ def _build_folio_bill_text(folio_no: int, bal: dict, charges: list) -> str:
         vdate = ch.get("vdate") or ch.get("date") or ""
         if isinstance(vdate, (datetime.date, datetime.datetime)):
             vdate = f"{vdate:%d/%b/%Y}"
-        rows.append([
-            str(vdate),
-            str(ch.get("paycode") or ch.get("code") or ""),
-            f"{float(ch.get('amt_dr') or ch.get('dr') or 0):.2f}",
-            f"{float(ch.get('amt_cr') or ch.get('cr') or 0):.2f}",
-            str(ch.get("remarks") or ch.get("comments") or ""),
-        ])
+        rows.append(
+            [
+                str(vdate),
+                str(ch.get("paycode") or ch.get("code") or ""),
+                f"{float(ch.get('amt_dr') or ch.get('dr') or 0):.2f}",
+                f"{float(ch.get('amt_cr') or ch.get('cr') or 0):.2f}",
+                str(ch.get("remarks") or ch.get("comments") or ""),
+            ]
+        )
     lines.append(_pp.grid_to_text(["Date", "Code", "Dr", "Cr", "Remarks"], rows))
     lines.append("-" * 66)
-    lines.append(f"{'Total Charges (Dr)':<40}: {float(bal.get('charges_dr') or 0):>10,.2f}")
-    lines.append(f"{'Total Payments (Cr)':<40}: {float(bal.get('payments_cr') or 0):>10,.2f}")
+    lines.append(
+        f"{'Total Charges (Dr)':<40}: {float(bal.get('charges_dr') or 0):>10,.2f}"
+    )
+    lines.append(
+        f"{'Total Payments (Cr)':<40}: {float(bal.get('payments_cr') or 0):>10,.2f}"
+    )
     lines.append(f"{'Balance Due':<40}: {float(bal.get('balance') or 0):>10,.2f}")
     lines.append("")
     return "\n".join(lines)
