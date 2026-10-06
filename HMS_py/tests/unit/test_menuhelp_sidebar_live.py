@@ -9,12 +9,15 @@ Port of _qa/verify_menuhelp_sidebar.py as pytest (marked `slow` + `database`):
 
 Runs only when a live DB is reachable; otherwise skip (CI-safe).
 """
+
 from __future__ import annotations
 
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..")))
+sys.path.insert(
+    0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+)
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 import pytest
@@ -25,6 +28,7 @@ pytestmark = [pytest.mark.slow, pytest.mark.database]
 def _db_available() -> bool:
     try:
         from HMS_py.core import db
+
         db.query("SELECT 1")
         return True
     except Exception:
@@ -36,13 +40,20 @@ _requires_db = pytest.mark.skipif(not _db_available(), reason="live DB not reach
 
 def _make_app():
     from PyQt6.QtWidgets import QApplication
+
     return QApplication.instance() or QApplication(sys.argv)
 
 
 def _click_module(win, mod_target: str):
-    btn = next((b for b in win._side_buttons
-                if str(b.property("mod_target") or "").strip().lower()
-                == mod_target.strip().lower()), None)
+    btn = next(
+        (
+            b
+            for b in win._side_buttons
+            if str(b.property("mod_target") or "").strip().lower()
+            == mod_target.strip().lower()
+        ),
+        None,
+    )
     assert btn is not None, f"sidebar button missing: {mod_target}"
     win._on_sidebar_click(btn.property("mod_target"), btn)
 
@@ -56,6 +67,7 @@ def test_sidebar_click_menubar_menuhelp_sa(qapp=None):
     """SA: har sidebar module click -> menubar = mh.menubar_for(module)."""
     app = qapp or _make_app()
     from HMS_py.core import menu_help as mh
+    from HMS_py.ui import shell as _shell
     from HMS_py.ui.sidebar_buttons import build_all_buttons
     from HMS_py.ui.shell import MainWindow
 
@@ -66,22 +78,29 @@ def test_sidebar_click_menubar_menuhelp_sa(qapp=None):
     try:
         btns = build_all_buttons("SA")
         assert btns["MODULES"], "no sidebar modules"
-        mh_l1 = {s["name"].lower() for s in mh.sidebar_sources("SA")
-                 if s.get("opt1")}
+        mh_l1 = {s["name"].lower() for s in mh.sidebar_sources("SA") if s.get("opt1")}
         side_targets = {b["mod_target"].lower() for b in btns["MODULES"]}
-        assert not (mh_l1 - side_targets), f"menuHelp L1 missing: {mh_l1 - side_targets}"
+        assert not (mh_l1 - side_targets), (
+            f"menuHelp L1 missing: {mh_l1 - side_targets}"
+        )
 
-        for b in btns["MODULES"]:
-            target = b["mod_target"]
+        # UI-MS-TOPMENU: top menubar PERSISTENT hai (VB6 '&Main Setup' ke 9
+        # sub-menus) — pehle har module click par mb.clear() + rebuild hota
+        # tha, jo isi bar ko destroy kar deta tha. Ab har sidebar click ke
+        # baad 9 modules intact rehne chahiye + click crash-free rahe.
+        top = {n.lower() for n in _shell._TOP_MENU_ORDER}
+        # Iterate the window's own rail, not the raw DB module list: the
+        # rail is a whitelist projection onto VB6's 11 canonical captions,
+        # so DB roots like EPABX / Messaging / Members Mgmt have no button
+        # by design (spec vb6-shell-design §5.3 / S-1).
+        rail = list(win._side_buttons)
+        assert rail, "empty rail"
+        for b in rail:
+            target = b.property("mod_target")
             _click_module(win, target)
             app.processEvents()
-            expected = {g["name"].strip().lower()
-                        for g in mh.menubar_for(target, "SA")}
-            if not expected:
-                continue  # menuless module (fallback leaf) — click ne crash nahi kiya
-            loaded = _menu_titles(win)
-            missing = expected - loaded
-            assert not missing, f"{target}: menubar me missing groups: {missing}"
+            missing = top - _menu_titles(win)
+            assert not missing, f"{target}: top menubar me missing: {missing}"
     finally:
         win.close()
 

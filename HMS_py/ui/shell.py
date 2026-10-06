@@ -15,6 +15,7 @@ import os
 import re
 import sys
 import warnings
+from itertools import pairwise
 
 # ── Qt font fix: deploy fonts so QFontDatabase finds them ──────────
 _FONTS_DIR = os.path.join(
@@ -55,6 +56,7 @@ from PyQt6.QtWidgets import (
     QLineEdit,
     QMainWindow,
     QMenu,
+    QMenuBar,
     QMessageBox,
     QPushButton,
     QTableWidget,
@@ -65,12 +67,20 @@ from PyQt6.QtWidgets import (
     QSizePolicy,
     QScrollArea,
 )
-from PyQt6.QtCore import Qt, qInstallMessageHandler, QtMsgType, QEvent, QObject
+from PyQt6.QtCore import (
+    Qt,
+    qInstallMessageHandler,
+    QtMsgType,
+    QEvent,
+    QObject,
+    QTimer,
+)
 from PyQt6.QtGui import QFont, QShortcut, QKeySequence, QColor, QAction, QKeyEvent
 
 from HMS_py.ui.theme import apply_theme, toggle_theme, current_theme
 from HMS_py.ui.glass import AuroraCanvas
 from HMS_py.ui.desktop_style import apply_desktop_surface, mark_desktop_action
+from HMS_py.ui.sidebar_buttons import _label_for
 
 
 _APP = None
@@ -106,6 +116,25 @@ from HMS_py.core import menu_help as mh
 # v0.1.2 workflow cores (KOT Transfer / Salary Create)
 from HMS_py.core import pos as _pos_core
 from HMS_py.core import hr_payroll as _payroll_core
+
+# ------------------------------------------- UI-MS-TOPMENU: top menubar
+# VB6 MDIForm1.frm:494 "&Main Setup" ke 9 direct sub-menus (L495 GEN .. L944
+# Util) — left->right order screenshot (02_Main_Setup) se verified. Sirf
+# labels + order ka source; LEAVES hamesha DB se (mh.menubar_for) aate hain —
+# doosri hardcoded copy nahi (drift ka source).
+_MAIN_SETUP_MODULE = "Main Setup"
+_MAIN_SETUP_TITLE = "main setup"  # window-title suffix (screenshot: "- main setup")
+_TOP_MENU_ORDER = (
+    "General Setup",
+    "Front Office",
+    "Point of Sale",
+    "Members Mgmt",
+    "Banquet",
+    "Inventory",
+    "HR/Payroll",
+    "Finance",
+    "Utility",
+)
 
 # VB6-look shared styles (production screenshots: blue gradient, cream title)
 VB_BLUE = "#2f7fc1"
@@ -183,6 +212,217 @@ _VB6_MOD_MASK = (
 
 def _norm_caption(text) -> str:
     return str(text).replace("&", "").strip().lower()
+
+
+# ── VB6 MDIForm1 shell frame (DS-001) ─────────────────────────────────
+# Layout is a fixed 4-column frame, NOT a responsive grid:
+#   band 80 | rail 107 | client (stretch) | sidebar 120 | status 27
+# Captions come from the VB6 control captions (measured via EnumChildWindows,
+# see specs/implementation-summary.md §1), never invented.
+_RAIL_ORDER = (
+    "Finance",
+    "Main Setup",
+    "Reservation",
+    "Front Office",
+    "House Keeping",
+    "Inventory",
+    "Point Of Sale",
+    "Banquet",
+    "Night Audit",
+    "HR/Payroll",
+    "EXTRAs",
+)
+# Rail footer = the two non-module VB6 rail controls. Live heights measured
+# (probe §2 Q1): In Box 25px, Property Status 31px.
+_RAIL_FOOTER = ("In Box", "Property Status")
+_RAIL_FOOTER_H = (25, 31)
+_SIDEBAR_CLOCKS = ("India", "Canada", "Italy", "London", "Japan", "Australia")
+
+# Hardcoded per spec §2 - intentionally NOT GetSysColor()/theme tokens, so
+# parity survives a theme change. Source-C hexes cross-checked with
+# HMS_py/ui/theme.py:66-71 (strip_* / strip_bg / chrome).
+VB_SHELL_QSS = """
+QMainWindow > QWidget#vbShellRoot {
+    background: #ffffa0;
+}
+QFrame#vbTopBand {
+    background: #ffffff;
+    border-bottom: 2px solid #0000c0;
+}
+QMenuBar#vbSubBar {
+    background: #ffffff;
+    color: #000000;
+    font-family: 'Segoe UI', 'Tahoma';
+    font-size: 15px;
+}
+QMenuBar#vbSubBar::item {
+    background: #ffffff;
+    color: #000000;
+    padding: 8px 14px;
+    border: 1px solid transparent;
+}
+QMenuBar#vbSubBar::item:selected {
+    background: #0000c0;
+    color: #ffffff;
+}
+QMenuBar#vbSubBar::item:focus {
+    border: 1px dotted #0000c0;
+}
+QLabel#vbCompany {
+    color: #000000;
+    font-family: 'Segoe UI', 'Tahoma';
+    font-size: 16px;
+    font-weight: bold;
+    padding-right: 12px;
+}
+QLabel[vbCrumb="true"] {
+    color: #000000;
+    font-size: 12px;
+    font-weight: 600;
+    background: transparent;
+    padding-right: 8px;
+}
+/* ---- left rail: teal BtnEnh column (moduleStrip=Qt-space spacer) ---- */
+QFrame#vbRail {
+    background: #ffffff;
+    border-right: 1px solid #c0c0c0;
+}
+QPushButton[vbRole="rail"] {
+    background: #54a0a0;
+    color: #000000;
+    border: 1px solid #6ab2b2;
+    border-bottom: 3px solid #2e6b6b;
+    font-family: 'Segoe UI', 'Tahoma';
+    font-size: 11px;
+    font-weight: bold;
+}
+QPushButton[vbRole="rail"]:hover {
+    background: #6ab2b2;
+    color: #000000;
+}
+QPushButton[vbRole="rail"]:checked {
+    background: #2e6b6b;
+    color: #ffffff;
+}
+QPushButton[vbRole="rail"]:checked:hover {
+    background: #2e6b6b;
+    color: #ffffff;
+}
+QPushButton[vbRole="rail"]:focus-visible,
+QPushButton[vbRole="rail"]:focus {
+    border: 1px dotted #000000;
+}
+/* ---- right sidebar: fixed 120px chrome column ---- */
+QFrame#vbSidebar {
+    background: #c0c0c0;
+    /* F5: #808080 on #c0c0c0 is 2.17:1 and fails WCAG 1.4.11 (spec §8.3).
+       The #808080 below on the chrome/toggle/panel *bevels* stays — that is
+       the Win95 3D edge, decorative. Only this 1px separator is a boundary. */
+    border-left: 1px solid #000000;
+}
+QPushButton[vbRole="chrome"] {
+    background: #c0c0c0;
+    color: #000000;
+    border: 1px solid #808080;
+    border-right-color: #ffffff;
+    border-bottom-color: #ffffff;
+    font-family: 'Segoe UI', 'Tahoma';
+    font-size: 10px;
+}
+QPushButton[vbRole="chrome"]:hover {
+    background: #d4d0c8;
+}
+QPushButton[vbRole="chrome"]:pressed {
+    border: 1px solid #ffffff;
+    border-right-color: #808080;
+    border-bottom-color: #808080;
+}
+QPushButton[vbRole="chrome"]:focus-visible,
+QPushButton[vbRole="chrome"]:focus {
+    border: 2px solid #0000c0;
+}
+QLabel[vbRole="panel"] {
+    background: #c0c0c0;
+    color: #000000;
+    border: 1px solid #808080;
+    font-family: 'Segoe UI', 'Tahoma';
+    font-size: 11px;
+    padding: 0 4px;
+}
+QPushButton[vbRole="toggle"] {
+    background: #c0c0c0;
+    color: #000000;
+    border: 1px solid #808080;
+    border-right-color: #ffffff;
+    border-bottom-color: #ffffff;
+    font-family: 'Segoe UI', 'Tahoma';
+    font-size: 11px;
+    font-weight: bold;
+}
+QPushButton[vbRole="toggle"]:hover {
+    background: #d4d0c8;
+}
+QPushButton[vbRole="toggle"]:checked {
+    background: #2e6b6b;
+    color: #ffffff;
+}
+QPushButton[vbRole="toggle"]:focus-visible,
+QPushButton[vbRole="toggle"]:focus {
+    border: 2px dotted #0000c0;
+}
+QLabel[subtitle="true"] {
+    color: #000000;
+}
+"""
+
+# ponytail: ctypes + a 1s QTimer is the whole clock/status-refresh need.
+# If GetKeyState is unavailable (non-Windows, locked-down host) the CAPS/NUM
+# panels just keep their static VB6 text.
+_VK_CAPITAL, _VK_NUMLOCK = 0x14, 0x90
+try:  # pragma: no cover - Windows-only path
+    import ctypes as _ctypes
+
+    _get_key_state = _ctypes.windll.user32.GetKeyState
+except (AttributeError, ImportError, OSError):  # pragma: no cover - non-Windows
+    _get_key_state = None
+
+
+def _key_latched(vk: int):
+    """True/False for the CAPS/NUM latch, None when the host can't tell us."""
+    if _get_key_state is None:
+        return None
+    try:
+        return bool(_get_key_state(vk) & 1)
+    except (OSError, AttributeError, ValueError):
+        return None
+
+
+def _chrome_button(parent, text, size, focusable=True):
+    """Fixed-size 3D chrome button (VB6 right-sidebar Caption style)."""
+    b = QPushButton(text, parent)
+    b.setProperty("vbRole", "chrome")
+    b.setFixedSize(*size)
+    b.setAutoDefault(False)
+    b.setDefault(False)
+    b.setFocusPolicy(
+        Qt.FocusPolicy.StrongFocus if focusable else Qt.FocusPolicy.NoFocus
+    )
+    b.setAccessibleName(text)
+    return b
+
+
+def _status_panel(bar, text):
+    lab = QLabel(text)
+    lab.setProperty("vbRole", "panel")
+    lab.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+    bar.addWidget(lab)
+    return lab
+
+
+def _status_label(text):
+    lab = QLabel(text)
+    lab.setProperty("vbRole", "panel")
+    return lab
 
 
 class _Vb6KeyMapFilter(QObject):
@@ -1116,7 +1356,6 @@ class MainSetupWorkbench(QDialog):
                     "Stock Register Detailed",
                     "GIN / Purchase Receipt",
                     "Kitchen Stock Report",
-                    "Kitchen Stock Summary",
                     "eInvoice Config",
                 ],
             ),
@@ -1135,6 +1374,10 @@ class MainSetupWorkbench(QDialog):
             row = 0
             col = 0
             for item in items:
+                # P2-B (IMP-001/RV-003): dialog surface ab menubar/sidebar
+                # jaisa hi menuHelp filter lagata hai (Flag V = hidden).
+                if not mh.can_open(self.user, item):
+                    continue
                 opener = registry.get(item)
                 if opener is None:
                     continue
@@ -1192,6 +1435,41 @@ def _rbac_guard(right: str, leaf: str):
         return _go
 
     return _wrap
+
+
+# P1-B (IMP-001/RV-002): registry caption-keyed hai, isliye Banquet ke
+# teen captions ('Menu Category', 'Item Group', 'Menu Item') POS openers
+# par chale jaate the. VB6 alag dispatch karta hai:
+#   HallM 3 -> New FrmHallItemCatMast   (MDIForm1.frm:5455)
+#   HallM 4 -> New HallItemGroupMast    (MDIForm1.frm:5464)
+#   HallM 5 -> New HallMenuItemEntry    (MDIForm1.frm:5473)
+# Same targets HallEnt(5) (MDIForm1.frm:2059) aur OdcEnt1(5)
+# (MDIForm1.frm:2063) ke liye bhi. Yahan sirf parent = Banquet /
+# Outdoor Banquet par hi Hall opener override hota hai; POS/Inventory
+# subtrees me ye captions status-quo (POS) opener kholte rahenge.
+_HALL_PARENTS = frozenset({"banquet", "outdoor banquet"})
+_HALL_CAPTIONS = frozenset({"menu category", "item group", "menu item"})
+_HALL_OVERRIDES: dict | None = None  # ponytail: lazy cache
+
+
+def _hall_opener(caption) -> object | None:
+    """Banquet parent ke liye Hall opener, warna None (status-quo lookup)."""
+    global _HALL_OVERRIDES
+    if _HALL_OVERRIDES is None:
+        try:
+            from HMS_py.ui import hall_item_cat_mast_ui as hicm_ui
+            from HMS_py.ui import hall_item_group_mast_ui as himg_ui
+            from HMS_py.ui import hall_menu_item_entry_ui as hmi_ui
+
+            _HALL_OVERRIDES = {
+                "menu category": hicm_ui.open_hall_item_cat_mast,
+                "item group": himg_ui.open_hall_item_group_mast,
+                "menu item": hmi_ui.open_hall_menu_item_entry,
+            }
+        except Exception:  # noqa: BLE001
+            _HALL_OVERRIDES = {}  # import fail -> status-quo (POS) fallback
+    key = str(caption).strip().lower()
+    return _HALL_OVERRIDES.get(key) if key in _HALL_CAPTIONS else None
 
 
 def _open_plan_master(parent=None, p2=None, fm=None):
@@ -1853,7 +2131,19 @@ def _form_registry() -> dict[str, callable]:
         enviro_ui.open_enviro(w)
 
     def _open_main_setup(w=None):
-        MainSetupWorkbench(parent=w, user=getattr(w, "user", "SA")).exec()
+        # UI-MS-TOPMENU: MainSetupWorkbench modal normal flow se hat gaya —
+        # entry point ab upar ka persistent top menubar hai (user's annotation:
+        # "main setup — Top menubar se form kholo"). Registry key rakha gaya
+        # hai (tests + legacy callers ise resolve karte hain), modal pe nahi.
+        # ponytail: class khud rakhi hai — demo_entry.py import karta hai;
+        # 180 lines ki hand-written groups copy delete karna parity ke liye
+        # zaroori nahi, sirf dead rakhna tha.
+        QMessageBox.information(
+            w,
+            "Main Setup",
+            "Main Setup ke modules upar ke menu bar me hain:\n"
+            + " | ".join(_TOP_MENU_ORDER),
+        )
 
     return {
         # Report-engine aliases SABSE PEHLE bind karo — neeche wale
@@ -2013,8 +2303,13 @@ def _form_registry() -> dict[str, callable]:
         )
         if perm_ui
         else None,
+        # P2-A (IMP-001/RV-003): VB6 me ye leaf Visible=0 hai
+        # (MDIForm1.frm:1056-1059, UTL Index=31) aur Python me ye
+        # 'u' right ke bina khulta tha (User Master jaisa guard nahi).
         "User Permissions (Advanced)": (
-            lambda w: perm_ui.open_user_permissions(w, user=getattr(w, "user", "SA"))
+            lambda w: _rbac_guard("u", "User Permissions (Advanced)")(
+                perm_ui.open_user_permissions
+            )(w, user=getattr(w, "user", "SA"))
         )
         if perm_ui
         else None,
@@ -2086,9 +2381,10 @@ def _form_registry() -> dict[str, callable]:
         "Delivery Boy": (lambda w: pm.open_delboy(w, user=getattr(w, "user", "SA")))
         if pm
         else None,
-        "Item List": (lambda w: pm.open_itemcat(w, user=getattr(w, "user", "SA")))
-        if pm
-        else None,
+        # P1-A (IMP-001/RV-001): VB6 POSMas(4) -> New FrmItemMast
+        # (MDIForm1.frm:636/:9926-9927). Pehle ye pm.open_itemcat par tha
+        # (Item Category screen) - do captions ek hi dialog khol rahe the.
+        "Item List": (lambda w: p2.open_item(w)) if p2 else None,
         "Menu Category": (lambda w: pm.open_itemcat(w, user=getattr(w, "user", "SA")))
         if pm
         else None,
@@ -3316,14 +3612,27 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.user = user
         self.comp = comp
-        self.setWindowTitle(f"{comp['name']} {{ {comp['year']} }}")
-        self.resize(1150, 720)
+        self.setWindowTitle(
+            f"{comp['name']} {{ {comp['year']} }} - {_MAIN_SETUP_TITLE}"
+        )
+        # VB6 MDIForm1 client is 1280x649; +49 = Windows chrome. 1180x666 is
+        # the minimum that still fits band+rail+sidebar+status (spec §16).
+        self.resize(1280, 688)
+        self.setMinimumSize(1180, 666)
         self.registry = _form_registry()
         # CI registry alias (VB6 captions case-insensitive the — tests +
         # menuHelp leaves jaise 'eInvoice Config' vs 'EInvoice Report' ko
         # safe lookup deta hai). Pre-commit hook guard bhi isko check karta hai.
         self._reg_ci = {str(k).strip().lower(): v for k, v in self.registry.items()}
         self._menus = mh.menubar_for  # menuHelp dynamic menubar (VB6 parity)
+        # VB6 band sub-bar. QMainWindow.menuBar() installs itself into the
+        # window's own menu area (and hides it there), so the band gets a
+        # plain QMenuBar child and menuBar() below hands that one back.
+        self._menubar = QMenuBar()
+        self._menubar.setNativeMenuBar(False)
+        self._menubar.setObjectName("vbSubBar")
+        self._menubar.setFixedHeight(40)
+        self._menubar.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
 
         central = QWidget()
         self._central = central
@@ -3335,141 +3644,172 @@ class MainWindow(QMainWindow):
         root.setSpacing(0)
         root.setContentsMargins(0, 0, 0, 0)
 
-        # Top bar: VB6 header (blue gradient + cream title) + theme toggle
-        # (screenshots/02_Main_Setup/014_Main_Menu_AfterLogin.png)
-        topbar = QHBoxLayout()
-        topbar.setContentsMargins(0, 0, 0, 0)
-        topbar.setSpacing(8)
-        self.lblTitle = QLabel(f"  {comp['name']}  {{ {comp['year']} }}")
-        f = QFont("Segoe UI", 14, QFont.Weight.Bold)
-        self.lblTitle.setFont(f)
-        self.lblTitle.setProperty("vbHeader", True)
-        self.lblTitle.setMinimumHeight(44)
-        topbar.addWidget(self.lblTitle, 1)
-
-        # Theme toggle button
-        self.theme_btn = QPushButton("Dark Mode")
+        # ── top band: VB6 PictSubMenu, fixed 80px, never resizes ────────
+        band = QFrame()
+        band.setObjectName("vbTopBand")
+        band.setFixedHeight(80)
+        band_lay = QHBoxLayout(band)
+        band_lay.setContentsMargins(0, 0, 0, 0)
+        band_lay.setSpacing(8)
+        self.menuBar().setObjectName("vbSubBar")
+        self.menuBar().setFixedHeight(40)
+        band_lay.addWidget(self._menubar, stretch=1)
+        # Breadcrumb + theme toggle ride along in the band: §4.2 lists only
+        # menubar + lbl_company, but both are live-tested, so they stay.
+        self.lblCrumb = QLabel("")
+        self.lblCrumb.setProperty("vbCrumb", True)
+        self.lblCrumb.setAlignment(
+            Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
+        )
+        band_lay.addWidget(self.lblCrumb)
+        _dark0 = current_theme() == "dark"
+        self.theme_btn = QPushButton("Dark Mode" if _dark0 else "Light Mode")
         self.theme_btn.setCheckable(True)
-        self.theme_btn.setChecked(True)
-        self.theme_btn.setFixedWidth(110)
-        self.theme_btn.setFixedHeight(32)
+        self.theme_btn.setChecked(_dark0)
+        self.theme_btn.setFixedSize(110, 32)
         self.theme_btn.setObjectName("themeToggle")
+        self.theme_btn.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.theme_btn.setToolTip("Switch between the light and dark theme")
         self.theme_btn.clicked.connect(self._toggle_theme)
-        topbar.addWidget(self.theme_btn)
-        topbar.addSpacing(12)
-        root.addLayout(topbar)
+        band_lay.addWidget(self.theme_btn)
+        self.lbl_company = QLabel(f"  {comp['name']}  {{ {comp['year']} }}")
+        self.lbl_company.setObjectName("vbCompany")
+        band_lay.addWidget(self.lbl_company)
+        root.addWidget(band)
 
-        # VB6 purple module-row + sub-row bars (live evidence: B032 module
-        # menus, B033 Operations sub-row, B058 Reservation row). QMenuBar
-        # upar wali tests/accessibility ke liye aise hi rehti hai; ye bars
-        # VB6 jaisi navigation deti hain. Active button = yellow text.
         self._crumb = {"module": None, "group": None, "leaf": None}
         self._groups = []
-        self.mod_row = QFrame()
-        self.mod_row.setObjectName("vbModRow")
-        self._mod_lay = QHBoxLayout(self.mod_row)
-        self._mod_lay.setContentsMargins(4, 2, 4, 2)
-        self._mod_lay.setSpacing(2)
-        self._mod_buttons: list = []
-        root.addWidget(self.mod_row)
-        self.sub_row = QFrame()
-        self.sub_row.setObjectName("vbSubRow")
-        self._sub_lay = QHBoxLayout(self.sub_row)
-        self._sub_lay.setContentsMargins(4, 0, 4, 2)
-        self._sub_lay.setSpacing(2)
+        # mod_row / sub_row / _mod_lay / _sub_lay / _mod_buttons are gone:
+        # VB6 MDIForm1 has no such rows. Module selection only rewrites the
+        # sub-bar contents. open_leaf() still reads _sub_buttons.
         self._sub_buttons: list = []
-        root.addWidget(self.sub_row)
-        self.mod_row.setStyleSheet(
-            "QFrame#vbModRow { background: transparent; }"
-            "QPushButton[vbBar='mod'] { background: #6d28d9; color: white;"
-            " border: 1px solid #4c1d95; padding: 6px 14px; font-weight: 700; }"
-            "QPushButton[vbBar='mod']:hover { background: #7c3aed; }"
-            "QPushButton[vbBar='mod'][active='true'] { color: yellow; }"
-        )
-        self.sub_row.setStyleSheet(
-            "QFrame#vbSubRow { background: transparent; }"
-            "QPushButton[vbBar='sub'] { background: #7c3aed; color: white;"
-            " border: 1px solid #4c1d95; padding: 5px 12px; font-weight: 600; }"
-            "QPushButton[vbBar='sub']:hover { background: #8b5cf6; }"
-            "QPushButton[vbBar='sub'][active='true'] { color: yellow; }"
-            "QPushButton[vbBar='sub']:disabled { background: #4c1d95;"
-            " color: #c4b5fd; }"
-        )
 
         body = QHBoxLayout()
         body.setSpacing(0)
         body.setContentsMargins(0, 0, 0, 0)
 
-        # VB6 module strip: ~116px white strip, teal 3D module buttons
-        # (screenshots: left strip x 0-107, buttons teal #54a0a0)
-        strip = QFrame()
-        strip.setProperty("moduleStrip", True)
-        strip.setFixedWidth(116)
-        side_lay = QVBoxLayout(strip)
-        side_lay.setContentsMargins(4, 8, 4, 8)
-        side_lay.setSpacing(6)
-
-        self._side_buttons = []
-        # menuHelp L1 sources pehle (VB6 menubar parity), phir legacy roots —
-        # buttons pe mod_target property (tests + _on_sidebar_click use karte hain)
-        # Filter by user permissions (VB6: only modules user has Opt1=View access)
+        # ── left rail: VB6 PictMainMenu, fixed 107px teal column ────────
         try:
             _side_sources = mh.sidebar_sources(user)
         except Exception:
             _side_sources = menu.sidebar_modules()
+        _side_sources = [m for m in _side_sources if mh.can_open(user, m["name"])]
 
-        # Filter sidebar by user permissions (Opt1=View)
-        _filtered_sources = []
-        for m in _side_sources:
-            if mh.can_open(user, m["name"]):
-                _filtered_sources.append(m)
+        self.rail = QFrame()
+        self.rail.setObjectName("vbRail")
+        self.rail.setFixedWidth(107)
+        rail_lay = QVBoxLayout(self.rail)
+        rail_lay.setContentsMargins(0, 0, 0, 0)
+        rail_lay.setSpacing(0)
+        self._side_buttons = self._build_rail(_side_sources)
+        for b in self._side_buttons:
+            rail_lay.addWidget(b)
+        rail_lay.addStretch(1)
+        self._rail_footer = self._build_rail_footer()
+        body.addWidget(self.rail)
 
-        for m in _filtered_sources:
-            b = QPushButton(m["name"])
-            b.setProperty("strip-btn", True)
-            b.setProperty("mod_target", m["name"])
-            b.setMinimumHeight(44)
-            b.setCheckable(True)
-            b.setAccessibleName(m["name"])
-            b.setAccessibleDescription(f"Module {m['name']}")
-            b.clicked.connect(lambda _, mm=m, bb=b: self._on_module(mm, bb))
-            self._side_buttons.append(b)
-            side_lay.addWidget(b)
-        side_lay.addStretch()
-        body.addWidget(strip)
-
-        self.canvas = QLabel("Module select karo (left strip)")
+        self.canvas = QLabel("Welcome! Select a module from the left panel.")
         self.canvas.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.canvas.setWordWrap(True)
         self.canvas.setProperty("subtitle", True)
         body.addWidget(self.canvas, stretch=1)
+
+        # ── right sidebar: VB6 PictTitleBar, fixed 120px chrome column ──
+        self.sidebar = QFrame()
+        self.sidebar.setObjectName("vbSidebar")
+        self.sidebar.setFixedWidth(120)
+        side_lay = QVBoxLayout(self.sidebar)
+        side_lay.setContentsMargins(0, 0, 0, 0)
+        side_lay.setSpacing(1)
+        self._date_btn = _chrome_button(self.sidebar, "", (120, 45))
+        side_lay.addWidget(self._date_btn)
+        self._clock_buttons = {}
+        for country in _SIDEBAR_CLOCKS:
+            cb = _chrome_button(self.sidebar, country, (120, 45), focusable=False)
+            self._clock_buttons[country] = cb
+            side_lay.addWidget(cb)
+        bottom = QHBoxLayout()
+        bottom.setContentsMargins(0, 0, 0, 0)
+        bottom.setSpacing(4)
+        self.reload_btn = _chrome_button(self.sidebar, "Reload", (60, 32))
+        self.exit_btn = _chrome_button(self.sidebar, "Exit", (60, 32))
+        self.reload_btn.setToolTip("Reload the module list")
+        self.exit_btn.setToolTip("Close the main window")
+        self.reload_btn.clicked.connect(self._reload_rail)
+        self.exit_btn.clicked.connect(self.close)
+        bottom.addWidget(self.reload_btn)
+        bottom.addWidget(self.exit_btn)
+        side_lay.addLayout(bottom)
+        body.addWidget(self.sidebar)
+
         root.addLayout(body)
         self.setCentralWidget(central)
+        self.setStyleSheet(VB_SHELL_QSS)
 
+        # ── status bar: VB6 8 panels + permanent DB widget ──────────────
         sb = self.statusBar()
-        sb.addWidget(QLabel(f"  {user}  "))
-        sb.addWidget(QLabel(f"Property Site : {comp['short'] or comp['name']}  "))
-        import datetime
-
-        sb.addWidget(QLabel(f"S/w Dt.: {datetime.datetime.now():%d/%b/%Y %H:%M:%S}  "))
+        sb.setSizeGripEnabled(False)
+        sb.setFixedHeight(27)
+        self._sb_user = _status_panel(sb, f"  {user}  ")
+        self._sb_site = _status_panel(
+            sb, f"Property Site : {comp['short'] or comp['name']}  "
+        )
+        self._sb_dt = _status_panel(sb, "")
+        self._status_toggles = []
+        for i, cap in enumerate(
+            ("Hide Left Menu", "Hide Right Menu", "Full Screen"), start=1
+        ):
+            t = QPushButton(cap)
+            t.setCheckable(True)
+            t.setProperty("vbRole", "toggle")
+            t.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+            t.setFixedHeight(27)
+            t.setMinimumWidth(112)
+            t.setToolTip(f"{cap} (Alt+{i})")
+            t.setAccessibleName(cap)
+            t.setAccessibleDescription(f"Toggle {cap.lower()}")
+            t.clicked.connect(
+                {
+                    "Hide Left Menu": self.toggle_left,
+                    "Hide Right Menu": self.toggle_right,
+                    "Full Screen": self.toggle_fullscreen,
+                }[cap]
+            )
+            sb.addWidget(t)
+            self._status_toggles.append(t)
+        self._sb_caps = _status_panel(sb, "CAPS")
+        self._sb_num = _status_panel(sb, "NUM")
         from HMS_py.core.db import load_config, connect
 
         try:
             cfg = load_config()
             _cn = connect(cfg)
-            from PyQt6.QtWidgets import QLabel as _L
-
             _cur = _cn.cursor()
             _cur.execute("SELECT @@SERVERNAME, DB_NAME()")
             _srv, _dbn = _cur.fetchone()
             _cn.close()
-            sb.addPermanentWidget(_L(f"DB: {_srv} / {_dbn}  "))
+            sb.addPermanentWidget(_status_label(f"DB: {_srv} / {_dbn}  "))
         except Exception as e:
-            from PyQt6.QtWidgets import QLabel as _L
+            sb.addPermanentWidget(_status_label(f"DB: OFFLINE ({e})  "))
 
-            sb.addPermanentWidget(_L(f"DB: OFFLINE ({e})  "))
+        self._tick()
+        self._clock_timer = QTimer(self)
+        self._clock_timer.setInterval(1000)
+        self._clock_timer.timeout.connect(self._tick)
+        self._clock_timer.start()
+
+        # Keyboard walk order (spec §11.1): rail -> sidebar -> status toggles.
+        _focus = (
+            list(self._side_buttons)
+            + [self._date_btn, self.reload_btn, self.exit_btn]
+            + self._status_toggles
+        )
+        for a, b in pairwise(_focus):
+            self.setTabOrder(a, b)
 
         # Keyboard navigation
-        for i, b in enumerate(self._side_buttons[:9]):
+        for i, b in enumerate(self._side_buttons):
+            b.setToolTip(f"{b.property('mod_target')}  —  Alt+{i + 1}")
             QShortcut(
                 QKeySequence(f"Alt+{i + 1}"), self, activated=lambda bb=b: bb.click()
             )
@@ -3637,10 +3977,41 @@ class MainWindow(QMainWindow):
             QKeySequence("Ctrl+Alt+E"), self, activated=lambda: _safe("Call Type")(self)
         )
 
-    def resizeEvent(self, event):
-        super().resizeEvent(event)
-        if hasattr(self, "aurora") and hasattr(self, "_central"):
-            self.aurora.setGeometry(self._central.rect())
+        # UI-MS-TOPMENU: ek hi baar bana — persistent top menubar (9 modules).
+        self._build_top_menubar()
+
+    def menuBar(self):
+        """The band sub-bar (VB6 PictSubMenu).
+
+        Deliberately shadows QMainWindow.menuBar(): the base version creates a
+        menu bar in the window's own menu area, which cannot live inside the
+        fixed 80px band.
+        """
+        return getattr(self, "_menubar", None) or super().menuBar()
+
+    def _build_top_menubar(self):
+        """UI-MS-TOPMENU: VB6 '&Main Setup' (MDIForm1.frm:494) ka persistent
+        top menubar — 9 sub-menus, har ek apne leaves ka submenu.
+
+        Leaf click `_add_item` -> `_form_registry()` opener seedha kholta hai.
+        Module/sidebar click par ye kabhi clear/rebuild NAHI hota (sirf content
+        badalta hai) — isliye `_on_module` mb.clear() chala gaya.
+        Rights: `mh.menubar_for` already per-user rows filter karta hai
+        (restricted user ko jo module nahi mila woh yahan bhi nahi dikhega).
+        """
+        try:
+            groups = list(self._menus(_MAIN_SETUP_MODULE, self.user) or [])
+        except Exception:  # noqa: BLE001  # DB offline/rights fail -> no crash
+            groups = []
+        by_name = {str(g.get("name") or "").strip().lower(): g for g in groups}
+        ordered = [by_name[n.lower()] for n in _TOP_MENU_ORDER if n.lower() in by_name]
+        # ponytail: DB se 9 group na mile (offline / restricted / test double)
+        # — fallback: source order me jo mila wahi dikhao, khali menubar se behtar.
+        for g in ordered or groups:
+            mm = self.menuBar().addMenu(g["name"])
+            for it in g.get("items") or []:
+                self._add_item(mm, it, g["name"])
+        self._top_groups = ordered or groups
 
     def _toggle_theme(self):
         app = QApplication.instance()
@@ -3669,6 +4040,157 @@ class MainWindow(QMainWindow):
         # fallback: direct menu build (button list me na ho to bhi)
         self._on_module({"name": mod_target}, btn)
 
+    def _build_rail(self, sources) -> list:
+        """Project DB modules onto the 11 VB6 rail captions (spec §5.3).
+
+        NOT a pass-through: anything outside _RAIL_ORDER is never built, so
+        the duplicate `front office` node and the stray EPABX / Messaging /
+        Members Mgmt roots from the User_Module legacy merge are structurally
+        unreachable — VB6 MDIForm1 has exactly 11 module buttons. Caption
+        text is the VB6 caption; the raw menuHelp name rides on the
+        `mod_target` property for open_leaf/_on_sidebar_click/tests.
+        """
+        by_norm = {}
+        for m in sources:
+            by_norm.setdefault(_norm_caption(m["name"]), m)
+        buttons = []
+        for caption in _RAIL_ORDER:
+            src = by_norm.get(_norm_caption(caption))
+            if src is None:
+                continue
+            b = QPushButton(caption, self.rail)
+            b.setProperty("vbRole", "rail")
+            b.setProperty("mod_target", src["name"])
+            b.setFixedSize(107, 43)
+            b.setCheckable(True)
+            b.setAutoDefault(False)
+            b.setDefault(False)
+            b.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+            b.setAccessibleName(caption)
+            b.setAccessibleDescription(f"Module {caption}")
+            b.clicked.connect(lambda _, mm=src, bb=b: self._on_module(mm, bb))
+            buttons.append(b)
+        return buttons
+
+    def _build_rail_footer(self) -> list:
+        """In Box / Property Status — measured rail children, not status bar.
+
+        Probe: both are children of the 107x542 rail picture box at 25px and
+        31px (spec §5.6). No ported form exists yet, so they are inert.
+        """
+        rail_lay = self.rail.layout()
+        rail_lay.addSpacing(6)
+        div = QFrame(self.rail)
+        div.setFixedHeight(1)
+        div.setStyleSheet("background: #c0c0c0;")
+        rail_lay.addWidget(div)
+        rail_lay.addSpacing(6)
+        footers = []
+        for caption, h in zip(_RAIL_FOOTER, _RAIL_FOOTER_H):
+            fb = QPushButton(caption, self.rail)
+            fb.setProperty("vbRole", "rail")
+            fb.setFixedSize(107, h)
+            fb.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+            fb.setToolTip(f"{caption} (not available in this port yet)")
+            fb.setAccessibleName(caption)
+            # ponytail: inert until the VB6 forms behind these captions are
+            # ported; wire the same way _on_module wires rail buttons then.
+            fb.clicked.connect(lambda _=False, _c=caption: self.set_canvas_text(_c))
+            footers.append(fb)
+            rail_lay.addWidget(fb)
+        return footers
+
+    def _reload_rail(self):
+        """Re-read the module list and rebuild the rail, keeping the selection."""
+        try:
+            sources = mh.sidebar_sources(self.user)
+        except Exception:
+            sources = menu.sidebar_modules()
+        sources = [m for m in sources if mh.can_open(self.user, m["name"])]
+        current = next(
+            (
+                str(b.property("mod_target"))
+                for b in self._side_buttons
+                if b.isChecked()
+            ),
+            None,
+        )
+        rail_lay = self._rail_layout()
+        for b in self._side_buttons:
+            rail_lay.removeWidget(b)
+            b.setParent(None)
+            b.deleteLater()
+        self._side_buttons = self._build_rail(sources)
+        for i, b in enumerate(self._side_buttons):
+            rail_lay.insertWidget(i, b)
+        if current:
+            self._on_sidebar_click(current)
+        for i, b in enumerate(self._side_buttons):
+            b.setToolTip(f"{b.property('mod_target')}  —  Alt+{i + 1}")
+
+    def _rail_layout(self):
+        return self.rail.layout()
+
+    def _tick(self):
+        """One QTimer drives date, clocks and the CAPS/NUM latch panels."""
+        import datetime
+
+        now = datetime.datetime.now()
+        clock = f"{now:%I:%M:%S %p}"
+        self._date_btn.setText(f"{now:%d/%b/%Y}")
+        self._date_btn.setAccessibleDescription(f"Current date, {now:%d %B %Y}")
+        self._sb_dt.setText(f"S/w Dt.: {now:%d/%b/%Y %H:%M:%S}  ")
+        for country, btn in self._clock_buttons.items():
+            btn.setText(f"{country}\n{clock}")
+            btn.setAccessibleDescription(f"{country} clock, {clock}")
+        # VB6 shows the literal words; state goes in the tooltip so the text
+        # stays byte-identical to the VB6 status bar.
+        for panel, vk, word in (
+            (self._sb_caps, _VK_CAPITAL, "CAPS"),
+            (self._sb_num, _VK_NUMLOCK, "NUM"),
+        ):
+            state = _key_latched(vk)
+            tip = "" if state is None else f"{word} {'on' if state else 'off'}"
+            panel.setToolTip(tip)
+            panel.setAccessibleDescription(tip or word)
+
+    # ---------------------------------------------------- status toggles
+    def toggle_left(self):
+        """Hide Left Menu — collapses the 107px rail only."""
+        show = not self.rail.isVisible()
+        self.rail.setVisible(show)
+        self.set_canvas_text("Left menu shown." if show else "Left menu hidden.")
+
+    def toggle_right(self):
+        """Hide Right Menu — collapses the 120px sidebar only."""
+        show = not self.sidebar.isVisible()
+        self.sidebar.setVisible(show)
+        self.set_canvas_text("Right menu shown." if show else "Right menu hidden.")
+
+    def toggle_fullscreen(self):
+        # VB6 MenuCaption-sbar toggles `Me.WindowState = 3` (vbMaximized),
+        # not a true borderless full screen.
+        self.showMaximized() if not self.isMaximized() else self.showNormal()
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        # VB6 opens maximised. Skip under offscreen/CI platforms and after the
+        # user (or a test) has already driven an explicit resize.
+        app = QApplication.instance()
+        if (
+            not getattr(self, "_user_resized", False)
+            and app is not None
+            and app.platformName() != "offscreen"
+        ):
+            self.showMaximized()
+        if self._side_buttons:
+            self._side_buttons[0].setFocus(Qt.FocusReason.TabFocusReason)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._user_resized = True
+        self.aurora.setGeometry(self._central.rect())
+
     def _on_module(self, m: dict, btn: QPushButton):
         # sidebar exclusive-check (VB6 jaisa highlight)
         for other in self._side_buttons:
@@ -3677,102 +4199,42 @@ class MainWindow(QMainWindow):
         if btn is not None:
             btn.setChecked(True)
 
-        mb = self.menuBar()
-        mb.clear()
-        for grp in self._menus(m["name"], self.user):
-            mm = mb.addMenu(grp["name"])
-            for it in grp["items"]:
-                self._add_item(mm, it)
-
-        # VB6 purple module row (B032/B059 evidence): module click ke baad
-        # sirf module row dikhti hai; sub-row group click par aati hai.
-        groups = self._menus(m["name"], self.user)
-        self._groups = groups
+        # UI-MS-TOPMENU: top menubar PERSISTENT hai — yahan pehle
+        # `mb.clear()` + full rebuild tha jo har module click par 9-item
+        # top bar ko destroy kar deta tha. Ab sirf crumb/canvas badalte
+        # hain; top bar `_build_top_menubar` me ek hi baar banta hai.
+        self._groups = self._menus(m["name"], self.user)
         self._crumb = {"module": m["name"], "group": None, "leaf": None}
-        self._clear_lay(self._mod_lay)
-        self._clear_lay(self._sub_lay)
-        self._mod_buttons = []
         self._sub_buttons = []
-        for grp in groups:
-            gb = QPushButton(grp["name"])
-            gb.setProperty("vbBar", "mod")
-            gb.setProperty("active", False)
-            gb.clicked.connect(lambda _, gg=grp: self._on_group(m["name"], gg))
-            self._mod_buttons.append(gb)
-            self._mod_lay.addWidget(gb)
-        self._mod_lay.addStretch(1)
-
-        self.canvas.setText(f"{m['name']}\n\nTop menubar se form kholo")
+        self.lblCrumb.setText(str(m["name"]))
+        self.set_canvas_text(
+            f"{_label_for(m['name'])}\n\n"
+            "Use the menu bar above, or pick a section to open a screen."
+        )
         self.setWindowTitle(
             f"{self.comp['name']} {{ {self.comp['year']} }} - {m['name']}"
         )
 
-    @staticmethod
-    def _clear_lay(lay):
-        while lay.count():
-            item = lay.takeAt(0)
-            w = item.widget()
-            if w is not None:
-                w.setParent(None)
-                w.deleteLater()
-
-    def _opener(self, caption):
+    def _opener(self, caption, *parents):
         """menu caption -> opener.
 
         `_reg_ci` = registry keys ko strip+lower (MainWindow.__init__).
         VB6 caption me trailing/extra space aa jaati hai
         ('Cashier Report ', 'Instant House Count ') jo canonical key se
         alag hota tha -> item disabled ho jaata tha.
-        """
-        return self._reg_ci.get(str(caption).strip().lower())
 
-    def _on_group(self, module: str, grp: dict):
-        """VB6 module-row click: sub-row bharo (B033 evidence)."""
-        for b in self._mod_buttons:
-            is_active = b.text() == grp["name"]
-            b.setProperty("active", is_active)
-            b.style().unpolish(b)
-            b.style().polish(b)
-        self._crumb["group"] = grp["name"]
-        self._crumb["leaf"] = None
-        self._clear_lay(self._sub_lay)
-        self._sub_buttons = []
-        for it in grp.get("items", []):
-            lb = QPushButton(it["name"])
-            lb.setProperty("vbBar", "sub")
-            lb.setProperty("active", False)
-            opener = self._opener(it["name"])
-            if it.get("children"):
-                menu = QMenu(it["name"], self)
-                if opener:
-                    act = menu.addAction(it["name"])
-                    act.triggered.connect(
-                        lambda _, fn=opener: self.open_leaf(
-                            module, grp["name"], it["name"], fn
-                        )
-                    )
-                    menu.addSeparator()
-                for ch in it["children"]:
-                    self._add_leaf_action(menu, module, grp["name"], ch)
-                lb.clicked.connect(
-                    lambda _, mm=menu, bb=lb: mm.popup(
-                        bb.mapToGlobal(bb.rect().bottomLeft())
-                    )
-                )
-            elif opener:
-                leaf = it["name"]
-                lb.clicked.connect(
-                    lambda _, fn=opener, lf=leaf: self.open_leaf(
-                        module, grp["name"], lf, fn
-                    )
-                )
-            else:
-                lb.setEnabled(False)  # phase-wise judenga (menubar jaisa)
-                lb.setToolTip("phase-wise judenga")
-            self._sub_buttons.append(lb)
-            self._sub_lay.addWidget(lb)
-        self._sub_lay.addStretch(1)
-        self.canvas.setText(f"[{module} > {grp['name']}]")
+        P1-B: agar `parents` me 'Banquet'/'Outdoor Banquet' hai to teen
+        Hall captions Hall opener par jaate hain (VB6 HallM/HallEnt/OdcEnt
+        dispatch); baaki sab captions status-quo `_reg_ci` lookup.
+        """
+        key = str(caption).strip().lower()
+        for p in parents:
+            if p is not None and str(p).strip().lower() in _HALL_PARENTS:
+                fn = _hall_opener(key)
+                if fn is not None:
+                    return fn
+                break  # import fail ya non-Hall caption -> status-quo
+        return self._reg_ci.get(key)
 
     def _add_leaf_action(self, menu, module: str, group: str, it: dict):
         if it.get("children"):
@@ -3781,7 +4243,7 @@ class MainWindow(QMainWindow):
                 self._add_leaf_action(sub, module, group, ch)
             return
         act = menu.addAction(it["name"])
-        opener = self._opener(it["name"])
+        opener = self._opener(it["name"], module, group)
         if opener:
             leaf = it["name"]
             act.triggered.connect(
@@ -3805,6 +4267,7 @@ class MainWindow(QMainWindow):
             b.style().unpolish(b)
             b.style().polish(b)
         self.canvas.setText(f"[{module} > {group} > {leaf}]")
+        self.lblCrumb.setText(self.crumb_title())  # header me live crumb
         opener(self)
 
     def crumb_title(self, leaf: str | None = None) -> str:
@@ -3814,8 +4277,8 @@ class MainWindow(QMainWindow):
         parts = [c.get("module") or "", c.get("group") or "", leaf]
         return "[" + " > ".join(p for p in parts if p) + "]"
 
-    def _add_item(self, parent_menu, it: dict):
-        opener = self._opener(it["name"])
+    def _add_item(self, parent_menu, it: dict, parent: str | None = None):
+        opener = self._opener(it["name"], parent)
         if it["children"]:
             sub = parent_menu.addMenu(it["name"])
             if opener:
@@ -3827,7 +4290,7 @@ class MainWindow(QMainWindow):
                 act.triggered.connect(lambda _, fn=opener: fn(self))
                 sub.addSeparator()
             for ch in it["children"]:
-                self._add_item(sub, ch)
+                self._add_item(sub, ch, parent)
             return
         act = parent_menu.addAction(it["name"])
         if opener:

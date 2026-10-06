@@ -955,3 +955,53 @@ divergences.
   invalid `setTabOrder(..., focusNextChild())` (:124 → TypeError).
 - Verification after batch: registry/general-setup 24 passed, ui_modules
   5 passed; full-suite confirmation recorded in TEST_RESULTS §6.
+
+# SESSION HANDOFF - 2026-10-06 (VB6 shell frame overhaul, DS-001)
+
+## What was asked
+- Overhaul ui/shell.py MainWindow into the professional VB6 MDIForm1
+  shell (fixed band/rail/client/sidebar/status frame + persistent
+  "&Main Setup" top menubar) while keeping VB6 parity and the suite
+  green (vb6-python-compare skill verification).
+
+## What was done
+- **DS-001 shell frame**: fixed 80px band (QMenuBar#vbSubBar 40px
+  inside it), 107px teal left rail projected onto the 11 VB6 captions
+  (_build_rail), 120px chrome right sidebar (date + 6 country clocks
+  + Reload/Exit), 27px status bar (user/site/SW-Dt/CAPS/NUM panels
+  + Hide Left/Right Menu + Full Screen toggles + DB widget), 1s
+  QTimer clock tick with GetKeyState latch panels, Win95 QSS
+  (VB_SHELL_QSS). Purple mod_row/sub_row bars deleted (VB6 has none).
+- **UI-MS-TOPMENU**: persistent 9-module top menubar
+  (_TOP_MENU_ORDER, leaves from mh.menubar_for); menuBar() shadows
+  QMainWindow.menuBar() so it lives in the band; module click no
+  longer destroys it. Window title gains "- main setup".
+- **Routing guards**: P1-A "Item List"->p2.open_item (frmItem);
+  P1-B Banquet/Outdoor Banquet parents dispatch Menu Category/Item
+  Group/Menu Item to Hall openers (_hall_opener); P2-A User
+  Permissions (Advanced) behind _rbac_guard("u"); P2-B
+  MainSetupWorkbench filters via mh.can_open.
+- Tests: tests/test_vb6_shell_frame.py (25, new),
+  tests/test_main_setup_topmenubar.py (4, new),
+  tests/unit/test_mainsetup_p1a_p1b_routing.py (8, new),
+  tests/unit/test_menuhelp_sidebar_live.py (updated). Targeted:
+  36 passed. Spec: specs/ui-p0-implementation-summary.md (new,
+  the ui-p0-bugs.md fix-agent deliverable).
+
+## Verification
+- ast.parse shell.py OK; ruff F821,E9,F601,F811,F841 violation set
+  on shell.py identical to HEAD (zero new; 6 pre-existing F601
+  alias-dict repeats), whole-tree count unchanged at 110.
+- Full suite (recorded): 1170 passed, 1 skipped, 0 failed
+  (324.08s, EXIT=0) — includes the fdpostchg G1 regression
+  fix below.
+
+## Known gaps / next
+1. P0 PARTIAL categories A-F (ui-p0-audit.md) are the next wave:
+   Company Master Contract Type field, FA Enviro Integrity button,
+   General Setup toolbar Print/Post, sub-tab inventory reconciliation
+   (needs HMS.exe design blob), User Master password setMaxLength
+   one-liner, F-key dispatch hardening (base_master.py:107 F2->pick
+   removal + _edit/_delete aliases).
+2. Shell round work uncommitted (same pattern as previous rounds).
+
