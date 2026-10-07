@@ -24,16 +24,23 @@ import sys
 from collections import defaultdict
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-VB6_DIR = os.path.join(ROOT, "HMS_REVERSE_ENGINEERING", "HMS")
-if not os.path.isdir(VB6_DIR):
+# VB6 source tree locations, best-first. Order matters: the decompiled tree
+# parked under _junk/implemented/ must win over the older FODER/ checkout,
+# warna report ka source build badal jata hai.
+_VB6_CANDIDATES = [
+    os.path.join(ROOT, "HMS_REVERSE_ENGINEERING", "HMS"),
     # canonical location (2026-10-03 repo restructure): implemented/ tree
-    VB6_DIR = os.path.join(ROOT, "implemented", "HMS_REVERSE_ENGINEERING", "HMS")
-if not os.path.isdir(VB6_DIR):  # purana checkout jahan source FODER/ me tha
-    VB6_DIR = os.path.abspath(os.path.join(ROOT, "..", "FODER"))
-if not os.path.isdir(VB6_DIR):
-    # last resort: nested copy under implemented/HMS2526
-    VB6_DIR = os.path.join(ROOT, "implemented", "HMS2526",
-                           "HMS_REVERSE_ENGINEERING", "HMS")
+    os.path.join(ROOT, "implemented", "HMS_REVERSE_ENGINEERING", "HMS"),
+    # 2026-10-07 housekeeping: non-runtime trees parked under _junk/
+    os.path.join(ROOT, "_junk", "implemented", "HMS_REVERSE_ENGINEERING", "HMS"),
+    # purana checkout jahan source FODER/ me tha
+    os.path.abspath(os.path.join(ROOT, "..", "FODER")),
+    # last resort: nested copy under HMS2526
+    os.path.join(ROOT, "implemented", "HMS2526", "HMS_REVERSE_ENGINEERING", "HMS"),
+    os.path.join(ROOT, "_junk", "implemented", "HMS2526",
+                 "HMS_REVERSE_ENGINEERING", "HMS"),
+]
+VB6_DIR = next((p for p in _VB6_CANDIDATES if os.path.isdir(p)), _VB6_CANDIDATES[0])
 PY_UI = os.path.join(ROOT, "ui")
 PY_CORE = os.path.join(ROOT, "core")
 SHELL = os.path.join(PY_UI, "shell.py")
