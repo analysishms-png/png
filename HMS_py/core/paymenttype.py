@@ -118,6 +118,76 @@ def _normalize(rec: dict) -> dict:
     return record
 
 
+# ============================================================
+# AUDIT-20261005 P2-E FIX: CreditCardhistory child table
+# VB6 FrmPayTypeMast save (loc_1547053 + loc_154736A):
+#   1. Delete from CreditCardhistory where RevCode='<code>'   (unconditional)
+#   2. per grid row : Insert into CreditCardhistory (AppDate,RevCode,TaxStru,
+#        CommAc,CommPer,Limit,CompOperator,Limit1,U_EntDt,U_AE,U_Name,
+#        Site_Code,LogSite_Code) values(...)
+# Live columns (INFORMATION_SCHEMA 2026-10-06): AppDate smalldatetime NOTNULL,
+#   TaxStru char(6) NOTNULL, RevCode char(6), CommPer numeric NOTNULL,
+#   CommAC varchar(8), Site_Code char(2) NOTNULL, U_Name varchar(10),
+#   U_EntDt smalldatetime, U_AE varchar(1), LogSite_Code char(2),
+#   Limit float, CondApp varchar(25), CompOperator varchar(9), Limit1 float.
+# ============================================================
+CARD_HISTORY_COLS = (
+    "AppDate, RevCode, TaxStru, CommAc, CommPer, Limit, CompOperator, "
+    "Limit1, U_EntDt, U_AE, U_Name, Site_Code, LogSite_Code"
+)
+
+
+def card_history_list(code: str, cn=None) -> list[dict]:
+    """Credit-card commission/limit rows for a payment type (VB6 grid)."""
+    rows = db.query(
+        "SELECT AppDate, RevCode, TaxStru, CommAc, CommPer, Limit, "
+        "CompOperator, Limit1, U_Name, U_AE FROM CreditCardhistory "
+        "WHERE RevCode = ? ORDER BY AppDate",
+        (code,), cn=cn)
+    return [_map_card(r) for r in rows]
+
+
+def _map_card(r) -> dict:
+    return {
+        "appdate": r.AppDate, "revcode": (r.RevCode or "").strip(),
+        "taxstru": (r.TaxStru or "").strip(),
+        "commac": r.CommAc or "", "commper": float(r.CommPer or 0),
+        "limit": float(r.Limit or 0),
+        "compoperator": (r.CompOperator or "").strip(),
+        "limit1": float(r.Limit1 or 0),
+        "u_name": r.U_Name or "", "u_ae": r.U_AE or "",
+    }
+
+
+def _f(v) -> float:
+    try:
+        return float(v or 0)
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def _sync_card_history(cn, code: str, rows, u_ae: str) -> None:
+    """VB6 save block: delete-then-reinsert CreditCardhistory for RevCode.
+
+    NOTE: caller sirf tab call karta hai jab `card_history` key di gayi ho.
+    VB6 har save par unconditionally delete karta hai, par hamari pay-type UI
+    me card grid nahi hai — unconditional delete se existing commission rows
+    har save par ud jaate. Isliye opt-in semantics (missing key = no touch).
+    """
+    db.execute("DELETE FROM CreditCardhistory WHERE RevCode = ?", (code,),
+               cn=cn, commit=False)
+    for row in rows or ():
+        db.execute(
+            f"INSERT INTO CreditCardhistory ({CARD_HISTORY_COLS}) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, getdate(), ?, ?, ?, ?)",
+            (row.get("appdate") or None, code,
+             (row.get("taxstru") or "").strip(), row.get("commac") or "",
+             _f(row.get("commper")), _f(row.get("limit")),
+             (row.get("compoperator") or "").strip(), _f(row.get("limit1")),
+             u_ae, USER, SITE_CODE, SITE_CODE),
+            cn=cn, commit=False)
+
+
 def list_all(cn=None) -> list[dict]:
     """VB6 Form_Load main recordset (loc_114BA3B): PayType filter + site scope."""
     rows = db.query(
@@ -225,18 +295,38 @@ def insert(rec: dict, cn=None, commit: bool = True) -> int:
     _require_unique_add(record, cn=cn)
     # VB6 insert (loc_1546BC5) ka literal column-set: Active column VB6
     # set NAHI karta (DB default ''), SysYN='N', FieldType='P', TYPE='Dr'.
-    return db.execute(
-        "INSERT INTO RevMast (Code, Name, ShortName, ACCode, PAYTYPE, "
-        "Site_Code, SysYN, FieldType, U_Name, U_EntDt, U_AE, Type, "
-        "BankCommPer, BankCommAc, ACPosting, LogSite_Code) "
-        "VALUES (?, ?, ?, ?, ?, ?, 'N', 'P', ?, getdate(), 'A', 'Dr', "
-        "?, ?, ?, ?)",
-        (record["code"], record["name"], record.get("short", ""),
-         record.get("accode", ""), record.get("paytype", ""),
-         SITE_CODE, USER,
-         record.get("bankcommper", 0), record.get("bankcommac", ""),
-         record.get("accposting", ""), SITE_CODE),
-        cn=cn, commit=commit)
+    # AUDIT-20261005 P2-E FIX: card history rows same transaction me.
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        n = db.execute(
+            "INSERT INTO RevMast (Code, Name, ShortName, ACCode, PAYTYPE, "
+            "Site_Code, SysYN, FieldType, U_Name, U_EntDt, U_AE, Type, "
+            "BankCommPer, BankCommAc, ACPosting, LogSite_Code) "
+            "VALUES (?, ?, ?, ?, ?, ?, 'N', 'P', ?, getdate(), 'A', 'Dr', "
+            "?, ?, ?, ?)",
+            (record["code"], record["name"], record.get("short", ""),
+             record.get("accode", ""), record.get("paytype", ""),
+             SITE_CODE, USER,
+             record.get("bankcommper", 0), record.get("bankcommac", ""),
+             record.get("accposting", ""), SITE_CODE),
+            cn=cn, commit=False)
+        if record.get("card_history") is not None:
+            _sync_card_history(cn, record["code"],
+                               record.get("card_history"), "A")
+        if commit:
+            cn.commit()
+        return n
+    except Exception:
+        if own:
+            try:
+                cn.rollback()
+            except Exception:
+                pass
+        raise
+    finally:
+        if own:
+            cn.close()
 
 
 def update(code: str, rec: dict, cn=None, commit: bool = True) -> int:
@@ -248,16 +338,35 @@ def update(code: str, rec: dict, cn=None, commit: bool = True) -> int:
     # ShortName, U_name, U_EntDt, U_AE='E', TYPE='Dr', FieldType='P',
     # BankCommPer, BankCommAc, ACposting WHERE Code=...
     # Active/SysYN/LogSite_Code VB6 update me touch NAHI hote.
-    return db.execute(
-        "UPDATE RevMast SET Name = ?, Site_Code = ?, ACCode = ?, "
-        "PAYTYPE = ?, ShortName = ?, U_Name = ?, U_EntDt = getdate(), "
-        "U_AE = 'E', Type = 'Dr', FieldType = 'P', BankCommPer = ?, "
-        "BankCommAc = ?, ACPosting = ? WHERE Code = ?",
-        (record["name"], SITE_CODE, record.get("accode", ""),
-         record.get("paytype", ""), record.get("short", ""), USER,
-         record.get("bankcommper", 0), record.get("bankcommac", ""),
-         record.get("accposting", ""), code),
-        cn=cn, commit=commit)
+    # AUDIT-20261005 P2-E FIX: card history rows same transaction me.
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        n = db.execute(
+            "UPDATE RevMast SET Name = ?, Site_Code = ?, ACCode = ?, "
+            "PAYTYPE = ?, ShortName = ?, U_Name = ?, U_EntDt = getdate(), "
+            "U_AE = 'E', Type = 'Dr', FieldType = 'P', BankCommPer = ?, "
+            "BankCommAc = ?, ACPosting = ? WHERE Code = ?",
+            (record["name"], SITE_CODE, record.get("accode", ""),
+             record.get("paytype", ""), record.get("short", ""), USER,
+             record.get("bankcommper", 0), record.get("bankcommac", ""),
+             record.get("accposting", ""), code),
+            cn=cn, commit=False)
+        if record.get("card_history") is not None:
+            _sync_card_history(cn, code, record.get("card_history"), "E")
+        if commit:
+            cn.commit()
+        return n
+    except Exception:
+        if own:
+            try:
+                cn.rollback()
+            except Exception:
+                pass
+        raise
+    finally:
+        if own:
+            cn.close()
 
 
 def delete(code: str, cn=None, commit: bool = True) -> int:
@@ -285,6 +394,11 @@ def delete(code: str, cn=None, commit: bool = True) -> int:
         n = db.execute("DELETE FROM RevMast WHERE Code = ?", (code,),
                        cn=cn, commit=False)
         db.execute("DELETE FROM DepartPay WHERE PayCode = ?", (code,),
+                   cn=cn, commit=False)
+        # AUDIT-20261005 P2-E: child card-history rows bhi hatao (VB6 delete
+        # branch ne ye NAHI kiya tha -> orphan rows; VB6 code-gen codes reuse
+        # karta hai isliye safe cascade zaroori hai).
+        db.execute("DELETE FROM CreditCardhistory WHERE RevCode = ?", (code,),
                    cn=cn, commit=False)
         if commit:
             cn.commit()

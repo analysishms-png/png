@@ -16,8 +16,8 @@ from PyQt6.QtWidgets import (QApplication, QDialog, QDialogButtonBox,
                              QLabel, QMainWindow, QMessageBox, QPushButton, QTableWidget,
                              QTableWidgetItem, QVBoxLayout, QWidget)
 
-from HMS_py.core import (acgroup, area, city, country, depart, fixcharge,
-                         item, narr, state, sundry, unit, venue)
+from HMS_py.core import (acgroup, area, chargemaster, city, country, depart,
+                         fixcharge, item, narr, state, sundry, unit, venue)
 # New Main Setup masters (P2-complete)
 from HMS_py.core import (roomcategory, roommaster, packagemaster,
                          seasonmaster, companymaster, usermaster, ratelist)
@@ -97,11 +97,54 @@ def area_config() -> MasterConfig:
     )
 
 
+def chargemaster_config() -> MasterConfig:
+    """VB6 FrmChargeMast (Main Setup -> Charge Master, MDIForm1.frm:7256).
+
+    RevMast FieldType='C' / FlagType='FOM' rows. AUDIT P2-K: ye leaf pehle
+    galti se FixedCharge khol rahi thi.
+    """
+    return MasterConfig(
+        title="Charge Master - HMS_py",
+        columns=[("Code", "code"), ("Name", "name"),
+                 ("ACCode", "accode"), ("SaleRate", "salerate"),
+                 ("TaxStru", "taxstru")],
+        fields=[
+            Field("code", "Code", max_len=chargemaster.LIMITS["code"]),
+            Field("name", "Name", max_len=chargemaster.LIMITS["name"],
+                  required=True),
+            Field("short", "Short Name",
+                  max_len=chargemaster.LIMITS["short"]),
+            Field("accode", "Ledger A/C",
+                  max_len=chargemaster.LIMITS["accode"]),
+            Field("taxstru", "Tax Structure",
+                  max_len=chargemaster.LIMITS["taxstru"]),
+            Field("salerate", "Sale Rate", default="0"),
+            Field("cost", "Cost", default="0"),
+            Field("type", "Type (Dr/Cr)", max_len=chargemaster.LIMITS["type"],
+                  default="Cr"),
+            Field("acposting", "A/C Posting",
+                  max_len=chargemaster.LIMITS["acposting"]),
+            Field("nature", "Nature",
+                  max_len=chargemaster.LIMITS["nature"]),
+            Field("active", "Active",
+                  max_len=chargemaster.LIMITS["active"]),
+            Field("taxinc", "Tax Inclusive",
+                  max_len=chargemaster.LIMITS["taxinc"]),
+            Field("hsncode", "HSN Code",
+                  max_len=chargemaster.LIMITS["hsncode"]),
+        ],
+        api=chargemaster,
+        generated_pk=True,
+        delete_guard=make_delete_guard("PYT"),
+    )
+
+
 def item_config() -> MasterConfig:
     return MasterConfig(
         title="Item Master (P2, F&B) - HMS_py",
         columns=[("Code", "code"), ("Name", "name"), ("Unit", "unit"),
-                 ("Type", "type"), ("Rate", "rate")],
+                 ("Type", "type"), ("BarCode", "barcode"),
+                 ("Rate", "rate")],
         fields=[
             Field("code", "Code", max_len=item.LIMITS["code"],
                   required=True),
@@ -111,6 +154,17 @@ def item_config() -> MasterConfig:
             Field("type", "Type", max_len=item.LIMITS["type"]),
             Field("group", "ItemGroup", max_len=item.LIMITS["group"]),
             Field("rate", "SaleRate", default="0"),
+            # AUDIT P2-C/P2-I: VB6 FrmItemMast `Item` table fields
+            Field("barcode", "BarCode", max_len=item.LIMITS["barcode"]),
+            Field("commodity", "CommodityCode",
+                  max_len=item.LIMITS["commodity"]),
+            Field("labelname", "Label Name",
+                  max_len=item.LIMITS["labelname"]),
+            Field("labelqty", "Label Qty", max_len=item.LIMITS["labelqty"]),
+            Field("labelremark1", "Label Remark 1",
+                  max_len=item.LIMITS["labelremark"]),
+            Field("mrp", "MRP", default="0"),
+            Field("rateinctax", "Rate Inc Tax (Y/N)", max_len=1),
         ],
         api=item,
         delete_guard=make_delete_guard("PYT"),
@@ -184,20 +238,71 @@ def venue_config() -> MasterConfig:
     )
 
 
+# AUDIT-20261005 P2-G: VB6 OutLetMast ke baaki persistent fields
+# (key, label, max_len) — writer ab inhe persist karta hai, UI bhi expose
+# karta hai taaki save par silent-drop na ho.
+_DEPART_EXTRA_FIELDS = (
+    ("short", "Short Name", 4), ("resttype", "Rest Type", 20),
+    ("outletyn", "Outlet Y/N", 1), ("linktoroom", "Link To Room", 1),
+    ("backcolor", "Back Color", None),
+    ("header1", "Header 1", 50), ("header2", "Header 2", 50),
+    ("header3", "Header 3", 50), ("header4", "Header 4", 50),
+    ("slogan1", "Slogan 1", 50), ("slogan2", "Slogan 2", 50),
+    ("lstno", "Lst No", 50), ("companytitle", "Company Title", 1),
+    ("outlettitle", "Outlet Title", 1), ("partyname", "Party Name", 1),
+    ("splitbill", "Split Bill", 1), ("rateinctax", "Rate Incl Tax", 1),
+    ("discapp", "Discount App", 1), ("roff", "Round Off", 1),
+    ("memberinfo", "Member Info", 1),
+    ("disprint", "Discount Print", 1),
+    ("labelprinting", "Label Printing", 1),
+    ("printer", "Printer", 50), ("storetype", "Store Type", 3),
+    ("tokenprint", "Token Print", 3),
+    ("tokenprintafter", "Token Print After", 3),
+    ("printtokenno", "Print Token No", 3),
+    ("order_booking", "Order Booking", 3),
+    ("custinfo", "Customer Info", 1), ("cstno", "Customer St No", 50),
+    ("ckotprintyn", "CKOT Print Y/N", 1),
+    ("printtype", "Print Type", 50),
+    ("barcodepartitionappon", "BarCode Partition App On", 20),
+    ("ckotprintpath", "CKOT Print Path", 75),
+    ("curtokenno", "Current Token No", None),
+    ("curtokennokot", "Cur Token No KOT", None),
+    ("noofkot", "No Of KOT", None), ("noofbill", "No Of Bill", None),
+    ("orderbookcom1", "Order Book Com 1", 35),
+    ("orderbookcom2", "Order Book Com 2", 35),
+    ("salebilltokenheader1", "Sale Bill Token Header 1", 50),
+    ("printonsave", "Print On Save", 3),
+    ("autosettlement", "Auto Settlement", 3),
+    ("wscaleapp", "Weigh Scale App", 3),
+    ("barcodeapp", "BarCode App", 3),
+    ("autoresettoken", "Auto Reset Token", 3),
+    ("freeitemapp", "Free Item App", 3),
+    ("covermandatory", "Cover Mandatory", 3),
+    ("mobilenomandatory", "Mobile No Mandatory", 3),
+    ("directbilling", "Direct Billing", 3),
+    ("bookofbills", "Book Of Bills", None),
+    ("grpdiscapp", "Group Discount App", 1),
+)
+
+
 def depart_config() -> MasterConfig:
+    fields = [
+        Field("code", "Code", max_len=depart.LIMITS["code"],
+              required=True),
+        Field("name", "Name", max_len=depart.LIMITS["name"],
+              required=True),
+        Field("kotyn", "KOT Y/N", max_len=1),
+        Field("pos", "POS Y/N", max_len=1),
+        Field("phone", "Phone", max_len=depart.LIMITS["phone"]),
+    ]
+    for key, label, max_len in _DEPART_EXTRA_FIELDS:
+        fields.append(Field(key, label, max_len=max_len)
+                      if max_len else Field(key, label))
     return MasterConfig(
         title="Department/Outlet Master (P2, F&B) - HMS_py",
         columns=[("Code", "code"), ("Name", "name"),
                  ("KOT", "kotyn"), ("POS", "pos")],
-        fields=[
-            Field("code", "Code", max_len=depart.LIMITS["code"],
-                  required=True),
-            Field("name", "Name", max_len=depart.LIMITS["name"],
-                  required=True),
-            Field("kotyn", "KOT Y/N", max_len=1),
-            Field("pos", "POS Y/N", max_len=1),
-            Field("phone", "Phone", max_len=depart.LIMITS["phone"]),
-        ],
+        fields=fields,
         api=depart,
         delete_guard=make_delete_guard("PYT"),
     )
@@ -312,6 +417,10 @@ def open_item_group(parent=None):
 
 def open_item(parent=None):
     _open_dialog(item_config, parent)
+
+
+def open_chargemaster(parent=None):
+    _open_dialog(chargemaster_config, parent)
 
 
 def open_acgroup(parent=None):
@@ -464,7 +573,8 @@ def roomcategory_config() -> MasterConfig:
     return MasterConfig(
         title="Room Category Master - HMS_py",
         columns=[("Code", "code"), ("Name", "name"), ("Short", "short"),
-                 ("MaxPerson", "maxperson"), ("RevCode", "revcode")],
+                 ("MaxPerson", "maxperson"), ("RevCode", "revcode"),
+                 ("Rooms", "norooms"), ("RetChg", "retchg")],
         fields=[
             Field("code", "CatCode", max_len=roomcategory.LIMITS["code"],
                   required=True),
@@ -474,6 +584,15 @@ def roomcategory_config() -> MasterConfig:
             Field("maxperson", "Max Person", default="2"),
             Field("revcode", "Revenue Code",
                   max_len=roomcategory.LIMITS["revcode"]),
+            # AUDIT P2-H: VB6 FrmRoomCatMast ke chhoote fields
+            Field("retchg", "Retention Chg %", default="0"),
+            Field("cancelchg", "Cancellation Chg %", default="0"),
+            Field("minadv", "Min Advance", default="0"),
+            Field("norooms", "No Of Rooms", default="0"),
+            Field("multper", "Multiplier Person", default="0"),
+            Field("inclcount", "Incl Count", max_len=1),
+            Field("mapcode", "Map Code",
+                  max_len=roomcategory.LIMITS["mapcode"]),
         ],
         api=roomcategory,
         delete_guard=make_delete_guard("PYT"),

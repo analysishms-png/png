@@ -99,8 +99,8 @@ FROM Enviro WHERE LogSite_Code = (SELECT TOP 1 LogSite_Code FROM Enviro) OR LogS
 
     # system_parameters - fix column names
     r'c\.name AS Setting,\s+CAST\(ISNULL\(e\.\[value\], \'\'\) AS varchar\(255\)\) AS Value':
-    r'c.name AS Setting,
-CAST(ISNULL(e.value, \'\') AS varchar(255)) AS Value',
+    """c.name AS Setting,
+CAST(ISNULL(e.value, '') AS varchar(255)) AS Value""",
 }
 
 # Apply all replacements

@@ -956,6 +956,37 @@ divergences.
 - Verification after batch: registry/general-setup 24 passed, ui_modules
   5 passed; full-suite confirmation recorded in TEST_RESULTS §6.
 
+# SESSION HANDOFF - 2026-10-04 (FO gap closure + RV-001 review cycle)
+
+## What was asked
+- Refresh 3 stale migration control docs (MIGRATION_COMPLETION_MATRIX.md,
+  MIGRATION_STATUS.md, SESSION_HANDOFF.md) to match verified code reality.
+
+## What was done
+- Room Change (FO-001) ported to ui/fo_sub_forms_ui.py:119
+  (RoomChangeWindow, opener :893, registry ui/shell.py:2688-2692) and put
+  through the RV-001 / RV-001R review cycle: findings #1-#4 FIXED,
+  tests 15 -> 18, verdict APPROVED (specs/review-report.md).
+- Other 4 FO gap forms closed in parity sweeps: FO-002 Amend Stay
+  (ui/fd_forms_ui.py:764, shell.py:3140), FO-003 Merge Room
+  (fo_sub_forms_ui.py:423, shell.py:2469), FO-004 Reverse Merge
+  (fo_sub_forms_ui.py:530, shell.py:2472), FO-005 Bill Reprint
+  (fo_sub_forms_ui.py:921, shell.py:2466). All 5 registry-wired.
+- The 3 control docs updated: matrix FO rows -> IMPLEMENTED (VERIFIED
+  checkboxes left UNCHECKED, re-compare pending), status Next Steps step-1
+  closed + Test Status row -> 1117, this handoff appended.
+
+## Test state (authoritative)
+- **Full suite 2026-10-04: 1117 passed, 1 skipped, 0 failed (381.83s).**
+
+## Known gaps / next
+1. VB6 re-comparison in progress (specs/fo-parity-recheck-2026-10-04.md);
+   no VERIFIED claim for FO-001..005 until it lands.
+2. RV-001 backlog findings #5-#13 open (LOW); #7/#9/#10 being fixed by a
+   parallel agent.
+3. Next sprints unchanged: POS KOT Entry, Night Audit GST, Banquet.
+4. Nothing committed this round (work uncommitted/untracked as before).
+
 # SESSION HANDOFF - 2026-10-06 (VB6 shell frame overhaul, DS-001)
 
 ## What was asked
@@ -1005,3 +1036,35 @@ divergences.
    removal + _edit/_delete aliases).
 2. Shell round work uncommitted (same pattern as previous rounds).
 
+## 2026-10-06 (cont.) - fdpostchg G1 regression fix
+
+Full-suite run after the shell round went red: 2 failed /
+1168 passed. Both in tests/database/test_account_posting.py
+(test_account_posting_daily_range, test_account_posting_summary_mode)
+with PostingBlockedError "unsettled guest bill, rooms 303/304".
+
+Root cause: the uncommitted fdpostchg parity work (G1, plan
+.claude/plan/fdpostchg-room-posting-parity.md) added the
+engine-level billed-folio hard stop in
+core/nightaudit.py::post_room_charges_for_date. The shared
+test DB holds stale open folios (rooms 303/304, ChkOutDate
+IS NULL, billed PayCharge rows) that exist at any future
+date, so the guard correctly fires there. VB6 behavior is
+right (Proc_62_23 pre-flight); the driver tests' assumption
+"FUTURE date = no inhouse data" was invalidated.
+
+Fix (convention-matching, zero assertion weakening): the two
+account_posting DRIVER tests now monkeypatch
+na.billed_folios_for_date -> [] - the same pattern every
+engine test in tests/database/test_fdpostchg_posting.py uses.
+The guard itself stays tested by
+ test_fdpostchg_posting.py::test_billed_folios_guard
+(fails-on-revert per plan section 6 T1). Live-DB data was
+NOT touched (real hotel data; 303/304 may be genuine guests).
+
+Verification after fix:
+- tests/database/test_account_posting.py: 5 passed.
+- tests/database + tests/unit: 1039 passed, 1 skipped.
+- ruff F821,E9,F601,F811,F841 on touched files: shell.py
+  set identical to HEAD (6 pre-existing); nightaudit.py /
+  folio.py / test_account_posting.py clean.

@@ -410,6 +410,7 @@ def merge_charge(
     site: str = SITE_CODE,
     cn=None,
     commit: bool = True,
+    charge_docids: list[str] | None = None,
 ) -> dict:
     """Source room ke folio ke saare PayCharge lines target room ke folio
     pe shift karo (VB6 FrmMergeCharge/cmdTransferCharge transaction):
@@ -419,6 +420,11 @@ def merge_charge(
          target ka RelatedFolio mark
       3. PayCharge: source ki saari rows ko FolioNoDocid/FolioNo=target aur
          RelatedFolioNo/RelatedFolioNoDocId=source bana do
+
+    charge_docids (GAP-10/GAP-09 charge grid): agar diya jaye to sirf wo
+    PayCharge rows move hoti hain (step 3 = n3 filter). Steps 1-2 unfiltered
+    rehte hain — n2 ka RelatedFolio mark aur n1 link VB6 parity ke liye
+    zaroori hain. Default None = purana byte-identical behavior.
 
     Returns dict(rows_moved, folio_from, folio_to)."""
     from_room = (from_room or "").strip()
@@ -451,21 +457,24 @@ def merge_charge(
             cn=cn,
             commit=False,
         )
-        n3 = db.execute(
+        n3_params: list = [
+            tgt["docid"],
+            tgt["folio"],
+            src["folio"],
+            src["docid"],
+            user,
+            src["docid"],
+        ]
+        n3_sql = (
             "UPDATE PayCharge SET FolioNoDocid = ?, FolioNo = ?, "
             "RelatedFolioNo = ?, RelatedFolioNoDocId = ?, U_Name = ?, "
-            "U_EntDt = getdate(), U_AE = 'E' WHERE FolioNoDocid = ?",
-            (
-                tgt["docid"],
-                tgt["folio"],
-                src["folio"],
-                src["docid"],
-                user,
-                src["docid"],
-            ),
-            cn=cn,
-            commit=False,
+            "U_EntDt = getdate(), U_AE = 'E' WHERE FolioNoDocid = ?"
         )
+        if charge_docids:
+            marks = ",".join("?" * len(charge_docids))
+            n3_sql += f" AND DocId IN ({marks})"
+            n3_params.extend(charge_docids)
+        n3 = db.execute(n3_sql, tuple(n3_params), cn=cn, commit=False)
         if commit:
             cn.commit()
         return {
@@ -520,6 +529,7 @@ def reverse_merge_charge(
     site: str = SITE_CODE,
     cn=None,
     commit: bool = True,
+    charge_docids: list[str] | None = None,
 ) -> dict:
     """Merged (master) folio se ek child room ko alag karo — uske charges
     wapas uske apne folio par le jao.
@@ -560,15 +570,22 @@ def reverse_merge_charge(
     own = cn is None
     cn = cn or db.connect()
     try:
-        n1 = db.execute(
+        n1_params: list = [c["docid"], c["folio"], user, m["docid"], c["docid"]]
+        n1_sql = (
             "UPDATE PayCharge SET FolioNoDocid = ?, FolioNo = ?, "
             "RelatedFolioNo = 0, RelatedFolioNoDocId = '', U_Name = ?, "
             "U_EntDt = getdate(), U_AE = 'E' "
-            "WHERE FolioNoDocid = ? AND RelatedFolioNoDocId = ?",
-            (c["docid"], c["folio"], user, m["docid"], c["docid"]),
-            cn=cn,
-            commit=False,
+            "WHERE FolioNoDocid = ? AND RelatedFolioNoDocId = ?"
         )
+        if charge_docids:
+            # ponytail: partial selection — unchecked rows ka
+            # RelatedFolioNoDocId unlinked child ko point karta reh jata
+            # hai (harmless). Full fidelity chahiye to poora child reverse
+            # karo (charge_docids=None).
+            marks = ",".join("?" * len(charge_docids))
+            n1_sql += f" AND DocId IN ({marks})"
+            n1_params.extend(charge_docids)
+        n1 = db.execute(n1_sql, tuple(n1_params), cn=cn, commit=False)
         n2 = db.execute(
             "UPDATE GuestFolio SET mFolioNoDocid = '', mFolioNo = 0, "
             "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' "
@@ -612,6 +629,87 @@ def reverse_merge_charge(
             "folio_master": m["folio"],
             "master_cleared": master_cleared,
         }
+    finally:
+        if own:
+            cn.close()
+
+
+def list_child_charges_on_master(
+    master_room: str,
+    child_room: str,
+    site: str = SITE_CODE,
+    cn=None,
+) -> list[dict]:
+    """Master folio par pade us child room ke charges (Reverse Room Merge
+    charge grid ke liye — GAP-10).
+
+    VB6 FrmRevMergeCharge ka grid: PayCharge rows jinke FolioNoDocid =
+    master hain lekin RelatedFolioNoDocId = child. Keys list_folio_charges
+    jaisi (docid/vtype/vno/paycode/amount/...), DocId grid me hidden col."""
+    m = open_folio_by_room(master_room, site, cn=cn)
+    c = open_folio_by_room(child_room, site, cn=cn)
+    if not m:
+        raise ValueError(f"Master room {master_room} pe koi in-house guest nahi")
+    if not c:
+        raise ValueError(f"Child room {child_room} pe koi in-house guest nahi")
+    rows = db.query(
+        "SELECT DocId, Vtype, VNo, PayCode, "
+        "CASE WHEN AmtCr <> 0 THEN AmtCr ELSE AmtDr END AS Amount, "
+        "Remarks FROM PayCharge WHERE FolioNoDocid = ? "
+        "AND RelatedFolioNoDocId = ? ORDER BY VNo",
+        (m["docid"], c["docid"]),
+        cn=cn,
+    )
+    return [
+        {
+            "docid": (r.DocId or "").strip(),
+            "vtype": (r.Vtype or "").strip(),
+            "vno": int(r.VNo or 0),
+            "paycode": (r.PayCode or "").strip(),
+            "amount": float(r.Amount or 0),
+            "remarks": (r.Remarks or "").strip(),
+        }
+        for r in rows
+    ]
+
+
+def remove_room_from_group(
+    master_room: str,
+    child_room: str,
+    user: str = USER,
+    site: str = SITE_CODE,
+    cn=None,
+    commit: bool = True,
+) -> dict:
+    """GAP-11: child room ko bina charge transfer ke group se nikaalo —
+    sirf GuestFolio unlink, PayCharge rows jaisi ki taisi master par.
+
+    VB6 FrmRevMergeCharge 'without transfer' remove path (charge grid
+    empty / user remove confirm karta hai)."""
+    m = open_folio_by_room(master_room, site, cn=cn)
+    c = open_folio_by_room(child_room, site, cn=cn)
+    if not m:
+        raise ValueError(f"Master room {master_room} pe koi in-house guest nahi")
+    if not c:
+        raise ValueError(f"Child room {child_room} pe koi in-house guest nahi")
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        n = db.execute(
+            "UPDATE GuestFolio SET mFolioNoDocid = '', mFolioNo = 0, "
+            "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' "
+            "WHERE DocId = ? AND RTRIM(ISNULL(mFolioNoDocid, '')) = ?",
+            (user, c["docid"], m["docid"]),
+            cn=cn,
+            commit=False,
+        )
+        if n == 0:
+            raise ValueError(
+                f"Room {child_room} ka folio master {master_room} se merged nahi hai"
+            )
+        if commit:
+            cn.commit()
+        return {"rows_unlinked": n, "folio_child": c["folio"]}
     finally:
         if own:
             cn.close()

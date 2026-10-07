@@ -84,3 +84,44 @@ Route to the Python/PyQt subagent for HMS_py (no `@frontend-*` matches this stac
 **Do NOT touch:** `core/fo_ops.py` contract, G1 decision (deferred), spec strings that already match VB6.
 
 **Re-review status:** required after #1-#4 (short re-check of the 4 files + test run). Everything else can ship as follow-up.
+
+---
+
+## Re-review RV-001R
+
+**Date:** 2026-10-04
+**Reviewer:** @reviewer
+**Mode:** Fast (targeted re-check of findings #1-#4 only)
+**Verdict:** **APPROVE**
+**Verification status:** `verified` (scope: #1-#4; full suite / manual GUI still not re-run — unchanged from RV-001)
+
+### Per-finding verdicts
+
+| # | Verdict | Evidence |
+|---|---------|----------|
+| 1 | **FIXED** | `ui/shell.py:2688-2690` — registry lambda is now `lambda w: fosub_ui.open_room_change(w, user=getattr(w, "user", None))`. All 3 call sites pass `user` (grep: shell:2689, frontoffice:1008, signature `fo_sub_forms_ui.py:893`). Test `test_registry_room_change_is_real_p1_dialog` asserts `opened == [(w, "OP1")]` and `getattr`-None fallback (`tests/unit/test_room_change_ui.py:469-477`). |
+| 2 | **FIXED** | `ui/fo_sub_forms_ui.py:262-269` — partial load (`rec` found, `rows` empty) now calls `_clear_stay()` + info box + `return` before `btn_save.setEnabled(True)` (271). `_clear_stay` (276-297) resets `_roomtype/_adult/_tariff/_change_date/_change_time`, all stay labels → `"-"`, and disables save. Test `test_load_folio_partial_no_open_roomocc_clears_stale_state` (186-218) asserts every one of these. |
+| 3a | **FIXED** | `ui/fo_sub_forms_ui.py:236-274` — `_load_folio` DB section wrapped in `try/except Exception` → `_clear_stay()` + `QMessageBox.critical("DB error: …")`, no raise. `room_changed.emit(...)` at 410-417 runs **before** post-save `_load_folio()` at 420 (comment 408-409). Tests: `test_load_folio_db_error_no_raise_clears_and_disables_save` (221-239), `test_save_emits_even_if_post_save_reload_fails` (242-272). |
+| 3b | **FIXED** | `ui/frontoffice.py:1011-1013` — `win.room_changed.connect(...)` (1012) before `win.btn_load.click()` (1013). Test asserts event order `["connect", "click"]` (`test_room_change_ui.py:563-567`). |
+| 4 | **FIXED** | `tests/unit/test_room_change_ui.py:443-449` — happy path asserts **exact** payload `{"docid", "old_room", "101", "new_room": "201", "folio": 10}`; deleting the emit line fails the test. 3 new tests (186, 221, 242) → suite grew 15 → 18. Registry user threading (469-477) + connect-before-click order (563-567) also asserted. |
+
+### New issues introduced
+
+None above LOW.
+
+| Severity | Issue |
+|---|---|
+| LOW | `ui/fo_sub_forms_ui.py:272-274` — DB-error path calls `_clear_stay()` but leaves `lbl_folio`/`lbl_guest`/`_docid` showing the previous folio → mixed visual state. **Save is disabled**, so no correctness impact; cosmetic only. |
+| LOW (pre-existing, unchanged) | Not-found path (240-244) keeps the previous load intact (save still enabled on the old folio). Consistent last-good-state behavior, outside #2's partial-load scope — accept. |
+
+No Critical/High/Medium. No security delta (no new SQL, no new input paths).
+
+### Verification executed
+
+| Check | Result |
+|---|---|
+| File reads: shell.py:2670-2699, fo_sub_forms_ui.py:120-429, frontoffice.py:990-1014, test_room_change_ui.py (full) | All claimed fixes present at cited locations |
+| `python -m pytest tests/unit/test_room_change_ui.py -q` | **18 passed** (1.08s, offscreen) |
+| Grep `open_room_change` call sites | All 3 pass `user` |
+
+**Final verdict: APPROVE.** Findings #1-#4 all FIXED, tests green, no new issues ≥ MEDIUM. Remaining RV-001 findings (#5-#13) stay in backlog as previously scoped.

@@ -26,6 +26,7 @@ Laravel parity (analysishms-master CompanyController@submitnightaudit):
   bookings cancel (Cancel='Y', U_Name='NOSHOW').
 Live DB: RoomOcc/GuestFolio/Booking tables live; Complimentary filter
 GuestFolio.Comp='' sab rows (dead filter here, still faithful)."""
+
 from __future__ import annotations
 
 import datetime
@@ -41,16 +42,21 @@ VYEAR = str(_dt.now().year)
 VTYPE_RC = "RC"
 VTYPE_PPOS = "PPOS"
 PAY_CODE_RC = "KKRMCH"
-CGST_CODE = "KKCGSS"
-SGST_CODE = "KKSGSS"
-GST_RATE = 0.025  # BUG-AUD-10 fix: live VB6 rows TaxPer=2.5 -> 2.5% CGST +
-                  # 2.5% SGST (tax = base * 0.025, 400+ row evidence;
-                  # was 0.05 = 2x over-charge vs VB6)
+
+
+class PostingBlockedError(RuntimeError):
+    """Engine-level whole-posting abort (VB6 MsgBox + Exit Sub parity).
+
+    Raised with zero inserts when billed folios exist (G1) or the room-disc
+    account is missing while separate posting needs it (G3/G6). The UI maps
+    this to the VB6 MsgBox-equivalent notice.
+    """
 
 
 # ============================================================
 # Pre-checks (VB6 Proc_96_46, Proc_96_45)
 # ============================================================
+
 
 def get_night_audit_flags(cn=None) -> dict:
     """Read Enviro flags for NA behavior.
@@ -62,11 +68,17 @@ def get_night_audit_flags(cn=None) -> dict:
         "SELECT KOTAtNightAudit, POSBillAtNightAudit, PostingType, "
         "RoomChrgPostingType, RoomChrgDueAc FROM Enviro WHERE LogSite_Code = ? "
         "OR LogSite_Code = 'HO'",
-        (SITE_CODE,), cn=cn)
+        (SITE_CODE,),
+        cn=cn,
+    )
     if not rows:
-        return {"kot_at_na": "No", "pos_bill_at_na": "No",
-                "posting_type": "Summary", "room_chrg_type": "Daily",
-                "room_chrg_due_ac": ""}
+        return {
+            "kot_at_na": "No",
+            "pos_bill_at_na": "No",
+            "posting_type": "Summary",
+            "room_chrg_type": "Daily",
+            "room_chrg_due_ac": "",
+        }
     r = rows[0]
     return {
         "kot_at_na": r[0] or "No",
@@ -89,7 +101,9 @@ def check_pending_kots(vdate, cn=None) -> tuple[bool, list[str]]:
         "WHERE K.NCKOT <> 'Y' AND K.VOIDYN <> 'Y' AND K.VDate = ? "
         "AND K.Vtype = 'BMM' AND K.Pending = 'Y' AND K.DELFLAG NOT IN ('Y') "
         "AND D.KOTAtNightAudit <> 'No' AND D.LogSite_Code = ?",
-        (vdate, SITE_CODE), cn=cn)
+        (vdate, SITE_CODE),
+        cn=cn,
+    )
     outlets = [r[0] for r in rows]
     return len(outlets) > 0, outlets
 
@@ -110,7 +124,9 @@ def check_unsettled_bills(vdate, cn=None) -> tuple[bool, list[str]]:
         "WHERE S.VDate = ? AND S.Vtype = 'BMM' AND D.RestType <> 'Production' "
         "AND S.LogSite_Code = ? AND (P.DocId IS NULL OR S.NetAmt > ISNULL(P.AmtCr, 0)) "
         "AND (S.DelFlag = '' OR S.DelFlag = 'N')",
-        (vdate, SITE_CODE), cn=cn)
+        (vdate, SITE_CODE),
+        cn=cn,
+    )
     outlets.extend([r[0] for r in rows])
 
     # Banquet unsettled bills (HallSale1)
@@ -121,7 +137,9 @@ def check_unsettled_bills(vdate, cn=None) -> tuple[bool, list[str]]:
         "INNER JOIN Depart D ON H.RestCode = D.Code "
         "WHERE H.VDate = ? AND H.LogSite_Code = ? "
         "AND (ISNULL(H.NetAmt, 0) - ISNULL(H.Advance, 0)) <> ISNULL(PH.AmtCr, 0)",
-        (vdate, SITE_CODE), cn=cn)
+        (vdate, SITE_CODE),
+        cn=cn,
+    )
     outlets.extend([r[0] for r in rows])
 
     return len(outlets) > 0, list(set(outlets))
@@ -131,6 +149,7 @@ def check_unsettled_bills(vdate, cn=None) -> tuple[bool, list[str]]:
 # Posting Helpers
 # ============================================================
 
+
 def _next_vno(vtype: str, vprefix: str, cn=None) -> int:
     # BUG-015: race-safe VNo (UPDLOCK/HOLDLOCK) - db.py central helper.
     return db.next_vno("PayCharge", vtype, vprefix, site=SITE_CODE, cn=cn)
@@ -138,9 +157,9 @@ def _next_vno(vtype: str, vprefix: str, cn=None) -> int:
 
 def _next_sno(foliono: int, cn=None) -> int:
     # BUG-003/004: race-safe SNo (UPDLOCK/HOLDLOCK) - db.py central helper.
-    return db.next_serial("PayCharge", "SNo",
-                          "FolioNo = ? AND Site_Code = ?",
-                          (foliono, SITE_CODE), cn=cn)
+    return db.next_serial(
+        "PayCharge", "SNo", "FolioNo = ? AND Site_Code = ?", (foliono, SITE_CODE), cn=cn
+    )
 
 
 def _make_rc_docid(vprefix: str, vno: int) -> str:
@@ -152,19 +171,24 @@ def _make_ppos_docid(vprefix: str, vno: int) -> str:
     return "D" + SITE_CODE + "PPOS".ljust(6) + vprefix.ljust(4) + str(vno).rjust(8)
 
 
-def _log_night_audit(date_from, date_to, start_dt, end_dt, user, cn=None, commit=True) -> int:
+def _log_night_audit(
+    date_from, date_to, start_dt, end_dt, user, cn=None, commit=True
+) -> int:
     """Insert NightAuditLog entry (like BookingLog pattern)."""
     return db.execute(
         "INSERT INTO NightAuditLog (DateChngFrom, DateChngTo, StartNightAudit, "
         "EndNightAudit, Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code) "
         "VALUES (?, ?, ?, ?, ?, ?, getdate(), 'A', ?)",
         (date_from, date_to, start_dt, end_dt, SITE_CODE, user, SITE_CODE),
-        cn=cn, commit=commit)
+        cn=cn,
+        commit=commit,
+    )
 
 
 # ============================================================
 # Room Charge Posting (VB6 Proc_96_14 daily bill-wise)
 # ============================================================
+
 
 def uncharged_rooms(vdate, vprefix: str = VYEAR, cn=None) -> list[dict]:
     """Laravel parity (submitnightaudit 'Please Charge Posting For Rooms'):
@@ -181,14 +205,23 @@ def uncharged_rooms(vdate, vprefix: str = VYEAR, cn=None) -> list[dict]:
         "AND NOT EXISTS (SELECT 1 FROM PayCharge PC WHERE PC.Vtype = ? "
         "AND PC.Vdate = ? AND PC.FolioNo = RO.FolioNo "
         "AND PC.Site_Code = RO.Site_Code)",
-        (vdate, SITE_CODE, vprefix, VTYPE_RC, vdate), cn=cn)
-    return [{"docid": r[0] or "", "folio": r[1] or 0,
-             "roomno": (r[2] or "").strip(), "mfolio": r[3] or 0}
-            for r in rows]
+        (vdate, SITE_CODE, vprefix, VTYPE_RC, vdate),
+        cn=cn,
+    )
+    return [
+        {
+            "docid": r[0] or "",
+            "folio": r[1] or 0,
+            "roomno": (r[2] or "").strip(),
+            "mfolio": r[3] or 0,
+        }
+        for r in rows
+    ]
 
 
-def cancel_tentative_no_shows(na_date, user: str = USER, cn=None,
-                              commit: bool = True) -> list[int]:
+def cancel_tentative_no_shows(
+    na_date, user: str = USER, cn=None, commit: bool = True
+) -> list[int]:
     """Laravel parity (fomparameter()->tentativedays): tentative bookings
     jinki expiry (U_EntDt + TentativeDays) aaj (na_date) hai -> auto-cancel.
     Booking.Cancel='Y', CancelUName='NOSHOW', ResStatus='No Show'
@@ -199,6 +232,7 @@ def cancel_tentative_no_shows(na_date, user: str = USER, cn=None,
     # Laravel fomparameter() == Enviro/FomParam — live DB me Enviro hi hai)
     try:
         from HMS_py.core import enviro
+
         days = int(enviro.get_setting("TentativeDays", 0, cn=cn) or 0)
     except Exception:
         days = 0
@@ -207,7 +241,9 @@ def cancel_tentative_no_shows(na_date, user: str = USER, cn=None,
     rows = db.query(
         "SELECT DocId, CONVERT(date, U_EntDt) FROM Booking "
         "WHERE Cancel = 'N' AND ResStatus = 'Tentative' AND Site_Code = ?",
-        (SITE_CODE,), cn=cn)
+        (SITE_CODE,),
+        cn=cn,
+    )
     to_cancel = []
     for docid, ent_dt in rows:
         if ent_dt is None:
@@ -220,7 +256,10 @@ def cancel_tentative_no_shows(na_date, user: str = USER, cn=None,
             "UPDATE Booking SET Cancel = 'Y', CancelDate = ?, "
             "CancelUName = 'NOSHOW', ResStatus = 'No Show', "
             "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' WHERE DocId = ?",
-            (na_date, user, docid), cn=cn, commit=False)
+            (na_date, user, docid),
+            cn=cn,
+            commit=False,
+        )
     if to_cancel and commit:
         cn.commit()
     return to_cancel
@@ -229,33 +268,60 @@ def cancel_tentative_no_shows(na_date, user: str = USER, cn=None,
 def get_inhouse_rooms(vdate, vprefix: str = VYEAR, cn=None) -> list[dict]:
     """Get occupied rooms for a date (RoomOcc ChkOutDate IS NULL, ChkInDate <= date).
     Comp='Y' (complimentary) rooms excluded (VB6 fdPostChrg eligibility).
+    RoomCat -> RevMast join supplies RoomChargeAc/PayCode/TaxStru (DB-001
+    script 1a shape); GuestFolio supplies RODISC; RoomOcc supplies the
+    tax-derivation fields (RoomTaxStru/RRServiceChrg/RoomTarrif/RackRate).
     Returns list of {folio, docid, roomno, roomrate, guest_name, mfolio,
-    guestprof, roomcat, roomtype, plancode}
+    guestprof, roomcat, roomtype, plancode, rodisc, charge_ac, pay_code,
+    rev_taxstru, room_tax_stru, rr_service_chrg, room_tarrif, rack_rate,
+    ratecode}
     """
     rows = db.query(
         "SELECT RO.DocId, RO.FolioNo, RO.RoomNo, RO.RoomRate, GF.Name, "
         "ISNULL(GF.MFOlioNO, 0) AS MFOlioNO, ISNULL(GF.GuestProf, '') AS GuestProf, "
         "ISNULL(RO.RoomCat, '') AS RoomCat, ISNULL(RO.RoomType, '') AS RoomType, "
-        "ISNULL(RO.PlanCode, '') AS PlanCode "
+        "ISNULL(RO.PlanCode, '') AS PlanCode, "
+        "ISNULL(GF.RODISC, 0) AS RODISC, "
+        "ISNULL(RM.ACCode, '') AS RoomChargeAc, ISNULL(RM.Code, '') AS PayCode, "
+        "ISNULL(RM.TaxStru, '') AS RevTaxStru, "
+        "ISNULL(RO.RoomTaxStru, '') AS RoomTaxStru, "
+        "ISNULL(RO.RRServiceChrg, '') AS RRServiceChrg, "
+        "ISNULL(RO.RoomTarrif, 0) AS RoomTarrif, ISNULL(RO.RackRate, 0) AS RackRate, "
+        "ISNULL(RO.RateCode, '') AS RateCode "
         "FROM RoomOcc RO LEFT JOIN GuestFolio GF ON GF.DocId = RO.DocId "
+        "LEFT JOIN RoomCat RC ON RO.RoomCat = RC.Code "
+        "LEFT JOIN RevMast RM ON RC.RevCode = RM.Code "
         "WHERE RO.ChkOutDate IS NULL AND RO.Site_Code = ? AND RO.Vprefix = ? "
         "AND RO.ChkInDate <= ? AND RO.ChkInDate IS NOT NULL "
         "AND ISNULL(GF.Comp, '') <> 'Y'",
-        (SITE_CODE, vprefix, vdate), cn=cn)
+        (SITE_CODE, vprefix, vdate),
+        cn=cn,
+    )
     out = []
     for r in rows:
-        out.append({
-            "docid": r[0] or "",
-            "folio": r[1] or 0,
-            "roomno": (r[2] or "").strip(),
-            "roomrate": float(r[3] or 0),
-            "guest": (r[4] or "").strip(),
-            "mfolio": r[5] or 0,
-            "guestprof": (r[6] or "").strip(),
-            "roomcat": (r[7] or "").strip(),
-            "roomtype": (r[8] or "").strip(),
-            "plancode": (r[9] or "").strip(),
-        })
+        out.append(
+            {
+                "docid": r[0] or "",
+                "folio": r[1] or 0,
+                "roomno": (r[2] or "").strip(),
+                "roomrate": float(r[3] or 0),
+                "guest": (r[4] or "").strip(),
+                "mfolio": r[5] or 0,
+                "guestprof": (r[6] or "").strip(),
+                "roomcat": (r[7] or "").strip(),
+                "roomtype": (r[8] or "").strip(),
+                "plancode": (r[9] or "").strip(),
+                "rodisc": float(r[10] or 0),
+                "charge_ac": (r[11] or "").strip(),
+                "pay_code": (r[12] or "").strip(),
+                "rev_taxstru": (r[13] or "").strip(),
+                "room_tax_stru": (r[14] or "").strip(),
+                "rr_service_chrg": (r[15] or "").strip(),
+                "room_tarrif": float(r[16] or 0),
+                "rack_rate": float(r[17] or 0),
+                "ratecode": (r[18] or "").strip(),
+            }
+        )
     return out
 
 
@@ -274,117 +340,393 @@ def billed_folios_for_date(vdate, vprefix: str = VYEAR, cn=None) -> list[dict]:
         "WHERE RO.ChkOutDate IS NULL AND RO.Site_Code = ? AND RO.Vprefix = ? "
         "AND RO.ChkInDate <= ? AND RO.ChkInDate IS NOT NULL "
         "AND ISNULL(PC.Bill_No, '') <> ''",
-        (SITE_CODE, vprefix, vdate), cn=cn)
+        (SITE_CODE, vprefix, vdate),
+        cn=cn,
+    )
     return [{"folio": r[0] or 0, "roomno": (r[1] or "").strip()} for r in rows]
 
 
-def post_room_charges_for_date(vdate, vprefix: str = VYEAR,
-                                user: str = USER, cn=None, commit: bool = True,
-                                progress=None) -> dict:
+def _posted_docids_for_date(vdate, cn=None) -> set:
+    """Already-posted exclusion set (DB-001 script 1b, VB6 NOT IN subquery).
+
+    Built ONCE per run and matched against ROOMOCC.DocId — never FolioNo
+    (G2: live rooms 455/456/458/459 carry MfolionoDocid pointing at a
+    different DocId, so FolioNo-keying double-posts).
+    """
+    rows = db.query(
+        "SELECT DISTINCT FOLIONODOCID FROM PAYCHARGE WHERE VTYPE = 'RC' AND VDATE = ?",
+        (vdate,),
+        cn=cn,
+    )
+    return {(r[0] or "").strip() for r in rows if (r[0] or "").strip()}
+
+
+def _disc_account(site: str, cn=None):
+    """{Site}DISC lookup (DB-001 script 3, Hotlib.bas 617).
+
+    Returns {name, paycode, accode} or None when RevMast holds no row.
+    """
+    rows = db.query(
+        "Select Name, Code PayCode, AcCode From RevMast Where Code = ?",
+        (site + "DISC",),
+        cn=cn,
+    )
+    if not rows:
+        return None
+    return {
+        "name": (rows[0][0] or "").strip(),
+        "paycode": (rows[0][1] or "").strip(),
+        "accode": (rows[0][2] or "").strip(),
+    }
+
+
+def _room_tax_rows(room_tax_stru: str, pay_code: str, cn=None) -> list:
+    """TaxStru derivation rows (DB-001 script 2, Hotlib.bas 675-706).
+
+    RevMast -> TaxStru -> RevMast-as-TaxMast self-join (no TaxMast table
+    exists). RoomTaxStru set -> join on it (2A); empty -> join via
+    RevMast.TaxStru (2C). The SCH CASE is always applied (2B/2D differ
+    only by omitting it; RRServiceChrg gating is PY-007).
+    """
+    if (room_tax_stru or "").strip():
+        rows = db.query(
+            "SELECT RevMast.TaxStru, RevMast.Name AS RevName, "
+            "TaxMast.Name AS TaxName, TaxMast.ACCode AS RoomTaxAc, "
+            "TaxMast.Code as TaxCode, "
+            "Case When TaxMast.Sundry='SCH' Then 0 Else TaxStru.Rate End Rate, "
+            "TaxStru.Limit, TaxStru.Limit1, TaxStru.Nature, "
+            "TaxStru.CondApp, TaxStru.CompOperator "
+            "FROM (RevMast LEFT JOIN TaxStru ON TaxStru.Code = ?) "
+            "LEFT JOIN REVMAST TaxMast ON TaxStru.TaxCode = TaxMast.Code "
+            "Where TaxMast.FIELDTYPE = 'T' AND REVMAST.FIELDTYPE = 'C' "
+            "AND RevMast.Code = ? ORDER BY TaxStru.Sno",
+            (room_tax_stru, pay_code),
+            cn=cn,
+        )
+    else:
+        rows = db.query(
+            "SELECT RevMast.TaxStru, RevMast.Name AS RevName, "
+            "TaxMast.Name AS TaxName, TaxMast.ACCode AS RoomTaxAc, "
+            "TaxMast.Code as TaxCode, "
+            "Case When TaxMast.Sundry='SCH' Then 0 Else TaxStru.Rate End Rate, "
+            "TaxStru.Limit, TaxStru.Limit1, TaxStru.Nature, "
+            "TaxStru.CondApp, TaxStru.CompOperator "
+            "FROM (RevMast LEFT JOIN TaxStru ON RevMast.TaxStru = TaxStru.Code) "
+            "LEFT JOIN REVMAST TaxMast ON TaxStru.TaxCode = TaxMast.Code "
+            "Where TaxMast.FIELDTYPE = 'T' AND REVMAST.FIELDTYPE = 'C' "
+            "AND RevMast.Code = ? ORDER BY TaxStru.Sno",
+            (pay_code,),
+            cn=cn,
+        )
+    return [
+        {
+            "taxstru": (r[0] or "").strip(),
+            "revname": (r[1] or "").strip(),
+            "taxname": (r[2] or "").strip(),
+            "roomtaxac": (r[3] or "").strip(),
+            "taxcode": (r[4] or "").strip(),
+            "rate": float(r[5] or 0),
+            "limit": float(r[6] or 0),
+            "limit1": float(r[7] or 0),
+            "nature": (r[8] or "").strip(),
+            "condapp": (r[9] or "").strip(),
+            "compop": (r[10] or "").strip(),
+        }
+        for r in rows
+    ]
+
+
+def _nature_calc_amount(
+    nature: str, base: float, running: float, prev_tax: float
+) -> float:
+    """Proc_96_5 Nature dispatch (Hotlib.bas 841/864/884 + default 904)."""
+    if nature == "On Running Total":
+        return running
+    if nature == "On Prev. Tax Amt":
+        return prev_tax
+    return base  # "On Base Amt" + default
+
+
+def _condapp_gate_amount(
+    condapp: str, rack: float, tariff: float, fallback: float
+) -> float:
+    """Proc_96_5 CondApp dispatch (Hotlib.bas 842/847/851/859)."""
+    if condapp == "Rack Rate":
+        return rack
+    if condapp == "Room Tariff":
+        return tariff
+    if condapp == "Declared Tariff":
+        return max(rack, tariff)
+    return fallback
+
+
+def _comp_gate_ok(compop: str, amount: float, limit: float, limit1: float) -> bool:
+    """Proc_96_6 CompOperator x Limit(/Limit1) gate (Hotlib.bas 911-973).
+
+    VB6 compares Limit AGAINST the amount (``Limit <op> Amount``), not the
+    reverse: ``If CDbl(Val(Limit)) <= arg_20`` fires the 9%-slab row
+    (Limit=7500) only when the tariff is >= 7500. Between =
+    ``Limit1 >= amt AND Limit <= amt``.
+    """
+    op = (compop or "").strip()
+    if op == "Between":
+        return limit1 >= amount and limit <= amount
+    if op == "<=":
+        return limit <= amount
+    if op == "<":
+        return limit < amount
+    if op == "=":
+        return limit == amount
+    if op == ">":
+        return limit > amount
+    if op == ">=":
+        return limit >= amount
+    return True  # unknown operator: VB6 default branch computes
+
+
+def _keep_tax_row(dr: float) -> bool:
+    """Per-tax-row drop decision (Hotlib.bas 745-758 CancelUpdate parity).
+
+    Today: zero-tax rows drop. PY-005 hook: `or PostNilLT == "Yes"` posts
+    the nil row instead of dropping (Enviro column, already modelled).
+    """
+    return dr != 0
+
+
+def post_room_charges_for_date(
+    vdate,
+    vprefix: str = VYEAR,
+    user: str = USER,
+    cn=None,
+    commit: bool = True,
+    progress=None,
+) -> dict:
     """Post room charges for all in-house guests on a date.
     VB6 fdPostChrg Cmd(1) -> TopCtrl posting: for each in-house room, if not
-    already posted (PayCharge Vtype='RC' for that folio/date), insert RC
-    charge + 2.5% CGST + 2.5% SGST tax rows (BUG-AUD-10: TaxPer=2.5 live
-    evidence) with VB6 row shape (GuestProf/RoomCat/RoomType/FolioNoDocid/
+    already posted (PayCharge Vtype='RC' for that ROOMOCC.DocId/date), insert
+    RC base row (RODISC netted or separate CR row) + TaxStru-derived tax
+    rows (PayCode=TaxCode, BillAmount=calc amount, TaxCondAmt=tested amount,
+    TaxPer=rate) with VB6 row shape (GuestProf/RoomCat/RoomType/FolioNoDocid/
     PlanCode/Comments/OnAmt).
+    Guards: RoomChrgPostingType='While Printing Bill' -> early return with
+    notice, zero rows (G12, fdPostChrg.frm:238-241); billed folios present ->
+    PostingBlockedError, zero inserts (G1).
     progress: optional cb(done, total, roomno) called before each room
     (VB6 lblDisplay "Posting Charges For Room : <RoomNo>").
     Returns: {'posted': count, 'skipped': count, 'eligible': count,
-    'errors': list}
+    'errors': list, 'notice': str or None}
     """
-    rooms = get_inhouse_rooms(vdate, vprefix, cn=cn)
-    posted = 0
-    skipped = 0
-    errors = []
-
-    # Get next VNo for RC series
-    vno = _next_vno(VTYPE_RC, vprefix, cn=cn)
-
-    # Pre-compute max sno per folio to avoid N+1 queries
-    folios = [r["folio"] for r in rooms]
-    sno_map = {}
-    if folios:
-        placeholders = ",".join("?" for _ in folios)
-        rows = db.query(
-            f"SELECT FolioNo, MAX(SNo) FROM PayCharge WHERE FolioNo IN ({placeholders}) AND Site_Code = ? AND VPrefix = ? GROUP BY FolioNo",
-            tuple(folios + [SITE_CODE, vprefix]), cn=cn)
-        for r in rows:
-            sno_map[r[0]] = r[1] or 0
-
     own = cn is None
     cn = cn or db.connect()
     try:
-        total = len(rooms)
-        done = 0
+        from HMS_py.core import enviro as enviro_mod
+
+        # G12: RoomChrgPostingType gate (VB6 Exit Sub before anything posts)
+        if (enviro_mod.get_setting("RoomChrgPostingType", "", cn=cn) or "") == (
+            "While Printing Bill"
+        ):
+            return {
+                "posted": 0,
+                "skipped": 0,
+                "eligible": 0,
+                "errors": [],
+                "notice": (
+                    "RoomChrgPostingType = 'While Printing Bill' — "
+                    "room charges post at bill-printing, not here"
+                ),
+            }
+
+        # G1: engine-level billed-folio hard stop (zero inserts)
+        billed = billed_folios_for_date(vdate, vprefix, cn=cn)
+        if billed:
+            rooms_txt = ", ".join(str(b["roomno"]) for b in billed[:10])
+            raise PostingBlockedError(
+                "There is some unsettled guest bill,\n"
+                "First Settle it then Process this operation\n\n"
+                f"Re-Check Room No : {rooms_txt}"
+            )
+
+        rooms = get_inhouse_rooms(vdate, vprefix, cn=cn)
+        excl = _posted_docids_for_date(vdate, cn=cn)  # G2: built ONCE
+
+        separate = (
+            enviro_mod.get_setting("PostRoomDiscSeparately", "", cn=cn) or ""
+        ) == "Yes"
+
+        # Eligible work list (G2 key = ROOMOCC.DocId, never FolioNo)
+        todo = []
         for room in rooms:
+            if (room["docid"] or "").strip() in excl:
+                continue
+            if float(room["roomrate"] or 0) <= 0:
+                continue
+            todo.append(room)
+
+        # G3/G6: separate-disc account resolved BEFORE any INSERT so a
+        # missing DISC AcCode aborts the whole posting with zero inserts
+        disc_acct = None
+        if separate and any(float(r.get("rodisc") or 0) > 0 for r in todo):
+            disc_acct = _disc_account(SITE_CODE, cn=cn)
+            if not disc_acct or not disc_acct["accode"]:
+                raise PostingBlockedError("Room Disc. A/c Not Defined in Charge Master")
+
+        posted = 0
+        skipped = len(rooms) - len(todo)
+        errors = []
+
+        # Get next VNo for RC series
+        vno = _next_vno(VTYPE_RC, vprefix, cn=cn)
+
+        # Pre-compute max sno per folio to avoid N+1 queries
+        folios = [r["folio"] for r in todo]
+        sno_map = {}
+        if folios:
+            placeholders = ",".join("?" for _ in folios)
+            rows = db.query(
+                f"SELECT FolioNo, MAX(SNo) FROM PayCharge WHERE FolioNo IN ({placeholders}) AND Site_Code = ? AND VPrefix = ? GROUP BY FolioNo",
+                tuple(folios + [SITE_CODE, vprefix]),
+                cn=cn,
+            )
+            for r in rows:
+                sno_map[r[0]] = r[1] or 0
+
+        total = len(todo)
+        done = 0
+        for room in todo:
             if progress is not None:
                 progress(done, total, room["roomno"])
                 done += 1
 
-            # Check if RC already posted for this folio/date
-            existing = db.query(
-                "SELECT 1 FROM PayCharge WHERE Vtype = ? AND Vdate = ? AND FolioNo = ? "
-                "AND Site_Code = ? AND VPrefix = ?",
-                (VTYPE_RC, vdate, room["folio"], SITE_CODE, vprefix), cn=cn)
-            if existing:
-                skipped += 1
-                continue
-
-            # Post room charge
-            amount = room["roomrate"]
-            if amount <= 0:
-                skipped += 1
-                continue
+            rate = float(room["roomrate"] or 0)
+            disc = float(room.get("rodisc") or 0)
+            pay_code = room.get("pay_code") or PAY_CODE_RC
+            # G3: netted DR unless separate-posting mode
+            dr = rate if (separate or disc <= 0) else rate - rate * disc / 100
 
             docid = _make_rc_docid(vprefix, vno)
             sno = sno_map.get(room["folio"], 0) + 1
             sno_map[room["folio"]] = sno
 
-            # Room charge row (Dr) -- VB6 shape: OnAmt=amount, TaxPer=0,
-            # Comments='Room Charge (Room No : <no>)'
+            # Room charge row (Dr) -- VB6 shape: OnAmt=dr, TaxPer=0,
+            # BillAmount=dr, Comments='Room Charge (Room No : <no>)'
             db.execute(
                 "INSERT INTO PayCharge (DocId, SNo, Vtype, VNo, Site_Code, VPrefix, Vdate, "
                 "GuestProf, Comments, PayCode, FolioNo, FolioNoDocid, RoomNo, RoomCat, RoomType, "
-                "PlanCode, AmtDr, TaxPer, OnAmt, U_Name, U_EntDt, U_AE, LogSite_Code) "
-                "VALUES (?, ?, 'RC', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, getdate(), 'A', ?)",
-                (docid, sno, vno, SITE_CODE, vprefix, vdate,
-                 room["guestprof"], f"Room Charge (Room No : {room['roomno']})",
-                 PAY_CODE_RC, room["folio"], room["docid"], room["roomno"] or "",
-                 room["roomcat"], room["roomtype"], room["plancode"],
-                 amount, amount, user, SITE_CODE),
-                cn=cn, commit=False)
+                "PlanCode, AmtDr, TaxPer, OnAmt, BillAmount, U_Name, U_EntDt, U_AE, LogSite_Code) "
+                "VALUES (?, ?, 'RC', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, getdate(), 'A', ?)",
+                (
+                    docid,
+                    sno,
+                    vno,
+                    SITE_CODE,
+                    vprefix,
+                    vdate,
+                    room["guestprof"],
+                    f"Room Charge (Room No : {room['roomno']})",
+                    pay_code,
+                    room["folio"],
+                    room["docid"],
+                    room["roomno"] or "",
+                    room["roomcat"],
+                    room["roomtype"],
+                    room["plancode"],
+                    dr,
+                    dr,
+                    dr,
+                    user,
+                    SITE_CODE,
+                ),
+                cn=cn,
+                commit=False,
+            )
 
-            # CGST row (VB6: TaxPer=2.5, OnAmt=amount, Comments='CGST (SALES)(Room No : <no>)')
-            cgst = round(amount * GST_RATE, 2)
-            if cgst > 0:
+            # G3: separate CR discount row (DR=0, BillAmount=0, RoomType RO)
+            if separate and disc > 0:
+                disc_amt = round(rate * disc / 100, 2)
                 sno += 1
+                sno_map[room["folio"]] = sno
                 db.execute(
                     "INSERT INTO PayCharge (DocId, SNo, Vtype, VNo, Site_Code, VPrefix, Vdate, "
                     "GuestProf, Comments, PayCode, FolioNo, FolioNoDocid, RoomNo, RoomCat, RoomType, "
-                    "PlanCode, AmtDr, TaxPer, OnAmt, U_Name, U_EntDt, U_AE, LogSite_Code) "
-                    "VALUES (?, ?, 'RC', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 2.5, ?, ?, getdate(), 'A', ?)",
-                    (docid, sno, vno, SITE_CODE, vprefix, vdate,
-                     room["guestprof"], f"CGST (SALES)(Room No : {room['roomno']})",
-                     CGST_CODE, room["folio"], room["docid"], room["roomno"] or "",
-                     room["roomcat"], room["roomtype"], room["plancode"],
-                     cgst, amount, user, SITE_CODE),
-                    cn=cn, commit=False)
+                    "PlanCode, AmtDr, AmtCr, BillAmount, U_Name, U_EntDt, U_AE, LogSite_Code) "
+                    "VALUES (?, ?, 'RC', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'RO', ?, 0, ?, 0, ?, getdate(), 'A', ?)",
+                    (
+                        docid,
+                        sno,
+                        vno,
+                        SITE_CODE,
+                        vprefix,
+                        vdate,
+                        room["guestprof"],
+                        f"Room Disc. (Room No : {room['roomno']})",
+                        disc_acct["paycode"],
+                        room["folio"],
+                        room["docid"],
+                        room["roomno"] or "",
+                        room["roomcat"],
+                        room["plancode"],
+                        disc_amt,
+                        user,
+                        SITE_CODE,
+                    ),
+                    cn=cn,
+                    commit=False,
+                )
 
-            # SGST row (VB6: TaxPer=2.5, OnAmt=amount)
-            sgst = round(amount * GST_RATE, 2)
-            if sgst > 0:
+            # G4: TaxStru-driven tax rows (Proc_96_5/96_6 parity).
+            # Test-seeded rooms carry RoomTarrif/RackRate 0 (create_checkin
+            # defaults); VB6 live rooms always have tariffs, so fall back to
+            # the posted base when unset (else live KKTR gates never match).
+            tariff = float(room.get("room_tarrif") or 0) or dr
+            rack = float(room.get("rack_rate") or 0) or dr
+            running = dr
+            prev_tax = 0.0
+            for tax in _room_tax_rows(room.get("room_tax_stru") or "", pay_code, cn=cn):
+                calc = _nature_calc_amount(tax["nature"], dr, running, prev_tax)
+                gate_amt = _condapp_gate_amount(tax["condapp"], rack, tariff, calc)
+                if _comp_gate_ok(tax["compop"], gate_amt, tax["limit"], tax["limit1"]):
+                    amt = round(calc * tax["rate"] / 100, 2)
+                else:
+                    amt = 0.0
+                if not _keep_tax_row(amt):
+                    continue
                 sno += 1
+                sno_map[room["folio"]] = sno
                 db.execute(
                     "INSERT INTO PayCharge (DocId, SNo, Vtype, VNo, Site_Code, VPrefix, Vdate, "
                     "GuestProf, Comments, PayCode, FolioNo, FolioNoDocid, RoomNo, RoomCat, RoomType, "
-                    "PlanCode, AmtDr, TaxPer, OnAmt, U_Name, U_EntDt, U_AE, LogSite_Code) "
-                    "VALUES (?, ?, 'RC', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 2.5, ?, ?, getdate(), 'A', ?)",
-                    (docid, sno, vno, SITE_CODE, vprefix, vdate,
-                     room["guestprof"], f"SGST (SALES)(Room No : {room['roomno']})",
-                     SGST_CODE, room["folio"], room["docid"], room["roomno"] or "",
-                     room["roomcat"], room["roomtype"], room["plancode"],
-                     sgst, amount, user, SITE_CODE),
-                    cn=cn, commit=False)
+                    "PlanCode, AmtDr, TaxPer, OnAmt, BillAmount, TaxCondAmt, TaxStru, U_Name, U_EntDt, U_AE, LogSite_Code) "
+                    "VALUES (?, ?, 'RC', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, getdate(), 'A', ?)",
+                    (
+                        docid,
+                        sno,
+                        vno,
+                        SITE_CODE,
+                        vprefix,
+                        vdate,
+                        room["guestprof"],
+                        f"{tax['taxname']}(Room No : {room['roomno']})",
+                        tax["taxcode"],
+                        room["folio"],
+                        room["docid"],
+                        room["roomno"] or "",
+                        room["roomcat"],
+                        room["roomtype"],
+                        room["plancode"],
+                        amt,
+                        tax["rate"],
+                        dr,
+                        calc,
+                        gate_amt,
+                        tax["taxstru"],
+                        user,
+                        SITE_CODE,
+                    ),
+                    cn=cn,
+                    commit=False,
+                )
+                running += amt
+                prev_tax = amt
 
             # FolioLog for room charge post (use GuestFolio DocId, not PayCharge DocId)
             folio_mod._log(room["docid"], "P", user, cn, SITE_CODE)
@@ -394,8 +736,13 @@ def post_room_charges_for_date(vdate, vprefix: str = VYEAR,
 
         if commit:
             cn.commit()
-        return {"posted": posted, "skipped": skipped,
-                "eligible": len(rooms), "errors": errors}
+        return {
+            "posted": posted,
+            "skipped": skipped,
+            "eligible": len(rooms),
+            "errors": errors,
+            "notice": None,
+        }
     except Exception:
         if own:
             cn.rollback()
@@ -408,6 +755,7 @@ def post_room_charges_for_date(vdate, vprefix: str = VYEAR,
 # ============================================================
 # POS Revenue Posting (VB6 Proc_96_14/16 - PPOS)
 # ============================================================
+
 
 def get_pos_revenue(vdate, cn=None) -> list[dict]:
     """Get POS revenue for a date (VB6 SunTran aggregation).
@@ -423,21 +771,25 @@ def get_pos_revenue(vdate, cn=None) -> list[dict]:
         "AND SunTran.SunCode <> 'SNET' AND SunTran.LogSite_Code = ? "
         "AND Depart.RestType IN ('Outlet', 'Room Service') AND SunTran.DelFlag <> 'D' "
         "GROUP BY SunTran.RestCode, SunTran.RevCode, SunTran.Vdate ORDER BY SunTran.RestCode",
-        (vdate, SITE_CODE), cn=cn)
+        (vdate, SITE_CODE),
+        cn=cn,
+    )
     out = []
     for r in rows:
         amt = float(r[0] or 0)
         if amt != 0:
-            out.append({
-                "revcode": r[1] or "",
-                "restcode": r[2] or "",
-                "vdate": r[3],
-                "outlet": (r[4] or "").strip(),
-                "dshortname": (r[5] or "").strip(),
-                "revname": (r[6] or "").strip(),
-                "sundrycode": r[7] or "",
-                "amount": amt,
-            })
+            out.append(
+                {
+                    "revcode": r[1] or "",
+                    "restcode": r[2] or "",
+                    "vdate": r[3],
+                    "outlet": (r[4] or "").strip(),
+                    "dshortname": (r[5] or "").strip(),
+                    "revname": (r[6] or "").strip(),
+                    "sundrycode": r[7] or "",
+                    "amount": amt,
+                }
+            )
     return out
 
 
@@ -450,14 +802,17 @@ def _get_voucher_prefix(vtype: str, vdate, cn=None) -> tuple[str, int]:
         "AND VT.Site_Code = VP.Site_Code AND VT.LogSite_Code = VP.LogSite_Code "
         "WHERE VT.Site_Code = ? AND VP.V_Type = ? "
         "AND VP.Date_From <= ? ORDER BY VP.Date_From DESC",
-        (SITE_CODE, vtype, vdate), cn=cn)
+        (SITE_CODE, vtype, vdate),
+        cn=cn,
+    )
     if not rows:
         return str(vdate.year), 1
     return rows[0][0] or str(vdate.year), int(rows[0][1] or 1)
 
 
-def post_pos_revenue_for_date(vdate, vprefix: str = VYEAR,
-                               user: str = USER, cn=None, commit: bool = True) -> dict:
+def post_pos_revenue_for_date(
+    vdate, vprefix: str = VYEAR, user: str = USER, cn=None, commit: bool = True
+) -> dict:
     """Post POS revenue (SunTran) to PayCharge as Vtype='PPOS'.
     VB6 Proc_96_14: Groups by RevCode/RestCode, creates PPOS entries.
     Returns: {'posted': count, 'skipped': count}
@@ -479,7 +834,16 @@ def post_pos_revenue_for_date(vdate, vprefix: str = VYEAR,
             existing = db.query(
                 "SELECT 1 FROM PayCharge WHERE Vtype = ? AND Vdate = ? AND RestCode = ? "
                 "AND RevCode = ? AND Site_Code = ? AND VPrefix = ?",
-                (VTYPE_PPOS, vdate, rev["restcode"], rev["revcode"], SITE_CODE, vprefix), cn=cn)
+                (
+                    VTYPE_PPOS,
+                    vdate,
+                    rev["restcode"],
+                    rev["revcode"],
+                    SITE_CODE,
+                    vprefix,
+                ),
+                cn=cn,
+            )
             if existing:
                 skipped += 1
                 continue
@@ -496,9 +860,21 @@ def post_pos_revenue_for_date(vdate, vprefix: str = VYEAR,
                 "INSERT INTO PayCharge (DocId, SNo, Vtype, VNo, Site_Code, VPrefix, Vdate, "
                 "GuestProf, Comments, PayCode, FolioNo, RoomNo, AmtDr, U_Name, U_EntDt, U_AE, LogSite_Code) "
                 "VALUES (?, ?, 'PPOS', ?, ?, ?, ?, '', '', ?, 0, '', ?, ?, getdate(), 'A', ?)",
-                (docid, 1, vno, SITE_CODE, vprefix, vdate, rev["revcode"],
-                 amount, user, SITE_CODE),
-                cn=cn, commit=False)
+                (
+                    docid,
+                    1,
+                    vno,
+                    SITE_CODE,
+                    vprefix,
+                    vdate,
+                    rev["revcode"],
+                    amount,
+                    user,
+                    SITE_CODE,
+                ),
+                cn=cn,
+                commit=False,
+            )
 
             posted += 1
             vno += 1
@@ -514,6 +890,7 @@ def post_pos_revenue_for_date(vdate, vprefix: str = VYEAR,
 # ============================================================
 # A/C Posting driver (VB6 fdNDAcPostChrg "Posting Utility")
 # ============================================================
+
 
 def _pos_revenue_range(date_from, date_to, cn=None) -> list[dict]:
     """VB6 Proc_96_16 (summary) source: SunTran grouped over a date range.
@@ -534,24 +911,36 @@ def _pos_revenue_range(date_from, date_to, cn=None) -> list[dict]:
         "AND SunTran.DelFlag <> 'D' "
         "GROUP BY SunTran.RestCode, SunTran.RevCode "
         "ORDER BY SunTran.RestCode",
-        (date_from, date_to, SITE_CODE), cn=cn)
+        (date_from, date_to, SITE_CODE),
+        cn=cn,
+    )
     out = []
     for r in rows:
         amt = float(r[0] or 0)
         if amt != 0:
-            out.append({
-                "revcode": r[1] or "", "restcode": r[2] or "",
-                "vdate": date_to, "outlet": (r[3] or "").strip(),
-                "dshortname": (r[4] or "").strip(),
-                "revname": (r[5] or "").strip(),
-                "sundrycode": r[6] or "", "amount": amt,
-            })
+            out.append(
+                {
+                    "revcode": r[1] or "",
+                    "restcode": r[2] or "",
+                    "vdate": date_to,
+                    "outlet": (r[3] or "").strip(),
+                    "dshortname": (r[4] or "").strip(),
+                    "revname": (r[5] or "").strip(),
+                    "sundrycode": r[6] or "",
+                    "amount": amt,
+                }
+            )
     return out
 
 
-def _post_pos_revenue_range(date_from, date_to, vprefix: str = VYEAR,
-                            user: str = USER, cn=None,
-                            commit: bool = True) -> dict:
+def _post_pos_revenue_range(
+    date_from,
+    date_to,
+    vprefix: str = VYEAR,
+    user: str = USER,
+    cn=None,
+    commit: bool = True,
+) -> dict:
     """Summary PPOS insert (VB6 Proc_96_16): poore range ka grouped amount
     ek Vdate (= date_to) par; pehle se posted combo skip."""
     revenues = _pos_revenue_range(date_from, date_to, cn=cn)
@@ -567,8 +956,16 @@ def _post_pos_revenue_range(date_from, date_to, vprefix: str = VYEAR,
                 "SELECT 1 FROM PayCharge WHERE Vtype = ? AND Vdate = ? "
                 "AND RestCode = ? AND RevCode = ? AND Site_Code = ? "
                 "AND VPrefix = ?",
-                (VTYPE_PPOS, date_to, rev["restcode"], rev["revcode"],
-                 SITE_CODE, vprefix), cn=cn)
+                (
+                    VTYPE_PPOS,
+                    date_to,
+                    rev["restcode"],
+                    rev["revcode"],
+                    SITE_CODE,
+                    vprefix,
+                ),
+                cn=cn,
+            )
             if existing:
                 skipped += 1
                 continue
@@ -579,9 +976,21 @@ def _post_pos_revenue_range(date_from, date_to, vprefix: str = VYEAR,
                 "RoomNo, AmtDr, U_Name, U_EntDt, U_AE, LogSite_Code) "
                 "VALUES (?, ?, 'PPOS', ?, ?, ?, ?, '', '', ?, 0, '', ?, ?, "
                 "getdate(), 'A', ?)",
-                (docid, 1, vno, SITE_CODE, vprefix, date_to, rev["revcode"],
-                 rev["amount"], user, SITE_CODE),
-                cn=cn, commit=False)
+                (
+                    docid,
+                    1,
+                    vno,
+                    SITE_CODE,
+                    vprefix,
+                    date_to,
+                    rev["revcode"],
+                    rev["amount"],
+                    user,
+                    SITE_CODE,
+                ),
+                cn=cn,
+                commit=False,
+            )
             posted += 1
             vno += 1
         if commit:
@@ -592,9 +1001,16 @@ def _post_pos_revenue_range(date_from, date_to, vprefix: str = VYEAR,
             cn.close()
 
 
-def account_posting(date_from, date_to=None, mode: str | None = None,
-                    user: str = USER, cn=None, commit: bool = True,
-                    vprefix: str = VYEAR, progress=None) -> dict:
+def account_posting(
+    date_from,
+    date_to=None,
+    mode: str | None = None,
+    user: str = USER,
+    cn=None,
+    commit: bool = True,
+    vprefix: str = VYEAR,
+    progress=None,
+) -> dict:
     """A/C Posting driver (VB6 fdNDAcPostChrg.TopCtrl1_UnknownEvent_16).
 
     VB6: Enviro.Postingtype = 'Daily Bill wise Posting' -> har date ke liye
@@ -623,9 +1039,15 @@ def account_posting(date_from, date_to=None, mode: str | None = None,
             mode = ""
     daily = str(mode).strip().lower() == "daily bill wise posting"
     n = (d2 - d1).days + 1
-    res = {"mode": mode or ("Daily Bill wise Posting" if daily else "Summary"),
-           "dates": n, "room_posted": 0, "room_skipped": 0,
-           "pos_posted": 0, "pos_skipped": 0, "errors": []}
+    res = {
+        "mode": mode or ("Daily Bill wise Posting" if daily else "Summary"),
+        "dates": n,
+        "room_posted": 0,
+        "room_skipped": 0,
+        "pos_posted": 0,
+        "pos_skipped": 0,
+        "errors": [],
+    }
     own = cn is None
     cn = cn or db.connect()
     try:
@@ -633,19 +1055,19 @@ def account_posting(date_from, date_to=None, mode: str | None = None,
             d = d1 + datetime.timedelta(days=i)
             if progress:
                 progress(i + 1, n, d)
-            r = post_room_charges_for_date(d, vprefix, user=user, cn=cn,
-                                           commit=False)
+            r = post_room_charges_for_date(d, vprefix, user=user, cn=cn, commit=False)
             res["room_posted"] += int(r.get("posted") or 0)
             res["room_skipped"] += int(r.get("skipped") or 0)
             res["errors"].extend(r.get("errors") or [])
-            p = (post_pos_revenue_for_date(d, vprefix, user=user, cn=cn,
-                                           commit=False) if daily
-                 else {"posted": 0, "skipped": 0})
+            p = (
+                post_pos_revenue_for_date(d, vprefix, user=user, cn=cn, commit=False)
+                if daily
+                else {"posted": 0, "skipped": 0}
+            )
             res["pos_posted"] += int(p.get("posted") or 0)
             res["pos_skipped"] += int(p.get("skipped") or 0)
         if not daily:
-            p = _post_pos_revenue_range(d1, d2, vprefix, user=user, cn=cn,
-                                        commit=False)
+            p = _post_pos_revenue_range(d1, d2, vprefix, user=user, cn=cn, commit=False)
             res["pos_posted"] += int(p.get("posted") or 0)
             res["pos_skipped"] += int(p.get("skipped") or 0)
         if commit:
@@ -663,8 +1085,7 @@ def account_posting(date_from, date_to=None, mode: str | None = None,
             cn.close()
 
 
-def rename_bill_no(old_bill: str, new_bill: str, cn=None,
-                   commit: bool = True) -> int:
+def rename_bill_no(old_bill: str, new_bill: str, cn=None, commit: bool = True) -> int:
     """VB6 fdNDAcPostChrg Cmd index 3:
     Update PayCharge Set bill_no='<new>' where bill_no='<old>'.
     Returns rows updated."""
@@ -680,14 +1101,13 @@ def rename_bill_no(old_bill: str, new_bill: str, cn=None,
         rows = db.query(
             "SELECT CHARACTER_MAXIMUM_LENGTH FROM INFORMATION_SCHEMA.COLUMNS "
             "WHERE TABLE_NAME = 'PayCharge' AND COLUMN_NAME = 'Bill_No'",
-            cn=cn)
+            cn=cn,
+        )
         maxlen = int(rows[0][0]) if rows and rows[0][0] else None
         if maxlen and len(new) > maxlen:
-            raise ValueError(f"New Bill No {maxlen} character se chhota "
-                             "hona chahiye")
+            raise ValueError(f"New Bill No {maxlen} character se chhota hona chahiye")
         cur = cn.cursor()
-        cur.execute("UPDATE PayCharge SET bill_no = ? WHERE bill_no = ?",
-                    (new, old))
+        cur.execute("UPDATE PayCharge SET bill_no = ? WHERE bill_no = ?", (new, old))
         n = cur.rowcount if cur.rowcount and cur.rowcount > 0 else 0
         if commit:
             cn.commit()
@@ -708,11 +1128,17 @@ def rename_bill_no(old_bill: str, new_bill: str, cn=None,
 # Main Night Audit Process
 # ============================================================
 
-def run_night_audit(date_from, date_to=None, user: str = USER,
-                    cn=None, commit: bool = True,
-                    vprefix: str = VYEAR) -> dict:
+
+def run_night_audit(
+    date_from,
+    date_to=None,
+    user: str = USER,
+    cn=None,
+    commit: bool = True,
+    vprefix: str = VYEAR,
+) -> dict:
     """Run full Night Audit for a date range (VB6 fdNDAcPostChrg pattern).
-    
+
     Steps:
     1. Check Enviro flags (KOTAtNightAudit, POSBillAtNightAudit)
     2. For each date in range:
@@ -751,8 +1177,7 @@ def run_night_audit(date_from, date_to=None, user: str = USER,
             uncharged = uncharged_rooms(current, vprefix, cn=cn)
             if uncharged:
                 rooms = ", ".join(u["roomno"] for u in uncharged[:10])
-                errors.append(
-                    f"{current}: Please Charge Posting For Rooms: {rooms}")
+                errors.append(f"{current}: Please Charge Posting For Rooms: {rooms}")
                 current += datetime.timedelta(days=1)
                 continue
 
@@ -773,13 +1198,17 @@ def run_night_audit(date_from, date_to=None, user: str = USER,
                     continue
 
             # Post room charges
-            rc_result = post_room_charges_for_date(current, vprefix, user, cn=cn, commit=False)
+            rc_result = post_room_charges_for_date(
+                current, vprefix, user, cn=cn, commit=False
+            )
             total_posted += rc_result["posted"]
             total_skipped += rc_result["skipped"]
             rc_posted += rc_result["posted"]
 
             # Post POS revenue
-            pos_result = post_pos_revenue_for_date(current, vprefix, user, cn=cn, commit=False)
+            pos_result = post_pos_revenue_for_date(
+                current, vprefix, user, cn=cn, commit=False
+            )
             total_posted += pos_result["posted"]
             total_skipped += pos_result["skipped"]
             pos_posted += pos_result["posted"]
@@ -810,7 +1239,9 @@ def run_night_audit(date_from, date_to=None, user: str = USER,
 
             # Log NA entry
             end_time = datetime.datetime.now()
-            _log_night_audit(current, current, start_time, end_time, user, cn=cn, commit=False)
+            _log_night_audit(
+                current, current, start_time, end_time, user, cn=cn, commit=False
+            )
 
             dates_processed.append(current)
             current += datetime.timedelta(days=1)
@@ -848,8 +1279,10 @@ def run_night_audit(date_from, date_to=None, user: str = USER,
         if result["success"] and dates_processed:
             try:
                 from HMS_py.core.channel import inventory as ch_inv
+
                 push = ch_inv.maybe_auto_push_after_na(
-                    dates_processed[-1], user=user, cn=cn)
+                    dates_processed[-1], user=user, cn=cn
+                )
                 if push is not None:
                     result["channel_push"] = push
             except Exception as e:
@@ -877,8 +1310,8 @@ def run_night_audit(date_from, date_to=None, user: str = USER,
 # Reverse Night Audit (VB6 frmReNightAudit.frm:318-340)
 # ============================================================
 
-def reverse_night_audit(user: str = USER, cn=None,
-                        commit: bool = True) -> dict:
+
+def reverse_night_audit(user: str = USER, cn=None, commit: bool = True) -> dict:
     """VB6 reverse night audit: sirf Enviro.NCur -1 day.
 
     Evidence (frmReNightAudit.frm:331-336):
@@ -889,8 +1322,10 @@ def reverse_night_audit(user: str = USER, cn=None,
 
     Returns {from_date, to_date}. Raises ValueError on FY-start guard."""
     rows = db.query(
-        "SELECT [NCur] FROM Enviro WHERE LogSite_Code = ? OR "
-        "LogSite_Code = 'HO'", (SITE_CODE,), cn=cn)
+        "SELECT [NCur] FROM Enviro WHERE LogSite_Code = ? OR LogSite_Code = 'HO'",
+        (SITE_CODE,),
+        cn=cn,
+    )
     if not rows:
         raise ValueError("Enviro NCur nahi mila")
     ncur = rows[0][0]
@@ -907,7 +1342,10 @@ def reverse_night_audit(user: str = USER, cn=None,
         db.execute(
             "UPDATE Enviro SET [NCur] = ?, U_Name = ?, "
             "U_EntDt = getdate(), U_AE = 'E' WHERE LogSite_Code = ?",
-            (new_d, user, SITE_CODE), cn=cn, commit=False)
+            (new_d, user, SITE_CODE),
+            cn=cn,
+            commit=False,
+        )
         if commit:
             cn.commit()
         return {"from_date": ncur_d, "to_date": new_d, "user": user}
@@ -921,24 +1359,43 @@ def na_log(cn=None, top: int = 100) -> list:
         f"SELECT TOP {int(top)} Id, DateChngFrom, DateChngTo, "
         "StartNightAudit, EndNightAudit, U_Name, U_AE "
         "FROM NightAuditLog WHERE Site_Code = ? ORDER BY Id DESC",
-        (SITE_CODE,), cn=cn)
-    return [{"id": int(r.Id), "from": r.DateChngFrom, "to": r.DateChngTo,
-             "start": r.StartNightAudit, "end": r.EndNightAudit,
-             "user": r.U_Name or "", "ae": r.U_AE or ""} for r in rows]
+        (SITE_CODE,),
+        cn=cn,
+    )
+    return [
+        {
+            "id": int(r.Id),
+            "from": r.DateChngFrom,
+            "to": r.DateChngTo,
+            "start": r.StartNightAudit,
+            "end": r.EndNightAudit,
+            "user": r.U_Name or "",
+            "ae": r.U_AE or "",
+        }
+        for r in rows
+    ]
 
 
 def occupancy(cn=None, vprefix: str = VYEAR, top: int = 30) -> list:
     rooms = db.query(
-        "SELECT COUNT(*) FROM RoomMast WHERE Site_Code = ?", (SITE_CODE,), cn=cn)[0][0]
+        "SELECT COUNT(*) FROM RoomMast WHERE Site_Code = ?", (SITE_CODE,), cn=cn
+    )[0][0]
     rows = db.query(
         f"SELECT TOP {int(top)} Vdate, COUNT(*) AS ChkIns "
         "FROM GuestFolio WHERE Site_Code = ? AND Vprefix = ? AND "
         "Vtype = 'CHK' GROUP BY Vdate ORDER BY Vdate DESC",
-        (SITE_CODE, vprefix), cn=cn)
+        (SITE_CODE, vprefix),
+        cn=cn,
+    )
     total = rooms or 1
-    return [{"date": r.Vdate, "checkins": r.ChkIns,
-             "occ_pct": round((r.ChkIns or 0) * 100.0 / total, 1)}
-            for r in rows]
+    return [
+        {
+            "date": r.Vdate,
+            "checkins": r.ChkIns,
+            "occ_pct": round((r.ChkIns or 0) * 100.0 / total, 1),
+        }
+        for r in rows
+    ]
 
 
 def revenue_summary(cn=None, vprefix: str = VYEAR, top: int = 30) -> list:
@@ -947,9 +1404,13 @@ def revenue_summary(cn=None, vprefix: str = VYEAR, top: int = 30) -> list:
         "SUM(AmtDr) AS Dr, SUM(AmtCr) AS Cr, COUNT(*) AS Lines "
         "FROM PayCharge WHERE Site_Code = ? AND VPrefix = ? "
         "GROUP BY Vdate ORDER BY Vdate DESC",
-        (SITE_CODE, vprefix), cn=cn)
-    return [{"date": r.Vdate, "dr": r.Dr or 0.0, "cr": r.Cr or 0.0,
-             "lines": r.Lines or 0} for r in rows]
+        (SITE_CODE, vprefix),
+        cn=cn,
+    )
+    return [
+        {"date": r.Vdate, "dr": r.Dr or 0.0, "cr": r.Cr or 0.0, "lines": r.Lines or 0}
+        for r in rows
+    ]
 
 
 def room_revenue(cn=None, vprefix: str = VYEAR, top: int = 30) -> list:
@@ -957,7 +1418,9 @@ def room_revenue(cn=None, vprefix: str = VYEAR, top: int = 30) -> list:
         f"SELECT TOP {int(top)} Vdate, SUM(AmtDr - AmtCr) AS RoomRev "
         "FROM PayCharge WHERE Site_Code = ? AND VPrefix = ? AND "
         "Vtype = 'RC' GROUP BY Vdate ORDER BY Vdate DESC",
-        (SITE_CODE, vprefix), cn=cn)
+        (SITE_CODE, vprefix),
+        cn=cn,
+    )
     return [{"date": r.Vdate, "roomrev": r.RoomRev or 0.0} for r in rows]
 
 
@@ -1039,6 +1502,7 @@ def night_audit_rr(index: int, cn=None) -> dict | None:
 # POS Revenue Aggregation (idempotent posting)
 # --------------------------------------------------------------------------
 
+
 def aggregate_pos_revenue(date_from, date_to, cn=None) -> list[dict]:
     """Aggregate POS revenue by RestCode + RevCode for a date window."""
     rows = db.query(
@@ -1047,10 +1511,19 @@ def aggregate_pos_revenue(date_from, date_to, cn=None) -> list[dict]:
         "FROM PayCharge WHERE Vdate BETWEEN ? AND ? "
         "AND Vtype = 'PPOS' GROUP BY RestCode, RevCode "
         "ORDER BY RestCode, RevCode",
-        (date_from, date_to), cn=cn)
-    return [{"restcode": r.RestCode or "", "revcode": r.RevCode or "",
-             "total_net": float(r.TotalNet or 0), "total_tax": float(r.TotalTax or 0),
-             "folio_count": int(r.FolioCount or 0)} for r in rows]
+        (date_from, date_to),
+        cn=cn,
+    )
+    return [
+        {
+            "restcode": r.RestCode or "",
+            "revcode": r.RevCode or "",
+            "total_net": float(r.TotalNet or 0),
+            "total_tax": float(r.TotalTax or 0),
+            "folio_count": int(r.FolioCount or 0),
+        }
+        for r in rows
+    ]
 
 
 def is_already_posted(date_from, date_to, restcode, revcode, cn=None) -> bool:
@@ -1059,7 +1532,9 @@ def is_already_posted(date_from, date_to, restcode, revcode, cn=None) -> bool:
         "SELECT 1 FROM PayCharge WHERE Vdate BETWEEN ? AND ? "
         "AND RestCode = ? AND RevCode = ? AND Vtype = 'PPOS' "
         "AND ContraDocId LIKE 'NA_%'",
-        (date_from, date_to, restcode, revcode), cn=cn)
+        (date_from, date_to, restcode, revcode),
+        cn=cn,
+    )
     return bool(rows)
 
 
@@ -1072,16 +1547,28 @@ def post_pos_revenue(date_from, date_to, user=USER, cn=None) -> int:
     cn = cn or db.connect()
     try:
         for agg in aggregates:
-            if is_already_posted(date_from, date_to, agg["restcode"], agg["revcode"], cn):
+            if is_already_posted(
+                date_from, date_to, agg["restcode"], agg["revcode"], cn
+            ):
                 continue
             contra_docid = f"NA_{agg['restcode']}_{agg['revcode']}_{date_from}"
             db.execute(
                 "INSERT INTO PayCharge (DocId, Vtype, Vdate, RestCode, RevCode, "
                 "AmtDr, AmtCr, Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code) "
                 "VALUES (?, 'PPOS', ?, ?, ?, ?, 0, ?, ?, getdate(), 'A', ?)",
-                (contra_docid, date_to, agg["restcode"], agg["revcode"],
-                 agg["total_net"], SITE_CODE, user, SITE_CODE),
-                cn=cn, commit=False)
+                (
+                    contra_docid,
+                    date_to,
+                    agg["restcode"],
+                    agg["revcode"],
+                    agg["total_net"],
+                    SITE_CODE,
+                    user,
+                    SITE_CODE,
+                ),
+                cn=cn,
+                commit=False,
+            )
             posted += 1
         if posted:
             cn.commit()
@@ -1105,10 +1592,10 @@ def post_pos_revenue(date_from, date_to, user=USER, cn=None) -> int:
 # Room Status Roll (VB6 NIGHT_AUDIT_FLOW.md §B)
 # ============================================================
 
-def room_status_roll(vdate, user: str = USER, cn=None,
-                     commit: bool = True) -> dict:
+
+def room_status_roll(vdate, user: str = USER, cn=None, commit: bool = True) -> dict:
     """VB6 NIGHT_AUDIT_FLOW.md §B: Occupied rooms ko Dirty mark karo.
-    
+
     VB6 SQL (mdlNightAudit, line ~228750):
       SELECT RoomMast.Code AS RoomNo FROM (((((RoomMast RIGHT JOIN RoomOcc
       ON RoomMast.Code=RoomOcc.RoomNo) LEFT JOIN GuestFolio ON
@@ -1120,7 +1607,7 @@ def room_status_roll(vdate, user: str = USER, cn=None,
       WHERE roomocc.type not in ('C','O') AND ROOMMAST.TYPE='RO'
       AND RoomMast.LogSite_Code='<site>'
       -> Update RoomMAst set roomStat='D' WHERE CODE='<room>'
-    
+
     Returns: {'updated': count, 'rooms': [room_numbers]}
     """
     rows = db.query(
@@ -1130,7 +1617,9 @@ def room_status_roll(vdate, user: str = USER, cn=None,
         "AND RoomMast.Type = 'RO' "
         "AND RoomOcc.ChkOutDate IS NULL "
         "AND (RoomMast.LogSite_Code = ? OR RoomMast.LogSite_Code = 'HO')",
-        (SITE_CODE,), cn=cn)
+        (SITE_CODE,),
+        cn=cn,
+    )
     rooms = [r[0] for r in rows]
     if not rooms:
         return {"updated": 0, "rooms": []}
@@ -1142,7 +1631,10 @@ def room_status_roll(vdate, user: str = USER, cn=None,
                 "UPDATE RoomMast SET roomStat = 'D', U_Name = ?, "
                 "U_EntDt = getdate(), U_AE = 'E' "
                 "WHERE RTRIM(Code) = ? AND (LogSite_Code = ? OR LogSite_Code = 'HO')",
-                (user, room, SITE_CODE), cn=cn, commit=False)
+                (user, room, SITE_CODE),
+                cn=cn,
+                commit=False,
+            )
         if commit:
             cn.commit()
         return {"updated": len(rooms), "rooms": rooms}
@@ -1155,10 +1647,10 @@ def room_status_roll(vdate, user: str = USER, cn=None,
 # Due-out Extension (VB6 NIGHT_AUDIT_FLOW.md §C)
 # ============================================================
 
-def due_out_extension(vdate, user: str = USER, cn=None,
-                      commit: bool = True) -> dict:
+
+def due_out_extension(vdate, user: str = USER, cn=None, commit: bool = True) -> dict:
     """VB6 NIGHT_AUDIT_FLOW.md §C: Due-out folios ka departure date roll.
-    
+
     VB6 SQL (mdlNightAudit, line ~228800):
       select DocId,Depdate,VDate as ChkInDate,NoDays from GuestFolio
       where Docid in (Select DocId from RoomOcc where chkoutdate is NULL)
@@ -1166,7 +1658,7 @@ def due_out_extension(vdate, user: str = USER, cn=None,
          Update RoomOcc Set Depdate=<new>,U_EntDt=<now>,U_AE='E'
          Update GuestFolio Set nodays=<diff>,Depdate=<new>
          NoDays = DateDiff(d, ChkInDate, DepDate+1)
-    
+
     Returns: {'extended': count, 'folios': [{folio, old_dep, new_dep}]}
     """
     rows = db.query(
@@ -1174,7 +1666,9 @@ def due_out_extension(vdate, user: str = USER, cn=None,
         "FROM GuestFolio GF "
         "WHERE GF.DocId IN (SELECT DocId FROM RoomOcc WHERE ChkOutDate IS NULL) "
         "AND GF.Site_Code = ? AND GF.DepDate <= ?",
-        (SITE_CODE, vdate), cn=cn)
+        (SITE_CODE, vdate),
+        cn=cn,
+    )
     if not rows:
         return {"extended": 0, "folios": []}
     own = cn is None
@@ -1195,11 +1689,17 @@ def due_out_extension(vdate, user: str = USER, cn=None,
             db.execute(
                 "UPDATE RoomOcc SET DepDate = ?, U_EntDt = getdate(), "
                 "U_AE = 'E' WHERE DocId = ?",
-                (new_dep, docid), cn=cn, commit=False)
+                (new_dep, docid),
+                cn=cn,
+                commit=False,
+            )
             db.execute(
                 "UPDATE GuestFolio SET NoDays = ?, DepDate = ?, "
                 "U_EntDt = getdate(), U_AE = 'E' WHERE DocId = ?",
-                (nodays, new_dep, docid), cn=cn, commit=False)
+                (nodays, new_dep, docid),
+                cn=cn,
+                commit=False,
+            )
             extended.append({"folio": folio, "old_dep": old_dep, "new_dep": new_dep})
         if commit:
             cn.commit()
@@ -1213,13 +1713,14 @@ def due_out_extension(vdate, user: str = USER, cn=None,
 # Token Reset (VB6 NIGHT_AUDIT_FLOW.md §D)
 # ============================================================
 
+
 def token_reset(user: str = USER, cn=None, commit: bool = True) -> dict:
     """VB6 NIGHT_AUDIT_FLOW.md §D: Auto-reset token counters.
-    
+
     VB6 SQL (mdlNightAudit, line ~228850):
       Update Depart Set CurTokenNo=0,CurTokenNoKOT=0
       where AutoResetToken='Yes' And Logsite_code='<site>'
-    
+
     Returns: {'reset': count}
     """
     own = cn is None
@@ -1229,7 +1730,10 @@ def token_reset(user: str = USER, cn=None, commit: bool = True) -> dict:
             "UPDATE Depart SET CurTokenNo = 0, CurTokenNoKOT = 0, "
             "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' "
             "WHERE AutoResetToken = 'Yes' AND (LogSite_Code = ? OR LogSite_Code = 'HO')",
-            (user, SITE_CODE), cn=cn, commit=False)
+            (user, SITE_CODE),
+            cn=cn,
+            commit=False,
+        )
         if commit:
             cn.commit()
         return {"reset": n}
@@ -1242,26 +1746,35 @@ def token_reset(user: str = USER, cn=None, commit: bool = True) -> dict:
 # Split-bill Staging Cleanup (VB6 NIGHT_AUDIT_FLOW.md §D)
 # ============================================================
 
-def split_bill_cleanup(vdate, user: str = USER, cn=None,
-                       commit: bool = True) -> dict:
+
+def split_bill_cleanup(vdate, user: str = USER, cn=None, commit: bool = True) -> dict:
     """VB6 NIGHT_AUDIT_FLOW.md §D: Split-bill staging cleanup.
-    
+
     VB6 SQL (mdlNightAudit, line ~228860):
       Delete From POS_SBill / SplitSale1 / SplitSale2 / SplitStock / SplitedSunTran
       Where VType='B<dept>' And LogSite_Code='<site>' And VDate=<audit date>
-    
+
     Returns: {'deleted': {table: count}}
     """
     own = cn is None
     cn = cn or db.connect()
     try:
         deleted = {}
-        tables = ["POS_SBill", "SplitSale1", "SplitSale2", "SplitStock", "SplitedSunTran"]
+        tables = [
+            "POS_SBill",
+            "SplitSale1",
+            "SplitSale2",
+            "SplitStock",
+            "SplitedSunTran",
+        ]
         for table in tables:
             try:
                 n = db.execute(
                     f"DELETE FROM {table} WHERE LogSite_Code = ? AND VDate = ?",
-                    (SITE_CODE, vdate), cn=cn, commit=False)
+                    (SITE_CODE, vdate),
+                    cn=cn,
+                    commit=False,
+                )
                 deleted[table] = n
             except Exception:
                 deleted[table] = 0
@@ -1277,15 +1790,17 @@ def split_bill_cleanup(vdate, user: str = USER, cn=None,
 # Voucher Serial Renumber (VB6 NIGHT_AUDIT_FLOW.md §D)
 # ============================================================
 
-def voucher_serial_renumber(vdate, user: str = USER, cn=None,
-                            commit: bool = True) -> dict:
+
+def voucher_serial_renumber(
+    vdate, user: str = USER, cn=None, commit: bool = True
+) -> dict:
     """VB6 NIGHT_AUDIT_FLOW.md §D: Voucher serial renumber after split-bill cleanup.
-    
+
     VB6 SQL (mdlNightAudit, line ~228870):
       UPDATE VOUCHER_PREFIX SET START_SRL_NO=(Select IsNull(Max(VNo),0)
       From SplitSale1 Where VType='B<dept>' ...)
       WHERE DATE_FROM=... AND DATE_TO=... AND V_TYPE='...'
-    
+
     Returns: {'renumbered': count}
     """
     own = cn is None
@@ -1298,7 +1813,10 @@ def voucher_serial_renumber(vdate, user: str = USER, cn=None,
             "AND LogSite_Code = Voucher_Prefix.LogSite_Code), "
             "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' "
             "WHERE LogSite_Code = ? AND ? BETWEEN Date_From AND Date_To",
-            (user, SITE_CODE, vdate), cn=cn, commit=False)
+            (user, SITE_CODE, vdate),
+            cn=cn,
+            commit=False,
+        )
         if commit:
             cn.commit()
         return {"renumbered": n}
@@ -1311,18 +1829,21 @@ def voucher_serial_renumber(vdate, user: str = USER, cn=None,
 # Business Date Roll (VB6 NIGHT_AUDIT_FLOW.md §D)
 # ============================================================
 
+
 def roll_business_date(user: str = USER, cn=None, commit: bool = True) -> dict:
     """VB6 NIGHT_AUDIT_FLOW.md §D: Business date roll forward.
-    
+
     VB6 SQL (mdlNightAudit, line ~228850):
       Update enviro set ncur=<next date>, ImprestAmount=0
       where Logsite_code='<site>'
-    
+
     Returns: {'from_date': old_date, 'to_date': new_date}
     """
     rows = db.query(
-        "SELECT [NCur] FROM Enviro WHERE LogSite_Code = ? OR "
-        "LogSite_Code = 'HO'", (SITE_CODE,), cn=cn)
+        "SELECT [NCur] FROM Enviro WHERE LogSite_Code = ? OR LogSite_Code = 'HO'",
+        (SITE_CODE,),
+        cn=cn,
+    )
     if not rows:
         raise ValueError("Enviro NCur nahi mila")
     ncur = rows[0][0]
@@ -1337,7 +1858,10 @@ def roll_business_date(user: str = USER, cn=None, commit: bool = True) -> dict:
             "UPDATE Enviro SET [NCur] = ?, ImprestAmount = 0, "
             "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' "
             "WHERE LogSite_Code = ?",
-            (new_d, user, SITE_CODE), cn=cn, commit=False)
+            (new_d, user, SITE_CODE),
+            cn=cn,
+            commit=False,
+        )
         if commit:
             cn.commit()
         return {"from_date": ncur_d, "to_date": new_d, "user": user}

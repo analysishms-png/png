@@ -56,8 +56,8 @@ For each module to be marked **VERIFIED**:
 | 2 | fdCheckIn | Look Up Reservation By Guest Name | frontoffice.py | ✅ COMPLETE | In-house browser + check-in dialog |
 | 3 | fdPaymentCharge | Post Charges & Payment | posting_forms_ui.py:PaymentChargeWindow | ✅ COMPLETE | Receipt register view |
 | 4 | fdDisplayFolio | Guest Ledger | folio_ui.py | ✅ COMPLETE | Folio log + amend |
-| 5 | fdRoomChange | Room Change | ❌ MISSING | ❌ MISSING UI | Core: fo_ops.py:room_change |
-| 6 | fdAmendEntry | Amend Stay | ❌ MISSING | ❌ MISSING UI | Core: folio.py? |
+| 5 | fdRoomChange | Room Change | fo_sub_forms_ui.py:119 RoomChangeWindow | IMPLEMENTED (registry-wired, tests passing) | Core: fo_ops.py:room_change; opener :893 `open_room_change`; shell.py:2688-2692; RV-001R APPROVED (findings #1-#4 FIXED, tests 15→18). VERIFIED ☐ unchecked — (re-compare pending) |
+| 6 | fdAmendEntry | Amend Stay | fd_forms_ui.py:764 | IMPLEMENTED (registry-wired, tests passing) | Registry shell.py:3140. VERIFIED ☐ unchecked — (re-compare pending) |
 | 7 | FrmExpense | Misc.Payment / Received Entry | expense_ui.py | ✅ COMPLETE | |
 | 8 | FrmGrcBlank | Guest Registration Card | pos_masters_ui.py (card reg) | 🟡 PARTIAL | Fuzzy match only |
 | 9 | FrmHouGuestMsg | In House Guest Message | ❌ MISSING | ❌ MISSING UI | |
@@ -65,25 +65,27 @@ For each module to be marked **VERIFIED**:
 | 11 | FrmForExRec | Forex Receive Entry | ❌ MISSING | ❌ MISSING UI | |
 | 12 | FdCheckOut | Room Check Out | checkout_ui.py | ✅ COMPLETE | |
 | 13 | FdRevCheckOut | Check Out Cancel | posting_forms_ui.py:RevCheckOutWindow | ✅ COMPLETE | |
-| 14 | FrmMergeCharge | Room Merge | fo_sub_forms_ui.py (fuzzy) | ❌ MISSING UI | Core: fo_ops.py:merge_charge |
+| 14 | FrmMergeCharge | Room Merge | fo_sub_forms_ui.py:423 MergeChargeWindow | IMPLEMENTED (registry-wired, tests passing) | Core: fo_ops.py:merge_charge; opener :899; registry shell.py:2469. VERIFIED ☐ unchecked — (re-compare pending) |
 | 15 | FdReSetlement | Post Charges/Payment | posting_forms_ui.py:ReSettlementWindow | ✅ COMPLETE | |
-| 16 | FrmRevMergeCharge | Reverse Transfer Room | fo_sub_forms_ui.py (fuzzy) | ❌ MISSING UI | Core: fo_ops.py:reverse_merge_charge |
+| 16 | FrmRevMergeCharge | Reverse Transfer Room | fo_sub_forms_ui.py:530 ReverseMergeWindow | IMPLEMENTED (registry-wired, tests passing) | Core: fo_ops.py:reverse_merge_charge; opener :905; registry shell.py:2472. VERIFIED ☐ unchecked — (re-compare pending) |
 | 17 | FdRoomDisplay | Room View | walkin_rack_ui.py:RoomViewWindow | ✅ COMPLETE | |
 | 18 | InHouseGuestFolio | Inhouse Guest Folio | frontoffice.py | ✅ COMPLETE | |
 | 19 | FdLookUpRoom | Look Up Room | walkin_rack_ui.py | ✅ COMPLETE | |
 | 20 | FdLookUpRoomNo | Display Rack | walkin_rack_ui.py:DisplayRackWindow | ✅ COMPLETE | |
 | 21 | RrRoomReservation | Reservation/Cancellation | reservation_browser.py | ✅ COMPLETE | |
 | 22 | HWIHistory | Walk In by Room History | guest_history_ui.py | ✅ COMPLETE | Fuzzy match verified |
-| 23 | frmFomB | FOM Bill Reprint | pos_sub_forms_ui.py (fuzzy) | ❌ MISSING UI | Core: reports.py? |
+| 23 | frmFomB | FOM Bill Reprint | fo_sub_forms_ui.py:921 FomBillReprintWindow | IMPLEMENTED (registry-wired, tests passing) | Opener :1053; registry shell.py:2466. VERIFIED ☐ unchecked — (re-compare pending) |
 | 24 | fdPostChrg | Post Charges /Payments | posting_forms_ui.py:PostChrgWindow | ✅ COMPLETE | |
 | 25 | fdAcPostChrg/fdNDAcPostChrg | Night Audit Process / Posting Utility | posting_utility_ui.py | ✅ COMPLETE | |
 
-**Front Office UI Gap Count: 5 missing dedicated UIs**
-1. Room Change (fdRoomChange) - **HIGH PRIORITY**
-2. Amend Stay (fdAmendEntry) - **HIGH PRIORITY**
-3. Room Merge (FrmMergeCharge) - **HIGH PRIORITY**
-4. Reverse Room Merge (FrmRevMergeCharge) - **HIGH PRIORITY**
-3. Bill Reprint (frmFomB) - **HIGH PRIORITY**
+**Front Office UI Gap Count: 5 → 0 (all 5 IMPLEMENTED 2026-10-04; VERIFIED checkboxes still unchecked — re-compare pending)**
+1. Room Change (fdRoomChange) - IMPLEMENTED: fo_sub_forms_ui.py:119, registry shell.py:2688-2692, RV-001R APPROVED
+2. Amend Stay (fdAmendEntry) - IMPLEMENTED: fd_forms_ui.py:764, registry shell.py:3140
+3. Room Merge (FrmMergeCharge) - IMPLEMENTED: fo_sub_forms_ui.py:423, registry shell.py:2469
+4. Reverse Room Merge (FrmRevMergeCharge) - IMPLEMENTED: fo_sub_forms_ui.py:530, registry shell.py:2472
+5. Bill Reprint (frmFomB) - IMPLEMENTED: fo_sub_forms_ui.py:921, registry shell.py:2466
+
+VB6 re-comparison in progress (specs/fo-parity-recheck-2026-10-04.md) — no VERIFIED claim until re-compare lands.
 
 *Others (FrmGrcBlank, FrmHouGuestMsg, FrmGuestWakeUp, FrmForExRec) - lower priority, verify if needed*
 
@@ -179,12 +181,14 @@ For each module to be marked **VERIFIED**:
 
 ## Current Sprint: Front Office (Phase 3)
 
-### Immediate Actions (Priority Order):
-1. **FO-001**: Implement Room Change UI (fdRoomChange) - uses fo_ops.room_change
-2. **FO-002**: Implement Amend Stay UI (fdAmendEntry) - verify core, create UI
-3. **FO-003**: Implement Room Merge UI (FrmMergeCharge) - uses fo_ops.merge_charge
-4. **FO-004**: Implement Reverse Room Merge UI (FrmRevMergeCharge) - uses fo_ops.reverse_merge_charge
-5. **FO-005**: Implement Bill Reprint UI (frmFomB) - verify core in reports.py
+### Immediate Actions (Priority Order) — 2026-10-04 update: all 5 DONE (implemented + registry-wired, tests passing); VERIFIED still pending VB6 re-compare
+1. **FO-001**: DONE — Room Change UI (fdRoomChange) - ui/fo_sub_forms_ui.py:119, registry ui/shell.py:2688-2692, RV-001R APPROVED
+2. **FO-002**: DONE — Amend Stay UI (fdAmendEntry) - ui/fd_forms_ui.py:764, registry ui/shell.py:3140
+3. **FO-003**: DONE — Room Merge UI (FrmMergeCharge) - ui/fo_sub_forms_ui.py:423, registry ui/shell.py:2469
+4. **FO-004**: DONE — Reverse Room Merge UI (FrmRevMergeCharge) - ui/fo_sub_forms_ui.py:530, registry ui/shell.py:2472
+5. **FO-005**: DONE — Bill Reprint UI (frmFomB) - ui/fo_sub_forms_ui.py:921, registry ui/shell.py:2466
+
+*Next action: VB6 re-comparison (specs/fo-parity-recheck-2026-10-04.md, in progress) before any VERIFIED checkbox is ticked.*
 
 ### Success Criteria for Front Office VERIFIED:
 - [ ] All 5 missing UIs implemented

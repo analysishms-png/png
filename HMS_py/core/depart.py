@@ -38,37 +38,234 @@ LIMITS = {
     "short": 20, "resttype": 20, "printer": 75,
 }
 # BUG-002 FIX: ShortName, RestType, OutletYN added to SELECT_COLS
-SELECT_COLS = (
-    "Code, Name, KotYn, POS, Phone, ShortName, RestType, OutletYN, "
-    "BackColor, U_Name, U_EntDt, U_AE"
+# ============================================================
+# AUDIT-20261005 P2-G FIX: VB6 OutLetMast.frm loc_1CD8B79 ka poora
+# Depart column-set (60 cols). Python pehle sirf 17 likhta tha -> 45 cols
+# (OutletTitle, Header1-4, token-printing, barcode-partition, POS switches...)
+# kabhi persist nahi hote the.
+# (column, rec key, default) — VB6 column order verbatim.
+# ============================================================
+DEPART_WRITE_COLS = (
+    ("Code", "code", ""),
+    ("Name", "name", ""),
+    ("KotYn", "kotyn", ""),
+    ("Header1", "header1", ""),
+    ("Header2", "header2", ""),
+    ("Header3", "header3", ""),
+    ("Header4", "header4", ""),
+    ("Phone", "phone", ""),
+    ("Slogan1", "slogan1", ""),
+    ("Slogan2", "slogan2", ""),
+    ("LstNo", "lstno", ""),
+    ("CompanyTitle", "companytitle", ""),
+    ("OutletTitle", "outlettitle", ""),
+    ("POS", "pos", ""),
+    ("RestType", "resttype", ""),
+    ("BackColor", "backcolor", 0),
+    ("ShortName", "short", ""),
+    ("OutletYN", "outletyn", "N"),
+    ("LinkToRoom", "linktoroom", ""),
+    ("PartyName", "partyname", ""),
+    ("SplitBill", "splitbill", ""),
+    ("RateInclTax", "rateinctax", ""),
+    ("DiscApp", "discapp", ""),
+    ("Roff", "roff", ""),
+    ("MemberInfo", "memberinfo", ""),
+    ("DisPrint", "disprint", ""),
+    ("LabelPrinting", "labelprinting", ""),
+    ("TokenPrint", "tokenprint", ""),
+    ("TokenPrintAfter", "tokenprintafter", ""),
+    ("PrintTokenNo", "printtokenno", ""),
+    ("Order_Booking", "order_booking", ""),
+    ("CustInfo", "custinfo", ""),
+    ("CstNo", "cstno", ""),
+    ("CKOTPrintYN", "ckotprintyn", ""),
+    ("PrintType", "printtype", ""),
+    ("BarCodePartitionAppOn", "barcodepartitionappon", ""),
+    ("CKOTPrintPath", "ckotprintpath", ""),
+    ("CurTokenNo", "curtokenno", 0),
+    ("CurTokenNoKOT", "curtokennokot", 0),
+    ("NoOfKOt", "noofkot", 0),
+    ("NoOfBill", "noofbill", 0),
+    ("OrderBookCom1", "orderbookcom1", ""),
+    ("OrderBookCom2", "orderbookcom2", ""),
+    ("SaleBillTokenHeader1", "salebilltokenheader1", ""),
+    ("PrintOnSave", "printonsave", ""),
+    ("AutoSettlement", "autosettlement", ""),
+    ("WScaleApp", "wscaleapp", ""),
+    ("BarCodeApp", "barcodeapp", ""),
+    ("AutoResetToken", "autoresettoken", ""),
+    ("FreeItemApp", "freeitemapp", ""),
+    ("CoverMandatory", "covermandatory", ""),
+    ("MobileNoMandatory", "mobilenomandatory", ""),
+    ("DirectBilling", "directbilling", ""),
+    ("BookOfBills", "bookofbills", 0),
+    ("GrpDiscApp", "grpdiscapp", ""),
+    # Python-only extras (live cols; pehle se likhe jaate the)
+    ("Printer", "printer", ""),
+    ("StoreType", "storetype", ""),
 )
+# VB6 Left$(...,1) wale 1-char Y/N flags
+_DEPART_Y1_KEYS = frozenset((
+    "kotyn", "pos", "outletyn", "linktoroom", "rateinctax", "discapp",
+    "roff", "memberinfo", "disprint", "labelprinting", "companytitle",
+    "outlettitle",
+))
+# VB6 numeric cols (smallint/int)
+_DEPART_INT_KEYS = frozenset((
+    "backcolor", "curtokenno", "curtokennokot", "noofkot", "noofbill",
+    "bookofbills",
+))
+_EXTRA_MAP_COLS = (("U_Name", "u_name", ""), ("U_EntDt", "u_entdt", None),
+                   ("U_AE", "u_ae", ""))
+_MAP_SPEC = DEPART_WRITE_COLS + _EXTRA_MAP_COLS
+SELECT_COLS = ", ".join(c for c, _, _ in _MAP_SPEC)
+
+
+def _cv(key: str, value):
+    """VB6 value coercion: Left(...,1) Y/N flags, int cols, plain str."""
+    if key in _DEPART_INT_KEYS:
+        try:
+            return int(float(value or 0))
+        except (TypeError, ValueError):
+            return 0
+    if key in _DEPART_Y1_KEYS:
+        return str(value or "").strip().upper()[:1]
+    return value if value is not None else ""
 # VB6 DepartMast.frm Form_Load / Find / Print site scope filter
 SITE_FILTER = "(LogSite_Code = ? OR LogSite_Code = 'HO')"
 
+# ============================================================
+# AUDIT-20261005 P2-F FIX: Outlet child tables (OutLetMast.frm)
+#   SchemeOutletDiscount  (loc_1CDDDA1 delete / loc_1CDE099 insert)
+#   OutletBarCodePartDetail (loc_1CDE23D delete / loc_1CDE3B8 insert)
+# VB6 Outlet save in dono tables ko RestCode par delete-then-reinsert karta
+# hai; Python me 0 files inhe likhti thi (scheme discount + barcode
+# partition data silently lost).
+# Live columns (INFORMATION_SCHEMA 2026-10-06):
+#   SchemeOutletDiscount: SchemeCode varchar(6) NOTNULL, Appdate datetime,
+#     Enddate datetime, FromTime varchar(5), ToTime varchar(5),
+#     RestCode varchar(6) NOTNULL, DiscPer float, Site_Code, U_Name,
+#     U_EntDt datetime, U_AE, LogSite_Code, Days int, Active varchar(1)
+#   OutletBarCodePartDetail: BarCodePart varchar(15) NOTNULL,
+#     BarCodeStartFrom int, BarCodeLength int, RestCode varchar(6) NOTNULL,
+#     Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code
+# ============================================================
+SCHEME_DISCOUNT_COLS = (
+    "RestCode, Appdate, EndDate, FromTime, ToTime, SchemeCode, DiscPer, "
+    "Active, Days, Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code"
+)
+BARCODE_PART_COLS = (
+    "RestCode, BarCodePart, BarCodeStartFrom, BarCodeLength, "
+    "Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code"
+)
+
+
+def _int_or_none(v):
+    try:
+        return int(v)
+    except (TypeError, ValueError):
+        return None
+
+
+def _float_or_zero(v) -> float:
+    try:
+        return float(v or 0)
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def scheme_discounts(rest_code: str, cn=None) -> list[dict]:
+    """Outlet ke scheme discount rows (VB6 FGrid)."""
+    rows = db.query(
+        f"SELECT {SCHEME_DISCOUNT_COLS} FROM SchemeOutletDiscount "
+        "WHERE RestCode = ? ORDER BY SchemeCode, Appdate",
+        (rest_code,), cn=cn)
+    return [{
+        "restcode": r.RestCode, "appdate": r.Appdate, "enddate": r.EndDate,
+        "fromtime": (r.FromTime or "").strip(),
+        "totime": (r.ToTime or "").strip(),
+        "schemecode": (r.SchemeCode or "").strip(),
+        "discper": float(r.DiscPer or 0), "active": r.Active or "",
+        "days": int(r.Days or 0), "u_name": r.U_Name or "",
+        "u_ae": r.U_AE or "",
+    } for r in rows]
+
+
+def barcode_parts(rest_code: str, cn=None) -> list[dict]:
+    """Outlet ke barcode partition rows (VB6 FGBarCode)."""
+    rows = db.query(
+        f"SELECT {BARCODE_PART_COLS} FROM OutletBarCodePartDetail "
+        "WHERE RestCode = ? ORDER BY BarCodePart",
+        (rest_code,), cn=cn)
+    return [{
+        "restcode": r.RestCode,
+        "barcodepart": (r.BarCodePart or "").strip(),
+        "startfrom": int(r.BarCodeStartFrom or 0),
+        "length": int(r.BarCodeLength or 0),
+        "u_name": r.U_Name or "", "u_ae": r.U_AE or "",
+    } for r in rows]
+
+
+def _sync_outlet_children(cn, code: str, rec: dict, u_ae: str) -> None:
+    """VB6 OutLetMast save: dono child tables RestCode par reset + reinsert.
+
+    rec keys: `scheme_discounts` (list[dict]) + `barcode_parts` (list[dict]).
+    Dono missing/None -> koi change nahi (read-modify-write na toote).
+    """
+    schemes = rec.get("scheme_discounts")
+    if schemes is not None:
+        db.execute("DELETE FROM SchemeOutletDiscount WHERE RestCode = ?",
+                   (code,), cn=cn, commit=False)
+        for s in schemes:
+            db.execute(
+                f"INSERT INTO SchemeOutletDiscount ({SCHEME_DISCOUNT_COLS}) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, getdate(), ?, ?)",
+                (code, s.get("appdate") or None, s.get("enddate") or None,
+                 (s.get("fromtime") or "")[:5],
+                 (s.get("totime") or "")[:5],
+                 (s.get("schemecode") or "").strip(),
+                 _float_or_zero(s.get("discper")),
+                 (s.get("active") or "Y").strip()[:1] or "Y",
+                 _int_or_none(s.get("days")), SITE_CODE, USER, u_ae, SITE_CODE),
+                cn=cn, commit=False)
+
+    parts = rec.get("barcode_parts")
+    if parts is not None:
+        db.execute("DELETE FROM OutletBarCodePartDetail WHERE RestCode = ?",
+                   (code,), cn=cn, commit=False)
+        for b in parts:
+            part = (b.get("barcodepart") or "").strip()
+            if not part:
+                continue
+            db.execute(
+                f"INSERT INTO OutletBarCodePartDetail ({BARCODE_PART_COLS}) "
+                "VALUES (?, ?, ?, ?, ?, ?, getdate(), ?, ?)",
+                (code, part[:15], _int_or_none(b.get("startfrom")),
+                 _int_or_none(b.get("length")), SITE_CODE, USER, u_ae,
+                 SITE_CODE),
+                cn=cn, commit=False)
+
 
 def _map(r) -> dict:
-    try:
-        return {
-            "code": r.Code, "name": r.Name or "",
-            "kotyn": r.KotYn or "", "pos": r.POS or "",
-            "phone": r.Phone or "",
-            "short": r.ShortName or "",
-            "resttype": r.RestType or "",
-            "outletyn": r.OutletYN or "N",
-            "backcolor": r.BackColor or 0,
-            "u_name": r.U_Name or "", "u_ae": r.U_AE or "",
-        }
-    except AttributeError:
-        # tuple fallback (SELECT_COLS order)
-        c, n, ky, pos, ph, sn, rt, oy, bc, un, _, uae = list(r) + [None] * 12
-        return {
-            "code": c or "", "name": n or "",
-            "kotyn": ky or "", "pos": pos or "",
-            "phone": ph or "", "short": sn or "",
-            "resttype": rt or "", "outletyn": oy or "N",
-            "backcolor": bc or 0,
-            "u_name": un or "", "u_ae": uae or "",
-        }
+    """VB6 Depart row -> dict (poore 60-col set + audit cols).
+
+    pyodbc Row -> attribute access; plain tuple/list -> SELECT_COLS order.
+    """
+    if hasattr(r, "Code"):
+        def _get(col):
+            return getattr(r, col, None)
+    else:
+        vals = list(r)
+
+        def _get(col):
+            idx = [c for c, _, _ in _MAP_SPEC].index(col)
+            return vals[idx] if idx < len(vals) else None
+    out = {}
+    for col, key, default in _MAP_SPEC:
+        v = _get(col)
+        out[key] = default if v is None else _cv(key, v)
+    return out
 
 
 def _validate(rec: dict):
@@ -174,19 +371,20 @@ def insert(rec: dict, cn=None, commit: bool = True) -> int:
     own = cn is None
     cn = cn or db.connect()
     try:
-        # 1. Insert into Depart
+        # 1. Insert into Depart — AUDIT P2-G: VB6 loc_1CD8B79 ka poora
+        # 60-col set (pehle sirf 17 cols likhe jaate the).
+        ins_cols = ([c for c, _, _ in DEPART_WRITE_COLS]
+                    + ["Site_Code", "U_Name", "U_EntDt", "U_AE",
+                       "LogSite_Code"])
+        ins_vals = [_cv(key, code if key == "code"
+                        else rec[key] if key == "name"
+                        else rec.get(key, default))
+                    for _col, key, default in DEPART_WRITE_COLS]
+        ins_vals += [SITE_CODE, USER]
         db.execute(
-            "INSERT INTO Depart (Code, Name, KotYn, POS, Phone, ShortName, "
-            "RestType, OutletYN, BackColor, Printer, StoreType, PrintType, "
-            "Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, getdate(), 'A', ?)",
-            (code, rec["name"],
-             (rec.get("kotyn") or "").upper(), (rec.get("pos") or "").upper(),
-             rec.get("phone", ""), rec.get("short", ""),
-             rec.get("resttype", ""), (rec.get("outletyn") or "N").upper(),
-             int(rec.get("backcolor") or 0),
-             rec.get("printer", ""), rec.get("storetype", ""),
-             rec.get("printtype", ""), SITE_CODE, USER, SITE_CODE),
+            f"INSERT INTO Depart ({', '.join(ins_cols)}) VALUES "
+            f"({', '.join(['?'] * (len(ins_cols) - 3))}, getdate(), 'A', ?)",
+            tuple(ins_vals) + (SITE_CODE,),
             cn=cn, commit=False)
 
         # 2. BUG-009 FIX: VB6 also inserts RevMast for the department
@@ -203,6 +401,9 @@ def insert(rec: dict, cn=None, commit: bool = True) -> int:
                 "VALUES (?, ?, 'R', 'Cr', 'N', ?, ?, getdate(), 'A', ?)",
                 (code, rec["name"], SITE_CODE, USER, SITE_CODE),
                 cn=cn, commit=False)
+
+        # 3. AUDIT-20261005 P2-F FIX: Outlet child tables same transaction
+        _sync_outlet_children(cn, code, rec, "A")
 
         if commit:
             cn.commit()
@@ -221,19 +422,36 @@ def insert(rec: dict, cn=None, commit: bool = True) -> int:
 
 def update(code: str, rec: dict, cn=None, commit: bool = True) -> int:
     _validate(rec)
-    return db.execute(
-        "UPDATE Depart SET Name = ?, KotYn = ?, POS = ?, Phone = ?, "
-        "ShortName = ?, RestType = ?, OutletYN = ?, BackColor = ?, "
-        "Printer = ?, StoreType = ?, PrintType = ?, "
-        "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' WHERE Code = ?",
-        (rec["name"], (rec.get("kotyn") or "").upper(),
-         (rec.get("pos") or "").upper(), rec.get("phone", ""),
-         rec.get("short", ""), rec.get("resttype", ""),
-         (rec.get("outletyn") or "N").upper(),
-         int(rec.get("backcolor") or 0),
-         rec.get("printer", ""), rec.get("storetype", ""),
-         rec.get("printtype", ""), USER, code),
-        cn=cn, commit=commit)
+    # AUDIT-20261005 P2-G FIX: VB6 ka poora Depart column-set update hota hai
+    # (pehle sirf 14 cols); P2-F: outlet child tables bhi sync.
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        sets = ", ".join(f"{c} = ?" for c, _, _ in DEPART_WRITE_COLS
+                         if c != "Code")
+        vals = tuple(_cv(key, rec[key] if key == "name"
+                         else rec.get(key, default))
+                     for _col, key, default in DEPART_WRITE_COLS
+                     if key != "code")
+        n = db.execute(
+            f"UPDATE Depart SET {sets}, U_Name = ?, U_EntDt = getdate(), "
+            "U_AE = 'E' WHERE Code = ?",
+            vals + (USER, code),
+            cn=cn, commit=False)
+        _sync_outlet_children(cn, code, rec, "E")
+        if commit:
+            cn.commit()
+        return n
+    except Exception:
+        if own:
+            try:
+                cn.rollback()
+            except Exception:
+                pass
+        raise
+    finally:
+        if own:
+            cn.close()
 
 
 def delete(code: str, cn=None, commit: bool = True) -> int:
@@ -267,6 +485,12 @@ def delete(code: str, cn=None, commit: bool = True) -> int:
         # 3. BUG-002 FIX: CASCADE DELETE RevMast (loc_12861F2)
         db.execute("DELETE FROM RevMast WHERE Code = ?", (code,),
                    cn=cn, commit=False)
+        # AUDIT-20261005 P2-F: outlet child tables bhi cascade (VB6 OutLetMast
+        # save RestCode par reset karta hai, isliye delete par bhi hatao).
+        db.execute("DELETE FROM SchemeOutletDiscount WHERE RestCode = ?",
+                   (code,), cn=cn, commit=False)
+        db.execute("DELETE FROM OutletBarCodePartDetail WHERE RestCode = ?",
+                   (code,), cn=cn, commit=False)
         if commit:
             cn.commit()
         return n

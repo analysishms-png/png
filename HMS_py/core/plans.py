@@ -61,6 +61,13 @@ def exists(code: str, cn=None) -> bool:
     return bool(rows)
 
 
+def _num(v) -> float:
+    try:
+        return float(v or 0)
+    except (TypeError, ValueError):
+        return 0.0
+
+
 def _validate(code: str, name: str, package: str):
     if len(code) > LIMITS["code"]:
         raise ValueError(f"Code max {LIMITS['code']} chars")
@@ -71,30 +78,46 @@ def _validate(code: str, name: str, package: str):
 
 
 def insert(code: str, name: str, total: float, package: str = "",
-           active: str = "Y", cn=None, commit: bool = True) -> int:
-    """Naya plan. U_AE='A' (Add) - VB6 audit pattern."""
+           active: str = "Y", percent_app: str = "No", room_per: float = 0,
+           cn=None, commit: bool = True) -> int:
+    """Naya plan. U_AE='A' (Add) - VB6 audit pattern.
+
+    AUDIT-20261005 P2-M FIX: VB6 FrmPlanPackMast loc_154BD05 ka column-set
+    `...ActiveYN,PercentApp,RoomPer,LogSite_Code` — PercentApp ('Yes'/'No')
+    aur RoomPer pehle chhoot rahe the.
+    """
     db.require_absent("PlanMast", "Code", code,
               "Plan Code")
     _validate(code, name, package)
     # NOT NULL cols (schema evidence): Code, App_Date, Tariff
     return db.execute(
         "INSERT INTO PlanMast (Code, Name, Total, Plan_Package, ActiveYN, "
+        "PercentApp, RoomPer, "
         "Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code, App_Date, Tariff) "
-        "VALUES (?, ?, ?, ?, ?, ?, ?, getdate(), 'A', ?, getdate(), ?)",
-        (code, name, total, "Plan", active, SITE_CODE, USER, SITE_CODE,
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, getdate(), 'A', ?, getdate(), ?)",
+        (code, name, total, "Plan", active, percent_app or "No",
+         _num(room_per), SITE_CODE, USER, SITE_CODE,
          ""),  # Tariff varchar(25) - VB6 me bhi blank default
         cn=cn, commit=commit)
 
 
 def update(code: str, name: str, total: float, package: str = "",
-           active: str = "Y", cn=None, commit: bool = True) -> int:
-    """Existing plan update. U_AE='E' (Edit) - VB6 audit pattern."""
+           active: str = "Y", percent_app: str = "No", room_per: float = 0,
+           cn=None, commit: bool = True) -> int:
+    """Existing plan update. U_AE='E' (Edit) - VB6 audit pattern.
+
+    AUDIT-20261005 P2-M FIX: VB6 loc_154BF77 SET Name,Total,PercentApp,
+    Site_Code,U_Name,RoomPer,U_EntDt,U_AE — PercentApp/Site_Code/RoomPer
+    pehle update me nahi aate the.
+    """
     _validate(code, name, package)
     return db.execute(
         "UPDATE PlanMast SET Name = ?, Total = ?, Plan_Package = ?, "
-        "ActiveYN = ?, U_Name = ?, U_EntDt = getdate(), U_AE = 'E' "
+        "ActiveYN = ?, PercentApp = ?, RoomPer = ?, Site_Code = ?, "
+        "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' "
         "WHERE Code = ?",
-        (name, total, "Plan", active, USER, code), cn=cn, commit=commit)
+        (name, total, "Plan", active, percent_app or "No", _num(room_per),
+         SITE_CODE, USER, code), cn=cn, commit=commit)
 
 
 def delete(code: str, cn=None, commit: bool = True) -> int:

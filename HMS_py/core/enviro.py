@@ -178,6 +178,31 @@ EDITABLE = {
     "KitchenStockReport": "str",  # VB6 IIf(Trim(..)="","Standard",..) — live 'Standard'
     "ItemRateInMRBasedOn": "str",
     "SmartCardItem": "str",  # VB6 ItemMast.Code (varchar 8) — Yes/No nahi hai
+    # ---------------------------------------------------------------
+    # AUDIT-20261005 P2-O / MS-013 re-estimate (Batch D): VB6 frmEnviro ke
+    # UPDATE chain (loc_1CB2322..loc_1CB2E64) me ye operational cols
+    # update hote hain par port ke EDITABLE/READ_ONLY dono se bahar the —
+    # yani save par silently DROP ho jaate the. Ab EDITABLE me.
+    # Har col ka VB6 line aur live value niche comment me hai.
+    # (Live types: INFORMATION_SCHEMA Enviro, 2026-10-06.)
+    "AutoSplitYN": "yn1",             # loc_1CB2717 IIf(flag,"Y","N") — live 'N'
+    "RoomChrgPostingType": "str",      # loc_1CB268B — live 'Daily' (varchar 50)
+    "BillAmendMode": "str",            # loc_1CB27AF — live '' (varchar 10)
+    "PrintRcpt": "yn3",                # loc_1CB2827 — live 'Yes'
+    "RptCashierSettlementAllUser": "yn3",  # loc_1CB2928 — live 'Yes'
+    "ExpMfdDateInMR": "yn3",           # loc_1CB2A71 — live 'No'
+    "RRIncTaxDefault": "yn3",          # loc_1CB2CF5 — live 'No'
+    "RRSerChrgDefault": "yn3",         # loc_1CB2D1B — live 'Yes'
+    "ServiceTaxOnServiceChargeYN": "yn3",  # loc_1CB2D67 — live 'No'
+    "ItemRateInPurchaseBillBasedOn": "str",  # loc_1CB2E23 — live 'Last Purchase Rate'
+    # Rate1..Rate5 = tariff-slot LABELS (varchar 20), live: 'High Rate',
+    # 'Rack Rate', 'Disc1 Rate', 'Disc2 Rate', 'Disc3 Rate'
+    # (VB6 loc_1CB2464/1CB2493).
+    "Rate1": "str",
+    "Rate2": "str",
+    "Rate3": "str",
+    "Rate4": "str",
+    "Rate5": "str",
 }
 
 # Finance/HR AC-code cols — VB6 frmEnviro inhe update karta hai par hum
@@ -192,11 +217,16 @@ READ_ONLY = (
     "CancellationAC", "CashPurchAc",
     "OutletDiscAc", "OutletRoundAc", "CommissionAc", "DummyTravelAc",
     "BookingPartyAc", "CashCardDebitAc", "CashCardCreditAc",
-    "CashCardSecurityAc", "DefCompGroup", "SmartCardItem",
+    "CashCardSecurityAc", "DefCompGroup",
     "PF_LIMIT", "PF_EMPLOYEE", "PF_EMPLOYER", "ESI_LIMIT", "esi_employee",
     "GAppCompYear", "GMonthConsidered", "GWorkingDaysInAMonth",
     "GDaysSalary", "ESIBasic", "ESIDA", "ESIHRA", "ESIConvey", "ESIOther",
     "ESILTA", "AttendType",
+    # AUDIT-20261005 P2-O: VB6 frmEnviro inhe bhi update karta hai, par ye
+    # A/C-code (GL) columns hain — GL-integrity ke liye READ-ONLY hi rakhe:
+    #   AdvanceRRoomRent  varchar(8), live 'KK000002' (SubGroup SubCode)
+    #   AmendRevenue      varchar(6), revenue A/C target (loc_1CB27AF)
+    "AdvanceRRoomRent", "AmendRevenue",
 )
 
 

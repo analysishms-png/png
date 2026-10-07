@@ -194,7 +194,7 @@
 | Database Tests | ✅ PASSING | 200+ |
 | Integration Tests | ✅ PASSING | 30+ |
 | UI Tests (offscreen) | ✅ PASSING | 58 modules |
-| Full Suite | ✅ 1038 passed, 1 skipped | 1038 |
+| Full Suite | ✅ 1117 passed, 1 skipped, 0 failed (2026-10-04) | 1117 |
 
 ---
 
@@ -212,10 +212,12 @@
 
 ## Next Steps (Continuous Loop)
 
-1. **Complete Front Office UI gaps** (5 forms)
-2. **Run regression tests** for Front Office
-3. **Verify against VB6** (field mapping, workflow)
-4. **Move to Night Audit GST reports**
-5. **Move to POS KOT Entry**
-6. **Move to Banquet Operations**
-7. **Full project re-scan** when all modules appear complete
+0. ~~**Complete Front Office UI gaps** (5 forms)~~ — **DONE 2026-10-04**: FO-001..FO-005 all implemented + shell-registry wired (tests passing); VB6 re-compare pending (specs/fo-parity-recheck-2026-10-04.md).
+
+Remaining steps (renumbered after step-1 closure):
+1. **Run regression tests** for Front Office — latest full suite (2026-10-04): 1117 passed, 1 skipped, 0 failed
+2. **Verify against VB6** (field mapping, workflow) — includes FO-002..005 re-comparison in progress
+3. **Move to Night Audit GST reports**
+4. **Move to POS KOT Entry**
+5. **Move to Banquet Operations**
+6. **Full project re-scan** when all modules appear complete

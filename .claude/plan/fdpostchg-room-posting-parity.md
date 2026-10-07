@@ -256,7 +256,7 @@ Missing tables ⇒ prerequisite notice (`BLOCKED-TBL`), never simulated success.
 
 ---
 
-## 13. VB6-001 Attestation (2026-10-04) — PASSED
+## 13. VB6-001 Attestation round 1 (2026-10-04) — SUPERSEDED by §14 (round 2 CORRECTED gate; operative record: `HMS_py\HMS_py\specs\002-fdpostchg-room-posting-parity\vb601_attestation.md`). Preserved below as historical record only — do NOT treat round-1 claims as operative where §14 conflicts (copy count, root.txt characterization, predicate sites, Nature set, PostNilLT source, DocId).
 
 **Assumption #1 CONFIRMED.** Recursive search of `C:\Users\LENOVO\Desktop\serialkey` → zero `fdPostChg.frm`/`.frx` anywhere (only this plan's `.md` matches the name). Both `Project.vbp` copies register `Form=fdPostChrg.frm` only (`HMS2526\...\PROJECT.vbp` ×2) — the form compiled into HMS.exe is `fdPostChrg`; "fdPostChg" is Python-side shorthand.
 
@@ -271,3 +271,20 @@ Missing tables ⇒ prerequisite notice (`BLOCKED-TBL`), never simulated success.
   - Only proc-level diff across variants: `Proc_62_23_10A996C` (root) vs `Proc_62_23_10A7834` (FODER) — same `Proc_62_23` billed-folio guard, decompiler address suffix only.
 
 **Gate:** PY-* merge gate lifted. Open question §12.1 closed. Remaining gates: QA-001 (column list + DocId format, §12.2), DB-001 (feeds PY-*).
+
+---
+
+## 14. Amendments round 2 (2026-10-04) — OPERATIVE, overrides §§0/2/3/7/12/13 where they conflict
+
+- **VB6-001 round 2 GATE: CORRECTED.** Record: `HMS_py\HMS_py\specs\002-fdpostchg-room-posting-parity\vb601_attestation.md`. §13 round-1 PASSED is superseded.
+- **DB-001 Status: verified.** Scripts: `HMS_py\HMS_py\specs\002-fdpostchg-room-posting-parity\db001\db001_sql.sql`. Validation: `...\db001\validation_log.md` (live MOONData2627, SQL Server 2008 R2; all mutations rolled back).
+- **Intermediate evidence files `root.txt` / `imp609.txt` / `foderFD.txt` no longer exist on disk** (prior-session intermediates). All anchors re-derived in `HMS_py\FODER\fdPostChrg.frm` (725 L, designated source) + root `Hotlib.bas`. Correct §0.2: FODER = different decompile build (symbol family `Proc_96_4_1C1BDCC`/`MemVar_1F92xxxx`); root copy = partial logic-only extraction (Enviro query commented out, ADO-execute wrappers omitted); SQL text byte-identical at anchors. Correct §13 copy count: 6 in-tree `.frm` (3 hash variants), 6 identical `.frx` (prefix `147E0ABB95`).
+- **Predicate sites = 4, not 5.** Correct §2.1: `NOT IN` exclusion at 245/318/344/373. Line 261 is the mFolioNoDocid Paycharge sub-query (different predicate).
+- **DocId build (Hotlib.bas 528–538) decompiler-degraded.** Recoverable: `"RC"` + pads (5/5/8) + `Voucher_Prefix.Prefix` + `Start_Srl_No`. NO `"D"` literal exists → Python `_make_rc_docid`'s `"D"` prefix is UNCONFIRMED. Do NOT change it. Open question §12.2 #2 stays OPEN; QA-001 remains decider.
+- **PostNilLT = Enviro table column** (`varchar(3)`, default `''`), loaded `fdPostChrg.frm:236`, read `Hotlib.bas` 481–485 + 752–755. Gate applies to base row AND each tax row. §12.2 #3 CLOSED. Python `core/enviro.py:90` already models it (`"PostNilLT": "yn3"`).
+- **NEW GATE (G12): `RoomChrgPostingType = "While Printing Bill"` → `Exit Sub`** (`fdPostChrg.frm:238–241`). Plan §3 line 85 wrongly lists this as Python "no-op / confirmed equal" — it is a DIVERGENCE until the engine honors it. Assigned to PY-001 (engine-level early exit alongside G1).
+- **Nature has a third value: `On Prev. Tax Amt`** (`Hotlib.bas:884`). Correct §2.2.7. `Proc_96_6_13400A0` (911–973): CompOperator (`<=`,`<`,`=`,`>`,`>=`,`Between`) × Limit(/Limit1) gate → `DR = Format(Amount × Rate/100,"0.00")`; TaxCondAmt=tested amount, BillAmount=Amount, TaxPer=Rate.
+- **Tax query joins `RevMast → TaxStru → RevMast-as-TaxMast`.** Correct §3 G4 wording: there is NO TaxMast table in MOONData2627; RoomCat→RevMast join lives in the eligibility query. DB-001 script 2 transcribed from source.
+- **Live column-case corrections (DB-001 CONTRACT MISMATCHES, PY-010 must use these):** `VTime` (not `Vtime`), `RelatedFolionoDocid` (not `RelatedFolioNoDocId`), `ChkInDate` (not decompiled `chkinddate` — error 207), qualify `ROOMOCC.SITE_CODE` (bare `SITE_CODE` = error 209). All 33 contract columns exist in 61-col live `PayCharge` — G10 is a population gap, not schema. `Voucher_Prefix` PK = `(V_Type, Date_From, Site_Code, LogSite_Code)`; live RC row `Date_From=2026-04-01`, `Prefix='2026'`, `Start_Srl_No=0`.
+- **Live TaxStru reference (KKTR, site KK):** CGST/SGST 2.5% `Between` 100–7499.99, 9% `<=` 7500+; Nature=`On Base Amt`, CondApp=`Room Tariff`. Live `RevMast.Sundry` never holds `'SCH'` (holds codes), so the SCH→0 branch never fires on this DB — T4 must seed it. `{Site}DISC` live = `('ROOM DISC.','KKDISC','KKDISC')` — abort gate passes.
+- **PAYCHARGE is a HEAP** (nonclustered PK on `(DocId,SNo)` only). Exclusion query = Table Scan, cost 0.54 at 13,751 rows — fine for T8. Do NOT create the documented index (no-schema-change constraint).

@@ -30,7 +30,7 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import Qt, QDate, pyqtSignal
 from PyQt6.QtGui import QColor, QFont
-from core import db, fo_ops
+from core import db, fo_ops, expenseentry
 from core.folio import PAY_TYPES as _PAY_TYPES
 from ui.theme import palette
 from ui.desktop_style import make_vb6_header
@@ -421,20 +421,77 @@ class RoomChangeWindow(QMainWindow):
         self._load_folio()
 
 
+def _checked_col(table: QTableWidget, text_col: int) -> list:
+    """Values of text_col for rows ticked with the col-0 check mark."""
+    out = []
+    for i in range(table.rowCount()):
+        mark = table.item(i, 0)
+        val = table.item(i, text_col)
+        if mark is not None and mark.text().strip() and val is not None:
+            t = val.text().strip()
+            if t:
+                out.append(t)
+    return out
+
+
+def _set_check(cb: QCheckBox, on: bool) -> None:
+    """setChecked without re-firing blockSignals-guarded toggled handlers."""
+    cb.blockSignals(True)
+    cb.setChecked(on)
+    cb.blockSignals(False)
+
+
+def _toggle_all(table: QTableWidget, on: bool) -> None:
+    for i in range(table.rowCount()):
+        it = table.item(i, 0)
+        if it is not None:
+            it.setText("\u2713" if on else "")
+
+
+def _prep_grid(table: QTableWidget) -> None:
+    table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+    table.setAlternatingRowColors(True)
+    table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+    table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+
+
 class MergeChargeWindow(QMainWindow):
-    """Merge Charges (VB6: FrmMergeCharge)."""
+    """Room Merge (VB6: FrmMergeCharge) — GAP-05..09."""
+
+    # VB6 loc_13C471D candidate-room SQL; leader-picker variants (:324/:912)
+    # intentionally not used. Original AND>OR paren structure preserved,
+    # both site literals parameterized (GuestFolio first, RoomMast second).
+    _ROOMS_SQL = (
+        "SELECT RoomMast.Code AS RoomNo, GuestProf.Name AS GuestName, "
+        "GuestFolio.DocId AS FolioNoDocid, GuestFolio.FolioNo AS FolioNo "
+        "FROM ((RoomMast INNER JOIN RoomOcc ON RoomMast.Code = RoomOcc.RoomNo) "
+        "INNER JOIN GuestFolio ON RoomOcc.Docid = GuestFolio.Docid) "
+        "INNER JOIN GuestProf ON GuestFolio.GuestProf = GuestProf.Code "
+        "WHERE ((GuestFolio.LOGSITE_CODE = ? AND RoomMast.LOGSITE_CODE = ?) "
+        "AND (GuestFolio.mFolioNo IS NULL OR GuestFolio.mFolioNo = GuestFolio.FolioNo "
+        "OR GuestFolio.mFolioNo = 0) "
+        "AND (((RoomOcc.Type) NOT IN ('C','O')) AND ((RoomMast.Type) = 'RO')) "
+        "OR (((RoomOcc.Type) IS NULL) AND ((RoomMast.Type) = 'RO'))) "
+        "AND GuestFolio.Docid NOT IN (SELECT DISTINCT Folionodocid FROM paycharge "
+        "WHERE Bill_No IS NOT NULL AND bill_no <> '' AND folionodocid <> '' "
+        "AND folionodocid IS NOT NULL AND Settledate IS NULL) "
+        "ORDER BY RoomMast.Code"
+    )
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Merge Room Charges")
-        self.resize(640, 460)
+        self.setWindowTitle("Room Merge")
+        self.resize(820, 680)
+        self._rooms = []
+        self._charges = []
         self._build_ui()
+        self._load_rooms()
 
     def _build_ui(self):
         central = QWidget()
         self.setCentralWidget(central)
         layout = QVBoxLayout(central)
-        title = QLabel("Merge Room Charges")
+        title = QLabel("Room Merge")
         title.setFont(QFont("Segoe UI", 14, QFont.Weight.Bold))
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(title)
@@ -443,31 +500,53 @@ class MergeChargeWindow(QMainWindow):
         form_lay = QFormLayout(form)
         self.txt_from_room = QLineEdit()
         self.txt_from_room.setPlaceholderText("Source Room No")
-        self.txt_from_room.textChanged.connect(lambda _: self._refresh())
+        self.txt_from_room.textChanged.connect(self._on_from_changed)
         self.txt_to_room = QLineEdit()
-        self.txt_to_room.setPlaceholderText("Target Room No")
-        self.txt_to_room.textChanged.connect(lambda _: self._refresh())
+        self.txt_to_room.setPlaceholderText("Leader Room No")
+        self.txt_to_room.textChanged.connect(self._on_to_changed)
         self.lbl_src = QLabel("-")
         self.lbl_tgt = QLabel("-")
         form_lay.addRow("From Room:", self.txt_from_room)
         form_lay.addRow("(source folio)", self.lbl_src)
-        form_lay.addRow("To Room:", self.txt_to_room)
+        form_lay.addRow("Select Leader Room", self.txt_to_room)
         form_lay.addRow("(target folio)", self.lbl_tgt)
         layout.addWidget(form)
 
         self.lbl_total = QLabel("Source folio charges: -")
         layout.addWidget(self.lbl_total)
-        info = QLabel(
-            "Source room ke saare charges target room me shift ho "
-            "jayenge aur source folio target se link ho jayega."
+
+        rooms_box = QGroupBox("List of Room")
+        rooms_lay = QVBoxLayout(rooms_box)
+        self.chk_rooms = QCheckBox("Check1")
+        rooms_lay.addWidget(self.chk_rooms)
+        self.table_rooms = QTableWidget()
+        self.table_rooms.setColumnCount(4)
+        self.table_rooms.setHorizontalHeaderLabels(["", "Room No", "Folio", "Guest"])
+        _prep_grid(self.table_rooms)
+        self.table_rooms.cellClicked.connect(self._on_room_cell)
+        rooms_lay.addWidget(self.table_rooms)
+        self.chk_rooms.toggled.connect(lambda on: _toggle_all(self.table_rooms, on))
+        layout.addWidget(rooms_box, 1)
+
+        charges_box = QGroupBox("List of Room's Charge")
+        charges_lay = QVBoxLayout(charges_box)
+        self.chk_charges = QCheckBox("Check1")
+        charges_lay.addWidget(self.chk_charges)
+        self.table_charges = QTableWidget()
+        self.table_charges.setColumnCount(6)
+        self.table_charges.setHorizontalHeaderLabels(
+            ["", "Type", "VNo", "PayType", "Amount", "DocId"]
         )
-        info.setWordWrap(True)
-        layout.addWidget(info)
+        self.table_charges.setColumnHidden(5, True)
+        _prep_grid(self.table_charges)
+        self.table_charges.cellClicked.connect(self._on_charge_cell)
+        charges_lay.addWidget(self.table_charges)
+        self.chk_charges.toggled.connect(lambda on: _toggle_all(self.table_charges, on))
+        layout.addWidget(charges_box, 1)
 
         btn_lay = QHBoxLayout()
-        self.btn_merge = QPushButton("Merge Charges")
+        self.btn_merge = QPushButton("Transfer &&Charges")
         self.btn_merge.setProperty("role", "danger")
-        self.btn_merge.setEnabled(False)
         self.btn_exit = QPushButton("Exit")
         self.btn_merge.clicked.connect(self._merge)
         self.btn_exit.clicked.connect(self.close)
@@ -475,70 +554,182 @@ class MergeChargeWindow(QMainWindow):
         btn_lay.addWidget(self.btn_exit)
         layout.addLayout(btn_lay)
 
-    def _refresh(self):
-        src = self.txt_from_room.text().strip()
-        tgt = self.txt_to_room.text().strip()
+    def _load_rooms(self):
+        try:
+            site = db.get_site_code()
+            rows = db.query(self._ROOMS_SQL, (site, site), cn=None) or []
+            self._rooms = [
+                {
+                    "room": (r.RoomNo or "").strip(),
+                    "name": (r.GuestName or "").strip(),
+                    "docid": (r.FolioNoDocid or "").strip(),
+                    "folio": int(r.FolioNo or 0),
+                }
+                for r in rows
+            ]
+        except Exception:
+            self._rooms = []
+        self._render_rooms()
+
+    def _render_rooms(self):
+        self.table_rooms.setRowCount(len(self._rooms))
+        for i, rm in enumerate(self._rooms):
+            vals = ["", rm["room"], str(rm["folio"]), rm["name"]]
+            for j, v in enumerate(vals):
+                self.table_rooms.setItem(i, j, QTableWidgetItem(v))
+        _set_check(self.chk_rooms, False)
+
+    def _on_from_changed(self):
         self.lbl_src.setText("-")
-        self.lbl_tgt.setText("-")
         self.lbl_total.setText("Source folio charges: -")
-        self.btn_merge.setEnabled(False)
-        if src:
-            s = fo_ops.open_folio_by_room(src, cn=None)
-            if s:
-                self.lbl_src.setText(f"{s['folio']} - {s['name']}")
-                try:
-                    tot = fo_ops.folio_charge_total(s["docid"])
-                    self.lbl_total.setText(f"Source folio charges: {tot:,.2f}")
-                except Exception:
-                    pass
-        if tgt:
-            t = fo_ops.open_folio_by_room(tgt, cn=None)
-            if t:
-                self.lbl_tgt.setText(f"{t['folio']} - {t['name']}")
-        if (
-            src
-            and tgt
-            and src != tgt
-            and self.lbl_src.text() != "-"
-            and self.lbl_tgt.text() != "-"
-        ):
-            self.btn_merge.setEnabled(True)
+        self._charges = []
+        self._render_charges()
+        focus = self.txt_from_room.text().strip()
+        if not focus:
+            return
+        try:
+            rec = fo_ops.open_folio_by_room(focus, cn=None)
+        except Exception:
+            return
+        if not rec:
+            return
+        self.lbl_src.setText(f"{rec['folio']} - {rec['name']}")
+        try:
+            tot = fo_ops.folio_charge_total(rec["docid"])
+            self.lbl_total.setText(f"Source folio charges: {tot:,.2f}")
+        except Exception:
+            pass
+        try:
+            self._charges = expenseentry.list_folio_charges(rec["folio"], cn=None)
+        except Exception:
+            self._charges = []
+        self._render_charges()
+
+    def _on_to_changed(self):
+        self.lbl_tgt.setText("-")
+        leader = self.txt_to_room.text().strip()
+        if not leader:
+            return
+        try:
+            t = fo_ops.open_folio_by_room(leader, cn=None)
+        except Exception:
+            return
+        if t:
+            self.lbl_tgt.setText(f"{t['folio']} - {t['name']}")
+
+    def _render_charges(self):
+        self.table_charges.setRowCount(len(self._charges))
+        for i, c in enumerate(self._charges):
+            vals = [
+                "",
+                str(c["vtype"] or ""),
+                str(c["vno"]),
+                str(c["paycode"] or ""),
+                str(c["amount"]),
+                str(c["docid"] or ""),
+            ]
+            for j, v in enumerate(vals):
+                self.table_charges.setItem(i, j, QTableWidgetItem(v))
+        _set_check(self.chk_charges, False)
+
+    def _on_room_cell(self, row, col):
+        if col == 0:
+            it = self.table_rooms.item(row, 0)
+            if it is None:
+                return
+            it.setText("" if it.text().strip() else "\u2713")
+            return
+        it = self.table_rooms.item(row, 1)
+        if it is not None and it.text().strip():
+            self.txt_from_room.setText(it.text().strip())
+
+    def _on_charge_cell(self, row, col):
+        if col != 0:
+            return
+        it = self.table_charges.item(row, 0)
+        if it is None:
+            return
+        it.setText("" if it.text().strip() else "\u2713")
 
     def _merge(self):
-        from_room = self.txt_from_room.text().strip()
-        to_room = self.txt_to_room.text().strip()
-        reply = QMessageBox.question(
+        # Gate order: GAP-06 -> GAP-09 -> GAP-07 confirm -> execute -> GAP-08.
+        leader = self.txt_to_room.text().strip()
+        if not leader:
+            QMessageBox.information(self, "Error..", "Please Select Leader Room No.")
+            return
+        try:
+            tgt = fo_ops.open_folio_by_room(leader, cn=None)
+        except Exception:
+            tgt = None
+        if not tgt:
+            QMessageBox.information(self, "Error..", "Please Select Leader Room No.")
+            return
+        focus = self.txt_from_room.text().strip()
+        checked = _checked_col(self.table_rooms, 1)
+        ids = _checked_col(self.table_charges, 5)
+        plan = [(r, None) for r in checked if r != leader and r != focus]
+        # ponytail: the charge filter applies only to the focused room; other
+        # checked rooms transfer all their charges (VB6 behavior). A checked
+        # focus room with an empty charge grid is skipped — plan then only
+        # carries the other checked rooms.
+        if focus and focus != leader and focus in {r["room"] for r in self._rooms}:
+            if ids:
+                plan.append((focus, ids))
+            elif focus in checked and self.table_charges.rowCount():
+                QMessageBox.information(
+                    self, "Save...", "Please select any charges to be transfer"
+                )
+                return
+        if not plan:
+            QMessageBox.information(
+                self, "Save...", "Please select any charges to be transfer"
+            )
+            return
+        reply = QMessageBox.critical(
             self,
-            "Confirm",
-            f"Merge charges from {from_room} to {to_room}?\nYeh undo nahi ho sakta!",
+            "Save...",
+            "Do You Want Transfer Remainning Charges Of All Rooms\n"
+            "Into Leader Room No. " + leader,
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
         )
         if reply != QMessageBox.StandardButton.Yes:
             return
+        cn = None
         try:
-            res = fo_ops.merge_charge(from_room, to_room)
-            QMessageBox.information(
-                self,
-                "Done",
-                f"{res['rows_moved']} rows merged\n"
-                f"Folio {res['folio_from']} -> {res['folio_to']}",
-            )
-            self.txt_from_room.clear()
-            self.txt_to_room.clear()
+            cn = db.connect()
+            for room, docids in plan:
+                fo_ops.merge_charge(
+                    room, leader, cn=cn, commit=False, charge_docids=docids
+                )
+            cn.commit()
         except Exception as e:
-            QMessageBox.critical(self, "Error", str(e))
+            if cn is not None:
+                try:
+                    cn.rollback()
+                except Exception:
+                    pass
+            QMessageBox.critical(self, "Save...", str(e))
+            return
+        finally:
+            if cn is not None:
+                cn.close()
+        QMessageBox.information(self, "Save...", "Charges Transfered Successfully")
+        self.txt_from_room.clear()
+        self.txt_to_room.clear()
+        self._load_rooms()
 
 
 class ReverseMergeWindow(QMainWindow):
-    """Reverse Room Merge (VB6: FrmRevMergeCharge) — merged folio se ek
-    child room ke charges wapas uske apne folio par wapas le jao."""
+    """Reverse Room Merge (VB6: FrmRevMergeCharge) — GAP-10..13."""
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Reverse Room Merge")
-        self.resize(720, 520)
-        self._build_ui()
+        self.resize(820, 700)
         self._master = None
         self._children = []
+        self._charges = []
+        self._build_ui()
 
     def _build_ui(self):
         central = QWidget()
@@ -549,15 +740,14 @@ class ReverseMergeWindow(QMainWindow):
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(title)
 
-        form = QGroupBox("Master Room")
+        form = QGroupBox("Rooms")
         form_lay = QHBoxLayout(form)
         self.txt_master = QLineEdit()
         self.txt_master.setPlaceholderText("Master Room No (jisne merge kiya)")
         self.txt_master.returnPressed.connect(self._load_children)
         self.btn_load = QPushButton("Load")
-        self.btn_load.setToolTip("Master folio se linked child rooms load karo")
         self.btn_load.clicked.connect(self._load_children)
-        form_lay.addWidget(QLabel("Room:"))
+        form_lay.addWidget(QLabel("Enter Leader Room No"))
         form_lay.addWidget(self.txt_master, 1)
         form_lay.addWidget(self.btn_load)
         layout.addWidget(form)
@@ -570,27 +760,30 @@ class ReverseMergeWindow(QMainWindow):
         self.table.setHorizontalHeaderLabels(
             ["", "Room", "Folio", "Guest", "Master par charges"]
         )
-        self.table.horizontalHeader().setSectionResizeMode(
-            QHeaderView.ResizeMode.Stretch
-        )
-        self.table.setAlternatingRowColors(True)
-        self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
-        self.table.setSelectionMode(QTableWidget.SelectionMode.SingleSelection)
+        _prep_grid(self.table)
         self.table.itemSelectionChanged.connect(self._on_row_changed)
-        layout.addWidget(self.table)
+        self.table.itemDoubleClicked.connect(self._on_row_dbl)
+        layout.addWidget(self.table, 1)
 
-        info = QLabel(
-            "Child select karke 'Reverse Merge' dabao — uske saare "
-            "charges master folio se wapas uske apne folio par aa "
-            "jayenge aur link toot jayega."
+        charges_box = QGroupBox("List of Room's Charge")
+        charges_lay = QVBoxLayout(charges_box)
+        self.chk_all = QCheckBox("ALL")
+        charges_lay.addWidget(self.chk_all)
+        self.table_charges = QTableWidget()
+        self.table_charges.setColumnCount(6)
+        self.table_charges.setHorizontalHeaderLabels(
+            ["", "Type", "VNo", "PayType", "Amount", "DocId"]
         )
-        info.setWordWrap(True)
-        layout.addWidget(info)
+        self.table_charges.setColumnHidden(5, True)
+        _prep_grid(self.table_charges)
+        self.table_charges.cellClicked.connect(self._on_charge_cell)
+        charges_lay.addWidget(self.table_charges)
+        self.chk_all.toggled.connect(lambda on: _toggle_all(self.table_charges, on))
+        layout.addWidget(charges_box, 1)
 
         btn_lay = QHBoxLayout()
-        self.btn_reverse = QPushButton("Reverse Merge")
+        self.btn_reverse = QPushButton("Transfer &&Charges")
         self.btn_reverse.setProperty("role", "warning")
-        self.btn_reverse.setEnabled(False)
         self.btn_exit = QPushButton("Exit")
         self.btn_reverse.clicked.connect(self._reverse)
         self.btn_exit.clicked.connect(self.close)
@@ -601,7 +794,7 @@ class ReverseMergeWindow(QMainWindow):
     def _load_children(self):
         q = self.txt_master.text().strip()
         if not q:
-            QMessageBox.warning(self, "Input", "Master Room No likho")
+            QMessageBox.information(self, "Error..", "Please Select Leader Room No.")
             return
         try:
             self._master = fo_ops.open_folio_by_room(q, cn=None)
@@ -611,10 +804,14 @@ class ReverseMergeWindow(QMainWindow):
         except Exception as e:
             self._master = None
             self._children = []
-            QMessageBox.critical(self, "Error", str(e))
+            self.lbl_master.setText("-")
+            self._render_children()
+            QMessageBox.critical(self, "Save...", str(e))
             return
         if not self._master:
-            QMessageBox.information(self, "Not found", "Koi in-house guest nahi mila")
+            self.lbl_master.setText("-")
+            self._render_children()
+            QMessageBox.information(self, "Error..", "Please Select Leader Room No.")
             return
         self.lbl_master.setText(
             f"Master folio {self._master['folio']} - {self._master['name']}"
@@ -622,6 +819,7 @@ class ReverseMergeWindow(QMainWindow):
         self._render_children()
 
     def _render_children(self):
+        self._charges = []
         self.table.setRowCount(len(self._children))
         for i, ch in enumerate(self._children):
             vals = [
@@ -636,57 +834,107 @@ class ReverseMergeWindow(QMainWindow):
                 if j == 0:
                     it.setForeground(QColor("#27ae60"))
                 self.table.setItem(i, j, it)
-        self.btn_reverse.setEnabled(False)
+        self._render_charges()
+
+    def _render_charges(self):
+        self.table_charges.setRowCount(len(self._charges))
+        for i, c in enumerate(self._charges):
+            vals = [
+                "",
+                str(c["vtype"] or ""),
+                str(c["vno"]),
+                str(c["paycode"] or ""),
+                str(c["amount"]),
+                str(c["docid"] or ""),
+            ]
+            for j, v in enumerate(vals):
+                self.table_charges.setItem(i, j, QTableWidgetItem(v))
+        _set_check(self.chk_all, False)
 
     def _on_row_changed(self):
+        self._charges = []
+        self._render_charges()
         row = self.table.currentRow()
-        has = bool(self._children and 0 <= row < len(self._children))
-        self.btn_reverse.setEnabled(has)
-
-    def _reverse(self):
-        row = self.table.currentRow()
-        if not (self._children and 0 <= row < len(self._children)):
+        if not (self._master and 0 <= row < len(self._children)):
             return
         ch = self._children[row]
+        if not ch["room"]:
+            return
+        try:
+            self._charges = fo_ops.list_child_charges_on_master(
+                self.txt_master.text().strip(), ch["room"]
+            )
+        except Exception:
+            self._charges = []
+        self._render_charges()
+
+    def _on_row_dbl(self, item):
+        # VB6 FGrid2_UnknownEvent_B: col-0 / empty room -> silent exit.
+        if item.column() == 0:
+            return
+        room_it = self.table.item(item.row(), 1)
+        room = room_it.text().strip() if room_it else ""
+        if room in ("", "-"):
+            return
+        if not self._master:
+            QMessageBox.information(self, "Error..", "Please Select Leader Room No.")
+            return
+        if room == self.txt_master.text().strip():
+            return
         reply = QMessageBox.question(
             self,
-            "Confirm",
-            f"{ch['room'] or ch['name']} ke {ch['charges']} charges master "
-            f"folio {self._master['folio']} se wapas folio {ch['folio']} "
-            "par le jaayein?",
+            "Save...",
+            "Do You Want Remove Room No. " + room + " from Group.\n"
+            "Without Transfer Charges.",
         )
         if reply != QMessageBox.StandardButton.Yes:
             return
         try:
-            res = fo_ops.reverse_merge_charge(
-                self.txt_master.text().strip(),
-                ch["room"] or self._find_room_by_docid(ch["docid"]),
-            )
-            msg = (
-                f"{res['rows_moved']} rows reversed\n"
-                f"Folio {res['folio_master']} -> {res['folio_child']}"
-            )
-            if res["master_cleared"]:
-                msg += "\nMaster folio ke merge markers bhi clear ho gaye."
-            QMessageBox.information(self, "Done", msg)
-            self._load_children()
+            fo_ops.remove_room_from_group(self.txt_master.text().strip(), room)
         except Exception as e:
-            QMessageBox.critical(self, "Error", str(e))
+            QMessageBox.critical(self, "Save...", str(e))
+            return
+        self._load_children()
 
-    def _find_room_by_docid(self, docid: str) -> str:
-        for ch in self._children:
-            if ch["docid"] == docid and ch["room"]:
-                return ch["room"]
-        rec = fo_ops.open_folio_by_docid(docid, cn=None)
-        if rec:
-            occ = db.query(
-                "SELECT TOP 1 RTRIM(RoomNo) FROM RoomOcc WHERE DocId = ? "
-                "AND ChkOutDate IS NULL",
-                (docid,),
+    def _on_charge_cell(self, row, col):
+        if col != 0:
+            return
+        it = self.table_charges.item(row, 0)
+        if it is None:
+            return
+        it.setText("" if it.text().strip() else "\u2713")
+
+    def _reverse(self):
+        master = self.txt_master.text().strip()
+        if not master:
+            QMessageBox.information(self, "Error..", "Please Select Leader Room No.")
+            return
+        try:
+            rec = fo_ops.open_folio_by_room(master, cn=None)
+        except Exception:
+            rec = None
+        if not rec:
+            QMessageBox.information(self, "Error..", "Please Select Leader Room No.")
+            return
+        row = self.table.currentRow()
+        if not (self._children and 0 <= row < len(self._children)):
+            # ponytail: VB6 always has a selected grid row here; no-op.
+            return
+        ch = self._children[row]
+        ids = _checked_col(self.table_charges, 5)
+        if self.table_charges.rowCount() and not ids:
+            QMessageBox.information(
+                self, "Save...", "Please select any charges to be transfer"
             )
-            if occ and occ[0][0]:
-                return occ[0][0].strip()
-        raise ValueError("Child room resolve nahi ho paya")
+            return
+        charge_docids = ids if self.table_charges.rowCount() else None
+        try:
+            fo_ops.reverse_merge_charge(master, ch["room"], charge_docids=charge_docids)
+        except Exception as e:
+            QMessageBox.critical(self, "Save...", str(e))
+            return
+        QMessageBox.information(self, "Save...", "Charges Transfered Successfully")
+        self._load_children()
 
 
 class ReSettlementWindow(QMainWindow):

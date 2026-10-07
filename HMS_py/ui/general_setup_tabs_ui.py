@@ -1847,6 +1847,13 @@ class ParameterTab(QWidget):
 
             # Rate Types
             "RcptPrinting": "str", "ReservationPrinting": "str",
+            # AUDIT P2-O / MS-013 re-estimate (Batch D): VB6 frmEnviro ke
+            # update-chain wale cols — widget types.
+            "Rate1": "str", "Rate2": "str", "Rate3": "str",
+            "Rate4": "str", "Rate5": "str",
+            "RRIncTaxDefault": "yn3", "RRSerChrgDefault": "yn3",
+            "PrintRcpt": "yn3", "AutoSplitYN": "yn1",
+            "BillAmendMode": "str", "RptCashierSettlementAllUser": "yn3",
 
             # Check Out (additional)
             "AllowRoomSettlement": "yn3", "CheckoutVar": "time",
@@ -1950,7 +1957,13 @@ class ParameterTab(QWidget):
             "Settings": ["Editopen", "AddModifyEntryInBackDate",
                          "PlanSelectionBasedOn",
                          "GuestChargesDeleteLog", "FOMBillReprintAutoRefresh",
-                         "UserWiseShowOutletYN"],
+                         "UserWiseShowOutletYN",
+                         # AUDIT P2-O / MS-013 re-estimate (Batch D): VB6
+                         # frmEnviro inhe bhi update karta hai, par ye
+                         # flag_map me nahi the -> UI se save karne par
+                         # silently DROP ho jaate the.
+                         "AutoSplitYN", "BillAmendMode",
+                         "RptCashierSettlementAllUser"],
             "Instructions (Res.)": ["ResInstruction1", "ResInstruction2",
                                     "ResInstruction3", "ResInstruction4",
                                     "ResInstruction5", "ResInstruction6",
@@ -2024,7 +2037,12 @@ class ParameterTab(QWidget):
                                      "ItemRateInMRBasedOn", "ItemRateInPurchaseBillBasedOn",
                                      "SmartCardItem", "DefCompGroup"],
             "Printing Parameters": [],
-            "Rate Types": ["RcptPrinting", "ReservationPrinting"],
+            "Rate Types": ["RcptPrinting", "ReservationPrinting",
+                           # AUDIT P2-O (Batch D): tariff-slot labels +
+                           # room-rent tax/service-charge defaults.
+                           "Rate1", "Rate2", "Rate3", "Rate4", "Rate5",
+                           "RRIncTaxDefault", "RRSerChrgDefault",
+                           "PrintRcpt"],
         }
 
         for page_name, keys in flag_map.items():

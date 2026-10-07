@@ -78,7 +78,6 @@ from PyQt6.QtCore import (
 from PyQt6.QtGui import QFont, QShortcut, QKeySequence, QColor, QAction, QKeyEvent
 
 from HMS_py.ui.theme import apply_theme, toggle_theme, current_theme
-from HMS_py.ui.glass import AuroraCanvas
 from HMS_py.ui.desktop_style import apply_desktop_surface, mark_desktop_action
 from HMS_py.ui.sidebar_buttons import _label_for
 
@@ -243,30 +242,35 @@ _SIDEBAR_CLOCKS = ("India", "Canada", "Italy", "London", "Japan", "Australia")
 # HMS_py/ui/theme.py:66-71 (strip_* / strip_bg / chrome).
 VB_SHELL_QSS = """
 QMainWindow > QWidget#vbShellRoot {
-    background: #ffffa0;
+    background: #FFFFCC;
 }
 QFrame#vbTopBand {
     background: #ffffff;
     border-bottom: 2px solid #0000c0;
 }
 QMenuBar#vbSubBar {
-    background: #ffffff;
-    color: #000000;
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #8a3ffc, stop:1 #5a189a);
+    color: #ffffff;
     font-family: 'Segoe UI', 'Tahoma';
     font-size: 15px;
+    font-weight: bold;
+    font-style: italic;
 }
 QMenuBar#vbSubBar::item {
-    background: #ffffff;
-    color: #000000;
+    background: transparent;
+    color: #ffffff;
+    font-weight: bold;
+    font-style: italic;
     padding: 8px 14px;
     border: 1px solid transparent;
 }
 QMenuBar#vbSubBar::item:selected {
-    background: #0000c0;
+    background: #9d4edd;
     color: #ffffff;
 }
 QMenuBar#vbSubBar::item:focus {
-    border: 1px dotted #0000c0;
+    border: 1px dotted #ffffff;
 }
 QLabel#vbCompany {
     color: #000000;
@@ -288,24 +292,28 @@ QFrame#vbRail {
     border-right: 1px solid #c0c0c0;
 }
 QPushButton[vbRole="rail"] {
-    background: #54a0a0;
-    color: #000000;
-    border: 1px solid #6ab2b2;
-    border-bottom: 3px solid #2e6b6b;
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #3d9e9e, stop:1 #005757);
+    color: #ffffff;
+    border: 1px solid #003232;
+    border-radius: 0;
+    min-height: 40px;
     font-family: 'Segoe UI', 'Tahoma';
-    font-size: 11px;
+    font-size: 12px;
     font-weight: bold;
+    font-style: italic;
+    text-align: center;
 }
 QPushButton[vbRole="rail"]:hover {
-    background: #6ab2b2;
-    color: #000000;
+    background: #3d9e9e;
+    color: #ffffff;
 }
 QPushButton[vbRole="rail"]:checked {
-    background: #2e6b6b;
+    background: #005757;
     color: #ffffff;
 }
 QPushButton[vbRole="rail"]:checked:hover {
-    background: #2e6b6b;
+    background: #005757;
     color: #ffffff;
 }
 QPushButton[vbRole="rail"]:focus-visible,
@@ -372,6 +380,10 @@ QPushButton[vbRole="toggle"]:focus {
 }
 QLabel[subtitle="true"] {
     color: #000000;
+}
+QStatusBar {
+    background: #c0c0c0;
+    border-top: 1px solid #808080;
 }
 """
 
@@ -776,89 +788,99 @@ class LoginDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("User Information")
-        self.setFixedSize(420, 448)
+        self.setFixedSize(420, 300)
         self.user = ""
-        # VB6 full-desktop parity: white app bg + embedded blue panel
-        # (screenshot 001_Login_Screen_Fresh.png)
-        self.setProperty("vbDesktop", True)
+        # VB6 login parity: full-window blue gradient (no asset in Image/ or
+        # pic/ matches — pic/ holds logos/watermark only).
+        self.setStyleSheet(
+            "QDialog { background: qlineargradient(x1:0, y1:0, x2:0, y2:1,"
+            " stop:0 #5DADE2, stop:1 #2E86C8); }"
+        )
 
         root = QVBoxLayout(self)
-        root.setContentsMargins(0, 0, 0, 0)
-        root.setSpacing(0)
+        root.setContentsMargins(12, 12, 12, 12)
+        root.setSpacing(8)
 
-        # VB6 header: blue gradient + cream '{ Company Name }' title
-        header = QLabel("{  Company Name  }")
-        header.setProperty("vbHeader", True)
-        header.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        header.setFixedHeight(52)
-        root.addWidget(header)
+        # white card pinned top-right
+        card_row = QHBoxLayout()
+        card_row.addStretch(1)
+        card = QFrame()
+        card.setStyleSheet("QFrame { background: #ffffff; border: 1px solid #808080; }")
+        card_lay = QVBoxLayout(card)
+        card_lay.setContentsMargins(14, 12, 14, 12)
+        card_lay.setSpacing(8)
 
-        # White app surface (VB6 white client area)
-        white = QFrame()
-        white.setStyleSheet("background: #ffffff;")
-        wlay = QVBoxLayout(white)
-        wlay.setContentsMargins(28, 24, 28, 16)
-        wlay.setSpacing(12)
-        root.addWidget(white, 1)
-
-        # VB6 blue panel (embedded card: title + fields + Login btn)
-        body = QFrame()
-        body.setProperty("vbPanel", True)
-        lay = QVBoxLayout(body)
-        lay.setContentsMargins(32, 24, 32, 20)
-        lay.setSpacing(12)
-        wlay.addWidget(body)
-
-        lbl_title = QLabel("User Information")
-        lbl_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        f_title = QFont("Segoe UI", 15)
-        f_title.setBold(True)
-        lbl_title.setFont(f_title)
-        lbl_title.setStyleSheet("color: #fdfdd0; background: transparent;")
-        lay.addWidget(lbl_title)
-
-        # User
+        form = QFormLayout()
+        form.setSpacing(8)
         lbl_u = QLabel("User Name")
         lbl_u.setStyleSheet(
-            "color: #fdfdd0; font-size: 12px; font-weight: bold; "
-            "background: transparent;"
+            "color: #000080; font-weight: bold; background: transparent;"
         )
-        lay.addWidget(lbl_u)
-        self.txtUser = QLineEdit()
-        self.txtUser.setPlaceholderText("User Name...")
-        self.txtUser.setMinimumHeight(38)
-        lay.addWidget(self.txtUser)
-
-        # Password
         lbl_p = QLabel("Password")
         lbl_p.setStyleSheet(
-            "color: #fdfdd0; font-size: 12px; font-weight: bold; "
-            "background: transparent;"
+            "color: #000080; font-weight: bold; background: transparent;"
         )
-        lay.addWidget(lbl_p)
+        self.txtUser = QLineEdit()
         self.txtPass = QLineEdit()
-        self.txtPass.setPlaceholderText("Password...")
         self.txtPass.setEchoMode(QLineEdit.EchoMode.Password)
-        self.txtPass.setMinimumHeight(38)
-        lay.addWidget(self.txtPass)
+        for _e in (self.txtUser, self.txtPass):
+            _e.setMinimumHeight(20)
+            _e.setStyleSheet(
+                "QLineEdit { background: #ffffff; border: 1px solid #808080;"
+                " border-radius: 0; padding: 1px 3px; }"
+            )
+        form.addRow(lbl_u, self.txtUser)
+        form.addRow(lbl_p, self.txtPass)
+        card_lay.addLayout(form)
 
-        lay.addSpacing(6)
-
-        # VB6 button pair: Login (in-panel white) + Un Load (below panel)
-        self.btnLogin = QPushButton("Login")
-        self.btnLogin.setStyleSheet(
-            "QPushButton { background: #ffffff; color: #1d3d5d; "
-            "font-weight: bold; font-size: 13px; border: none; "
-            "border-radius: 7px; padding: 9px 22px; }\n"
-            "QPushButton:hover { background: #eaf4fd; }"
+        # Login / Un Load side by side
+        btn_row = QHBoxLayout()
+        btn_style = (
+            "QPushButton { background: qlineargradient(x1:0, y1:0, x2:0, y2:1,"
+            " stop:0 #7fbfb0, stop:1 #4a8f80); color: #000080; font-weight: bold;"
+            " border: 2px outset #003232; border-radius: 0; }"
         )
-        self.btnLogin.setFixedHeight(42)
-        lay.addWidget(self.btnLogin)
-
+        self.btnLogin = QPushButton("Login")
         self.btnUnLoad = QPushButton("Un Load")
-        self.btnUnLoad.setProperty("vbGhost", True)
-        self.btnUnLoad.setFixedHeight(36)
-        wlay.addWidget(self.btnUnLoad)
+        for _b in (self.btnLogin, self.btnUnLoad):
+            _b.setFixedHeight(24)
+            _b.setStyleSheet(btn_style)
+        btn_row.addWidget(self.btnLogin)
+        btn_row.addWidget(self.btnUnLoad)
+        card_lay.addLayout(btn_row)
+
+        # Enable Virtual Keyboard (oval teal)
+        self.btnVkb = QPushButton("Enable Virtual Keyboard")
+        self.btnVkb.setCheckable(True)
+        self.btnVkb.setFixedHeight(22)
+        self.btnVkb.setStyleSheet(
+            "QPushButton { background: qlineargradient(x1:0, y1:0, x2:0, y2:1,"
+            " stop:0 #7fbfb0, stop:1 #4a8f80); color: #ffffff; font-style: italic;"
+            " font-weight: bold; border: 2px outset #003232; border-radius: 11px; }"
+        )
+        card_lay.addWidget(self.btnVkb)
+
+        card_row.addWidget(card, 0, Qt.AlignmentFlag.AlignTop)
+        root.addLayout(card_row)
+
+        # virtual keyboard strip (hidden until toggled)
+        self.vkb = self._build_vkb()
+        self.vkb.setVisible(False)
+        root.addWidget(self.vkb)
+
+        root.addStretch(1)
+
+        # 'Analysis Software' bottom-left
+        lblAnalysis = QLabel("Analysis Software")
+        f_an = QFont("Segoe UI", 20)
+        f_an.setBold(True)
+        f_an.setItalic(True)
+        lblAnalysis.setFont(f_an)
+        lblAnalysis.setStyleSheet("color: #0000CD; background: transparent;")
+        lblAnalysis.setAlignment(
+            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignBottom
+        )
+        root.addWidget(lblAnalysis)
 
         self.lblMsg = QLabel("")
         self.lblMsg.setWordWrap(True)
@@ -866,26 +888,67 @@ class LoginDialog(QDialog):
             "color: #ef4444; font-weight: bold; background: transparent; font-size: 11px;"
         )
         self.lblMsg.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        wlay.addWidget(self.lblMsg)
+        root.addWidget(self.lblMsg)
 
         # DB status + settings button (bottom strip)
         self.lblDb = QLabel("")
         self.lblDb.setStyleSheet("color: #666680; font-size: 10px; padding: 4px;")
         self.lblDb.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        wlay.addWidget(self.lblDb)
+        root.addWidget(self.lblDb)
 
         self.btnDb = QPushButton("Database Settings")
         self.btnDb.setProperty("vbGhost", True)
         self.btnDb.setFixedHeight(30)
-        wlay.addWidget(self.btnDb)
+        root.addWidget(self.btnDb)
         self._note_shown = False
 
         self.btnLogin.clicked.connect(self._do_login)
         self.btnUnLoad.clicked.connect(self.reject)
         self.btnDb.clicked.connect(self._open_db_settings)
         self.txtPass.returnPressed.connect(self._do_login)
+        self.btnVkb.toggled.connect(self.vkb.setVisible)
+        self.btnVkb.toggled.connect(lambda on: self.setFixedHeight(420 if on else 300))
+        # track last focused QLineEdit for keyboard input
+        self._vkb_target = self.txtUser
+        QApplication.instance().focusChanged.connect(self._on_focus_changed)
 
         self._refresh_db_status()
+
+    def _on_focus_changed(self, _old, new):
+        if isinstance(new, QLineEdit):
+            self._vkb_target = new
+
+    def _build_vkb(self):
+        """Simple on-screen QWERTY strip; letters insert into focused QLineEdit."""
+        wrap = QFrame()
+        wrap.setStyleSheet("QFrame { background: #e8e8e8; border: 1px solid #808080; }")
+        grid = QGridLayout(wrap)
+        grid.setContentsMargins(4, 4, 4, 4)
+        grid.setSpacing(3)
+        rows = ["1234567890", "QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"]
+        for r, row in enumerate(rows):
+            for c, ch in enumerate(row):
+                b = QPushButton(ch)
+                b.setFixedSize(26, 24)
+                b.clicked.connect(lambda _=False, ch=ch: self._vkb_insert(ch))
+                grid.addWidget(b, r, c)
+        bk = QPushButton("BKSP")
+        bk.setFixedSize(52, 24)
+        bk.clicked.connect(self._vkb_backspace)
+        grid.addWidget(bk, 3, 7)
+        sp = QPushButton("Space")
+        sp.setFixedSize(120, 24)
+        sp.clicked.connect(lambda: self._vkb_insert(" "))
+        grid.addWidget(sp, 4, 2, 1, 4)
+        return wrap
+
+    def _vkb_insert(self, text):
+        if isinstance(self._vkb_target, QLineEdit):
+            self._vkb_target.insert(text)
+
+    def _vkb_backspace(self):
+        if isinstance(self._vkb_target, QLineEdit):
+            self._vkb_target.backspace()
 
     def _refresh_db_status(self):
         from HMS_py.core.db import load_config, connect
@@ -2277,7 +2340,11 @@ def _form_registry() -> dict[str, callable]:
             else lambda w: p2.open_companymaster(w)
         ),
         # Main Setup - General / Charge:
-        "Charge Master": lambda w: p2.open_fixcharge(w),
+        # AUDIT-20261005 P2-K FIX: VB6 MDIForm1.frm:7256 (var_CA=7) =
+        # FrmChargeMast (RevMast FieldType='C'), :7264 (var_CA=8) =
+        # frmFixedChargeMast. Pehle dono leaves same FixedCharge form
+        # khol rahi thi.
+        "Charge Master": lambda w: p2.open_chargemaster(w),
         "Fixed Charge": lambda w: p2.open_fixcharge(w),
         "Unit Master": lambda w: p2.open_unit(w),
         "Item Master": lambda w: p2.open_item(w),
@@ -2558,11 +2625,12 @@ def _form_registry() -> dict[str, callable]:
         "&Trial Ledger": lambda w: fvu.open_trial_balance(w),
         "Cash &Flow": lambda w: fvu.open_cash_bank_books(w),
         "Fund Flo&w": lambda w: fvu.open_cash_bank_books(w),
-        "&Annexure": lambda w: fvu.open_trial_balance(
-            w
-        ),  # VB6 Annexure ledger-view parity
-        "A&geing Analysis for Debtors": lambda w: fvu.open_trial_balance(w),
-        "Ageing A&nalysis for Creditors": lambda w: fvu.open_trial_balance(w),
+        # VB6 FaReports: Annexure / AgingDr / AgingRepCr — `&`-captions ka
+        # menu_caption_map() me entry nahi hai, isliye no-&-map-key se
+        # resolve karate hain (pehle ye trial_balance khol rahe the = WRONG_TARGET)
+        "&Annexure": _open_report("Annexure"),
+        "A&geing Analysis for Debtors": _open_report("Ageing Analysis for Debtors"),
+        "Ageing A&nalysis for Creditors": _open_report("Ageing Analysis for Creditors"),
         # Messaging (VB6 InBox/OutBox)
         "&InBox": (lambda w: mpu.open_inbox(w, user=getattr(w, "user", "SA")))
         if mpu
@@ -2616,8 +2684,14 @@ def _form_registry() -> dict[str, callable]:
         "T.D.S. Category": (lambda w: stu.open_tdscat(w)) if stu else None,
         # --- S1 wire-only wave (live opener/report alias, VB6 captions) ---
         # Finance ops (cores already exist: fa_ledger_ops/fa_tds_ops/fa_voucher)
-        "Adjustment Entry": lambda w: fvu.open_voucher_entry(w),
-        "Delete Adjustment Entry": lambda w: fvu.open_voucher_entry(w),
+        # VB6 FaAdjust (HMS.bas loc_*) — adjustment entry + FaAdjustDel delete
+        # variant; pehle dono fvu.open_voucher_entry khol rahe the = WRONG_TARGET
+        "Adjustment Entry": (lambda w: fasub_ui.open_fa_adjust(w))
+        if fasub_ui
+        else _coming_soon("Adjustment Entry"),
+        "Delete Adjustment Entry": (lambda w: fasub_ui.open_fa_adjust(w, delete=True))
+        if fasub_ui
+        else _coming_soon("Delete Adjustment Entry"),
         "Bank Reconciliation": lambda w: fvu.open_bank_recon(w),
         # P9: VB6 FaTDSChal — dedicated challan UI (TDSChal/TDSChal1 + LEDGERTDS mark)
         # VB6 fate_Click idx5 -> FaTDSChal (idx0 FaVrEnt, idx6 FaTDSCertificate)
@@ -2648,6 +2722,10 @@ def _form_registry() -> dict[str, callable]:
         "Cash And Bank Books": lambda w: fvu.open_cash_bank_books(w),
         # Finance Reports (fa_voucher_ui openers)
         "Trial Balance": lambda w: fvu.open_trial_balance(w),
+        # VB6: var_188="Ledger" -> FaReports GRepFormName="Led" (HMS.bas
+        # loc_1E319EA). reports.py ka "Ledger"->LedCred map galat hai (credit
+        # only) — yahan dono caption-shape Led par land karte hain.
+        "Ledger": _open_report("&Ledger"),
         "Interest Ledger": _open_report(
             "&Interest Ledger"
         ),  # LedInt report; open_led_int nahi bana
@@ -2660,7 +2738,17 @@ def _form_registry() -> dict[str, callable]:
             w, "Cheque Not Cleared", fv_cheque_pending
         ),
         "Daily Transaction Summary": lambda w: fvu.open_daily_txn_summary(w),
-        "Control Ledger": lambda w: fvu.open_trial_balance(w),
+        # VB6: var_188="Control Ledger" -> FaReports GRepFormName="CONTROLLED"
+        # (HMS.bas loc_1E320C0, CONTROLLED.rpt). Python report key abhi nahi
+        # hai -> explicit not-ported state. Pehle trial_balance khulta tha
+        # (silent WRONG_TARGET). Port karo to _open_report("Control Ledger").
+        "Control Ledger": lambda w: QMessageBox.information(
+            w,
+            "Control Ledger",
+            "VB6 ka CONTROLLED report abhi Python me port nahi hua "
+            "(core/reports.py me key nahi) - documented skip. "
+            "Dekho specs/004-finance-parity/finance-gap-list.md",
+        ),
         # House Keeping (live tables se verify: ComplaintDetail/LostFoundDetail)
         "Complaint Master": lambda w: _open_fv_list(
             w,
@@ -3636,10 +3724,7 @@ class MainWindow(QMainWindow):
 
         central = QWidget()
         self._central = central
-        self.aurora = AuroraCanvas(central)
-        self.aurora.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
-        self.aurora.setGeometry(central.rect())
-        self.aurora.lower()
+        central.setStyleSheet("background: #FFFFCC;")  # ponytail: solid pale yellow MDI
         root = QVBoxLayout(central)
         root.setSpacing(0)
         root.setContentsMargins(0, 0, 0, 0)
@@ -3708,10 +3793,11 @@ class MainWindow(QMainWindow):
         self._rail_footer = self._build_rail_footer()
         body.addWidget(self.rail)
 
-        self.canvas = QLabel("Welcome! Select a module from the left panel.")
+        self.canvas = QLabel("")
         self.canvas.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.canvas.setWordWrap(True)
         self.canvas.setProperty("subtitle", True)
+        self.canvas.setStyleSheet("background: #FFFFCC;")
         body.addWidget(self.canvas, stretch=1)
 
         # ── right sidebar: VB6 PictTitleBar, fixed 120px chrome column ──

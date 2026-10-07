@@ -723,11 +723,11 @@ rawconsumption                     Y    Y    YES          467   VB6:HMS.bas,Hotl
 city                               Y    Y    YES          463   VB6:AccountMerg.frm,CompMast.frm,FaCityMast.frm; PY:area.py,city.py,co
 usermodule                         Y    Y    YES          450   VB6:HMS.bas,MDIForm1.frm,ModuleAdd.bas; PY:module_add.py
 gin                                Y    Y    YES          421   VB6:FaTaxVoucher.frm,HMS.bas,pMREntry.frm; PY:inventory.py
+bookinglog                         Y    Y    YES          414   VB6:HMS.bas,Hotlib.bas; PY:reservation.py
 guestfolioprofdetail               Y    Y    YES          400   VB6:FdGrpCheckOut.frm,GuestProfile.frm,HMS.bas; PY:checkin.py,folio.py
 purch1                             Y    Y    YES          396   VB6:DepOpStk.frm,FaTaxVoucher.frm,HMS.bas; PY:inventory.py,purchase.py
 attend                             Y    Y    YES          384   VB6:HMS.bas,PrAttend1.frm,PrEmployee.frm; PY:hr_payroll.py,reports.py
 fombilldetails                     Y    Y    YES          330   VB6:FdGrpCheckOut.frm,FrmFomBillDeletion.frm,HMS.bas; PY:checkout.py,f
-bookinglog                         Y    Y    YES          320   VB6:HMS.bas,Hotlib.bas; PY:reservation.py
 stocklog                           Y    Y    YES          266   VB6:HMS.bas,RSSaleBill.frm,RSTouchScreenSaleBill.frm; PY:stocklog.py
 einvoicebill2                      Y    Y    YES          189   VB6:HMS.bas,HallBill.frm,Hotlib.bas; PY:einvoicebill.py
 ledgertds                          Y    Y    YES          179   VB6:FaTDSChal.frm,FaVoucher.bas,FaVrEnt.frm; PY:fa_ledger_ops.py,fa_td
@@ -735,12 +735,12 @@ voucher_prefix                     Y    Y    YES          171   VB6:CateringBook
 voucher_type                       Y    Y    YES          171   VB6:CateringBooking.frm,CompMast.frm,DepOpStk.frm; PY:fa_reports.py,fa
 revmast                            Y    Y    YES          168   VB6:DepartMast.frm,DepartSundry.frm,FOMModule.bas; PY:advance_deposit_
 venueocc                           Y    Y    YES          150   VB6:CateringBooking.frm,FaCurrBalUpdate.frm,FrmBookingInquiry.frm; PY:
+bookingcanceldetails               Y    Y    YES          148   VB6:FaCurrBalUpdate.frm,HMS.bas,RrRoomReservation.frm; PY:reservation.
 itemgrp                            Y    Y    YES          138   VB6:CateringBooking.frm,FaTaxVoucher.frm,FrmItemGroupMast.frm; PY:banq
 suntranh                           Y    Y    YES          126   VB6:HMS.bas,HallBill.frm,HallEstimate.frm; PY:hall_booking.py,schema_u
 employee                           Y    Y    YES          120   VB6:CompMast.frm,FdCheckOut.frm,FdGrpCheckOut.frm; PY:comp_master.py,h
 sundrytype                         Y    Y    YES          118   VB6:DepartSundry.frm,FaTaxVoucher.frm,FacilitySundry.frm; PY:sundry_ty
 paychargelog                       Y    Y    YES          117   VB6:FdCheckOut.frm,HMS.bas,RSSaleBill.frm; PY:expenseentry.py,folio.py
-bookingcanceldetails               Y    Y    YES          113   VB6:FaCurrBalUpdate.frm,HMS.bas,RrRoomReservation.frm; PY:reservation.
 ledgeradj                          Y    Y    YES          100   VB6:FaAdjust.frm,FaAdjustDel.frm,FaReports.frm; PY:account_merge.py,fa
 hallbook                           Y    Y    YES           97   VB6:BanqModule.bas,CateringBooking.frm,FaCurrBalUpdate.frm; PY:banquet
 salary                             Y    Y    YES           93   VB6:HMS.bas,PrAttend1.frm,PrEmployee.frm; PY:hr_payroll.py
@@ -751,7 +751,7 @@ vouchercat                         Y    Y    YES           79   VB6:FaVtype.frm,
 departpay                          Y    Y    YES           75   VB6:FdReSetlement.frm,FrmPayTypeMast.frm,HMS.bas; PY:depart_pay.py,pay
 userpermission                     Y    Y    YES           74   VB6:FdCheckOut.frm,HMS.bas,InHouseGuestFolio.frm; PY:sys_config.py
 acgroup                            Y    Y    YES           73   VB6:CompMast.frm,FaAdjust.frm,FaEnvron.frm; PY:acgroup.py,comp_master.
-nightauditlog                      Y    Y    YES           70   VB6:HMS.bas,Hotlib.bas,rFomRepView.frm; PY:nightaudit.py
+nightauditlog                      Y    Y    YES           71   VB6:HMS.bas,Hotlib.bas,rFomRepView.frm; PY:nightaudit.py
 usermast                           Y    Y    YES           68   VB6:EmptyInbox.frm,FrmUserPaymentCollection.frm,HMS.bas; PY:auth.py,me
 depart                             Y    Y    YES           67   VB6:CateringBooking.frm,DepOpStk.frm,DepartMast.frm; PY:consumption_ma
 einvoicebill1                      Y    Y    YES           67   VB6:HMS.bas,HallBill.frm,Hotlib.bas; PY:einvoicebill.py
@@ -845,7 +845,7 @@ groupprof                          Y    Y    YES            0   VB6:GroupProfile
 guestcomments                      Y    Y    YES            0   VB6:HMS.bas,frmGuestComments.frm; PY:banquet_ops_ui.py,guest_services.
 guestmessage                       Y    Y    YES            0   VB6:FindMess.frm,FrmHouGuestMsg.frm,HMS.bas; PY:checkin.py,fo_ops.py,g
 guestparam                         Y    Y    YES            0   VB6:HMS.bas,frmGuestParamMast.frm; PY:general_setup_ui.py
-gueststat                          Y    Y    YES            0   VB6:FOMModule.bas,FdCheckOut.frm,FdGrpCheckOut.frm; PY:guest_services.
+gueststat                          Y    Y    YES            0   VB6:FOMModule.bas,FdCheckOut.frm,FdGrpCheckOut.frm; PY:folio.py,guest_
 guestwakeup                        Y    Y    YES            0   VB6:FrmGuestWakeUp.frm,HMS.bas; PY:guest_services.py
 hallbook1                          Y    Y    YES            0   VB6:CateringBooking.frm,FaCurrBalUpdate.frm,HMS.bas; PY:banquet_ops.py
 hallprecosting                     Y    Y    YES            0   VB6:HMS.bas,HallChefPreCosting.frm; PY:banquet_ops_ui.py,hall_chef_pre
@@ -924,7 +924,7 @@ voucher_include                    Y    Y    YES            0   VB6:FaVrEnt.frm,
 combopackhead                      -    Y    YES            0   PY:pos_masters.py
 
 
---- C4. ABSENT in live DB (SQL me refer par base table/view dono nahi)  <-- TABLE MISSING   [n=211] ---
+--- C4. ABSENT in live DB (SQL me refer par base table/view dono nahi)  <-- TABLE MISSING   [n=213] ---
 _create_pk_sql                     -    Y    NO             -   PY:schema_upgrade.py
 _create_table_sql                  -    Y    NO             -   PY:schema_upgrade.py
 _ensure_column_sql                 -    Y    NO             -   PY:schema_upgrade.py
@@ -1110,6 +1110,7 @@ string                             -    Y    NO             -   PY:vb6_logic.py
 structure                          Y    -    NO             -   VB6:FrmInc.frm
 successfully                       Y    -    NO             -   VB6:HMS.bas,RSTouchScreenSaleBill.frm
 summary                            -    Y    NO             -   PY:hall_chef_pre_costing_ui.py
+supplies                           -    Y    NO             -   PY:nightaudit.py
 sys                                Y    Y    NO             -   VB6:HMS.bas,frmCompany.frm,mdlDataTransfer.bas; PY:company.py,data_rec
 sysobjects                         Y    Y    NO             -   VB6:HMS.bas,Transfer.frm,mdlDataTransfer.bas; PY:data_transfer.py
 systeminfo                         Y    -    NO             -   VB6:DatabaseSecurityModule.bas
@@ -1133,6 +1134,7 @@ update_cursor                      Y    -    NO             -   VB6:HMS.bas,mdlD
 use                                -    Y    NO             -   PY:booking.py
 usermenu                           Y    -    NO             -   VB6:HMS.bas,MDIForm1.frm
 vb6                                -    Y    NO             -   PY:einvoice.py,module_add.py,nightaudit.py
+via                                -    Y    NO             -   PY:nightaudit.py
 viewpossale                        Y    -    NO             -   VB6:HMS.bas,Hotlib.bas
 voucher                            Y    Y    NO             -   VB6:FaVoucher.bas,HMS.bas; PY:business_logic_viewer.py
 vouchersundrysetting               -    Y    NO             -   PY:voucher_sundry_ui.py
@@ -1758,7 +1760,7 @@ D6. DATABASE TABLES MISSING IN PYTHON CODE (VB6 use karta hai)  [n=25]
  24. transout                            rows=        0   VB6: HMS.bas, Transfer.frm
  25. usercollection                      rows=        0   VB6: FrmUserPaymentCollection.frm, HMS.bas, rPOSRepView.frm
 
-D7. TABLES ABSENT IN LIVE DB (SQL me refer par base table/view dono nahi)  [n=211]
+D7. TABLES ABSENT IN LIVE DB (SQL me refer par base table/view dono nahi)  [n=213]
 --------------------------------------------------------------------------------------------------------
   1. _create_pk_sql                            vb6=- py=Y
   2. _create_table_sql                         vb6=- py=Y
@@ -1945,32 +1947,34 @@ D7. TABLES ABSENT IN LIVE DB (SQL me refer par base table/view dono nahi)  [n=21
 183. structure                                 vb6=Y py=-
 184. successfully                              vb6=Y py=-
 185. summary                                   vb6=- py=Y
-186. sys                                       vb6=Y py=Y
-187. sysobjects                                vb6=Y py=Y
-188. systeminfo                                vb6=Y py=-
-189. table                                     vb6=Y py=Y
-190. table_gstr2a                              vb6=Y py=-
-191. table_searchfield                         vb6=Y py=Y
-192. tax                                       vb6=- py=Y
-193. taxmast                                   vb6=- py=Y
-194. taxstrulines                              vb6=- py=Y
-195. tbl_eventexc                              vb6=Y py=-
-196. tbl_eventprameter                         vb6=Y py=-
-197. tbl_getbooking                            vb6=Y py=-
-198. telcallcontrol                            vb6=Y py=-
-199. time                                      vb6=Y py=Y
-200. totalrooms                                vb6=- py=Y
-201. transaction                               vb6=- py=Y
-202. true                                      vb6=Y py=-
-203. typerooms                                 vb6=- py=Y
-204. ucase                                     vb6=Y py=-
-205. update_cursor                             vb6=Y py=-
-206. use                                       vb6=- py=Y
-207. usermenu                                  vb6=Y py=-
-208. vb6                                       vb6=- py=Y
-209. viewpossale                               vb6=Y py=-
-210. voucher                                   vb6=Y py=Y
-211. vouchersundrysetting                      vb6=- py=Y
+186. supplies                                  vb6=- py=Y
+187. sys                                       vb6=Y py=Y
+188. sysobjects                                vb6=Y py=Y
+189. systeminfo                                vb6=Y py=-
+190. table                                     vb6=Y py=Y
+191. table_gstr2a                              vb6=Y py=-
+192. table_searchfield                         vb6=Y py=Y
+193. tax                                       vb6=- py=Y
+194. taxmast                                   vb6=- py=Y
+195. taxstrulines                              vb6=- py=Y
+196. tbl_eventexc                              vb6=Y py=-
+197. tbl_eventprameter                         vb6=Y py=-
+198. tbl_getbooking                            vb6=Y py=-
+199. telcallcontrol                            vb6=Y py=-
+200. time                                      vb6=Y py=Y
+201. totalrooms                                vb6=- py=Y
+202. transaction                               vb6=- py=Y
+203. true                                      vb6=Y py=-
+204. typerooms                                 vb6=- py=Y
+205. ucase                                     vb6=Y py=-
+206. update_cursor                             vb6=Y py=-
+207. use                                       vb6=- py=Y
+208. usermenu                                  vb6=Y py=-
+209. vb6                                       vb6=- py=Y
+210. via                                       vb6=- py=Y
+211. viewpossale                               vb6=Y py=-
+212. voucher                                   vb6=Y py=Y
+213. vouchersundrysetting                      vb6=- py=Y
 
 D8. PYTHON-ONLY TABLES (VB6 me kabhi nahi - extra / renamed)  [n=1]
 --------------------------------------------------------------------------------------------------------
@@ -1988,7 +1992,7 @@ VB6 .bas procs total       : 2874
   NAMED MISSING in python  : 895
 Python ui/*.py files       : 144
 Python core/*.py files     : 175
-Python core top-level defs : 2421
+Python core top-level defs : 2429
 
 Form status:
   MISSING          0
@@ -2011,7 +2015,7 @@ Database (real tables only, live-DB validated):
   BOTH                      : 236
   VB6-ONLY (PY MISSING)     : 25
   PY-ONLY                   : 1
-  ABSENT in DB              : 211
+  ABSENT in DB              : 213
   VIEW (not base)           : 8
   SQL-stopword noise        : 38
 

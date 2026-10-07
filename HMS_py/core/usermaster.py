@@ -63,6 +63,11 @@ from __future__ import annotations
 from HMS_py.core import db, auth
 
 SITE_CODE = db.get_site_code()  # BUG-014: Analysis.ini-driven (was hardcoded "KK")
+# AUDIT-20261005 P2-D: VB6 UserMast save User2 row likhta hai
+#   (User_Name, Comp_Code='<MemVar_1F92128>', Param_Str='*')
+# Comp_Code = company code (menuHelp wahi); default '2' (live DB evidence).
+COMP_CODE = db.get_comp_code()
+USER2_PARAM = "*"        # VB6 loc_1438F43 literal '*'
 LIMITS = {
     "username": 10, "label": 30, "short": 10,
     # MS-017: VB6 UserMast.frm password boxes MaxLength=8
@@ -226,6 +231,24 @@ def _label_value(label: str, cn=None):
     return 0 if _label_column_is_int(cn) else (label or "")
 
 
+def _sync_user2(cn, username: str) -> None:
+    """AUDIT-20261005 P2-D FIX: VB6 UserMast save ka User2 block
+    (loc_1438E7A-1438F43) — save ke waqt per-user company/permission
+    params reset + '*' likhe jaate hain:
+
+      DELETE FROM User2 WHERE User_Name='<u>' AND Comp_Code='<comp>'
+      INSERT INTO User2 (User_Name,Comp_Code,Param_Str) VALUES ('<u>','<comp>','*')
+
+    Module_name / FORM_CODE columns VB6 set nahi karta (live NULL).
+    """
+    db.execute("DELETE FROM User2 WHERE User_Name = ? AND Comp_Code = ?",
+               (username, COMP_CODE), cn=cn, commit=False)
+    db.execute(
+        "INSERT INTO User2 (User_Name, Comp_Code, Param_Str) "
+        "VALUES (?, ?, ?)",
+        (username, COMP_CODE, USER2_PARAM), cn=cn, commit=False)
+
+
 def insert(rec: dict, plain_password: str = "", cn=None,
            commit: bool = True) -> int:
     """Naya user. Password plaintext dena hai - encrypt hokar store hoga.
@@ -233,6 +256,9 @@ def insert(rec: dict, plain_password: str = "", cn=None,
     PASSWD bind: CAST(? AS varchar(50)) + latin-1 bytes — VB6 encrypt ke
     >127 chars varchar codepage conversion me lossy nahi hote (E2E fix
     2026-09-23; SA ka VB6-era password isi path se byte-exact aata hai).
+
+    AUDIT-20261005 P2-D FIX: UserMast row + User2 row ek transaction me
+    (VB6 UserMast.frm save block).
     """
     _validate(rec, plain_password)
     enc = auth.enc_bytes(plain_password) if plain_password else auth.enc_bytes("")
@@ -243,17 +269,35 @@ def insert(rec: dict, plain_password: str = "", cn=None,
         allow_dt = "N"
     god = (rec.get("godcode") or "").strip() or None
     flr = (rec.get("floorcode") or "").strip() or None
-    return db.execute(
-        "INSERT INTO UserMast (USER_NAME, PASSWD, LABEL, ShortName, ActiveYN, "
-        "AllowDtChng, GodCode, FloorCode, BackColor) "
-        "VALUES (?, CAST(? AS varchar(50)), ?, ?, ?, ?, ?, ?, ?)",
-        (rec["username"].upper(), enc,
-         _label_value(rec.get("label", ""), cn),
-         rec.get("short", ""),
-         rec.get("active", "Y"),
-         allow_dt, god, flr,
-         _backcolor_int(rec.get("backcolor"))),
-        cn=cn, commit=commit)
+    uname = rec["username"].upper()
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        n = db.execute(
+            "INSERT INTO UserMast (USER_NAME, PASSWD, LABEL, ShortName, "
+            "ActiveYN, AllowDtChng, GodCode, FloorCode, BackColor) "
+            "VALUES (?, CAST(? AS varchar(50)), ?, ?, ?, ?, ?, ?, ?)",
+            (uname, enc,
+             _label_value(rec.get("label", ""), cn),
+             rec.get("short", ""),
+             rec.get("active", "Y"),
+             allow_dt, god, flr,
+             _backcolor_int(rec.get("backcolor"))),
+            cn=cn, commit=False)
+        _sync_user2(cn, uname)
+        if commit:
+            cn.commit()
+        return n
+    except Exception:
+        if own:
+            try:
+                cn.rollback()
+            except Exception:
+                pass
+        raise
+    finally:
+        if own:
+            cn.close()
 
 
 def update(username: str, rec: dict, plain_password: str | None = None,
@@ -271,26 +315,43 @@ def update(username: str, rec: dict, plain_password: str | None = None,
     god = (rec.get("godcode") or "").strip() or None
     flr = (rec.get("floorcode") or "").strip() or None
     bc = _backcolor_int(rec.get("backcolor"))
-    if plain_password is not None:
-        enc = auth.enc_bytes(plain_password)
-        return db.execute(
-            "UPDATE UserMast SET PASSWD = CAST(? AS varchar(50)), LABEL = ?, "
-            "ShortName = ?, ActiveYN = ?, AllowDtChng = ?, GodCode = ?, "
-            "FloorCode = ?, BackColor = ? "
-            "WHERE USER_NAME = ?",
-            (enc, lbl, rec.get("short", ""),
-             rec.get("active", "Y"), allow_dt, god, flr, bc,
-             username.upper()),
-            cn=cn, commit=commit)
-    else:
-        return db.execute(
-            "UPDATE UserMast SET LABEL = ?, ShortName = ?, ActiveYN = ?, "
-            "AllowDtChng = ?, GodCode = ?, FloorCode = ?, BackColor = ? "
-            "WHERE USER_NAME = ?",
-            (lbl, rec.get("short", ""),
-             rec.get("active", "Y"), allow_dt, god, flr, bc,
-             username.upper()),
-            cn=cn, commit=commit)
+    uname = username.upper()
+    own = cn is None
+    cn = cn or db.connect()
+    try:
+        if plain_password is not None:
+            enc = auth.enc_bytes(plain_password)
+            n = db.execute(
+                "UPDATE UserMast SET PASSWD = CAST(? AS varchar(50)), "
+                "LABEL = ?, ShortName = ?, ActiveYN = ?, AllowDtChng = ?, "
+                "GodCode = ?, FloorCode = ?, BackColor = ? "
+                "WHERE USER_NAME = ?",
+                (enc, lbl, rec.get("short", ""),
+                 rec.get("active", "Y"), allow_dt, god, flr, bc, uname),
+                cn=cn, commit=False)
+        else:
+            n = db.execute(
+                "UPDATE UserMast SET LABEL = ?, ShortName = ?, ActiveYN = ?, "
+                "AllowDtChng = ?, GodCode = ?, FloorCode = ?, BackColor = ? "
+                "WHERE USER_NAME = ?",
+                (lbl, rec.get("short", ""),
+                 rec.get("active", "Y"), allow_dt, god, flr, bc, uname),
+                cn=cn, commit=False)
+        # AUDIT-20261005 P2-D FIX: VB6 save ke saath User2 reset/insert
+        _sync_user2(cn, uname)
+        if commit:
+            cn.commit()
+        return n
+    except Exception:
+        if own:
+            try:
+                cn.rollback()
+            except Exception:
+                pass
+        raise
+    finally:
+        if own:
+            cn.close()
 
 
 def set_password(username: str, plain_password: str, cn=None,

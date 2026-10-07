@@ -231,7 +231,14 @@ def _validate_token_row(row: dict):
         raise ValueError("PlanTokenDetails Rate numeric hona chahiye")
 
 
-def _insert_plan_row(code: str, row: dict, index: int, cn) -> int:
+def _insert_plan_row(code: str, row: dict, index: int, cn,
+                     u_ae: str = "A") -> int:
+    """VB6 FrmPlanPackMast loc_154C4F4 Plan1 INSERT.
+
+    U_AE: VB6 `IIf(var_2A0 = "Add", "A", "E")` — mode-based (Add/Edit),
+    row-index se NAHI. Pehle ye `"A" if index == 0 else "E"` tha, jisse
+    insert par row 1+ galti se 'E' aur update par row 0 galti se 'A' likhta.
+    """
     _validate_plan_row(row)
     return db.execute(
         "INSERT INTO Plan1 (Code, ChrgCode, RevCode, TaxInc, FixRate, "
@@ -247,7 +254,7 @@ def _insert_plan_row(code: str, row: dict, index: int, cn) -> int:
          _row_number(row, "FlatRate"), int(_row_number(row, "Adult")),
          int(_row_number(row, "Child")), int(_row_number(row, "ExtraAdult")),
          int(_row_number(row, "ExtraChild")), int(_row_number(row, "NoOfDays")),
-         SITE_CODE, USER, "A" if index == 0 else "E",
+         SITE_CODE, USER, u_ae,
          _row_number(row, "PlanPer"), SITE_CODE,
          _row_number(row, "PerDayAmount"), _row_number(row, "NetAmount")),
         cn=cn, commit=False)
@@ -310,8 +317,11 @@ def save_with_children(record: dict, plan_rows=None, token_rows=None,
                    (record["code"],), cn=connection, commit=False)
         db.execute("DELETE FROM Plan1 WHERE Code = ?",
                    (record["code"],), cn=connection, commit=False)
+        # VB6 loc_154C4F4: Add-branch sab rows 'A', Edit-branch sab 'E'
+        plan_u_ae = "A" if mode == "insert" else "E"
         for index, row in enumerate(plan_rows or []):
-            _insert_plan_row(record["code"], row, index, connection)
+            _insert_plan_row(record["code"], row, index, connection,
+                             u_ae=plan_u_ae)
         for index, row in enumerate(token_rows or []):
             _insert_token_row(record["code"], row, index, connection)
         if commit:

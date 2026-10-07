@@ -36,25 +36,40 @@ VB6 evidence (frm line refs):
     Order By Name'; Depart/Sundry type linkage (read-only preview here).
   FacilitySundry.frm:946,964 — SundryMast + RevMast V_Type='FACL'.
 """
+
 from __future__ import annotations
 
 import datetime
 import os
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
-    os.path.abspath(__file__)))))
+sys.path.insert(
+    0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+)
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor
-from PyQt6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDateEdit,
-                             QFormLayout, QGridLayout, QHBoxLayout,
-                             QHeaderView, QLabel, QLineEdit, QMainWindow,
-                             QMessageBox, QPushButton, QTableWidget,
-                             QTableWidgetItem, QVBoxLayout, QWidget)
+from PyQt6.QtWidgets import (
+    QApplication,
+    QCheckBox,
+    QComboBox,
+    QDateEdit,
+    QFormLayout,
+    QGridLayout,
+    QHBoxLayout,
+    QHeaderView,
+    QLabel,
+    QLineEdit,
+    QMainWindow,
+    QMessageBox,
+    QPushButton,
+    QTableWidget,
+    QTableWidgetItem,
+    QVBoxLayout,
+    QWidget,
+)
 
-from HMS_py.core import booking, checkin, checkout, folio, guest_folio, \
-    roomstatus
+from HMS_py.core import booking, checkin, checkout, folio, guest_folio, roomstatus
 from HMS_py.core import sundry_type
 from HMS_py.ui.theme import palette
 
@@ -66,8 +81,10 @@ def _cell(val, editable: bool = False) -> QTableWidgetItem:
     if val is None:
         val = ""
     it = QTableWidgetItem(str(val))
-    it.setFlags(it.flags() | (Qt.ItemFlag.ItemIsEditable if editable
-                              else Qt.ItemFlag.ItemIsSelectable))
+    it.setFlags(
+        it.flags()
+        | (Qt.ItemFlag.ItemIsEditable if editable else Qt.ItemFlag.ItemIsSelectable)
+    )
     return it
 
 
@@ -90,6 +107,29 @@ def _title(text: str) -> QLabel:
     return lbl
 
 
+def _caption(text: str) -> QLabel:
+    """Section caption (VB6 Label1(0/1/2): red bg, white bold Arial 12,
+    centered — fdAmendEntry.frm:438,460,710)."""
+    lbl = QLabel(text)
+    lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+    lbl.setStyleSheet(
+        "background:#cc0000; color:#ffffff; font-weight:bold; padding:3px;"
+    )
+    return lbl
+
+
+def _hhmm(v) -> str:
+    """SQL Server time/datetime/str -> 'HH:MM'."""
+    if isinstance(v, datetime.datetime):
+        v = v.time()
+    if isinstance(v, datetime.time):
+        return v.strftime("%H:%M")
+    s = str(v or "").strip()
+    if len(s) > 5 and s[2] == ":":
+        s = s[:5]  # '12:00:00' -> '12:00'
+    return s
+
+
 def _msgbox_err(w, e: Exception):
     QMessageBox.critical(w, "Error", f"{type(e).__name__}: {e}")
 
@@ -102,14 +142,18 @@ def _d(v):
 
 
 def _status_color(status: str) -> QColor:
-    m = {"Occupied": QColor(210, 235, 210), "Dirty": QColor(250, 230, 200),
-         "Maintenance": QColor(250, 210, 210),
-         "Out of Order": QColor(240, 200, 200)}
+    m = {
+        "Occupied": QColor(210, 235, 210),
+        "Dirty": QColor(250, 230, 200),
+        "Maintenance": QColor(250, 210, 210),
+        "Out of Order": QColor(240, 200, 200),
+    }
     return m.get(status, QColor(255, 255, 255))
 
 
 class _StatusBar:
     """Small mixin: error-safe statusbar message."""
+
     def _say(self, msg: str):
         self.statusBar().showMessage(msg, 8000)
 
@@ -125,10 +169,13 @@ class AmendStayWindow(QMainWindow, _StatusBar):
         self._build()
 
     def _build(self):
-        c = QWidget(); self.setCentralWidget(c)
+        c = QWidget()
+        self.setCentralWidget(c)
         lay = QVBoxLayout(c)
         lay.addWidget(_title("Amend Stay"))
         form = QFormLayout()
+        # GAP-04: VB6 Label1(0) "Guest Details" section caption
+        form.addRow(_caption("Guest Details"))
         self.txt_folio = QLineEdit()
         self.btn_load = QPushButton("Load")
         self.btn_load.clicked.connect(self._load)
@@ -136,10 +183,21 @@ class AmendStayWindow(QMainWindow, _StatusBar):
         fr.addWidget(self.txt_folio)
         fr.addWidget(self.btn_load)
         form.addRow("Folio No", fr)
+        # GAP-01: read-only display rows (VB6 Txt(0)/Txt(1)/Txt(8)/Txt(9))
+        self.lbl_room = QLabel("")
+        form.addRow("Room No", self.lbl_room)
+        self.lbl_chk_in = QLabel("")
+        form.addRow("Check In Date", self.lbl_chk_in)
         self.lbl_guest = QLabel("")
         form.addRow("Guest", self.lbl_guest)
+        self.lbl_company = QLabel("")
+        form.addRow("Company Name", self.lbl_company)
+        self.lbl_status = QLabel("")
+        form.addRow("Guest Status", self.lbl_status)
         self.lbl_dep = QLabel("")
         form.addRow("Current Departure", self.lbl_dep)
+        # GAP-04: VB6 Label1(1) "Amend Departure Details"
+        form.addRow(_caption("Amend Departure Details"))
         self.dt_new = QDateEdit()
         self.dt_new.setCalendarPopup(True)
         form.addRow("New Departure", self.dt_new)
@@ -151,6 +209,8 @@ class AmendStayWindow(QMainWindow, _StatusBar):
             bar.addWidget(b)
         bar.addStretch(1)
         lay.addLayout(bar)
+        # GAP-04: VB6 Label1(2) (VB6 Visible=0, added per spec)
+        lay.addWidget(_caption("Ctrl+S To Save , Esc To Exit"))
         self._rec = None
 
     def _load(self):
@@ -158,15 +218,28 @@ class AmendStayWindow(QMainWindow, _StatusBar):
             fno = int(self.txt_folio.text().strip())
             rec = checkin.get(fno)
             if not rec:
-                QMessageBox.information(self, "Load",
-                                        f"Folio #{fno} nahi mila.")
+                QMessageBox.information(self, "Load", f"Folio #{fno} nahi mila.")
                 return
             self._rec = rec
             self.lbl_guest.setText(str(rec.get("name") or ""))
+            # GAP-01: VB6 Txt(0)/Txt(1)+Txt(2,3)+LblCheckInDay/Txt(8)/Txt(9)
+            ctx = folio.amend_context(fno)
+            self.lbl_room.setText(ctx["roomno"])
+            self.lbl_company.setText(str(ctx["company"] or ""))
+            self.lbl_status.setText(str(ctx["status"] or ""))
+            ci = ctx["chkindate"]
+            parts = []
+            if ci:
+                parts.append(f"{ci} ({ci.strftime('%A')})")
+                tm = _hhmm(ctx["chkintime"])
+                if tm:
+                    parts.append(tm)
+            self.lbl_chk_in.setText(" ".join(parts))
             dep = _d(rec.get("depdate"))
             self.lbl_dep.setText(str(dep or ""))
             if dep:
                 from PyQt6.QtCore import QDate
+
                 self.dt_new.setDate(QDate(dep.year, dep.month, dep.day))
             self._say(f"Loaded folio #{fno}")
         except Exception as e:
@@ -178,11 +251,24 @@ class AmendStayWindow(QMainWindow, _StatusBar):
             return
         qd = self.dt_new.date()
         new_dep = datetime.date(qd.year(), qd.month(), qd.day())
+        # GAP-02: VB6 fdAmendEntry.frm:1446
+        # MsgBox("Save Record ?", 4, "Save Data") = vbYes
+        ans = QMessageBox.question(
+            self,
+            "Save Data",
+            "Save Record ?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.Yes,
+        )
+        if ans != QMessageBox.StandardButton.Yes:
+            return
         try:
             folio.amend_departure(int(self.txt_folio.text().strip()), new_dep)
             QMessageBox.information(
-                self, "Amend Stay",
-                f"Departure amended: {self.lbl_dep.text()} -> {new_dep}")
+                self,
+                "Amend Stay",
+                f"Departure amended: {self.lbl_dep.text()} -> {new_dep}",
+            )
             self._load()
         except Exception as e:
             _msgbox_err(self, e)
@@ -211,7 +297,8 @@ class LookupReservationWindow(QMainWindow, _StatusBar):
         self._search()
 
     def _build(self):
-        c = QWidget(); self.setCentralWidget(c)
+        c = QWidget()
+        self.setCentralWidget(c)
         lay = QVBoxLayout(c)
         lay.addWidget(_title("Look Up Reservation By Guest Name"))
         top = QHBoxLayout()
@@ -228,8 +315,7 @@ class LookupReservationWindow(QMainWindow, _StatusBar):
         top.addWidget(self.btn_ok)
         lay.addLayout(top)
         self.grid = QTableWidget()
-        self.grid.setSelectionBehavior(
-            QTableWidget.SelectionBehavior.SelectRows)
+        self.grid.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         lay.addWidget(self.grid)
 
     def _search(self):
@@ -237,12 +323,30 @@ class LookupReservationWindow(QMainWindow, _StatusBar):
         try:
             rows = booking.list_arrivals(name_like=term)
             self._rows = rows
-            _fill_grid(self.grid,
-                       ["Booking", "Guest Name", "GuestProf", "Arrival",
-                        "Days", "Rooms", "Room Type"],
-                       [[r["docid"], r["name"], r["guestprof"],
-                         _d(r["arrdate"]), r["nodays"], r["noofrooms"],
-                         r["roomtype"] or r["roomcat"]] for r in rows])
+            _fill_grid(
+                self.grid,
+                [
+                    "Booking",
+                    "Guest Name",
+                    "GuestProf",
+                    "Arrival",
+                    "Days",
+                    "Rooms",
+                    "Room Type",
+                ],
+                [
+                    [
+                        r["docid"],
+                        r["name"],
+                        r["guestprof"],
+                        _d(r["arrdate"]),
+                        r["nodays"],
+                        r["noofrooms"],
+                        r["roomtype"] or r["roomcat"],
+                    ]
+                    for r in rows
+                ],
+            )
             self._say(f"{len(rows)} arrival(s)")
         except Exception as e:
             _msgbox_err(self, e)
@@ -250,8 +354,7 @@ class LookupReservationWindow(QMainWindow, _StatusBar):
     def _checkin_selected(self):
         r = self.grid.currentRow()
         if r < 0 or r >= len(self._rows):
-            QMessageBox.warning(self, "Check In",
-                                "Pehle arrivals row select karo.")
+            QMessageBox.warning(self, "Check In", "Pehle arrivals row select karo.")
             return
         row = self._rows[r]
         # VB6 CmdOK early-arrival warn (fdCheckIn.frm): business date <
@@ -262,18 +365,20 @@ class LookupReservationWindow(QMainWindow, _StatusBar):
         today = datetime.date.today()
         if isinstance(arr_d, datetime.date) and today < arr_d:
             ans = QMessageBox.question(
-                self, "Check In",
-                "Guest Arrived Before Arrival Date !\nChecked in Anyway?")
+                self,
+                "Check In",
+                "Guest Arrived Before Arrival Date !\nChecked in Anyway?",
+            )
             if ans != QMessageBox.StandardButton.Yes:
                 return
         try:
             from HMS_py.ui import walkin_rack_ui
+
             w = walkin_rack_ui.open_walkin_entry(parent=None)
             w.txt_guestprof.setText(row.get("guestprof", ""))
             w.txt_booking.setText(row.get("docid", ""))
             w._show_step(0)
-            w._say(f"booking {row.get('docid', '')} se prefill "
-                   f"({row.get('name', '')})")
+            w._say(f"booking {row.get('docid', '')} se prefill ({row.get('name', '')})")
             self._say(f"Walk-in entry khula: {row.get('name', '')}")
             self.close()
         except Exception as e:
@@ -293,22 +398,24 @@ class RoomCheckOutWindow(QMainWindow, _StatusBar):
         self._fill()
 
     def _build(self):
-        c = QWidget(); self.setCentralWidget(c)
+        c = QWidget()
+        self.setCentralWidget(c)
         lay = QVBoxLayout(c)
         lay.addWidget(_title("Room Check Out"))
         top = QHBoxLayout()
-        for cap, fn in (("Refresh", self._fill),
-                        ("Check Out", self._checkout),
-                        ("Reverse", self._reverse),
-                        ("Exit", self.close)):
+        for cap, fn in (
+            ("Refresh", self._fill),
+            ("Check Out", self._checkout),
+            ("Reverse", self._reverse),
+            ("Exit", self.close),
+        ):
             b = QPushButton(cap)
             b.clicked.connect(fn)
             top.addWidget(b)
         top.addStretch(1)
         lay.addLayout(top)
         self.grid = QTableWidget()
-        self.grid.setSelectionBehavior(
-            QTableWidget.SelectionBehavior.SelectRows)
+        self.grid.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         lay.addWidget(self.grid)
         self.lbl_bal = QLabel("")
         lay.addWidget(self.lbl_bal)
@@ -316,11 +423,21 @@ class RoomCheckOutWindow(QMainWindow, _StatusBar):
     def _fill(self):
         try:
             rows = checkout.list_active_folios()
-            _fill_grid(self.grid,
-                       ["Folio", "Guest", "Room", "City", "Days",
-                        "Departure"],
-                       [[r["folio"], r["name"], r["roomno"], r["city"],
-                         r["nodays"], _d(r["depdate"])] for r in rows])
+            _fill_grid(
+                self.grid,
+                ["Folio", "Guest", "Room", "City", "Days", "Departure"],
+                [
+                    [
+                        r["folio"],
+                        r["name"],
+                        r["roomno"],
+                        r["city"],
+                        r["nodays"],
+                        _d(r["depdate"]),
+                    ]
+                    for r in rows
+                ],
+            )
             self.lbl_bal.setText("")
             self._say(f"{len(rows)} active folio(s)")
         except Exception as e:
@@ -338,7 +455,8 @@ class RoomCheckOutWindow(QMainWindow, _StatusBar):
             b = checkout.folio_balance(fno)
             self.lbl_bal.setText(
                 f"Folio #{b['folio']} {b['name']}: Charges {b['charges_dr']:.2f}"
-                f"  Payments {b['payments_cr']:.2f}  Balance {b['balance']:.2f}")
+                f"  Payments {b['payments_cr']:.2f}  Balance {b['balance']:.2f}"
+            )
         except Exception:
             self.lbl_bal.setText("")
 
@@ -346,16 +464,20 @@ class RoomCheckOutWindow(QMainWindow, _StatusBar):
         fno = self._sel_folio()
         if fno is None:
             return
-        if QMessageBox.question(
-                self, "Check Out",
-                f"Folio #{fno} check out karna hai?") != \
-                QMessageBox.StandardButton.Yes:
+        if (
+            QMessageBox.question(
+                self, "Check Out", f"Folio #{fno} check out karna hai?"
+            )
+            != QMessageBox.StandardButton.Yes
+        ):
             return
         try:
             res = checkout.do_checkout(fno, user=self.user)
-            self._say(f"Folio #{fno} checked out. Balance "
-                      f"{res.get('balance', 0):.2f}" if isinstance(res, dict)
-                      else f"Folio #{fno} checked out.")
+            self._say(
+                f"Folio #{fno} checked out. Balance {res.get('balance', 0):.2f}"
+                if isinstance(res, dict)
+                else f"Folio #{fno} checked out."
+            )
             self._fill()
         except Exception as e:
             _msgbox_err(self, e)
@@ -364,10 +486,12 @@ class RoomCheckOutWindow(QMainWindow, _StatusBar):
         fno = self._sel_folio()
         if fno is None:
             return
-        if QMessageBox.question(
-                self, "Reverse Check Out",
-                f"Folio #{fno} re-open karna hai?") != \
-                QMessageBox.StandardButton.Yes:
+        if (
+            QMessageBox.question(
+                self, "Reverse Check Out", f"Folio #{fno} re-open karna hai?"
+            )
+            != QMessageBox.StandardButton.Yes
+        ):
             return
         try:
             checkout.reverse_checkout(fno, user=self.user)
@@ -385,13 +509,15 @@ class _GuestLedgerBase(QMainWindow, _StatusBar):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Summerized Guest Ledger" if self.summarized
-                            else "Guest Ledger")
+        self.setWindowTitle(
+            "Summerized Guest Ledger" if self.summarized else "Guest Ledger"
+        )
         self.resize(1000, 560)
         self._build()
 
     def _build(self):
-        c = QWidget(); self.setCentralWidget(c)
+        c = QWidget()
+        self.setCentralWidget(c)
         lay = QVBoxLayout(c)
         lay.addWidget(_title(self.windowTitle()))
         top = QHBoxLayout()
@@ -414,25 +540,45 @@ class _GuestLedgerBase(QMainWindow, _StatusBar):
             fno = int(self.txt_folio.text().strip())
             b = checkout.folio_balance(fno)
             if self.summarized:
-                _fill_grid(self.grid,
-                           ["Folio", "Guest", "Charges Dr", "Payments Cr",
-                            "Balance"],
-                           [[b["folio"], b["name"], f"{b['charges_dr']:.2f}",
-                             f"{b['payments_cr']:.2f}", f"{b['balance']:.2f}"]])
+                _fill_grid(
+                    self.grid,
+                    ["Folio", "Guest", "Charges Dr", "Payments Cr", "Balance"],
+                    [
+                        [
+                            b["folio"],
+                            b["name"],
+                            f"{b['charges_dr']:.2f}",
+                            f"{b['payments_cr']:.2f}",
+                            f"{b['balance']:.2f}",
+                        ]
+                    ],
+                )
                 self.lbl_tot.setText(
                     f"Balance: {b['balance']:.2f} "
-                    f"({'Dr' if b['balance'] > 0 else 'Cr' if b['balance'] < 0 else 'Nil'})")
+                    f"({'Dr' if b['balance'] > 0 else 'Cr' if b['balance'] < 0 else 'Nil'})"
+                )
             else:
                 ch = folio.folio_charges(fno)
-                _fill_grid(self.grid,
-                           ["SNo", "Code", "Type", "Comments", "Dr", "Cr",
-                            "Date"],
-                           [[r["sno"], r["paycode"], r["paytype"],
-                             r["comments"], f"{r['dr']:.2f}", f"{r['cr']:.2f}",
-                             _d(r["vdate"])] for r in ch])
+                _fill_grid(
+                    self.grid,
+                    ["SNo", "Code", "Type", "Comments", "Dr", "Cr", "Date"],
+                    [
+                        [
+                            r["sno"],
+                            r["paycode"],
+                            r["paytype"],
+                            r["comments"],
+                            f"{r['dr']:.2f}",
+                            f"{r['cr']:.2f}",
+                            _d(r["vdate"]),
+                        ]
+                        for r in ch
+                    ],
+                )
                 self.lbl_tot.setText(
                     f"Charges {b['charges_dr']:.2f}  Payments "
-                    f"{b['payments_cr']:.2f}  Balance {b['balance']:.2f}")
+                    f"{b['payments_cr']:.2f}  Balance {b['balance']:.2f}"
+                )
         except Exception as e:
             _msgbox_err(self, e)
 
@@ -458,15 +604,18 @@ class GroupCheckOutWindow(QMainWindow, _StatusBar):
         self._fill()
 
     def _build(self):
-        c = QWidget(); self.setCentralWidget(c)
+        c = QWidget()
+        self.setCentralWidget(c)
         lay = QVBoxLayout(c)
         lay.addWidget(_title("Group Check Out"))
         top = QHBoxLayout()
-        for cap, fn in (("Refresh", self._fill),
-                        ("Check Out Selected", self._checkout),
-                        ("Select All", lambda: self._check_all(True)),
-                        ("Clear All", lambda: self._check_all(False)),
-                        ("Exit", self.close)):
+        for cap, fn in (
+            ("Refresh", self._fill),
+            ("Check Out Selected", self._checkout),
+            ("Select All", lambda: self._check_all(True)),
+            ("Clear All", lambda: self._check_all(False)),
+            ("Exit", self.close),
+        ):
             b = QPushButton(cap)
             b.clicked.connect(fn)
             top.addWidget(b)
@@ -481,8 +630,9 @@ class GroupCheckOutWindow(QMainWindow, _StatusBar):
         for r in range(self.grid.rowCount()):
             it = self.grid.item(r, 0)
             if it:
-                it.setCheckState(Qt.CheckState.Checked if on
-                                 else Qt.CheckState.Unchecked)
+                it.setCheckState(
+                    Qt.CheckState.Checked if on else Qt.CheckState.Unchecked
+                )
 
     def _fill(self):
         try:
@@ -515,13 +665,16 @@ class GroupCheckOutWindow(QMainWindow, _StatusBar):
             if it and it.checkState() == Qt.CheckState.Checked:
                 folios.append(int(self.grid.item(r, 1).text()))
         if not folios:
-            QMessageBox.warning(self, "Group Check Out",
-                                "Kam se kam ek folio select karo.")
+            QMessageBox.warning(
+                self, "Group Check Out", "Kam se kam ek folio select karo."
+            )
             return
-        if QMessageBox.question(
-                self, "Group Check Out",
-                f"{len(folios)} folio(s) check out karna hai?") != \
-                QMessageBox.StandardButton.Yes:
+        if (
+            QMessageBox.question(
+                self, "Group Check Out", f"{len(folios)} folio(s) check out karna hai?"
+            )
+            != QMessageBox.StandardButton.Yes
+        ):
             return
         try:
             res = checkin.group_checkout(folios, user=self.user)
@@ -558,8 +711,7 @@ class GroupDetailCheckOutWindow(GroupCheckOutWindow):
                     self.grid.setItem(r, 5, _cell("?"))
             if self.grid.columnCount() < 6:
                 self.grid.setColumnCount(6)
-            self.grid.setHorizontalHeaderItem(
-                5, QTableWidgetItem("Balance"))
+            self.grid.setHorizontalHeaderItem(5, QTableWidgetItem("Balance"))
             self.grid.resizeColumnsToContents()
         except Exception:
             pass
@@ -577,7 +729,8 @@ class LookupRoomWindow(QMainWindow, _StatusBar):
         self._fill()
 
     def _build(self):
-        c = QWidget(); self.setCentralWidget(c)
+        c = QWidget()
+        self.setCentralWidget(c)
         lay = QVBoxLayout(c)
         lay.addWidget(_title("Look Up Room"))
         top = QHBoxLayout()
@@ -585,8 +738,9 @@ class LookupRoomWindow(QMainWindow, _StatusBar):
         self.txt_filter.setPlaceholderText("Room no / type / guest filter")
         self.txt_filter.textChanged.connect(self._apply_filter)
         self.cmb_status = QComboBox()
-        self.cmb_status.addItems(["", "Occupied", "Vacant", "Dirty",
-                                  "Maintenance", "Out of Order"])
+        self.cmb_status.addItems(
+            ["", "Occupied", "Vacant", "Dirty", "Maintenance", "Out of Order"]
+        )
         self.cmb_status.currentTextChanged.connect(self._apply_filter)
         top.addWidget(QLabel("Filter"))
         top.addWidget(self.txt_filter, 1)
@@ -594,8 +748,7 @@ class LookupRoomWindow(QMainWindow, _StatusBar):
         top.addWidget(self.cmb_status)
         lay.addLayout(top)
         self.grid = QTableWidget()
-        self.grid.setSelectionBehavior(
-            QTableWidget.SelectionBehavior.SelectRows)
+        self.grid.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         lay.addWidget(self.grid)
         self._rooms = []
         btns = QHBoxLayout()
@@ -622,12 +775,32 @@ class LookupRoomWindow(QMainWindow, _StatusBar):
             hay = f"{r['roomno']} {r['type']} {r['name']} {r['guest']}".lower()
             if f and f not in hay:
                 continue
-            rows.append([r["roomno"], r["type"], r["cat"], r["status"],
-                         r["guest"], r["folio"] or "",
-                         _d(r["chk_in"]) or "", _d(r["dep"]) or ""])
-        _fill_grid(self.grid,
-                   ["Room", "Type", "Category", "Status", "Guest", "Folio",
-                    "Check-In", "Departure"], rows)
+            rows.append(
+                [
+                    r["roomno"],
+                    r["type"],
+                    r["cat"],
+                    r["status"],
+                    r["guest"],
+                    r["folio"] or "",
+                    _d(r["chk_in"]) or "",
+                    _d(r["dep"]) or "",
+                ]
+            )
+        _fill_grid(
+            self.grid,
+            [
+                "Room",
+                "Type",
+                "Category",
+                "Status",
+                "Guest",
+                "Folio",
+                "Check-In",
+                "Departure",
+            ],
+            rows,
+        )
         for r in range(self.grid.rowCount()):
             status = self.grid.item(r, 3).text()
             for c in range(self.grid.columnCount()):
@@ -650,8 +823,9 @@ class _SundryBase(QMainWindow, _StatusBar):
     Grid: live SundryType rows (4-table JOIN display, frm:1442).
     No DELETE in VB6 frms — evidence-based scope: add/view only.
     """
+
     title = "Outlet Bill Sundry Setting"
-    kind = "depart"           # 'facility' -> V_Type='FACL'
+    kind = "depart"  # 'facility' -> V_Type='FACL'
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -661,7 +835,8 @@ class _SundryBase(QMainWindow, _StatusBar):
         self._fill()
 
     def _build(self):
-        c = QWidget(); self.setCentralWidget(c)
+        c = QWidget()
+        self.setCentralWidget(c)
         lay = QVBoxLayout(c)
         lay.addWidget(_title(self.title))
         # add-entry form (VB6 grid-row save flow ka port)
@@ -687,27 +862,29 @@ class _SundryBase(QMainWindow, _StatusBar):
         form.addWidget(b_exit)
         lay.addLayout(form)
         self.grid = QTableWidget()
-        self.grid.setSelectionBehavior(
-            QTableWidget.SelectionBehavior.SelectRows)
+        self.grid.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         lay.addWidget(self.grid)
         self._fill_pickers()
 
     def _fill_pickers(self):
         from HMS_py.core import db
+
         try:
             self.cmb_sundry.clear()
             for r in db.query(
-                    "SELECT RTRIM(Code), RTRIM(Name) FROM SundryMast WHERE "
-                    "(LogSite_Code = ? OR LogSite_Code = 'HO') ORDER BY Name",
-                    (roomstatus.SITE_CODE,)):
+                "SELECT RTRIM(Code), RTRIM(Name) FROM SundryMast WHERE "
+                "(LogSite_Code = ? OR LogSite_Code = 'HO') ORDER BY Name",
+                (roomstatus.SITE_CODE,),
+            ):
                 self.cmb_sundry.addItem(r[1], r[0])
             self.cmb_rev.clear()
             self.cmb_rev.addItem("", "")
             facl = " AND V_Type = 'FACL'" if self.kind == "facility" else ""
             for r in db.query(
-                    "SELECT RTRIM(Code), RTRIM(Name) FROM RevMast WHERE "
-                    "(LogSite_Code = ? OR LogSite_Code = 'HO')" + facl +
-                    " ORDER BY Name", (roomstatus.SITE_CODE,)):
+                "SELECT RTRIM(Code), RTRIM(Name) FROM RevMast WHERE "
+                "(LogSite_Code = ? OR LogSite_Code = 'HO')" + facl + " ORDER BY Name",
+                (roomstatus.SITE_CODE,),
+            ):
                 self.cmb_rev.addItem(r[1], r[0])
         except Exception as e:
             self._say(f"picker load: {e}")
@@ -715,15 +892,40 @@ class _SundryBase(QMainWindow, _StatusBar):
     def _fill(self):
         try:
             rows = sundry_type.list_entries(self.kind)
-            _fill_grid(self.grid,
-                       ["V_Type", "AppDate", "Code", "Sundry", "SNo",
-                        "DispName", "Formula", "P/A", "Rev", "Sign",
-                        "Sys", "Post"],
-                       [[r["vtype"], r["appdate"], r["sundrycode"],
-                         r["sundry_name"], r["sno"], r["dispname"],
-                         r["calcformula"], r["peroramt"],
-                         r["rev_name"] or r["revcode"], r["calcsign"],
-                         r["sysyn"], r["postyn"]] for r in rows])
+            _fill_grid(
+                self.grid,
+                [
+                    "V_Type",
+                    "AppDate",
+                    "Code",
+                    "Sundry",
+                    "SNo",
+                    "DispName",
+                    "Formula",
+                    "P/A",
+                    "Rev",
+                    "Sign",
+                    "Sys",
+                    "Post",
+                ],
+                [
+                    [
+                        r["vtype"],
+                        r["appdate"],
+                        r["sundrycode"],
+                        r["sundry_name"],
+                        r["sno"],
+                        r["dispname"],
+                        r["calcformula"],
+                        r["peroramt"],
+                        r["rev_name"] or r["revcode"],
+                        r["calcsign"],
+                        r["sysyn"],
+                        r["postyn"],
+                    ]
+                    for r in rows
+                ],
+            )
             self._say(f"{len(rows)} SundryType row(s)")
         except Exception as e:
             _msgbox_err(self, e)
@@ -733,15 +935,22 @@ class _SundryBase(QMainWindow, _StatusBar):
         if not code:
             QMessageBox.warning(self, "Add", "Sundry chuno.")
             return
-        if QMessageBox.question(
-                self, "Add SundryType",
-                f"{self.cmb_sundry.currentText()} add karna hai?") != \
-                QMessageBox.StandardButton.Yes:
+        if (
+            QMessageBox.question(
+                self,
+                "Add SundryType",
+                f"{self.cmb_sundry.currentText()} add karna hai?",
+            )
+            != QMessageBox.StandardButton.Yes
+        ):
             return
         try:
             sundry_type.add_entry(
-                self.kind, code, self.txt_disp.text().strip() or code,
-                revcode=self.cmb_rev.currentData() or "")
+                self.kind,
+                code,
+                self.txt_disp.text().strip() or code,
+                revcode=self.cmb_rev.currentData() or "",
+            )
             self._say(f"added {code}")
             self._fill()
         except Exception as e:
@@ -816,10 +1025,18 @@ def open_facility_sundry(parent=None):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setPalette(palette())
-    for fn in (open_amend_stay, open_lookup_reservation, open_room_checkout,
-               open_guest_ledger, open_guest_ledger_summ,
-               open_group_checkout, open_group_detail_checkout,
-               open_lookup_room, open_depart_sundry, open_facility_sundry):
+    for fn in (
+        open_amend_stay,
+        open_lookup_reservation,
+        open_room_checkout,
+        open_guest_ledger,
+        open_guest_ledger_summ,
+        open_group_checkout,
+        open_group_detail_checkout,
+        open_lookup_room,
+        open_depart_sundry,
+        open_facility_sundry,
+    ):
         w = fn()
         w.show()
         app.processEvents()

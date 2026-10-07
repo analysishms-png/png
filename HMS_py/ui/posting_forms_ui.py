@@ -35,20 +35,33 @@ VB6 evidence (frm line refs):
     ROOMSTAT='D'; :1490 'Update PayCharge Set SettleDate=Null';
     :1496 ModeSet=''+Bill_No reset; checkout.reverse_checkout ports all.
 """
+
 from __future__ import annotations
 
 import datetime
 import os
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
-    os.path.abspath(__file__)))))
+sys.path.insert(
+    0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+)
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import (QApplication, QComboBox, QDateEdit, QHBoxLayout,
-                             QLabel, QLineEdit, QMainWindow, QMessageBox,
-                             QPushButton, QTableWidget, QTableWidgetItem,
-                             QVBoxLayout, QWidget)
+from PyQt6.QtWidgets import (
+    QApplication,
+    QComboBox,
+    QDateEdit,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QMainWindow,
+    QMessageBox,
+    QPushButton,
+    QTableWidget,
+    QTableWidgetItem,
+    QVBoxLayout,
+    QWidget,
+)
 
 from HMS_py.core import checkout, db, folio, nightaudit, roomstatus
 from HMS_py.ui.desktop_style import make_vb6_header
@@ -59,8 +72,10 @@ def _cell(val, editable: bool = False) -> QTableWidgetItem:
     if val is None:
         val = ""
     it = QTableWidgetItem(str(val))
-    it.setFlags(it.flags() | (Qt.ItemFlag.ItemIsEditable if editable
-                              else Qt.ItemFlag.ItemIsSelectable))
+    it.setFlags(
+        it.flags()
+        | (Qt.ItemFlag.ItemIsEditable if editable else Qt.ItemFlag.ItemIsSelectable)
+    )
     return it
 
 
@@ -115,7 +130,8 @@ class PostChrgWindow(QMainWindow, _StatusBar):
         self._fill()
 
     def _build(self):
-        c = QWidget(); self.setCentralWidget(c)
+        c = QWidget()
+        self.setCentralWidget(c)
         lay = QVBoxLayout(c)
         lay.addWidget(_title("Post Charges /Payments"))
         top = QHBoxLayout()
@@ -126,7 +142,8 @@ class PostChrgWindow(QMainWindow, _StatusBar):
         bd = None
         try:
             bd = datetime.datetime.strptime(
-                str(db.get_business_date()).strip(), "%d/%b/%Y").date()
+                str(db.get_business_date()).strip(), "%d/%b/%Y"
+            ).date()
         except Exception:
             bd = None
         self.dt.setDate(bd or datetime.date.today())
@@ -144,11 +161,11 @@ class PostChrgWindow(QMainWindow, _StatusBar):
         lay.addLayout(top)
         self.lbl_display = QLabel("")
         self.lbl_display.setStyleSheet(
-            "color:#b00000; font-weight:bold; font-size:13px;")
+            "color:#b00000; font-weight:bold; font-size:13px;"
+        )
         lay.addWidget(self.lbl_display)
         self.grid = QTableWidget()
-        self.grid.setSelectionBehavior(
-            QTableWidget.SelectionBehavior.SelectRows)
+        self.grid.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         lay.addWidget(self.grid)
         self.lbl_bal = QLabel("")
         lay.addWidget(self.lbl_bal)
@@ -161,13 +178,13 @@ class PostChrgWindow(QMainWindow, _StatusBar):
         try:
             vdate = self._vdate()
             rooms = nightaudit.get_inhouse_rooms(vdate)
-            billed = {r["folio"] for r in
-                      nightaudit.billed_folios_for_date(vdate)}
+            billed = {r["folio"] for r in nightaudit.billed_folios_for_date(vdate)}
             posted = set()
             rows_pc = db.query(
                 "SELECT DISTINCT FolioNo FROM PayCharge WHERE Vtype = 'RC' "
                 "AND Vdate = ? AND Site_Code = ?",
-                (vdate, db.get_site_code()))
+                (vdate, db.get_site_code()),
+            )
             posted = {r[0] for r in rows_pc}
             out = []
             for r in rooms:
@@ -177,11 +194,19 @@ class PostChrgWindow(QMainWindow, _StatusBar):
                     status = "Posted"
                 else:
                     status = "To post"
-                out.append([r["roomno"], r["folio"], r["guest"],
-                            f"{r['roomrate']:.2f}", r["plancode"], status])
-            _fill_grid(self.grid,
-                       ["Room", "Folio", "Guest", "Rate", "Plan", "Status"],
-                       out)
+                out.append(
+                    [
+                        r["roomno"],
+                        r["folio"],
+                        r["guest"],
+                        f"{r['roomrate']:.2f}",
+                        r["plancode"],
+                        status,
+                    ]
+                )
+            _fill_grid(
+                self.grid, ["Room", "Folio", "Guest", "Rate", "Plan", "Status"], out
+            )
             self._say(f"{len(rooms)} in-house room(s) for {vdate}")
         except Exception as e:
             _msgbox_err(self, e)
@@ -195,10 +220,12 @@ class PostChrgWindow(QMainWindow, _StatusBar):
             if billed:
                 rooms = ", ".join(str(b["roomno"]) for b in billed)
                 QMessageBox.warning(
-                    self, "Post Charges",
+                    self,
+                    "Post Charges",
                     "There is some unsettled guest bill,\n"
                     "First Settle it then Process this operation\n\n"
-                    f"Re-Check Room No : {rooms}")
+                    f"Re-Check Room No : {rooms}",
+                )
                 self.lbl_display.setText("Blocked: unsettled guest bill")
                 self._fill()
                 return
@@ -207,24 +234,33 @@ class PostChrgWindow(QMainWindow, _StatusBar):
             flags = nightaudit.get_night_audit_flags()
             if flags.get("room_chrg_type") == "While Printing Bill":
                 QMessageBox.information(
-                    self, "Post Charges",
+                    self,
+                    "Post Charges",
                     "Room charge posting type = 'While Printing Bill'. "
-                    "Posting disabled (VB6 enviro gate).")
+                    "Posting disabled (VB6 enviro gate).",
+                )
                 self.lbl_display.setText(
-                    "Posting disabled: RoomChrgPostingType = "
-                    "'While Printing Bill'")
+                    "Posting disabled: RoomChrgPostingType = 'While Printing Bill'"
+                )
                 return
 
             inhouse = nightaudit.get_inhouse_rooms(vdate)
-            already = {r[0] for r in db.query(
-                "SELECT DISTINCT FolioNo FROM PayCharge WHERE Vtype = 'RC' "
-                "AND Vdate = ? AND Site_Code = ?",
-                (vdate, db.get_site_code()))}
-            to_post = [r for r in inhouse
-                       if r["folio"] not in already and r["roomrate"] > 0]
+            already = {
+                r[0]
+                for r in db.query(
+                    "SELECT DISTINCT FolioNo FROM PayCharge WHERE Vtype = 'RC' "
+                    "AND Vdate = ? AND Site_Code = ?",
+                    (vdate, db.get_site_code()),
+                )
+            }
+            to_post = [
+                r for r in inhouse if r["folio"] not in already and r["roomrate"] > 0
+            ]
             if not to_post:
-                msg = ("Nothing to post for "
-                       f"{vdate} — all rooms already posted or no charge.")
+                msg = (
+                    "Nothing to post for "
+                    f"{vdate} — all rooms already posted or no charge."
+                )
                 self.lbl_display.setText("Nothing to post")
                 QMessageBox.information(self, "Post Charges", msg)
                 self._fill()
@@ -232,24 +268,45 @@ class PostChrgWindow(QMainWindow, _StatusBar):
 
             def _prog(done, total, roomno):
                 # VB6 lblDisplay exact text
-                self.lbl_display.setText(
-                    f"Posting Charges For Room : {roomno}")
+                self.lbl_display.setText(f"Posting Charges For Room : {roomno}")
                 QApplication.processEvents()
 
-            res = nightaudit.post_room_charges_for_date(
-                vdate, user=self.user, progress=_prog)
+            try:
+                res = nightaudit.post_room_charges_for_date(
+                    vdate, user=self.user, progress=_prog
+                )
+            except nightaudit.PostingBlockedError as be:
+                # Engine-level whole-posting abort (VB6 MsgBox + Exit Sub
+                # parity: billed-folio guard / missing room-disc account).
+                QMessageBox.warning(self, "Post Charges", str(be))
+                self.lbl_display.setText(f"Blocked: {be}")
+                self._fill()
+                return
+            if res.get("notice"):
+                # G12 early exit (RoomChrgPostingType = 'While Printing Bill'):
+                # success-with-notice, zero rows.
+                QMessageBox.information(self, "Post Charges", res["notice"])
+                self.lbl_display.setText(res["notice"])
+                self._fill()
+                return
             self.lbl_display.setText("Posting Room Charges Completed")
-            summary = (f"Eligible: {res.get('eligible', 0)}\n"
-                       f"Posted: {res.get('posted', 0)}\n"
-                       f"Already posted: {res.get('skipped', 0)}")
+            summary = (
+                f"Eligible: {res.get('eligible', 0)}\n"
+                f"Posted: {res.get('posted', 0)}\n"
+                f"Already posted: {res.get('skipped', 0)}"
+            )
             if res.get("posted", 0) == 0:
                 QMessageBox.information(
-                    self, "Post Charges",
-                    f"Nothing to post — all already posted.\n\n{summary}")
+                    self,
+                    "Post Charges",
+                    f"Nothing to post — all already posted.\n\n{summary}",
+                )
             else:
                 QMessageBox.information(
-                    self, "Post Charges",
-                    f"Room charges posted for {vdate}.\n\n{summary}")
+                    self,
+                    "Post Charges",
+                    f"Room charges posted for {vdate}.\n\n{summary}",
+                )
             self._fill()
         except Exception as e:
             self.lbl_display.setText("Posting failed")
@@ -269,7 +326,8 @@ class PaymentChargeWindow(QMainWindow, _StatusBar):
         self._fill()
 
     def _build(self):
-        c = QWidget(); self.setCentralWidget(c)
+        c = QWidget()
+        self.setCentralWidget(c)
         lay = QVBoxLayout(c)
         lay.addWidget(_title("Post Charges & Payment — Receipts"))
         top = QHBoxLayout()
@@ -284,27 +342,50 @@ class PaymentChargeWindow(QMainWindow, _StatusBar):
         self.cmb_mode = QComboBox()
         self.cmb_mode.addItems(["KKCASH", "KKCARD", "KKUPI"])
         top.addWidget(self.cmb_mode)
-        for cap, fn in (("Receive", self._receive), ("Refresh", self._fill),
-                        ("Exit", self.close)):
+        for cap, fn in (
+            ("Receive", self._receive),
+            ("Refresh", self._fill),
+            ("Exit", self.close),
+        ):
             b = QPushButton(cap)
             b.clicked.connect(fn)
             top.addWidget(b)
         lay.addLayout(top)
         self.grid = QTableWidget()
-        self.grid.setSelectionBehavior(
-            QTableWidget.SelectionBehavior.SelectRows)
+        self.grid.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         lay.addWidget(self.grid)
 
     def _fill(self):
         try:
             rows = folio.list_payments(top=200)
-            _fill_grid(self.grid,
-                       ["DocId", "VNo", "Date", "Guest", "Comments",
-                        "Code", "Type", "Amount", "Folio"],
-                       [[r["docid"], r["vno"], _d(r["vdate"]),
-                         r["guestprof"], r["comments"], r["paycode"],
-                         r["paytype"], f"{r['amt']:.2f}", r["folio"]]
-                        for r in rows])
+            _fill_grid(
+                self.grid,
+                [
+                    "DocId",
+                    "VNo",
+                    "Date",
+                    "Guest",
+                    "Comments",
+                    "Code",
+                    "Type",
+                    "Amount",
+                    "Folio",
+                ],
+                [
+                    [
+                        r["docid"],
+                        r["vno"],
+                        _d(r["vdate"]),
+                        r["guestprof"],
+                        r["comments"],
+                        r["paycode"],
+                        r["paytype"],
+                        f"{r['amt']:.2f}",
+                        r["folio"],
+                    ]
+                    for r in rows
+                ],
+            )
             self._say(f"{len(rows)} receipt(s)")
         except Exception as e:
             _msgbox_err(self, e)
@@ -314,18 +395,24 @@ class PaymentChargeWindow(QMainWindow, _StatusBar):
             fno = int(self.txt_folio.text().strip())
             amt = float(self.txt_amt.text().strip())
         except ValueError:
-            QMessageBox.warning(self, "Receive",
-                                "Folio no aur amount numeric hone chahiye.")
+            QMessageBox.warning(
+                self, "Receive", "Folio no aur amount numeric hone chahiye."
+            )
             return
-        if QMessageBox.question(
-                self, "Receive Payment",
+        if (
+            QMessageBox.question(
+                self,
+                "Receive Payment",
                 f"Folio #{fno} pe {self.cmb_mode.currentText()} "
-                f"{amt:.2f} receive karna hai?") != \
-                QMessageBox.StandardButton.Yes:
+                f"{amt:.2f} receive karna hai?",
+            )
+            != QMessageBox.StandardButton.Yes
+        ):
             return
         try:
-            n = folio.receive_payment(fno, amt, paycode=self.cmb_mode.currentText(),
-                                      user=self.user)
+            n = folio.receive_payment(
+                fno, amt, paycode=self.cmb_mode.currentText(), user=self.user
+            )
             self._say(f"Payment posted ({n} row(s))")
             self._fill()
         except Exception as e:
@@ -345,22 +432,24 @@ class ReSettlementWindow(QMainWindow, _StatusBar):
         self._fill()
 
     def _build(self):
-        c = QWidget(); self.setCentralWidget(c)
+        c = QWidget()
+        self.setCentralWidget(c)
         lay = QVBoxLayout(c)
         lay.addWidget(_title("Re-Settlement (checked-out folios)"))
         top = QHBoxLayout()
-        for cap, fn in (("Refresh", self._fill),
-                        ("Re-Settle Selected", self._resettle),
-                        ("Cancel Settle-Row", self._cancel_settle),
-                        ("Exit", self.close)):
+        for cap, fn in (
+            ("Refresh", self._fill),
+            ("Re-Settle Selected", self._resettle),
+            ("Cancel Settle-Row", self._cancel_settle),
+            ("Exit", self.close),
+        ):
             b = QPushButton(cap)
             b.clicked.connect(fn)
             top.addWidget(b)
         top.addStretch(1)
         lay.addLayout(top)
         self.grid = QTableWidget()
-        self.grid.setSelectionBehavior(
-            QTableWidget.SelectionBehavior.SelectRows)
+        self.grid.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         lay.addWidget(self.grid)
         self.lbl_bal = QLabel("")
         lay.addWidget(self.lbl_bal)
@@ -368,12 +457,20 @@ class ReSettlementWindow(QMainWindow, _StatusBar):
     def _fill(self):
         try:
             rows = checkout.list_checked_out(top=200)
-            _fill_grid(self.grid,
-                       ["Folio", "Guest", "Departure", "ChkOutDate",
-                        "ChkOutUser"],
-                       [[r["folio"], r["name"], _d(r["depdate"]),
-                         _d(r["checkout_date"]), r["checkout_user"]]
-                        for r in rows])
+            _fill_grid(
+                self.grid,
+                ["Folio", "Guest", "Departure", "ChkOutDate", "ChkOutUser"],
+                [
+                    [
+                        r["folio"],
+                        r["name"],
+                        _d(r["depdate"]),
+                        _d(r["checkout_date"]),
+                        r["checkout_user"],
+                    ]
+                    for r in rows
+                ],
+            )
             self._say(f"{len(rows)} checked-out folio(s)")
         except Exception as e:
             _msgbox_err(self, e)
@@ -394,10 +491,14 @@ class ReSettlementWindow(QMainWindow, _StatusBar):
         except Exception as e:
             _msgbox_err(self, e)
             return
-        if QMessageBox.question(
-                self, "Re-Settle",
-                f"Folio #{fno} (balance {bal:.2f}) re-settle karna hai?") != \
-                QMessageBox.StandardButton.Yes:
+        if (
+            QMessageBox.question(
+                self,
+                "Re-Settle",
+                f"Folio #{fno} (balance {bal:.2f}) re-settle karna hai?",
+            )
+            != QMessageBox.StandardButton.Yes
+        ):
             return
         try:
             bill = folio.settle_folio(fno, user=self.user)
@@ -410,10 +511,14 @@ class ReSettlementWindow(QMainWindow, _StatusBar):
         fno = self._sel_folio()
         if fno is None:
             return
-        if QMessageBox.question(
-                self, "Cancel Settle-Row",
-                f"Folio #{fno} ka settle-row cancel karna hai?") != \
-                QMessageBox.StandardButton.Yes:
+        if (
+            QMessageBox.question(
+                self,
+                "Cancel Settle-Row",
+                f"Folio #{fno} ka settle-row cancel karna hai?",
+            )
+            != QMessageBox.StandardButton.Yes
+        ):
             return
         try:
             n = folio.delete_settle(fno, user=self.user)
@@ -436,37 +541,48 @@ class RevCheckOutWindow(QMainWindow, _StatusBar):
         self._fill()
 
     def _build(self):
-        c = QWidget(); self.setCentralWidget(c)
+        c = QWidget()
+        self.setCentralWidget(c)
         lay = QVBoxLayout(c)
         lay.addWidget(_title("Check Out Cancel"))
         top = QHBoxLayout()
-        for cap, fn in (("Refresh", self._fill),
-                        ("Cancel Check-Out", self._reverse),
-                        ("Exit", self.close)):
+        for cap, fn in (
+            ("Refresh", self._fill),
+            ("Cancel Check-Out", self._reverse),
+            ("Exit", self.close),
+        ):
             b = QPushButton(cap)
             b.clicked.connect(fn)
             top.addWidget(b)
         top.addStretch(1)
         lay.addLayout(top)
         self.grid = QTableWidget()
-        self.grid.setSelectionBehavior(
-            QTableWidget.SelectionBehavior.SelectRows)
+        self.grid.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         lay.addWidget(self.grid)
         self.lbl_note = QLabel(
             "VB6 rule: reverse pe RoomStat='D' (Dirty) ho jata hai aur "
-            "PayCharge settle-marks reverse hote hain.")
+            "PayCharge settle-marks reverse hote hain."
+        )
         self.lbl_note.setStyleSheet("color:#666;")
         lay.addWidget(self.lbl_note)
 
     def _fill(self):
         try:
             rows = checkout.list_checked_out(top=200)
-            _fill_grid(self.grid,
-                       ["Folio", "Guest", "Departure", "ChkOutDate",
-                        "ChkOutUser"],
-                       [[r["folio"], r["name"], _d(r["depdate"]),
-                         _d(r["checkout_date"]), r["checkout_user"]]
-                        for r in rows])
+            _fill_grid(
+                self.grid,
+                ["Folio", "Guest", "Departure", "ChkOutDate", "ChkOutUser"],
+                [
+                    [
+                        r["folio"],
+                        r["name"],
+                        _d(r["depdate"]),
+                        _d(r["checkout_date"]),
+                        r["checkout_user"],
+                    ]
+                    for r in rows
+                ],
+            )
             self._say(f"{len(rows)} checked-out folio(s)")
         except Exception as e:
             _msgbox_err(self, e)
@@ -478,10 +594,14 @@ class RevCheckOutWindow(QMainWindow, _StatusBar):
             return
         fno = int(self.grid.item(r, 0).text())
         name = self.grid.item(r, 1).text()
-        if QMessageBox.question(
-                self, "Check Out Cancel",
-                f"Folio #{fno} ({name}) ka check-out cancel karna hai?") != \
-                QMessageBox.StandardButton.Yes:
+        if (
+            QMessageBox.question(
+                self,
+                "Check Out Cancel",
+                f"Folio #{fno} ({name}) ka check-out cancel karna hai?",
+            )
+            != QMessageBox.StandardButton.Yes
+        ):
             return
         try:
             checkout.reverse_checkout(fno, user=self.user)
@@ -513,8 +633,12 @@ def open_rev_checkout(parent=None, user: str = "PYADMIN"):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setPalette(palette())
-    for fn in (open_post_chrg, open_payment_charge, open_re_settlement,
-               open_rev_checkout):
+    for fn in (
+        open_post_chrg,
+        open_payment_charge,
+        open_re_settlement,
+        open_rev_checkout,
+    ):
         w = fn()
         w.show()
         app.processEvents()

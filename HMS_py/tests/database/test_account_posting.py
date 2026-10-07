@@ -12,7 +12,11 @@ pytestmark = pytest.mark.database
 FUTURE = datetime.date(2031, 3, 10)   # inhouse/POS data nahi hoga
 
 
-def test_account_posting_daily_range(db_transaction):
+def test_account_posting_daily_range(db_transaction, monkeypatch):
+    # G1 engine guard is tested in test_fdpostchg_posting.py::test_billed_folios_guard;
+    # driver tests patch it out (live DB holds stale open folios 303/304 with
+    # billed rows - blocking there is correct VB6 behavior, not a driver bug).
+    monkeypatch.setattr(na, "billed_folios_for_date", lambda *a, **k: [])
     cn = db_transaction
     seen = []
 
@@ -29,7 +33,9 @@ def test_account_posting_daily_range(db_transaction):
     cn.rollback()
 
 
-def test_account_posting_summary_mode(db_transaction):
+def test_account_posting_summary_mode(db_transaction, monkeypatch):
+    # Same G1 patch-out as test_account_posting_daily_range (see note there).
+    monkeypatch.setattr(na, "billed_folios_for_date", lambda *a, **k: [])
     cn = db_transaction
     res = na.account_posting(FUTURE, FUTURE,
                              mode="Summary Posting", cn=cn, commit=False)

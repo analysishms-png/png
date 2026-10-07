@@ -557,13 +557,21 @@ def match_bas(bas: dict, py_core: list[dict],
 # ------------------------------------------------------------------------------ main
 
 
-def live_db_probe(candidates: set[str]) -> tuple[dict[str, tuple[bool, int | None]], set[str], set[str]]:
-    """-> ({table: (exists, rowcount)}, set_of_all_live_base_tables, set_of_live_views)"""
+def live_db_probe(candidates: set[str]) -> tuple[dict[str, tuple[bool, int | None]], set[str] | None, set[str]]:
+    """-> ({table: (exists, rowcount)}, set_of_all_live_base_tables, set_of_live_views)
+
+    all_live = None ka matlab probe fail hua.  Caller ko authoritative empty
+    set kabhi mat bhejo (wo match_bas me sab tables nuke kar deta hai) -
+    None = "no dead-ref filtering" path.
+    """
     live: dict[str, tuple[bool, int | None]] = {}
-    all_live: set[str] = set()
+    all_live: set[str] | None = None
     all_views: set[str] = set()
     try:
         sys.path.insert(0, ROOT)
+        # HMS_py package ka parent dir - core/db.py andar se
+        # `from HMS_py.core.db import _validate_identifier` karta hai
+        sys.path.insert(0, os.path.dirname(ROOT))
         from core import db  # noqa
 
         rows = db.query(
@@ -636,10 +644,13 @@ def main() -> int:
         for t in p["tables"]:
             py_tables[t.lower()].add(p["file"])
 
-    live, all_live, all_views = live_db_probe(set(vb6_tables) | set(py_tables))
+    live, _all_live, all_views = live_db_probe(set(vb6_tables) | set(py_tables))
+    # _all_live = None -> probe fail -> match_bas ko None bhejo (filtering band),
+    # warna empty set sab tables nuke kar ported-credit chura leta hai.
+    all_live: set[str] = _all_live or set()
 
     # ---------------- bas
-    bas_rows = [(b,) + match_bas(b, py_core, all_live) for b in bass]
+    bas_rows = [(b,) + match_bas(b, py_core, _all_live) for b in bass]
     temps = {t for t in set(vb6_tables) | set(py_tables) if t.startswith("#")}
     real = all_live | temps | {t for t, (ok, _) in live.items() if ok}
 

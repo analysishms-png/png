@@ -23,6 +23,7 @@ VB6-era PayCharge rows jo us code ne chhode the:
 Sab kuch rollback-safe (db_transaction) ya explicit cleanup (own-conn
 variant) — production data intact.
 """
+
 import datetime
 
 import pytest
@@ -38,8 +39,9 @@ GST = 0.025  # BUG-AUD-10: live TaxPer=2.5 -> 2.5% per leg
 @pytest.fixture
 def fd_guest():
     code = guestprof.next_code()
-    guestprof.insert({"code": code, "name": "PYT FDPOSTCHRG",
-                      "add1": "T", "type": "India"})
+    guestprof.insert(
+        {"code": code, "name": "PYT FDPOSTCHRG", "add1": "T", "type": "India"}
+    )
     yield code
     try:
         guestprof.delete(code)
@@ -49,8 +51,7 @@ def fd_guest():
 
 def _create(cn, guest_code, name, arr, dep, **kw):
     kw.setdefault("user", "PYADMIN")
-    return checkin.create_checkin(guest_code, name, arr, dep,
-                                  cn=cn, commit=False, **kw)
+    return checkin.create_checkin(guest_code, name, arr, dep, cn=cn, commit=False, **kw)
 
 
 def _rc_rows(cn, folio, vdate):
@@ -61,11 +62,14 @@ def _rc_rows(cn, folio, vdate):
         "RTRIM(FolioNoDocid), RTRIM(RoomNo), RTRIM(U_Name), RTRIM(U_AE) "
         "FROM PayCharge WHERE Site_Code = ? AND FolioNo = ? "
         "AND Vtype = 'RC' AND Vdate = ? ORDER BY SNo",
-        (db.get_site_code(), folio, vdate), cn=cn)
+        (db.get_site_code(), folio, vdate),
+        cn=cn,
+    )
 
 
 # ---------------------------------------------------------------- FR-002
-def test_posting_exactly_once_across_runs(db_transaction, fd_guest):
+def test_posting_exactly_once_across_runs(db_transaction, fd_guest, monkeypatch):
+    monkeypatch.setattr(na, "billed_folios_for_date", lambda *a, **k: [])
     cn = db_transaction
     today = datetime.date.today()
     dep = today + datetime.timedelta(days=2)
@@ -74,8 +78,8 @@ def test_posting_exactly_once_across_runs(db_transaction, fd_guest):
 
     seen = []
     res1 = na.post_room_charges_for_date(
-        today, cn=cn, commit=False,
-        progress=lambda d, t, r: seen.append((d, t, r)))
+        today, cn=cn, commit=False, progress=lambda d, t, r: seen.append((d, t, r))
+    )
     assert res1["eligible"] >= 2, "in-house rooms kam se kam 2 hone chahiye"
     assert len(_rc_rows(cn, f1, today)) == 3, "f1 pe 3 rows (RMCH+CGST+SGST)"
     assert len(_rc_rows(cn, f2, today)) == 3, "f2 pe 3 rows"
@@ -96,12 +100,21 @@ def test_posting_exactly_once_across_runs(db_transaction, fd_guest):
 
 
 # ---------------------------------------------------------------- SC-005
-def test_row_shape_tax_and_comments(db_transaction, fd_guest):
+def test_row_shape_tax_and_comments(db_transaction, fd_guest, monkeypatch):
+    monkeypatch.setattr(na, "billed_folios_for_date", lambda *a, **k: [])
     cn = db_transaction
     today = datetime.date.today()
     dep = today + datetime.timedelta(days=2)
-    f = _create(cn, fd_guest, "PYT FDPOST SHAPE", today, dep,
-                roomrate=2500.0, plancode="PLN", planamt=100.0)
+    f = _create(
+        cn,
+        fd_guest,
+        "PYT FDPOST SHAPE",
+        today,
+        dep,
+        roomrate=2500.0,
+        plancode="PLN",
+        planamt=100.0,
+    )
     rec = checkin.get(f, cn=cn)
     docid = rec["docid"]
     na.post_room_charges_for_date(today, cn=cn, commit=False)
@@ -135,14 +148,17 @@ def test_row_shape_tax_and_comments(db_transaction, fd_guest):
         assert r[7] == "RO", f"RoomType='RO' expected, got {r[7]!r}"
         assert r[8] == docid, "FolioNoDocid link missing"
         assert r[10] == "PYADMIN" and r[11] == "A"
-    plan = db.query("SELECT RTRIM(PlanCode) FROM PayCharge "
-                    "WHERE FolioNo = ? AND Vtype = 'RC' AND Vdate = ?",
-                    (f, today), cn=cn)
-    assert all(str(p[0] or "").strip() == "PLN" for p in plan), \
-        "PlanCode stamp missing"
+    plan = db.query(
+        "SELECT RTRIM(PlanCode) FROM PayCharge "
+        "WHERE FolioNo = ? AND Vtype = 'RC' AND Vdate = ?",
+        (f, today),
+        cn=cn,
+    )
+    assert all(str(p[0] or "").strip() == "PLN" for p in plan), "PlanCode stamp missing"
 
-    log = db.query("SELECT RTRIM(Flag) FROM FolioLog "
-                   "WHERE FolionoDocid = ?", (docid,), cn=cn)
+    log = db.query(
+        "SELECT RTRIM(Flag) FROM FolioLog WHERE FolionoDocid = ?", (docid,), cn=cn
+    )
     assert any(str(r[0]).strip() == "P" for r in log), "FolioLog 'P' nahi"
     cn.rollback()
 
@@ -151,22 +167,29 @@ def test_row_shape_tax_and_comments(db_transaction, fd_guest):
 def test_engine_rollback_own_connection(fd_guest, monkeypatch):
     """Own-connection run pe induced INSERT failure → rollback → fresh
     connection se ZERO new RC rows (partial writes commit nahi hote)."""
+    monkeypatch.setattr(na, "billed_folios_for_date", lambda *a, **k: [])
     from HMS_py.core import nightaudit, db as core_db
+
     today = datetime.date.today()
     dep = today + datetime.timedelta(days=2)
-    f = checkin.create_checkin(fd_guest, "PYT FDPOST ROLL", today, dep,
-                               roomrate=2000.0, user="PYADMIN")
+    f = checkin.create_checkin(
+        fd_guest, "PYT FDPOST ROLL", today, dep, roomrate=2000.0, user="PYADMIN"
+    )
     try:
+
         def _count():
             cn2 = core_db.connect()
             try:
                 r = core_db.query(
                     "SELECT COUNT(*) FROM PayCharge WHERE Site_Code = ? "
                     "AND Vtype = 'RC' AND Vdate = ?",
-                    (core_db.get_site_code(), today), cn=cn2)
+                    (core_db.get_site_code(), today),
+                    cn=cn2,
+                )
                 return int(r[0][0])
             finally:
                 cn2.close()
+
         base = _count()
 
         real = core_db.execute
@@ -185,8 +208,7 @@ def test_engine_rollback_own_connection(fd_guest, monkeypatch):
         monkeypatch.setattr(core_db, "execute", real)
 
         after = _count()
-        assert after == base, (
-            f"rollback fail: {after} rows vs base {base}")
+        assert after == base, f"rollback fail: {after} rows vs base {base}"
     finally:
         try:
             checkin.delete_checkin(f, user="PYADMIN")
@@ -194,11 +216,12 @@ def test_engine_rollback_own_connection(fd_guest, monkeypatch):
             pass
 
 
-def test_engine_exception_propagates_fixture_cn(db_transaction, fd_guest,
-                                                monkeypatch):
+def test_engine_exception_propagates_fixture_cn(db_transaction, fd_guest, monkeypatch):
     """Fixture-cn run pe exception swallow nahi hoti (caller handle kare —
     run_night_audit ka own-conv rollback isi par rely karta hai)."""
+    monkeypatch.setattr(na, "billed_folios_for_date", lambda *a, **k: [])
     from HMS_py.core import db as core_db
+
     cn = db_transaction
     today = datetime.date.today()
     dep = today + datetime.timedelta(days=2)
@@ -238,9 +261,10 @@ def test_billed_folios_guard(db_transaction, fd_guest):
         "INSERT INTO PayCharge (DocId, SNo, Vtype, VNo, Site_Code, "
         "VPrefix, Vdate, FolioNo, FolioNoDocid, Bill_No) "
         "VALUES (?, 1, 'RC', 999998, ?, ?, ?, ?, ?, 'PYTB0001')",
-        ("DKKGD   2026       1", db.get_site_code(), "2026", today,
-         f, docid),
-        cn=cn, commit=False)
+        ("DKKGD   2026       1", db.get_site_code(), "2026", today, f, docid),
+        cn=cn,
+        commit=False,
+    )
     billed = na.billed_folios_for_date(today, cn=cn)
     hit = [r for r in billed if r["folio"] == f]
     assert hit, "billed folio guard me nahi aaya"
@@ -249,14 +273,18 @@ def test_billed_folios_guard(db_transaction, fd_guest):
 
 
 # ---------------------------------------------------------------- Comp
-def test_comp_room_skipped(db_transaction, fd_guest):
+def test_comp_room_skipped(db_transaction, fd_guest, monkeypatch):
+    monkeypatch.setattr(na, "billed_folios_for_date", lambda *a, **k: [])
     cn = db_transaction
     today = datetime.date.today()
     dep = today + datetime.timedelta(days=2)
     f = _create(cn, fd_guest, "PYT FDPOST COMP", today, dep, roomrate=2000.0)
-    db.execute("UPDATE GuestFolio SET Comp = 'Y' "
-               "WHERE Site_Code = ? AND FolioNo = ?",
-               (db.get_site_code(), f), cn=cn, commit=False)
+    db.execute(
+        "UPDATE GuestFolio SET Comp = 'Y' WHERE Site_Code = ? AND FolioNo = ?",
+        (db.get_site_code(), f),
+        cn=cn,
+        commit=False,
+    )
     na.post_room_charges_for_date(today, cn=cn, commit=False)
     assert _rc_rows(cn, f, today) == [], "Comp='Y' room pe post ho gaya"
     cn.rollback()
