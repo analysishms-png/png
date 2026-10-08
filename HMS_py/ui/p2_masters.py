@@ -780,6 +780,10 @@ class PackageMasterForm(BaseMasterForm):
         group_layout = QVBoxLayout(group)
         self.plan_table = self._make_child_table(self.PLAN_COLUMNS)
         self.token_table = self._make_child_table(self.TOKEN_COLUMNS)
+        # BUG-PM-01 (cosmetic): top grids + list ek window me the aur
+        # tables squeeze ho jaate the (min-height nahi thi).
+        self.plan_table.setMinimumHeight(120)
+        self.token_table.setMinimumHeight(100)
         group_layout.addWidget(QLabel("Plan1 charge lines"))
         group_layout.addWidget(self.plan_table)
         group_layout.addWidget(QLabel("PlanTokenDetails token lines"))

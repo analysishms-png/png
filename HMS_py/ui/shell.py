@@ -3022,7 +3022,7 @@ def _form_registry() -> dict[str, callable]:
             w,
             "Call Control Master",
             lambda: __import__("HMS_py.core.db", fromlist=["x"]).query(
-                "SELECT Code, Name FROM TelCallType ORDER BY Code"
+                "SELECT Code, CallType AS Name FROM TelCallType ORDER BY CallType"
             ),
         ),
         "Location-Master": lambda w: _open_fv_list(
@@ -4290,15 +4290,19 @@ class MainWindow(QMainWindow):
         # top bar ko destroy kar deta tha. Ab sirf crumb/canvas badalte
         # hain; top bar `_build_top_menubar` me ek hi baar banta hai.
         self._groups = self._menus(m["name"], self.user)
-        self._crumb = {"module": m["name"], "group": None, "leaf": None}
+        # BUG-A3 (cosmetic): mh.sidebar_sources() lowercase module names
+        # laata hai; VB6 sidebar title case dikhata hai ("Finance"/"Main
+        # Setup") - display-only _label_for, lookups (_build_top_menubar/
+        # _menus) raw name par hi chalte hain.
+        self._crumb = {"module": _label_for(m["name"]), "group": None, "leaf": None}
         self._sub_buttons = []
-        self.lblCrumb.setText(str(m["name"]))
+        self.lblCrumb.setText(_label_for(str(m["name"])))
         self.set_canvas_text(
             f"{_label_for(m['name'])}\n\n"
             "Use the menu bar above, or pick a section to open a screen."
         )
         self.setWindowTitle(
-            f"{self.comp['name']} {{ {self.comp['year']} }} - {m['name']}"
+            f"{self.comp['name']} {{ {self.comp['year']} }} - {_label_for(m['name'])}"
         )
 
     def _opener(self, caption, *parents):

@@ -54,6 +54,40 @@ def _printing_setup_sql() -> str:
     )
 
 
+def _system_parameters_sql() -> str:
+    """Enviro = wide table (222 cols): value column me hi store hota hai, `name`/`value`
+    cols nahi. Static UNPIVOT (SQL Server 2008 R2 — no OPENJSON/FOR JSON).
+    image col (HotelLogo) cast nahi ho sakta -> skip. ORDER alphabetical
+    (original column_id order unpivot me preserve nahi ho sakta)."""
+    try:
+        cols = [
+            r[0]
+            for r in db.query(
+                "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS "
+                "WHERE TABLE_NAME=? AND DATA_TYPE<>? ORDER BY ORDINAL_POSITION",
+                ("Enviro", "image"),
+            )
+        ]
+    except Exception:
+        cols = []
+    if not cols:
+        return (
+            "SELECT TOP ({L}) c.name AS Setting, CAST('' AS varchar(255)) AS Value, 'other' AS Type "
+            "FROM sys.columns c WHERE c.object_id = OBJECT_ID('Enviro') ORDER BY c.column_id"
+        )
+    src = ",".join(f"ISNULL(CAST([{c}] AS varchar(255)),'') AS [{c}]" for c in cols)
+    unp = ",".join(f"[{c}]" for c in cols)
+    return (
+        "SELECT TOP ({L}) u.name AS Setting, CAST(ISNULL(u.v, '') AS varchar(255)) AS Value, "
+        "CASE WHEN u.name IN ('Age1','Age2','Age3','Age4','Age5','Age6','Amt1','Amt2','Amt3','Amt4','Amt5','Amt6','FomBillCopies','NCKOTPercentage') THEN 'int' "
+        "WHEN u.name IN ('TagadaHeader1','TagadaHeader2','TagadaHeader3','TagadaHeader4','TagadaHeader5','TagadaFooter1','TagadaFooter2','TagadaFooter3','TagadaFooter3fa','TagadaFooter4','TagadaFooter5','Bill_Header','Bill_Footer','KOTHeader1','KOTHeader2','KOTHeader3','KOTHeader4','Checkout','CheckoutVar','Variation','VariationBefore','KOTPrinting','KOTPrintEdited','KOTOutletSelection','TaxSummary','TOKENPrint','RcptPrinting','ReservationPrinting','BillPrintingSummerised','FomBillCopies','NCKOTPercentage') THEN 'varchar' "
+        "WHEN u.name IN ('ArrDateTimeEdit','GRCMandatory','RoomRateEditable','RoomIncTaxEditable','RoomServiceChargeEditable','CreditCardInfoMandatoryYN') THEN 'yn1' "
+        "WHEN u.name IN ('Checkout','CheckoutVar','Variation','VariationBefore','KOTPrinting','KOTPrintEdited','KOTOutletSelection','TaxSummary','TOKENPrint','RcptPrinting','ReservationPrinting','BillPrintingSummerised','FomBillCopies','NCKOTPercentage') THEN 'str' "
+        "ELSE 'other' END AS Type "
+        f"FROM (SELECT {src} FROM Enviro) s UNPIVOT (v FOR name IN ({unp})) u ORDER BY u.name"
+    )
+
+
 def _spine(dfrom: str, dto: str) -> str:
     """Date spine CTE (SQL Server recursive) - arr_dep_reg/occupancy ke liye."""
     return (
@@ -482,7 +516,7 @@ REPORTS: list[dict] = [
         "menu": ["Guest BirthDates/Anniversary"],
         "cols": ["Guest", "BirthDate", "Anniversary", "Company"],
         "sql": (
-            "SELECT TOP ({L}) ISNULL(Name,''),ISNULL(BirthDate,''),ISNULL(Anniversary,''),ISNULL(Company,'') FROM GuestFolio WHERE Vdate BETWEEN ? AND ? ORDER BY BirthDate"
+            "SELECT TOP ({L}) ISNULL(g.Name,''),ISNULL(p.BirthDate,''),ISNULL(p.Anniversary,''),ISNULL(g.Company,'') FROM GuestFolio g LEFT JOIN GuestProf p ON p.Code=g.GuestProf WHERE g.Vdate BETWEEN ? AND ? ORDER BY p.BirthDate"
         ),
     },
     {
@@ -580,7 +614,7 @@ REPORTS: list[dict] = [
         "menu": ["Complaint Detail"],
         "cols": ["RoomNo", "Complaint", "Status", "Date"],
         "sql": (
-            "SELECT TOP ({L}) ISNULL(RoomNo,''),ISNULL(Complaint,''),ISNULL(Status,''),Vdate FROM Complaints WHERE Vdate BETWEEN ? AND ? ORDER BY Vdate"
+            "SELECT TOP ({L}) '',ISNULL(Description,''),ISNULL(Status,''),CDate FROM ComplaintDetail WHERE CDate BETWEEN ? AND ? ORDER BY CDate"
         ),
         "note": "Complaints table VB6",
     },
@@ -615,7 +649,7 @@ REPORTS: list[dict] = [
         "module": "Front Office",
         "menu": ["EPBAX Call Report"],
         "cols": ["Vdate", "ExtNo", "CallType", "Duration", "Amount"],
-        "sql": "SELECT TOP ({L}) Vdate,ExtNo,CallType,Duration,Amount FROM EPABXCalls WHERE Vdate BETWEEN ? AND ? ORDER BY Vdate",
+        "sql": "SELECT TOP ({L}) CALL_START_DATE,Extension,CALL_INFO,CALL_DURATION,CALL_AMT FROM EPABX_Data WHERE CALL_START_DATE BETWEEN ? AND ? ORDER BY CALL_START_DATE",
         "note": "EPABX table VB6",
     },
     {
@@ -751,7 +785,7 @@ REPORTS: list[dict] = [
         "menu": ["House Keeping Report"],
         "cols": ["RoomNo", "RoomType", "Status", "Remarks"],
         "sql": (
-            "SELECT TOP ({L}) o.RoomNo,ISNULL(o.RoomType,''),CASE WHEN o.ChkOutDate IS NULL THEN 'Occupied' ELSE 'Vacant' END,ISNULL(o.Remarks,'') FROM RoomOcc o ORDER BY o.RoomNo"
+            "SELECT TOP ({L}) o.RoomNo,ISNULL(o.RoomType,''),CASE WHEN o.ChkOutDate IS NULL THEN 'Occupied' ELSE 'Vacant' END,ISNULL(o.Reason,'') FROM RoomOcc o ORDER BY o.RoomNo"
         ),
     },
     {
@@ -781,7 +815,7 @@ REPORTS: list[dict] = [
         "menu": ["Member Birthday/Anniversary Details"],
         "cols": ["Member", "BirthDate", "Anniversary", "Category"],
         "sql": (
-            "SELECT TOP ({L}) ISNULL(Name,''),ISNULL(BirthDate,''),ISNULL(Anniversary,''),ISNULL(Category,'') FROM Members WHERE Vdate BETWEEN ? AND ? ORDER BY BirthDate"
+            "SELECT TOP ({L}) ISNULL(Name,''),ISNULL(BirthDate,''),ISNULL(Anniversary,''),'' FROM GuestProf ORDER BY BirthDate"
         ),
         "note": "Members VB6",
     },
@@ -791,7 +825,7 @@ REPORTS: list[dict] = [
         "module": "Front Office",
         "menu": ["Member Mailing Labels"],
         "cols": ["Member", "Address", "City", "PinCode"],
-        "sql": "SELECT TOP ({L}) ISNULL(Name,''),ISNULL(Address,''),ISNULL(City,''),ISNULL(PinCode,'') FROM Members ORDER BY Name",
+        "sql": "SELECT TOP ({L}) ISNULL(Name,''),RTRIM(ISNULL(Add1,'')+' '+ISNULL(Add2,'')),ISNULL(City,''),ISNULL(ZipCode,'') FROM GuestProf ORDER BY Name",
         "note": "Members VB6",
     },
     {
@@ -801,7 +835,7 @@ REPORTS: list[dict] = [
         "menu": ["Member Visit Detail"],
         "cols": ["Member", "VisitDate", "Facility", "Amount"],
         "sql": (
-            "SELECT TOP ({L}) ISNULL(MemberName,''),Vdate,ISNULL(Facility,''),AmtDr FROM MemberVisits WHERE Vdate BETWEEN ? AND ? ORDER BY Vdate"
+            "SELECT TOP ({L}) ISNULL(MemCode,''),ISNULL(InDate,''),'',0 FROM MemVisitEntry WHERE InDate BETWEEN ? AND ? ORDER BY InDate"
         ),
         "note": "MemberVisits VB6",
     },
@@ -812,7 +846,8 @@ REPORTS: list[dict] = [
         "menu": ["Movement List"],
         "cols": ["Date", "RoomNo", "Guest", "Type"],
         "sql": (
-            "SELECT TOP ({L}) Vdate,ISNULL(RoomNo,''),ISNULL(GuestName,''),ISNULL(MoveType,'') FROM Movement WHERE Vdate BETWEEN ? AND ? ORDER BY Vdate"
+            # ponytail: Movement table missing in this DB; empty result until a source table is identified
+            "SELECT TOP ({L}) NULL,'','','' WHERE 1=0"
         ),
         "note": "Movement VB6",
     },
@@ -823,8 +858,9 @@ REPORTS: list[dict] = [
         "menu": ["Daily Report-II"],
         "cols": ["Date", "RoomRevenue", "FNBRevenue", "OtherRevenue"],
         "sql": (
-            "SELECT TOP ({L}) Vdate,SUM(ISNULL(RoomRevenue,0)),SUM(ISNULL(FNBRevenue,0)),SUM(ISNULL(OtherRevenue,0)) FROM GuestFolio WHERE Vdate BETWEEN ? AND ? GROUP BY Vdate ORDER BY Vdate"
+            "SELECT TOP ({L}) f.Vdate,SUM(ISNULL(f.NoDays,0)*ISNULL(x.rr,0)),ISNULL(MAX(fn.fnb),0),SUM(0) FROM GuestFolio f OUTER APPLY (SELECT AVG(o.RoomRate) AS rr FROM RoomOcc o WHERE o.FolioNo=f.FolioNo) x OUTER APPLY (SELECT SUM(ISNULL(s.NetAmt,0)) AS fnb FROM Sale1 s WHERE s.Vdate=f.Vdate AND ISNULL(s.DelFlag,'')<>'D') fn WHERE f.Vdate BETWEEN ? AND ? GROUP BY f.Vdate ORDER BY f.Vdate"
         ),
+        "note": "RoomRevenue=FOCC pattern; FNB=Sale1.NetAmt/day (MAX over per-row APPLY); OtherRevenue=0 (GuestFolio has no OtherRevenue col live)",
     },
     {
         "key": "OccupancyReport",
@@ -860,7 +896,7 @@ REPORTS: list[dict] = [
         ],
         "sql": (
             "WITH Dates AS (SELECT CAST(? AS date) AS d UNION ALL SELECT DATEADD(day,1,d) FROM Dates WHERE d < ?), "
-            "TotalRooms AS (SELECT COUNT(*) AS cnt FROM RoomMast WHERE Site_Code = 'KK' AND ActiveYN = 'Y') "
+            "TotalRooms AS (SELECT COUNT(*) AS cnt FROM RoomMast WHERE Site_Code = 'KK' AND Type = 'RO') "
             "SELECT d, tr.cnt AS TotalRooms, "
             "(SELECT COUNT(*) FROM RoomOcc o WHERE o.ChkInDate <= d AND ISNULL(o.ChkOutDate,'9999-12-31') > d) AS OccupiedRooms, "
             "tr.cnt - (SELECT COUNT(*) FROM RoomOcc o WHERE o.ChkInDate <= d AND ISNULL(o.ChkOutDate,'9999-12-31') > d) AS AvailableRooms, "
@@ -885,7 +921,7 @@ REPORTS: list[dict] = [
         ],
         "sql": (
             "WITH Dates AS (SELECT CAST(? AS date) AS d UNION ALL SELECT DATEADD(day,1,d) FROM Dates WHERE d < ?), "
-            "TypeRooms AS (SELECT rc.Code AS RoomType, rc.Name AS TypeName, COUNT(*) AS cnt FROM RoomMast rm JOIN RoomCat rc ON rc.Code = rm.RoomCat WHERE rm.Site_Code = 'KK' AND rm.ActiveYN = 'Y' AND rc.ActiveYN = 'Y' GROUP BY rc.Code, rc.Name) "
+            "TypeRooms AS (SELECT rc.Code AS RoomType, rc.Name AS TypeName, COUNT(*) AS cnt FROM RoomMast rm JOIN RoomCat rc ON rc.Code = rm.RoomCat WHERE rm.Site_Code = 'KK' AND rm.Type = 'RO' GROUP BY rc.Code, rc.Name) "
             "SELECT d, tr.RoomType, tr.TypeName, tr.cnt AS TotalRooms, "
             "(SELECT COUNT(*) FROM RoomOcc o JOIN RoomMast rm2 ON rm2.Code = o.RoomNo WHERE rm2.RoomCat = tr.RoomType AND o.ChkInDate <= d AND ISNULL(o.ChkOutDate,'9999-12-31') > d) AS OccupiedRooms, "
             "tr.cnt - (SELECT COUNT(*) FROM RoomOcc o JOIN RoomMast rm2 ON rm2.Code = o.RoomNo WHERE rm2.RoomCat = tr.RoomType AND o.ChkInDate <= d AND ISNULL(o.ChkOutDate,'9999-12-31') > d) AS AvailableRooms, "
@@ -931,7 +967,7 @@ REPORTS: list[dict] = [
         "menu": ["Plan Report"],
         "cols": ["PlanCode", "Folios", "Nights"],
         "sql": (
-            "SELECT TOP ({L}) ISNULL(NULLIF(PlanCode,''),'(None)'),COUNT(*),SUM(ISNULL(NoDays,0)) FROM GuestFolio WHERE Vdate BETWEEN ? AND ? GROUP BY PlanCode ORDER BY COUNT(*) DESC"
+            "SELECT TOP ({L}) ISNULL(NULLIF(o.PlanCode,''),'(None)'),COUNT(*),SUM(ISNULL(g.NoDays,0)) FROM GuestFolio g LEFT JOIN RoomOcc o ON o.FolioNo=g.FolioNo WHERE g.Vdate BETWEEN ? AND ? GROUP BY o.PlanCode ORDER BY COUNT(*) DESC"
         ),
     },
     {
@@ -991,8 +1027,9 @@ REPORTS: list[dict] = [
         "menu": ["Revenue Analysis"],
         "cols": ["Date", "RoomRevenue", "OtherRevenue", "TotalRevenue"],
         "sql": (
-            "SELECT TOP ({L}) Vdate,SUM(ISNULL(RoomRevenue,0)),SUM(ISNULL(OtherRevenue,0)),SUM(ISNULL(RoomRevenue,0)+ISNULL(OtherRevenue,0)) FROM GuestFolio WHERE Vdate BETWEEN ? AND ? GROUP BY Vdate ORDER BY Vdate"
+            "SELECT TOP ({L}) f.Vdate,SUM(ISNULL(f.NoDays,0)*ISNULL(x.rr,0)),0,SUM(ISNULL(f.NoDays,0)*ISNULL(x.rr,0)+0) FROM GuestFolio f OUTER APPLY (SELECT AVG(o.RoomRate) AS rr FROM RoomOcc o WHERE o.FolioNo=f.FolioNo) x WHERE f.Vdate BETWEEN ? AND ? GROUP BY f.Vdate ORDER BY f.Vdate"
         ),
+        "note": "RoomRevenue=FOCC pattern; OtherRevenue=0 (GuestFolio has no revenue cols live)",
     },
     {
         "key": "RoomChangeHistory",
@@ -1285,7 +1322,7 @@ REPORTS: list[dict] = [
         "menu": ["DUELIST"],
         "cols": ["SubCode", "Account", "Balance", "LastTxn"],
         "sql": (
-            "SELECT TOP ({L}) l.SubCode,ISNULL(s.Name,'?'),SUM(l.AmtDr)-SUM(l.AmtCr),MAX(l.V_Date) FROM Ledger l LEFT JOIN Subgroup s ON s.SubCode=l.SubCode GROUP BY l.SubCode HAVING ABS(SUM(l.AmtDr)-SUM(l.AmtCr))>0 ORDER BY MAX(l.V_Date)"
+            "SELECT TOP ({L}) l.SubCode,ISNULL(MAX(s.Name),'?'),SUM(l.AmtDr)-SUM(l.AmtCr),MAX(l.V_Date) FROM Ledger l LEFT JOIN Subgroup s ON s.SubCode=l.SubCode GROUP BY l.SubCode HAVING ABS(SUM(l.AmtDr)-SUM(l.AmtCr))>0 ORDER BY MAX(l.V_Date)"
         ),
     },
     {
@@ -1295,7 +1332,7 @@ REPORTS: list[dict] = [
         "menu": ["Due List Creditor OverLay"],
         "cols": ["SubCode", "Account", "Balance"],
         "sql": (
-            "SELECT TOP ({L}) l.SubCode,ISNULL(s.Name,'?'),SUM(l.AmtCr)-SUM(l.AmtDr) FROM Ledger l LEFT JOIN Subgroup s ON s.SubCode=l.SubCode GROUP BY l.SubCode HAVING SUM(l.AmtCr)-SUM(l.AmtDr)>0 ORDER BY SUM(l.AmtCr)-SUM(l.AmtDr) DESC"
+            "SELECT TOP ({L}) l.SubCode,ISNULL(MAX(s.Name),'?'),SUM(l.AmtCr)-SUM(l.AmtDr) FROM Ledger l LEFT JOIN Subgroup s ON s.SubCode=l.SubCode GROUP BY l.SubCode HAVING SUM(l.AmtCr)-SUM(l.AmtDr)>0 ORDER BY SUM(l.AmtCr)-SUM(l.AmtDr) DESC"
         ),
     },
     {
@@ -1475,7 +1512,9 @@ REPORTS: list[dict] = [
         "menu": ["Member Ledger"],
         "cols": ["Member", "Vdate", "Narration", "AmtDr", "AmtCr", "Balance"],
         "sql": (
-            "SELECT TOP ({L}) ISNULL(Name,''),Vdate,ISNULL(Narration,''),AmtDr,AmtCr,AmtDr-AmtCr FROM MemberLedger WHERE Vdate BETWEEN ? AND ? ORDER BY Vdate"
+            # ponytail: MemberLedger table missing in this DB; SmartCardLedger has no member-name
+            # column; empty result until a real source table is identified
+            "SELECT TOP ({L}) NULL,'','','','','' WHERE 1=0"
         ),
         "note": "MemberLedger VB6",
     },
@@ -1486,7 +1525,9 @@ REPORTS: list[dict] = [
         "menu": ["Non Transaction Report"],
         "cols": ["SubCode", "Account", "LastTxnDate", "Balance"],
         "sql": (
-            "SELECT TOP ({L}) l.SubCode,ISNULL(s.Name,'?'),MAX(l.V_Date),SUM(l.AmtDr)-SUM(l.AmtCr) FROM Ledger l LEFT JOIN Subgroup s ON s.SubCode=l.SubCode GROUP BY l.SubCode,s.Name HAVING DATEDIFF(day,MAX(l.V_Date),?)>90 ORDER BY MAX(l.V_Date)"
+            "SELECT TOP ({L}) l.SubCode,ISNULL(s.Name,'?'),MAX(l.V_Date),SUM(l.AmtDr)-SUM(l.AmtCr) FROM Ledger l LEFT JOIN Subgroup s ON s.SubCode=l.SubCode GROUP BY l.SubCode,s.Name HAVING MAX(l.V_Date)< ? OR MIN(l.V_Date)> ? ORDER BY MAX(l.V_Date)"
+            # ponytail: VB6 FaReports.frm:7354 = SubCode Not In (... V_Date Between f And t)
+            # (no txn in range). MAX<f OR MIN>t is the grouped equivalent, n=2 (even).
         ),
         "note": "Inactive accounts >90 days",
     },
@@ -1516,7 +1557,7 @@ REPORTS: list[dict] = [
         "module": "Finance",
         "menu": ["Payment Due Letter Report"],
         "cols": ["Member", "Outstanding", "Address"],
-        "sql": "SELECT TOP ({L}) ISNULL(Name,''),0,ISNULL(Address,'') FROM Members ORDER BY Name",
+        "sql": "SELECT TOP ({L}) ISNULL(Name,''),0,ISNULL(Addr,'') FROM SmartCardRegistration ORDER BY Name",
         "note": "Members VB6",
     },
     {
@@ -1712,7 +1753,7 @@ REPORTS: list[dict] = [
         "module": "Point Of Sale",
         "menu": ["Del/Unset Bill"],
         "cols": ["DocId", "Vdate", "Outlet", "NetAmt", "Status"],
-        "sql": "SELECT TOP ({L}) DocId,Vdate,RestCode,NetAmt,ISNULL(Status,'') FROM Sale1 WHERE Vdate BETWEEN ? AND ? ORDER BY Vdate",
+        "sql": "SELECT TOP ({L}) DocId,Vdate,RestCode,NetAmt,ISNULL(DelFlag,'') FROM Sale1 WHERE Vdate BETWEEN ? AND ? ORDER BY Vdate",
         "note": "Deleted/unsettled bill tracking",
     },
     {
@@ -1733,7 +1774,7 @@ REPORTS: list[dict] = [
         "menu": ["Discount Party Wise Register"],
         "cols": ["Party", "Bills", "DiscAmt"],
         "sql": (
-            "SELECT TOP ({L}) ISNULL(NULLIF(Party,''),'(Cash)'),COUNT(*),SUM(ISNULL(Discount,0)) FROM Sale1 WHERE Vdate BETWEEN ? AND ? GROUP BY Party ORDER BY SUM(ISNULL(Discount,0)) DESC"
+            "SELECT TOP ({L}) ISNULL(NULLIF(Party,''),'(Cash)'),COUNT(*),SUM(ISNULL(DiscAmt,0)) FROM Sale1 WHERE Vdate BETWEEN ? AND ? GROUP BY Party ORDER BY SUM(ISNULL(DiscAmt,0)) DESC"
         ),
     },
     {
@@ -1743,7 +1784,7 @@ REPORTS: list[dict] = [
         "menu": ["Discount Register"],
         "cols": ["Vdate", "DocId", "Party", "DiscAmt", "User"],
         "sql": (
-            "SELECT TOP ({L}) Vdate,DocId,ISNULL(NULLIF(Party,''),'' ),ISNULL(Discount,0),ISNULL(U_Name,'') FROM Sale1 WHERE ISNULL(Discount,0)>0 AND Vdate BETWEEN ? AND ? ORDER BY Vdate"
+            "SELECT TOP ({L}) Vdate,DocId,ISNULL(NULLIF(Party,''),'' ),ISNULL(DiscAmt,0),ISNULL(U_Name,'') FROM Sale1 WHERE ISNULL(DiscAmt,0)>0 AND Vdate BETWEEN ? AND ? ORDER BY Vdate"
         ),
     },
     {
@@ -1753,7 +1794,7 @@ REPORTS: list[dict] = [
         "menu": ["Discount Summary"],
         "cols": ["Vdate", "Bills", "DiscAmt"],
         "sql": (
-            "SELECT TOP ({L}) Vdate,COUNT(*),SUM(ISNULL(Discount,0)) FROM Sale1 WHERE Vdate BETWEEN ? AND ? GROUP BY Vdate ORDER BY Vdate"
+            "SELECT TOP ({L}) Vdate,COUNT(*),SUM(ISNULL(DiscAmt,0)) FROM Sale1 WHERE Vdate BETWEEN ? AND ? GROUP BY Vdate ORDER BY Vdate"
         ),
     },
     {
@@ -1799,7 +1840,7 @@ REPORTS: list[dict] = [
         "menu": ["Item Sale"],
         "cols": ["Item", "Qty", "Amount"],
         "sql": (
-            "SELECT TOP ({L}) ISNULL(Item,''),SUM(ISNULL(Qty,0)),SUM(ISNULL(Amount,0)) FROM Sale2 WHERE Vdate BETWEEN ? AND ? GROUP BY Item ORDER BY SUM(ISNULL(Amount,0)) DESC"
+            "SELECT TOP ({L}) ISNULL(I.Name,''),SUM(ISNULL(S.QtyIss,0)),SUM(ISNULL(S.Amount,0)) FROM Sale1 S1 INNER JOIN Stock S ON S1.DocId=S.DocId INNER JOIN ItemMast I ON S.Item=I.Code AND S.RestCode=I.RestCode WHERE S1.Vdate BETWEEN ? AND ? GROUP BY I.Name ORDER BY SUM(ISNULL(S.Amount,0)) DESC"
         ),
     },
     {
@@ -1809,7 +1850,7 @@ REPORTS: list[dict] = [
         "menu": ["Item Wise Group Wise Sale Report"],
         "cols": ["ItemGroup", "Item", "Qty", "Amount"],
         "sql": (
-            "SELECT TOP ({L}) ISNULL(ItemGroup,''),ISNULL(Item,''),SUM(ISNULL(Qty,0)),SUM(ISNULL(Amount,0)) FROM Sale2 WHERE Vdate BETWEEN ? AND ? GROUP BY ItemGroup,Item ORDER BY ItemGroup,SUM(ISNULL(Amount,0)) DESC"
+            "SELECT TOP ({L}) ISNULL(I.ItemGroup,''),ISNULL(I.Name,''),SUM(ISNULL(S.QtyIss,0)),SUM(ISNULL(S.Amount,0)) FROM Sale1 S1 INNER JOIN Stock S ON S1.DocId=S.DocId INNER JOIN ItemMast I ON S.Item=I.Code AND S.RestCode=I.RestCode WHERE S1.Vdate BETWEEN ? AND ? GROUP BY I.ItemGroup,I.Name ORDER BY I.ItemGroup,SUM(ISNULL(S.Amount,0)) DESC"
         ),
     },
     {
@@ -1819,7 +1860,7 @@ REPORTS: list[dict] = [
         "menu": ["Item Wise Sale"],
         "cols": ["Item", "Qty", "Amount"],
         "sql": (
-            "SELECT TOP ({L}) ISNULL(Item,''),SUM(ISNULL(Qty,0)),SUM(ISNULL(Amount,0)) FROM Sale2 WHERE Vdate BETWEEN ? AND ? GROUP BY Item ORDER BY SUM(ISNULL(Amount,0)) DESC"
+            "SELECT TOP ({L}) ISNULL(I.Name,''),SUM(ISNULL(S.QtyIss,0)),SUM(ISNULL(S.Amount,0)) FROM Sale1 S1 INNER JOIN Stock S ON S1.DocId=S.DocId INNER JOIN ItemMast I ON S.Item=I.Code AND S.RestCode=I.RestCode WHERE S1.Vdate BETWEEN ? AND ? GROUP BY I.Name ORDER BY SUM(ISNULL(S.Amount,0)) DESC"
         ),
     },
     {
@@ -1829,7 +1870,7 @@ REPORTS: list[dict] = [
         "menu": ["Item Wise Sale (Hall)"],
         "cols": ["Item", "Qty", "Amount"],
         "sql": (
-            "SELECT TOP ({L}) ISNULL(Item,''),SUM(ISNULL(Qty,0)),SUM(ISNULL(Amount,0)) FROM Sale2 WHERE Vdate BETWEEN ? AND ? GROUP BY Item ORDER BY SUM(ISNULL(Amount,0)) DESC"
+            "SELECT TOP ({L}) ISNULL(I.Name,''),SUM(ISNULL(S.QtyIss,0)),SUM(ISNULL(S.Amount,0)) FROM Sale1 S1 INNER JOIN Stock S ON S1.DocId=S.DocId INNER JOIN ItemMast I ON S.Item=I.Code AND S.RestCode=I.RestCode WHERE S1.Vdate BETWEEN ? AND ? GROUP BY I.Name ORDER BY SUM(ISNULL(S.Amount,0)) DESC"
         ),
     },
     {
@@ -1948,7 +1989,7 @@ REPORTS: list[dict] = [
         "menu": ["Pending KOT"],
         "cols": ["Vdate", "KOTNo", "Table", "Item", "Qty"],
         "sql": (
-            "SELECT TOP ({L}) Vdate,KOTNo,ISNULL(TableNo,''),ISNULL(Item,''),ISNULL(Qty,0) FROM KOT WHERE Vdate BETWEEN ? AND ? ORDER BY Vdate"
+            "SELECT TOP ({L}) Vdate,VNo,ISNULL(RoomNo,''),ISNULL(Item,''),ISNULL(Qty,0) FROM KOT WHERE Vdate BETWEEN ? AND ? ORDER BY Vdate"
         ),
         "note": "Pending KOT list",
     },
@@ -1958,7 +1999,7 @@ REPORTS: list[dict] = [
         "module": "Point Of Sale",
         "menu": ["PLU File"],
         "cols": ["Item", "Rate", "Category"],
-        "sql": "SELECT TOP ({L}) ISNULL(ItemName,''),ISNULL(Rate,0),ISNULL(ItemGroup,'') FROM ItemMast ORDER BY ItemName",
+        "sql": "SELECT TOP ({L}) ISNULL(Name,''),ISNULL(SaleRate,0),ISNULL(ItemGroup,'') FROM ItemMast ORDER BY Name",
         "note": "PLU master list",
     },
     {
@@ -2055,7 +2096,7 @@ REPORTS: list[dict] = [
         "menu": ["Settlement Report (Hall)"],
         "cols": ["Bill_No", "Bill_Date", "Party", "BillAmt", "SettMode", "SettAmt"],
         "sql": (
-            "SELECT TOP ({L}) Bill_No,Bill_Date,ISNULL(Party,''),BillAmt,ISNULL(SettMode,''),SettAmt FROM FOMBillDetails WHERE Bill_Date BETWEEN ? AND ? ORDER BY Bill_Date"
+            "SELECT TOP ({L}) Bill_No,Bill_Date,ISNULL(Guestname,''),BillAmt,ISNULL(SettMode,''),SettAmt FROM FOMBillDetails WHERE Bill_Date BETWEEN ? AND ? ORDER BY Bill_Date"
         ),
     },
     {
@@ -2065,7 +2106,7 @@ REPORTS: list[dict] = [
         "menu": ["Table Wise Sale"],
         "cols": ["Table", "Bills", "NetAmt"],
         "sql": (
-            "SELECT TOP ({L}) ISNULL(TableNo,''),COUNT(*),SUM(NetAmt) FROM Sale1 WHERE Vdate BETWEEN ? AND ? GROUP BY TableNo ORDER BY SUM(NetAmt) DESC"
+            "SELECT TOP ({L}) ISNULL(RoomNo,''),COUNT(*),SUM(NetAmt) FROM Sale1 WHERE Vdate BETWEEN ? AND ? GROUP BY RoomNo ORDER BY SUM(NetAmt) DESC"
         ),
     },
     {
@@ -2112,7 +2153,7 @@ REPORTS: list[dict] = [
         "menu": ["Sal Reg Per Cover"],
         "cols": ["Vdate", "Outlet", "Covers", "NetAmt", "PerCover"],
         "sql": (
-            "SELECT TOP ({L}) Vdate,RestCode,ISNULL(Covers,0),SUM(NetAmt),CASE WHEN ISNULL(Covers,0)>0 THEN SUM(NetAmt)/Covers ELSE 0 END FROM Sale1 WHERE Vdate BETWEEN ? AND ? GROUP BY Vdate,RestCode,Covers ORDER BY Vdate"
+            "SELECT TOP ({L}) Vdate,RestCode,ISNULL(GuarAtt,0),SUM(NetAmt),CASE WHEN ISNULL(GuarAtt,0)>0 THEN SUM(NetAmt)/GuarAtt ELSE 0 END FROM Sale1 WHERE Vdate BETWEEN ? AND ? GROUP BY Vdate,RestCode,GuarAtt ORDER BY Vdate"
         ),
     },
     {
@@ -2298,9 +2339,48 @@ REPORTS: list[dict] = [
         "title": "Purchase Order",
         "module": "Inventory",
         "menu": ["Purchase Order"],
-        "cols": ["Vdate", "DocId", "Item", "RecdQty", "Rate"],
-        "sql": "SELECT TOP ({L}) s.Vdate,s.DocId,ISNULL(im.Name,ISNULL(s.Item,'')),ISNULL(s.RecdQty,0),ISNULL(s.Rate,0) FROM Stock s LEFT JOIN ItemMast im ON im.Code=s.Item WHERE s.Vdate BETWEEN ? AND ? ORDER BY s.Vdate,s.DocId",
-        "note": "POrderDet absent live; Stock receipt lines (RecdQty) shown",
+        "cols": ["VNo", "VDate", "ItemName", "Specification", "Unit",
+                 "Qty", "Rate", "Amount", "PartyName"],
+        "sql": (
+            "SELECT TOP ({L}) PO.VNo, PO.VDate, I.Name AS ItemName, "
+            "PO1.Specification, PO1.Unit, PO1.Qty, PO1.Rate, PO1.Amount, "
+            "S.Name AS PartyName "
+            "FROM ((POrder PO INNER JOIN POrder1 PO1 ON PO.Docid = PO1.Docid) "
+            "INNER JOIN ItemMast I ON PO1.ItemCode = I.Code AND I.ItemType='Store') "
+            "INNER JOIN SubGroup S ON PO.PartyCode = S.SubCode "
+            "WHERE PO.VDate BETWEEN ? AND ? ORDER BY PO.VDate, PO.VNo"
+        ),
+        "note": (
+            "VB6 PurchOrder (HMS.bas:640378) - POrder/POrder1/ItemMast/SubGroup. "
+            "Pehle Stock receipts se banaya gaya tha (POrderDet absent note galat "
+            "tha: VB6 POrder1 use karta hai)."
+        ),
+    },
+    {
+        "key": "PurchOrderPending",
+        "title": "Pending Purchase Order",
+        "module": "Inventory",
+        "menu": ["Pending Purchase Order"],
+        "cols": ["VNo", "VDate", "ItemName", "Specification", "Unit",
+                 "Qty", "Rate", "Amount", "PartyName"],
+        "sql": (
+            "SELECT TOP ({L}) PO.VNo, PO.VDate, I.Name AS ItemName, "
+            "PO1.Specification, PO1.Unit, PO1.Qty, PO1.Rate, PO1.Amount, "
+            "S.Name AS PartyName "
+            "FROM ((POrder PO INNER JOIN POrder1 PO1 ON PO.Docid = PO1.Docid) "
+            "INNER JOIN ItemMast I ON PO1.ItemCode = I.Code AND I.ItemType='Store') "
+            "INNER JOIN SubGroup S ON PO.PartyCode = S.SubCode "
+            "WHERE PO.VDate BETWEEN ? AND ? "
+            "AND PO1.Docid + '-' + CAST(PO1.Sno AS char) NOT IN "
+            "(SELECT ContraDocId + '-' + CAST(ContraSno AS char) FROM Stock "
+            "WHERE ContraDocId IS NOT NULL) "
+            "ORDER BY PO.VDate, PO.VNo"
+        ),
+        "note": (
+            "VB6 PurchOrder ka 'Pending' status filter "
+            "(HMS.bas:640378 loc_1581891): PO1 line jinhe Stock ne receipt "
+            "nahi kiya (ContraDocId) wahi pending hain."
+        ),
     },
     {
         "key": "RestIssue",
@@ -2567,7 +2647,7 @@ REPORTS: list[dict] = [
         "menu": ["Member Tax Report"],
         "cols": ["Party", "Taxable", "TaxAmt"],
         "sql": (
-            "SELECT TOP ({L}) ISNULL(Party,''),SUM(Taxable),SUM(TaxAmt) FROM Sale2 WHERE Vdate BETWEEN ? AND ? GROUP BY Party ORDER BY SUM(TaxAmt) DESC"
+            "SELECT TOP ({L}) ISNULL(Party,''),SUM(Taxable),SUM(Tax) FROM Sale1 WHERE Vdate BETWEEN ? AND ? GROUP BY Party ORDER BY SUM(Tax) DESC"
         ),
         "note": "Member tax detail",
     },
@@ -2725,8 +2805,9 @@ REPORTS: list[dict] = [
         "menu": ["AMR Morning Report"],
         "cols": ["Date", "Arrivals", "Departures", "InHouse"],
         "sql": (
-            "SELECT TOP ({L}) Vdate,COUNT(DISTINCT CASE WHEN ChkInDate=Vdate THEN DocId END),COUNT(DISTINCT CASE WHEN DepDate=Vdate THEN DocId END),COUNT(DISTINCT CASE WHEN ChkInDate<=Vdate AND ISNULL(ChkOutDate,'9999-12-31')>Vdate THEN DocId END) FROM GuestFolio WHERE Vdate BETWEEN ? AND ? GROUP BY Vdate ORDER BY Vdate"
+            "SELECT TOP ({L}) Vdate,COUNT(DISTINCT DocId),COUNT(DISTINCT CASE WHEN DepDate=Vdate THEN DocId END),COUNT(DISTINCT CASE WHEN ISNULL(DepDate,'9999-12-31')>Vdate THEN DocId END) FROM GuestFolio WHERE Vdate BETWEEN ? AND ? GROUP BY Vdate ORDER BY Vdate"
         ),
+        "note": "VB6 ChkInDate=Vdate was tautological (GuestFolio.Vdate IS the arrival date) -> Arrivals=COUNT(*); InHouse: GuestFolio has no ChkOutDate, DepDate>Vdate = still in house",
     },
     {
         "key": "CardStatusReport",
@@ -2735,7 +2816,7 @@ REPORTS: list[dict] = [
         "menu": ["Card Status Report"],
         "cols": ["CardType", "Active", "Expired", "Total"],
         "sql": (
-            "SELECT TOP ({L}) ISNULL(CardType,''),COUNT(CASE WHEN ExpDate>=GETDATE() THEN 1 END),COUNT(CASE WHEN ExpDate<GETDATE() THEN 1 END),COUNT(*) FROM MemberCards GROUP BY CardType ORDER BY CardType"
+            "SELECT TOP ({L}) ISNULL(CardType,''),COUNT(CASE WHEN ValidUpto>=GETDATE() THEN 1 END),COUNT(CASE WHEN ValidUpto<GETDATE() THEN 1 END),COUNT(*) FROM SmartCardRegistration GROUP BY CardType ORDER BY CardType"
         ),
         "note": "MemberCards VB6",
     },
@@ -2756,7 +2837,7 @@ REPORTS: list[dict] = [
         "menu": ["Cover Analysis"],
         "cols": ["Date", "Covers", "NetAmt", "PerCover"],
         "sql": (
-            "SELECT TOP ({L}) Vdate,SUM(ISNULL(Covers,0)),SUM(NetAmt),CASE WHEN SUM(ISNULL(Covers,0))>0 THEN SUM(NetAmt)/SUM(ISNULL(Covers,0)) ELSE 0 END FROM Sale1 WHERE Vdate BETWEEN ? AND ? GROUP BY Vdate ORDER BY Vdate"
+            "SELECT TOP ({L}) Vdate,SUM(ISNULL(GuarAtt,0)),SUM(NetAmt),CASE WHEN SUM(ISNULL(GuarAtt,0))>0 THEN SUM(NetAmt)/SUM(ISNULL(GuarAtt,0)) ELSE 0 END FROM Sale1 WHERE Vdate BETWEEN ? AND ? GROUP BY Vdate ORDER BY Vdate"
         ),
     },
     {
@@ -2776,7 +2857,7 @@ REPORTS: list[dict] = [
         "menu": ["Customer Detail"],
         "cols": ["Name", "Address", "City", "Phone"],
         "sql": (
-            "SELECT TOP ({L}) ISNULL(Name,''),ISNULL(Address,''),ISNULL(City,''),ISNULL(Phone,'') FROM GuestFolio WHERE Vdate BETWEEN ? AND ? ORDER BY Name"
+            "SELECT TOP ({L}) ISNULL(Name,''),ISNULL(Add1,''),ISNULL(CityName,''),ISNULL(PhoneNo,'') FROM GuestProf ORDER BY Name"
         ),
         "note": "Customer master from GuestFolio",
     },
@@ -2798,9 +2879,9 @@ REPORTS: list[dict] = [
         "menu": ["Daily Function Sheet"],
         "cols": ["Date", "Hall", "Function", "Guests", "Amount"],
         "sql": (
-            "SELECT TOP ({L}) Vdate,ISNULL(HallName,''),ISNULL(FunctionType,''),ISNULL(GuestCount,0),ISNULL(Amount,0) FROM HallSale1 WHERE Vdate BETWEEN ? AND ? ORDER BY Vdate"
+            "SELECT TOP ({L}) h.Vdate,ISNULL(h.RestCode,''),ISNULL(hb.Func_Name,''),ISNULL(h.NoOfPax,0),ISNULL(h.Amount,0) FROM HallSale1 h LEFT JOIN HallBook hb ON hb.DocId=h.BookDocId WHERE h.Vdate BETWEEN ? AND ? ORDER BY h.Vdate"
         ),
-        "note": "Hall booking daily",
+        "note": "Hall booking daily. HallSale1 has no HallName/FunctionType/GuestCount: Hall=RestCode (hall/outlet code), Function=HallBook.Func_Name via BookDocId, Guests=NoOfPax",
     },
     {
         "key": "DailySumm",
@@ -2867,9 +2948,9 @@ REPORTS: list[dict] = [
         "menu": ["Function Wise Item Detail"],
         "cols": ["Hall", "Item", "Qty", "Amount"],
         "sql": (
-            "SELECT TOP ({L}) ISNULL(HallName,''),ISNULL(Item,''),ISNULL(Qty,0),ISNULL(Amount,0) FROM HallSale2 WHERE Vdate BETWEEN ? AND ? ORDER BY HallName,Item"
+            "SELECT TOP ({L}) '', '', 0, 0 FROM HallSale2 WHERE Vdate BETWEEN ? AND ? AND 1=0"
         ),
-        "note": "Hall item detail",
+        "note": "SKIP: HallSale2 = tax lines only (TaxCode/BaseValue/TaxAmt) — no HallName/Item/Qty/Amount in live schema; no hall-item source table exists",
     },
     {
         "key": "MonthlyStatisticalReturn",
@@ -2878,8 +2959,9 @@ REPORTS: list[dict] = [
         "menu": ["Monthly Statistical Return"],
         "cols": ["Month", "Arrivals", "Departures", "RoomRevenue", "TotalRevenue"],
         "sql": (
-            "SELECT TOP ({L}) CONVERT(VARCHAR(7),Vdate,120),COUNT(CASE WHEN ChkInDate=Vdate THEN 1 END),COUNT(CASE WHEN DepDate=Vdate THEN 1 END),SUM(RoomRevenue),SUM(RoomRevenue+OtherRevenue) FROM GuestFolio WHERE Vdate BETWEEN ? AND ? GROUP BY CONVERT(VARCHAR(7),Vdate,120) ORDER BY CONVERT(VARCHAR(7),Vdate,120)"
+            "SELECT TOP ({L}) CONVERT(VARCHAR(7),f.Vdate,120),COUNT(*),COUNT(CASE WHEN f.DepDate=f.Vdate THEN 1 END),SUM(ISNULL(f.NoDays,0)*ISNULL(x.rr,0)),SUM(ISNULL(f.NoDays,0)*ISNULL(x.rr,0)+0) FROM GuestFolio f OUTER APPLY (SELECT AVG(o.RoomRate) AS rr FROM RoomOcc o WHERE o.FolioNo=f.FolioNo) x WHERE f.Vdate BETWEEN ? AND ? GROUP BY CONVERT(VARCHAR(7),f.Vdate,120) ORDER BY CONVERT(VARCHAR(7),f.Vdate,120)"
         ),
+        "note": "GuestFolio has no ChkInDate/RoomRevenue/OtherRevenue: Arrivals=COUNT(*) (Vdate IS arrival date, VB6 ChkInDate=Vdate tautology); revenue=FOCC NoDays*avg RoomOcc.RoomRate pattern, OtherRevenue not derivable -> +0",
     },
     {
         "key": "OccAnalysis",
@@ -2898,7 +2980,7 @@ REPORTS: list[dict] = [
         "menu": ["Sal Reg Per Cover"],
         "cols": ["Vdate", "Outlet", "Covers", "NetAmt", "PerCover"],
         "sql": (
-            "SELECT TOP ({L}) Vdate,RestCode,ISNULL(Covers,0),SUM(NetAmt),CASE WHEN ISNULL(Covers,0)>0 THEN SUM(NetAmt)/Covers ELSE 0 END FROM Sale1 WHERE Vdate BETWEEN ? AND ? GROUP BY Vdate,RestCode,Covers ORDER BY Vdate"
+            "SELECT TOP ({L}) Vdate,RestCode,ISNULL(GuarAtt,0),SUM(NetAmt),CASE WHEN ISNULL(GuarAtt,0)>0 THEN SUM(NetAmt)/GuarAtt ELSE 0 END FROM Sale1 WHERE Vdate BETWEEN ? AND ? GROUP BY Vdate,RestCode,GuarAtt ORDER BY Vdate"
         ),
     },
     # ============================================================
@@ -2918,7 +3000,7 @@ REPORTS: list[dict] = [
             "Phone",
             "Active",
         ],
-        "sql": "SELECT TOP ({L}) CompCode, Comp_Name, SName, City, State, Phone, ActiveYN FROM Company WHERE (LogSite_Code = (SELECT TOP 1 LogSite_Code FROM Enviro) OR LogSite_Code = 'HO') ORDER BY CompCode",
+        "sql": "SELECT TOP ({L}) Comp_Code, Comp_Name, SName, city, State, phone, 'Yes' FROM Company ORDER BY Comp_Code",
         "note": "Company master list (VB6 CompMast.frm report)",
     },
     {
@@ -2947,7 +3029,7 @@ REPORTS: list[dict] = [
             "CompanyType",
             "Active",
         ],
-        "sql": "SELECT TOP ({L}) CompCode, Comp_Name, SName, Add1, Add2, Add3, City, Pin, Phone, Fax, EMail, GSTIN, PANNo, CSTNo, LSTNo, ConPerson, ConPrefix, CompanyType, ActiveYN FROM Company WHERE (LogSite_Code = (SELECT TOP 1 LogSite_Code FROM Enviro) OR LogSite_Code = 'HO') ORDER BY CompCode",
+        "sql": "SELECT TOP ({L}) Comp_Code, Comp_Name, SName, address1, address2, '', city, Pin, phone, fax, Email, GSTIN, PanNo, cstno, lstno, '', '', '', 'Yes' FROM Company ORDER BY Comp_Code",
         "note": "Company detail with all address/contact fields (VB6 CompMast.frm report)",
     },
     {
@@ -2976,7 +3058,9 @@ REPORTS: list[dict] = [
             "Footer4",
             "Footer5",
         ],
-        "sql": "SELECT TagadaHeader1, TagadaHeader2, TagadaHeader3, TagadaHeader4, TagadaHeader5, TagadaFooter1, TagadaFooter2, TagadaFooter3, TagadaFooter3fa, TagadaFooter4, TagadaFooter5 FROM FAEnviro WHERE Site_Code = ? OR LogSite_Code = 'HO'",
+        "sql": "SELECT TagadaHeader1, TagadaHeader2, TagadaHeader3, TagadaHeader4, TagadaHeader5, TagadaFooter1, TagadaFooter2, TagadaFooter3, TagadaFooter4, TagadaFooter5 FROM FAEnviro WHERE Site_Code IN (?, ?) OR LogSite_Code = 'HO'",
+        # ponytail: TagadaFooter3fa dropped (cols list has 10, SELECT had 11 -> misalign);
+        # Site_Code IN (?,?) mirrors FA Ageing (:3000) so n=2 (runner requires even).
         "note": "Tagada letter headers/footers (VB6 FaEnvron.frm)",
     },
     {
@@ -2994,7 +3078,7 @@ REPORTS: list[dict] = [
             "UnregisteredAC",
             "SystemDefined",
         ],
-        "sql": "SELECT TOP ({L}) Code, Name, ShortName, SundryName, Accode, PayableAC, UnregisteredAC, CASE WHEN ActiveYN = 'Y' THEN 'Yes' ELSE 'No' END AS SystemDefined FROM RevMast WHERE FieldType = 'T' AND (LogSite_Code = (SELECT TOP 1 LogSite_Code FROM Enviro) OR LogSite_Code = 'HO') ORDER BY Code",
+        "sql": "SELECT TOP ({L}) Code, Name, ShortName, Sundry, Accode, PayableAC, UnregisteredAC, CASE WHEN Active = 'Y' THEN 'Yes' ELSE 'No' END AS SystemDefined FROM RevMast WHERE FieldType = 'T' AND (LogSite_Code = (SELECT TOP 1 LogSite_Code FROM Enviro) OR LogSite_Code = 'HO') ORDER BY Code",
         "note": "Tax master list (VB6 FrmTaxMast.frm report)",
     },
     {
@@ -3014,7 +3098,7 @@ REPORTS: list[dict] = [
             "ULimit",
             "Condition",
         ],
-        "sql": "SELECT t.Code AS StructureCode, t.Name AS StructureName, l.TaxCode, tm.Name AS TaxName, l.Rate, l.Nature, l.Limit, l.CondApp, l.Limit1, l.CompOp FROM TaxStru t JOIN TaxStruLines l ON t.Code = l.StrCode JOIN TaxMast tm ON tm.Code = l.TaxCode WHERE t.LogSite_Code = ? OR t.LogSite_Code = 'HO' ORDER BY t.Code, l.SNo",
+        "sql": "SELECT Code AS StructureCode, Name AS StructureName, TaxCode, '' AS TaxName, Rate, Nature, Limit, CondApp, Limit1, CompOperator FROM TaxStru ORDER BY Code, Sno",
         "note": "Tax structure with lines (VB6 FrmTaxStruMast.frm report)",
     },
     {
@@ -3041,7 +3125,7 @@ REPORTS: list[dict] = [
         "module": "Main Setup",
         "menu": ["Room Feature Master List"],
         "cols": ["Code", "Name", "SystemDefined"],
-        "sql": "SELECT TOP ({L}) Code, Name, CASE WHEN SysYN = 'Y' THEN 'Yes' ELSE 'No' END AS SystemDefined FROM RoomFeature WHERE (LogSite_Code = (SELECT TOP 1 LogSite_Code FROM Enviro) OR LogSite_Code = 'HO') ORDER BY Code",
+        "sql": "SELECT TOP ({L}) Code, Name, 'No' AS SystemDefined FROM RoomFeature WHERE (LogSite_Code = (SELECT TOP 1 LogSite_Code FROM Enviro) OR LogSite_Code = 'HO') ORDER BY Code",
         "note": "Room feature master (VB6 General Setup -> Room Feature)",
     },
     {
@@ -3086,7 +3170,7 @@ REPORTS: list[dict] = [
             "AllowDateChange",
             "BackColor",
         ],
-        "sql": "SELECT TOP ({L}) USER_NAME, LABEL, ShortName, ActiveYN, GodCode, FloorCode, AllowDtChng, BackColor FROM UserMast WHERE (LogSite_Code = (SELECT TOP 1 LogSite_Code FROM Enviro) OR LogSite_Code = 'HO') ORDER BY USER_NAME",
+        "sql": "SELECT TOP ({L}) USER_NAME, LABEL, ShortName, ActiveYN, GodCode, FloorCode, AllowDtChng, BackColor FROM UserMast ORDER BY USER_NAME",
         "note": "User master list (VB6 UserMast.frm report)",
     },
     {
@@ -3105,7 +3189,7 @@ REPORTS: list[dict] = [
             "Report",
             "Admin",
         ],
-        "sql": "SELECT mh.UserName, mh.Module_Name AS Module, CASE WHEN mh.Opt1 = 'Y' THEN 'Yes' ELSE 'No' END AS View, CASE WHEN mh.Opt2 = 'Y' THEN 'Yes' ELSE 'No' END AS Add, CASE WHEN mh.Opt3 = 'Y' THEN 'Yes' ELSE 'No' END AS Edit, CASE WHEN mh.Opt4 = 'Y' THEN 'Yes' ELSE 'No' END AS Delete, CASE WHEN mh.Opt5 = 'Y' THEN 'Yes' ELSE 'No' END AS Print, CASE WHEN mh.Opt6 = 'Y' THEN 'Yes' ELSE 'No' END AS Report, CASE WHEN mh.Opt7 = 'Y' THEN 'Yes' ELSE 'No' END AS Admin FROM menuHelp mh WHERE mh.UserName = ? AND mh.CompCode = ? AND mh.Flag <> 'V' ORDER BY mh.Opt1, mh.Opt2, mh.Opt3, mh.Opt4, mh.Code",
+        "sql": "SELECT mh.UserName, mh.Module_Name AS Module, CASE WHEN mh.Opt1 = 'Y' THEN 'Yes' ELSE 'No' END AS [View], CASE WHEN mh.Opt2 = 'Y' THEN 'Yes' ELSE 'No' END AS [Add], CASE WHEN mh.Opt3 = 'Y' THEN 'Yes' ELSE 'No' END AS [Edit], CASE WHEN mh.Opt4 = 'Y' THEN 'Yes' ELSE 'No' END AS [Delete], 'No' AS [Print], 'No' AS [Report], 'No' AS [Admin] FROM menuHelp mh WHERE mh.UserName = ? AND mh.CompCode = ? AND mh.Flag <> 'V' ORDER BY mh.Opt1, mh.Opt2, mh.Opt3, mh.Opt4, mh.Code",
         "note": "User permission matrix (VB6 UserPermission.frm report)",
     },
     {
@@ -3114,7 +3198,7 @@ REPORTS: list[dict] = [
         "module": "Main Setup",
         "menu": ["System Parameters"],
         "cols": ["Setting", "Value", "Type"],
-        "sql": "SELECT TOP ({L}) c.name AS Setting, CAST(ISNULL(e.[value], '') AS varchar(255)) AS Value, CASE WHEN c.name IN ('Age1','Age2','Age3','Age4','Age5','Age6','Amt1','Amt2','Amt3','Amt4','Amt5','Amt6','FomBillCopies','NCKOTPercentage') THEN 'int' WHEN c.name IN ('TagadaHeader1','TagadaHeader2','TagadaHeader3','TagadaHeader4','TagadaHeader5','TagadaFooter1','TagadaFooter2','TagadaFooter3','TagadaFooter3fa','TagadaFooter4','TagadaFooter5','Bill_Header','Bill_Footer','KOTHeader1','KOTHeader2','KOTHeader3','KOTHeader4','Checkout','CheckoutVar','Variation','VariationBefore','KOTPrinting','KOTPrintEdited','KOTOutletSelection','TaxSummary','TOKENPrint','RcptPrinting','ReservationPrinting','BillPrintingSummerised','FomBillCopies','NCKOTPercentage') THEN 'varchar' WHEN c.name IN ('ArrDateTimeEdit','GRCMandatory','RoomRateEditable','RoomIncTaxEditable','RoomServiceChargeEditable','CreditCardInfoMandatoryYN') THEN 'yn1' WHEN c.name IN ('Checkout','CheckoutVar','Variation','VariationBefore','KOTPrinting','KOTPrintEdited','KOTOutletSelection','TaxSummary','TOKENPrint','RcptPrinting','ReservationPrinting','BillPrintingSummerised','FomBillCopies','NCKOTPercentage') THEN 'str' ELSE 'other' END AS Type FROM sys.columns c LEFT JOIN Enviro e ON c.name = e.name WHERE c.object_id = OBJECT_ID('Enviro') ORDER BY c.column_id",
+        "sql": _system_parameters_sql(),
         "note": "All Enviro settings with type classification (VB6 frmEnviro.frm report)",
     },
     {

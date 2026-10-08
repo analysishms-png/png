@@ -116,19 +116,21 @@ class OpenItemConsumptionWindow(QMainWindow):
         lv = QVBoxLayout(left)
         self.txt_search = QLineEdit()
         self.txt_search.setPlaceholderText(
-            "Search name / FinItem / outlet ...  (VB6 TopCtrl Search)")
+            "Search name / FinItem / outlet ...  (VB6 TopCtrl Search)"
+        )
         self.txt_search.returnPressed.connect(self._reload)
         lv.addWidget(self.txt_search)
         self.list_table = QTableWidget(0, len(self.LIST_COLS))
         self.list_table.setHorizontalHeaderLabels(self.LIST_COLS)
-        self.list_table.setSelectionBehavior(
-            QTableWidget.SelectionBehavior.SelectRows)
-        self.list_table.setSelectionMode(
-            QTableWidget.SelectionMode.SingleSelection)
-        self.list_table.setEditTriggers(
-            QTableWidget.EditTrigger.NoEditTriggers)
-        self.list_table.horizontalHeader().setSectionResizeMode(
-            QHeaderView.ResizeMode.Stretch)
+        self.list_table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        self.list_table.setSelectionMode(QTableWidget.SelectionMode.SingleSelection)
+        self.list_table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        # BUG-LIC-05: 6 cols ko equal Stretch karne se headers truncate
+        # hote the (half-width panel). Finish Name (1) Stretch, baaki
+        # content-fit -> header text kabhi cut nahi hoga.
+        _lh = self.list_table.horizontalHeader()
+        _lh.setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
+        _lh.setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
         self.list_table.setAlternatingRowColors(True)
         self.list_table.itemSelectionChanged.connect(self._on_list_row)
         self.list_table.itemDoubleClicked.connect(lambda *_: self._edit())

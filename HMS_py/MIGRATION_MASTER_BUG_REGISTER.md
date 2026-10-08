@@ -42,13 +42,19 @@ is data par khaali dikhtin.
 - Group Accounts / User Master screenshots me 1/3 aur 1 row dikhe the —
   recapture (1.5s wait) par 73/68 rows + correct browse → mid-fill capture
   artifact tha, app bug NAHI (screenshot wait 450ms → 1500ms badha).
-- Plan Master layout squeeze (top grids + list ek window me) — cosmetic.
-- Purchase Sundry Setting ki window title "Outlet Bill Sundry Setting" hai
-  (VB6: OutLetSundry/DepartSundry reuse — verify caption).
-- Login screen cream-on-white labels + sidebar lowercase module names
-  (VB6: "Finance"/"Main Setup" title case) — cosmetic parity.
-- Parameter (Enviro) table stretch nahi + dark-on-dark text.
-- Open Item Consumption left grid columns squeezed (headers truncated).
+
+### P3 cosmetic batch — PY-FIX-005 (2026-10-08)
+| Item | Status | Evidence |
+|---|---|---|
+| Plan Master layout squeeze | FIXED (partially_verified — static) | `ui/p2_masters.py:933` `# BUG-PM-01`: plan_table min-height 120 + token_table min-height 100 |
+| Purchase Sundry title "Outlet Bill Sundry Setting" | NOT A BUG — VB6 `DepartSundry.frm:3` Caption = same text; Python matches VB6 | `test_purchase_sundry_wiring.py:104`, `test_wave_ui_forms.py:190` |
+| Login labels + sidebar lowercase module names | FIXED (partially_verified — static) | `ui/shell.py:4366` `# BUG-A3`: display-only `_label_for` title-case (crumb/canvas/windowTitle); cream sub-item already fixed in `ui/login_ui.py:76-103` |
+| Parameter (Enviro) table stretch + dark-on-dark text | FIXED (verified — offscreen render) | `ui/enviro_ui.py:111` `# BUG-ENV-04`: `_bg_color()` bg + table setBackground |
+| Open Item Consumption left grid squeeze | FIXED (partially_verified — static) | `ui/open_item_consumption_ui.py:141` `# BUG-LIC-05`: column stretch |
+| `core/reports.py` CRLF→LF normalization | DONE — CR count=0, numstat 138/54 (content-only, PY-FIX-002/003 SQL preserved) | `git diff --numstat -- core/reports.py` |
+
+Full-sweep re-check (2026-10-08): 742 unique captions, MSG[critical]=0, 42S22=0 — P1/P2 CLOSED.
+Gates: ast OK (5 files), ruff F-set = HEAD baseline (7), registry_one spot = rc 0.
 
 | BUG-MS-09 | Reports Center > [Main Setup] Printing Setup / Parameters | VB6 printing setup report | 1 row (paths + Enviro flags) | 0 rows, SQL 42S02 | report SQL ne dbo.load_config() reference kiya jo DB me exist nahi karta; run() ne Invalid object name swallow karke empty dikha diya | config values db.load_config() (Analysis.ini) se literal SQL me inline (_printing_setup_sql) | core/reports.py | live: 1 row dikhta hai; shell: 1 row | VERIFIED |
 | BUG-MS-10 | Main Setup > General Setup > Printing Setup caption | VB6 caption se printing setup khulta | Reports Center khulta tha | reports-alias spread ({cap: _open_report}) ne explicit open_printing handler ko override kar diya | explicit override badi ke baad: Printing Setup/Parameters -> gs.open_printing | ui/shell.py | restart regression: viewer khulta hai | VERIFIED |

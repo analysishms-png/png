@@ -84,8 +84,12 @@ class EnviroScreen(QWidget):
         self.table.clear()
         self.table.setRowCount(len(self._rows))
         self.table.setColumnCount(3)
-        self.table.setHorizontalHeaderLabels(
-            ["Setting", "Value (editable)", "Type"])
+        self.table.setHorizontalHeaderLabels(["Setting", "Value (editable)", "Type"])
+        # BUG-ENV-04: sab cols ResizeToContents = table kabhi stretch nahi
+        # hota. Value (col 1) Stretch, baaki content-fit.
+        hh = self.table.horizontalHeader()
+        hh.setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
+        hh.setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
         for r, (k, t, val) in enumerate(self._rows):
             self.table.setItem(r, 0, _dark_item(k, readonly=True))
             shown = "" if val is None else str(val)
