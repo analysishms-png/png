@@ -78,31 +78,54 @@ REMAINING BUGS (Functions.bas - not yet fixed in Python):
     VB6: Puts bytes to file (binary output operation)
     Status: No direct Python equivalent (different execution model)
     Action: Document or implement based on specific use case
+    TRIAGE 2026-10-08: YAGNI/document-only — Python file I/O already covers this;
+           no live caller found. Reopen only if a concrete use case appears.
 
 12. [OPEN] Form closing logic with Yes/No
     VB6: Me.Global.Unload form on Yes
     Status: Python Qt form close event needs implementation
     Action: Add to VB6Form base class in core/vb6_frontend.py
+    TRIAGE 2026-10-08: PARTIAL — confirm_exit() logic = FIXED (#5, core/vb6_logic.py).
+           Remaining gap = wire Qt closeEvent -> confirm_exit in core/vb6_frontend.py.
+           Route: app-code subagent (PY-FIX track); not this doc pass.
 
 13. [OPEN] Additional VB6 .bas modules
     Status: 57+ .bas modules and 213 .form files remain to be compared
     Action: Continue file-by-file comparison starting with modLog.bas
+    TRIAGE 2026-10-08: ONGOING backlog — full parity = multi-session effort.
+           Next file per doc = modLog.bas (328 lines). Route: future
+           comparison sessions, not a single fix task.
 
 14. [OPEN] MainLib.bas procedures not yet ported
     Status: Additional VB6 procedures (Asc, UCase, LCase, Val, Format, etc.)
     Action: Port MainLib.bas procedures to core/validation.py and core/vb6_logic.py
+    TRIAGE 2026-10-08: ONGOING — target modules exist (core/validation.py,
+           core/vb6_logic.py). Many helpers already covered (strip_and_upper #6,
+           parse_vb6_date #7-8). Remaining = incremental port as comparison
+           proceeds. Route: future port tasks with concrete function lists.
 
 15. [OPEN] ErrorHandlingModule.bas not fully ported
     Status: Error handling module needs full port with Enter/Exit/Trace methods
     Action: Port ErrorHandlingModule.bas to core/error_handling.py
+    TRIAGE 2026-10-08: TARGET EXISTS — core/error_handling.py present.
+           Gap = Enter/Exit/Trace methods not yet ported. Route: dedicated
+           port task (app-code subagent) after #13 comparison identifies
+           exact VB6 signatures.
 
 16. [OPEN] FinanceModule.bas procedures not yet ported
     Status: VB6 Finance procedures (Bank/Booking, Voucher, Report functions)
     Action: Port FaLib.bas, BanqModule.bas, FaVoucher.bas to core/ modules
+    TRIAGE 2026-10-08: TRACKED IN SPECKIT — specs/004-finance-parity.
+           T001-T011, T015 DONE; T012-T014, T016-T018 OPEN (this session item 4).
+           Route: speckit tasks, not this bug list.
 
 17. [OPEN] ValidationModule.bas not yet compared
     Status: 30+ validation functions need comparison with Python core/validation.py
     Action: Continue file-by-file comparison
+    TRIAGE 2026-10-08: TARGET EXISTS — core/validation.py present with
+           validate_not_negative (#1), validate_greater_than_zero (#2).
+           Gap = remaining 30+ functions un-compared. Route: file-by-file
+           comparison session (same track as #13).
 
 PROCESS METHODOLOGY:
 --------------------------

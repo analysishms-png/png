@@ -5,31 +5,54 @@ Menu: General Setup -> 'Parameter' (User_Module GENMas srno=46).
 VB6 form 200+ settings ka tha; hum EDITABLE white-list (55 operational
 settings) dikhaate hain, finance AC-cols READ-ONLY section me.
 """
+
 from __future__ import annotations
 
 import os
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
-    os.path.abspath(__file__)))))
+sys.path.insert(
+    0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+)
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor, QKeySequence, QShortcut
-from PyQt6.QtWidgets import (QHBoxLayout, QHeaderView, QLabel, QMessageBox,
-                             QPushButton, QTableWidget, QTableWidgetItem,
-                             QVBoxLayout, QWidget)
+from PyQt6.QtWidgets import (
+    QHBoxLayout,
+    QHeaderView,
+    QLabel,
+    QMessageBox,
+    QPushButton,
+    QTableWidget,
+    QTableWidgetItem,
+    QVBoxLayout,
+    QWidget,
+)
 
 from HMS_py.core import enviro
 from HMS_py.ui import theme as _theme
 
 
+def _bg_color(css) -> QColor:
+    """QColor('rgba(r, g, b, a)') is invalid in PyQt6 -> renders #000000.
+
+    glass_tint is an rgba() string (theme.py DEFAULTS); parse it by hand.
+    """
+    s = str(css).strip()
+    if s.lower().startswith("rgba("):
+        r, g, b, a = (float(x) for x in s[5:].rstrip(")").split(","))
+        return QColor(round(r), round(g), round(b), round(a * 255))
+    return QColor(s)
+
+
 def _dark_item(val, readonly=False) -> QTableWidgetItem:
     it = QTableWidgetItem("" if val is None else str(val))
-    it.setFlags(it.flags() & ~Qt.ItemFlag.ItemIsEditable) if readonly else \
-        it.setFlags(it.flags() | Qt.ItemFlag.ItemIsEditable)
+    it.setFlags(it.flags() & ~Qt.ItemFlag.ItemIsEditable) if readonly else it.setFlags(
+        it.flags() | Qt.ItemFlag.ItemIsEditable
+    )
     it.setForeground(QColor(_theme.palette()["text"]))
     if readonly:
-        it.setBackground(QColor(_theme.palette()["glass_tint"]))
+        it.setBackground(_bg_color(_theme.palette()["glass_tint"]))
     return it
 
 
@@ -51,10 +74,10 @@ class EnviroScreen(QWidget):
 
         self.table = QTableWidget()
         self.table.setAlternatingRowColors(True)
-        self.table.setSelectionBehavior(
-            QTableWidget.SelectionBehavior.SelectRows)
+        self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.table.horizontalHeader().setSectionResizeMode(
-            QHeaderView.ResizeMode.ResizeToContents)
+            QHeaderView.ResizeMode.ResizeToContents
+        )
         v.addWidget(self.table)
 
         bar = QHBoxLayout()
@@ -113,10 +136,8 @@ class EnviroScreen(QWidget):
             QMessageBox.warning(self, "Validation", str(e))
             self.reload()
             return
-        self.lblStatus.setText(
-            f"Saved: {len(changes)} setting(s) updated")
-        QMessageBox.information(
-            self, "Enviro", f"{len(changes)} setting(s) saved")
+        self.lblStatus.setText(f"Saved: {len(changes)} setting(s) updated")
+        QMessageBox.information(self, "Enviro", f"{len(changes)} setting(s) saved")
         self.reload()
 
 
@@ -132,6 +153,7 @@ def open_enviro(parent=None):
 
 def main():  # pragma: no cover
     from PyQt6.QtWidgets import QApplication
+
     app = QApplication(sys.argv)
     w = EnviroScreen()
     w.resize(860, 620)

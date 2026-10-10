@@ -1341,7 +1341,7 @@ def reverse_night_audit(user: str = USER, cn=None, commit: bool = True) -> dict:
     try:
         db.execute(
             "UPDATE Enviro SET [NCur] = ?, U_Name = ?, "
-            "U_EntDt = getdate(), U_AE = 'E' WHERE LogSite_Code = ?",
+            "U_EntDt = getdate(), U_AE = 'E' WHERE (LogSite_Code = ? OR LogSite_Code = 'HO')",
             (new_d, user, SITE_CODE),
             cn=cn,
             commit=False,
@@ -1770,7 +1770,7 @@ def split_bill_cleanup(vdate, user: str = USER, cn=None, commit: bool = True) ->
         for table in tables:
             try:
                 n = db.execute(
-                    f"DELETE FROM {table} WHERE LogSite_Code = ? AND VDate = ?",
+                    f"DELETE FROM {table} WHERE (LogSite_Code = ? OR LogSite_Code = 'HO') AND VDate = ?",
                     (SITE_CODE, vdate),
                     cn=cn,
                     commit=False,
@@ -1812,7 +1812,7 @@ def voucher_serial_renumber(
             "WHERE VType = Voucher_Prefix.V_Type "
             "AND LogSite_Code = Voucher_Prefix.LogSite_Code), "
             "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' "
-            "WHERE LogSite_Code = ? AND ? BETWEEN Date_From AND Date_To",
+            "WHERE (LogSite_Code = ? OR LogSite_Code = 'HO') AND ? BETWEEN Date_From AND Date_To",
             (user, SITE_CODE, vdate),
             cn=cn,
             commit=False,
@@ -1857,7 +1857,7 @@ def roll_business_date(user: str = USER, cn=None, commit: bool = True) -> dict:
         db.execute(
             "UPDATE Enviro SET [NCur] = ?, ImprestAmount = 0, "
             "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' "
-            "WHERE LogSite_Code = ?",
+            "WHERE (LogSite_Code = ? OR LogSite_Code = 'HO')",
             (new_d, user, SITE_CODE),
             cn=cn,
             commit=False,

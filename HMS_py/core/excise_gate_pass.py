@@ -51,7 +51,7 @@ def excise_tax_stru(cn=None) -> str:
     Live DB: '' (set nahi) -> is screen par tax line banenge hi nahi.
     """
     rows = db.query("SELECT TOP 1 ISNULL(ExciseInvoiceTaxStru, '') "
-                    "FROM Enviro WHERE LogSite_Code = ?",
+                    "FROM Enviro WHERE (LogSite_Code = ? OR LogSite_Code = 'HO')",
                     (SITE_CODE,), cn=cn)
     return _s(rows[0][0]) if rows else ""
 
@@ -59,7 +59,7 @@ def excise_tax_stru(cn=None) -> str:
 def barcode_feature(cn=None) -> bool:
     """VB6 loc_1241E2F second field - item code barcode se uthana hai."""
     rows = db.query("SELECT TOP 1 ISNULL(BarCodeFeatureInPurchase, 'No') "
-                    "FROM Enviro WHERE LogSite_Code = ?",
+                    "FROM Enviro WHERE (LogSite_Code = ? OR LogSite_Code = 'HO')",
                     (SITE_CODE,), cn=cn)
     return _s(rows[0][0]).lower().startswith("y") if rows else False
 

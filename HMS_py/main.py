@@ -8,6 +8,7 @@ Company select ('Company Details', Site table se dynamic) ->
 Main window ('{Company} { Year }', sidebar ini key 9,
 menubar User_Module se, ported masters registry se).
 """
+
 import os
 import sys
 
@@ -41,9 +42,15 @@ def main() -> int:
     # report export + Temp.Mdb wahan rehte hain). Best-effort, non-fatal.
     try:
         from HMS_py.core import db as _db
+
         _db.ensure_paths()
     except Exception:
         pass
+    # MS-016 FIX: Fresh DB par SA user seed karo (VB6 frmCompany.frm Form_Load ka
+    # exact equivalent). Idempotent: SA already exists -> no-op.
+    from HMS_py.core import auth as _auth
+
+    _auth.ensure_sa_user()
     return shell.run_flow()
 
 

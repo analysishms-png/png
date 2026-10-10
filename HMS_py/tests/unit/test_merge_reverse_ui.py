@@ -61,8 +61,25 @@ def msgbox(monkeypatch, fsu):
 
         return _f
 
+    class _SBVal(str):
+        """StandardButton double.
+
+        Production code composes `Yes | No` (QMessageBox default arg) — plain
+        str raises TypeError *inside the Qt slot*, which PyQt6 treats as
+        fatal (qFatal/abort) and the whole pytest process dies without any
+        test output (suite hang, PY-03). `__or__` keeps composition working
+        while preserving str equality against the recorder's "Y" return.
+        """
+
+        def __or__(self, other):
+            return _SBVal(str(self))
+
+        def __ror__(self, other):
+            return _SBVal(str(self))
+
     class _SB:
-        Yes = "Y"
+        Yes = _SBVal("Y")
+        No = _SBVal("N")
 
     class _MB:
         StandardButton = _SB
@@ -332,9 +349,7 @@ def test_merge_error_rolls_back(merge_env, msgbox, monkeypatch):
     def _boom(*a, **k):
         raise RuntimeError("boom")
 
-    monkeypatch.setattr(merge_env, "merge", None)  # no-op, keeps attribute
     monkeypatch.setattr(merge_env.log, "merge", [])
-    monkeypatch.setattr(merge_env.state, "folios", merge_env.state["folios"])
     from HMS_py.ui import fo_sub_forms_ui as fsu_mod
 
     monkeypatch.setattr(fsu_mod.fo_ops, "merge_charge", _boom)

@@ -229,6 +229,9 @@ _RAIL_ORDER = (
     "Banquet",
     "Night Audit",
     "HR/Payroll",
+    "EPABX",
+    "Messaging",
+    "Members Mgmt",
     "EXTRAs",
 )
 # Rail footer = the two non-module VB6 rail controls. Live heights measured
@@ -297,12 +300,29 @@ QPushButton[vbRole="rail"] {
     color: #ffffff;
     border: 1px solid #003232;
     border-radius: 0;
-    min-height: 40px;
+    padding: 0px;
     font-family: 'Segoe UI', 'Tahoma';
     font-size: 12px;
     font-weight: bold;
     font-style: italic;
     text-align: center;
+}
+/* Rail buttons are fixed-size via setFixedSize (modules 107x43, footer
+   107x25/107x31 — spec §5.6). QSS `min-height` is the CONTENT height and it
+   OVERRIDES setFixedSize, so each distinct size needs its own rule; the 1px
+   border on both edges is added back on top. Without these, the global theme
+   QSS (ui/theme.py: QPushButton { min-height:20px; padding:8px 20px }) blows
+   every rail button up to 38px, and a single shared `min-height: 0px` guard
+   collapses them to ~14px because the rail layout hands the slack to its
+   trailing stretch. */
+QPushButton[vbRole="rail"][vbRailH="43"] {
+    min-height: 41px;
+}
+QPushButton[vbRole="rail"][vbRailH="25"] {
+    min-height: 23px;
+}
+QPushButton[vbRole="rail"][vbRailH="31"] {
+    min-height: 29px;
 }
 QPushButton[vbRole="rail"]:hover {
     background: #3d9e9e;
@@ -334,6 +354,10 @@ QPushButton[vbRole="chrome"] {
     border: 1px solid #808080;
     border-right-color: #ffffff;
     border-bottom-color: #ffffff;
+    /* Same guard as the rail rule: keep setFixedSize() authoritative against
+       the global theme QSS min-height/padding. */
+    min-height: 0px;
+    padding: 0px;
     font-family: 'Segoe UI', 'Tahoma';
     font-size: 10px;
 }
@@ -2537,6 +2561,11 @@ def _form_registry() -> dict[str, callable]:
         "Purchase Order": (lambda w: purord_ui.open_purchase_order(w))
         if purord_ui
         else _coming_soon("Purchase Order"),
+        # VB6 MatStat Index 2 (Inventory > Reports) -> rInventRepView
+        # GRepFormName='PurchOrder' (HMS.bas:479191, ModuleAdd.bas:3638).
+        # Report engine key PurchOrderPending = PurchOrder + VB6 pending
+        # filter (HMS.bas:640378 loc_1581891).
+        "Pending Purchase Order": _open_report("Pending Purchase Order"),
         "Purchase Bill": (lambda w: purbill_ui.open_purchase_bill(w))
         if purbill_ui
         else _coming_soon("Purchase Bill"),
@@ -3129,11 +3158,12 @@ def _form_registry() -> dict[str, callable]:
         # tuple me _coming_soon hain — VB6 evidence ke saath
         # tests/unit/test_mainsetup_registry_parity.py ALLOWED_INACTIVE me
         # documented hain.
+        # "Pending Purchase Order" is tuple se NIKAL diya: VB6 me wo real
+        # report hai (rInventRepView/PurchOrder) — upar _open_report par wired.
         **(
             {
                 cap: _coming_soon(cap)
                 for cap in (
-                    "Pending Purchase Order",
                     "Sale MIS Customized",
                     "Data Transfer",
                     "Data Recieving",
@@ -3698,6 +3728,12 @@ class MainWindow(QMainWindow):
 
     def __init__(self, user: str, comp: dict):
         super().__init__()
+        # Apply the VB6 shell sheet up-front. The fixed-size rail/chrome
+        # buttons are built below; if the global theme QSS (apply_theme) is
+        # the only sheet in effect while they are constructed, Qt bakes the
+        # theme size hint (38px) into them and, because the window is never
+        # shown in tests, it never recomputes -> spec §5.6 geometry drift.
+        self.setStyleSheet(VB_SHELL_QSS)
         self.user = user
         self.comp = comp
         self.setWindowTitle(
@@ -3721,10 +3757,44 @@ class MainWindow(QMainWindow):
         self._menubar.setObjectName("vbSubBar")
         self._menubar.setFixedHeight(40)
         self._menubar.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        # ponytail: direct stylesheet beats QApplication theme QSS for this widget
+        self._menubar.setStyleSheet("""
+QMenuBar#vbSubBar {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #8a3ffc, stop:1 #5a189a);
+    color: #ffffff;
+    font-family: 'Segoe UI', 'Tahoma';
+    font-size: 15px;
+    font-weight: bold;
+    font-style: italic;
+}
+QMenuBar#vbSubBar::item {
+    background: transparent;
+    color: #ffffff;
+    font-weight: bold;
+    font-style: italic;
+    padding: 8px 14px;
+    border: 1px solid transparent;
+}
+QMenuBar#vbSubBar::item:selected {
+    background: #9d4edd;
+    color: #ffffff;
+}
+QMenuBar#vbSubBar::item:focus {
+    border: 1px dotted #ffffff;
+}
+""")
 
         central = QWidget()
         self._central = central
-        central.setStyleSheet("background: #FFFFCC;")  # ponytail: solid pale yellow MDI
+        # ponytail: solid pale yellow MDI. The selector MUST stay scoped to
+        # this widget: a bare `background: #FFFFCC;` on central cascades to
+        # every descendant and clobbers the rail's white frame + teal module
+        # buttons and the sidebar's #c0c0c0 chrome (their QSS backgrounds live
+        # on MainWindow, an ancestor sheet with lower priority), leaving white
+        # rail captions on pale yellow. Same trap as `canvas` just below.
+        central.setObjectName("vbCentral")
+        central.setStyleSheet("QWidget#vbCentral { background: #FFFFCC; }")
         root = QVBoxLayout(central)
         root.setSpacing(0)
         root.setContentsMargins(0, 0, 0, 0)
@@ -3738,6 +3808,9 @@ class MainWindow(QMainWindow):
         band_lay.setSpacing(8)
         self.menuBar().setObjectName("vbSubBar")
         self.menuBar().setFixedHeight(40)
+        self.menuBar().setStyleSheet(
+            self._menubar.styleSheet()
+        )  # ponytail: same widget, keep in sync
         band_lay.addWidget(self._menubar, stretch=1)
         # Breadcrumb + theme toggle ride along in the band: §4.2 lists only
         # menubar + lbl_company, but both are live-tested, so they stay.
@@ -3797,7 +3870,8 @@ class MainWindow(QMainWindow):
         self.canvas.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.canvas.setWordWrap(True)
         self.canvas.setProperty("subtitle", True)
-        self.canvas.setStyleSheet("background: #FFFFCC;")
+        self.canvas.setObjectName("vbCanvas")
+        self.canvas.setStyleSheet("QLabel#vbCanvas { background: #FFFFCC; }")
         body.addWidget(self.canvas, stretch=1)
 
         # ── right sidebar: VB6 PictTitleBar, fixed 120px chrome column ──
@@ -4075,24 +4149,24 @@ class MainWindow(QMainWindow):
         """
         return getattr(self, "_menubar", None) or super().menuBar()
 
-    def _build_top_menubar(self):
-        """UI-MS-TOPMENU: VB6 '&Main Setup' (MDIForm1.frm:494) ka persistent
-        top menubar — 9 sub-menus, har ek apne leaves ka submenu.
+    def _build_top_menubar(self, module_name: str = None):
+        """UI-MS-TOPMENU: VB6 '&Main Setup' (MDIForm1.frm:494) ka top menubar.
 
-        Leaf click `_add_item` -> `_form_registry()` opener seedha kholta hai.
-        Module/sidebar click par ye kabhi clear/rebuild NAHI hota (sirf content
-        badalta hai) — isliye `_on_module` mb.clear() chala gaya.
-        Rights: `mh.menubar_for` already per-user rows filter karta hai
-        (restricted user ko jo module nahi mila woh yahan bhi nahi dikhega).
+        VB6 behavior: Jab user left rail (PictMainMenu) me module click karta hai,
+        to top menubar (PictSubMenu) us module ke groups/leaves se rebuild hota hai.
+
+        Args:
+            module_name: Module ka naam (None = default to Main Setup)
         """
+        target_module = module_name or _MAIN_SETUP_MODULE
         try:
-            groups = list(self._menus(_MAIN_SETUP_MODULE, self.user) or [])
-        except Exception:  # noqa: BLE001  # DB offline/rights fail -> no crash
+            groups = list(self._menus(target_module, self.user) or [])
+        except Exception:  # noqa: BLE001
             groups = []
         by_name = {str(g.get("name") or "").strip().lower(): g for g in groups}
         ordered = [by_name[n.lower()] for n in _TOP_MENU_ORDER if n.lower() in by_name]
-        # ponytail: DB se 9 group na mile (offline / restricted / test double)
-        # — fallback: source order me jo mila wahi dikhao, khali menubar se behtar.
+        # Clear existing menubar
+        self.menuBar().clear()
         for g in ordered or groups:
             mm = self.menuBar().addMenu(g["name"])
             for it in g.get("items") or []:
@@ -4127,12 +4201,9 @@ class MainWindow(QMainWindow):
         self._on_module({"name": mod_target}, btn)
 
     def _build_rail(self, sources) -> list:
-        """Project DB modules onto the 11 VB6 rail captions (spec §5.3).
+        """Project DB modules onto the 14 VB6 rail captions (spec §5.3).
 
-        NOT a pass-through: anything outside _RAIL_ORDER is never built, so
-        the duplicate `front office` node and the stray EPABX / Messaging /
-        Members Mgmt roots from the User_Module legacy merge are structurally
-        unreachable — VB6 MDIForm1 has exactly 11 module buttons. Caption
+        NOT a pass-through: anything outside _RAIL_ORDER is never built. Caption
         text is the VB6 caption; the raw menuHelp name rides on the
         `mod_target` property for open_leaf/_on_sidebar_click/tests.
         """
@@ -4146,6 +4217,9 @@ class MainWindow(QMainWindow):
                 continue
             b = QPushButton(caption, self.rail)
             b.setProperty("vbRole", "rail")
+            # vbRailH keys the QSS min-height rule that keeps setFixedSize(43)
+            # authoritative against the global theme QSS (see VB_SHELL_QSS).
+            b.setProperty("vbRailH", 43)
             b.setProperty("mod_target", src["name"])
             b.setFixedSize(107, 43)
             b.setCheckable(True)
@@ -4175,6 +4249,7 @@ class MainWindow(QMainWindow):
         for caption, h in zip(_RAIL_FOOTER, _RAIL_FOOTER_H):
             fb = QPushButton(caption, self.rail)
             fb.setProperty("vbRole", "rail")
+            fb.setProperty("vbRailH", h)  # keys the 25px/31px QSS min-height
             fb.setFixedSize(107, h)
             fb.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
             fb.setToolTip(f"{caption} (not available in this port yet)")
@@ -4275,7 +4350,6 @@ class MainWindow(QMainWindow):
     def resizeEvent(self, event):
         super().resizeEvent(event)
         self._user_resized = True
-        self.aurora.setGeometry(self._central.rect())
 
     def _on_module(self, m: dict, btn: QPushButton):
         # sidebar exclusive-check (VB6 jaisa highlight)
@@ -4285,10 +4359,9 @@ class MainWindow(QMainWindow):
         if btn is not None:
             btn.setChecked(True)
 
-        # UI-MS-TOPMENU: top menubar PERSISTENT hai — yahan pehle
-        # `mb.clear()` + full rebuild tha jo har module click par 9-item
-        # top bar ko destroy kar deta tha. Ab sirf crumb/canvas badalte
-        # hain; top bar `_build_top_menubar` me ek hi baar banta hai.
+        # UI-MS-TOPMENU: VB6 behavior - module click par top menubar rebuild hota hai
+        # (VB6 PictSubMenu updates based on selected module in PictMainMenu)
+        self._build_top_menubar(m["name"])
         self._groups = self._menus(m["name"], self.user)
         # BUG-A3 (cosmetic): mh.sidebar_sources() lowercase module names
         # laata hai; VB6 sidebar title case dikhata hai ("Finance"/"Main

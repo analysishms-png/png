@@ -3,41 +3,78 @@
 Run: python -m HMS_py.ui.p2_masters
 Offscreen screenshot: HMS_POC_SHOT=<path> env var.
 """
+
 import os
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
-    os.path.abspath(__file__)))))
+sys.path.insert(
+    0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+)
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QKeySequence, QShortcut
-from PyQt6.QtWidgets import (QApplication, QDialog, QDialogButtonBox,
-                             QFormLayout, QGroupBox, QHBoxLayout, QHeaderView,
-                             QLabel, QMainWindow, QMessageBox, QPushButton, QTableWidget,
-                             QTableWidgetItem, QVBoxLayout, QWidget)
+from PyQt6.QtWidgets import (
+    QApplication,
+    QDialog,
+    QDialogButtonBox,
+    QFormLayout,
+    QGroupBox,
+    QHBoxLayout,
+    QHeaderView,
+    QLabel,
+    QMainWindow,
+    QMessageBox,
+    QPushButton,
+    QTableWidget,
+    QTableWidgetItem,
+    QVBoxLayout,
+    QWidget,
+)
 
-from HMS_py.core import (acgroup, area, chargemaster, city, country, depart,
-                         fixcharge, item, narr, state, sundry, unit, venue)
+from HMS_py.core import (
+    acgroup,
+    area,
+    chargemaster,
+    city,
+    country,
+    depart,
+    fixcharge,
+    item,
+    narr,
+    state,
+    sundry,
+    unit,
+    venue,
+)
+
 # New Main Setup masters (P2-complete)
-from HMS_py.core import (roomcategory, roommaster, packagemaster,
-                         seasonmaster, companymaster, usermaster, ratelist)
-from HMS_py.ui.base_master import (BaseMasterForm, Field, MasterConfig,
-                                   make_delete_guard)
+from HMS_py.core import (
+    roomcategory,
+    roommaster,
+    packagemaster,
+    seasonmaster,
+    companymaster,
+    usermaster,
+    ratelist,
+)
+from HMS_py.ui.base_master import BaseMasterForm, Field, MasterConfig, make_delete_guard
 from HMS_py.ui.desktop_style import apply_desktop_surface, mark_desktop_action
 
 
 def sundry_config() -> MasterConfig:
     return MasterConfig(
         title="Sundry Master (P2) - HMS_py",
-        columns=[("Code", "code"), ("Name", "name"), ("Nature", "nature"),
-                 ("Calc", "calc"), ("Sys", "sysyn")],
+        columns=[
+            ("Code", "code"),
+            ("Name", "name"),
+            ("Nature", "nature"),
+            ("Calc", "calc"),
+            ("Sys", "sysyn"),
+        ],
         fields=[
-            Field("code", "Code", max_len=sundry.LIMITS["code"],
-                  required=True),
-            Field("name", "Name", max_len=sundry.LIMITS["name"],
-                  required=True),
-            Field("nature", "Nature", max_len=sundry.LIMITS["nature"],
-                  required=True),
+            Field("code", "Code", max_len=sundry.LIMITS["code"], required=True),
+            Field("name", "Name", max_len=sundry.LIMITS["name"], required=True),
+            Field("nature", "Nature", max_len=sundry.LIMITS["nature"], required=True),
             Field("calc", "Calc +/-", max_len=sundry.LIMITS["calc"]),
         ],
         api=sundry,
@@ -50,10 +87,8 @@ def narr_config() -> MasterConfig:
         title="Narration Master (P2) - HMS_py",
         columns=[("Code", "code"), ("Name", "name")],
         fields=[
-            Field("code", "Code", max_len=narr.LIMITS["code"],
-                  required=True),
-            Field("name", "Narration", max_len=narr.LIMITS["name"],
-                  required=True),
+            Field("code", "Code", max_len=narr.LIMITS["code"], required=True),
+            Field("name", "Narration", max_len=narr.LIMITS["name"], required=True),
         ],
         api=narr,
         delete_guard=make_delete_guard("PYT"),
@@ -63,13 +98,16 @@ def narr_config() -> MasterConfig:
 def city_config() -> MasterConfig:
     return MasterConfig(
         title="City Master (P2) - HMS_py",
-        columns=[("CityCode", "code"), ("CityName", "name"),
-                 ("Short", "short"), ("Zip", "zip"), ("State", "state")],
+        columns=[
+            ("CityCode", "code"),
+            ("CityName", "name"),
+            ("Short", "short"),
+            ("Zip", "zip"),
+            ("State", "state"),
+        ],
         fields=[
-            Field("code", "CityCode", max_len=city.LIMITS["code"],
-                  required=True),
-            Field("name", "CityName", max_len=city.LIMITS["name"],
-                  required=True),
+            Field("code", "CityCode", max_len=city.LIMITS["code"], required=True),
+            Field("name", "CityName", max_len=city.LIMITS["name"], required=True),
             Field("short", "Short Name", max_len=city.LIMITS["short"]),
             Field("zip", "Zip Code", max_len=city.LIMITS["zip"]),
             Field("state", "State Code", max_len=city.LIMITS["state"]),
@@ -82,15 +120,11 @@ def city_config() -> MasterConfig:
 def area_config() -> MasterConfig:
     return MasterConfig(
         title="Area Master (P2) - HMS_py",
-        columns=[("AreaCode", "code"), ("AreaName", "name"),
-                 ("CityCode", "city")],
+        columns=[("AreaCode", "code"), ("AreaName", "name"), ("CityCode", "city")],
         fields=[
-            Field("code", "AreaCODE", max_len=area.LIMITS["code"],
-                  required=True),
-            Field("name", "AreaNAME", max_len=area.LIMITS["name"],
-                  required=True),
-            Field("city", "CityCode (FK)", max_len=area.LIMITS["city"],
-                  required=True),
+            Field("code", "AreaCODE", max_len=area.LIMITS["code"], required=True),
+            Field("name", "AreaNAME", max_len=area.LIMITS["name"], required=True),
+            Field("city", "CityCode (FK)", max_len=area.LIMITS["city"], required=True),
         ],
         api=area,
         delete_guard=make_delete_guard("PYT"),
@@ -105,33 +139,32 @@ def chargemaster_config() -> MasterConfig:
     """
     return MasterConfig(
         title="Charge Master - HMS_py",
-        columns=[("Code", "code"), ("Name", "name"),
-                 ("ACCode", "accode"), ("SaleRate", "salerate"),
-                 ("TaxStru", "taxstru")],
+        columns=[
+            ("Code", "code"),
+            ("Name", "name"),
+            ("ACCode", "accode"),
+            ("SaleRate", "salerate"),
+            ("TaxStru", "taxstru"),
+        ],
         fields=[
             Field("code", "Code", max_len=chargemaster.LIMITS["code"]),
-            Field("name", "Name", max_len=chargemaster.LIMITS["name"],
-                  required=True),
-            Field("short", "Short Name",
-                  max_len=chargemaster.LIMITS["short"]),
-            Field("accode", "Ledger A/C",
-                  max_len=chargemaster.LIMITS["accode"]),
-            Field("taxstru", "Tax Structure",
-                  max_len=chargemaster.LIMITS["taxstru"]),
+            Field("name", "Name", max_len=chargemaster.LIMITS["name"], required=True),
+            Field("short", "Short Name", max_len=chargemaster.LIMITS["short"]),
+            Field("accode", "Ledger A/C", max_len=chargemaster.LIMITS["accode"]),
+            Field("taxstru", "Tax Structure", max_len=chargemaster.LIMITS["taxstru"]),
             Field("salerate", "Sale Rate", default="0"),
             Field("cost", "Cost", default="0"),
-            Field("type", "Type (Dr/Cr)", max_len=chargemaster.LIMITS["type"],
-                  default="Cr"),
-            Field("acposting", "A/C Posting",
-                  max_len=chargemaster.LIMITS["acposting"]),
-            Field("nature", "Nature",
-                  max_len=chargemaster.LIMITS["nature"]),
-            Field("active", "Active",
-                  max_len=chargemaster.LIMITS["active"]),
-            Field("taxinc", "Tax Inclusive",
-                  max_len=chargemaster.LIMITS["taxinc"]),
-            Field("hsncode", "HSN Code",
-                  max_len=chargemaster.LIMITS["hsncode"]),
+            Field(
+                "type",
+                "Type (Dr/Cr)",
+                max_len=chargemaster.LIMITS["type"],
+                default="Cr",
+            ),
+            Field("acposting", "A/C Posting", max_len=chargemaster.LIMITS["acposting"]),
+            Field("nature", "Nature", max_len=chargemaster.LIMITS["nature"]),
+            Field("active", "Active", max_len=chargemaster.LIMITS["active"]),
+            Field("taxinc", "Tax Inclusive", max_len=chargemaster.LIMITS["taxinc"]),
+            Field("hsncode", "HSN Code", max_len=chargemaster.LIMITS["hsncode"]),
         ],
         api=chargemaster,
         generated_pk=True,
@@ -142,27 +175,27 @@ def chargemaster_config() -> MasterConfig:
 def item_config() -> MasterConfig:
     return MasterConfig(
         title="Item Master (P2, F&B) - HMS_py",
-        columns=[("Code", "code"), ("Name", "name"), ("Unit", "unit"),
-                 ("Type", "type"), ("BarCode", "barcode"),
-                 ("Rate", "rate")],
+        columns=[
+            ("Code", "code"),
+            ("Name", "name"),
+            ("Unit", "unit"),
+            ("Type", "type"),
+            ("BarCode", "barcode"),
+            ("Rate", "rate"),
+        ],
         fields=[
-            Field("code", "Code", max_len=item.LIMITS["code"],
-                  required=True),
-            Field("name", "Name", max_len=item.LIMITS["name"],
-                  required=True),
+            Field("code", "Code", max_len=item.LIMITS["code"], required=True),
+            Field("name", "Name", max_len=item.LIMITS["name"], required=True),
             Field("unit", "Unit", max_len=item.LIMITS["unit"]),
             Field("type", "Type", max_len=item.LIMITS["type"]),
             Field("group", "ItemGroup", max_len=item.LIMITS["group"]),
             Field("rate", "SaleRate", default="0"),
             # AUDIT P2-C/P2-I: VB6 FrmItemMast `Item` table fields
             Field("barcode", "BarCode", max_len=item.LIMITS["barcode"]),
-            Field("commodity", "CommodityCode",
-                  max_len=item.LIMITS["commodity"]),
-            Field("labelname", "Label Name",
-                  max_len=item.LIMITS["labelname"]),
+            Field("commodity", "CommodityCode", max_len=item.LIMITS["commodity"]),
+            Field("labelname", "Label Name", max_len=item.LIMITS["labelname"]),
             Field("labelqty", "Label Qty", max_len=item.LIMITS["labelqty"]),
-            Field("labelremark1", "Label Remark 1",
-                  max_len=item.LIMITS["labelremark"]),
+            Field("labelremark1", "Label Remark 1", max_len=item.LIMITS["labelremark"]),
             Field("mrp", "MRP", default="0"),
             Field("rateinctax", "Rate Inc Tax (Y/N)", max_len=1),
         ],
@@ -174,23 +207,41 @@ def item_config() -> MasterConfig:
 def item_group_config() -> MasterConfig:
     return MasterConfig(
         title="Item Group Master - HMS_py",
-        columns=[("Code", "code"), ("Name", "name"),
-                 ("Type", "type"), ("Status", "status")],
+        columns=[
+            ("Code", "code"),
+            ("Name", "name"),
+            ("Type", "type"),
+            ("Status", "status"),
+        ],
         fields=[
-            Field("code", "Item Group Code",
-                  max_len=item.ITEMGRP_LIMITS.get("code", 6), required=True),
-            Field("name", "Item Group Name",
-                  max_len=item.ITEMGRP_LIMITS.get("name", 30), required=True),
+            Field(
+                "code",
+                "Item Group Code",
+                max_len=item.ITEMGRP_LIMITS.get("code", 6),
+                required=True,
+            ),
+            Field(
+                "name",
+                "Item Group Name",
+                max_len=item.ITEMGRP_LIMITS.get("name", 30),
+                required=True,
+            ),
             Field("type", "Type", max_len=item.ITEMGRP_LIMITS.get("type", 10)),
-            Field("status", "Status",
-                  max_len=item.ITEMGRP_LIMITS.get("status", 10)),
-            Field("rest", "Outlet / Rest Code",
-                  max_len=item.ITEMGRP_LIMITS.get("rest", 6)),
+            Field("status", "Status", max_len=item.ITEMGRP_LIMITS.get("status", 10)),
+            Field(
+                "rest", "Outlet / Rest Code", max_len=item.ITEMGRP_LIMITS.get("rest", 6)
+            ),
             Field("choose_limit", "Choose Limit", default="0"),
-            Field("cattype", "Category Type",
-                  max_len=item.ITEMGRP_LIMITS.get("cattype", 10)),
-            Field("commodity", "Commodity Code",
-                  max_len=item.ITEMGRP_LIMITS.get("commodity", 6)),
+            Field(
+                "cattype",
+                "Category Type",
+                max_len=item.ITEMGRP_LIMITS.get("cattype", 10),
+            ),
+            Field(
+                "commodity",
+                "Commodity Code",
+                max_len=item.ITEMGRP_LIMITS.get("commodity", 6),
+            ),
         ],
         api=item.ItemGrpAPI,
         delete_guard=make_delete_guard("PYT"),
@@ -200,14 +251,16 @@ def item_group_config() -> MasterConfig:
 def acgroup_config() -> MasterConfig:
     return MasterConfig(
         title="Account Group Master (P2) - HMS_py",
-        columns=[("GroupCode", "code"), ("GroupName", "name"),
-                 ("A/L", "gnature"), ("Nature", "nature"),
-                 ("ID", "id")],
+        columns=[
+            ("GroupCode", "code"),
+            ("GroupName", "name"),
+            ("A/L", "gnature"),
+            ("Nature", "nature"),
+            ("ID", "id"),
+        ],
         fields=[
-            Field("code", "GroupCode", max_len=acgroup.LIMITS["code"],
-                  required=True),
-            Field("name", "GroupName", max_len=acgroup.LIMITS["name"],
-                  required=True),
+            Field("code", "GroupCode", max_len=acgroup.LIMITS["code"], required=True),
+            Field("name", "GroupName", max_len=acgroup.LIMITS["name"], required=True),
             Field("gnature", "GroupNature A/L", max_len=1),
             Field("nature", "Nature", max_len=acgroup.LIMITS["type"]),
         ],
@@ -219,14 +272,16 @@ def acgroup_config() -> MasterConfig:
 def venue_config() -> MasterConfig:
     return MasterConfig(
         title="Venue Master (P2, Banquet) - HMS_py",
-        columns=[("Code", "code"), ("Name", "name"),
-                 ("Capacity", "capacity"), ("Seating", "seating"),
-                 ("Status", "status")],
+        columns=[
+            ("Code", "code"),
+            ("Name", "name"),
+            ("Capacity", "capacity"),
+            ("Seating", "seating"),
+            ("Status", "status"),
+        ],
         fields=[
-            Field("code", "Code", max_len=venue.LIMITS["code"],
-                  required=True),
-            Field("name", "Name", max_len=venue.LIMITS["name"],
-                  required=True),
+            Field("code", "Code", max_len=venue.LIMITS["code"], required=True),
+            Field("name", "Name", max_len=venue.LIMITS["name"], required=True),
             Field("short", "ShortName", max_len=venue.LIMITS["short"]),
             Field("capacity", "Capacity", max_len=venue.LIMITS["capacity"]),
             Field("seating", "Seating", default="0"),
@@ -242,32 +297,44 @@ def venue_config() -> MasterConfig:
 # (key, label, max_len) — writer ab inhe persist karta hai, UI bhi expose
 # karta hai taaki save par silent-drop na ho.
 _DEPART_EXTRA_FIELDS = (
-    ("short", "Short Name", 4), ("resttype", "Rest Type", 20),
-    ("outletyn", "Outlet Y/N", 1), ("linktoroom", "Link To Room", 1),
+    ("short", "Short Name", 4),
+    ("resttype", "Rest Type", 20),
+    ("outletyn", "Outlet Y/N", 1),
+    ("linktoroom", "Link To Room", 1),
     ("backcolor", "Back Color", None),
-    ("header1", "Header 1", 50), ("header2", "Header 2", 50),
-    ("header3", "Header 3", 50), ("header4", "Header 4", 50),
-    ("slogan1", "Slogan 1", 50), ("slogan2", "Slogan 2", 50),
-    ("lstno", "Lst No", 50), ("companytitle", "Company Title", 1),
-    ("outlettitle", "Outlet Title", 1), ("partyname", "Party Name", 1),
-    ("splitbill", "Split Bill", 1), ("rateinctax", "Rate Incl Tax", 1),
-    ("discapp", "Discount App", 1), ("roff", "Round Off", 1),
+    ("header1", "Header 1", 50),
+    ("header2", "Header 2", 50),
+    ("header3", "Header 3", 50),
+    ("header4", "Header 4", 50),
+    ("slogan1", "Slogan 1", 50),
+    ("slogan2", "Slogan 2", 50),
+    ("lstno", "Lst No", 50),
+    ("companytitle", "Company Title", 1),
+    ("outlettitle", "Outlet Title", 1),
+    ("partyname", "Party Name", 1),
+    ("splitbill", "Split Bill", 1),
+    ("rateinctax", "Rate Incl Tax", 1),
+    ("discapp", "Discount App", 1),
+    ("roff", "Round Off", 1),
     ("memberinfo", "Member Info", 1),
     ("disprint", "Discount Print", 1),
     ("labelprinting", "Label Printing", 1),
-    ("printer", "Printer", 50), ("storetype", "Store Type", 3),
+    ("printer", "Printer", 50),
+    ("storetype", "Store Type", 3),
     ("tokenprint", "Token Print", 3),
     ("tokenprintafter", "Token Print After", 3),
     ("printtokenno", "Print Token No", 3),
     ("order_booking", "Order Booking", 3),
-    ("custinfo", "Customer Info", 1), ("cstno", "Customer St No", 50),
+    ("custinfo", "Customer Info", 1),
+    ("cstno", "Customer St No", 50),
     ("ckotprintyn", "CKOT Print Y/N", 1),
     ("printtype", "Print Type", 50),
     ("barcodepartitionappon", "BarCode Partition App On", 20),
     ("ckotprintpath", "CKOT Print Path", 75),
     ("curtokenno", "Current Token No", None),
     ("curtokennokot", "Cur Token No KOT", None),
-    ("noofkot", "No Of KOT", None), ("noofbill", "No Of Bill", None),
+    ("noofkot", "No Of KOT", None),
+    ("noofbill", "No Of Bill", None),
     ("orderbookcom1", "Order Book Com 1", 35),
     ("orderbookcom2", "Order Book Com 2", 35),
     ("salebilltokenheader1", "Sale Bill Token Header 1", 50),
@@ -287,21 +354,19 @@ _DEPART_EXTRA_FIELDS = (
 
 def depart_config() -> MasterConfig:
     fields = [
-        Field("code", "Code", max_len=depart.LIMITS["code"],
-              required=True),
-        Field("name", "Name", max_len=depart.LIMITS["name"],
-              required=True),
+        Field("code", "Code", max_len=depart.LIMITS["code"], required=True),
+        Field("name", "Name", max_len=depart.LIMITS["name"], required=True),
         Field("kotyn", "KOT Y/N", max_len=1),
         Field("pos", "POS Y/N", max_len=1),
         Field("phone", "Phone", max_len=depart.LIMITS["phone"]),
     ]
     for key, label, max_len in _DEPART_EXTRA_FIELDS:
-        fields.append(Field(key, label, max_len=max_len)
-                      if max_len else Field(key, label))
+        fields.append(
+            Field(key, label, max_len=max_len) if max_len else Field(key, label)
+        )
     return MasterConfig(
         title="Department/Outlet Master (P2, F&B) - HMS_py",
-        columns=[("Code", "code"), ("Name", "name"),
-                 ("KOT", "kotyn"), ("POS", "pos")],
+        columns=[("Code", "code"), ("Name", "name"), ("KOT", "kotyn"), ("POS", "pos")],
         fields=fields,
         api=depart,
         delete_guard=make_delete_guard("PYT"),
@@ -310,21 +375,23 @@ def depart_config() -> MasterConfig:
 
 # ---- Main Setup completion (P2-c): Country/State/Charge/Unit ----
 
+
 def country_config() -> MasterConfig:
     return MasterConfig(
         title="Country Master (P2-c) - HMS_py",
-        columns=[("Code", "code"), ("Name", "name"), ("Short", "short"),
-                 ("Type", "type"), ("Nationality", "nationality")],
+        columns=[
+            ("Code", "code"),
+            ("Name", "name"),
+            ("Short", "short"),
+            ("Type", "type"),
+            ("Nationality", "nationality"),
+        ],
         fields=[
-            Field("code", "Code", max_len=country.LIMITS["code"],
-                  required=True),
-            Field("name", "Name", max_len=country.LIMITS["name"],
-                  required=True),
+            Field("code", "Code", max_len=country.LIMITS["code"], required=True),
+            Field("name", "Name", max_len=country.LIMITS["name"], required=True),
             Field("short", "ShortName", max_len=country.LIMITS["short"]),
-            Field("type", "Type (India/Foreign)",
-                  max_len=country.LIMITS["type"]),
-            Field("nationality", "Nationality",
-                  max_len=country.LIMITS["nationality"]),
+            Field("type", "Type (India/Foreign)", max_len=country.LIMITS["type"]),
+            Field("nationality", "Nationality", max_len=country.LIMITS["nationality"]),
         ],
         api=country,
         delete_guard=make_delete_guard("PYT"),
@@ -334,17 +401,17 @@ def country_config() -> MasterConfig:
 def state_config() -> MasterConfig:
     return MasterConfig(
         title="State Master (P2-c) - HMS_py",
-        columns=[("Code", "code"), ("Name", "name"), ("Short", "short"),
-                 ("Country", "country")],
+        columns=[
+            ("Code", "code"),
+            ("Name", "name"),
+            ("Short", "short"),
+            ("Country", "country"),
+        ],
         fields=[
-            Field("code", "Code", max_len=state.LIMITS["code"],
-                  required=True),
-            Field("name", "Name", max_len=state.LIMITS["name"],
-                  required=True),
-            Field("short", "State No (Short)",
-                  max_len=state.LIMITS["short"]),
-            Field("country", "Country Code (FK)",
-                  max_len=state.LIMITS["country"]),
+            Field("code", "Code", max_len=state.LIMITS["code"], required=True),
+            Field("name", "Name", max_len=state.LIMITS["name"], required=True),
+            Field("short", "State No (Short)", max_len=state.LIMITS["short"]),
+            Field("country", "Country Code (FK)", max_len=state.LIMITS["country"]),
         ],
         api=state,
         delete_guard=make_delete_guard("PYT"),
@@ -354,19 +421,21 @@ def state_config() -> MasterConfig:
 def fixcharge_config() -> MasterConfig:
     return MasterConfig(
         title="Charge Master / Fixed Charge (P2-c) - HMS_py",
-        columns=[("Code", "code"), ("Name", "name"), ("Rev", "revcode"),
-                 ("TaxInc", "taxinc"), ("Rate", "flatrate")],
+        columns=[
+            ("Code", "code"),
+            ("Name", "name"),
+            ("Rev", "revcode"),
+            ("TaxInc", "taxinc"),
+            ("Rate", "flatrate"),
+        ],
         fields=[
-            Field("code", "Code", max_len=fixcharge.LIMITS["code"],
-                  required=True),
-            Field("name", "Name", max_len=fixcharge.LIMITS["name"],
-                  required=True),
+            Field("code", "Code", max_len=fixcharge.LIMITS["code"], required=True),
+            Field("name", "Name", max_len=fixcharge.LIMITS["name"], required=True),
             Field("sname", "Short", max_len=fixcharge.LIMITS["sname"]),
             Field("revcode", "RevCode", max_len=fixcharge.LIMITS["revcode"]),
             Field("taxinc", "TaxInc Y/N", max_len=fixcharge.LIMITS["taxinc"]),
             Field("taxstru", "TaxStru", max_len=fixcharge.LIMITS["taxstru"]),
-            Field("chargetype", "ChargeType",
-                  max_len=fixcharge.LIMITS["chargetype"]),
+            Field("chargetype", "ChargeType", max_len=fixcharge.LIMITS["chargetype"]),
             Field("flatrate", "FlatRate", default="0"),
         ],
         api=fixcharge,
@@ -377,11 +446,9 @@ def fixcharge_config() -> MasterConfig:
 def unit_config() -> MasterConfig:
     return MasterConfig(
         title="Unit Master (P2-c, POS) - HMS_py",
-        columns=[("Unit", "code"), ("PriceType", "pricetype"),
-                 ("Status", "status")],
+        columns=[("Unit", "code"), ("PriceType", "pricetype"), ("Status", "status")],
         fields=[
-            Field("code", "Unit Name", max_len=unit.LIMITS["code"],
-                  required=True),
+            Field("code", "Unit Name", max_len=unit.LIMITS["code"], required=True),
             Field("pricetype", "PriceType (0/1)", default="0"),
             Field("status", "Status", max_len=unit.LIMITS["status"]),
         ],
@@ -454,6 +521,7 @@ def open_unit(parent=None):
 # ---- Main Setup COMPLETE (P2-complete): Room Cat/Master, Package,
 #      Season, Company Master, User Master ----
 
+
 class RoomCategoryMasterForm(BaseMasterForm):
     """Room Category master + VB6 CmdRate parity: Rate editor button.
 
@@ -479,8 +547,9 @@ class RoomCategoryMasterForm(BaseMasterForm):
         if row >= 0:
             cat = (self.tbl.item(row, 0).text() or "").strip()
         if not cat:
-            QMessageBox.information(self, "Rate List",
-                                    "Pehle category select karo (grid row).")
+            QMessageBox.information(
+                self, "Rate List", "Pehle category select karo (grid row)."
+            )
             return
         open_ratelist_editor(cat, self)
 
@@ -496,8 +565,18 @@ def build_ratelist_editor(roomcat: str, parent=None):
     fl = QVBoxLayout(grp)
     tbl = QTableWidget(0, 9)
     tbl.setHorizontalHeaderLabels(
-        ["RoomNo", "OccType", "Rate1", "Rate2", "Rate3", "Rate4",
-         "Rate5", "RateW", "RateM"])
+        [
+            "RoomNo",
+            "OccType",
+            "Rate1",
+            "Rate2",
+            "Rate3",
+            "Rate4",
+            "Rate5",
+            "RateW",
+            "RateM",
+        ]
+    )
     tbl.horizontalHeader().setStretchLastSection(True)
     fl.addWidget(tbl)
     root.addWidget(grp)
@@ -508,12 +587,19 @@ def build_ratelist_editor(roomcat: str, parent=None):
         for r in rows:
             i = tbl.rowCount()
             tbl.insertRow(i)
-            vals = [r["roomno"], r["occtype"], r["rate1"], r["rate2"],
-                    r["rate3"], r["rate4"], r["rate5"], r["ratew"],
-                    r["ratem"]]
+            vals = [
+                r["roomno"],
+                r["occtype"],
+                r["rate1"],
+                r["rate2"],
+                r["rate3"],
+                r["rate4"],
+                r["rate5"],
+                r["ratew"],
+                r["ratem"],
+            ]
             for c, v in enumerate(vals):
-                tbl.setItem(i, c, QTableWidgetItem("" if v is None
-                                                   else str(v)))
+                tbl.setItem(i, c, QTableWidgetItem("" if v is None else str(v)))
 
     def _add_row():
         i = tbl.rowCount()
@@ -529,21 +615,30 @@ def build_ratelist_editor(roomcat: str, parent=None):
     def _save():
         rows = []
         for i in range(tbl.rowCount()):
+
             def _v(c):
                 it = tbl.item(i, c)
                 return it.text().strip() if it else ""
-            rows.append({
-                "roomcat": roomcat,
-                "roomno": _v(0) or ratelist.DEFAULT_ROOMNO,
-                "occtype": _v(1),
-                "rate1": _v(2), "rate2": _v(3), "rate3": _v(4),
-                "rate4": _v(5), "rate5": _v(6), "ratew": _v(7),
-                "ratem": _v(8),
-            })
+
+            rows.append(
+                {
+                    "roomcat": roomcat,
+                    "roomno": _v(0) or ratelist.DEFAULT_ROOMNO,
+                    "occtype": _v(1),
+                    "rate1": _v(2),
+                    "rate2": _v(3),
+                    "rate3": _v(4),
+                    "rate4": _v(5),
+                    "rate5": _v(6),
+                    "ratew": _v(7),
+                    "ratem": _v(8),
+                }
+            )
         try:
             n = ratelist.save_category_rates(rows, roomcat=roomcat)
-            QMessageBox.information(dlg, "Rate List",
-                                    f"{n} rate rows save ho gayi (delete->insert).")
+            QMessageBox.information(
+                dlg, "Rate List", f"{n} rate rows save ho gayi (delete->insert)."
+            )
             _reload()
         except Exception as e:
             QMessageBox.warning(dlg, "Rate List", f"Save fail: {e}")
@@ -572,18 +667,28 @@ def open_ratelist_editor(roomcat: str, parent=None):
 def roomcategory_config() -> MasterConfig:
     return MasterConfig(
         title="Room Category Master - HMS_py",
-        columns=[("Code", "code"), ("Name", "name"), ("Short", "short"),
-                 ("MaxPerson", "maxperson"), ("RevCode", "revcode"),
-                 ("Rooms", "norooms"), ("RetChg", "retchg")],
+        columns=[
+            ("Code", "code"),
+            ("Name", "name"),
+            ("Short", "short"),
+            ("MaxPerson", "maxperson"),
+            ("RevCode", "revcode"),
+            ("Rooms", "norooms"),
+            ("RetChg", "retchg"),
+        ],
         fields=[
-            Field("code", "CatCode", max_len=roomcategory.LIMITS["code"],
-                  required=True),
-            Field("name", "Category Name", max_len=roomcategory.LIMITS["name"],
-                  required=True),
+            Field(
+                "code", "CatCode", max_len=roomcategory.LIMITS["code"], required=True
+            ),
+            Field(
+                "name",
+                "Category Name",
+                max_len=roomcategory.LIMITS["name"],
+                required=True,
+            ),
             Field("short", "Short Name", max_len=roomcategory.LIMITS["short"]),
             Field("maxperson", "Max Person", default="2"),
-            Field("revcode", "Revenue Code",
-                  max_len=roomcategory.LIMITS["revcode"]),
+            Field("revcode", "Revenue Code", max_len=roomcategory.LIMITS["revcode"]),
             # AUDIT P2-H: VB6 FrmRoomCatMast ke chhoote fields
             Field("retchg", "Retention Chg %", default="0"),
             Field("cancelchg", "Cancellation Chg %", default="0"),
@@ -591,8 +696,7 @@ def roomcategory_config() -> MasterConfig:
             Field("norooms", "No Of Rooms", default="0"),
             Field("multper", "Multiplier Person", default="0"),
             Field("inclcount", "Incl Count", max_len=1),
-            Field("mapcode", "Map Code",
-                  max_len=roomcategory.LIMITS["mapcode"]),
+            Field("mapcode", "Map Code", max_len=roomcategory.LIMITS["mapcode"]),
         ],
         api=roomcategory,
         delete_guard=make_delete_guard("PYT"),
@@ -602,21 +706,26 @@ def roomcategory_config() -> MasterConfig:
 def roommaster_config() -> MasterConfig:
     return MasterConfig(
         title="Room Master - HMS_py",
-        columns=[("RoomNo", "code"), ("Name", "name"), ("Category", "roomcat"),
-                 ("RevCode", "revcode"), ("RoomStat", "roomstat")],
+        columns=[
+            ("RoomNo", "code"),
+            ("Name", "name"),
+            ("Category", "roomcat"),
+            ("RevCode", "revcode"),
+            ("RoomStat", "roomstat"),
+        ],
         fields=[
-            Field("code", "Room No", max_len=roommaster.LIMITS["code"],
-                  required=True),
-            Field("name", "Room Name", max_len=roommaster.LIMITS["name"],
-                  required=True),
-            Field("roomcat", "Category Code (FK RoomCat)",
-                  max_len=roommaster.LIMITS["roomcat"]),
-            Field("revcode", "Revenue Code",
-                  max_len=roommaster.LIMITS["revcode"]),
-            Field("taxstru", "Tax Structure",
-                  max_len=roommaster.LIMITS["taxstru"]),
-            Field("roomstat", "Room Stat",
-                  max_len=1, default=""),
+            Field("code", "Room No", max_len=roommaster.LIMITS["code"], required=True),
+            Field(
+                "name", "Room Name", max_len=roommaster.LIMITS["name"], required=True
+            ),
+            Field(
+                "roomcat",
+                "Category Code (FK RoomCat)",
+                max_len=roommaster.LIMITS["roomcat"],
+            ),
+            Field("revcode", "Revenue Code", max_len=roommaster.LIMITS["revcode"]),
+            Field("taxstru", "Tax Structure", max_len=roommaster.LIMITS["taxstru"]),
+            Field("roomstat", "Room Stat", max_len=1, default=""),
         ],
         api=roommaster,
         delete_guard=make_delete_guard("PYT"),
@@ -639,12 +748,10 @@ class _PlanPackageAPI:
         return packagemaster.exists(code, cn=cn, plan_package=self.kind)
 
     def insert(self, record, cn=None, commit=True):
-        return packagemaster.insert(record, cn=cn, commit=commit,
-                                    kind=self.kind)
+        return packagemaster.insert(record, cn=cn, commit=commit, kind=self.kind)
 
     def update(self, code, record, cn=None, commit=True):
-        return packagemaster.update(code, record, cn=cn, commit=commit,
-                                    kind=self.kind)
+        return packagemaster.update(code, record, cn=cn, commit=commit, kind=self.kind)
 
     def delete(self, code, cn=None, commit=True):
         return packagemaster.delete(code, cn=cn, commit=commit)
@@ -653,14 +760,27 @@ class _PlanPackageAPI:
 def packagemaster_config() -> MasterConfig:
     return MasterConfig(
         title="Package Master - HMS_py",
-        columns=[("Code", "code"), ("Name", "name"),
-                 ("Total", "total"), ("Room Rate", "room_rate"),
-                 ("Package Amount", "pkg_amount"), ("Active", "active")],
+        columns=[
+            ("Code", "code"),
+            ("Name", "name"),
+            ("Total", "total"),
+            ("Room Rate", "room_rate"),
+            ("Package Amount", "pkg_amount"),
+            ("Active", "active"),
+        ],
         fields=[
-            Field("code", "Pack Code", max_len=packagemaster.LIMITS.get("code", 5),
-                  required=True),
-            Field("name", "Pack Name", max_len=packagemaster.LIMITS.get("name", 25),
-                  required=True),
+            Field(
+                "code",
+                "Pack Code",
+                max_len=packagemaster.LIMITS.get("code", 5),
+                required=True,
+            ),
+            Field(
+                "name",
+                "Pack Name",
+                max_len=packagemaster.LIMITS.get("name", 25),
+                required=True,
+            ),
             Field("total", "Total", default="0"),
             Field("room_per", "Room Per", default="1"),
             Field("room_rate", "Room Rate", default="0"),
@@ -697,12 +817,20 @@ def planmaster_config() -> MasterConfig:
 def seasonmaster_config() -> MasterConfig:
     return MasterConfig(
         title="Season Master - HMS_py",
-        columns=[("Code", "code"), ("Name", "name"),
-                 ("From", "fromdate"), ("To", "todate"), ("Active", "active")],
+        columns=[
+            ("Code", "code"),
+            ("Name", "name"),
+            ("From", "fromdate"),
+            ("To", "todate"),
+            ("Active", "active"),
+        ],
         fields=[
-            Field("code", "Season Code",
-                  max_len=seasonmaster.LIMITS.get("ratecode", 2),
-                  required=True),
+            Field(
+                "code",
+                "Season Code",
+                max_len=seasonmaster.LIMITS.get("ratecode", 2),
+                required=True,
+            ),
             Field("name", "Season Name", max_len=30),
             Field("fromdate", "From Date (YYYY-MM-DD)"),
             Field("todate", "To Date (YYYY-MM-DD)"),
@@ -716,20 +844,36 @@ def seasonmaster_config() -> MasterConfig:
 def companymaster_config() -> MasterConfig:
     return MasterConfig(
         title="Company Master (Corporate Clients) - HMS_py",
-        columns=[("Code", "code"), ("Name", "name"), ("City", "city"),
-                 ("Phone", "phone"), ("Contact", "contact"),
-                 ("Active", "active")],
+        columns=[
+            ("Code", "code"),
+            ("Name", "name"),
+            ("City", "city"),
+            ("Phone", "phone"),
+            ("Contact", "contact"),
+            ("Active", "active"),
+        ],
         fields=[
-            Field("code", "Comp Code", max_len=companymaster.LIMITS.get("code", 8),
-                  required=True),
-            Field("name", "Company Name", max_len=companymaster.LIMITS.get("name", 50),
-                  required=True),
+            Field(
+                "code",
+                "Comp Code",
+                max_len=companymaster.LIMITS.get("code", 8),
+                required=True,
+            ),
+            Field(
+                "name",
+                "Company Name",
+                max_len=companymaster.LIMITS.get("name", 50),
+                required=True,
+            ),
             Field("add1", "Address 1", max_len=companymaster.LIMITS.get("add1", 50)),
             Field("add2", "Address 2", max_len=companymaster.LIMITS.get("add2", 50)),
             Field("city", "City Code", max_len=companymaster.LIMITS.get("city", 6)),
             Field("phone", "Phone", max_len=companymaster.LIMITS.get("phone", 35)),
-            Field("contact", "Contact Person",
-                  max_len=companymaster.LIMITS.get("contact", 35)),
+            Field(
+                "contact",
+                "Contact Person",
+                max_len=companymaster.LIMITS.get("contact", 35),
+            ),
             Field("creditdays", "Credit Days", default="0"),
             Field("creditlimit", "Credit Limit", default="0"),
             Field("active", "Active Y/N", max_len=1, default="Y"),
@@ -749,14 +893,20 @@ def open_roommaster(parent=None):
 
 class PackageMasterForm(BaseMasterForm):
     PLAN_COLUMNS = [
-        ("ChrgCode", "chrgcode"), ("RevCode", "revcode"),
-        ("TaxInc", "taxinc"), ("FixRate", "fixrate"),
-        ("TaxStru", "taxstru"), ("FlatRate", "flatrate"),
-        ("Adult", "adult"), ("Child", "child"),
+        ("ChrgCode", "chrgcode"),
+        ("RevCode", "revcode"),
+        ("TaxInc", "taxinc"),
+        ("FixRate", "fixrate"),
+        ("TaxStru", "taxstru"),
+        ("FlatRate", "flatrate"),
+        ("Adult", "adult"),
+        ("Child", "child"),
     ]
     TOKEN_COLUMNS = [
-        ("SNo", "sno"), ("ChrgCode", "chrgcode"),
-        ("Rate", "rate"), ("Remarks", "remarks"),
+        ("SNo", "sno"),
+        ("ChrgCode", "chrgcode"),
+        ("Rate", "rate"),
+        ("Remarks", "remarks"),
     ]
 
     def __init__(self, cfg: MasterConfig, parent=None, kind="Package"):
@@ -768,8 +918,8 @@ class PackageMasterForm(BaseMasterForm):
         self._child_widgets_ready = False
         super().__init__(cfg, parent)
         self.setObjectName(
-            "desktopPlanPackageMaster" if kind == "Plan"
-            else "desktopPackageMaster")
+            "desktopPlanPackageMaster" if kind == "Plan" else "desktopPackageMaster"
+        )
         self._build_child_editor()
         self._child_widgets_ready = True
         self._clear_child_tables()
@@ -793,20 +943,20 @@ class PackageMasterForm(BaseMasterForm):
         self.btnRemovePlan = QPushButton("- Plan1 Row")
         self.btnAddToken = QPushButton("+ Token Row")
         self.btnRemoveToken = QPushButton("- Token Row")
-        for button in (self.btnAddPlan, self.btnRemovePlan,
-                       self.btnAddToken, self.btnRemoveToken):
+        for button in (
+            self.btnAddPlan,
+            self.btnRemovePlan,
+            self.btnAddToken,
+            self.btnRemoveToken,
+        ):
             mark_desktop_action(button)
             controls.addWidget(button)
         controls.addStretch()
         group_layout.addLayout(controls)
-        self.btnAddPlan.clicked.connect(
-            lambda: self._append_row(self.plan_table))
-        self.btnRemovePlan.clicked.connect(
-            lambda: self._remove_row(self.plan_table))
-        self.btnAddToken.clicked.connect(
-            lambda: self._append_row(self.token_table))
-        self.btnRemoveToken.clicked.connect(
-            lambda: self._remove_row(self.token_table))
+        self.btnAddPlan.clicked.connect(lambda: self._append_row(self.plan_table))
+        self.btnRemovePlan.clicked.connect(lambda: self._remove_row(self.plan_table))
+        self.btnAddToken.clicked.connect(lambda: self._append_row(self.token_table))
+        self.btnRemoveToken.clicked.connect(lambda: self._remove_row(self.token_table))
         self.layout().insertWidget(self.layout().count() - 1, group)
 
     @staticmethod
@@ -841,13 +991,15 @@ class PackageMasterForm(BaseMasterForm):
             self.plan_table.insertRow(row)
             for col, (_, key) in enumerate(self.PLAN_COLUMNS):
                 self.plan_table.setItem(
-                    row, col, QTableWidgetItem(str(record.get(key, ""))))
+                    row, col, QTableWidgetItem(str(record.get(key, "")))
+                )
         for record in packagemaster.list_token_details(code):
             row = self.token_table.rowCount()
             self.token_table.insertRow(row)
             for col, (_, key) in enumerate(self.TOKEN_COLUMNS):
                 self.token_table.setItem(
-                    row, col, QTableWidgetItem(str(record.get(key, ""))))
+                    row, col, QTableWidgetItem(str(record.get(key, "")))
+                )
 
     @staticmethod
     def _table_records(table, columns):
@@ -859,8 +1011,7 @@ class PackageMasterForm(BaseMasterForm):
                 values.append(item.text().strip() if item else "")
             if not any(values):
                 continue
-            records.append({key: value for (_, key), value
-                            in zip(columns, values)})
+            records.append({key: value for (_, key), value in zip(columns, values)})
         return records
 
     def _on_new(self):
@@ -890,14 +1041,13 @@ class PackageMasterForm(BaseMasterForm):
             for field in self.cfg.fields:
                 if field.required and not record.get(field.name, "").strip():
                     QMessageBox.warning(
-                        self, "Validation", f"{field.label} is required")
+                        self, "Validation", f"{field.label} is required"
+                    )
                     return
             packagemaster.save_with_children(
                 record,
-                plan_rows=self._table_records(self.plan_table,
-                                               self.PLAN_COLUMNS),
-                token_rows=self._table_records(self.token_table,
-                                               self.TOKEN_COLUMNS),
+                plan_rows=self._table_records(self.plan_table, self.PLAN_COLUMNS),
+                token_rows=self._table_records(self.token_table, self.TOKEN_COLUMNS),
                 mode="insert" if self.state == "Add" else "update",
                 kind=self.kind,
             )
@@ -905,8 +1055,7 @@ class PackageMasterForm(BaseMasterForm):
             QMessageBox.warning(self, "Save", str(exc))
             return
         except Exception as exc:
-            QMessageBox.critical(self, "Database Error",
-                                 f"Unable to save: {exc}")
+            QMessageBox.critical(self, "Database Error", f"Unable to save: {exc}")
             return
         self.edit_pk = None
         self.set_state(False)
@@ -946,10 +1095,10 @@ def open_planmaster(parent=None):
 
 def open_seasonmaster(parent=None, user="SA", editable=None):
     from HMS_py.ui import seasonmaster_ui
+
     if editable is None:
         editable = bool(seasonmaster_ui._season_rights(user))
-    return seasonmaster_ui.open_seasonmaster(
-        parent, editable=editable, user=user)
+    return seasonmaster_ui.open_seasonmaster(parent, editable=editable, user=user)
 
 
 def open_companymaster(parent=None):
@@ -959,11 +1108,13 @@ def open_companymaster(parent=None):
 def open_usermaster(parent=None, current_user: str = "SA"):
     """User Master - special UI (password field hai)."""
     from HMS_py.ui.usermaster_ui import UserMasterForm
+
     UserMasterForm(parent, current_user=current_user).exec()
 
 
 class P2Launcher(QMainWindow):
     """Sab masters ek window se - VB6 menu jaisa."""
+
     def __init__(self):
         super().__init__()
         apply_desktop_surface(self, "desktopP2Launcher")
@@ -1006,14 +1157,17 @@ def main() -> int:
     shot = os.environ.get("HMS_POC_SHOT")
     if shot:
         from PyQt6.QtTest import QTest
+
         QTest.qWait(500)
         win.grab().save(os.path.splitext(shot)[0] + "_launcher.png")
-        for tag, cfg_fn in (("sundry", sundry_config),
-                            ("city", city_config),
-                            ("item", item_config),
-                            ("acgroup", acgroup_config),
-                            ("venue", venue_config),
-                            ("depart", depart_config)):
+        for tag, cfg_fn in (
+            ("sundry", sundry_config),
+            ("city", city_config),
+            ("item", item_config),
+            ("acgroup", acgroup_config),
+            ("venue", venue_config),
+            ("depart", depart_config),
+        ):
             f = BaseMasterForm(cfg_fn())
             f.show()
             QTest.qWait(500)

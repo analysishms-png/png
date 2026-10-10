@@ -36,6 +36,7 @@ VB6 refs (RsPOSDisplay.frm):
 Live DB evidence (Moondata2627): RoomMast.Type='TB' -> 58 tables,
 DispColor me index 5/6/7 = Occupied/Vacant/Billed rows present.
 """
+
 from __future__ import annotations
 
 from HMS_py.core import db
@@ -85,7 +86,7 @@ _PENDING_SQL = (
 
 _OUTLET_SQL = (
     "SELECT Code, Name, ISNULL(ShortName, '') AS ShortName FROM Depart "
-    "WHERE LogSite_Code = ? AND (KOTYn = 'Y' OR RestType IN "
+    "WHERE (LogSite_Code = ? OR LogSite_Code = 'HO') AND (KOTYn = 'Y' OR RestType IN "
     "('Outlet', 'Room Service', 'Production')) ORDER BY Name"
 )
 
@@ -97,9 +98,12 @@ def _s(val) -> str:
 def legend(cn=None) -> list[dict]:
     """VB6 loc_F50B2E: Select * from DispColor (index > 4 wale labels)."""
     out = []
-    for r in db.query("SELECT [Index], Color, Detail FROM DispColor "
-                      "WHERE [Index] > ? ORDER BY [Index]",
-                      (LEGEND_MIN_INDEX,), cn=cn):
+    for r in db.query(
+        "SELECT [Index], Color, Detail FROM DispColor "
+        "WHERE [Index] > ? ORDER BY [Index]",
+        (LEGEND_MIN_INDEX,),
+        cn=cn,
+    ):
         try:
             idx, color, detail = int(r[0]), int(r[1]), _s(r[2])
         except (TypeError, ValueError, IndexError):
@@ -113,11 +117,11 @@ def outlets(cn=None) -> list[dict]:
     out = []
     for r in db.query(_OUTLET_SQL, (SITE_CODE,), cn=cn):
         try:
-            out.append({"code": _s(r[0]), "name": _s(r[1]),
-                        "shortname": _s(r[2])})
+            out.append({"code": _s(r[0]), "name": _s(r[1]), "shortname": _s(r[2])})
         except IndexError:
-            out.append({"code": _s(r.Code), "name": _s(r.Name),
-                        "shortname": _s(r.ShortName)})
+            out.append(
+                {"code": _s(r.Code), "name": _s(r.Name), "shortname": _s(r.ShortName)}
+            )
     return out
 
 
@@ -133,8 +137,12 @@ def table_status(restcode: str, cn=None) -> list[dict]:
         try:
             code, docid, vtime, waiter = _s(r[0]), _s(r[1]), _s(r[2]), _s(r[3])
         except IndexError:
-            code, docid, vtime, waiter = _s(r.Code), _s(r.DocId), \
-                _s(r.VTime), _s(r.WaiterName)
+            code, docid, vtime, waiter = (
+                _s(r.Code),
+                _s(r.DocId),
+                _s(r.VTime),
+                _s(r.WaiterName),
+            )
         occupied[code] = {"docid": docid, "vtime": vtime, "waiter": waiter}
 
     billed = {row["tableno"] for row in unsettled_bills(restcode, cn=cn)}
@@ -142,11 +150,20 @@ def table_status(restcode: str, cn=None) -> list[dict]:
     out = []
     for r in db.query(_TABLES_SQL, (SITE_CODE,), cn=cn):
         try:
-            code, name, rest, short, kotyn = (_s(r[0]), _s(r[1]), _s(r[2]),
-                                              _s(r[3]), _s(r[4]))
+            code, name, rest, short, kotyn = (
+                _s(r[0]),
+                _s(r[1]),
+                _s(r[2]),
+                _s(r[3]),
+                _s(r[4]),
+            )
         except IndexError:
-            code, name, rest, short = _s(r.Code), _s(r.Name), _s(r.RestCode), \
-                _s(r.RestName)
+            code, name, rest, short = (
+                _s(r.Code),
+                _s(r.Name),
+                _s(r.RestCode),
+                _s(r.RestName),
+            )
             kotyn = _s(r.KOTYn)
         if restcode and rest and rest != restcode:
             continue
@@ -157,13 +174,19 @@ def table_status(restcode: str, cn=None) -> list[dict]:
             status = "Billed"
         else:
             status = "Vacant"
-        out.append({
-            "code": code, "name": name, "restcode": rest,
-            "restname": short, "kotyn": kotyn, "status": status,
-            "docid": (occ or {}).get("docid", ""),
-            "vtime": (occ or {}).get("vtime", ""),
-            "waiter": (occ or {}).get("waiter", ""),
-        })
+        out.append(
+            {
+                "code": code,
+                "name": name,
+                "restcode": rest,
+                "restname": short,
+                "kotyn": kotyn,
+                "status": status,
+                "docid": (occ or {}).get("docid", ""),
+                "vtime": (occ or {}).get("vtime", ""),
+                "waiter": (occ or {}).get("waiter", ""),
+            }
+        )
     return out
 
 
@@ -172,13 +195,25 @@ def unsettled_bills(restcode: str, cn=None) -> list[dict]:
     out = []
     for r in db.query(_UNSETTLED_SQL, (restcode,), cn=cn):
         try:
-            out.append({"docid": _s(r[0]), "billno": r[1],
-                        "tableno": _s(r[2]), "steward": _s(r[3]),
-                        "balance": float(r[4] or 0)})
+            out.append(
+                {
+                    "docid": _s(r[0]),
+                    "billno": r[1],
+                    "tableno": _s(r[2]),
+                    "steward": _s(r[3]),
+                    "balance": float(r[4] or 0),
+                }
+            )
         except (IndexError, TypeError, ValueError):
-            out.append({"docid": _s(r.DocId), "billno": r.BillNo,
-                        "tableno": _s(r.TableNo), "steward": _s(r.Steward),
-                        "balance": float(r.BalanceAmt or 0)})
+            out.append(
+                {
+                    "docid": _s(r.DocId),
+                    "billno": r.BillNo,
+                    "tableno": _s(r.TableNo),
+                    "steward": _s(r.Steward),
+                    "balance": float(r.BalanceAmt or 0),
+                }
+            )
     return out
 
 
@@ -187,14 +222,27 @@ def pending_orders(cn=None, limit: int = 200) -> list[dict]:
     out = []
     for r in db.query(_PENDING_SQL, (SITE_CODE,), cn=cn):
         try:
-            out.append({"docid": _s(r[0]), "orderno": r[1],
-                        "custname": _s(r[2]), "phoneno": _s(r[3]),
-                        "address": _s(r[4]), "delivery": _s(r[5])})
+            out.append(
+                {
+                    "docid": _s(r[0]),
+                    "orderno": r[1],
+                    "custname": _s(r[2]),
+                    "phoneno": _s(r[3]),
+                    "address": _s(r[4]),
+                    "delivery": _s(r[5]),
+                }
+            )
         except (IndexError, TypeError):
-            out.append({"docid": _s(r.DocId), "orderno": r.OrderNo,
-                        "custname": _s(r.CustName),
-                        "phoneno": _s(r.PhoneNo), "address": _s(r.Address),
-                        "delivery": _s(r.DeliveryDate)})
+            out.append(
+                {
+                    "docid": _s(r.DocId),
+                    "orderno": r.OrderNo,
+                    "custname": _s(r.CustName),
+                    "phoneno": _s(r.PhoneNo),
+                    "address": _s(r.Address),
+                    "delivery": _s(r.DeliveryDate),
+                }
+            )
         if len(out) >= limit:
             break
     return out

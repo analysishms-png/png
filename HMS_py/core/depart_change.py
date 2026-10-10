@@ -22,6 +22,7 @@ NOTE: live DB me RestType ki values {Outlet, Room Service, ...} hain aur
 'Direct Sale' koi RestType nahi (verified Moondata2627) - isliye DirectSale
 branch yahan khali list de sakta hai. VB6 bhi wahi khali list dikhata.
 """
+
 from __future__ import annotations
 
 from HMS_py.core import db
@@ -35,12 +36,12 @@ _HK_SQL = (
 )
 _POS_SQL = (
     "SELECT Code, Name FROM Depart "
-    "WHERE LogSite_Code = ? AND RestType IN "
+    "WHERE (LogSite_Code = ? OR LogSite_Code = 'HO') AND RestType IN "
     "('Outlet', 'Room Service', 'Production') ORDER BY Name"
 )
 _DIRECT_SQL = (
     "SELECT Code, Name FROM Depart "
-    "WHERE LogSite_Code = ? AND RestType IN ('Direct Sale') ORDER BY Name"
+    "WHERE (LogSite_Code = ? OR LogSite_Code = 'HO') AND RestType IN ('Direct Sale') ORDER BY Name"
 )
 # VB6 CmdOK_Click: RestType + BackColor dono isi lookup se aate hain.
 _LOOKUP_SQL = "SELECT RestType, BackColor FROM Depart WHERE Code = ?"
@@ -50,12 +51,10 @@ def _rows(sql, params=(), cn=None) -> list[dict]:
     out = []
     for r in db.query(sql, params, cn=cn):
         try:
-            out.append({"code": (r.Code or "").strip(),
-                        "name": (r.Name or "").strip()})
+            out.append({"code": (r.Code or "").strip(), "name": (r.Name or "").strip()})
         except AttributeError:
             v = list(r)
-            out.append({"code": (v[0] or "").strip(),
-                        "name": (v[1] or "").strip()})
+            out.append({"code": (v[0] or "").strip(), "name": (v[1] or "").strip()})
     return out
 
 
@@ -64,8 +63,9 @@ def housekeeping_departments(cn=None) -> list[dict]:
     return _rows(_HK_SQL, cn=cn)
 
 
-def outlet_departments(point_of_sale: bool = True, logsite_code: str = "",
-                       cn=None) -> list[dict]:
+def outlet_departments(
+    point_of_sale: bool = True, logsite_code: str = "", cn=None
+) -> list[dict]:
     """VB6 FrmChangeRest Form_Load - current sale-point ke departments.
 
     point_of_sale=True  -> 'PointOfSale' branch (Outlet/Room Service/Production)
@@ -87,5 +87,4 @@ def depart_lookups(code: str, cn=None) -> dict:
         return {"resttype": "", "backcolor": 0}
     r = rows[0]
     resttype, backcolor = r[0], r[1]  # SELECT RestType, BackColor
-    return {"resttype": (resttype or "").strip(),
-            "backcolor": int(backcolor or 0)}
+    return {"resttype": (resttype or "").strip(), "backcolor": int(backcolor or 0)}

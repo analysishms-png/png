@@ -18,6 +18,7 @@ Database evidence (live HMS):
 NOTE: Parameter/HMSParam/RevGroup/PrintParam/RevenueGroup tables do NOT
 exist in this DB. GuestParam exists as a configuration table.
 """
+
 from __future__ import annotations
 
 from HMS_py.core import db
@@ -29,110 +30,241 @@ USER = db.get_user()
 # Enviro allowlist - editable operational flags only
 # Financial fields are READ-ONLY (protected)
 # ============================================================
-ENVIRO_EDITABLE_FIELDS = frozenset({
-    # Printing / KOT / POS operational flags
-    "KOTPrinting", "KOTAtNightAudit", "POSBillAtNightAudit", "KOTOutletSelection",
-    "KOTPrintEdited", "AutoPrintKOTYN", "AutoFillItemInKitchenClosingYN",
-    "TOKENPrint", "RcptPrinting", "ReservationPrinting",
-    "BillPrintingSummerised", "FomBillCopies",
-    "POSSaleBillModification", "POSSaleBillEditLog", "POSBillCalcType",
-    "POSSaleRevenueBifercation", "PostPOSDiscSeparately",
-    "HideSettledBillsOnSaleBillYN", "ReprintingOnSaleBillYN",
-    # Checkout / Settlement flags
-    "Checkout", "CheckoutVar", "Variation", "VariationBefore",
-    "RoomCheckOutClearanceYN", "RoomCheckInClearanceYN",
-    "AllowRoomSettlement", "SplitYN", "PostComplimentaryBills",
-    "PostNilLT", "AllowBillOnHoldSettlement",
-    "PostRoomDiscSeparately", "IncCashPurchInFOCC",
-    "RoomRentBefChkOut", "RoomRentChkOutPost",
-    # Room rate editable flags
-    "RoomRateEditable", "RoomIncTaxEditable", "RoomServiceChargeEditable",
-    "RateEditableInPO", "RateEditableInStockIssue",
-    # Tax / VAT settings
-    "PurchaseTaxVAT", "SaleTaxVAT", "ExciseInvoiceTaxStru",
-    "PostPOSDiscSeparately",
-    # KOT / Kitchen settings
-    "FreeItemInKOT", "NCKOTPercentage", "ResetTokenAtNightAudit",
-    "KOTHeader1", "KOTHeader2", "KOTHeader3", "KOTHeader4",
-    # Banquet / Catering
-    "OutDoorCatering", "BanquetKitchen",
-    # Display / UI settings
-    "DisplayRackRow", "DisplayRackCol", "DisplayRackFontSize",
-    "DisplayPort", "DisplayMode", "menuX", "menuY", "menuDISP",
-    "ShowTitleBar", "ShowMenuBar", "ShowSubMenuBar", "ShowShortCutsBar",
-    # Reservation settings
-    "ArrDateTimeEdit", "ReservationExpandOnSaveYN",
-    "IncReservationInBlankGRC", "SeperateReservationLetterAsPerStatusYN",
-    "NewTarrifForOldGuest", "BlockInvalidTarrifIncTaxYN",
-    "ResInstruction1", "ResInstruction2", "ResInstruction3", "ResInstruction4",
-    "ResInstruction5", "ResInstruction6", "ResInstruction7", "ResInstruction8",
-    "ResInstruction9", "ResInstruction10", "ResInstruction11", "ResInstruction12",
-    # Guest / Mobile settings
-    "SMSMessaging", "SMSOption", "MobileNo", "MobileSet", "SMSMessage",
-    "MobileInfoMandatoryYN", "CoversMandatory", "MobileNoMandatory",
-    "PANNOMandatoryYN",
-    # Purchase / Stock settings
-    "ImportOptionInPurchase", "ReqCompWise", "BarCodeFeatureInPurchase",
-    "SmartPurchaseOrder", "NegativeStockAllowYN",
-    "PurchaseGodown", "StockRecGodown",
-    # Cash Card settings
-    "CashCardApplYN", "CashCardInfoMandatoryYN", "CashCardDebitAc",
-    "CashCardCreditAc", "CashCardSecurityAc",
-    # Smart Card
-    "SMARTCARDRECIEPTPrintingDW",
-    # Other operational
-    "Editopen", "AcFieldAlterable", "AddModifyEntryInBackDate",
-    "PlanSelectionBasedOn", "PlanTariffNarration",
-    # MS-038: plan/tariff switches -- VB6 frmEnviro inhe UPDATE SET chain
-    # me likhta hai (loc_1CB268B / loc_1CB2801). Ye operational flags hain,
-    # GL/AC codes nahi, isliye ENVIRO_FINANCE_FIELDS se nahi, EDITABLE me.
-    "PlanMastType", "PlanCalc",
-    "GuestChargesDeleteLog", "FOMBillReprintAutoRefresh",
-    "UserWiseShowOutletYN",
-})
+ENVIRO_EDITABLE_FIELDS = frozenset(
+    {
+        # Printing / KOT / POS operational flags
+        "KOTPrinting",
+        "KOTAtNightAudit",
+        "POSBillAtNightAudit",
+        "KOTOutletSelection",
+        "KOTPrintEdited",
+        "AutoPrintKOTYN",
+        "AutoFillItemInKitchenClosingYN",
+        "TOKENPrint",
+        "RcptPrinting",
+        "ReservationPrinting",
+        "BillPrintingSummerised",
+        "FomBillCopies",
+        "POSSaleBillModification",
+        "POSSaleBillEditLog",
+        "POSBillCalcType",
+        "POSSaleRevenueBifercation",
+        "PostPOSDiscSeparately",
+        "HideSettledBillsOnSaleBillYN",
+        "ReprintingOnSaleBillYN",
+        # Checkout / Settlement flags
+        "Checkout",
+        "CheckoutVar",
+        "Variation",
+        "VariationBefore",
+        "RoomCheckOutClearanceYN",
+        "RoomCheckInClearanceYN",
+        "AllowRoomSettlement",
+        "SplitYN",
+        "PostComplimentaryBills",
+        "PostNilLT",
+        "AllowBillOnHoldSettlement",
+        "PostRoomDiscSeparately",
+        "IncCashPurchInFOCC",
+        "RoomRentBefChkOut",
+        "RoomRentChkOutPost",
+        # Room rate editable flags
+        "RoomRateEditable",
+        "RoomIncTaxEditable",
+        "RoomServiceChargeEditable",
+        "RateEditableInPO",
+        "RateEditableInStockIssue",
+        # Tax / VAT settings
+        "PurchaseTaxVAT",
+        "SaleTaxVAT",
+        "ExciseInvoiceTaxStru",
+        "PostPOSDiscSeparately",
+        # KOT / Kitchen settings
+        "FreeItemInKOT",
+        "NCKOTPercentage",
+        "ResetTokenAtNightAudit",
+        "KOTHeader1",
+        "KOTHeader2",
+        "KOTHeader3",
+        "KOTHeader4",
+        # Banquet / Catering
+        "OutDoorCatering",
+        "BanquetKitchen",
+        # Display / UI settings
+        "DisplayRackRow",
+        "DisplayRackCol",
+        "DisplayRackFontSize",
+        "DisplayPort",
+        "DisplayMode",
+        "menuX",
+        "menuY",
+        "menuDISP",
+        "ShowTitleBar",
+        "ShowMenuBar",
+        "ShowSubMenuBar",
+        "ShowShortCutsBar",
+        # Reservation settings
+        "ArrDateTimeEdit",
+        "ReservationExpandOnSaveYN",
+        "IncReservationInBlankGRC",
+        "SeperateReservationLetterAsPerStatusYN",
+        "NewTarrifForOldGuest",
+        "BlockInvalidTarrifIncTaxYN",
+        "ResInstruction1",
+        "ResInstruction2",
+        "ResInstruction3",
+        "ResInstruction4",
+        "ResInstruction5",
+        "ResInstruction6",
+        "ResInstruction7",
+        "ResInstruction8",
+        "ResInstruction9",
+        "ResInstruction10",
+        "ResInstruction11",
+        "ResInstruction12",
+        # Guest / Mobile settings
+        "SMSMessaging",
+        "SMSOption",
+        "MobileNo",
+        "MobileSet",
+        "SMSMessage",
+        "MobileInfoMandatoryYN",
+        "CoversMandatory",
+        "MobileNoMandatory",
+        "PANNOMandatoryYN",
+        # Purchase / Stock settings
+        "ImportOptionInPurchase",
+        "ReqCompWise",
+        "BarCodeFeatureInPurchase",
+        "SmartPurchaseOrder",
+        "NegativeStockAllowYN",
+        "PurchaseGodown",
+        "StockRecGodown",
+        # Cash Card settings
+        "CashCardApplYN",
+        "CashCardInfoMandatoryYN",
+        "CashCardDebitAc",
+        "CashCardCreditAc",
+        "CashCardSecurityAc",
+        # Smart Card
+        "SMARTCARDRECIEPTPrintingDW",
+        # Other operational
+        "Editopen",
+        "AcFieldAlterable",
+        "AddModifyEntryInBackDate",
+        "PlanSelectionBasedOn",
+        "PlanTariffNarration",
+        # MS-038: plan/tariff switches -- VB6 frmEnviro inhe UPDATE SET chain
+        # me likhta hai (loc_1CB268B / loc_1CB2801). Ye operational flags hain,
+        # GL/AC codes nahi, isliye ENVIRO_FINANCE_FIELDS se nahi, EDITABLE me.
+        "PlanMastType",
+        "PlanCalc",
+        "GuestChargesDeleteLog",
+        "FOMBillReprintAutoRefresh",
+        "UserWiseShowOutletYN",
+        # RoundOffSetting (VB6 frmEnviro TopCtrl1_UnknownEvent_16)
+        "RoundOffModule",
+        "RoundOffType",
+    }
+)
 
 
-ENVIRO_FINANCE_FIELDS = frozenset({
-    # All financial account codes - READ ONLY
-    "Cash_Ac", "DiscountAc", "RoundOffAc", "CommAC", "SALARY_AC",
-    "Loan_AC", "AdvanceAc", "WagesAc", "LessFreightAc",
-    "OutletDiscAc", "OutletRoundAc", "CommissionAc",
-    "RoomChrgDueAc", "RoomTaxDueAc", "HallDiscAC", "HallRoundOff",
-    "CashPurchAc", "CancellationAC", "BookingPartyAc",
-    "CashPayType", "RoomPayType", "OutletDiscAc", "OutletRoundAc",
-    "OutdoorSaleAC", "IndoorSaleAC", "OutdoorPartyAC", "IndoorPartyAC",
-    "DummyTravelAc", "CatalogLimit", "BookingPartyAc",
-    "CashCardDebitAc", "CashCardCreditAc", "CashCardSecurityAc",
-    # Payroll / HR
-    "PF_LIMIT", "PF_EMPLOYEE", "PF_EMPLOYER", "ESI_LIMIT",
-    "esi_employee", "ESIBasic", "ESIDA", "ESIHRA", "ESIConvey",
-    "ESIOther", "ESILTA",
-    # Tax / VAT structure
-    "TaxSummary", "SaleTaxVAT", "PurchaseTaxVAT",
-    "ExciseInvoiceTaxStru",
-    # Advance / Imprest
-    "ImprestAmount", "AdvanceRRoomRent",
-    # General ledger
-    "Postingtype", "calcMethod", "NCUR",
-    "SiteCode", "GAppCompYear", "GMonthConsidered",
-    "GWorkingDaysInAMonth", "GDaysSalary",
-    # MS-038: PlanMastType / PlanCalc / PlanTariffNarration / AttendType yahan
-    # se hata diye gaye -- ye plan/HR operational flags hain, finance account
-    # codes nahi. VB6 frmEnviro inhe likhta hai (loc_1CB268B, loc_1CB2801,
-    # loc_1CB2CCF). PlanMastType/PlanCalc ab ENVIRO_EDITABLE_FIELDS me hain.
-    # System
-    "LogSite_Code", "U_AE_FOMBillSetE",
-    "DTCPETakeEffectHeadToSite",
-    "HTWCurDateEdit",
-    "ServiceTaxOnServiceChargeYN",
-    "CreditCardInfoMandatoryYN",
-    "ExpMfdDateInMR",
-    "BarCodeFeatureInPurchase",
-    "RevenueGroupModule", "MemberShipModule",
-    "HotelLogo", "PurchaseAdd1", "PurchaseDed1", "PurchaseAdd2", "PurchaseDed2",
-    "SundryPassword", "Rate1", "Rate2", "Rate3", "Rate4", "Rate5",
-    "DefCompGroup", "DefaultCrAc", "DefaultDrAc",
-})
+ENVIRO_FINANCE_FIELDS = frozenset(
+    {
+        # All financial account codes - READ ONLY
+        "Cash_Ac",
+        "DiscountAc",
+        "RoundOffAc",
+        "CommAC",
+        "SALARY_AC",
+        "Loan_AC",
+        "AdvanceAc",
+        "WagesAc",
+        "LessFreightAc",
+        "OutletDiscAc",
+        "OutletRoundAc",
+        "CommissionAc",
+        "RoomChrgDueAc",
+        "RoomTaxDueAc",
+        "HallDiscAC",
+        "HallRoundOff",
+        "CashPurchAc",
+        "CancellationAC",
+        "BookingPartyAc",
+        "CashPayType",
+        "RoomPayType",
+        "OutletDiscAc",
+        "OutletRoundAc",
+        "OutdoorSaleAC",
+        "IndoorSaleAC",
+        "OutdoorPartyAC",
+        "IndoorPartyAC",
+        "DummyTravelAc",
+        "CatalogLimit",
+        "BookingPartyAc",
+        "CashCardDebitAc",
+        "CashCardCreditAc",
+        "CashCardSecurityAc",
+        # Payroll / HR
+        "PF_LIMIT",
+        "PF_EMPLOYEE",
+        "PF_EMPLOYER",
+        "ESI_LIMIT",
+        "esi_employee",
+        "ESIBasic",
+        "ESIDA",
+        "ESIHRA",
+        "ESIConvey",
+        "ESIOther",
+        "ESILTA",
+        # Tax / VAT structure
+        "TaxSummary",
+        "SaleTaxVAT",
+        "PurchaseTaxVAT",
+        "ExciseInvoiceTaxStru",
+        # Advance / Imprest
+        "ImprestAmount",
+        "AdvanceRRoomRent",
+        # General ledger
+        "Postingtype",
+        "calcMethod",
+        "NCUR",
+        "SiteCode",
+        "GAppCompYear",
+        "GMonthConsidered",
+        "GWorkingDaysInAMonth",
+        "GDaysSalary",
+        # MS-038: PlanMastType / PlanCalc / PlanTariffNarration / AttendType yahan
+        # se hata diye gaye -- ye plan/HR operational flags hain, finance account
+        # codes nahi. VB6 frmEnviro inhe likhta hai (loc_1CB268B, loc_1CB2801,
+        # loc_1CB2CCF). PlanMastType/PlanCalc ab ENVIRO_EDITABLE_FIELDS me hain.
+        # System
+        "LogSite_Code",
+        "U_AE_FOMBillSetE",
+        "DTCPETakeEffectHeadToSite",
+        "HTWCurDateEdit",
+        "ServiceTaxOnServiceChargeYN",
+        "CreditCardInfoMandatoryYN",
+        "ExpMfdDateInMR",
+        "BarCodeFeatureInPurchase",
+        "RevenueGroupModule",
+        "MemberShipModule",
+        "HotelLogo",
+        "PurchaseAdd1",
+        "PurchaseDed1",
+        "PurchaseAdd2",
+        "PurchaseDed2",
+        "SundryPassword",
+        "Rate1",
+        "Rate2",
+        "Rate3",
+        "Rate4",
+        "Rate5",
+        "DefCompGroup",
+        "DefaultCrAc",
+        "DefaultDrAc",
+    }
+)
 
 
 # ============================================================
@@ -144,22 +276,35 @@ ROOMFEAT_COLS = "Code, Name, U_Name, U_EntDt, U_AE"
 
 def _map_roomfeat(r) -> dict:
     try:
-        return {"code": r.Code, "name": (r.Name or "").strip(),
-                "u_name": r.U_Name or "", "u_ae": r.U_AE or ""}
+        return {
+            "code": r.Code,
+            "name": (r.Name or "").strip(),
+            "u_name": r.U_Name or "",
+            "u_ae": r.U_AE or "",
+        }
     except AttributeError:
         c, n, un, _, uae = r
-        return {"code": c, "name": (n or "").strip(),
-                "u_name": un or "", "u_ae": uae or ""}
+        return {
+            "code": c,
+            "name": (n or "").strip(),
+            "u_name": un or "",
+            "u_ae": uae or "",
+        }
 
 
 def roomfeat_list(cn=None) -> list[dict]:
-    return [_map_roomfeat(r) for r in db.query(
-        f"SELECT {ROOMFEAT_COLS} FROM RoomFeature ORDER BY Code", cn=cn)]
+    return [
+        _map_roomfeat(r)
+        for r in db.query(
+            f"SELECT {ROOMFEAT_COLS} FROM RoomFeature ORDER BY Code", cn=cn
+        )
+    ]
 
 
 def roomfeat_get(code: str, cn=None) -> dict | None:
     rows = db.query(
-        f"SELECT {ROOMFEAT_COLS} FROM RoomFeature WHERE Code = ?", (code,), cn=cn)
+        f"SELECT {ROOMFEAT_COLS} FROM RoomFeature WHERE Code = ?", (code,), cn=cn
+    )
     return _map_roomfeat(rows[0]) if rows else None
 
 
@@ -178,7 +323,9 @@ def roomfeat_insert(rec: dict, cn=None, commit=True) -> int:
         "Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code) "
         "VALUES (?, ?, ?, ?, getdate(), 'A', ?)",
         (rec["code"], rec["name"], SITE_CODE, USER, SITE_CODE),
-        cn=cn, commit=commit)
+        cn=cn,
+        commit=commit,
+    )
 
 
 def roomfeat_update(code: str, rec: dict, cn=None, commit=True) -> int:
@@ -187,34 +334,44 @@ def roomfeat_update(code: str, rec: dict, cn=None, commit=True) -> int:
     return db.execute(
         "UPDATE RoomFeature SET Name = ?, "
         "U_Name = ?, U_EntDt = getdate(), U_AE = 'E' WHERE Code = ?",
-        (rec["name"], USER, code), cn=cn, commit=commit)
+        (rec["name"], USER, code),
+        cn=cn,
+        commit=commit,
+    )
 
 
 def roomfeat_delete(code: str, cn=None, commit=True) -> int:
     return db.execute(
-        "DELETE FROM RoomFeature WHERE Code = ?", (code,), cn=cn, commit=commit)
+        "DELETE FROM RoomFeature WHERE Code = ?", (code,), cn=cn, commit=commit
+    )
 
 
 class _RoomFeatAPI:
     LIMITS = ROOMFEAT_LIMITS
 
     @staticmethod
-    def list_all(cn=None): return roomfeat_list(cn)
+    def list_all(cn=None):
+        return roomfeat_list(cn)
 
     @staticmethod
-    def get(code, cn=None): return roomfeat_get(code, cn)
+    def get(code, cn=None):
+        return roomfeat_get(code, cn)
 
     @staticmethod
-    def exists(code, cn=None): return roomfeat_exists(code, cn)
+    def exists(code, cn=None):
+        return roomfeat_exists(code, cn)
 
     @staticmethod
-    def insert(rec, cn=None, commit=True): return roomfeat_insert(rec, cn, commit)
+    def insert(rec, cn=None, commit=True):
+        return roomfeat_insert(rec, cn, commit)
 
     @staticmethod
-    def update(code, rec, cn=None, commit=True): return roomfeat_update(code, rec, cn, commit)
+    def update(code, rec, cn=None, commit=True):
+        return roomfeat_update(code, rec, cn, commit)
 
     @staticmethod
-    def delete(code, cn=None, commit=True): return roomfeat_delete(code, cn, commit)
+    def delete(code, cn=None, commit=True):
+        return roomfeat_delete(code, cn, commit)
 
 
 RoomFeatAPI = _RoomFeatAPI()
@@ -229,25 +386,39 @@ GODOWN_COLS = "Code, Name, ShortName, DepartCode, SysYn, U_Name, U_EntDt, U_AE"
 
 def _map_godown(r) -> dict:
     try:
-        return {"code": r.Code, "name": (r.Name or "").strip(),
-                "short": (r.ShortName or "").strip(),
-                "dept": r.DepartCode or "", "sysyn": r.SysYn or "N",
-                "u_name": r.U_Name or "", "u_ae": r.U_AE or ""}
+        return {
+            "code": r.Code,
+            "name": (r.Name or "").strip(),
+            "short": (r.ShortName or "").strip(),
+            "dept": r.DepartCode or "",
+            "sysyn": r.SysYn or "N",
+            "u_name": r.U_Name or "",
+            "u_ae": r.U_AE or "",
+        }
     except AttributeError:
         c, n, sn, dc, sy, un, _, uae = r
-        return {"code": c, "name": (n or "").strip(), "short": (sn or "").strip(),
-                "dept": dc or "", "sysyn": sy or "N",
-                "u_name": un or "", "u_ae": uae or ""}
+        return {
+            "code": c,
+            "name": (n or "").strip(),
+            "short": (sn or "").strip(),
+            "dept": dc or "",
+            "sysyn": sy or "N",
+            "u_name": un or "",
+            "u_ae": uae or "",
+        }
 
 
 def godown_list(cn=None) -> list[dict]:
-    return [_map_godown(r) for r in db.query(
-        f"SELECT {GODOWN_COLS} FROM GodownMast ORDER BY Code", cn=cn)]
+    return [
+        _map_godown(r)
+        for r in db.query(f"SELECT {GODOWN_COLS} FROM GodownMast ORDER BY Code", cn=cn)
+    ]
 
 
 def godown_get(code: str, cn=None) -> dict | None:
     rows = db.query(
-        f"SELECT {GODOWN_COLS} FROM GodownMast WHERE Code = ?", (code,), cn=cn)
+        f"SELECT {GODOWN_COLS} FROM GodownMast WHERE Code = ?", (code,), cn=cn
+    )
     return _map_godown(rows[0]) if rows else None
 
 
@@ -265,9 +436,19 @@ def godown_insert(rec: dict, cn=None, commit=True) -> int:
         "INSERT INTO GodownMast (Code, Name, ShortName, DepartCode, SysYn, "
         "Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code) "
         "VALUES (?, ?, ?, ?, ?, ?, ?, getdate(), 'A', ?)",
-        (rec["code"], rec["name"], rec.get("short", ""),
-         rec.get("dept", ""), rec.get("sysyn", "N"),
-         SITE_CODE, USER, SITE_CODE), cn=cn, commit=commit)
+        (
+            rec["code"],
+            rec["name"],
+            rec.get("short", ""),
+            rec.get("dept", ""),
+            rec.get("sysyn", "N"),
+            SITE_CODE,
+            USER,
+            SITE_CODE,
+        ),
+        cn=cn,
+        commit=commit,
+    )
 
 
 def godown_update(code: str, rec: dict, cn=None, commit=True) -> int:
@@ -277,8 +458,17 @@ def godown_update(code: str, rec: dict, cn=None, commit=True) -> int:
         "UPDATE GodownMast SET Name = ?, ShortName = ?, DepartCode = ?, "
         "SysYn = ?, U_Name = ?, U_EntDt = getdate(), U_AE = 'E' "
         "WHERE Code = ?",
-        (rec["name"], rec.get("short", ""), rec.get("dept", ""),
-         rec.get("sysyn", "N"), USER, code), cn=cn, commit=commit)
+        (
+            rec["name"],
+            rec.get("short", ""),
+            rec.get("dept", ""),
+            rec.get("sysyn", "N"),
+            USER,
+            code,
+        ),
+        cn=cn,
+        commit=commit,
+    )
 
 
 def godown_delete(code: str, cn=None, commit=True) -> int:
@@ -286,29 +476,36 @@ def godown_delete(code: str, cn=None, commit=True) -> int:
     if rows and str(rows[0][0] or "").upper() == "Y":
         raise ValueError(f"'{code}' system godown hai - delete nahi hota")
     return db.execute(
-        "DELETE FROM GodownMast WHERE Code = ?", (code,), cn=cn, commit=commit)
+        "DELETE FROM GodownMast WHERE Code = ?", (code,), cn=cn, commit=commit
+    )
 
 
 class _GodownAPI:
     LIMITS = GODOWN_LIMITS
 
     @staticmethod
-    def list_all(cn=None): return godown_list(cn)
+    def list_all(cn=None):
+        return godown_list(cn)
 
     @staticmethod
-    def get(code, cn=None): return godown_get(code, cn)
+    def get(code, cn=None):
+        return godown_get(code, cn)
 
     @staticmethod
-    def exists(code, cn=None): return godown_exists(code, cn)
+    def exists(code, cn=None):
+        return godown_exists(code, cn)
 
     @staticmethod
-    def insert(rec, cn=None, commit=True): return godown_insert(rec, cn, commit)
+    def insert(rec, cn=None, commit=True):
+        return godown_insert(rec, cn, commit)
 
     @staticmethod
-    def update(code, rec, cn=None, commit=True): return godown_update(code, rec, cn, commit)
+    def update(code, rec, cn=None, commit=True):
+        return godown_update(code, rec, cn, commit)
 
     @staticmethod
-    def delete(code, cn=None, commit=True): return godown_delete(code, cn, commit)
+    def delete(code, cn=None, commit=True):
+        return godown_delete(code, cn, commit)
 
 
 GodownAPI = _GodownAPI()
@@ -355,20 +552,22 @@ def voucher_type_list(logsite_code=None, cn=None) -> list[dict]:
     )
     output = []
     for row in rows:
-        output.append({
-            "vtype": _v_text(_v_row_value(row, "V_Type", 0, "")),
-            "category": _v_text(_v_row_value(row, "Category", 1, "")),
-            "ncat": _v_text(_v_row_value(row, "NCat", 2, "")),
-            "desc": _v_text(_v_row_value(row, "Description", 3, "")),
-            "method": _v_text(_v_row_value(row, "Number_Method", 4, "")),
-            "startno": _v_row_value(row, "Start_No", 5, 1) or 1,
-            "short": _v_text(_v_row_value(row, "Short_Name", 6, "")),
-            "site_code": _v_text(_v_row_value(row, "Site_Code", 7, "")),
-            "logsite_code": _v_text(_v_row_value(row, "LogSite_Code", 8, "")),
-            "u_name": _v_text(_v_row_value(row, "U_NAME", 9, "")),
-            "u_entdt": _v_row_value(row, "U_EntDt", 10),
-            "u_ae": _v_text(_v_row_value(row, "U_AE", 11, "")),
-        })
+        output.append(
+            {
+                "vtype": _v_text(_v_row_value(row, "V_Type", 0, "")),
+                "category": _v_text(_v_row_value(row, "Category", 1, "")),
+                "ncat": _v_text(_v_row_value(row, "NCat", 2, "")),
+                "desc": _v_text(_v_row_value(row, "Description", 3, "")),
+                "method": _v_text(_v_row_value(row, "Number_Method", 4, "")),
+                "startno": _v_row_value(row, "Start_No", 5, 1) or 1,
+                "short": _v_text(_v_row_value(row, "Short_Name", 6, "")),
+                "site_code": _v_text(_v_row_value(row, "Site_Code", 7, "")),
+                "logsite_code": _v_text(_v_row_value(row, "LogSite_Code", 8, "")),
+                "u_name": _v_text(_v_row_value(row, "U_NAME", 9, "")),
+                "u_entdt": _v_row_value(row, "U_EntDt", 10),
+                "u_ae": _v_text(_v_row_value(row, "U_AE", 11, "")),
+            }
+        )
     return output
 
 
@@ -382,19 +581,34 @@ def printing_settings_snapshot(cn=None) -> dict:
     """
     cfg = db.load_config()
     keys = (
-        "Bill_Header", "Bill_Footer", "KOTPrinting", "KOTPrintEdited",
-        "TOKENPrint", "RcptPrinting", "ReservationPrinting",
-        "KOTOutletSelection", "TaxSummary", "BillPrintingSummerised",
-        "FomBillCopies", "POSBillAtNightAudit", "KOTAtNightAudit",
-        "NoShowAtNightAudit", "Checkout", "CheckoutVar", "Variation",
-        "AllowRoomSettlement", "SplitYN", "RoomRateEditable"
+        "Bill_Header",
+        "Bill_Footer",
+        "KOTPrinting",
+        "KOTPrintEdited",
+        "TOKENPrint",
+        "RcptPrinting",
+        "ReservationPrinting",
+        "KOTOutletSelection",
+        "TaxSummary",
+        "BillPrintingSummerised",
+        "FomBillCopies",
+        "POSBillAtNightAudit",
+        "KOTAtNightAudit",
+        "NoShowAtNightAudit",
+        "Checkout",
+        "CheckoutVar",
+        "Variation",
+        "AllowRoomSettlement",
+        "SplitYN",
+        "RoomRateEditable",
     )
     env = {}
     for k in keys:
         try:
             rows = db.query(
                 f"SELECT [{k}] FROM Enviro WHERE LogSite_Code = ? OR LogSite_Code = 'HO'",
-                (SITE_CODE,), cn=cn
+                (SITE_CODE,),
+                cn=cn,
             )
             if rows:
                 env[k] = rows[0][0]
@@ -419,7 +633,10 @@ def enviro_update(field: str, value: str, cn=None, commit: bool = True) -> int:
     return db.execute(
         f"UPDATE Enviro SET [{field}] = ?, U_Name = ?, U_EntDt = getdate(), U_AE = 'E' "
         f"WHERE LogSite_Code = ? OR LogSite_Code = 'HO'",
-        (value, USER, SITE_CODE), cn=cn, commit=commit)
+        (value, USER, SITE_CODE),
+        cn=cn,
+        commit=commit,
+    )
 
 
 def enviro_get(field: str, cn=None) -> str | None:
@@ -427,7 +644,8 @@ def enviro_get(field: str, cn=None) -> str | None:
     try:
         rows = db.query(
             f"SELECT [{field}] FROM Enviro WHERE LogSite_Code = ? OR LogSite_Code = 'HO'",
-            (SITE_CODE,), cn=cn
+            (SITE_CODE,),
+            cn=cn,
         )
         return rows[0][0] if rows else None
     except Exception:
@@ -447,32 +665,43 @@ def enviro_get(field: str, cn=None) -> str | None:
 #    U_EntDt,U_AE,logSite_Code) Values('"
 # ============================================================
 ROUNDOFF_MODULES = (
-    "Guest Bill", "Purchase Bill", "Sale Bill",
-    "Member Bill", "Taxes Member Bill",
+    "Guest Bill",
+    "Purchase Bill",
+    "Sale Bill",
+    "Member Bill",
+    "Taxes Member Bill",
 )
 
 
 def roundoff_list(cn=None) -> list[dict]:
     """frmEnviro FGrid row source (Form_Load round-off recordset)."""
     from HMS_py.core import sys_config
+
     return sys_config.roundoff_list(cn=cn)
 
 
-def roundoff_delete_module(module_name: str, cn=None,
-                           commit: bool = True) -> int:
+def roundoff_delete_module(module_name: str, cn=None, commit: bool = True) -> int:
     """VB6 Delete event: ek module ki saari round off rows hatao."""
     module = (module_name or "").strip()
     if not module:
         raise ValueError("ModuleName zaroori hai")
     return db.execute(
-        "DELETE FROM RoundOffSetting WHERE ModuleName = ? "
-        "AND LogSite_Code = ?",
-        (module, SITE_CODE), cn=cn, commit=commit)
+        "DELETE FROM RoundOffSetting WHERE ModuleName = ? AND LogSite_Code = ?",
+        (module, SITE_CODE),
+        cn=cn,
+        commit=commit,
+    )
 
 
-def roundoff_save(module_name: str, roundoff_type: str, *,
-                  code: str = "", department: str = "",
-                  cn=None, commit: bool = True) -> int:
+def roundoff_save(
+    module_name: str,
+    roundoff_type: str,
+    *,
+    code: str = "",
+    department: str = "",
+    cn=None,
+    commit: bool = True,
+) -> int:
     """VB6 frmEnviro TopCtrl Save (event 16) — validate + module replace.
 
     VB6 order: OptRoundOff caption (global_88) empty na ho, ModuleName me
@@ -480,6 +709,7 @@ def roundoff_save(module_name: str, roundoff_type: str, *,
     (LogSite_Code = site) — dono ek transaction me (VB6 On Error → rollback).
     """
     from HMS_py.core import sys_config
+
     module = (module_name or "").strip()
     rtype = (roundoff_type or "").strip()
     if not rtype:
@@ -488,13 +718,21 @@ def roundoff_save(module_name: str, roundoff_type: str, *,
         raise ValueError("Please Check Module Name!")
     with db.transaction(cn) as tx:
         db.execute(
-            "DELETE FROM RoundOffSetting WHERE ModuleName = ? "
-            "AND LogSite_Code = ?",
-            (module, SITE_CODE), cn=tx, commit=False)
+            "DELETE FROM RoundOffSetting WHERE ModuleName = ? AND LogSite_Code = ?",
+            (module, SITE_CODE),
+            cn=tx,
+            commit=False,
+        )
         return sys_config.roundoff_insert(
-            {"code": code, "department": department,
-             "roundoff_type": rtype, "module_name": module},
-            cn=tx, commit=False)
+            {
+                "code": code,
+                "department": department,
+                "roundoff_type": rtype,
+                "module_name": module,
+            },
+            cn=tx,
+            commit=False,
+        )
 
 
 VOUCHCAT_LIMITS = {"category": 10, "ncat": 5}

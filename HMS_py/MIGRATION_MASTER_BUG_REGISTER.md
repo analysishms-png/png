@@ -46,11 +46,11 @@ is data par khaali dikhtin.
 ### P3 cosmetic batch — PY-FIX-005 (2026-10-08)
 | Item | Status | Evidence |
 |---|---|---|
-| Plan Master layout squeeze | FIXED (partially_verified — static) | `ui/p2_masters.py:933` `# BUG-PM-01`: plan_table min-height 120 + token_table min-height 100 |
+| Plan Master layout squeeze | VERIFIED (offscreen screenshot 2026-10-08) | `ui/p2_masters.py:933` `# BUG-PM-01`: plan_table min-height 120 + token_table min-height 100; evidence `qa_evidence/screenshots/01_plan_master.png` (45 KB, both tables visible) |
 | Purchase Sundry title "Outlet Bill Sundry Setting" | NOT A BUG — VB6 `DepartSundry.frm:3` Caption = same text; Python matches VB6 | `test_purchase_sundry_wiring.py:104`, `test_wave_ui_forms.py:190` |
-| Login labels + sidebar lowercase module names | FIXED (partially_verified — static) | `ui/shell.py:4366` `# BUG-A3`: display-only `_label_for` title-case (crumb/canvas/windowTitle); cream sub-item already fixed in `ui/login_ui.py:76-103` |
-| Parameter (Enviro) table stretch + dark-on-dark text | FIXED (verified — offscreen render) | `ui/enviro_ui.py:111` `# BUG-ENV-04`: `_bg_color()` bg + table setBackground |
-| Open Item Consumption left grid squeeze | FIXED (partially_verified — static) | `ui/open_item_consumption_ui.py:141` `# BUG-LIC-05`: column stretch |
+| Login labels + sidebar lowercase module names | VERIFIED (offscreen screenshot 2026-10-08) | `ui/shell.py:4366` `# BUG-A3`: display-only `_label_for` title-case; evidence `qa_evidence/screenshots/02_sidebar_crumbs.png` (crumb = "Main Setup", window title `Moon and Mars { 2026-27 } - Main Setup`); cream sub-item fixed `ui/login_ui.py:76-103` |
+| Parameter (Enviro) table stretch + dark-on-dark text | VERIFIED (offscreen render + screenshot 2026-10-08) | `ui/enviro_ui.py:111` `# BUG-ENV-04`: `_bg_color()` bg + table setBackground; evidence `qa_evidence/screenshots/04_enviro.png` (71 KB, light rows, readable) |
+| Open Item Consumption left grid squeeze | VERIFIED (offscreen screenshot 2026-10-08) | `ui/open_item_consumption_ui.py:141` `# BUG-LIC-05`: column stretch; evidence `qa_evidence/screenshots/03_open_item_consumption.png` (49 KB, all columns FinItem→App Date visible) |
 | `core/reports.py` CRLF→LF normalization | DONE — CR count=0, numstat 138/54 (content-only, PY-FIX-002/003 SQL preserved) | `git diff --numstat -- core/reports.py` |
 
 Full-sweep re-check (2026-10-08): 742 unique captions, MSG[critical]=0, 42S22=0 — P1/P2 CLOSED.

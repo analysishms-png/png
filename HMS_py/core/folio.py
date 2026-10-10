@@ -30,7 +30,7 @@ def next_billno(cn=None) -> int:
     # pattern) kyunki Bill_No varchar hai (CAST counter, next_serial nahi).
     rows = db.query(
         "SELECT MAX(Cast(Bill_No As Int)) FROM FOMBillDetails "
-        "WITH (UPDLOCK, HOLDLOCK) WHERE LogSite_Code = ?",
+        "WITH (UPDLOCK, HOLDLOCK) WHERE (LogSite_Code = ? OR LogSite_Code = 'HO')",
         (SITE_CODE,),
         cn=cn,
     )

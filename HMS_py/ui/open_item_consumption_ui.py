@@ -53,34 +53,47 @@ DEVIATIONS (mirrors core/open_item_consumption_ops.py docstring):
       6. Finish Item is an editable QComboBox (VB6 Txt(0) is a TextBox whose
          Tag carries Code); picking from the list behaves like VB6's list pop.
 """
+
 from __future__ import annotations
 
 import os
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(
-    os.path.dirname(os.path.abspath(__file__)))))
+sys.path.insert(
+    0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+)
 
 from PyQt6.QtCore import QDate, Qt
 from PyQt6.QtGui import QColor
-from PyQt6.QtWidgets import (QComboBox, QDateEdit, QFormLayout, QGroupBox,
-                             QHBoxLayout, QHeaderView, QLabel, QLineEdit,
-                             QMainWindow, QMessageBox, QPushButton,
-                             QTableWidget, QTableWidgetItem, QVBoxLayout,
-                             QWidget)
+from PyQt6.QtWidgets import (
+    QComboBox,
+    QDateEdit,
+    QFormLayout,
+    QGroupBox,
+    QHBoxLayout,
+    QHeaderView,
+    QLabel,
+    QLineEdit,
+    QMainWindow,
+    QMessageBox,
+    QPushButton,
+    QTableWidget,
+    QTableWidgetItem,
+    QVBoxLayout,
+    QWidget,
+)
 
 from HMS_py.core import open_item_consumption_ops as oic
 from HMS_py.ui.desktop_style import make_vb6_header
 from HMS_py.ui.theme import palette
 
-_HILITE = QColor(14737632)          # VB6 grid highlight BackColor 14737632
+_HILITE = QColor(14737632)  # VB6 grid highlight BackColor 14737632
 
 
 class OpenItemConsumptionWindow(QMainWindow):
     """Open Item Consumption Master (VB6 FrmConsumMast9999)."""
 
-    LIST_COLS = ["FinItem", "Finish Name", "Outlet", "FinQty", "Unit",
-                 "App Date"]
+    LIST_COLS = ["FinItem", "Finish Name", "Outlet", "FinQty", "Unit", "App Date"]
     RAW_COLS = ["S.No", "", "Name", "Qty", "Unit", "Cost", "Total", "Waste %"]
     READONLY_COLS = (0, 2, 4, 6)
 
@@ -89,8 +102,8 @@ class OpenItemConsumptionWindow(QMainWindow):
         self.setWindowTitle("Open Item Consumption Master")
         self.resize(1180, 660)
         self._user = user
-        self._mode = "idle"              # idle | add | edit
-        self._current = None             # {"fin_item","rest_code"}
+        self._mode = "idle"  # idle | add | edit
+        self._current = None  # {"fin_item","rest_code"}
         self._rest_code = ""
         self._recipes = []
         self._finish_items = []
@@ -162,7 +175,7 @@ class OpenItemConsumptionWindow(QMainWindow):
         self.cmb_fin.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
         self.cmb_fin.currentIndexChanged.connect(self._on_finish_changed)
         self.txt_finqty = QLineEdit("1")
-        self.txt_unit = QLineEdit()              # VB6 Txt(2).Enabled = 0
+        self.txt_unit = QLineEdit()  # VB6 Txt(2).Enabled = 0
         self.txt_unit.setReadOnly(True)
         self.dt_app = QDateEdit()
         self.dt_app.setCalendarPopup(True)
@@ -177,18 +190,22 @@ class OpenItemConsumptionWindow(QMainWindow):
         fl.addRow("Outlet:", self.lbl_outlet)
         rv.addWidget(hdr)
 
-        rv.addWidget(QLabel(
-            "Raw material rows   (FGrid: Total = Qty x Cost; Waste % stored "
-            "separately)"))
+        rv.addWidget(
+            QLabel(
+                "Raw material rows   (FGrid: Total = Qty x Cost; Waste % stored "
+                "separately)"
+            )
+        )
         self.raw_table = QTableWidget(0, len(self.RAW_COLS))
         self.raw_table.setHorizontalHeaderLabels(self.RAW_COLS)
-        self.raw_table.setSelectionBehavior(
-            QTableWidget.SelectionBehavior.SelectRows)
+        self.raw_table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.raw_table.setAlternatingRowColors(True)
         self.raw_table.horizontalHeader().setSectionResizeMode(
-            1, QHeaderView.ResizeMode.Stretch)
+            1, QHeaderView.ResizeMode.Stretch
+        )
         self.raw_table.horizontalHeader().setSectionResizeMode(
-            2, QHeaderView.ResizeMode.Stretch)
+            2, QHeaderView.ResizeMode.Stretch
+        )
         self.raw_table.cellChanged.connect(self._on_cell_changed)
         rv.addWidget(self.raw_table, 1)
 
@@ -207,8 +224,13 @@ class OpenItemConsumptionWindow(QMainWindow):
         self.btn_save = QPushButton("Save")
         self.btn_save.setProperty("success", True)
         self.btn_cancel = QPushButton("Cancel")
-        for b in (self.btn_new, self.btn_add_raw, self.btn_del_row,
-                  self.btn_save, self.btn_cancel):
+        for b in (
+            self.btn_new,
+            self.btn_add_raw,
+            self.btn_del_row,
+            self.btn_save,
+            self.btn_cancel,
+        ):
             b1.addWidget(b)
         b1.addStretch()
         self.btn_exit = QPushButton("Exit")
@@ -246,8 +268,8 @@ class OpenItemConsumptionWindow(QMainWindow):
             self.cmb_fin.clear()
             for f in self._finish_items:
                 self.cmb_fin.addItem(
-                    "{}  ({}  |  {})".format(f["name"], f["code"],
-                                             f["outlet"]), f)
+                    "{}  ({}  |  {})".format(f["name"], f["code"], f["outlet"]), f
+                )
             self.cmb_fin.blockSignals(False)
             if text:
                 self.cmb_fin.setEditText(text)
@@ -262,21 +284,29 @@ class OpenItemConsumptionWindow(QMainWindow):
             return
         needle = (self.txt_search.text() or "").strip().lower()
         if needle:
-            recipes = [r for r in recipes
-                       if needle in (r["fin_item"] or "").lower()
-                       or needle in (r["fin_name"] or "").lower()
-                       or needle in (r["outlet"] or "").lower()]
+            recipes = [
+                r
+                for r in recipes
+                if needle in (r["fin_item"] or "").lower()
+                or needle in (r["fin_name"] or "").lower()
+                or needle in (r["outlet"] or "").lower()
+            ]
             if not recipes:
-                QMessageBox.information(self, "Search",
-                                        "No Records To Search.")
+                QMessageBox.information(self, "Search", "No Records To Search.")
         self._recipes = recipes
         txt = palette()["text"]
         t = self.list_table
         self._loading = True
         t.setRowCount(len(recipes))
         for i, r in enumerate(recipes):
-            vals = [r["fin_item"], r["fin_name"], r["outlet"],
-                    "{:g}".format(r["fin_qty"]), r["unit"], r["app_date"]]
+            vals = [
+                r["fin_item"],
+                r["fin_name"],
+                r["outlet"],
+                "{:g}".format(r["fin_qty"]),
+                r["unit"],
+                r["app_date"],
+            ]
             for j, v in enumerate(vals):
                 it = QTableWidgetItem(str(v))
                 it.setForeground(QColor(txt))
@@ -300,12 +330,10 @@ class OpenItemConsumptionWindow(QMainWindow):
         data = self.cmb_fin.currentData()
         # editable combo: currentData() stays stale once the user types
         if isinstance(data, dict):
-            if self._fin_text(data) == txt or txt in (data["name"],
-                                                      data["code"]):
+            if self._fin_text(data) == txt or txt in (data["name"], data["code"]):
                 return data
         for f in self._finish_items:
-            if txt in (f["code"], f["name"]) or (
-                    txt and txt.startswith(f["name"])):
+            if txt in (f["code"], f["name"]) or (txt and txt.startswith(f["name"])):
                 return f
         return None
 
@@ -326,24 +354,24 @@ class OpenItemConsumptionWindow(QMainWindow):
         # VB6 Proc_132_46 (loc_FE95D5): Add mode + key already present
         #   -> auto-load the existing recipe and switch to Edit mode.
         if self._mode == "add" and oic.count_recipe(f["code"], f["rest_code"]):
-            self._load_recipe({"fin_item": f["code"],
-                               "rest_code": f["rest_code"]})
+            self._load_recipe({"fin_item": f["code"], "rest_code": f["rest_code"]})
             self._set_mode("edit")
 
     def _load_recipe(self, rec):
         try:
-            data = oic.get_recipe(rec.get("fin_item", ""),
-                                  rec.get("rest_code", ""))
+            data = oic.get_recipe(rec.get("fin_item", ""), rec.get("rest_code", ""))
         except Exception as e:
             QMessageBox.critical(self, "Error", str(e))
             return
-        self._current = {"fin_item": data["fin_item"],
-                         "rest_code": data["rest_code"]}
+        self._current = {"fin_item": data["fin_item"], "rest_code": data["rest_code"]}
         self._rest_code = data["rest_code"]
         self._loading = True
         try:
-            self.cmb_fin.setEditText("{}  ({}  |  {})".format(
-                data["fin_name"], data["fin_item"], data["outlet"]))
+            self.cmb_fin.setEditText(
+                "{}  ({}  |  {})".format(
+                    data["fin_name"], data["fin_item"], data["outlet"]
+                )
+            )
             self.txt_finqty.setText("{:g}".format(data["fin_qty"]))
             self.txt_unit.setText(data["unit"])
             self.lbl_outlet.setText(data["outlet"])
@@ -375,8 +403,7 @@ class OpenItemConsumptionWindow(QMainWindow):
         combo.setCurrentIndex(idx if idx > 0 else 0)
         if not code:
             combo.setCurrentIndex(0)
-        combo.currentIndexChanged.connect(
-            lambda *_: self._raw_picked(combo))
+        combo.currentIndexChanged.connect(lambda *_: self._raw_picked(combo))
         return combo
 
     def _fill_raw_grid(self, rows):
@@ -470,13 +497,15 @@ class OpenItemConsumptionWindow(QMainWindow):
     def _del_row(self):
         row = self.raw_table.currentRow()
         if self.raw_table.rowCount() == 0 or row < 0:
-            QMessageBox.critical(self, "Delete Module",
-                                 "No Entries To Delete")
+            QMessageBox.critical(self, "Delete Module", "No Entries To Delete")
             return
         reply = QMessageBox.question(
-            self, "Delete Entry !", "Are You Sure To Delete?",
+            self,
+            "Delete Entry !",
+            "Are You Sure To Delete?",
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-            QMessageBox.StandardButton.No)
+            QMessageBox.StandardButton.No,
+        )
         if reply != QMessageBox.StandardButton.Yes:
             return
         self.raw_table.removeRow(row)
@@ -524,8 +553,7 @@ class OpenItemConsumptionWindow(QMainWindow):
     def _edit(self):
         row = self.list_table.currentRow()
         if not (0 <= row < len(self._recipes)):
-            QMessageBox.information(self, "Information",
-                                    "No Record To Edit.")
+            QMessageBox.information(self, "Information", "No Record To Edit.")
             return
         self._load_recipe(self._recipes[row])
         self._set_mode("edit")
@@ -534,9 +562,12 @@ class OpenItemConsumptionWindow(QMainWindow):
         if self._mode == "idle":
             return
         reply = QMessageBox.question(
-            self, "Terminate Process", "Cancel ?",
+            self,
+            "Terminate Process",
+            "Cancel ?",
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-            QMessageBox.StandardButton.No)
+            QMessageBox.StandardButton.No,
+        )
         if reply != QMessageBox.StandardButton.Yes:
             return
         self._clear_form()
@@ -550,13 +581,15 @@ class OpenItemConsumptionWindow(QMainWindow):
             code = combo.currentData() if combo is not None else None
             if not code:
                 continue
-            rows.append({
-                "raw_item": code,
-                "raw_qty": self._raw_text(r, 3),
-                "cost": self._raw_text(r, 5),
-                "waste": self._raw_text(r, 7),
-                "unit": self._cell_text(r, 4),
-            })
+            rows.append(
+                {
+                    "raw_item": code,
+                    "raw_qty": self._raw_text(r, 3),
+                    "cost": self._raw_text(r, 5),
+                    "waste": self._raw_text(r, 7),
+                    "unit": self._cell_text(r, 4),
+                }
+            )
         return rows
 
     def _cell_text(self, row, col):
@@ -612,24 +645,35 @@ class OpenItemConsumptionWindow(QMainWindow):
                 rows[i]["waste"] = 0.0
 
         reply = QMessageBox.question(
-            self, "Save Data", "Save Record ?",
+            self,
+            "Save Data",
+            "Save Record ?",
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-            QMessageBox.StandardButton.No)
+            QMessageBox.StandardButton.No,
+        )
         if reply != QMessageBox.StandardButton.Yes:
             return
         try:
-            res = oic.save_recipe(fin_item, rest_code, float(qty_text),
-                                  self.dt_app.date().toPyDate(), rows,
-                                  user=self._user)
+            res = oic.save_recipe(
+                fin_item,
+                rest_code,
+                float(qty_text),
+                self.dt_app.date().toPyDate(),
+                rows,
+                user=self._user,
+            )
         except Exception as e:
             QMessageBox.critical(self, "Editing Error", str(e))
             return
         QMessageBox.information(
-            self, "Done",
+            self,
+            "Done",
             "{} raw row(s) saved for {}.\n"
             "Cost per finished unit: {:,.4f}\n"
             "(ItemMast.PurchRate / LPurRate updated)".format(
-                res["rows_saved"], fin_item, res["cost_per_unit"]))
+                res["rows_saved"], fin_item, res["cost_per_unit"]
+            ),
+        )
         self._clear_form()
         self._set_mode("idle")
         self._reload()
@@ -651,14 +695,16 @@ class OpenItemConsumptionWindow(QMainWindow):
     def _delete(self):
         row = self.list_table.currentRow()
         if not (0 <= row < len(self._recipes)):
-            QMessageBox.information(self, "Information",
-                                    "No Record To Edit.")
+            QMessageBox.information(self, "Information", "No Record To Edit.")
             return
         rec = self._recipes[row]
         reply = QMessageBox.question(
-            self, "Confirmation", "Delete Record ?",
+            self,
+            "Confirmation",
+            "Delete Record ?",
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-            QMessageBox.StandardButton.No)
+            QMessageBox.StandardButton.No,
+        )
         if reply != QMessageBox.StandardButton.Yes:
             return
         try:
@@ -669,8 +715,7 @@ class OpenItemConsumptionWindow(QMainWindow):
         self._clear_form()
         self._set_mode("idle")
         self._reload()
-        QMessageBox.information(self, "Done",
-                                "{} BOM row(s) deleted.".format(n))
+        QMessageBox.information(self, "Done", "{} BOM row(s) deleted.".format(n))
 
 
 def open_open_item_consumption(parent=None, user="SA"):

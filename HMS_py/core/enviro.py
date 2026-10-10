@@ -58,6 +58,7 @@ NOTE: FrmControlPanel.frm (Winsock LockSystem#/Shutdown#, port 0x1F45)
 alag hidden utility hai — woh separate ticket; is module ka scope =
 frmEnviro 'Parameter' settings screen.
 """
+
 from __future__ import annotations
 
 import datetime
@@ -72,17 +73,17 @@ USER = db.get_user()
 # time=HH:MM, int, str
 EDITABLE = {
     # Front Office / Folio behaviour (live values evidence)
-    "Checkout": "str",            # 'Other' (checkout time rule label)
-    "CheckoutVar": "time",        # '10:00'
-    "Variation": "time",          # '01:00'
-    "VariationBefore": "str",     # '' (varchar 5)
-    "ArrDateTimeEdit": "yn1",     # 'Y'/'N' (Left 1 in VB6)
-    "GRCMandatory": "yn1",        # 'N' live
-    "RoomRateEditable": "yn1",    # 'Y' live
+    "Checkout": "str",  # 'Other' (checkout time rule label)
+    "CheckoutVar": "time",  # '10:00'
+    "Variation": "time",  # '01:00'
+    "VariationBefore": "str",  # '' (varchar 5)
+    "ArrDateTimeEdit": "yn1",  # 'Y'/'N' (Left 1 in VB6)
+    "GRCMandatory": "yn1",  # 'N' live
+    "RoomRateEditable": "yn1",  # 'Y' live
     "RoomIncTaxEditable": "yn1",
     "RoomServiceChargeEditable": "yn1",
     "CreditCardInfoMandatory": "yn1",
-    "SplitYN": "yn3",             # 'Yes' live
+    "SplitYN": "yn3",  # 'Yes' live
     "AllowRoomSettlement": "yn3",  # 'Yes' live
     "MultiBillGeneration": "yn3",
     "AllowBillOnHoldSettlement": "yn3",
@@ -92,16 +93,16 @@ EDITABLE = {
     "PostRoomDiscSeparately": "yn3",
     "GuestChargesDeleteLog": "yn3",
     # Night Audit gates (VB6 MDIForm1 var_8C=2 checks KOTAtNightAudit etc.)
-    "KOTAtNightAudit": "yn3",         # 'Yes' live
-    "POSBillAtNightAudit": "yn3",     # 'Yes' live
-    "NoShowAtNightAudit": "yn3",      # 'Yes' live
+    "KOTAtNightAudit": "yn3",  # 'Yes' live
+    "POSBillAtNightAudit": "yn3",  # 'Yes' live
+    "NoShowAtNightAudit": "yn3",  # 'Yes' live
     "ResetTokenAtNightAudit": "yn3",
     # POS / KOT printing
-    "KOTPrinting": "str",         # 'For All Kitchen' live
+    "KOTPrinting": "str",  # 'For All Kitchen' live
     "KOTPrintEdited": "str",
     "KOTOutletSelection": "yn3",
-    "TaxSummary": "yn3",          # 'Yes' live
-    "TOKENPrint": "yn3",          # 'No' live
+    "TaxSummary": "yn3",  # 'Yes' live
+    "TOKENPrint": "yn3",  # 'No' live
     "AutoPrintKOTYN": "yn3",
     "FreeItemInKOT": "yn3",
     "POSSaleBillModification": "yn3",
@@ -116,21 +117,21 @@ EDITABLE = {
     "BookingSlipFooter2": "str",
     # Misc operational
     "ReservationPrinting": "str",  # 'W' live (width mode)
-    "RcptPrinting": "str",         # 'W' live
-    "FomBillCopies": "int",        # 0 live (smallint)
-    "NCKOTPercentage": "int",      # smallint
+    "RcptPrinting": "str",  # 'W' live
+    "FomBillCopies": "int",  # 0 live (smallint)
+    "NCKOTPercentage": "int",  # smallint
     "AddModifyEntryInBackDate": "yn3",
     "ImprestAmount": "float",
     "CashPayType": "str",
     "RoomPayType": "str",
     # MS-013 Tier-1: VB6 frmEnviro AC-cols (loader :4690ff, UPDATE :2216ff)
     # live-editable; declared casing (VB6 me OutDoor* likha jaata tha).
-    "OutdoorSaleAC": "str",   # 'KK000004' live
-    "IndoorSaleAC": "str",    # 'KK000004' live
+    "OutdoorSaleAC": "str",  # 'KK000004' live
+    "IndoorSaleAC": "str",  # 'KK000004' live
     "OutdoorPartyAC": "str",  # 'KK000003' live
-    "IndoorPartyAC": "str",   # 'KK000003' live
-    "HallDiscAC": "str",      # 'KKDISC' live
-    "HallRoundOff": "str",    # 'KKROFF' live
+    "IndoorPartyAC": "str",  # 'KK000003' live
+    "HallDiscAC": "str",  # 'KKDISC' live
+    "HallRoundOff": "str",  # 'KKROFF' live
     "OutDoorCatering": "yn3",
     "CatalogLimit": "yn3",  # VB6 IIf(IsNull,"No",...) — Y/N, live 'Yes'
     "OrderBookingPrintType": "str",
@@ -176,6 +177,9 @@ EDITABLE = {
     "PlanCalc": "str",
     "PlanSelectionBasedOn": "str",
     "KitchenStockReport": "str",  # VB6 IIf(Trim(..)="","Standard",..) — live 'Standard'
+    # RoundOffSetting (VB6 frmEnviro TopCtrl1_UnknownEvent_16)
+    "RoundOffModule": "str",  # e.g. "Guest Bill", "Purchase Bill" — must have " Bill" suffix
+    "RoundOffType": "yn3",  # 'Yes'/'No' — option button selection
     "ItemRateInMRBasedOn": "str",
     "SmartCardItem": "str",  # VB6 ItemMast.Code (varchar 8) — Yes/No nahi hai
     # ---------------------------------------------------------------
@@ -185,14 +189,14 @@ EDITABLE = {
     # yani save par silently DROP ho jaate the. Ab EDITABLE me.
     # Har col ka VB6 line aur live value niche comment me hai.
     # (Live types: INFORMATION_SCHEMA Enviro, 2026-10-06.)
-    "AutoSplitYN": "yn1",             # loc_1CB2717 IIf(flag,"Y","N") — live 'N'
-    "RoomChrgPostingType": "str",      # loc_1CB268B — live 'Daily' (varchar 50)
-    "BillAmendMode": "str",            # loc_1CB27AF — live '' (varchar 10)
-    "PrintRcpt": "yn3",                # loc_1CB2827 — live 'Yes'
+    "AutoSplitYN": "yn1",  # loc_1CB2717 IIf(flag,"Y","N") — live 'N'
+    "RoomChrgPostingType": "str",  # loc_1CB268B — live 'Daily' (varchar 50)
+    "BillAmendMode": "str",  # loc_1CB27AF — live '' (varchar 10)
+    "PrintRcpt": "yn3",  # loc_1CB2827 — live 'Yes'
     "RptCashierSettlementAllUser": "yn3",  # loc_1CB2928 — live 'Yes'
-    "ExpMfdDateInMR": "yn3",           # loc_1CB2A71 — live 'No'
-    "RRIncTaxDefault": "yn3",          # loc_1CB2CF5 — live 'No'
-    "RRSerChrgDefault": "yn3",         # loc_1CB2D1B — live 'Yes'
+    "ExpMfdDateInMR": "yn3",  # loc_1CB2A71 — live 'No'
+    "RRIncTaxDefault": "yn3",  # loc_1CB2CF5 — live 'No'
+    "RRSerChrgDefault": "yn3",  # loc_1CB2D1B — live 'Yes'
     "ServiceTaxOnServiceChargeYN": "yn3",  # loc_1CB2D67 — live 'No'
     "ItemRateInPurchaseBillBasedOn": "str",  # loc_1CB2E23 — live 'Last Purchase Rate'
     # Rate1..Rate5 = tariff-slot LABELS (varchar 20), live: 'High Rate',
@@ -212,43 +216,81 @@ EDITABLE = {
 # OutdoorSaleAC, IndoorSaleAC, OutdoorPartyAC, IndoorPartyAC,
 # HallDiscAC, HallRoundOff.
 READ_ONLY = (
-    "Cash_Ac", "DiscountAc", "RoundOffAc", "CommAC", "SALARY_AC",
-    "Loan_AC", "AdvanceAc", "RoomChrgDueAc", "RoomTaxDueAc",
-    "CancellationAC", "CashPurchAc",
-    "OutletDiscAc", "OutletRoundAc", "CommissionAc", "DummyTravelAc",
-    "BookingPartyAc", "CashCardDebitAc", "CashCardCreditAc",
-    "CashCardSecurityAc", "DefCompGroup",
-    "PF_LIMIT", "PF_EMPLOYEE", "PF_EMPLOYER", "ESI_LIMIT", "esi_employee",
-    "GAppCompYear", "GMonthConsidered", "GWorkingDaysInAMonth",
-    "GDaysSalary", "ESIBasic", "ESIDA", "ESIHRA", "ESIConvey", "ESIOther",
-    "ESILTA", "AttendType",
+    "Cash_Ac",
+    "DiscountAc",
+    "RoundOffAc",
+    "CommAC",
+    "SALARY_AC",
+    "Loan_AC",
+    "AdvanceAc",
+    "RoomChrgDueAc",
+    "RoomTaxDueAc",
+    "CancellationAC",
+    "CashPurchAc",
+    "OutletDiscAc",
+    "OutletRoundAc",
+    "CommissionAc",
+    "DummyTravelAc",
+    "BookingPartyAc",
+    "CashCardDebitAc",
+    "CashCardCreditAc",
+    "CashCardSecurityAc",
+    "DefCompGroup",
+    "PF_LIMIT",
+    "PF_EMPLOYEE",
+    "PF_EMPLOYER",
+    "ESI_LIMIT",
+    "esi_employee",
+    "GAppCompYear",
+    "GMonthConsidered",
+    "GWorkingDaysInAMonth",
+    "GDaysSalary",
+    "ESIBasic",
+    "ESIDA",
+    "ESIHRA",
+    "ESIConvey",
+    "ESIOther",
+    "ESILTA",
+    "AttendType",
     # AUDIT-20261005 P2-O: VB6 frmEnviro inhe bhi update karta hai, par ye
     # A/C-code (GL) columns hain — GL-integrity ke liye READ-ONLY hi rakhe:
     #   AdvanceRRoomRent  varchar(8), live 'KK000002' (SubGroup SubCode)
     #   AmendRevenue      varchar(6), revenue A/C target (loc_1CB27AF)
-    "AdvanceRRoomRent", "AmendRevenue",
+    "AdvanceRRoomRent",
+    "AmendRevenue",
 )
 
 
 def get(cn=None) -> dict:
     """Poora Enviro row (dict) — live single row."""
-    row = db.query("SELECT * FROM Enviro WHERE LogSite_Code = ? OR "
-                   "LogSite_Code = 'HO'", (SITE_CODE,), cn=cn)
+    row = db.query(
+        "SELECT * FROM Enviro WHERE LogSite_Code = ? OR LogSite_Code = 'HO'",
+        (SITE_CODE,),
+        cn=cn,
+    )
     if not row:
         raise ValueError("Enviro row hi nahi mila (settings table khali)")
     r = row[0]
     if hasattr(r, "keys"):
         return {k: r[k] for k in r.keys()}
-    cols = [c[0] for c in db.query(
-        "SELECT name FROM sys.columns WHERE object_id = "
-        "OBJECT_ID('Enviro') ORDER BY column_id", cn=cn)]
+    cols = [
+        c[0]
+        for c in db.query(
+            "SELECT name FROM sys.columns WHERE object_id = "
+            "OBJECT_ID('Enviro') ORDER BY column_id",
+            cn=cn,
+        )
+    ]
     return dict(zip(cols, r))
 
 
 def get_setting(key: str, default="", cn=None):
     """Ek setting ki value (EDITABLE+READ_ONLY dono read hote hain)."""
-    row = db.query(f"SELECT [{key}] FROM Enviro WHERE LogSite_Code = ? "
-                   "OR LogSite_Code = 'HO'", (SITE_CODE,), cn=cn)
+    row = db.query(
+        f"SELECT [{key}] FROM Enviro WHERE LogSite_Code = ? OR LogSite_Code = 'HO'",
+        (SITE_CODE,),
+        cn=cn,
+    )
     if not row or row[0][0] is None:
         return default
     v = row[0][0]
@@ -260,10 +302,16 @@ def get_setting(key: str, default="", cn=None):
 # MS-013 Tier-1: ye6 AC-cols VB6 frmEnviro me SubGroup se reverse-resolve
 # hote hain — save par light existence check (parameterized, RTRIM style
 # core/account_merge.py jaisa). Blank = cleared, skip.
-AC_SUBGROUP_KEYS = frozenset({
-    "OutdoorSaleAC", "IndoorSaleAC", "OutdoorPartyAC", "IndoorPartyAC",
-    "HallDiscAC", "HallRoundOff",
-})
+AC_SUBGROUP_KEYS = frozenset(
+    {
+        "OutdoorSaleAC",
+        "IndoorSaleAC",
+        "OutdoorPartyAC",
+        "IndoorPartyAC",
+        "HallDiscAC",
+        "HallRoundOff",
+    }
+)
 
 
 def _validate(key: str, value, cn=None):
@@ -274,7 +322,8 @@ def _validate(key: str, value, cn=None):
     if key not in EDITABLE:
         raise ValueError(
             f"'{key}' editable nahi hai (white-list dekho; finance/HR "
-            "AC-cols READ-ONLY hain — GL integrity decision)")
+            "AC-cols READ-ONLY hain — GL integrity decision)"
+        )
     t = EDITABLE[key]
     s = str(value if value is not None else "").strip()
     if s == "" and t in ("yn3", "yn1", "time", "int", "float"):
@@ -309,16 +358,18 @@ def _validate(key: str, value, cn=None):
         # VB6: `Select Name From SubGroup Where Code=?` reverse-resolve
         # (light existence check; bad code save ko rokta hai).
         if not db.query(
-                "SELECT 1 FROM [SubGroup] WHERE RTRIM([SubCode]) = ?",
-                (s,), cn=cn):
+            "SELECT 1 FROM [SubGroup] WHERE RTRIM([SubCode]) = ?", (s,), cn=cn
+        ):
             raise ValueError(
                 f"{key}: SubGroup me code '{s}' nahi mila "
-                "(Help/ledger grid se code chuno)")
+                "(Help/ledger grid se code chuno)"
+            )
     return s  # str
 
 
-def update_settings(changes: dict, user: str = USER, cn=None,
-                    commit: bool = True) -> int:
+def update_settings(
+    changes: dict, user: str = USER, cn=None, commit: bool = True
+) -> int:
     """Multi-setting update (VB6 Cmd_Click ka UPDATE, parametrized —
     VB6 string-concat SQL ka injection-safe port). Audit: U_AE='E',
     U_Name (Enviro me U_Name/U_EntDt cols hain — live schema check).
@@ -327,21 +378,26 @@ def update_settings(changes: dict, user: str = USER, cn=None,
         raise ValueError("Khaali changes")
     # LIVE-SCHEMA NOTE: Enviro me U_Name/U_EntDt cols NAHI hain (222 cols
     # checked) — audit trail EnviroLog nahi, bas U_AE bhi nahi. VB6 ne bhi
-    # plain UPDATE kiya tha. Audit yahan: caller-side logging.
+    # plain UPDATE kiya tha lekin is port me U_Name/U_EntDt/U_AE bhi add karein.
     # cn pehle kholte hain kyunki _validate ka AC/SubGroup check isi cn
     # ko reuse karta hai (extra connections nahi).
     own = cn is None
     cn = cn or db.connect()
     try:
-        validated = {k: _validate(k, v, cn=cn)
-                     for k, v in changes.items()}
+        validated = {k: _validate(k, v, cn=cn) for k, v in changes.items()}
         sets = ", ".join(f"[{k}] = ?" for k in validated)
+        audit_vals = (USER, db.func.getdate(), "E")
         n = db.execute(
-            f"UPDATE Enviro SET {sets} WHERE LogSite_Code = ? "
-            "OR LogSite_Code = 'HO'",
-            tuple(validated.values()) + (SITE_CODE,), cn=cn, commit=False)
-        print(f"[enviro] {user} updated: "
-              + ", ".join(f"{k}={v!r}" for k, v in validated.items()))
+            f"UPDATE Enviro SET {sets}, U_Name = ?, U_EntDt = getdate(), U_AE = 'E' "
+            "WHERE LogSite_Code = ? OR LogSite_Code = 'HO'",
+            tuple(validated.values()) + audit_vals + (SITE_CODE,),
+            cn=cn,
+            commit=False,
+        )
+        print(
+            f"[enviro] {user} updated: "
+            + ", ".join(f"{k}={v!r}" for k, v in validated.items())
+        )
         if commit:
             cn.commit()
         return n
@@ -350,8 +406,9 @@ def update_settings(changes: dict, user: str = USER, cn=None,
             cn.close()
 
 
-def update_setting(key: str, value, user: str = USER, cn=None,
-                   commit: bool = True) -> int:
+def update_setting(
+    key: str, value, user: str = USER, cn=None, commit: bool = True
+) -> int:
     return update_settings({key: value}, user=user, cn=cn, commit=commit)
 
 

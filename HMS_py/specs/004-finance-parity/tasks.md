@@ -56,7 +56,7 @@
 **Goal**: `FaChqClear`, `rFaRepView`, `FaTDSCertificate` entry become FULL.
 **Independent Test**: Each form opens with full VB6-faithful behavior.
 
-- [ ] T012 [US3] Investigate VB6 sources for the 3 PARTIAL forms + DB feasibility (live tables?) → scope note in gap list
+- [x] T012 [US3] Investigate VB6 sources for the 3 PARTIAL forms + DB feasibility (live tables?) → scope note in gap list
 - [ ] T013 [US3] Implement upgrades (delegate to `@python`) — only if tables live; else document COMING_SOON
 - [ ] T014 [US3] **Tests**: registry probe + pytest gate
 

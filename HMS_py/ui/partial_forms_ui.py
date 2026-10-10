@@ -15,22 +15,38 @@ VB6 originals (project root *.frm) -> windows here:
 Core ops: HMS_py.core.fa_masters_ops (fa_masters), fa_voucher, fa_reports.
 Grid+form pattern follows fa_sub_forms_ui.py conventions.
 """
+
 from __future__ import annotations
 
 import os
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
-    os.path.abspath(__file__)))))
+sys.path.insert(
+    0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+)
 
 from PyQt6.QtCore import Qt, QDate
 from PyQt6.QtGui import QColor, QFont
-from PyQt6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDateEdit,
-                             QFormLayout, QGridLayout, QGroupBox,
-                             QHBoxLayout, QHeaderView, QLabel, QLineEdit,
-                             QMainWindow, QMessageBox, QPushButton,
-                             QTableWidget, QTableWidgetItem, QVBoxLayout,
-                             QWidget)
+from PyQt6.QtWidgets import (
+    QApplication,
+    QCheckBox,
+    QComboBox,
+    QDateEdit,
+    QFormLayout,
+    QGridLayout,
+    QGroupBox,
+    QHBoxLayout,
+    QHeaderView,
+    QLabel,
+    QLineEdit,
+    QMainWindow,
+    QMessageBox,
+    QPushButton,
+    QTableWidget,
+    QTableWidgetItem,
+    QVBoxLayout,
+    QWidget,
+)
 
 from HMS_py.core import fa_masters_ops as fmo
 from HMS_py.core import fa_reports as fr
@@ -54,7 +70,8 @@ def _fill_grid(grid: QTableWidget, headers: list[str], rows: list[list]):
         for j, v in enumerate(row):
             grid.setItem(i, j, _cell(v))
     grid.horizontalHeader().setSectionResizeMode(
-        QHeaderView.ResizeMode.ResizeToContents)
+        QHeaderView.ResizeMode.ResizeToContents
+    )
 
 
 def _title(text: str) -> QLabel:
@@ -81,7 +98,8 @@ class TdsCategoryWindow(QMainWindow):
         self._load()
 
     def _build(self):
-        c = QWidget(); self.setCentralWidget(c)
+        c = QWidget()
+        self.setCentralWidget(c)
         lay = QVBoxLayout(c)
         lay.addWidget(_title("T.D.S.Category Entry"))
         form = QGroupBox("Category Details")
@@ -96,8 +114,12 @@ class TdsCategoryWindow(QMainWindow):
         fl.addRow("T.D.S.Percentage:", self.txt_pct)
         lay.addWidget(form)
         btns = QHBoxLayout()
-        for cap, fn in (("Add", self._add), ("Update", self._update),
-                        ("Delete", self._delete), ("Exit", self.close)):
+        for cap, fn in (
+            ("Add", self._add),
+            ("Update", self._update),
+            ("Delete", self._delete),
+            ("Exit", self.close),
+        ):
             b = QPushButton(cap)
             b.clicked.connect(fn)
             btns.addWidget(b)
@@ -108,10 +130,11 @@ class TdsCategoryWindow(QMainWindow):
     def _load(self):
         try:
             rows = fmo.tdscat_list()
-            _fill_grid(self.grid,
-                       ["Code", "Description", "T.D.S.Limit", "T.D.S.%"],
-                       [[r["code"], r["name"], r["limit"], r["pct"]]
-                        for r in rows])
+            _fill_grid(
+                self.grid,
+                ["Code", "Description", "T.D.S.Limit", "T.D.S.%"],
+                [[r["code"], r["name"], r["limit"], r["pct"]] for r in rows],
+            )
             self.statusBar().showMessage(f"{len(rows)} TDS categories")
         except Exception as e:
             self.statusBar().showMessage(f"Load error: {e}")
@@ -121,14 +144,20 @@ class TdsCategoryWindow(QMainWindow):
         if r < 0:
             QMessageBox.warning(self, "Select", "Pehle row select karo.")
             return None
-        return (self.grid.item(r, 0).text(), self.grid.item(r, 1).text(),
-                self.grid.item(r, 2).text(), self.grid.item(r, 3).text())
+        return (
+            self.grid.item(r, 0).text(),
+            self.grid.item(r, 1).text(),
+            self.grid.item(r, 2).text(),
+            self.grid.item(r, 3).text(),
+        )
 
     def _add(self):
         try:
-            code = fmo.tdscat_insert(self.txt_name.text(),
-                                     float(self.txt_limit.text() or 0),
-                                     float(self.txt_pct.text() or 0))
+            code = fmo.tdscat_insert(
+                self.txt_name.text(),
+                float(self.txt_limit.text() or 0),
+                float(self.txt_pct.text() or 0),
+            )
             QMessageBox.information(self, "Saved", f"Code {code} saved.")
             self._load()
         except Exception as e:
@@ -139,9 +168,12 @@ class TdsCategoryWindow(QMainWindow):
         if not sel:
             return
         try:
-            fmo.tdscat_update(sel[0], self.txt_name.text(),
-                              float(self.txt_limit.text() or 0),
-                              float(self.txt_pct.text() or 0))
+            fmo.tdscat_update(
+                sel[0],
+                self.txt_name.text(),
+                float(self.txt_limit.text() or 0),
+                float(self.txt_pct.text() or 0),
+            )
             QMessageBox.information(self, "Saved", "Updated.")
             self._load()
         except Exception as e:
@@ -151,9 +183,10 @@ class TdsCategoryWindow(QMainWindow):
         sel = self._row_sel()
         if not sel:
             return
-        if QMessageBox.question(self, "Delete",
-                                "Are You Sure to Delete This Record"
-                                ) == QMessageBox.StandardButton.Yes:
+        if (
+            QMessageBox.question(self, "Delete", "Are You Sure to Delete This Record")
+            == QMessageBox.StandardButton.Yes
+        ):
             try:
                 fmo.tdscat_delete(sel[0])
                 self._load()
@@ -164,9 +197,13 @@ class TdsCategoryWindow(QMainWindow):
 # ────────────────────────────────────────────────────────────────
 # 2. Group Accounts Entry (VB6 FaGrEnt)
 # ────────────────────────────────────────────────────────────────
-_GNATURES = [("A", "A S S E T S"), ("E", "E X P E N D I T U R E"),
-             ("L", "L I A B I L I T Y"), ("R", "R E V E N U E"),
-             ("O", "Others")]
+_GNATURES = [
+    ("A", "A S S E T S"),
+    ("E", "E X P E N D I T U R E"),
+    ("L", "L I A B I L I T Y"),
+    ("R", "R E V E N U E"),
+    ("O", "Others"),
+]
 
 
 class GroupAccountsWindow(QMainWindow):
@@ -178,7 +215,8 @@ class GroupAccountsWindow(QMainWindow):
         self._load()
 
     def _build(self):
-        c = QWidget(); self.setCentralWidget(c)
+        c = QWidget()
+        self.setCentralWidget(c)
         lay = QVBoxLayout(c)
         lay.addWidget(_title("Group Accounts Entry"))
         form = QGroupBox("Group Details")
@@ -202,8 +240,12 @@ class GroupAccountsWindow(QMainWindow):
         fl.addRow("", self.chk_trading)
         lay.addWidget(form)
         btns = QHBoxLayout()
-        for cap, fn in (("Add", self._add), ("Update", self._update),
-                        ("Delete", self._delete), ("Exit", self.close)):
+        for cap, fn in (
+            ("Add", self._add),
+            ("Update", self._update),
+            ("Delete", self._delete),
+            ("Exit", self.close),
+        ):
             b = QPushButton(cap)
             b.clicked.connect(fn)
             btns.addWidget(b)
@@ -214,12 +256,22 @@ class GroupAccountsWindow(QMainWindow):
     def _load(self):
         try:
             rows = fmo.acgroup_list()
-            _fill_grid(self.grid,
-                       ["Code", "Name", "Nature", "Dr/Cr", "Under",
-                        "SubLed", "Balance"],
-                       [[r["code"], r["name"], r["gnature"], r["nature"],
-                         r["main_name"] or r["main_code"], r["subled"],
-                         r["bal"]] for r in rows])
+            _fill_grid(
+                self.grid,
+                ["Code", "Name", "Nature", "Dr/Cr", "Under", "SubLed", "Balance"],
+                [
+                    [
+                        r["code"],
+                        r["name"],
+                        r["gnature"],
+                        r["nature"],
+                        r["main_name"] or r["main_code"],
+                        r["subled"],
+                        r["bal"],
+                    ]
+                    for r in rows
+                ],
+            )
             cur = self.cmb_under.currentText()
             self.cmb_under.clear()
             for code, name in fmo.acgroup_parent_options():
@@ -235,16 +287,22 @@ class GroupAccountsWindow(QMainWindow):
             QMessageBox.warning(self, "Select", "Pehle row select karo.")
             return None
         g = self.grid
-        return {"code": g.item(r, 0).text(), "name": g.item(r, 1).text(),
-                "gnature": g.item(r, 2).text(), "nature": g.item(r, 3).text()}
+        return {
+            "code": g.item(r, 0).text(),
+            "name": g.item(r, 1).text(),
+            "gnature": g.item(r, 2).text(),
+            "nature": g.item(r, 3).text(),
+        }
 
     def _rec(self):
-        return {"name": self.txt_name.text(),
-                "main_code": self.cmb_under.currentData() or "",
-                "gnature": self.cmb_gnature.currentData() or "A",
-                "nature": self.cmb_nature.currentText(),
-                "subled": "Y" if self.chk_subled.isChecked() else "N",
-                "trading": "Y" if self.chk_trading.isChecked() else "N"}
+        return {
+            "name": self.txt_name.text(),
+            "main_code": self.cmb_under.currentData() or "",
+            "gnature": self.cmb_gnature.currentData() or "A",
+            "nature": self.cmb_nature.currentText(),
+            "subled": "Y" if self.chk_subled.isChecked() else "N",
+            "trading": "Y" if self.chk_trading.isChecked() else "N",
+        }
 
     def _add(self):
         try:
@@ -269,10 +327,10 @@ class GroupAccountsWindow(QMainWindow):
         sel = self._sel()
         if not sel:
             return
-        if QMessageBox.question(
-                self, "Delete",
-                f"Delete group '{sel['name']}'?"
-                ) == QMessageBox.StandardButton.Yes:
+        if (
+            QMessageBox.question(self, "Delete", f"Delete group '{sel['name']}'?")
+            == QMessageBox.StandardButton.Yes
+        ):
             try:
                 fmo.acgroup_delete(sel["code"])
                 self._load()
@@ -292,7 +350,8 @@ class LedgerAccountsWindow(QMainWindow):
         self._load()
 
     def _build(self):
-        c = QWidget(); self.setCentralWidget(c)
+        c = QWidget()
+        self.setCentralWidget(c)
         lay = QVBoxLayout(c)
         lay.addWidget(_title("Ledger Accounts Entry"))
         form = QGroupBox("Ledger Details")
@@ -318,8 +377,12 @@ class LedgerAccountsWindow(QMainWindow):
         fl.addRow("", self.chk_active)
         lay.addWidget(form)
         btns = QHBoxLayout()
-        for cap, fn in (("Add", self._add), ("Update", self._update),
-                        ("Delete", self._delete), ("Exit", self.close)):
+        for cap, fn in (
+            ("Add", self._add),
+            ("Update", self._update),
+            ("Delete", self._delete),
+            ("Exit", self.close),
+        ):
             b = QPushButton(cap)
             b.clicked.connect(fn)
             btns.addWidget(b)
@@ -330,14 +393,22 @@ class LedgerAccountsWindow(QMainWindow):
     def _load(self):
         try:
             rows = fmo.subgroup_list(limit=400)
-            _fill_grid(self.grid,
-                       ["Code", "Account Name", "Under", "City", "Active",
-                        "Phone"],
-                       [[r["code"], r["name"], r["under"], r["city"],
-                         "Yes" if r["active"] else "No", r["phone"]]
-                        for r in rows])
-            cur_g, cur_c = self.cmb_group.currentText(), \
-                self.cmb_city.currentText()
+            _fill_grid(
+                self.grid,
+                ["Code", "Account Name", "Under", "City", "Active", "Phone"],
+                [
+                    [
+                        r["code"],
+                        r["name"],
+                        r["under"],
+                        r["city"],
+                        "Yes" if r["active"] else "No",
+                        r["phone"],
+                    ]
+                    for r in rows
+                ],
+            )
+            cur_g, cur_c = self.cmb_group.currentText(), self.cmb_city.currentText()
             self.cmb_group.clear()
             for code, name in fmo.subgroup_group_options():
                 self.cmb_group.addItem(name, code)
@@ -359,14 +430,16 @@ class LedgerAccountsWindow(QMainWindow):
         return {"code": g.item(r, 0).text(), "name": g.item(r, 1).text()}
 
     def _rec(self):
-        return {"name": self.txt_name.text(),
-                "group_code": self.cmb_group.currentData() or "",
-                "city_code": self.cmb_city.currentData() or "",
-                "add1": self.txt_add.text(),
-                "phone": self.txt_phone.text(),
-                "mobile": self.txt_mobile.text(),
-                "email": self.txt_email.text(),
-                "active": 1 if self.chk_active.isChecked() else 0}
+        return {
+            "name": self.txt_name.text(),
+            "group_code": self.cmb_group.currentData() or "",
+            "city_code": self.cmb_city.currentData() or "",
+            "add1": self.txt_add.text(),
+            "phone": self.txt_phone.text(),
+            "mobile": self.txt_mobile.text(),
+            "email": self.txt_email.text(),
+            "active": 1 if self.chk_active.isChecked() else 0,
+        }
 
     def _add(self):
         try:
@@ -391,10 +464,10 @@ class LedgerAccountsWindow(QMainWindow):
         sel = self._sel()
         if not sel:
             return
-        if QMessageBox.question(
-                self, "Delete",
-                f"Delete ledger '{sel['name']}'?"
-                ) == QMessageBox.StandardButton.Yes:
+        if (
+            QMessageBox.question(self, "Delete", f"Delete ledger '{sel['name']}'?")
+            == QMessageBox.StandardButton.Yes
+        ):
             try:
                 fmo.subgroup_delete(sel["code"])
                 self._load()
@@ -424,7 +497,8 @@ class GlobalNarrationWindow(QMainWindow):
         ev.accept()
 
     def _build(self):
-        c = QWidget(); self.setCentralWidget(c)
+        c = QWidget()
+        self.setCentralWidget(c)
         lay = QVBoxLayout(c)
         form = QGroupBox("Narration Master")
         fl = QFormLayout(form)
@@ -442,28 +516,31 @@ class GlobalNarrationWindow(QMainWindow):
             btns.addWidget(b)
         btns.addWidget(QLabel(" Search:"))
         self.ed_search = QLineEdit()
-        self.ed_search.setPlaceholderText("type to filter... (Enter=select, Esc=cancel)")
+        self.ed_search.setPlaceholderText(
+            "type to filter... (Enter=select, Esc=cancel)"
+        )
         self.ed_search.textChanged.connect(self._filter)
         self.ed_search.returnPressed.connect(self._accept_selected)
         btns.addWidget(self.ed_search)
         lay.addLayout(btns)
         self.grid = QTableWidget()
-        self.grid.setEditTriggers(
-            QTableWidget.EditTrigger.NoEditTriggers)
+        self.grid.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self.grid.doubleClicked.connect(self._pick)
         lay.addWidget(self.grid)
-        cap = QLabel("{Press <Esc> For Cancel && Exit} {Press <Enter> For "
-                     "Select && Exit} {Press Ctrl+S to Sort the selected Row}")
+        cap = QLabel(
+            "{Press <Esc> For Cancel && Exit} {Press <Enter> For "
+            "Select && Exit} {Press Ctrl+S to Sort the selected Row}"
+        )
         cap.setStyleSheet(
             "background:#ffffc0; color:#000; border:1px solid #808080; "
-            "font-weight:bold; padding:3px;")
+            "font-weight:bold; padding:3px;"
+        )
         lay.addWidget(cap)
 
     def _load(self):
         try:
             rows = fmo.narr_list()
-            _fill_grid(self.grid, ["Name"],
-                       [[r["name"]] for r in rows])
+            _fill_grid(self.grid, ["Name"], [[r["name"]] for r in rows])
             self.statusBar().showMessage(f"{len(rows)} narrations")
         except Exception as e:
             self.statusBar().showMessage(f"Load error: {e}")
@@ -481,8 +558,10 @@ class GlobalNarrationWindow(QMainWindow):
         if r < 0:
             return
         name = self.grid.item(r, 0).text()
-        if QMessageBox.question(self, "Delete", f"Delete '{name}'?"
-                                ) == QMessageBox.StandardButton.Yes:
+        if (
+            QMessageBox.question(self, "Delete", f"Delete '{name}'?")
+            == QMessageBox.StandardButton.Yes
+        ):
             try:
                 fmo.narr_delete(name)
                 self._load()
@@ -499,6 +578,7 @@ class GlobalNarrationWindow(QMainWindow):
     def _keyPressEvent(self, ev):
         # Form_KeyDown: Esc (0x1B) -> cancel & exit
         from PyQt6.QtCore import Qt as _Qt
+
         if ev.key() == _Qt.Key.Key_Escape:
             self.close()
             return
@@ -535,6 +615,7 @@ class GlobalNarrationWindow(QMainWindow):
         """
         from PyQt6.QtCore import QEventLoop
         from PyQt6.QtCore import Qt as _Qt
+
         self._picker_mode = True
         self.btn_add.setVisible(False)
         self.btn_delete.setVisible(False)
@@ -557,7 +638,8 @@ class LocationOpeningStockWindow(QMainWindow):
         self._load()
 
     def _build(self):
-        c = QWidget(); self.setCentralWidget(c)
+        c = QWidget()
+        self.setCentralWidget(c)
         lay = QVBoxLayout(c)
         lay.addWidget(_title("Location wise Opening Stock Entry"))
         form = QGroupBox("Document")
@@ -578,11 +660,13 @@ class LocationOpeningStockWindow(QMainWindow):
         lf.addRow("Unit:", self.txt_unit)
         lay.addWidget(lineform)
         btns = QHBoxLayout()
-        for cap, fn in (("Add Line", self._add_line),
-                        ("Remove Line", self._remove_line),
-                        ("Save Opening Stock", self._save),
-                        ("Delete Selected Doc", self._delete_doc),
-                        ("Exit", self.close)):
+        for cap, fn in (
+            ("Add Line", self._add_line),
+            ("Remove Line", self._remove_line),
+            ("Save Opening Stock", self._save),
+            ("Delete Selected Doc", self._delete_doc),
+            ("Exit", self.close),
+        ):
             b = QPushButton(cap)
             b.clicked.connect(fn)
             btns.addWidget(b)
@@ -593,20 +677,30 @@ class LocationOpeningStockWindow(QMainWindow):
     def _load(self):
         try:
             from HMS_py.core import db
+
             self.cmb_godown.clear()
-            for r in db.query("SELECT Code, Name FROM GodownMast "
-                              "ORDER BY Name"):
+            for r in db.query("SELECT Code, Name FROM GodownMast ORDER BY Name"):
                 self.cmb_godown.addItem((r[1] or "").strip(), r[0])
             self.cmb_item.clear()
-            for r in db.query("SELECT TOP 300 Code, Name FROM ItemMast "
-                              "ORDER BY Name"):
+            for r in db.query("SELECT TOP 300 Code, Name FROM ItemMast ORDER BY Name"):
                 self.cmb_item.addItem((r[1] or "").strip(), r[0])
             rows = fmo.dep_opstk_list(limit=200)
-            _fill_grid(self.grid,
-                       ["DocId", "VNo", "Date", "Location", "Item", "Qty",
-                        "Unit"],
-                       [[r["docid"], r["vno"], r["vdate"], r["location"],
-                         r["item"], r["qty"], r["unit"]] for r in rows])
+            _fill_grid(
+                self.grid,
+                ["DocId", "VNo", "Date", "Location", "Item", "Qty", "Unit"],
+                [
+                    [
+                        r["docid"],
+                        r["vno"],
+                        r["vdate"],
+                        r["location"],
+                        r["item"],
+                        r["qty"],
+                        r["unit"],
+                    ]
+                    for r in rows
+                ],
+            )
             self.statusBar().showMessage(f"{len(rows)} DOPR lines")
         except Exception as e:
             self.statusBar().showMessage(f"Load error: {e}")
@@ -619,8 +713,7 @@ class LocationOpeningStockWindow(QMainWindow):
         docid = f"(new {self.cmb_godown.currentData() or ''})"
         self.grid.setItem(r, 0, _cell(docid))
         self.grid.setItem(r, 1, _cell(""))
-        self.grid.setItem(r, 2, _cell(
-            self.dt_date.date().toString("dd/MM/yyyy")))
+        self.grid.setItem(r, 2, _cell(self.dt_date.date().toString("dd/MM/yyyy")))
         self.grid.setItem(r, 3, _cell(self.cmb_godown.currentText()))
         self.grid.setItem(r, 4, _cell(self.cmb_item.currentText()))
         self.grid.setItem(r, 5, _cell(self.txt_qty.text() or "0"))
@@ -645,18 +738,24 @@ class LocationOpeningStockWindow(QMainWindow):
                 qty = 0.0
             if not item or qty <= 0:
                 continue
-            lines.append({"item": item, "godown": godown, "qty": qty,
-                          "unit": self.grid.item(i, 6).text()})
+            lines.append(
+                {
+                    "item": item,
+                    "godown": godown,
+                    "qty": qty,
+                    "unit": self.grid.item(i, 6).text(),
+                }
+            )
         if not lines:
-            QMessageBox.information(self, "Opening Stock",
-                                    "Koi new line nahi (Qty > 0 required).")
+            QMessageBox.information(
+                self, "Opening Stock", "Koi new line nahi (Qty > 0 required)."
+            )
             return
         try:
-            res = fmo.dep_opstk_create(
-                lines, self.dt_date.date().toPyDate())
+            res = fmo.dep_opstk_create(lines, self.dt_date.date().toPyDate())
             QMessageBox.information(
-                self, "Saved",
-                f"Doc {res['docid']} ({len(lines)} lines) saved.")
+                self, "Saved", f"Doc {res['docid']} ({len(lines)} lines) saved."
+            )
             self._load()
         except Exception as e:
             _msgbox_err(self, e)
@@ -668,9 +767,10 @@ class LocationOpeningStockWindow(QMainWindow):
         docid = self.grid.item(r, 0).text()
         if docid.startswith("(new"):
             return
-        if QMessageBox.question(self, "Delete",
-                                f"Delete document {docid} fully?"
-                                ) == QMessageBox.StandardButton.Yes:
+        if (
+            QMessageBox.question(self, "Delete", f"Delete document {docid} fully?")
+            == QMessageBox.StandardButton.Yes
+        ):
             try:
                 fmo.dep_opstk_delete(docid)
                 self._load()
@@ -682,9 +782,14 @@ class LocationOpeningStockWindow(QMainWindow):
 # 6. Magic (VB6 FaMagic — F3..F9 finance reports)
 # ────────────────────────────────────────────────────────────────
 class MagicWindow(QMainWindow):
-    REPORTS = [("Profit/Loss (F4)", "PL"), ("Balance sheet (F3)", "BS"),
-               ("Cash/Bank Books (F9)", "CB"), ("Group Wise", "GW"),
-               ("CashFlow (F7)", "CF"), ("FundFlow (F8)", "CF")]
+    REPORTS = [
+        ("Profit/Loss (F4)", "PL"),
+        ("Balance sheet (F3)", "BS"),
+        ("Cash/Bank Books (F9)", "CB"),
+        ("Group Wise", "GW"),
+        ("CashFlow (F7)", "CF"),
+        ("FundFlow (F8)", "CF"),
+    ]
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -693,7 +798,8 @@ class MagicWindow(QMainWindow):
         self._build()
 
     def _build(self):
-        c = QWidget(); self.setCentralWidget(c)
+        c = QWidget()
+        self.setCentralWidget(c)
         lay = QVBoxLayout(c)
         lay.addWidget(_title("Magic"))
         top = QHBoxLayout()
@@ -755,8 +861,9 @@ class MagicWindow(QMainWindow):
     def _rows_of(res) -> list[list]:
         rows: list[list] = []
         if isinstance(res, dict):
+
             def walk(d, prefix=""):
-                for k, v in (d.items() if hasattr(d, "items") else []):
+                for k, v in d.items() if hasattr(d, "items") else []:
                     if isinstance(v, dict):
                         walk(v, prefix + str(k) + " / ")
                     elif isinstance(v, (int, float)):
@@ -764,19 +871,28 @@ class MagicWindow(QMainWindow):
                     elif isinstance(v, (list, tuple)):
                         for it in v:
                             if isinstance(it, dict):
-                                rows.append([prefix + str(k) + " " +
-                                             str(it.get("name", it.get(
-                                                 "code", ""))),
-                                             it.get("amount",
-                                                    it.get("bal", it.get(
-                                                        "total", 0)))])
+                                rows.append(
+                                    [
+                                        prefix
+                                        + str(k)
+                                        + " "
+                                        + str(it.get("name", it.get("code", ""))),
+                                        it.get(
+                                            "amount", it.get("bal", it.get("total", 0))
+                                        ),
+                                    ]
+                                )
+
             walk(res)
         elif isinstance(res, list):
             for it in res:
                 if isinstance(it, dict):
-                    rows.append([it.get("name", it.get("code", "")),
-                                 it.get("amount", it.get("bal",
-                                                         it.get("total", 0)))])
+                    rows.append(
+                        [
+                            it.get("name", it.get("code", "")),
+                            it.get("amount", it.get("bal", it.get("total", 0))),
+                        ]
+                    )
                 else:
                     rows.append(list(it)[:2])
         return rows
@@ -786,9 +902,14 @@ class MagicWindow(QMainWindow):
 # 7. Finance Reports (VB6 FaReports 'ReprtForm')
 # ────────────────────────────────────────────────────────────────
 class FaReportsWindow(QMainWindow):
-    REPORTS = ["Group Summary", "Group Detail", "Trial Balance (Group)",
-               "Trial Balance (Ledger)", "Cash/Bank Summary",
-               "Budget Report"]
+    REPORTS = [
+        "Group Summary",
+        "Group Detail",
+        "Trial Balance (Group)",
+        "Trial Balance (Ledger)",
+        "Cash/Bank Summary",
+        "Budget Report",
+    ]
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -797,7 +918,8 @@ class FaReportsWindow(QMainWindow):
         self._build()
 
     def _build(self):
-        c = QWidget(); self.setCentralWidget(c)
+        c = QWidget()
+        self.setCentralWidget(c)
         lay = QVBoxLayout(c)
         lay.addWidget(_title("Finance Reports"))
         top = QHBoxLayout()
@@ -844,19 +966,28 @@ class FaReportsWindow(QMainWindow):
             elif name == "Cash/Bank Summary":
                 rows = fr.cash_bank_summary(date_to=d_to)
             else:
-                rows = [{"name": r["ac_name"] or r["grp_name"],
-                         "dr": r["dr"], "cr": r["cr"]}
-                        for r in fmo.budget_view()]
+                rows = [
+                    {
+                        "name": r["ac_name"] or r["grp_name"],
+                        "dr": r["dr"],
+                        "cr": r["cr"],
+                    }
+                    for r in fmo.budget_view()
+                ]
         except Exception as e:
             _msgbox_err(self, e)
             return
         out = []
-        for it in (rows or []):
+        for it in rows or []:
             if isinstance(it, dict):
-                out.append([it.get("name", it.get("code", "")),
-                            it.get("dr", it.get("debit", "")),
-                            it.get("cr", it.get("credit", "")),
-                            it.get("amount", it.get("bal", ""))])
+                out.append(
+                    [
+                        it.get("name", it.get("code", "")),
+                        it.get("dr", it.get("debit", "")),
+                        it.get("cr", it.get("credit", "")),
+                        it.get("amount", it.get("bal", "")),
+                    ]
+                )
             else:
                 out.append(list(it)[:4])
         _fill_grid(self.grid, ["Particulars", "Dr", "Cr", "Amount"], out)
@@ -866,9 +997,11 @@ class FaReportsWindow(QMainWindow):
         # VB6 FaReports: Dos/Windows print buttons delegate to Crystal;
         # port prints via status (documented stub).
         QMessageBox.information(
-            self, "Print",
+            self,
+            "Print",
             "Print output: use OS print of this screen.\n"
-            "(VB6 Crystal Report driver ka stub)")
+            "(VB6 Crystal Report driver ka stub)",
+        )
 
 
 # ────────────────────────────────────────────────────────────────
@@ -883,7 +1016,8 @@ class DepartmentMasterWindow(QMainWindow):
         self._load()
 
     def _build(self):
-        c = QWidget(); self.setCentralWidget(c)
+        c = QWidget()
+        self.setCentralWidget(c)
         lay = QVBoxLayout(c)
         lay.addWidget(_title("Department Master"))
         form = QGroupBox("Department")
@@ -901,8 +1035,12 @@ class DepartmentMasterWindow(QMainWindow):
         fl.addRow("Phone:", self.txt_phone)
         lay.addWidget(form)
         btns = QHBoxLayout()
-        for cap, fn in (("Add", self._add), ("Update", self._update),
-                        ("Delete", self._delete), ("Exit", self.close)):
+        for cap, fn in (
+            ("Add", self._add),
+            ("Update", self._update),
+            ("Delete", self._delete),
+            ("Exit", self.close),
+        ):
             b = QPushButton(cap)
             b.clicked.connect(fn)
             btns.addWidget(b)
@@ -913,11 +1051,16 @@ class DepartmentMasterWindow(QMainWindow):
     def _load(self):
         try:
             from HMS_py.core import depart as dep
+
             rows = dep.list_all()
-            _fill_grid(self.grid,
-                       ["Code", "Department Name", "Kot", "POS", "Phone"],
-                       [[r["code"], r["name"], r["kotyn"], r["pos"],
-                         r["phone"]] for r in rows])
+            _fill_grid(
+                self.grid,
+                ["Code", "Department Name", "Kot", "POS", "Phone"],
+                [
+                    [r["code"], r["name"], r["kotyn"], r["pos"], r["phone"]]
+                    for r in rows
+                ],
+            )
         except Exception as e:
             self.statusBar().showMessage(f"Load error: {e}")
 
@@ -929,15 +1072,18 @@ class DepartmentMasterWindow(QMainWindow):
         return self.grid.item(r, 0).text()
 
     def _rec(self):
-        return {"code": self.txt_code.text().strip(),
-                "name": self.txt_name.text().strip(),
-                "kotyn": "Y" if self.chk_kot.isChecked() else "N",
-                "pos": "Y" if self.chk_pos.isChecked() else "N",
-                "phone": self.txt_phone.text().strip()}
+        return {
+            "code": self.txt_code.text().strip(),
+            "name": self.txt_name.text().strip(),
+            "kotyn": "Y" if self.chk_kot.isChecked() else "N",
+            "pos": "Y" if self.chk_pos.isChecked() else "N",
+            "phone": self.txt_phone.text().strip(),
+        }
 
     def _add(self):
         try:
             from HMS_py.core import depart as dep
+
             dep.insert(self._rec())
             QMessageBox.information(self, "Saved", "Department saved.")
             self._load()
@@ -950,6 +1096,7 @@ class DepartmentMasterWindow(QMainWindow):
             return
         try:
             from HMS_py.core import depart as dep
+
             dep.update(code, self._rec())
             QMessageBox.information(self, "Saved", "Updated.")
             self._load()
@@ -960,10 +1107,12 @@ class DepartmentMasterWindow(QMainWindow):
         code = self._sel()
         if not code:
             return
-        if QMessageBox.question(
-                self, "Delete",
-                f"Delete Department '{code}'? (RevMast bhi saaf hoga)"
-                ) == QMessageBox.StandardButton.Yes:
+        if (
+            QMessageBox.question(
+                self, "Delete", f"Delete Department '{code}'? (RevMast bhi saaf hoga)"
+            )
+            == QMessageBox.StandardButton.Yes
+        ):
             try:
                 fmo.depart_delete_with_rev(code)
                 self._load()
@@ -975,40 +1124,50 @@ class DepartmentMasterWindow(QMainWindow):
 # 9. Cheque/DD Clearing Entry (VB6 FaChqClear browser flavour)
 # ────────────────────────────────────────────────────────────────
 class ChequeDDClearingWindow(QMainWindow):
+    # BUG-US3-02: VB6 FaChqClear port — VIEWLedger fill, party sub-filter,
+    # LOGSITE_CODE, upto-aware status, PDCDt-gated date checks, bulk save.
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Cheque/DD Clearing Entry")
         self.resize(940, 560)
+        self._orig = {}  # (DocId, V_SNo) -> (chq, chq_date, clg_date, v_date)
         self._build()
         self._load_banks()
 
     def _build(self):
-        c = QWidget(); self.setCentralWidget(c)
+        c = QWidget()
+        self.setCentralWidget(c)
         lay = QVBoxLayout(c)
         lay.addWidget(_title("Cheque/DD Clearing Entry"))
         top = QHBoxLayout()
         form = QGroupBox("Filter")
         fl = QFormLayout(form)
         self.cmb_bank = QComboBox()
+        self.cmb_party = QComboBox()
         self.cmb_status = QComboBox()
         self.cmb_status.addItems(["All", "Cleared", "UnCleared"])
         self.dt_upto = QDateEdit(QDate.currentDate())
         self.dt_upto.setCalendarPopup(True)
         fl.addRow("Bank Account:", self.cmb_bank)
+        fl.addRow("Party (Counterparty):", self.cmb_party)
         fl.addRow("Status(Clear./UnClea/All):", self.cmb_status)
         fl.addRow("UpTo Date:", self.dt_upto)
         top.addWidget(form)
         summ = QGroupBox("Balances")
         sl = QVBoxLayout(summ)
-        self.lbl_bank = QLabel("Balance As Per Bank : 0.00")
+        # VB6 FaChqClear:369/:390 — Book caption above Bank caption
         self.lbl_book = QLabel("Balance As Per Book : 0.00")
-        sl.addWidget(self.lbl_bank)
+        self.lbl_bank = QLabel("Balance As Per Bank : 0.00")
         sl.addWidget(self.lbl_book)
+        sl.addWidget(self.lbl_bank)
         top.addWidget(summ)
         lay.addLayout(top)
         btns = QHBoxLayout()
-        for cap, fn in (("Fill", self._fill), ("Mark Cleared", self._clear),
-                        ("Exit", self.close)):
+        for cap, fn in (
+            ("Fill", self._fill),
+            ("Save", self._save),
+            ("Exit", self.close),
+        ):
             b = QPushButton(cap)
             b.clicked.connect(fn)
             btns.addWidget(b)
@@ -1019,67 +1178,225 @@ class ChequeDDClearingWindow(QMainWindow):
     def _load_banks(self):
         try:
             from HMS_py.core import db
+
             rows = db.query(
                 "SELECT SubCode, Name FROM SubGroup WHERE Nature IN "
-                "('Bank') ORDER BY Name")
+                "('Bank') ORDER BY Name"
+            )
             for r in rows:
                 self.cmb_bank.addItem((r[1] or "").strip(), r[0])
+            # wire AFTER populate so addItem() churn doesn't re-query
+            self.cmb_bank.currentIndexChanged.connect(self._load_parties)
+            self._load_parties()
         except Exception as e:
             self.statusBar().showMessage(f"Bank load error: {e}")
 
+    def _load_parties(self):
+        bank = self.cmb_bank.currentData() or ""
+        self.cmb_party.blockSignals(True)
+        self.cmb_party.clear()
+        self.cmb_party.addItem("All", "")
+        if bank:
+            try:
+                from HMS_py.core import db
+
+                rows = db.query(
+                    "SELECT DISTINCT L.PARTY1, ISNULL(SG.Name, '') "
+                    "FROM VIEWLedger L LEFT JOIN SubGroup SG "
+                    "ON L.PARTY1 = SG.SubCode WHERE L.PARTY = ? "
+                    "ORDER BY SG.Name",
+                    (bank,),
+                )
+                for r in rows:
+                    name = (r[1] or "").strip()
+                    if name:
+                        self.cmb_party.addItem(name, r[0])
+            except Exception as e:
+                self.statusBar().showMessage(f"Party load error: {e}")
+        self.cmb_party.blockSignals(False)
+
+    @staticmethod
+    def _txt(item):
+        return (item.text() if item else "").strip()
+
+    @staticmethod
+    def _qdate(s):
+        return QDate.fromString(str(s)[:10], "yyyy-MM-dd") if s else QDate()
+
+    @staticmethod
+    def _bal(date_col, upto, bank, site):
+        from HMS_py.core import db
+
+        sql = (
+            f"SELECT ISNULL(SUM(AmtDr), 0), ISNULL(SUM(AmtCr), 0) "
+            f"FROM Ledger WHERE {date_col} <= ? AND SubCode = ?"
+        )
+        params = [upto, bank]
+        if site:
+            sql += " AND LOGSITE_CODE = ?"
+            params.append(site)
+        r = db.query(sql, tuple(params))
+        return float(r[0][0] or 0) - float(r[0][1] or 0)
+
     def _fill(self):
         bank = self.cmb_bank.currentData() or ""
+        party = self.cmb_party.currentData() or ""
         status = self.cmb_status.currentText()
         upto = self.dt_upto.date().toPyDate()
-        where, params = ["L.SubCode = ?"], [bank]
+        where, params = ["L.V_Date <= ?", "L.PARTY = ?"], [upto, bank]
+        if party:
+            where.append("L.PARTY1 = ?")
+            params.append(party)
         if status == "Cleared":
-            where.append("L.Clg_Date IS NOT NULL")
+            # VB6 FaChqClear.frm:1756 — cleared = Clg_Date upto-bounded
+            where.append("(L.Clg_Date IS NOT NULL AND L.Clg_Date <= ?)")
+            params.append(upto)
         elif status == "UnCleared":
-            where.append("L.Clg_Date IS NULL")
-        where.append("L.V_Date <= ?")
-        params.append(upto)
+            # VB6 FaChqClear.frm:1764 — un-cleared = null OR clg after upto
+            where.append("(L.Clg_Date IS NULL OR L.Clg_Date > ?)")
+            params.append(upto)
         try:
-            from HMS_py.core import db
+            from HMS_py.core import company, db
+
+            site = company.get_site_code() or ""
+            # ponytail: strict site filter skipped when site resolves empty
+            if site:
+                where.append("L.LogSite_Code = ?")
+                params.append(site)
             rows = db.query(
-                "SELECT L.V_Date, L.DocId, L.V_SNo, ISNULL(L.Chq_No, ''), "
-                "ISNULL(L.Chq_Date, ''), ISNULL(L.Clg_Date, ''), "
-                "ISNULL(SG.Name, ''), ISNULL(L.AmtCr, 0) - ISNULL(L.AmtDr, 0) "
-                "FROM Ledger L LEFT JOIN SubGroup SG ON L.SubCode = SG.SubCode "
-                "WHERE " + " AND ".join(where) + " ORDER BY L.V_Date",
-                tuple(params))
-            out = []
-            tot = 0.0
-            for r in rows:
-                amt = float(r[8 - 1] or 0)  # r[7]
-                tot += amt
-                out.append([str(r[0])[:10], r[1], r[2], r[3],
-                            str(r[4])[:10] if r[4] else "",
-                            str(r[5])[:10] if r[5] else "", r[6],
-                            amt,
-                            "Cleared" if r[5] else "UnCleared"])
-            _fill_grid(self.grid,
-                       ["V_Date", "DocId", "SNo", "Chq_No", "Chq_Date",
-                        "Clg_Date", "Party", "Amount", "Status"], out)
-            self.lbl_book.setText(f"Balance As Per Book : {tot:,.2f}")
-            self.lbl_bank.setText(f"Balance As Per Bank : "
-                                  f"{sum(x[7] for x in out if x[8] == 'Cleared'):,.2f}")
+                "SELECT L.V_Date, L.V_Type, L.V_No, ISNULL(SG.Name, ''), "
+                "ISNULL(L.debit, 0), ISNULL(L.credit, 0), ISNULL(L.Chq_No, ''), "
+                "L.Chq_Date, L.Clg_Date, ISNULL(L.Narr, ''), L.DocId, L.V_SNo "
+                "FROM VIEWLedger L LEFT JOIN SubGroup SG "
+                "ON L.PARTY1 = SG.SubCode "
+                "WHERE " + " AND ".join(where) + " ORDER BY L.V_Date, L.V_Type, L.V_No",
+                tuple(params),
+            )
+            hdr = [
+                "V_Date",
+                "V_Type",
+                "V_No",
+                "Party",
+                "Debit",
+                "Credit",
+                "Chq_No",
+                "Chq_Date",
+                "Clg_Date",
+                "Narration",
+                "DocId",
+                "SNo",
+            ]
+            g = self.grid
+            g.setColumnCount(len(hdr))
+            g.setHorizontalHeaderLabels(hdr)
+            g.setRowCount(len(rows))
+            self._orig = {}
+            for i, r in enumerate(rows):
+                v_date = str(r[0])[:10] if r[0] else ""
+                vals = [
+                    v_date,
+                    r[1],
+                    r[2],
+                    r[3],
+                    float(r[4] or 0),
+                    float(r[5] or 0),
+                    (r[6] or "").strip(),
+                    str(r[7])[:10] if r[7] else "",
+                    str(r[8])[:10] if r[8] else "",
+                    r[9],
+                    r[10],
+                    r[11],
+                ]
+                for j, v in enumerate(vals):
+                    g.setItem(i, j, _cell(v, editable=j in (6, 7, 8)))
+                self._orig[(str(r[10]), str(r[11] or 0))] = (
+                    (r[6] or "").strip(),
+                    str(r[7])[:10] if r[7] else "",
+                    str(r[8])[:10] if r[8] else "",
+                    v_date,
+                )
+            g.horizontalHeader().setSectionResizeMode(
+                QHeaderView.ResizeMode.ResizeToContents
+            )
+            if not rows:
+                QMessageBox.information(self, "Fill", "No Record Found to Fill")
+            # VB6 balances = AmtDr/AmtCr sums (not grid totals):
+            # Book by V_Date<=upto, Bank by Clg_Date<=upto
+            b_bal = self._bal("V_Date", upto, bank, site)
+            k_bal = self._bal("Clg_Date", upto, bank, site)
+            self.lbl_book.setText(
+                f"Balance As Per Book : {abs(b_bal):,.2f} {'Dr' if b_bal > 0 else 'Cr'}"
+            )
+            self.lbl_bank.setText(
+                f"Balance As Per Bank : {abs(k_bal):,.2f} {'Dr' if k_bal > 0 else 'Cr'}"
+            )
         except Exception as e:
             _msgbox_err(self, e)
 
-    def _clear(self):
-        r = self.grid.currentRow()
-        if r < 0:
-            QMessageBox.warning(self, "Select", "Pehle row select karo.")
-            return
-        docid = self.grid.item(r, 1).text()
-        sno = int(self.grid.item(r, 2).text() or 0)
-        if self.grid.item(r, 8).text() == "Cleared":
-            QMessageBox.information(self, "Cleared", "Pehle se cleared hai.")
+    def _save(self):
+        g = self.grid
+        changes = []  # (key, docid, sno, chq, chq_date, clg_date)
+        for i in range(g.rowCount()):
+            chq = self._txt(g.item(i, 6))
+            chqd = self._txt(g.item(i, 7))
+            clgd = self._txt(g.item(i, 8))
+            docid = self._txt(g.item(i, 10))
+            sno = self._txt(g.item(i, 11))
+            key = (docid, sno)
+            old = self._orig.get(key, ("", "", "", ""))
+            if old[:3] == (chq, chqd, clgd):
+                continue
+            changes.append((key, docid, sno, chq, chqd, clgd))
+        if not changes:
+            QMessageBox.information(self, "Save", "No changes to save.")
             return
         try:
-            fv.cheque_mark_cleared(docid, sno,
-                                   self.dt_upto.date().toPyDate())
-            QMessageBox.information(self, "Saved", "Cheque cleared.")
+            from HMS_py.core import db
+
+            # VB6 FaChqClear.frm:1604 — date checks run only when
+            # FAENVIRO.PDCDt = "No" (live DB has "Yes" -> VB6 skips them)
+            r = db.query("SELECT PDCDt FROM FAENVIRO")
+            pdc = str(r[0][0] or "") if r else ""
+            if pdc == "No":
+                for key, docid, sno, chq, chqd, clgd in changes:
+                    v_date = self._orig[key][3]
+                    d_chq = self._qdate(chqd)
+                    d_clg = self._qdate(clgd)
+                    d_v = self._qdate(v_date)
+                    if chqd and not d_chq.isValid():
+                        raise ValueError(
+                            f"Row {sno}: invalid Cheque Date (yyyy-mm-dd): {chqd}"
+                        )
+                    if clgd and not d_clg.isValid():
+                        raise ValueError(
+                            f"Row {sno}: invalid Clg Date (yyyy-mm-dd): {clgd}"
+                        )
+                    if chqd and v_date and d_chq > d_v:
+                        # VB6 FaChqClear.frm:1618
+                        raise ValueError("Cheque Date Should be Less than Voucher Date")
+                    if clgd and not chqd:
+                        # VB6 silently drops clg without chq date
+                        # ponytail: we reject loudly instead — silent
+                        # data drop is worse than one extra message
+                        raise ValueError("Clg.Date Must be Greater Than Cheque Date")
+                    if clgd and chqd and d_clg < d_chq:
+                        # VB6 FaChqClear.frm:1661 (equal allowed)
+                        raise ValueError("Clg.Date Must be Greater Than Cheque Date")
+            with db.transaction() as cn:
+                for key, docid, sno, chq, chqd, clgd in changes:
+                    # BUG-US3-02: row-precise WHERE — stricter than VB6's
+                    # DocID-only (DocID repeats up to 340 rows); HPOST
+                    # contra-line stamping not ported — UI only shows
+                    # PARTY=bank rows so the contra line stays invisible
+                    # here. ceiling: none known, key probed unique.
+                    db.execute(
+                        "UPDATE Ledger SET Chq_No = ?, Chq_Date = ?, "
+                        "Clg_Date = ? WHERE DocId = ? AND V_SNo = ?",
+                        (chq or None, chqd or None, clgd or None, docid, sno),
+                        cn=cn,
+                        commit=False,
+                    )
+            QMessageBox.information(self, "Save", f"{len(changes)} row(s) saved.")
             self._fill()
         except Exception as e:
             _msgbox_err(self, e)
@@ -1096,7 +1413,8 @@ class AdjustmentDeleteWindow(QMainWindow):
         self._build()
 
     def _build(self):
-        c = QWidget(); self.setCentralWidget(c)
+        c = QWidget()
+        self.setCentralWidget(c)
         lay = QVBoxLayout(c)
         lay.addWidget(_title("Adjustment Delete"))
         top = QHBoxLayout()
@@ -1105,8 +1423,11 @@ class AdjustmentDeleteWindow(QMainWindow):
         self.cmb_acct = QComboBox()
         top.addWidget(lbl)
         top.addWidget(self.cmb_acct, 1)
-        for cap, fn in (("Fill", self._fill),
-                        ("Delete", self._delete), ("Exit", self.close)):
+        for cap, fn in (
+            ("Fill", self._fill),
+            ("Delete", self._delete),
+            ("Exit", self.close),
+        ):
             b = QPushButton(cap)
             b.clicked.connect(fn)
             top.addWidget(b)
@@ -1119,14 +1440,16 @@ class AdjustmentDeleteWindow(QMainWindow):
         try:
             from HMS_py.core import db
             from HMS_py.core import company
+
             site_code = company.get_site_code() or ""
             # FIX #7: Use ACGROUP table like VB6 FaAdjust (not SubGroup)
-            # VB6: WHERE L.LOGSITE_CODE='" & MemVar_1F92078 & "' 
+            # VB6: WHERE L.LOGSITE_CODE='" & MemVar_1F92078 & "'
             #      OR LOGSITE_CODE='HO'
             rows = db.query(
                 "SELECT GroupCode, GroupName FROM ACGROUP "
                 "WHERE LOGSITE_CODE='" + site_code + "' OR LOGSITE_CODE='HO' "
-                "ORDER BY GroupName")
+                "ORDER BY GroupName"
+            )
             for r in rows:
                 self.cmb_acct.addItem((r[1] or "").strip(), r[0])
         except Exception as e:
@@ -1136,18 +1459,20 @@ class AdjustmentDeleteWindow(QMainWindow):
         sub = self.cmb_acct.currentData() or ""
         try:
             from HMS_py.core import db
+
             rows = db.query(
                 "SELECT DocId1, V_SNo1, DocId2, V_SNo2, ISNULL(Cr, 0), "
                 "ISNULL(AgRefNo, '') FROM LEDGERADJ "
-                "WHERE SubCode = ? ORDER BY DocId1", (sub,))
-            _fill_grid(self.grid,
-                       ["DocId1", "SNo1", "DocId2", "SNo2", "Amount",
-                        "AgRefNo"],
-                       [[r[0], r[1], r[2], r[3],
-                         float(r[4] or 0), r[5]] for r in rows])
+                "WHERE SubCode = ? ORDER BY DocId1",
+                (sub,),
+            )
+            _fill_grid(
+                self.grid,
+                ["DocId1", "SNo1", "DocId2", "SNo2", "Amount", "AgRefNo"],
+                [[r[0], r[1], r[2], r[3], float(r[4] or 0), r[5]] for r in rows],
+            )
             if not rows:
-                QMessageBox.information(self, "Fill",
-                                        "No Record Found to Fill")
+                QMessageBox.information(self, "Fill", "No Record Found to Fill")
         except Exception as e:
             _msgbox_err(self, e)
 
@@ -1159,11 +1484,14 @@ class AdjustmentDeleteWindow(QMainWindow):
         g = self.grid
         d1, s1 = g.item(r, 0).text(), int(g.item(r, 1).text() or 0)
         d2, s2 = g.item(r, 2).text(), int(g.item(r, 3).text() or 0)
-        if QMessageBox.question(
-                self, "Delete Confirmation",
-                "Do You Want to Delete It "
-                f"({d1}#{s1} <-> {d2}#{s2})?"
-                ) == QMessageBox.StandardButton.Yes:
+        if (
+            QMessageBox.question(
+                self,
+                "Delete Confirmation",
+                f"Do You Want to Delete It ({d1}#{s1} <-> {d2}#{s2})?",
+            )
+            == QMessageBox.StandardButton.Yes
+        ):
             try:
                 fmo.ledgeradj_delete(d1, s1, d2, s2)
                 self._fill()
@@ -1175,43 +1503,63 @@ class AdjustmentDeleteWindow(QMainWindow):
 # Openers (shell registry pattern)
 # ────────────────────────────────────────────────────────────────
 def open_tds_category(parent=None):
-    w = TdsCategoryWindow(parent); w.show(); return w
+    w = TdsCategoryWindow(parent)
+    w.show()
+    return w
 
 
 def open_group_accounts(parent=None):
-    w = GroupAccountsWindow(parent); w.show(); return w
+    w = GroupAccountsWindow(parent)
+    w.show()
+    return w
 
 
 def open_ledger_accounts(parent=None):
-    w = LedgerAccountsWindow(parent); w.show(); return w
+    w = LedgerAccountsWindow(parent)
+    w.show()
+    return w
 
 
 def open_global_narration(parent=None):
-    w = GlobalNarrationWindow(parent); w.show(); return w
+    w = GlobalNarrationWindow(parent)
+    w.show()
+    return w
 
 
 def open_location_opening_stock(parent=None):
-    w = LocationOpeningStockWindow(parent); w.show(); return w
+    w = LocationOpeningStockWindow(parent)
+    w.show()
+    return w
 
 
 def open_magic(parent=None):
-    w = MagicWindow(parent); w.show(); return w
+    w = MagicWindow(parent)
+    w.show()
+    return w
 
 
 def open_fa_reports(parent=None):
-    w = FaReportsWindow(parent); w.show(); return w
+    w = FaReportsWindow(parent)
+    w.show()
+    return w
 
 
 def open_department_master(parent=None):
-    w = DepartmentMasterWindow(parent); w.show(); return w
+    w = DepartmentMasterWindow(parent)
+    w.show()
+    return w
 
 
 def open_cheque_dd_clearing(parent=None):
-    w = ChequeDDClearingWindow(parent); w.show(); return w
+    w = ChequeDDClearingWindow(parent)
+    w.show()
+    return w
 
 
 def open_adjustment_delete(parent=None):
-    w = AdjustmentDeleteWindow(parent); w.show(); return w
+    w = AdjustmentDeleteWindow(parent)
+    w.show()
+    return w
 
 
 if __name__ == "__main__":

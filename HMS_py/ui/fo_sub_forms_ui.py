@@ -895,6 +895,11 @@ class ReverseMergeWindow(QMainWindow):
             QMessageBox.critical(self, "Save...", str(e))
             return
         self._load_children()
+        # VB6 FrmRevMergeCharge: removal ke baad FGrid re-populate hota hai
+        # (row 0 default) aur RowColChange se us room ka charge subgrid
+        # reload hota hai — warna charge grid stale/empty reh jaata hai.
+        if self._children:
+            self.table.selectRow(0)
 
     def _on_charge_cell(self, row, col):
         if col != 0:

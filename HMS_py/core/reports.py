@@ -2339,8 +2339,17 @@ REPORTS: list[dict] = [
         "title": "Purchase Order",
         "module": "Inventory",
         "menu": ["Purchase Order"],
-        "cols": ["VNo", "VDate", "ItemName", "Specification", "Unit",
-                 "Qty", "Rate", "Amount", "PartyName"],
+        "cols": [
+            "VNo",
+            "VDate",
+            "ItemName",
+            "Specification",
+            "Unit",
+            "Qty",
+            "Rate",
+            "Amount",
+            "PartyName",
+        ],
         "sql": (
             "SELECT TOP ({L}) PO.VNo, PO.VDate, I.Name AS ItemName, "
             "PO1.Specification, PO1.Unit, PO1.Qty, PO1.Rate, PO1.Amount, "
@@ -2361,8 +2370,17 @@ REPORTS: list[dict] = [
         "title": "Pending Purchase Order",
         "module": "Inventory",
         "menu": ["Pending Purchase Order"],
-        "cols": ["VNo", "VDate", "ItemName", "Specification", "Unit",
-                 "Qty", "Rate", "Amount", "PartyName"],
+        "cols": [
+            "VNo",
+            "VDate",
+            "ItemName",
+            "Specification",
+            "Unit",
+            "Qty",
+            "Rate",
+            "Amount",
+            "PartyName",
+        ],
         "sql": (
             "SELECT TOP ({L}) PO.VNo, PO.VDate, I.Name AS ItemName, "
             "PO1.Specification, PO1.Unit, PO1.Qty, PO1.Rate, PO1.Amount, "
@@ -3280,9 +3298,10 @@ def vat_register(index: int, cn=None) -> dict | None:
         13: ("rFaRepView", "FormIII", "Form III"),
         14: ("rFaRepView", "UPVATXXIV", "UP VAT XXIV"),
         16: ("rFaRepView", "GSTR1", "GSTR-1"),
-        17: ("rFaRepView", "GSTR2_3", "GSTR-2 (3)"),
-        18: ("rFaRepView", "GSTR2_4A", "GSTR-2 (4A)"),
-        19: ("rFaRepView", "GSTR2_4B", "GSTR-2 (4B)"),
+        # BUG-US3-01: dispatch keys must match by_key() registry keys (GSTR2(3)/(4A)/(4B))
+        17: ("rFaRepView", "GSTR2(3)", "GSTR-2 (3)"),
+        18: ("rFaRepView", "GSTR2(4A)", "GSTR-2 (4A)"),
+        19: ("rFaRepView", "GSTR2(4B)", "GSTR-2 (4B)"),
     }
     entry = reports_data.get(index)
     if not entry:

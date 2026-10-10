@@ -1,113 +1,45 @@
-# Implementation Plan: [FEATURE]
+# Implementation Plan: {FEATURE NAME}
 
-**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
+- Branch: `###-{kebab-slug}` · Created: {YYYY-MM-DD} · Status: Draft
+- Input: `specs/###-{kebab-slug}/spec.md`
 
-**Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
-
-**Note**: This template is filled in by the `/speckit.plan` command; its definition describes the execution workflow.
+> Copy next to `spec.md`. Gates: **Constitution Check must PASS before Phase 0**; re-check after Phase 1.
 
 ## Summary
-
-[Extract from feature spec: primary requirement + technical approach from research]
+{What is being migrated, from which VB6 components, into which Python modules.}
 
 ## Technical Context
+- Language / runtime: Python 3 + Qt (PyQt)
+- Dependencies: existing only — new deps need justification
+- Storage: SQL Server (preserved; config via `Analysis.ini`)
+- Testing: pytest (`pytest.ini`); parity = automated comparison against VB6 behaviour
+- Target platform: Windows
+- Constraints: VB6 source read-only; permission model preserved; parameterized SQL only
 
-<!--
-  ACTION REQUIRED: Replace the content in this section with the technical details
-  for the project. The structure here is presented in advisory capacity to guide
-  the iteration process.
--->
+## Constitution Check (GATE)
+- [ ] VB6 evidence captured (forms/modules/lines) in spec
+- [ ] No VB6 files modified; no SQL engine swap
+- [ ] Statuses + parity chain respected; bug-register ID if fixing a bug
+- [ ] Parameterized queries only; no secrets in code/docs
+- [ ] Existing ledgers/specs checked for prior work (no duplication)
 
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]
+Any FAIL → stop and report to Leader.
 
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]
+## VB6 ↔ Python Touchpoints
 
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]
-
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]
-
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
-
-**Project Type**: [e.g., library/cli/web-service/mobile-app/compiler/desktop-app or NEEDS CLARIFICATION]
-
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]
-
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]
-
-**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
-
-## Constitution Check
-
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
-[Gates determined based on constitution file]
+| VB6 Ref (file:line) | Python target | Change type |
+|---|---|---|
 
 ## Project Structure
+- Specs: `specs/###-{slug}/{spec,plan,tasks}.md` + `checklists/requirements.md`
+- New/changed code: {paths}
+- Evidence: `migration/inventory/*.csv`, results in `migration/parity-report.md`
 
-### Documentation (this feature)
+## Phase 0 — Research
+Unknowns → `UNKNOWN — REQUIRES INVESTIGATION` + owner. Stop when every FR has evidence or a listed unknown.
 
-```text
-specs/[###-feature]/
-├── plan.md              # This file (/speckit.plan command output)
-├── research.md          # Phase 0 output (/speckit.plan command)
-├── data-model.md        # Phase 1 output (/speckit.plan command)
-├── quickstart.md        # Phase 1 output (/speckit.plan command)
-├── contracts/           # Phase 1 output (/speckit.plan command)
-└── tasks.md             # Phase 2 output (/speckit.tasks command - NOT created by /speckit.plan)
-```
+## Phase 1 — Design
+Data model, SQL, function signatures, UI flow. UI features → 3-phase UI pipeline (`@designer` → `@frontend` → `@designer` QA) via Leader.
 
-### Source Code (repository root)
-<!--
-  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-  for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
-  not include Option labels.
--->
-
-```text
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
-src/
-├── models/
-├── services/
-├── cli/
-└── lib/
-
-tests/
-├── contract/
-├── integration/
-└── unit/
-
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
-└── tests/
-
-frontend/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
-└── tests/
-
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
-
-ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
-```
-
-**Structure Decision**: [Document the selected structure and reference the real
-directories captured above]
-
-## Complexity Tracking
-
-> **Fill ONLY if Constitution Check has violations that must be justified**
-
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+## Phase 2 — Sequencing
+Produce `tasks.md` from `.specify/templates/tasks-template.md`: dependency-ordered, `[P]` parallel markers.

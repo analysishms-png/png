@@ -14,7 +14,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..",
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 import pytest
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import QPoint, Qt
 from PyQt6.QtWidgets import QLabel, QPushButton
 
 from HMS_py.ui import shell
@@ -107,6 +107,56 @@ def test_rail_footer_is_focusable(win):
     for b in win._rail_footer:
         assert b.focusPolicy() == Qt.FocusPolicy.StrongFocus
         assert b.accessibleName(), "footer buttons need an accessible name"
+
+
+# ------------------------------------------------- rendered (post-show) frame
+def test_fixed_sizes_hold_after_show(win):
+    """Regression: `setFixedSize` only wins if no QSS `min-height` competes.
+
+    QSS `min-height` is the *content* height and overrides setFixedSize, so
+    without the per-size rules every rail button collapsed to ~14px once the
+    window was shown (the cramped/overlapping rail in the bug report).
+    """
+    win.show()
+    _qapp().processEvents()
+    assert [b.height() for b in win._side_buttons] == [43] * len(win._side_buttons)
+    assert [b.height() for b in win._rail_footer] == [25, 31]
+    # Right sidebar chrome (spec §5.6): date 120x45, clocks 120x45, 60x32 pair.
+    assert win._date_btn.height() == 45
+    assert {b.height() for b in win._clock_buttons.values()} == {45}
+    assert (win.reload_btn.height(), win.exit_btn.height()) == (32, 32)
+
+
+def test_rail_and_sidebar_backgrounds_survive_the_mdi_sheet(win):
+    """Regression: a bare `background: #FFFFCC;` on the central widget cascades
+    to every descendant and erased the rail's white frame, the teal module
+    buttons and the sidebar's #c0c0c0 chrome — leaving white captions on pale
+    yellow (the washed-out/ghosted rail in the bug report).
+    """
+    win.show()
+    _qapp().processEvents()
+    img = win.grab().toImage()
+    pale = (255, 255, 204)
+
+    def at(widget, dx, dy):
+        c = img.pixelColor(widget.mapTo(win, QPoint(dx, dy)))
+        return (c.red(), c.green(), c.blue())
+
+    btn = win._side_buttons[0]
+    col = at(btn, 5, 5)
+    assert col != pale, "module button fell back to the #FFFFCC MDI sheet"
+    assert col[1] > col[0], f"module button lost its teal gradient: {col}"
+
+    # The rail frame itself shows through in the stretch gap below the modules.
+    last = win._side_buttons[-1]
+    assert at(last, 5, last.height() + 5) == (255, 255, 255), (
+        "rail frame must stay white, not the MDI pale yellow"
+    )
+
+    # Sidebar chrome keeps the Win95 #c0c0c0 (gap between date and first clock).
+    assert at(win.sidebar, 10, 75) == (192, 192, 192), (
+        "sidebar lost its #c0c0c0 chrome to the MDI sheet"
+    )
 
 
 # ----------------------------------------------------------- frame geometry

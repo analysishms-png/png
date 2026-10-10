@@ -75,6 +75,24 @@ MAP  '&Ledger'                     -> Led               |  'Ledger'             
 
 **Counts:** FULL 21 · PARTIAL 3 (`FaChqClear`, `rFaRepView`, `FaTDSCertificate`) · WRONG_TARGET 2 (`FaAdjust`, `FaAdjustDel`) · MISSING 0 · COMING_SOON 0.
 
+### TRIAGE 2026-10-08 (T012 — 3 PARTIAL forms)
+
+**6. `FaChqClear` (row 6, line 55) — Decision: ENRICH** — enrich `pfui.ChequeDDClearingWindow` in place (no menu leaf; do not touch `shell.py`).
+- **DB probe: PASS (live DB)** — `VIEWLedger` ✅, `Ledger` ✅, `SubGroup` ✅, `FAENVIRO` ✅ → ENRICH allowed.
+- VB6 (`FaChqClear.frm` Fill 1706–1790, save 742–830, cols 1481–1554): `VIEWLedger L LEFT JOIN SubGroup SG ON L.PARTY1=SG.SubCode WHERE L.V_Date<=upto AND L.PARTY='@bank' [AND L.Party1='@party'] [status] AND L.LOGSITE_CODE='@site' ORDER BY L.V_Date,V_TYPE,V_NO`; Cleared = `Clg_Date IS NOT NULL AND Clg_Date<=upto`, Un-Cleared = `Clg_Date IS NULL OR Clg_Date>upto`; save = `UPDATE Ledger SET Chq_No/Chq_Date/Clg_Date WHERE DocID+V_SNO (+ContraSub variant)` in one transaction.
+- Gaps vs current `_fill` (`partial_forms_ui.py:1030`) / `_clear` (`:1069`): (1) Party col joins `L.SubCode` (bank's own name) → needs counterparty via `PARTY1`; (2) no `LOGSITE_CODE` filter; (3) no party sub-filter; (4) no inline editing of Chq_No/Chq_Date/Clg_Date — only single-row "Mark Cleared"; (5) missing VB6 validations `"Cheque Date Should be Less than Voucher Date"` (frm:1618) and `"Clg.Date Must be Greater Than Cheque Date"` (frm:1661); (6) balances mislabeled — current sums list totals, VB6 = AmtDr/AmtCr sums split by `Clg_Date<=upto` (Bank) vs `V_Date<=upto` (Book); (7) no bulk transactional save; (8) status filter missing `<=upto`/`>upto` cut.
+
+**11. `rFaRepView` (row 11, line 60) — Decision: ALREADY-ADEQUATE + ENRICH (3-line key fix)** — no dedicated viewer needed; VB6 `rFaRepView` is the same generic CR viewer that `FaRepView` already covers (row 10 FULL, `ReportViewer ui/fa_voucher_ui.py:249`).
+- All 10 report-template keys in `vat_register()` (`core/reports.py:3276-3285`) exist in `by_key()` **except** indexes 17/18/19 return `"GSTR2_3"/"GSTR2_4A"/"GSTR2_4B"` while the registry keys are `"GSTR2(3)"/"GSTR2(4A)"/"GSTR2(4B)"` (`reports.py:2569/3325-3327`) → dispatch key mismatch. ENRICH: align the 3 strings.
+- Verified live: `VATRegister`, `VATRegisterII`, `VATRegisterIII`, `Form24AnnexureA`, `FormIII`, `UPVATXXIV`, `GSTR1` all OK; caption map has 337 entries; only test touching this is `test_core_validation.py:830` (asserts `VATRegisterII`, unaffected).
+
+**21. `FaTDSCertificate` (row 21, line 70) — Decision: UPGRADE → ENRICH existing window** — VB6 `FaTDSCertificate.frm` (1812 lines) is an **entry form**: Caption "T.D.S.Certificate Entry", fields Certificate No. / Account Name / From Date / To Date / Certificate Date / Total TDS Amount / Full Name of Sign.Auth. / Designation / Last Update / User; delete clears `TDSCHAL1.CertiNo` (frm:544) then `DELETE FROM TDSCerti WHERE CertiNo=` (frm:550).
+- **DB probe: PASS (live DB)** — `TDSCerti` ✅ 12 cols (CertiNo, CertiDate, Site_Code, Code, FromDate, ToDate, TDSAmt, FullName, Desig, U_Name, U_EntDt, U_AE, LogSite_Code), `TDSCat` ✅.
+- Python: `core/tdscerti.py` has full CRUD (`list_all :74, get :79, exists :84, insert :88, update :101, delete :113, _validate :55`) but **UI is a stub** — `fasub_ui.FaTDSCertificateWindow :274` only computes `tds_detail` totals + message box; shell `:2730` opens read-only `list_all()` viewer. No CertiNo/Name/Designation entry, no save/edit/delete.
+- ENRICH: rebuild `FaTDSCertificateWindow` as full entry form (Add/Edit/Save/Delete) wiring `core.tdscerti` CRUD; keep `open_fa_tds_cert` signature; `shell.py` untouched.
+
+**Counts update:** FULL 21 · PARTIAL 0 · UPGRADED/ENRICHED 3 (`FaChqClear` ENRICH, `rFaRepView` ALREADY-ADEQUATE+key fix, `FaTDSCertificate` ENRICH) · WRONG_TARGET 2 · MISSING 0.
+
 ---
 
 ## 3. B. WRONG_TARGET re-wire verification (the 3 + 3 found)

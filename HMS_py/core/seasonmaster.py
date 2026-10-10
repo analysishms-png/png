@@ -10,11 +10,16 @@ SITE_CODE = db.get_site_code()
 USER = db.get_user()
 LIMITS = {"ratecode": 2}
 SELECT_COLS = (
-    "FromDate, ToDate, RateCode, Site_Code, U_Name, U_EntDt, U_AE, "
-    "LogSite_Code"
+    "FromDate, ToDate, RateCode, Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code"
 )
 WEEKEND_DAYS = (
-    "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday",
 )
 
 
@@ -115,13 +120,15 @@ def validate_rows(year, rows) -> list[dict]:
         rate_code = _text(rate_value).upper()
         if len(rate_code) != 1 or not ("A" <= rate_code <= "Z"):
             raise ValueError("Select Valid Rate Code")
-        normalized.append({
-            "fromdate": from_date.isoformat(),
-            "todate": to_date.isoformat(),
-            "ratecode": rate_code,
-            "_from": from_date,
-            "_to": to_date,
-        })
+        normalized.append(
+            {
+                "fromdate": from_date.isoformat(),
+                "todate": to_date.isoformat(),
+                "ratecode": rate_code,
+                "_from": from_date,
+                "_to": to_date,
+            }
+        )
     ordered = sorted(normalized, key=lambda item: item["_from"])
     for previous, current in zip(ordered, ordered[1:]):
         if current["_from"] <= previous["_to"]:
@@ -177,7 +184,7 @@ def list_rows(year, logsite_code=None, cn=None) -> list[dict]:
 def get_weekend(logsite_code=None, cn=None) -> str | None:
     site = _site_scope(logsite_code)
     rows = _query_read(
-        "SELECT Weekend FROM SeasonMast1 WHERE LogSite_Code = ?",
+        "SELECT Weekend FROM SeasonMast1 WHERE (LogSite_Code = ? OR LogSite_Code = 'HO')",
         (site,),
         cn=cn,
         table_name="SeasonMast1",
@@ -219,15 +226,13 @@ def exists(code, cn=None) -> bool:
 
 def _weekend_text(value) -> str:
     if isinstance(value, dict):
-        return "".join(
-            "*" if value.get(day, False) else " "
-            for day in WEEKEND_DAYS
-        )
+        return "".join("*" if value.get(day, False) else " " for day in WEEKEND_DAYS)
     return (_text(value) + "       ")[:7]
 
 
-def save_year(year, rows, weekend="", logsite_code=None, cn=None,
-              commit: bool = True) -> int:
+def save_year(
+    year, rows, weekend="", logsite_code=None, cn=None, commit: bool = True
+) -> int:
     selected_year = normalize_year(year)
     normalized = validate_rows(selected_year, rows)
     site = _site_scope(logsite_code)
@@ -238,28 +243,39 @@ def save_year(year, rows, weekend="", logsite_code=None, cn=None,
         db.execute(
             "DELETE FROM SeasonMast WHERE YEAR(FromDate) = ? "
             "AND (LogSite_Code = ? OR LogSite_Code = 'HO')",
-            (selected_year, site), cn=connection, commit=False,
+            (selected_year, site),
+            cn=connection,
+            commit=False,
         )
         for row in normalized:
             db.execute(
                 "INSERT INTO SeasonMast (FromDate, ToDate, RateCode, "
                 "Site_Code, U_Name, U_EntDt, U_AE, LogSite_Code) "
                 "VALUES (?, ?, ?, ?, ?, getdate(), ?, ?)",
-                (datetime.date.fromisoformat(row["fromdate"]),
-                 datetime.date.fromisoformat(row["todate"]),
-                 row["ratecode"], SITE_CODE, USER, "A", site),
-                cn=connection, commit=False,
+                (
+                    datetime.date.fromisoformat(row["fromdate"]),
+                    datetime.date.fromisoformat(row["todate"]),
+                    row["ratecode"],
+                    SITE_CODE,
+                    USER,
+                    "A",
+                    site,
+                ),
+                cn=connection,
+                commit=False,
             )
         db.execute(
-            "DELETE FROM SeasonMast1 WHERE (LogSite_Code = ? "
-            "OR LogSite_Code = 'HO')",
-            (site,), cn=connection, commit=False,
+            "DELETE FROM SeasonMast1 WHERE (LogSite_Code = ? OR LogSite_Code = 'HO')",
+            (site,),
+            cn=connection,
+            commit=False,
         )
         db.execute(
             "INSERT INTO SeasonMast1 (Weekend, Site_Code, U_Name, "
             "U_EntDt, U_AE, LogSite_Code) VALUES (?, ?, ?, getdate(), ?, ?)",
             (weekend_value, SITE_CODE, USER, "A", site),
-            cn=connection, commit=False,
+            cn=connection,
+            commit=False,
         )
         if commit:
             connection.commit()
@@ -272,22 +288,23 @@ def save_year(year, rows, weekend="", logsite_code=None, cn=None,
             connection.close()
 
 
-def save_weekend(weekend, logsite_code=None, cn=None,
-                 commit: bool = True) -> int:
+def save_weekend(weekend, logsite_code=None, cn=None, commit: bool = True) -> int:
     site = _site_scope(logsite_code)
     own = cn is None
     connection = cn or db.connect()
     try:
         db.execute(
-            "DELETE FROM SeasonMast1 WHERE (LogSite_Code = ? "
-            "OR LogSite_Code = 'HO')",
-            (site,), cn=connection, commit=False,
+            "DELETE FROM SeasonMast1 WHERE (LogSite_Code = ? OR LogSite_Code = 'HO')",
+            (site,),
+            cn=connection,
+            commit=False,
         )
         db.execute(
             "INSERT INTO SeasonMast1 (Weekend, Site_Code, U_Name, "
             "U_EntDt, U_AE, LogSite_Code) VALUES (?, ?, ?, getdate(), ?, ?)",
             (_weekend_text(weekend), SITE_CODE, USER, "A", site),
-            cn=connection, commit=False,
+            cn=connection,
+            commit=False,
         )
         if commit:
             connection.commit()
