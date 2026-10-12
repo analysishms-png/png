@@ -58,12 +58,13 @@ class GuestServicesDialog(QDialog):
         return table
 
     @staticmethod
-    def _fill_table(table, rows):
+    def _fill_table(table, rows, keys):
         table.setRowCount(0)
         for row_data in rows:
             row_idx = table.rowCount()
             table.insertRow(row_idx)
-            for col_idx, val in enumerate(row_data):
+            for col_idx, key in enumerate(keys):
+                val = row_data.get(key)
                 item = QTableWidgetItem(str(val) if val is not None else "")
                 item.setForeground(QColor(_theme.palette()["text"]))
                 table.setItem(row_idx, col_idx, item)
@@ -98,8 +99,9 @@ class GuestServicesDialog(QDialog):
         tab = QWidget()
         v = QVBoxLayout(tab)
 
+        keys = ["code", "name", "comments", "mobile", "city"]
         self.tbl_comments = self._make_table(
-            ["VNo", "FolioNo", "GuestName", "Comment", "Date"]
+            ["Code", "GuestName", "Comment", "Mobile", "City"]
         )
         v.addWidget(self.tbl_comments)
 
@@ -120,7 +122,7 @@ class GuestServicesDialog(QDialog):
         def refresh():
             try:
                 rows = guest_services.list_comments()
-                self._fill_table(self.tbl_comments, rows)
+                self._fill_table(self.tbl_comments, rows, keys)
             except Exception as e:
                 QMessageBox.warning(self, "Error", str(e))
 
@@ -161,8 +163,9 @@ class GuestServicesDialog(QDialog):
         tab = QWidget()
         v = QVBoxLayout(tab)
 
+        keys = ["code", "description", "category", "status", "cdate"]
         self.tbl_complaints = self._make_table(
-            ["VNo", "FolioNo", "Complaint", "Category", "Status", "Date"]
+            ["Code", "Complaint", "Category", "Status", "Date"]
         )
         v.addWidget(self.tbl_complaints)
 
@@ -186,7 +189,7 @@ class GuestServicesDialog(QDialog):
         def refresh():
             try:
                 rows = guest_services.list_complaints()
-                self._fill_table(self.tbl_complaints, rows)
+                self._fill_table(self.tbl_complaints, rows, keys)
             except Exception as e:
                 QMessageBox.warning(self, "Error", str(e))
 
@@ -228,7 +231,8 @@ class GuestServicesDialog(QDialog):
         tab = QWidget()
         v = QVBoxLayout(tab)
 
-        self.tbl_wakeup = self._make_table(["VNo", "FolioNo", "WakeUpTime", "Status"])
+        keys = ["docid", "folio", "roomno", "wtime"]
+        self.tbl_wakeup = self._make_table(["DocId", "FolioNo", "RoomNo", "WakeUpTime"])
         v.addWidget(self.tbl_wakeup)
 
         grp = QGroupBox("Add Wake Up")
@@ -245,7 +249,7 @@ class GuestServicesDialog(QDialog):
         def refresh():
             try:
                 rows = guest_services.list_wakeup()
-                self._fill_table(self.tbl_wakeup, rows)
+                self._fill_table(self.tbl_wakeup, rows, keys)
             except Exception as e:
                 QMessageBox.warning(self, "Error", str(e))
 
@@ -284,8 +288,9 @@ class GuestServicesDialog(QDialog):
         tab = QWidget()
         v = QVBoxLayout(tab)
 
+        keys = ["code", "farea", "description", "status", "fdate"]
         self.tbl_lf = self._make_table(
-            ["VNo", "ItemName", "Description", "Status", "Date"]
+            ["Code", "ItemName", "Description", "Status", "Date"]
         )
         v.addWidget(self.tbl_lf)
 
@@ -306,7 +311,7 @@ class GuestServicesDialog(QDialog):
         def refresh():
             try:
                 rows = guest_services.list_lostfound()
-                self._fill_table(self.tbl_lf, rows)
+                self._fill_table(self.tbl_lf, rows, keys)
             except Exception as e:
                 QMessageBox.warning(self, "Error", str(e))
 
@@ -347,8 +352,9 @@ class GuestServicesDialog(QDialog):
         tab = QWidget()
         v = QVBoxLayout(tab)
 
+        keys = ["docid", "roomno", "caller", "message", "solved"]
         self.tbl_message = self._make_table(
-            ["VNo", "RoomNo", "Caller", "Message", "Solved"]
+            ["DocId", "RoomNo", "Caller", "Message", "Solved"]
         )
         v.addWidget(self.tbl_message)
 
@@ -372,7 +378,7 @@ class GuestServicesDialog(QDialog):
         def refresh():
             try:
                 rows = guest_services.list_message()
-                self._fill_table(self.tbl_message, rows)
+                self._fill_table(self.tbl_message, rows, keys)
             except Exception as e:
                 QMessageBox.warning(self, "Error", str(e))
 
