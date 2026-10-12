@@ -21,10 +21,19 @@ Allowed statuses: `DISCOVERED`, `SPECIFIED`, `PLANNED`, `IMPLEMENTING`, `TESTING
 A status without file+line evidence is invalid. Bugs register in `MIGRATION_MASTER_BUG_REGISTER.md`; a fix is done only when a test reproduces the failure before the fix and passes after.
 
 ### IV. Platform Preserved
-SQL Server stays SQL Server (no engine swap). Parameterized queries only. Never modify or delete VB6 sources, `.frx` files, or existing ledgers — extend, never rewrite.
+SQL Server stays SQL Server (no engine swap). Parameterized queries only. Do not invent tables/columns, rename DB objects, or silently change SQL semantics without documented evidence. Stay compatible with SQL Server 2008 R2 syntax. Never modify or delete VB6 sources, `.frx` files, or existing ledgers — extend, never rewrite.
 
 ### V. Reuse Artifacts, Don't Duplicate
-Existing docs win: `specs/`, `MIGRATION_PLAN.md`, `MIGRATION_MASTER_BUG_REGISTER.md`, `DATABASE_MAPPING_LEDGER.md`, `FORM_MIGRATION_LEDGER.md`, `PARITY_RECONCILIATION.md`. New work extends them or lives under `.specify/`, `specs/###-*`, `migration/`.
+Repair and extend the existing Python project — do not create a parallel HMS application. Existing docs win: `specs/`, `MIGRATION_PLAN.md`, `MIGRATION_MASTER_BUG_REGISTER.md`, `DATABASE_MAPPING_LEDGER.md`, `FORM_MIGRATION_LEDGER.md`, `PARITY_RECONCILIATION.md`. New work extends them or lives under `.specify/`, `specs/###-*`, `migration/`.
+
+### VI. Transaction Safety (NON-NEGOTIABLE for writes)
+Critical HMS write operations (billing, stock, ledger) follow: validate → recheck → begin transaction → write → post-condition verification → commit, with rollback on failure. No unwrapped multi-statement writes on these paths.
+
+### VII. No Fake Completion
+A feature is NOT complete because a Python file exists, a screen opens, or a button exists. Completion requires behavioral + functional verification per the parity chain (§II–III), regression-tested against previously completed modules.
+
+### VIII. Functional Fidelity (UI + Reports)
+Every migrated screen preserves VB6 functional behaviour: controls, fields, buttons, menus, keyboard events, validation, navigation, permissions, calculations, search, save/edit/delete. Reports, parameters, preview, printing and reprinting are part of the feature — not optional.
 
 ## Workflow & Quality Gates
 

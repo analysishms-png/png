@@ -312,7 +312,7 @@ def test_merge_confirm_gates_action(merge_env, msgbox):
     msgbox.set_confirm(None)
     w.btn_merge.click()
     assert any(
-        k == "critical" and "Do You Want Transfer Remainning" in t
+        k == "question" and "Do You Want Transfer Remainning" in t
         for k, ti, t in msgbox.calls
     ), msgbox.calls
     assert w.log.merge == []
@@ -321,7 +321,7 @@ def test_merge_confirm_gates_action(merge_env, msgbox):
     msgbox.set_confirm("Y")
     w.btn_merge.click()
     assert any(
-        k == "critical" and "Do You Want Transfer Remainning" in t
+        k == "question" and "Do You Want Transfer Remainning" in t
         for k, ti, t in msgbox.calls
     ), msgbox.calls
     assert w.log.merge == [("101", "103", ["CH1"])]

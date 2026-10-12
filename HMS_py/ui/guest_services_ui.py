@@ -1,10 +1,22 @@
 import sys
+
 sys.path.insert(0, r"C:\Users\LENOVO\Desktop\serialkey\PROJECT_REPAIR - Copy\HMS_py")
 
 from PyQt6.QtWidgets import (
-    QDialog, QVBoxLayout, QHBoxLayout, QTabWidget, QWidget,
-    QTableWidget, QTableWidgetItem, QPushButton, QLabel,
-    QLineEdit, QMessageBox, QHeaderView, QFormLayout, QGroupBox
+    QDialog,
+    QVBoxLayout,
+    QHBoxLayout,
+    QTabWidget,
+    QWidget,
+    QTableWidget,
+    QTableWidgetItem,
+    QPushButton,
+    QLabel,
+    QLineEdit,
+    QMessageBox,
+    QHeaderView,
+    QFormLayout,
+    QGroupBox,
 )
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor
@@ -30,6 +42,7 @@ class GuestServicesDialog(QDialog):
         self._build_complaints_tab()
         self._build_wakeup_tab()
         self._build_lostfound_tab()
+        self._build_message_tab()
 
     # ── helpers ──────────────────────────────────────────────────────
     @staticmethod
@@ -215,9 +228,7 @@ class GuestServicesDialog(QDialog):
         tab = QWidget()
         v = QVBoxLayout(tab)
 
-        self.tbl_wakeup = self._make_table(
-            ["VNo", "FolioNo", "WakeUpTime", "Status"]
-        )
+        self.tbl_wakeup = self._make_table(["VNo", "FolioNo", "WakeUpTime", "Status"])
         v.addWidget(self.tbl_wakeup)
 
         grp = QGroupBox("Add Wake Up")
@@ -329,6 +340,74 @@ class GuestServicesDialog(QDialog):
         self.tab_widget.addTab(tab, "Lost & Found")
         refresh()
 
+    # ══════════════════════════════════════════════════════════════════
+    #  TAB 5 – Guest Message (VB6 FrmHouGuestMsg)
+    # ══════════════════════════════════════════════════════════════════
+    def _build_message_tab(self):
+        tab = QWidget()
+        v = QVBoxLayout(tab)
+
+        self.tbl_message = self._make_table(
+            ["VNo", "RoomNo", "Caller", "Message", "Solved"]
+        )
+        v.addWidget(self.tbl_message)
+
+        grp = QGroupBox("Add Message")
+        form = QFormLayout()
+        self.txt_m_roomno = QLineEdit()
+        self.txt_m_roomno.setPlaceholderText("Room number")
+        self.txt_m_caller = QLineEdit()
+        self.txt_m_caller.setPlaceholderText("Caller name")
+        self.txt_m_telephone = QLineEdit()
+        self.txt_m_telephone.setPlaceholderText("Telephone")
+        self.txt_m_message = QLineEdit()
+        self.txt_m_message.setPlaceholderText("Message text")
+        form.addRow("RoomNo:", self.txt_m_roomno)
+        form.addRow("Caller:", self.txt_m_caller)
+        form.addRow("Telephone:", self.txt_m_telephone)
+        form.addRow("Message:", self.txt_m_message)
+        grp.setLayout(form)
+        v.addWidget(grp)
+
+        def refresh():
+            try:
+                rows = guest_services.list_message()
+                self._fill_table(self.tbl_message, rows)
+            except Exception as e:
+                QMessageBox.warning(self, "Error", str(e))
+
+        def add():
+            rec = {
+                "roomno": self.txt_m_roomno.text(),
+                "caller": self.txt_m_caller.text(),
+                "telephone": self.txt_m_telephone.text(),
+                "message": self.txt_m_message.text(),
+            }
+            try:
+                guest_services.insert_message(rec)
+                refresh()
+                self.txt_m_roomno.clear()
+                self.txt_m_caller.clear()
+                self.txt_m_telephone.clear()
+                self.txt_m_message.clear()
+            except Exception as e:
+                QMessageBox.warning(self, "Error", str(e))
+
+        def delete():
+            row = self._center_row(self.tbl_message)
+            if row is None:
+                return
+            try:
+                docid = self.tbl_message.item(row, 0).text()
+                guest_services.delete_message(docid)
+                refresh()
+            except Exception as e:
+                QMessageBox.warning(self, "Error", str(e))
+
+        v.addLayout(self._make_buttons(add, delete, refresh))
+        self.tab_widget.addTab(tab, "Guest Message")
+        refresh()
+
 
 def open_guest_services(parent=None):
     dlg = GuestServicesDialog(parent)
@@ -338,6 +417,7 @@ def open_guest_services(parent=None):
 
 if __name__ == "__main__":
     from PyQt6.QtWidgets import QApplication
+
     app = QApplication(sys.argv)
     w = open_guest_services()
     sys.exit(app.exec())

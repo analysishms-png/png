@@ -1,5 +1,7 @@
 # VB6 Porting Agent Skill
 
+> This skill is the quick porting entry-point: read it first to orient, then follow the canonical parity workflow in `.agents/skills/vb6-python-parity/SKILL.md` (vb6-python-parity — inventory extract, parity matrix, and the schema → core → UI → shell → verify porting recipe) for any side-by-side comparison or MISSING-item implementation; anything that duplicates that recipe here defers to it.
+
 ## Description
 Specialized agent for porting VB6 HMS (Hotel Management System) code to Python/PyQt6.
 Use this skill when the user says 'port VB6', 'VB6 to Python', 'find missing forms', 'side-by-side comparison', 'port module', or 'VB6 form'.
@@ -7,11 +9,10 @@ Use this skill when the user says 'port VB6', 'VB6 to Python', 'find missing for
 ## Workflow
 
 ### Step 1: Understand the VB6 Source
-- VB6 source is in `FODER/` directory (.frm, .bas, .cls, .frx files)
-- `FODER/HMS.bas` contains MDIForm1 event handlers (995K lines of decompiled P-Code)
-- `VB6_VS_PYTHON_LOGIC_COMPARISON.txt` (897 lines) has complete system analysis
-- `FODER/DECOMPILE_REPORT.txt` lists 494 decompiled files
-- `mdi_menu.json` has the VB6 MDI menu tree structure (3291 lines)
+- VB6 source is in `HMS/` directory (.frm, .bas, .cls, .frx files — 367 files)
+- `HMS/HMS.bas` is the large decompiled shared-code module (~980k lines, ~54 MB); the MDI menu tree lives in `HMS/MDIForm1.frm`
+- `HMS/DECOMPILE_REPORT.txt` is the decompile report for the `HMS/` tree
+- `core/mdi_menu.json` has the VB6 MDI menu tree structure (3291 lines)
 
 ### Step 2: Map VB6 to Python
 Use this mapping:
@@ -26,35 +27,31 @@ Use this mapping:
 
 ### Step 3: Identify Missing Pieces
 Key resources:
-- `VB6_VS_PYTHON_LOGIC_COMPARISON.txt` Part K (Known Gaps) lists 20 missing tables and 50+ unported forms
-- `mdi_menu.json` lists all 24 top-level menus with ~180 leaf items
-- `sidebar_buttons.py` AUTO_OPEN and DIRECT_ACTIONS define what's implemented
-- `shell.py` _form_registry defines what has Python openers
+- `core/mdi_menu.json` lists all 24 top-level menus with ~180 leaf items
+- `ui/sidebar_buttons.py` AUTO_OPEN and DIRECT_ACTIONS define what's implemented
+- `ui/shell.py` _form_registry defines what has Python openers
 - `debug_mainsetup.py` compares VB6 MDI items vs registry vs workbench
+- `VB6_PARITY_MATRIX.txt` (repo root) records per-form DONE/PARTIAL/UI-ONLY/BLOCKED-TBL/MISSING status once generated
 
 ### Step 4: Implementation Pattern
-When porting a VB6 form:
-1. Read the VB6 .frm file for structure and event handlers
-2. Read the corresponding core/*.py for business logic
-3. Create ui/*_ui.py using BaseMasterForm or QDialog
-4. Add entry to shell.py _form_registry
-5. Add to menuHelp table data if needed
-6. Add to debug_mainsetup.py vb6_menus dict if it's a MainSetup item
-7. Add tests to tests/unit/ or tests/database/
+Follow the canonical porting recipe (schema probe → core → UI → registry wire → verify) in `.agents/skills/vb6-python-parity/SKILL.md` §4 — do not duplicate it here. Porting-entry extras that recipe does not cover:
+1. Add to menuHelp table data if needed
+2. Add to debug_mainsetup.py vb6_menus dict if it's a MainSetup item
+3. Add tests to tests/unit/ or tests/database/
 
 ### Step 5: Known Missing Items (Priority Order)
 
 #### Tables Not in DB (20):
 HallBill, CateringBook, EventMast, BanquetSundry, TelCall, Extension, SmartCard, RewardPoint, BookingInquiry + 11 more
 
-#### Forms Not Ported (50+):
+#### Forms Not Ported (50+ — see `VB6_PARITY_MATRIX.txt` once generated for current status):
 MDIForm1 (partial), frmWelcome, frmYearEnd, eInvoice.bas, frmGodrejLockSettings, MemberSMS, FrmJobScheduler, Touch Screen variants (10+)
 
 #### Features Not Implemented:
 Crystal Reports, Touch Screen UI, Smart Card encode/decode, Door Lock integration, E-Invoice/GST API, SMS HTTP, Win32 SendInput, ZIP compression, Tally XML export, Multi-site data transfer
 
-#### Known Python Bugs (10):
-pos_sales.py vals[50] duplicate, inventory.py hardcoded KK000265, + 8 more (all documented in VB6_VS_PYTHON_LOGIC_COMPARISON.txt Part K4)
+#### Known Python Bugs (10 — see Step 5 header for the live list):
+pos_sales.py vals[50] duplicate, inventory.py hardcoded KK000265, + 8 more
 
 ## Agent Usage
 When dispatched, this agent should:

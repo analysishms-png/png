@@ -11,8 +11,8 @@ description: >-
 
 # VB6 ↔ Python Parity Workflow
 
-Project context: VB6 HMS (decompiled .frm/.bas/.frx at project root,
-e.g. `frmCompany.frm`, `MDIForm1.frm`) vs Python port in
+Project context: VB6 HMS (decompiled .frm/.bas/.frx in `HMS/`,
+e.g. `HMS/MDIForm1.frm`, `HMS/HMS.bas`) vs Python port in
 `HMS_py/` (`HMS_py/core/*.py` logic, `HMS_py/ui/*_ui.py` forms,
 `HMS_py/ui/shell.py` MDI shell). DB is SQL Server via
 `HMS_py/core/db.py` (`db.query`, tables live in the same DB the VB6

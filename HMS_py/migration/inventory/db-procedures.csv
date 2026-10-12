@@ -1,0 +1,4 @@
+schema,name,type,column_count,source
+dbo,GetFieldNameAs,STORED_PROCEDURE,UNKNOWN — REQUIRES INVESTIGATION,sqlserver-metadata
+dbo,GetFieldNameAsStr,STORED_PROCEDURE,UNKNOWN — REQUIRES INVESTIGATION,sqlserver-metadata
+dbo,Proc_WebService,STORED_PROCEDURE,UNKNOWN — REQUIRES INVESTIGATION,sqlserver-metadata

@@ -251,6 +251,16 @@ class AmendStayWindow(QMainWindow, _StatusBar):
             return
         qd = self.dt_new.date()
         new_dep = datetime.date(qd.year(), qd.month(), qd.day())
+        # GAP-03: VB6 boundary - new_dep == check_in rejected
+        # "Departure Date Must Be Greater than Check in Date" (&H40)
+        ci = self._rec.get("vdate")
+        if ci and new_dep <= ci:
+            QMessageBox.warning(
+                self,
+                "Save Data",
+                "Departure Date Must Be Greater than Check in Date"
+            )
+            return
         # GAP-02: VB6 fdAmendEntry.frm:1446
         # MsgBox("Save Record ?", 4, "Save Data") = vbYes
         ans = QMessageBox.question(
@@ -266,8 +276,8 @@ class AmendStayWindow(QMainWindow, _StatusBar):
             folio.amend_departure(int(self.txt_folio.text().strip()), new_dep)
             QMessageBox.information(
                 self,
-                "Amend Stay",
-                f"Departure amended: {self.lbl_dep.text()} -> {new_dep}",
+                "Save...",
+                "Departure Date Amended Successfully"
             )
             self._load()
         except Exception as e:

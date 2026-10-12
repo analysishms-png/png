@@ -386,11 +386,15 @@ def update_settings(
     try:
         validated = {k: _validate(k, v, cn=cn) for k, v in changes.items()}
         sets = ", ".join(f"[{k}] = ?" for k in validated)
-        audit_vals = (USER, db.func.getdate(), "E")
+        # BUGFIX: pehle yahan db.func.getdate() (SQLAlchemy-style) tha jo
+        # AttributeError deta tha -> update_settings par hamesha crash.
+        # SQL me U_EntDt already getdate() literal hai; params me sirf
+        # U_Name + LogSite_Code chahiye (audit_vals 3 values rakhne se
+        # param-count mismatch bhi tha).
         n = db.execute(
             f"UPDATE Enviro SET {sets}, U_Name = ?, U_EntDt = getdate(), U_AE = 'E' "
             "WHERE LogSite_Code = ? OR LogSite_Code = 'HO'",
-            tuple(validated.values()) + audit_vals + (SITE_CODE,),
+            tuple(validated.values()) + (user,) + (SITE_CODE,),
             cn=cn,
             commit=False,
         )

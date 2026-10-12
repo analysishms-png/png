@@ -184,7 +184,7 @@ def list_rows(year, logsite_code=None, cn=None) -> list[dict]:
 def get_weekend(logsite_code=None, cn=None) -> str | None:
     site = _site_scope(logsite_code)
     rows = _query_read(
-        "SELECT Weekend FROM SeasonMast1 WHERE (LogSite_Code = ? OR LogSite_Code = 'HO')",
+        "SELECT Weekend FROM SeasonMast1 WHERE LogSite_Code = ?",
         (site,),
         cn=cn,
         table_name="SeasonMast1",

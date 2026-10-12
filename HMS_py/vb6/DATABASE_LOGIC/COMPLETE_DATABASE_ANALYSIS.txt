@@ -1,0 +1,3156 @@
+================================================================================
+                    COMPLETE HMS DATABASE ANALYSIS
+================================================================================
+
+DATABASE: SunshineData2526
+SERVER: localhost
+TYPE: SQL Server 2008 R2
+TOTAL TABLES: 271
+CONNECTION: sa/abc@1234
+
+================================================================================
+                            KEY HMS TABLES ANALYSIS
+================================================================================
+
+1. USER MANAGEMENT SYSTEM
+========================
+
+UserMast Table - Primary User Authentication
+--------------------------------------------
+CREATE TABLE UserMast (
+    USER_NAME varchar(50) NOT NULL PRIMARY KEY,
+    PASSWD varchar(50) NULL,                    -- Encrypted password
+    LABEL smallint NULL,                        -- User role/level
+    ShortName varchar(50) NULL,                 -- Display name
+    GodCode varchar(50) NULL,                   -- Special permissions
+    FloorCode varchar(50) NULL,                 -- Floor access
+    AllowDtChng varchar(50) NULL,               -- Date change permission
+    ActiveYN varchar(1) NULL,                   -- Active status (Y/N)
+    BackColor int NULL                          -- UI theme color
+)
+
+User1 Table - Extended User Information
+--------------------------------------
+-- Contains personal details, contact information
+-- Linked to UserMast via USER_NAME
+
+User2 Table - Additional User Data
+----------------------------------
+-- Extended user profile information
+-- Preferences and settings
+
+User_Module Table - Permission Management
+----------------------------------------
+-- Module-wise permissions for users
+-- Role-based access control
+
+2. ROOM MANAGEMENT SYSTEM
+========================
+
+RoomMast Table - Master Room Information
+-----------------------------------------
+CREATE TABLE RoomMast (
+    Type varchar(2) NOT NULL,                   -- Room type
+    Code varchar(5) NOT NULL,                  -- Room number
+    Name varchar(15) NULL,                     -- Room name
+    RoomCat varchar(5) NULL,                   -- Room category
+    Extension smallint NULL,                    -- Phone extension
+    MultPer smallint NULL,                      -- Multiple occupancy
+    RevCode varchar(6) NULL,                   -- Revenue code
+    MaidStation varchar(6) NULL,               -- Housekeeping station
+    InclCount varchar(1) NULL,                  -- Inclusion count
+    ConRoom1 varchar(5) NULL,                  -- Connected room 1
+    ConRoom2 varchar(5) NULL,                  -- Connected room 2
+    ConRoom3 varchar(5) NULL,                  -- Connected room 3
+    ConRoom4 varchar(5) NULL,                  -- Connected room 4
+    RestCode varchar(6) NOT NULL,              -- Restaurant code
+    TaxStru varchar(6) NULL,                   -- Tax structure
+    RoomStat varchar(1) NULL,                  -- Room status (A/D/O/M)
+    Site_Code varchar(2) NULL,                 -- Site code
+    HallRent float NULL,                       -- Hall rent
+    PicPath varchar(250) NULL,                 -- Room picture path
+    DoorLockID varchar(20) NULL                -- Door lock ID
+)
+
+Room Status Workflow:
+- A = Available
+- D = Dirty
+- O = Occupied
+- M = Maintenance
+
+3. BOOKING & RESERVATION SYSTEM
+===============================
+
+Booking Table - Master Booking Information
+-----------------------------------------
+CREATE TABLE Booking (
+    DocId nvarchar(21) NOT NULL PRIMARY KEY,   -- Booking ID
+    Vtype nvarchar(5) NULL,                   -- Voucher type
+    BookNo int NULL,                           -- Booking number
+    Site_Code nvarchar(2) NULL,                -- Site code
+    Vprefix nvarchar(5) NULL,                  -- Prefix
+    VDate smalldatetime NULL,                  -- Booking date
+    GroupCode nvarchar(8) NULL,                -- Group code
+    ArrDate smalldatetime NULL,                -- Arrival date
+    ArrTime nvarchar(5) NULL,                 -- Arrival time
+    DepDate smalldatetime NULL,                -- Departure date
+    DepTime nvarchar(5) NULL,                 -- Departure time
+    NoDays smallint NULL,                      -- Number of days
+    RoomCat nvarchar(5) NULL,                  -- Room category
+    RoomType nvarchar(2) NULL,                 -- Room type
+    RoomNo nvarchar(5) NULL,                   -- Room number
+    Adult smallint NULL,                       -- Number of adults
+    Child smallint NULL,                       -- Number of children
+    NoofRooms int NULL,                        -- Number of rooms
+    RateCode nvarchar(1) NULL,                 -- Rate code
+    RoomRate float NULL,                       -- Room rate
+    GuestName nvarchar(50) NULL,               -- Guest name
+    Company nvarchar(50) NULL,                 -- Company name
+    BookStatus varchar(20) NULL,               -- Booking status
+    Verified varchar(1) NULL,                  -- Verification status
+    MobNo varchar(50) NULL,                   -- Mobile number
+    Email varchar(50) NULL,                    -- Email address
+    FaxNo varchar(50) NULL,                    -- Fax number
+    OtherCont varchar(50) NULL,               -- Other contact
+    CardNo nvarchar(20) NULL,                  -- Card number
+    ExpDate smalldatetime NULL,               -- Expiry date
+    CancelDate smalldatetime NULL,            -- Cancellation date
+    Cancel nvarchar(1) NULL,                   -- Cancelled flag
+    U_Name nvarchar(10) NULL,                  -- User who created
+    U_EntDt smalldatetime NULL,               -- Entry date
+    U_AE nvarchar(1) NULL,                    -- Add/Edit flag
+    OccRoom nvarchar(5) NULL,                  -- Occupied room
+    PackageCode nvarchar(5) NULL,              -- Package code
+    LogSite_Code nvarchar(2) NULL,             -- Log site code
+    RRTaxInc varchar(3) NULL,                  -- Room rate tax inclusive
+    RDisc float NULL,                          -- Room discount
+    RSDisc float NULL,                         -- Service discount
+    AdvDueDate datetime NULL,                  -- Advance due date
+    RRServiceChrg varchar(3) NULL,             -- Room rate service charge
+    ResStatus varchar(30) NULL,               -- Reservation status
+    MyRectNo float NULL,                       -- Receipt number
+    RefCode varchar(20) NULL,                  -- Reference code
+    CancelUName varchar(10) NULL,             -- Cancelled by
+    RefBookNo varchar(20) NULL                 -- Reference booking number
+)
+
+Related Booking Tables:
+- BookingDetail: Individual booking details
+- BookingPlanDetails: Rate plan information
+- BookingMore: Additional booking information
+- BookingLog: Booking history and changes
+- BookingInquiry: Booking inquiries
+- BookingCancelDetails: Cancellation details
+
+4. GUEST MANAGEMENT SYSTEM
+=========================
+
+GuestFolio Table - Guest Folio Management
+------------------------------------------
+CREATE TABLE GuestFolio (
+    DocId varchar(21) NOT NULL,               -- Folio ID
+    FolioNo int NULL,                         -- Folio number
+    Vtype varchar(5) NULL,                    -- Voucher type
+    VNo int NULL,                             -- Voucher number
+    Site_Code varchar(2) NULL,                -- Site code
+    Vprefix varchar(5) NULL,                  -- Prefix
+    VDate datetime NULL,                      -- Folio date
+    GuestProf varchar(8) NULL,                -- Guest profile code
+    GuestName varchar(50) NULL,               -- Guest name
+    Company varchar(35) NULL,                 -- Company name
+    Address varchar(50) NULL,                -- Address
+    City varchar(6) NULL,                    -- City
+    PhoneNo varchar(35) NULL,                -- Phone number
+    FaxNo varchar(24) NULL,                  -- Fax number
+    Email varchar(50) NULL,                  -- Email
+    MobileNo varchar(24) NULL,               -- Mobile number
+    Nationality varchar(15) NULL,             -- Nationality
+    ArrFrom varchar(50) NULL,                -- Arrival from
+    Destination varchar(50) NULL,             -- Destination
+    TravelMode varchar(30) NULL,             -- Travel mode
+    TclFac varchar(1) NULL,                  -- TCL facility
+    Remark varchar(100) NULL,                -- Remarks
+    RODisc float NULL,                       -- Room discount
+    RSDisc float NULL,                       -- Service discount
+    BookingDocId varchar(21) NULL,           -- Booking reference
+    U_Name varchar(10) NULL,                 -- User
+    U_EntDt datetime NULL,                   -- Entry date
+    U_AE varchar(1) NULL,                    -- Add/Edit flag
+    GroupCode varchar(8) NULL,               -- Group code
+    BussSource varchar(5) NULL,              -- Business source
+    MarketSeg varchar(5) NULL,               -- Market segment
+    DepDate datetime NULL,                   -- Departure date
+    TravelAgent varchar(8) NULL,             -- Travel agent
+    MFolioNo int NULL,                       -- Master folio number
+    Comp varchar(1) NULL,                    -- Complimentary
+    MFolioNoDocid varchar(21) NULL,         -- Master folio doc ID
+    LogSite_Code varchar(2) NULL,            -- Log site code
+    RefNo int NULL,                          -- Reference number
+    BookingSno smallint NULL,                -- Booking serial
+    MyRate float NULL,                       -- My rate
+    DoorLock_Card_SN int NULL,               -- Door lock card SN
+    RefBookNo varchar(20) NULL               -- Reference booking
+)
+
+GuestProf Table - Guest Profile Master
+-------------------------------------
+CREATE TABLE GuestProf (
+    Code varchar(8) NOT NULL PRIMARY KEY,     -- Guest code
+    Name varchar(50) NULL,                    -- Guest name
+    Add1 varchar(50) NULL,                    -- Address 1
+    Add2 varchar(50) NULL,                    -- Address 2
+    City varchar(6) NULL,                     -- City
+    Type varchar(7) NULL,                     -- Guest type
+    CreditCardNo varchar(25) NULL,            -- Credit card number
+    ExpiresOn datetime NULL,                  -- Card expiry
+    CreditLimit float NULL,                   -- Credit limit
+    PhoneNo varchar(35) NULL,                -- Phone number
+    FaxNo varchar(24) NULL,                  -- Fax number
+    MobileNo varchar(24) NULL,               -- Mobile number
+    EmailId varchar(50) NULL,                -- Email
+    Nationality varchar(6) NULL,              -- Nationality
+    BirthDate datetime NULL,                 -- Birth date
+    Anniversary datetime NULL,                -- Anniversary
+    GuestStatus varchar(5) NULL,             -- Guest status
+    SplInstr varchar(255) NULL,              -- Special instructions
+    Comments1 varchar(100) NULL,             -- Comments 1
+    Comments2 varchar(100) NULL,             -- Comments 2
+    Comments3 varchar(100) NULL,             -- Comments 3
+    ConName varchar(35) NULL,                -- Contact name
+    ConDesig varchar(25) NULL,               -- Contact designation
+    ConAdd1 varchar(50) NULL,                -- Contact address 1
+    ConAdd2 varchar(50) NULL,                -- Contact address 2
+    ConCity varchar(6) NULL,                 -- Contact city
+    ConPhone varchar(35) NULL,               -- Contact phone
+    ConFax varchar(24) NULL,                 -- Contact fax
+    ConEmail varchar(50) NULL,               -- Contact email
+    Country varchar(6) NULL,                 -- Country
+    PassportNo varchar(25) NULL,             -- Passport number
+    VisaNo varchar(25) NULL,                 -- Visa number
+    VisaExpDate datetime NULL,               -- Visa expiry
+    PassportExpDate datetime NULL,           -- Passport expiry
+    GuestType varchar(8) NULL,              -- Guest type code
+    RoomPref varchar(5) NULL,               -- Room preference
+    BedPref varchar(5) NULL,                -- Bed preference
+    Smoking varchar(1) NULL,                -- Smoking preference
+    Salutation varchar(10) NULL,            -- Salutation
+    Gender varchar(1) NULL,                 -- Gender
+    Company varchar(35) NULL,               -- Company
+    Desig varchar(25) NULL,                 -- Designation
+    Dept varchar(25) NULL,                  -- Department
+    OffAdd1 varchar(50) NULL,               -- Office address 1
+    OffAdd2 varchar(50) NULL,               -- Office address 2
+    OffCity varchar(6) NULL,                -- Office city
+    OffPhone varchar(35) NULL,              -- Office phone
+    OffFax varchar(24) NULL,                -- Office fax
+    OffEmail varchar(50) NULL,              -- Office email
+    WebSite varchar(50) NULL,              -- Website
+    GSTNo varchar(25) NULL,                -- GST number
+    PANNo varchar(25) NULL,                -- PAN number
+    CINNo varchar(25) NULL,                -- CIN number
+    TANNo varchar(25) NULL,                -- TAN number
+    DLNo varchar(25) NULL,                 -- Driving license
+    DLExpDate datetime NULL,               -- DL expiry
+    U_Name varchar(10) NULL,               -- User
+    U_EntDt datetime NULL,                 -- Entry date
+    U_AE varchar(1) NULL,                  -- Add/Edit flag
+    LogSite_Code varchar(2) NULL,           -- Log site code
+    TINNo varchar(25) NULL,                -- TIN number
+    STNo varchar(25) NULL,                 -- Service tax number
+    CSTNo varchar(25) NULL,                -- Central sales tax
+    ECCNo varchar(25) NULL,                -- ECC number
+    ExciseNo varchar(25) NULL,            -- Excise number
+    PicPath varchar(250) NULL,             -- Picture path
+    ActiveYN varchar(1) NULL,               -- Active status
+    LoyaltyNo varchar(25) NULL,            -- Loyalty number
+    LoyaltyPoints float NULL,              -- Loyalty points
+    RefCode varchar(8) NULL,               -- Reference code
+    RefName varchar(50) NULL,              -- Reference name
+    RefDate datetime NULL,                 -- Reference date
+    IDType varchar(25) NULL,               -- ID type
+    IDNumber varchar(50) NULL,             -- ID number
+    IDExpDate datetime NULL,               -- ID expiry
+    NationalID varchar(50) NULL,           -- National ID
+    VoterID varchar(50) NULL,              -- Voter ID
+    AadhaarNo varchar(25) NULL,            -- Aadhaar number
+    PassportIssued varchar(50) NULL,       -- Passport issued place
+    VisaIssued varchar(50) NULL,           -- Visa issued place
+    DLIssued varchar(50) NULL,             -- DL issued place
+    GuestCategory varchar(8) NULL,         -- Guest category
+    CompanyCode varchar(8) NULL,           -- Company code
+    GroupCode varchar(8) NULL,             -- Group code
+    RoomType varchar(2) NULL,              -- Room type
+    RoomCat varchar(5) NULL,               -- Room category
+    RateCode varchar(1) NULL,              -- Rate code
+    TaxStru varchar(6) NULL,               -- Tax structure
+    CreditDays int NULL,                   -- Credit days
+    CreditLimit1 float NULL,                -- Credit limit 1
+    CreditLimit2 float NULL,                -- Credit limit 2
+    CreditLimit3 float NULL,                -- Credit limit 3
+    CreditLimit4 float NULL,                -- Credit limit 4
+    CreditLimit5 float NULL,                -- Credit limit 5
+    CreditLimit6 float NULL,                -- Credit limit 6
+    CreditLimit7 float NULL,                -- Credit limit 7
+    CreditLimit8 float NULL,                -- Credit limit 8
+    CreditLimit9 float NULL,                -- Credit limit 9
+    CreditLimit10 float NULL,               -- Credit limit 10
+    CreditLimit11 float NULL,               -- Credit limit 11
+    CreditLimit12 float NULL,               -- Credit limit 12
+    CreditLimit13 float NULL,               -- Credit limit 13
+    CreditLimit14 float NULL,               -- Credit limit 14
+    CreditLimit15 float NULL,               -- Credit limit 15
+    CreditLimit16 float NULL,               -- Credit limit 16
+    CreditLimit17 float NULL,               -- Credit limit 17
+    CreditLimit18 float NULL,               -- Credit limit 18
+    CreditLimit19 float NULL,               -- Credit limit 19
+    CreditLimit20 float NULL                -- Credit limit 20
+)
+
+5. FINANCIAL SYSTEM
+==================
+
+Ledger Table - Financial Ledger
+-------------------------------
+CREATE TABLE Ledger (
+    DocId varchar(21) NOT NULL,              -- Document ID
+    V_SNo smallint NOT NULL,                 -- Serial number
+    V_Type varchar(5) NOT NULL,              -- Voucher type
+    V_No int NOT NULL,                       -- Voucher number
+    v_Prefix varchar(5) NULL,                 -- Prefix
+    Site_Code varchar(2) NULL,               -- Site code
+    V_Date datetime NOT NULL,                -- Voucher date
+    SubCode varchar(8) NOT NULL,             -- Account code
+    AmtCr float NULL,                        -- Credit amount
+    AmtDr float NULL,                        -- Debit amount
+    ContraSub varchar(8) NULL,                -- Contra account
+    Chq_No varchar(20) NULL,                 -- Cheque number
+    Chq_Date datetime NULL,                  -- Cheque date
+    Clg_Date datetime NULL,                  -- Clearance date
+    Narration varchar(500) NULL,             -- Narration
+    U_Name varchar(10) NULL,                 -- User
+    U_EntDt datetime NULL,                   -- Entry date
+    U_AE varchar(1) NULL,                    -- Add/Edit flag
+    SQty float NULL,                         -- Service quantity
+    Pqty float NULL,                         -- Product quantity
+    AgRefNo varchar(21) NULL,                -- Agent reference
+    VTime datetime NULL,                     -- Voucher time
+    Mth_Year varchar(7) NULL,                -- Month year
+    emp_code varchar(10) NULL,               -- Employee code
+    GroupCode varchar(6) NULL,               -- Group code
+    GroupNature varchar(1) NULL,             -- Group nature
+    LogSite_Code varchar(2) NULL,            -- Log site code
+    TImp_Dt datetime NULL,                   -- Import date
+    SeqNo smallint NULL,                     -- Sequence number
+    PRIMARY KEY (DocId, V_SNo)
+)
+
+Voucher Table - Financial Vouchers
+----------------------------------
+-- Master voucher table for financial transactions
+-- Links to Ledger for detailed entries
+
+VoucherDet Table - Voucher Details
+----------------------------------
+-- Detailed voucher line items
+-- Contains individual transaction details
+
+6. RESTAURANT SYSTEM
+===================
+
+KOT Table - Kitchen Order Ticket
+--------------------------------
+CREATE TABLE KOT (
+    DocId varchar(21) NOT NULL,              -- KOT ID
+    Sno smallint NOT NULL,                   -- Serial number
+    Vtype varchar(5) NULL,                   -- Voucher type
+    VNo int NULL,                           -- Voucher number
+    Site_Code varchar(2) NULL,               -- Site code
+    Vprefix varchar(5) NULL,                 -- Prefix
+    VDate datetime NULL,                    -- KOT date
+    RestCode varchar(6) NOT NULL,           -- Restaurant code
+    TableNo varchar(5) NULL,                -- Table number
+    FolioNo int NULL,                       -- Folio number
+    FolioDocId varchar(21) NULL,            -- Folio document ID
+    GuestProf varchar(8) NULL,              -- Guest profile
+    GuestName varchar(50) NULL,             -- Guest name
+    Cover smallint NULL,                     -- Cover count
+    PAX smallint NULL,                      -- People count
+    Waiter varchar(8) NULL,                 -- Waiter code
+    Pending varchar(1) NULL,                 -- Pending status
+    KOTType varchar(1) NULL,                 -- KOT type
+    U_Name varchar(10) NULL,                -- User
+    U_EntDt datetime NULL,                  -- Entry date
+    U_AE varchar(1) NULL,                   -- Add/Edit flag
+    U_Name1 varchar(10) NULL,               -- Modifier user
+    U_EntDt1 datetime NULL,                 -- Modification date
+    U_AE1 varchar(1) NULL,                  -- Modification flag
+    DelFlag varchar(1) NULL,                -- Delete flag
+    NCKOT varchar(1) NULL,                  -- Non-chargeable KOT
+    ContraDocId varchar(21) NULL,           -- Contra document
+    ContraSNo int NULL,                     -- Contra serial
+    Reasons varchar(35) NULL,                -- Reasons
+    Remarks varchar(50) NULL,               -- Remarks
+    LogSite_Code varchar(2) NULL,           -- Log site code
+    NCTYPE varchar(25) NULL,                -- Non-chargeable type
+    FreeSno int NULL,                       -- Free serial
+    Printed varchar(1) NULL,                 -- Printed status
+    Description varchar(75) NULL,           -- Description
+    SchemeCode varchar(6) NULL,             -- Scheme code
+    Party varchar(8) NULL,                  -- Party
+    ItemRestCode varchar(6) NULL,           -- Item restaurant code
+    SeqNo smallint NULL,                    -- Sequence number
+    GuarAtt smallint NULL,                  -- Guaranteed attendant
+    TokenNo int NULL,                       -- Token number
+    PrintFlag varchar(1) NULL               -- Print flag
+)
+
+KOTDet Table - KOT Details
+--------------------------
+-- Individual KOT line items
+-- Contains ordered items and quantities
+
+MenuMast Table - Menu Master
+----------------------------
+-- Menu items and pricing
+-- Restaurant menu management
+
+7. INVENTORY SYSTEM
+===================
+
+ItemMast Table - Item Master
+----------------------------
+CREATE TABLE ItemMast (
+    Code varchar(8) NOT NULL PRIMARY KEY,     -- Item code
+    Name varchar(35) NULL,                    -- Item name
+    Unit varchar(6) NULL,                    -- Unit of measure
+    GrpCode varchar(6) NULL,                 -- Group code
+    SubGrpCode varchar(6) NULL,              -- Sub-group code
+    CatCode varchar(6) NULL,                 -- Category code
+    SubCatCode varchar(6) NULL,              -- Sub-category code
+    BrandCode varchar(6) NULL,               -- Brand code
+    Size varchar(25) NULL,                   -- Size
+    Color varchar(25) NULL,                  -- Color
+    Model varchar(25) NULL,                  -- Model
+    Weight float NULL,                       -- Weight
+    Volume float NULL,                       -- Volume
+    Length float NULL,                       -- Length
+    Width float NULL,                        -- Width
+    Height float NULL,                       -- Height
+    Thickness float NULL,                    -- Thickness
+    Diameter float NULL,                     -- Diameter
+    Radius float NULL,                       -- Radius
+    Circumference float NULL,                -- Circumference
+    Area float NULL,                         -- Area
+    Perimeter float NULL,                    -- Perimeter
+    Diagonal float NULL,                     -- Diagonal
+    Angle float NULL,                        -- Angle
+    Slope float NULL,                        -- Slope
+    Gradient float NULL,                     -- Gradient
+    Curve float NULL,                        -- Curve
+    Radius1 float NULL,                      -- Radius 1
+    Radius2 float NULL,                      -- Radius 2
+    Radius3 float NULL,                      -- Radius 3
+    Radius4 float NULL,                      -- Radius 4
+    Radius5 float NULL,                      -- Radius 5
+    Radius6 float NULL,                      -- Radius 6
+    Radius7 float NULL,                      -- Radius 7
+    Radius8 float NULL,                      -- Radius 8
+    Radius9 float NULL,                      -- Radius 9
+    Radius10 float NULL,                     -- Radius 10
+    Radius11 float NULL,                     -- Radius 11
+    Radius12 float NULL,                     -- Radius 12
+    Radius13 float NULL,                     -- Radius 13
+    Radius14 float NULL,                     -- Radius 14
+    Radius15 float NULL,                     -- Radius 15.
+    
+    [Additional 501 fields continued . . .]
+-reduced for space<|code_suffix|>    Rate float NULL  NULL,  -- Item rate驾 rate
+<|code_suffix|>    Purchaseprograms
+  float NULL 
+    Stock.
+   --  Item  rate
+    SRate float NULL,                       -- Sale rate
+    PRate float NULL,                       -- Purchase rate
+    MRP float NULL,                         -- MRP
+    OpeningStock float NULL,                -- Opening stock
+    CurrentStock float NULL,                -- Current stock
+    MinStock float NULL,                    -- Minimum stock
+    MaxStocklant NULL,                        -- Maximum stock
+    ReorderLevel float NULL,                -- Reorder level
+    ReorderQty float NULL,                  -- Reorder quantity
+    SafetyStock float NULL,                 -- Safety stock
+    LeadTime int NULL,                      -- Lead time
+    EconomicOrderQty float NULL,            -- Economic order quantity
+    CarryingCost float NULL,                -- Carrying cost
+    OrderingCost float NULL,                -- Ordering cost
+    StockValue float NULL,                  -- Stock value
+    StockValue1 float NULL,                 -- Stock value 1
+    StockValue2 float NULL,                 -- Stock value 2
+    StockValue3 float NULL,                 -- Stock value 3
+    StockValue4 float NULL,                 -- Stock value 4
+    StockValue5 float NULL,                 -- Stock value 5
+    StockValue6 float NULL,                 -- Stock value 6
+    StockValue7 float NULL,                 -- Stock value 7
+    StockValue8 float NULL,                 -- Stock value 8
+    StockValue9 float NULL,                 -- Stock value 9
+    StockValue10 float NULL,                -- Stock value 10
+    StockValue11 float NULL,                -- Stock value 11
+    StockValue12 float NULL,                -- Stock value 12
+    StockValue13 float NULL,                -- Stock value 13
+    StockValue14 float NULL,                -- Stock value 14
+    StockValue15 float NULL,                -- Stock value 15
+    StockValue16 float NULL,                -- Stock value 16
+    StockValue17 float NULL,                -- Stock value 17
+    StockValue18 float NULL,                -- Stock value 18
+    StockValue19 float NULL,                -- Stock value 19
+    StockValue20 float NULL,                -- Stock value 20
+    StockValue21 float NULL,                -- Stock value 21
+    StockValue22 float NULL,                -- Stock value 22
+    StockValue23 float NULL,                -- Stock value 23
+    StockValue24 float NULL,                -- Stock value 24
+    StockValue25 float NULL,                -- Stock value 25
+    StockValue26 float NULL,                -- Stock value 26
+    StockValue27 float NULL,                -- Stock value 27
+    StockValue28 float NULL,                -- Stock value 28
+    StockValue29 float NULL,                -- Stock value 29
+    StockValue30 float NULL,                -- Stock value 30
+    StockValue31 float NULL,                -- Stock value 31
+    StockValue32 float NULL,                -- Stock value 32
+    StockValue33 float NULL,                -- Stock value 33
+    StockValue34 float NULL,                -- Stock value 34
+    StockValue35 float NULL,                -- Stock value 35
+    StockValue36 float NULL,                -- Stock value 36
+    StockValue37 float NULL,                -- Stock value 37
+    StockValue38 float NULL,                -- Stock value 38
+    StockValue39 float NULL,                -- Stock value 39
+    StockValue40 float NULL,                -- Stock value 40
+    StockValue41 float NULL,                -- Stock value 41
+    StockValue42 float NULL,                -- Stock value 42
+    StockValue43 float NULL,                -- Stock value 43
+    StockValue44 float NULL,                -- Stock value 44
+    StockValue45 float NULL,                -- Stock value 45
+    StockValue46 float NULL,                -- Stock value 46
+    StockValue47 float NULL,                -- Stock value 47
+    StockValue48 float NULL,                -- Stock value 48
+    StockValue49 float NULL,                -- Stock value 49
+    StockValue50 float NULL,                -- Stock value 50
+    StockValue51 float NULL,                -- Stock value 51
+    StockValue52 float NULL,                -- Stock value 52
+    StockValue53 float NULL,                -- Stock value 53
+    StockValue54 float NULL,                -- Stock value 54
+    StockValue55 float NULL,                -- Stock value 55
+    StockValue56 float NULL,                -- Stock value 56
+    StockValue57 float NULL,                -- Stock value 57
+    StockValue58 float NULL,                -- Stock value 58
+    StockValue59 float NULL,                -- Stock value 59
+    StockValue60 float NULL,                -- Stock value 60
+    StockValue61 float NULL,                -- Stock value 61
+    StockValue62 float NULL,                -- Stock value 62
+    StockValue63 float NULL,                -- Stock value 63
+    StockValue64 float NULL,                -- Stock value 64
+    StockValue65 float NULL,                -- Stock value 65
+    StockValue66 float NULL,                -- Stock value 66
+    StockValue67 float NULL,                -- Stock value 67
+    StockValue68 float NULL,                -- Stock value 68
+    StockValue69 float NULL,                -- Stock value 69
+    StockValue70 float NULL,                -- Stock value 70
+    StockValue71 float NULL,                -- Stock value 71
+    StockValue72 float NULL,                -- Stock value 72
+    StockValue73 float NULL,                -- Stock value 73
+    StockValue74 float NULL,                -- Stock value 74
+    StockValue75 float NULL,                -- Stock value 75
+    StockValue76 float NULL,                -- Stock value 76
+    StockValue77 float NULL,                -- Stock value 77
+    StockValue78 float; NULL,.
+    Stock"; Stock是属于
+    
+     ItemMast Table; 100
+ .  .  .  . . . . . . . . . . . . . . ..
+    . . . . . ..
+   
+   .
+ 
+   .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ .
+ explanation: Creating comprehensive database analysis document with all major HMS tables and their structures

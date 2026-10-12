@@ -1,0 +1,48 @@
+============================= test session starts =============================
+platform win32 -- Python 3.14.4, pytest-9.0.3, pluggy-1.6.0
+rootdir: C:\Users\LENOVO\Desktop\serialkey\PROJECT_REPAIR - Copy\HMS_py\HMS_py
+configfile: pytest.ini (WARNING: ignoring pytest config in pyproject.toml!)
+plugins: anyio-4.14.2, asyncio-1.4.0, cov-7.1.0, timeout-2.4.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 1007 items
+
+tests\unit\test_amend_stay_parity.py ....                                [  0%]
+tests\unit\test_auth_backdoor.py .......                                 [  1%]
+tests\unit\test_bas_module_ports.py .................................... [  4%]
+.....................................................................    [ 11%]
+tests\unit\test_bugfix_batch.py .............................F.FF        [ 14%]
+tests\unit\test_card_txn_ui.py F...F.                                    [ 15%]
+tests\unit\test_channel_phase1.py .......................                [ 17%]
+tests\unit\test_channel_phase23.py ....................                  [ 19%]
+tests\unit\test_channel_phase4.py .................                      [ 21%]
+tests\unit\test_coming_soon_conversion.py FFFFF...............F..        [ 23%]
+tests\unit\test_comp_master.py ......                                    [ 24%]
+tests\unit\test_company_crud.py ....                                     [ 24%]
+tests\unit\test_comport_config.py ............................           [ 27%]
+tests\unit\test_consumption_master.py .....                              [ 27%]
+tests\unit\test_core_validation.py ...s................................. [ 31%]
+..........................................F..FF.....................     [ 38%]
+tests\unit\test_depart_pay.py ......                                     [ 38%]
+tests\unit\test_door_lock.py ..........................FFFF....          [ 42%]
+tests\unit\test_epabx_callcode_parity.py ....                            [ 42%]
+tests\unit\test_epabx_calltype_parity.py ....                            [ 43%]
+tests\unit\test_epabx_extension_parity.py ...                            [ 43%]
+tests\unit\test_epabx_telext_validation.py ........                      [ 44%]
+tests\unit\test_fa_enviro_parity.py ..                                   [ 44%]
+tests\unit\test_general_setup_tabs.py ...................F.F.FF.         [ 46%]
+tests\unit\test_gravy_item.py ......                                     [ 47%]
+tests\unit\test_guest_foreign.py ......                                  [ 48%]
+tests\unit\test_inventory_purch_order_report.py .....F                   [ 48%]
+tests\unit\test_item_rate_parity.py ......F                              [ 49%]
+tests\unit\test_main_setup_desktop_ui.py .F.......FF.FFFF.FFF            [ 51%]
+tests\unit\test_mainsetup_batch_a_tables.py ...............              [ 52%]
+tests\unit\test_mainsetup_batch_b_depart.py .....                        [ 53%]
+tests\unit\test_mainsetup_batch_b_plan.py .....                          [ 53%]
+tests\unit\test_mainsetup_batch_b_roomcat.py ...                         [ 54%]
+tests\unit\test_mainsetup_batch_c_chargemaster.py .....FF.               [ 55%]
+tests\unit\test_mainsetup_batch_d_enviro.py .......                      [ 55%]
+tests\unit\test_mainsetup_p1a_p1b_routing.py FF.....                     [ 56%]
+tests\unit\test_mainsetup_registry_parity.py ..FFF                       [ 56%]
+tests\unit\test_manual_pipeline.py ................                      [ 58%]
+tests\unit\test_membership_revenue_auth.py .....F                        [ 59%]
+tests\unit\test_membership_revenue_contract.py ..........

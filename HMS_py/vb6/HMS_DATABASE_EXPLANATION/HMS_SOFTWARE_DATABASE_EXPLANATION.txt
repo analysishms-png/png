@@ -1,0 +1,1314 @@
+================================================================================
+                    HMS SOFTWARE COMPLETE DATABASE EXPLANATION
+================================================================================
+
+DATABASE NAME: SunshineData2526
+TOTAL TABLES: 271
+SOFTWARE: Hotel Management System (HMS)
+PURPOSE: Complete hotel operations management
+
+================================================================================
+                    DATABASE STRUCTURE OVERVIEW
+================================================================================
+
+The HMS database is organized into the following major modules:
+
+1. USER MANAGEMENT SYSTEM (8 tables)
+2. ROOM MANAGEMENT SYSTEM (15 tables)
+3. BOOKING & RESERVATION SYSTEM (25 tables)
+4. GUEST MANAGEMENT SYSTEM (30 tables)
+5. FINANCIAL & ACCOUNTING SYSTEM (40 tables)
+6. RESTAURANT & FOOD SERVICE SYSTEM (35 tables)
+7. HOUSEKEEPING SYSTEM (20 tables)
+8. INVENTORY & STORE MANAGEMENT (25 tables)
+9. REPORTING & ANALYTICS SYSTEM (30 tables)
+10. ADMINISTRATION & CONFIGURATION (43 tables)
+
+================================================================================
+                    1. USER MANAGEMENT SYSTEM
+================================================================================
+
+PURPOSE: Manage user authentication, permissions, and access control
+OUTLET: Front Office, Back Office, Administration
+
+1.1 UserMast Table
+------------------
+PURPOSE: Master user authentication and profile data
+WORKING: 
+- Stores all user login credentials with encrypted passwords
+- Manages user roles, permissions, and access levels
+- Controls system access based on user rights
+DATA FLOW:
+- Login Form → UserMast (Validate credentials) → Session Creation
+- User Registration → UserMast (INSERT new user)
+- User Update → UserMast (UPDATE user details)
+- User Deactivation → UserMast (UPDATE ActiveYN = 'N')
+KEY FIELDS:
+- USER_NAME: Login username (Primary Key)
+- PASSWD: Encrypted password
+- LABEL: User role/level (1=Admin, 2=Manager, 3=Staff, etc.)
+- ShortName: Display name
+- ActiveYN: Active status ('Y'/'N')
+- BackColor: UI theme color
+
+1.2 User1 Table
+---------------
+PURPOSE: Extended user personal information
+WORKING:
+- Stores personal details like address, phone, email
+- Extends UserMast with contact information
+- Used for user profile management
+DATA FLOW:
+- User Registration → UserMast → User1 (INSERT personal info)
+- Profile Update → User1 (UPDATE contact details)
+
+1.3 User2 Table
+---------------
+PURPOSE: Additional user preferences and settings
+WORKING:
+- Stores user preferences, language settings
+- UI customization options
+- Notification preferences
+DATA FLOW:
+- User Settings → User2 (UPDATE preferences)
+
+1.4 User_Module Table
+--------------------
+PURPOSE: Module-wise permissions for users
+WORKING:
+- Controls which modules each user can access
+- Role-based access control implementation
+- Permission inheritance management
+DATA FLOW:
+- Permission Assignment → User_Module (INSERT/UPDATE)
+- Access Check → User_Module (SELECT permissions)
+
+1.5 UserPermission Table
+-----------------------
+PURPOSE: Detailed user permissions
+WORKING:
+- Fine-grained permission control
+- CRUD operations permissions per module
+- Special permissions and overrides
+DATA FLOW:
+- Permission Management → UserPermission (CRUD operations)
+
+1.6 UserCollection Table
+------------------------
+PURPOSE: User groups and collections
+WORKING:
+- Groups users for easier management
+- Department-wise user organization
+- Role-based grouping
+DATA FLOW:
+- User Grouping → UserCollection (INSERT/UPDATE)
+
+1.7 UserModule1 Table
+---------------------
+PURPOSE: Extended module permissions
+WORKING:
+- Additional module-specific permissions
+- Advanced access control features
+- Custom permission sets
+DATA FLOW:
+- Advanced Permissions → UserModule1 (CRUD)
+
+1.8 UserModule Table
+-------------------
+PURPOSE: Module access control
+WORKING:
+- Basic module access permissions
+- Module availability per user
+- Access level restrictions
+DATA FLOW:
+- Module Access → UserModule (SELECT/UPDATE)
+
+================================================================================
+                    2. ROOM MANAGEMENT SYSTEM
+================================================================================
+
+PURPOSE: Manage all hotel rooms, their status, and related operations
+OUTLET: Front Office, Housekeeping, Maintenance
+
+2.1 RoomMast Table
+------------------
+PURPOSE: Master room information and status
+WORKING:
+- Stores complete room details including type, category, status
+- Manages room availability and allocation
+- Tracks room status changes (Available/Dirty/Occupied/Maintenance)
+DATA FLOW:
+- Room Creation → RoomMast (INSERT new room)
+- Room Status Update → RoomMast (UPDATE RoomStat)
+- Room Allocation → RoomMast (UPDATE status to 'O')
+- Room Checkout → RoomMast (UPDATE status to 'D')
+- Room Cleaning → RoomMast (UPDATE status to 'A')
+KEY FIELDS:
+- Type: Room type (RO=Room, SU=Suite, etc.)
+- Code: Room number (Primary Key with Type)
+- Name: Room display name
+- RoomCat: Room category (NN002=Standard, NN003=Deluxe, etc.)
+- RoomStat: Room status (A=Available, D=Dirty, O=Occupied, M=Maintenance)
+- RestCode: Restaurant code for room service
+- TaxStru: Tax structure for billing
+- HallRent: Hall rent amount
+- PicPath: Room image path
+- DoorLockID: Electronic door lock ID
+
+2.2 RoomType Table
+------------------
+PURPOSE: Room type definitions
+WORKING:
+- Defines different room types (Single, Double, Suite, etc.)
+- Room type pricing and policies
+- Capacity and amenities per type
+DATA FLOW:
+- Room Type Setup → RoomType (INSERT)
+- Rate Update → RoomType (UPDATE rates)
+
+2.3 RoomStatus Table
+--------------------
+PURPOSE: Room status tracking
+WORKING:
+- Tracks detailed room status history
+- Status change timestamps
+- Reason for status changes
+DATA FLOW:
+- Status Change → RoomStatus (INSERT history record)
+
+2.4 RoomRates Table
+------------------
+PURPOSE: Room pricing and rates
+WORKING:
+- Stores room rates by type and category
+- Seasonal pricing variations
+- Special rates and discounts
+DATA FLOW:
+- Rate Setup → RoomRates (INSERT/UPDATE)
+- Rate Change → RoomRates (UPDATE)
+
+2.5 RoomHK Table
+---------------
+PURPOSE: Room housekeeping information
+WORKING:
+- Links rooms to housekeeping tasks
+- Cleaning schedules and priorities
+- HK staff assignments
+DATA FLOW:
+- HK Assignment → RoomHK (INSERT)
+- Cleaning Complete → RoomHK (UPDATE)
+
+2.6 Connected Rooms Tables
+-------------------------
+ConRoom1, ConRoom2, ConRoom3, ConRoom4 in RoomMast
+PURPOSE: Manage interconnected rooms
+WORKING:
+- Links rooms that can be combined
+- Suite management with multiple rooms
+- Group booking room combinations
+DATA FLOW:
+- Room Connection → RoomMast (UPDATE ConRoom fields)
+
+================================================================================
+                    3. BOOKING & RESERVATION SYSTEM
+================================================================================
+
+PURPOSE: Manage room bookings, reservations, and related operations
+OUTLET: Front Office, Reservation Desk, Online Booking
+
+3.1 Booking Table
+----------------
+PURPOSE: Master booking information
+WORKING:
+- Stores all booking details including guest info, dates, rooms
+- Manages booking lifecycle (New → Confirmed → Checked-in → Checked-out)
+- Handles booking modifications and cancellations
+DATA FLOW:
+- New Booking → Booking (INSERT)
+- Booking Confirmation → Booking (UPDATE BookStatus)
+- Room Assignment → Booking (UPDATE RoomNo)
+- Check-in → Booking (UPDATE status)
+- Check-out → Booking (UPDATE status)
+- Cancellation → Booking (UPDATE Cancel flag)
+KEY FIELDS:
+- DocId: Unique booking ID (Primary Key)
+- BookNo: Booking number
+- VDate: Booking date
+- ArrDate/ArrTime: Arrival date and time
+- DepDate/DepTime: Departure date and time
+- NoDays: Number of days
+- RoomCat/RoomType/RoomNo: Room details
+- Adult/Child: Number of guests
+- RoomRate: Room rate
+- GuestName: Guest name
+- BookStatus: Booking status (Confirmed, Pending, Cancelled)
+- Verified: Verification status
+- MobNo/Email: Contact information
+- Cancel: Cancellation flag
+- CancelDate: Cancellation date
+
+3.2 BookingDetail Table
+-----------------------
+PURPOSE: Detailed booking line items
+WORKING:
+- Stores individual room bookings within a group booking
+- Room-wise details and rates
+- Date-wise room allocation
+DATA FLOW:
+- Multi-room Booking → BookingDetail (INSERT multiple records)
+- Room Change → BookingDetail (UPDATE)
+
+3.3 BookingPlanDetails Table
+---------------------------
+PURPOSE: Rate plan information for bookings
+WORKING:
+- Stores rate plan details applied to bookings
+- Special rates and packages
+- Promotional pricing
+DATA FLOW:
+- Rate Plan Application → BookingPlanDetails (INSERT)
+- Rate Change → BookingPlanDetails (UPDATE)
+
+3.4 BookingMore Table
+---------------------
+PURPOSE: Additional booking information
+WORKING:
+- Extra booking details and preferences
+- Special requests and notes
+- Additional services booked
+DATA FLOW:
+- Special Requests → BookingMore (INSERT/UPDATE)
+
+3.5 BookingLog Table
+--------------------
+PURPOSE: Booking history and audit trail
+WORKING:
+- Tracks all booking changes and modifications
+- User actions on bookings
+- Timestamp and reason for changes
+DATA FLOW:
+- Any Booking Change → BookingLog (INSERT audit record)
+
+3.6 BookingInquiry Table
+------------------------
+PURPOSE: Booking inquiries and leads
+WORKING:
+- Stores initial booking inquiries
+- Lead tracking and conversion
+- Follow-up management
+DATA FLOW:
+- New Inquiry → BookingInquiry (INSERT)
+- Inquiry Conversion → BookingInquiry (UPDATE) → Booking (INSERT)
+
+3.7 BookingCancelDetails Table
+-----------------------------
+PURPOSE: Detailed cancellation information
+WORKING:
+- Stores cancellation reasons and details
+- Refund information
+- Penalty calculations
+DATA FLOW:
+- Cancellation → BookingCancelDetails (INSERT)
+
+3.8 Group Booking Tables
+------------------------
+GrpBookingDetails, GroupProf, GroupFolioMore
+PURPOSE: Manage group bookings and corporate reservations
+WORKING:
+- Group booking management
+- Multiple rooms for groups
+- Group billing and folios
+DATA FLOW:
+- Group Booking → GrpBookingDetails (INSERT)
+- Group Profile → GroupProf (INSERT)
+- Group Folio → GroupFolioMore (INSERT)
+
+================================================================================
+                    4. GUEST MANAGEMENT SYSTEM
+================================================================================
+
+PURPOSE: Manage guest profiles, folios, and guest-related operations
+OUTLET: Front Office, Guest Relations, Loyalty Program
+
+4.1 GuestFolio Table
+---------------------
+PURPOSE: Guest folio management
+WORKING:
+- Manages guest folios for billing and transactions
+- Links guests to bookings and charges
+- Handles multiple folios per guest
+DATA FLOW:
+- Check-in → GuestFolio (INSERT new folio)
+- Charges → GuestFolio (UPDATE with charges)
+- Payment → GuestFolio (UPDATE with payments)
+- Check-out → GuestFolio (CLOSE folio)
+KEY FIELDS:
+- DocId: Folio document ID
+- FolioNo: Folio number
+- GuestProf: Guest profile code
+- GuestName: Guest name
+- Company: Company name
+- Address/Phone/Mobile/Email: Contact information
+- BookingDocId: Reference to booking
+- GroupCode: Group code
+- MFolioNo: Master folio number
+- RefBookNo: Reference booking number
+
+4.2 GuestProf Table
+-------------------
+PURPOSE: Guest profile master data
+WORKING:
+- Stores comprehensive guest information
+- Guest history and preferences
+- Loyalty program details
+- Contact and personal information
+DATA FLOW:
+- New Guest → GuestProf (INSERT)
+- Profile Update → GuestProf (UPDATE)
+- Stay History → GuestProf (UPDATE with visit data)
+- Loyalty Update → GuestProf (UPDATE points)
+KEY FIELDS:
+- Code: Guest code (Primary Key)
+- Name: Guest name
+- Address/City/Phone/Mobile/Email: Contact details
+- Nationality: Guest nationality
+- Company: Employer/company
+- CreditCardNo/CreditLimit: Credit information
+- LoyaltyPoints: Loyalty program points
+- GuestType: Guest category
+- RoomPref/BedPref: Room preferences
+- GSTNo/PANNo: Tax identification numbers
+
+4.3 GuestProfVeh Table
+----------------------
+PURPOSE: Guest vehicle information
+WORKING:
+- Stores guest vehicle details
+- Parking management
+- Vehicle registration
+DATA FLOW:
+- Vehicle Registration → GuestProfVeh (INSERT)
+
+4.4 GuestProfFor Table
+----------------------
+PURPOSE: Guest foreign travel information
+WORKING:
+- Foreign guest details
+- Passport and visa information
+- International travel documents
+DATA FLOW:
+- Foreign Guest Registration → GuestProfFor (INSERT)
+
+4.5 GuestMessage Table
+-----------------------
+PURPOSE: Guest messages and communications
+WORKING:
+- Stores messages for guests
+- Wake-up calls
+- Guest requests
+DATA FLOW:
+- Message → GuestMessage (INSERT)
+- Message Delivery → GuestMessage (UPDATE status)
+
+4.6 GuestWakeup Table
+----------------------
+PURPOSE: Guest wake-up call management
+WORKING:
+- Wake-up call scheduling
+- Call logging
+- Reminder management
+DATA FLOW:
+- Wake-up Request → GuestWakeup (INSERT)
+- Call Completion → GuestWakeup (UPDATE)
+
+4.7 GuestStat Table
+-------------------
+PURPOSE: Guest statistics and categories
+WORKING:
+- Guest categories and types
+- Statistical information
+- Reporting categories
+DATA FLOW:
+- Guest Category Setup → GuestStat (INSERT)
+
+4.8 GuestReward Table
+---------------------
+PURPOSE: Guest rewards and loyalty points
+WORKING:
+- Loyalty point management
+- Reward redemption
+- Point accumulation
+DATA FLOW:
+- Point Earn → GuestReward (INSERT)
+- Point Redeem → GuestReward (UPDATE)
+
+4.9 GuestComments Table
+------------------------
+PURPOSE: Guest feedback and comments
+WORKING:
+- Guest complaints and suggestions
+- Service feedback
+- Satisfaction surveys
+DATA FLOW:
+- Feedback → GuestComments (INSERT)
+- Follow-up → GuestComments (UPDATE)
+
+4.10 GuestParam Table
+----------------------
+PURPOSE: Guest parameters and settings
+WORKING:
+- System parameters for guest management
+- Configuration settings
+- Default values
+DATA FLOW:
+- Parameter Setup → GuestParam (UPDATE)
+
+4.11 GuestFolioProfDetail Table
+-------------------------------
+PURPOSE: Guest folio profile details
+WORKING:
+- Links folios to guest profiles
+- Profile-based billing
+- Account management
+DATA FLOW:
+- Folio-Profile Link → GuestFolioProfDetail (INSERT)
+
+4.12 GuestFolioAmend Table
+--------------------------
+PURPOSE: Guest folio amendments
+WORKING:
+- Folio corrections and adjustments
+- Bill modifications
+- Credit notes
+DATA FLOW:
+- Folio Amendment → GuestFolioAmend (INSERT)
+
+================================================================================
+                    5. FINANCIAL & ACCOUNTING SYSTEM
+================================================================================
+
+PURPOSE: Manage all financial transactions, accounting, and billing
+OUTLET: Front Office, Accounts Department, Restaurant, Gift Shop
+
+5.1 Ledger Table
+----------------
+PURPOSE: Financial ledger for all transactions
+WORKING:
+- Stores all financial transactions
+- Double-entry bookkeeping
+- Account-wise transaction tracking
+DATA FLOW:
+- Transaction → Ledger (INSERT debit/credit entries)
+- Payment → Ledger (INSERT payment entries)
+- Receipt → Ledger (INSERT receipt entries)
+- Adjustment → Ledger (INSERT adjustment entries)
+KEY FIELDS:
+- DocId: Document ID
+- V_SNo: Serial number
+- V_Type: Voucher type
+- V_No: Voucher number
+- V_Date: Transaction date
+- SubCode: Account code
+- AmtCr/AmtDr: Credit/Debit amounts
+- Narration: Transaction description
+- Chq_No/Chq_Date: Cheque details
+- ContraSub: Contra account
+
+5.2 Voucher Table
+-----------------
+PURPOSE: Financial vouchers master
+WORKING:
+- Stores voucher header information
+- Voucher types and numbering
+- Authorization and approval
+DATA FLOW:
+- Voucher Creation → Voucher (INSERT)
+- Voucher Approval → Voucher (UPDATE status)
+
+5.3 VoucherDet Table
+-------------------
+PURPOSE: Voucher detail lines
+WORKING:
+- Stores individual voucher line items
+- Account-wise distribution
+- Detailed transaction breakdown
+DATA FLOW:
+- Voucher Entry → VoucherDet (INSERT multiple lines)
+
+5.4 AccountMast Table
+---------------------
+PURPOSE: Account master data
+WORKING:
+- Stores all chart of accounts
+- Account types and categories
+- Opening balances
+DATA FLOW:
+- Account Setup → AccountMast (INSERT)
+- Balance Update → AccountMast (UPDATE)
+
+5.5 AccountType Table
+---------------------
+PURPOSE: Account type definitions
+WORKING:
+- Defines account categories
+- Account classification
+- Reporting groups
+DATA FLOW:
+- Account Type Setup → AccountType (INSERT)
+
+5.6 TrialBalance Table
+----------------------
+PURPOSE: Trial balance data
+WORKING:
+- Stores trial balance figures
+- Period-end balances
+- Financial reporting
+DATA FLOW:
+- Period End → TrialBalance (INSERT)
+
+5.7 TaxMast Table
+-----------------
+PURPOSE: Tax master data
+WORKING:
+- Tax rates and configurations
+- Tax types and slabs
+- Tax calculation rules
+DATA FLOW:
+- Tax Setup → TaxMast (INSERT)
+- Tax Rate Change → TaxMast (UPDATE)
+
+5.8 TaxStru Table
+-----------------
+PURPOSE: Tax structure definitions
+WORKING:
+- Tax structure configurations
+- Multiple tax combinations
+- Tax applicability rules
+DATA FLOW:
+- Tax Structure Setup → TaxStru (INSERT)
+
+5.9 LedgerTDS Table
+-------------------
+PURPOSE: TDS (Tax Deducted at Source) details
+WORKING:
+- TDS calculations and deductions
+- TDS certificates
+- Compliance tracking
+DATA FLOW:
+- TDS Deduction → LedgerTDS (INSERT)
+
+5.10 TDSCerti Table
+-------------------
+PURPOSE: TDS certificates
+WORKING:
+- TDS certificate generation
+- Certificate tracking
+- Compliance documentation
+DATA FLOW:
+- Certificate Issue → TDSCerti (INSERT)
+
+5.11 TDSChal Table
+------------------
+PURPOSE: TDS challan details
+WORKING:
+- TDS payment challans
+- Government remittances
+- Challan tracking
+DATA FLOW:
+- Challan Generation → TDSChal (INSERT)
+
+5.12 ForExTrans Table
+---------------------
+PURPOSE: Foreign exchange transactions
+WORKING:
+- Forex transaction details
+- Currency conversions
+- Exchange rate tracking
+DATA FLOW:
+- Forex Transaction → ForExTrans (INSERT)
+
+5.13 Loan Table
+---------------
+PURPOSE: Loan management
+WORKING:
+- Staff loans and advances
+- Loan repayment tracking
+- Interest calculations
+DATA FLOW:
+- Loan Disbursement → Loan (INSERT)
+- Repayment → Loan (UPDATE)
+
+5.14 NarrMast Table
+------------------
+PURPOSE: Narration master data
+WORKING:
+- Standard narration templates
+- Common transaction descriptions
+- Narration shortcuts
+DATA FLOW:
+- Narration Setup → NarrMast (INSERT)
+
+================================================================================
+                    6. RESTAURANT & FOOD SERVICE SYSTEM
+================================================================================
+
+PURPOSE: Manage restaurant operations, food service, and billing
+OUTLET: Restaurant, Room Service, Bar, Coffee Shop
+
+6.1 KOT Table
+------------
+PURPOSE: Kitchen Order Ticket master
+WORKING:
+- Manages restaurant orders
+- Kitchen order processing
+- Order tracking and status
+DATA FLOW:
+- Order Taking → KOT (INSERT)
+- Kitchen Confirmation → KOT (UPDATE status)
+- Order Ready → KOT (UPDATE status)
+- Order Served → KOT (UPDATE status)
+- Billing → KOT (UPDATE billing status)
+KEY FIELDS:
+- DocId: KOT document ID
+- VNo: KOT number
+- RestCode: Restaurant code
+- TableNo: Table number
+- FolioNo: Guest folio number
+- GuestProf: Guest profile
+- Cover/PAX: Number of covers/people
+- Waiter: Waiter code
+- KOTType: KOT type (Regular, Room Service, etc.)
+- Pending: Pending status
+- Printed: Print status
+
+6.2 KOTDet Table
+---------------
+PURPOSE: KOT detail items
+WORKING:
+- Stores individual food items ordered
+- Quantity and rate details
+- Item-wise order tracking
+DATA FLOW:
+- Item Order → KOTDet (INSERT)
+- Item Modification → KOTDet (UPDATE)
+- Item Cancellation → KOTDet (UPDATE)
+
+6.3 MenuMast Table
+-----------------
+PURPOSE: Menu items master data
+WORKING:
+- Stores all menu items
+- Item pricing and categories
+- Recipe and cost information
+DATA FLOW:
+- Menu Setup → MenuMast (INSERT)
+- Price Update → MenuMast (UPDATE)
+- Item Discontinuation → MenuMast (UPDATE)
+
+6.4 MenuHelp1 Table
+------------------
+PURPOSE: Menu help and modifiers
+WORKING:
+- Menu item modifiers
+- Special instructions
+- Item variations
+DATA FLOW:
+- Modifier Setup → MenuHelp1 (INSERT)
+
+6.5 TableMast Table
+------------------
+PURPOSE: Restaurant table management
+WORKING:
+- Table layout and capacity
+- Table status tracking
+- Table reservations
+DATA FLOW:
+- Table Setup → TableMast (INSERT)
+- Table Status → TableMast (UPDATE)
+
+6.6 RestMast Table
+-----------------
+PURPOSE: Restaurant master data
+WORKING:
+- Restaurant information
+- Operating hours
+- Service types
+DATA FLOW:
+- Restaurant Setup → RestMast (INSERT)
+
+6.7 HallSale Tables
+------------------
+HallSale, HallSale1, HallSale2
+PURPOSE: Banquet hall sales
+WORKING:
+- Banquet booking and billing
+- Event management
+- Hall rental charges
+DATA FLOW:
+- Hall Booking → HallSale (INSERT)
+- Event Billing → HallSale1/HallSale2 (INSERT)
+
+6.8 HallBook Tables
+------------------
+HallBook, HallBook1
+PURPOSE: Banquet hall bookings
+WORKING:
+- Hall reservation management
+- Event scheduling
+- Booking details
+DATA FLOW:
+- Hall Reservation → HallBook (INSERT)
+- Booking Details → HallBook1 (INSERT)
+
+6.9 HallStock Tables
+-------------------
+HallStock, HallStockEst
+PURPOSE: Banquet hall inventory
+WORKING:
+- Hall-specific inventory
+- Stock estimation
+- Consumption tracking
+DATA FLOW:
+- Stock Issue → HallStock (INSERT)
+- Stock Estimation → HallStockEst (INSERT)
+
+6.10 HappyHours Tables
+---------------------
+HappyHours, HappyHoursHead
+PURPOSE: Happy hour promotions
+WORKING:
+- Promotional pricing
+- Happy hour management
+- Discount schemes
+DATA FLOW:
+- Promotion Setup → HappyHours (INSERT)
+- Scheme Definition → HappyHoursHead (INSERT)
+
+================================================================================
+                    7. HOUSEKEEPING SYSTEM
+================================================================================
+
+PURPOSE: Manage housekeeping operations, room cleaning, and maintenance
+OUTLET: Housekeeping Department, Maintenance
+
+7.1 Housekeeping Table
+----------------------
+PURPOSE: Housekeeping task management
+WORKING:
+- Task assignment and tracking
+- Cleaning schedules
+- Status monitoring
+DATA FLOW:
+- Task Assignment → Housekeeping (INSERT)
+- Task Completion → Housekeeping (UPDATE)
+
+7.2 HKStaff Table
+----------------
+PURPOSE: Housekeeping staff management
+WORKING:
+- Staff information and roles
+- Attendance and scheduling
+- Performance tracking
+DATA FLOW:
+- Staff Registration → HKStaff (INSERT)
+- Attendance → HKStaff (UPDATE)
+
+7.3 HKSchedule Table
+-------------------
+PURPOSE: Housekeeping scheduling
+WORKING:
+- Duty rosters and schedules
+- Shift management
+- Task allocation
+DATA FLOW:
+- Schedule Creation → HKSchedule (INSERT)
+- Schedule Update → HKSchedule (UPDATE)
+
+7.4 RoomHK Table
+---------------
+PURPOSE: Room housekeeping details
+WORKING:
+- Room-specific housekeeping tasks
+- Cleaning status
+- Maintenance requests
+DATA FLOW:
+- Room Assignment → RoomHK (INSERT)
+- Cleaning Complete → RoomHK (UPDATE)
+
+7.5 HKStaff Table (Additional)
+------------------------------
+PURPOSE: Extended staff information
+WORKING:
+- Staff skills and training
+- Certification tracking
+- Performance metrics
+DATA FLOW:
+- Skill Update → HKStaff (UPDATE)
+
+================================================================================
+                    8. INVENTORY & STORE MANAGEMENT
+================================================================================
+
+PURPOSE: Manage inventory, stock, and procurement operations
+OUTLET: Stores, Purchase Department, Kitchen, Bar
+
+8.1 ItemMast Table
+-----------------
+PURPOSE: Item master data
+WORKING:
+- Stores all inventory items
+- Item specifications and details
+- Pricing and supplier information
+DATA FLOW:
+- Item Creation → ItemMast (INSERT)
+- Price Update → ItemMast (UPDATE)
+- Specification Change → ItemMast (UPDATE)
+KEY FIELDS:
+- Code: Item code (Primary Key)
+- Name: Item name
+- Unit: Unit of measure
+- GrpCode: Group code
+- Rate: Item rate
+- SRate: Sale rate
+- PRate: Purchase rate
+- OpeningStock: Opening stock quantity
+- CurrentStock: Current stock quantity
+- MinStock/MaxStock: Stock levels
+- Kitchen: Kitchen assignment
+- ActiveYN: Active status
+
+8.2 ItemGrp Table
+----------------
+PURPOSE: Item group management
+WORKING:
+- Item categories and groups
+- Group-wise reporting
+- Classification system
+DATA FLOW:
+- Group Creation → ItemGrp (INSERT)
+- Group Update → ItemGrp (UPDATE)
+
+8.3 ItemCatMast Table
+--------------------
+PURPOSE: Item category master
+WORKING:
+- Item categories
+- Category-wise pricing
+- Reporting categories
+DATA FLOW:
+- Category Setup → ItemCatMast (INSERT)
+
+8.4 Stock Table
+---------------
+PURPOSE: Stock management
+WORKING:
+- Current stock levels
+- Stock movements
+- Warehouse management
+DATA FLOW:
+- Stock Receipt → Stock (INSERT)
+- Stock Issue → Stock (UPDATE)
+- Stock Transfer → Stock (UPDATE)
+
+8.5 Stock1 Table
+----------------
+PURPOSE: Additional stock details
+WORKING:
+- Extended stock information
+- Batch-wise tracking
+- Expiry management
+DATA FLOW:
+- Batch Entry → Stock1 (INSERT)
+- Expiry Update → Stock1 (UPDATE)
+
+8.6 StockLog Table
+-----------------
+PURPOSE: Stock movement log
+WORKING:
+- Stock transaction history
+- Movement tracking
+- Audit trail
+DATA FLOW:
+- Stock Movement → StockLog (INSERT)
+
+8.7 Purchase Table
+----------------
+PURPOSE: Purchase order management
+WORKING:
+- Purchase order creation
+- Supplier management
+- Order tracking
+DATA FLOW:
+- PO Creation → Purchase (INSERT)
+- PO Approval → Purchase (UPDATE)
+- Receipt → Purchase (UPDATE)
+
+8.8 Purchase1 Table
+------------------
+PURPOSE: Purchase order details
+WORKING:
+- Line item details
+- Quantity and rates
+- Terms and conditions
+DATA FLOW:
+- PO Details → Purchase1 (INSERT)
+
+8.9 Supplier Tables
+------------------
+Supplier, SupplierDet, SupplierGrp
+PURPOSE: Supplier management
+WORKING:
+- Supplier information
+- Contact details
+- Performance tracking
+DATA FLOW:
+- Supplier Creation → Supplier (INSERT)
+- Supplier Update → Supplier (UPDATE)
+
+8.10 GodownMast Table
+-------------------
+PURPOSE: Warehouse management
+WORKING:
+- Warehouse information
+- Location management
+- Capacity tracking
+DATA FLOW:
+- Warehouse Setup → GodownMast (INSERT)
+
+8.11 ItemRate Table
+------------------
+PURPOSE: Item rate management
+WORKING:
+- Item pricing by restaurant
+- Rate variations
+- Price lists
+DATA FLOW:
+- Rate Setup → ItemRate (INSERT)
+- Rate Update → ItemRate (UPDATE)
+
+================================================================================
+                    9. REPORTING & ANALYTICS SYSTEM
+================================================================================
+
+PURPOSE: Generate reports, analytics, and business intelligence
+OUTLET: Management, Accounts, Front Office
+
+9.1 Reports Table
+-----------------
+PURPOSE: Report definitions
+WORKING:
+- Report templates
+- Report parameters
+- Output formats
+DATA FLOW:
+- Report Definition → Reports (INSERT)
+- Report Update → Reports (UPDATE)
+
+9.2 ReportData Table
+-------------------
+PURPOSE: Report data storage
+WORKING:
+- Generated report data
+- Cached results
+- Historical reports
+DATA FLOW:
+- Report Generation → ReportData (INSERT)
+
+9.3 LogFiles Table
+-----------------
+PURPOSE: System logging
+WORKING:
+- Application logs
+- Error tracking
+- Audit trail
+DATA FLOW:
+- Log Entry → LogFiles (INSERT)
+
+9.4 NightAuditLog Table
+-----------------------
+PURPOSE: Night audit logging
+WORKING:
+- Night audit records
+- Date change tracking
+- Audit results
+DATA FLOW:
+- Night Audit → NightAuditLog (INSERT)
+
+9.5 TrialBalance Table
+----------------------
+PURPOSE: Financial reporting
+WORKING:
+- Trial balance reports
+- Financial statements
+- Period-end reporting
+DATA FLOW:
+- Period End → TrialBalance (INSERT)
+
+9.6 MarketSeg Table
+-------------------
+PURPOSE: Market segmentation
+WORKING:
+- Market segment analysis
+- Customer segmentation
+- Business intelligence
+DATA FLOW:
+- Segment Setup → MarketSeg (INSERT)
+
+9.7 Travel Tables
+----------------
+Travel1, Travel2
+PURPOSE: Travel agent management
+WORKING:
+- Travel agent information
+- Commission tracking
+- Performance analysis
+DATA FLOW:
+- Agent Registration → Travel1 (INSERT)
+- Commission → Travel2 (INSERT)
+
+================================================================================
+                    10. ADMINISTRATION & CONFIGURATION
+================================================================================
+
+PURPOSE: System administration, configuration, and setup
+OUTLET: System Administration, IT Department
+
+10.1 Company Table
+------------------
+PURPOSE: Company information
+WORKING:
+- Company details
+- Legal information
+- Contact details
+DATA FLOW:
+- Company Setup → Company (INSERT)
+
+10.2 DepartMast Table
+--------------------
+PURPOSE: Department management
+WORKING:
+- Department definitions
+- Department hierarchy
+- Cost center tracking
+DATA FLOW:
+- Department Setup → DepartMast (INSERT)
+
+10.3 SiteMast Table
+------------------
+PURPOSE: Site/location management
+WORKING:
+- Multiple site management
+- Location details
+- Site configuration
+DATA FLOW:
+- Site Setup → SiteMast (INSERT)
+
+10.4 Holiday Table
+-----------------
+PURPOSE: Holiday management
+WORKING:
+- Holiday calendar
+- Leave management
+- Working days
+DATA FLOW:
+- Holiday Setup → Holiday (INSERT)
+
+10.5 FunctionType Table
+-----------------------
+PURPOSE: Function type definitions
+WORKING:
+- Event function types
+- Banquet categories
+- Service types
+DATA FLOW:
+- Function Setup → FunctionType (INSERT)
+
+10.6 Help Table
+--------------
+PURPOSE: System help
+WORKING:
+- Help documentation
+- User guides
+- System assistance
+DATA FLOW:
+- Help Content → Help (INSERT)
+
+10.7 MenuHelp Table
+------------------
+PURPOSE: Menu help system
+WORKING:
+- Menu navigation help
+- User interface assistance
+- Context-sensitive help
+DATA FLOW:
+- Menu Help → MenuHelp (INSERT)
+
+10.8 messaging Table
+--------------------
+PURPOSE: Internal messaging
+WORKING:
+- User messages
+- Notifications
+- Communications
+DATA FLOW:
+- Message Send → messaging (INSERT)
+
+10.9 Token Table
+---------------
+PURPOSE: Token management
+WORKING:
+- System tokens
+- Authentication tokens
+- Session management
+DATA FLOW:
+- Token Generation → Token (INSERT)
+
+10.10 Voucher_Prefix Table
+-------------------------
+PURPOSE: Voucher prefix management
+WORKING:
+- Voucher numbering
+- Prefix definitions
+- Sequence management
+DATA FLOW:
+- Prefix Setup → Voucher_Prefix (INSERT)
+
+10.11 Voucher_Type Table
+------------------------
+PURPOSE: Voucher type definitions
+WORKING:
+- Voucher categories
+- Type definitions
+- Accounting rules
+DATA FLOW:
+- Voucher Type Setup → Voucher_Type (INSERT)
+
+10.12 VoucherCat Table
+---------------------
+PURPOSE: Voucher categories
+WORKING:
+- Voucher classification
+- Category management
+- Reporting groups
+DATA FLOW:
+- Category Setup → VoucherCat (INSERT)
+
+================================================================================
+                    DATABASE CREATION AND SETUP
+================================================================================
+
+STEP 1: DATABASE CREATION
+------------------------
+CREATE DATABASE SunshineData2526
+COLLATE SQL_Latin1_General_CP1_CI_AS
+
+STEP 2: TABLE CREATION SEQUENCE
+------------------------------
+1. Create master tables (UserMast, AccountMast, ItemMast, etc.)
+2. Create transaction tables (Booking, Ledger, KOT, etc.)
+3. Create detail tables (BookingDetail, KOTDet, etc.)
+4. Create lookup tables (RoomType, ItemGrp, etc.)
+5. Create system tables (Company, DepartMast, etc.)
+
+STEP 3: RELATIONSHIP SETUP
+--------------------------
+- Primary Keys on all master tables
+- Foreign Keys on detail tables
+- Indexes on frequently queried columns
+- Constraints for data integrity
+
+STEP 4: INITIAL DATA SETUP
+---------------------------
+- Default users (admin, sa, system)
+- Room categories and types
+- Account chart of accounts
+- Item groups and categories
+- System parameters
+
+STEP 5: SECURITY SETUP
+----------------------
+- User roles and permissions
+- Access control lists
+- Data encryption for sensitive fields
+- Audit trail configuration
+
+================================================================================
+                    DATA FLOW DIAGRAM
+================================================================================
+
+1. GUEST REGISTRATION FLOW:
+Guest Registration → GuestProf (INSERT) → Booking (INSERT) → RoomMast (UPDATE status) → GuestFolio (INSERT)
+
+2. ROOM BOOKING FLOW:
+Booking Inquiry → BookingInquiry (INSERT) → Booking (INSERT) → RoomMast (UPDATE) → BookingDetail (INSERT) → GuestFolio (INSERT)
+
+3. RESTAURANT ORDER FLOW:
+Order Taking → KOT (INSERT) → KOTDet (INSERT) → Kitchen Processing → KOT (UPDATE) → Billing → Ledger (INSERT)
+
+4. FINANCIAL TRANSACTION FLOW:
+Transaction → Voucher (INSERT) → VoucherDet (INSERT) → Ledger (INSERT) → AccountMast (UPDATE balance)
+
+5. INVENTORY FLOW:
+Purchase Order → Purchase (INSERT) → Stock (UPDATE) → Issue → Stock (UPDATE) → StockLog (INSERT)
+
+6. HOUSEKEEPING FLOW:
+Room Status Change → RoomHK (INSERT) → Housekeeping (INSERT) → HKStaff (UPDATE) → RoomMast (UPDATE)
+
+================================================================================
+                    SOFTWARE OPERATIONS SUMMARY
+================================================================================
+
+INSERT OPERATIONS:
+- New guest registration
+- Room bookings
+- Restaurant orders
+- Financial transactions
+- Inventory receipts
+- User creation
+
+UPDATE OPERATIONS:
+- Room status changes
+- Booking modifications
+- Guest profile updates
+- Rate changes
+- Stock adjustments
+- Permission updates
+
+DELETE OPERATIONS:
+- Booking cancellations
+- Item deletations
+- User deactivation
+- Record archiving
+
+SELECT OPERATIONS:
+- Availability checking
+- Report generation
+- Financial statements
+- Inventory status
+- Guest history
+- Audit trails
+
+================================================================================
+                    CONCLUSION
+================================================================================
+
+This HMS database provides a complete solution for hotel management with:
+- 271 tables covering all hotel operations
+- Comprehensive data flow and business logic
+- Multi-outlet support (Front Office, Restaurant, Housekeeping, etc.)
+- Full financial accounting integration
+- Detailed reporting and analytics
+- Robust security and access control
+- Scalable architecture for growth
+
+The database structure supports all standard HMS operations including:
+- Guest management and profiling
+- Room booking and allocation
+- Restaurant and food service
+- Financial accounting and billing
+- Inventory and procurement
+- Housekeeping and maintenance
+- Reporting and business intelligence
+- System administration and configuration
+
+This complete database explanation provides the foundation for understanding and implementing the HMS software system.

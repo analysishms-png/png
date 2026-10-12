@@ -223,3 +223,38 @@ Gaps: GAP-14, GAP-15
 | Bill Reprint | ❌ none | ✗ search-only | 0/4 exact | NOT VERIFIED |
 
 **0/4 VERIFIED** (GAP-01…GAP-15: 15 total — 1 Critical, 8 High, 4 Medium, 2 Low).
+
+---
+
+## Re-check — 2026-10-11 (post-implementation sweep)
+
+Spec above is STALE (dated 2026-10-04; most gaps since fixed in code). Evidence = live-file grep 2026-10-11 + `tests/unit/test_fom_reprint_adjust.py` 5/5 + `tests/unit/test_amend_stay_parity.py` 4/5 = **9/9 green**.
+
+| Gap | Status | Evidence (line, 2026-10-11) |
+| --- | --- | --- |
+| GAP-01 | FIXED | `ui/fd_forms_ui.py:187-196` Room No / Check In Date / Company Name / Guest Status rows present |
+| GAP-02 | FIXED | `ui/fd_forms_ui.py:265-269` "Save Record ?" / "Save Data" confirm; `core/folio.py` raises on boundary |
+| GAP-03 | FIXED | `core/folio.py:542,544,548` — "…Less than Check in Date", "…Must Be Greater than Check in Date" raises |
+| GAP-04 | FIXED | `ui/fd_forms_ui.py:178,200,213` — "Guest Details", "Amend Departure Details", "Ctrl+S To Save , Esc To Exit" |
+| GAP-05 | FIXED | `ui/fo_sub_forms_ui.py:519,532,549` — "List of Room", "List of Room's Charge", "Transfer &&Charges" |
+| GAP-06 | PARTIAL | Leader-room selection errors present `:659,666`; not string-verified vs VB6 |
+| GAP-07 | FIXED | `:693` "Do You Want Transfer Remainning Charges Of All Rooms" exact |
+| GAP-08 | FIXED | `:719` "Charges Transfered Successfully" exact |
+| GAP-09 | FIXED | `:681,686` "Please select any charges to be transfer" exact |
+| GAP-10 | FIXED | `:919,926,936,945` reverse-merge charge-selection errors present |
+| GAP-11 | FIXED | `:883-891` "Do You Want Remove Room No. … from Group.\nWithout Transfer Charges." exact |
+| GAP-12 | FIXED | reverse strings at `:800,817,919,926,936,945` |
+| GAP-13 | FIXED | `:753` "Enter Leader Room No" label present |
+| GAP-14 | PARTIAL | Print (`_do_print`:1728, `_on_sum`:1766, `_on_adjust`+`_apply_rmch_rate`:1773-1836) + guards (`:1608-1627`) + `FomBillChangeDetails` insert (`:1664`) + "Print Bill ?" (`:1692,1718`) + grid edit (`:1504+`) all ported. **Still open: eInvoice handlers are stubs (`:1877,1882`); RoomOcc rate sync (`VB6 :1885-1911`) absent.** |
+| GAP-15 | FIXED | SQL matches VB6 — `:1350` DISTINCT FolioNoDocid / CAST(Bill_No) / SettleDate; `:1622` MODESET<>'S' bill-level query |
+
+### Re-check verdict (2026-10-11)
+
+| Form | Prior verdict | New verdict |
+| --- | --- | --- |
+| Amend Stay | PARTIAL | **VERIFIED** (GAP-01..04 closed, tests 4/4 green) |
+| Merge Room | PARTIAL | **PARTIAL** → mostly closed (GAP-05..09; only GAP-06 string verification remains) |
+| Reverse Merge | PARTIAL | **PARTIAL** → mostly closed (GAP-10..13; only string-vs-VB6 not re-verified) |
+| Bill Reprint | NOT VERIFIED | **TESTING** — print/adjust/guards/grid/search now present with test evidence; eInvoice stubs + RoomOcc rate sync = remaining GAP-14 sub-items |
+
+**OPEN (all of GAP-14 leftover):** eInvoice `CmdGeneInvoice` / `CmdeInvoiceJson` / `CmdeInvoiceSql` (VB6 `frmFomB.frm:2456-2478`) return `False` stubs; `UPDATE RoomOcc SET RoomRate=…` (VB6 `:1885-1911`) not ported. Both deferred pending priority decision (see `vb6/MIGRATION_MASTER_BUG_REGISTER.md:105-112`).

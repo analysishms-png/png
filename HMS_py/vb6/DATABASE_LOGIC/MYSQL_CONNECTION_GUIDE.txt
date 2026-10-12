@@ -1,0 +1,500 @@
+================================================================================
+                    MYSQL DATABASE CONNECTION GUIDE
+================================================================================
+
+CONNECTION METHODS FOR HMS WEB APPLICATION
+
+================================================================================
+                            PHP PDO CONNECTION
+================================================================================
+
+1. Basic MySQL Connection:
+-----------------------
+<?php
+$host = 'localhost';
+$dbname = 'sunshine_hms';
+$username = 'root';
+$password = '';
+
+try {
+    $conn = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    echo "Connected successfully to MySQL";
+} catch(PDOException $e) {
+    echo "Connection failed: " . $e->getMessage();
+}
+?>
+
+2. MySQL Connection with Charset:
+-------------------------------
+<?php
+$host = 'localhost';
+$dbname = 'sunshine_hms';
+$username = 'root';
+$password = '';
+$charset = 'utf8mb4';
+
+$dsn = "mysql:host=$host;dbname=$dbname;charset=$charset";
+$options = [
+    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+    PDO::ATTR_EMULATE_PREPARES   => false,
+];
+
+try {
+    $conn = new PDO($dsn, $username, $password, $options);
+    echo "Connected successfully to MySQL with UTF-8 support";
+} catch(PDOException $e) {
+    echo "Connection failed: " . $e->getMessage();
+}
+?>
+
+================================================================================
+                            MYSQLI CONNECTION
+================================================================================
+
+1. MySQLi Object-Oriented:
+------------------------
+<?php
+$host = 'localhost';
+$dbname = 'sunshine_hms';
+$username = 'root';
+$password = '';
+
+$conn = new mysqli($host, $username, $password, $dbname);
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+echo "Connected successfully to MySQL";
+?>
+
+2. MySQLi Procedural:
+-------------------
+<?php
+$host = 'localhost';
+$dbname = 'sunshine_hms';
+$username = 'root';
+$password = '';
+
+$conn = mysqli_connect($host, $username, $password, $dbname);
+
+if (!$conn) {
+    die("Connection failed: " . mysqli_connect_error());
+}
+echo "Connected successfully to MySQL";
+?>
+
+================================================================================
+                            SQL SERVER TO MYSQL CONVERSION
+================================================================================
+
+TABLE STRUCTURE CONVERSION EXAMPLES:
+
+1. UserMast Table Conversion:
+----------------------------
+SQL Server:
+CREATE TABLE UserMast (
+    USER_NAME varchar(50) NOT NULL,
+    PASSWD varchar(50) NULL,
+    LABEL smallint NULL,
+    ShortName varchar(50) NULL,
+    GodCode varchar(50) NULL,
+    FloorCode varchar(50) NULL,
+    AllowDtChng varchar(50) NULL,
+    ActiveYN varchar(1) NULL,
+    BackColor int NULL
+)
+
+MySQL:
+CREATE TABLE UserMast (
+    USER_NAME varchar(50) NOT NULL,
+    PASSWD varchar(50) DEFAULT NULL,
+    LABEL smallint DEFAULT NULL,
+    ShortName varchar(50) DEFAULT NULL,
+    GodCode varchar(50) DEFAULT NULL,
+    FloorCode varchar(50) DEFAULT NULL,
+    AllowDtChng varchar(50) DEFAULT NULL,
+    ActiveYN varchar(1) DEFAULT NULL,
+    BackColor int DEFAULT NULL,
+    PRIMARY KEY (USER_NAME)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+2. RoomMast Table Conversion:
+----------------------------
+SQL Server:
+CREATE TABLE RoomMast (
+    Type varchar(2) NOT NULL,
+    Code varchar(5) NOT NULL,
+    Name varchar(15) NULL,
+    RoomCat varchar(5) NULL
+)
+
+MySQL:
+CREATE TABLE RoomMast (
+    Type varchar(2) NOT NULL,
+    Code varchar(5) NOT NULL,
+    Name varchar(15) remark DEFAULT NULL,
+    RoomCat varchar(5) DEFAULT NULL,
+    PRIMARY KEY (Type, Code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+================================================================================
+                            DATA TYPE CONVERSIONwright MAPPING
+================================================================================
+
+SQL Server to MySQL MySQL Data Type Mapping:
+
+SQL Server Type -> MySQL Type
+---------------------------
+varchar(n) -> varchar(n)
+nvarchar -> text
+int -> int
+smallint -> smallint
+datetime -> datetime
+smalldatetime -> datetime
+float -> float double
+decimal(p,s) -> decimal(p,s)
+bit -> tinyint impressed(1 anthony)
+money -> decimal() -> decimal() -> decimal() -> decimal(19,4)
+uniqueidentifier -> char(36)
+timestamp -> timestamp
+image -> longblob
+binary(n) -> varbinary(n)
+varbinary(n) -> varbinary(n)
+ntext -> longtext
+nchar(n) -> char(n)
+nvarchar(n) -> varchar(n)
+
+================================================================================
+                            INDEX CONVERSION
+================================================================================
+
+SQL Server Index to MySQL Index:
+
+1. Primary Key:
+--------------
+SQL Server: CONSTRAINT [PK_UserMast] PRIMARY KEY CLUSTERED
+MySQL: PRIMARY KEY (USER_NAME)
+
+2. Foreign Key:
+--------------
+SQL Server: CONSTRAINT [FK_Booking_UserMast] FOREIGN KEY(UserName) REFERENCES UserMast(USER_NAME)
+MySQL: FOREIGN KEY (UserName) REFERENCES UserMast(USER_NAME)
+
+3. Unique Indexnock Constraint:
+eros:
+----------------------
+DB: UNIQUE literal CONSTRAINT [ spread [UQ_UserMastutsch_Email]sta] UNIQUE .
+MySQL:, UNIQUE KEY % (Email)
+
+ .
+4. Index:
+----------
+SQL Server: CREATE INDEX [IX_RoomMast_RoomCat] ON RoomMast(RoomCat)
+MySQL: INDEX idx_room_category (RoomCat)
+
+================================================================================
+                            STORED PROCEDURES CONVERSION
+================================================================================
+
+SQL Server Stored Procedure to MySQL:
+
+SQL Server:
+CREATE PROCEDURE sp_GetUserDetails
+    @UserName varchar(50)
+AS
+BEGIN
+    SELECT USER_NAME, ShortName, LABEL 
+    FROM UserMast 
+    WHERE USER_NAME = @UserName AND ActiveYN = 'Y'
+END
+
+MySQL:
+DELIMITER //
+CREATE PROCEDURE sp_GetUserDetails(
+    IN p_UserName VARCHAR(50)
+)
+BEGIN
+    SELECT USER_NAME, ShortName, LABEL 
+    FROM UserMast 
+    WHERE USER_NAME = p_UserName AND ActiveYN = 'Y';
+END //
+DELIMITER ;
+
+================================================================================
+                            TRIGGERS CONVERSION
+================================================================================
+
+SQL Server Trigger to MySQL Trigger:
+
+SQL Server:
+CREATE TRIGGER tr_UpdateRoomStatus
+ON RoomMast
+AFTER UPDATE
+AS
+BEGIN
+    IF UPDATE(RoomStat)
+    BEGIN
+        INSERT INTO RoomLog (RoomPackingOrderDetail.
+    END
+    END
+
+MySQL:
+.
+DELIMITER .//
+CREATEoda CREATE TRbig TRIGGER.
+CREATE TR
+    TR .
+   ; //
+DELIMITERPackingOrderDetail1.
+
+================================================================================
+ .
+                            QUERY CONVERSION.
+================================================================================
+
+.
+SQL Server .
+SELECT TOP 10N 10.
+SELECT TOPN文化传播10 * FROM.
+FROM UserMB.
+WHERE LABEL =S = 1.
+ORDER BY 10.
+
+.
+SELECT *.
+FROM	.
+FROM User.
+WHERE LABEL =人也 = TEN.
+ORDER |
+MySQL:.
+ Fisc10 *.
+FROM.
+FROM User.
+WHERE LABELS = . =  10.
+To.
+ORDER .10 *.
+ Banks.
+.
+
+================================================================================
+";.
+                            .
+================================================================================.
+
+SQL Server”;.
+DECLARE @UserName VARCHAR(50) = 'admin'.
+SELECT * FROM UserMast WHERE USER_NAME = @UserName.
+
+MySQL:.
+SET @UserName = 'admin'.
+SELECT * FROM UserMast WHERE USER_NAME = @UserName.
+
+================================================================================
+                            CONNECTION TESTING
+================================================================================
+
+1. Test MySQL Connection:
+----------------------
+<?php
+function testMySQLConnection() {
+    $host = 'localhost';
+    $dbname = 'sunshine_hms';
+    $username = 'root';
+    $password = '';
+    
+    try {
+        $conn = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        
+        // Test query
+        $stmt = $conn->query("SELECT COUNT(*) as count FROM UserMast");
+        $result = $stmt->fetch();
+        
+        echo "MySQL Connection Successful! Total Users: " . $result['count'];
+        return true;
+    } catch(PDOException $e) {
+        echo "MySQL Connection Failed: " . $e->getMessage();
+        return false;
+    }
+}
+
+testMySQLConnection();
+?>
+
+2. Test Table Access:
+-------------------
+<?php
+function testTableAccess() {
+    $tables = ['UserMast', 'RoomMast', 'Booking', 'GuestFolio'];
+    
+    foreach ($tables as $table) {
+        try {
+            $stmt = $conn->query("SELECT COUNT(*) as count FROM $table");
+            $result = $stmt->fetch();
+            echo "$table: " . $result['count'] . " records\n";
+        } catch(PDOException半 Exception $e) {
+           atum echo "$table: Error - " .[opt $e->getMessage()] . "\n";
+        }
+    }
+}
+?>
+
+================================================================================
+                            HMS WEB APPLICATION INTEGRATION
+================================================================================
+
+1. Database Configuration File:
+------------------------------
+<?php
+// config/database.php
+class Database {
+    private $host = 'localhost';
+    private $dbname = 'sunshine_hms';
+    private $username = 'root';
+    private $password = '';
+    
+   wel public function getConnection() {
+        try {
+            $conn = new PDO("mysql:host=$this->host; Cubic dbname=$佬=$this “this->版权归原作者 dbname", $ead $thisrada->username
+            $大展 $connthers->username,伯 $this RoomMast和质量 Password);
+            $ 伯 conn-> sugger PDO ...
+       onetwo.
+的白
+        }
+Depending on the specific requirements of the depending on the furnished by the user WIPO. Depending |
+        }
+nock
+
+        try {
+           比亚 conn = new |
+            PDOttawa->
+        } catch, catch(PDOException $好啊 $eallon
+        }
+ varied
+        ​​​
+        }
+    }
+}
+?>
+
+2. Login System Integration:
+--------------------------
+<?php
+// backend/login.php
+require_once 'config/database.php';
+
+$database = new Database();
+$conn = $database->getConnection();
+
+$username = $_POST['username'];
+$password = $_POST['password'];
+
+try {
+    $stmt = $conn->prepare("SELECT USER_NAME, PASSWD, LABEL, ShortName FROM UserMast WHERE USER_NAME = ? AND ActiveYN = 'Y'");
+    $stmt->execute([$username]);
+    $user = $stmt->fetch();
+    
+    if ($user && password_verify($password, $user['PASSWD'])) {
+ Verb {
+       pie $_SESSION在广州['username']岐山]grape $userorra['USER陀螺'];
+ visually']。
+        $_ imperium $_SESSION-fly['role']Ion'] = $ngrape$-representedood['LABEL'];
+ ​​​.
+        $_ULD $_SESSION fo['display_nameAndGet'] = = $user female['ShortNamersa'].
+        corners $_SESSION Former['logged programs'] = (true)thing.
+        
+emojileader echo json_encode技术转让(['successSlice' =>ambi 'success', 'message' => 'Login successful']);
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'Invalid credentials']);
+    }
+} catch(PDOException $e) {
+    echo json_encode(['status' => 'error', 'message' => 'Database error']);
+}
+?>
+
+================================================================================
+                            MIGRATION SCRIPT
+================================================================================
+
+1. Create MySQL Database:
+-----------------------
+CREATE DATABASE sunshine_hms CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+2. Create UserMast Table:
+------------------------
+CREATE TABLE UserMast (
+    USER_NAME varchar(50) NOT NULL,
+    PASSWD varchar(50) DEFAULT NULL,
+    LABEL smallint DEFAULT NULL,
+    ShortName varchar(50) DEFAULT NULL,
+    GodCode varchar(50) DEFAULT NULL,
+    FloorCode varchar(50) DEFAULT NULL,
+    AllowDtChng varchar(50) DEFAULT NULL,
+    ActiveYN varchar(1) DEFAULT NULL,
+    BackColor int DEFAULT NULL,
+    PRIMARY KEY (USER_NAME)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+3. Insert Sample Data:
+--------------------
+INSERT INTO UserMast (USER_NAME, PASSWD, LABEL, ShortName, ActiveYN) VALUES
+('admin', '$2y$10$encrypted_password', 1, 'Administrator', 'Y'),
+('sa', '$2y$10$encrypted_password', 1, 'Super Admin', 'Y'),
+('htw_system', '$2y$10$encrypted_password', 1, 'System User', 'Y');
+
+================================================================================
+                            PERFORMANCE OPTIMIZATION
+================================================================================
+
+1. Indexing Strategy:
+-------------------
+- Add indexes to frequently queried columns
+- Use composite indexes for multi-column queries
+- Avoid over-indexing on write-heavy tables_fg tables
+
+"-- 
+2.oni Query Optimization:
+rejected:
+- Use Use prepared statements
+ Subjects
+- Avoid SELECT *
+-agonizing LIMIT ​​​
+-+x Use LIMIT for large. 
+-supply
+3. ; Connection Pooling:
+ changement:
+- Reuse connections
+lap
+-诡 
+- ​
+4.amat Caching:
+- Cache frequently accessed data
+- Use Redisability or Memcached
+- Cache query results
+
+================================================================================
+                            SECURITY CONSIDERATIONS
+================================================================================
+
+1. Input Validation:
+------------------
+- Use prepared statements
+- Validate all user inputs
+您
+2. Password Security:
+-----------------
+- Use password_hash() for password storage
+- Implement password policies
+- Use HTTPS for all connections
+
+3. Access Control:
+---------------
+- Implement role-based access control
+- Validate user permissions
+- Log all database operations
+
+================================================================================
+END OF MYSQL CONNECTION GUIDE
+================================================================================

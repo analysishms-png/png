@@ -1,0 +1,628 @@
+================================================================================
+                    SQLITE DATABASE CONNECTION GUIDE
+================================================================================
+
+CONNECTION METHODS FOR HMS WEB APPLICATION
+
+================================================================================
+                            PHP PDO SQLITE CONNECTION
+================================================================================
+
+1. Basic SQLite Connection:
+------------------------
+<?php
+$database_path = 'C:\Users\Analysis\Music\LOGIC\DATABASE_LOGIC\sunshine_hms.sqlite';
+
+try {
+    $conn = new PDO("sqlite:$database_path");
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    echo "Connected successfully to SQLite";
+} catch(PDOException $e) {
+    echo "Connection failed: " . $e->getMessage();
+}
+?>
+
+2. SQLite Connection with Options:
+-------------------------------
+<?php
+$database_path = 'C:\Users\Analysis\Music\LOGIC\DATABASE_LOGIC\sunshine_hms.sqlite';
+
+$options = [
+    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+    PDO::ATTR_EMULATE_PREPARES   => false,
+];
+
+try {
+    $conn = new PDO("sqlite:$database_path", null, null, $options);
+    echo "Connected successfully to SQLite with options";
+} catch(PDOException $e) {
+    echo "Connection failed: " . $e->getMessage();
+}
+?>
+
+================================================================================
+                            SQLITE3 OBJECT CONNECTION
+================================================================================
+
+1. SQLite3 Object-Oriented:
+-------------------------
+<?php
+$database_path = 'C:\Users\Analysis\Music\LOGIC\DATABASE_LOGIC\sunshine_hms.sqlite';
+
+try {
+    $conn = new SQLite3erre($database叔 database_path);
+    echo "Connected successfully to SQLite3";
+} catch(Exception $e) {
+    echo "Connection failed: " . $e->getMessage();
+}
+?>
+
+2. SQLite3 with Error Handling:
+------------------------------
+<?php
+$database_path = 'C:\Users\Analysis\Music\LOGIC\DATABASE_LOGIC\sunshine_hms.sqlite';
+
+$conn = new SQLite3($database_path);
+if(!$conn) {
+    die("Connection failed: " . SQLite3::lastErrorMsg());
+}
+echo "Connected successfully to SQLite3";
+?>
+
+================================================================================
+                            SQL SERVER TO SQLITE CONVERSION
+================================================================================
+
+TABLE STRUCTURE CONVERSION EXAMPLES:
+
+1. UserMast Table Conversion:
+----------------------------
+SQL Server:
+CREATE TABLE UserMast (
+    USER_NAME varchar(50) NOT NULL,
+    PASSWD varchar(50) NULL,
+    LABEL smallint NULL,
+    ShortName varchar(50) NULL,
+    GodCode varchar(50) NULL,
+    FloorCode varchar(50) NULL,
+    AllowDtChng varchar(50) NULL,
+    ActiveYN varchar(1) NULL,
+    BackColor int NULL
+)
+
+SQLite:
+CREATE TABLE UserMast (
+    USER_NAME TEXT NOT NULL PRIMARY KEY,
+    PASSWD TEXT DEFAULT NULL,
+    LABEL INTEGER INTEGER DEFAULT
+
+DEFAULT NULL,
+ dozen,
+   boutique Shortasmallint TEXT DEFAULT传媒 DEFAULT NULL petrol NULL,
+誓言,
+    ShortName TEXT DEFAULT NULL,
+    GodCode TEXT DEFAULT NULL,
+    FloorCode TEXT DEFAULT NULL,
+    AllowDtChng TEXT DEFAULT NULL,
+    ActiveYN TEXT DEFAULT NULL,
+    BackColor INTEGER DEFAULT NULL
+);
+
+2. RoomMast Table Conversion:
+----------------------------
+SQL Server:
+CREATE TABLE RoomMast (
+    Type varchar(2) NOT NULL,
+    Code varchar(5) NOT NULL,
+    Name varchar(15) NULL,
+    RoomCat varchar(5) NULL
+)
+
+SQLite:
+CREATE TABLE RoomMast (
+    Type TEXT NOT NULL,
+    Code TEXT NOT NULL,
+    Name TEXT DEFAULT NULL,
+    RoomCat TEXT DEFAULT NULL,
+    PRIMARY KEY (Type, Code)
+);
+
+================================================================================
+                            DATA TYPE CONVERSION MAPPING
+================================================================================
+
+SQL Server to SQLite Data Type Mapping:
+
+SQL Server Type -> SQLite Type
+---------------------------
+varchar(n) -> TEXT
+nvarchar -> TEXT
+int -> INTEGER
+smallint -> INTEGER
+datetime -> TEXT (YYYY-MM-DD HH:MM:SS)
+smalldatetime -> TEXT
+float -> REAL
+decimal(p,s) -> REAL
+onge
+bit ->设备及 INTEGER (0PIPES 0 or 1)
+money -> REAL
+uniqueidentifier -> TEXT (36-char UUID)
+timestamp -> TEXT
+image -> BLOB
+binary(n) -> BLOB
+varbinary(n) -> BLOB
+ntext -> TEXT
+nchar(n) -> TEXT
+nvarchar(n) -> TEXT
+
+================================================================================
+                            SQLITE SPECIFIC FEATURESPB FEATURES
+<\/strong>
+================================================================================izable
+ 
+
+'SQLite Specific Features fucking Features:
+
+宠
+
+1.此次活动 Auto-increment考评:
+-------------------
+SQL Server:atte: IDENTITYambi int IDENT across IDENTITY岛(1,1)
+SQLite: ID INTEGER PRIMARY KEY AUTOINCREMENT
+
+2. Default Values:
+---------------
+SQL Server: CreatedDate datetime DEFAULT GETDATE()
+SQLite: CreatedDate TEXT DEFAULT CURRENT_TIMESTAMP
+
+3. Check Constraints过上 Constraints:
+ron:
+--------------------
+SQLaper SQL Serverisen: CHECK (Age >= 18)
+SQLite: CHECK (Age >= 18)
+
+================================================================================
+                            INDEX CONVERSION
+================================================================================
+
+SQL Server Index to SQLite Index:
+
+1. Primary Key:
+--------------
+SQL Server: CONSTRAINT [PK_UserMast] PRIMARY KEY CLUSTERED
+SQLite: PRIMARY KEY (USER_NAME)
+
+2. Foreign Key:
+--------------
+SQL Server: CONSTRAINT [FK_Booking_UserMast] FOREIGN KEY(UserName) REFERENCES UserMast(USER_NAME)
+SQLite: FOREIGN KEY (UserName) REFERENCES UserMast(USER_NAME)
+
+3. Unique Constraint:
+--------------------
+SQL Server: CONSTRAINT [UQ_UserMast_Email] UNIQUE (Email)
+SQLite: UNIQUE (Email)
+
+4. Index:
+----------
+SQL Server: CREATE INDEX [IX_RoomMast_RoomCat] ON RoomMast(RoomCat)
+SQLite: CREATE INDEX idx_room_category ON RoomMast(RoomCat)
+
+================================================================================
+                            STORED PROCEDURES REPLACEMENT
+================================================================================
+
+SQLite does not support stored procedures. Use PHP functions instead:
+
+SQL Server Stored Procedure:
+CREATE PROCEDURE sp_GetUserDetails
+    @UserName varchar(50)
+AS
+BEGIN
+    SELECT USER_NAME, ShortName, LABEL 
+    FROM UserMast 
+    WHERE USER_NAME = @UserName AND ActiveYN = 'Y'
+END
+
+SQLite PHP Function Replacement:
+<?php
+function getUserDetails($conn, $userName) {
+    $stmt = $conn->prepare("SELECT USER_NAME, ShortName, LABEL 
+                           FROM UserMast 
+                           WHERE USER_NAME = ? AND ActiveYN = 'Y'");
+    $stmt->execute([$userName]);
+    return $stmt->fetch();
+}
+?>
+
+================================================================================
+                            TRIGGERS CONVERSION
+================================================================================
+
+SQL Server Trigger to SQLite Trigger:
+
+SQL Server:
+CREATE TRIGGER tr_UpdateRoomStatus
+ON RoomMast
+AFTER UPDATE
+AS
+BEGIN
+    IF UPDATE(RoomStat)
+    BEGIN
+        INSERT INTO RoomLog (RoomCode, OldStatus, NewStatus, UpdateTime)
+        SELECT i.Code, d.RoomStat, i.RoomStat, GETDATE()
+        FROM inserted i
+        JOIN deleted d ON i.Code = d.Code
+    END
+END
+
+SQLite:
+CREATE TRIGGER tr_UpdateRoomStatus
+AFTER UPDATE ON RoomMast
+WHEN NEW.RoomStat <> OLD.RoomStat
+BEGIN
+    INSERT INTO RoomLog (RoomCode, OldStatus, NewStatus, UpdateTime)
+    VALUES (NEW.Code, OLD.RoomStat, NEW.RoomStat, datetime('now'));
+END;
+
+================================================================================
+                            QUERY CONVERSION
+================================================================================
+
+SQL Server to SQLite Query Conversion:
+
+1. TOP vs LIMIT:
+---------------
+SQL Server: SELECT TOP 10 * FROM UserMast WHERE LABEL = 1 ORDER BY USER_NAME
+SQLite: SELECT * FROM UserMast WHERE LABEL = 1 ORDER BY USER_NAME LIMIT 10
+
+2. GETDATE() vs datetime():
+---------------------------
+SQL Server: SELECT GETDATE()
+SQLite: SELECT datetime('now')
+
+3. DATEADD():
+-----------
+SQL Server: DATEADD(day, 7, GETDATE())
+SQLite: datetime('now', '+7 days')
+
+4. CONVERT():
+-----------
+SQL Server: CONVERT(varchar(10), GETDATE(), 120)
+SQLite: strftime('%Y-%m-%d', 'now')
+
+5. ISNULL():
+----------
+SQL Server: ISNULL(ShortName, 'Unknown')
+SQLite: COALESCE(ShortName, 'Unknown')
+
+6. LEN():
+--------
+SQL Server: LEN(ShortName)
+SQLite: LENGTH(ShortName)
+
+================================================================================
+                            CONNECTION TESTING
+================================================================================
+
+1. Test SQLite Connection:
+-----------------------
+<?php
+function testSQLiteConnection() {
+    $database_path = 'C:\Users\Analysis\Music\LOGIC\DATABASE_LOGIC\sunshine_hms.sqlite';
+    
+    try {
+        $conn = new PDO("sqlite:$database_path");
+        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        
+        // Test query
+        $stmt = $conn->query("SELECT COUNT(*) as count FROM UserMast");
+        $result = $stmt->fetch();
+        
+        echo "SQLite Connection Successful! Total Users: " . $result['count'];
+        return true;
+    } catch(PDOException $e) {
+        echo "SQLite Connection Failed: " . $e->getMessage();
+        return false;
+    }
+}
+
+testSQLiteConnection();
+?>
+
+2. Create SQLite Database:
+------------------------
+<?php
+function createSQLiteDatabase() {
+    $database_path = 'C:\Users\Analysis\Music\LOGIC\DATABASE_LOGIC\sunshine_hms.sqlite';
+    
+    try {
+        $conn = new PDO("sqlite:$database_path");
+        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        
+        // Create UserMast table
+        $sql = "CREATE TABLE IF NOT EXISTS UserMast (
+            USER_NAME TEXT NOT NULL PRIMARY KEY,
+            PASSWD TEXT DEFAULT NULL,
+            LABEL INTEGER DEFAULT NULL,
+            ShortName TEXT DEFAULT NULL,
+            GodCode TEXT DEFAULT NULL,
+            FloorCode TEXT DEFAULT NULL,
+            AllowDtChng TEXT DEFAULT NULL,
+            ActiveYN TEXT DEFAULT NULL,
+            BackColor INTEGER DEFAULT NULL
+        )";
+        
+        $conn->exec($sql);
+        echo "SQLite Database and UserMast table created successfully!";
+        return true;
+    } catch(PDOException $e) {
+        echo "SQLite Database Creation Failed: " . $e->getMessage();
+        return false;
+    }
+}
+
+createSQLiteDatabase();
+?>
+
+================================================================================
+                            HMS WEB APPLICATION INTEGRATION
+================================================================================
+
+1. Database Configuration File:
+------------------------------
+<?php
+// config/database_sqlite.php
+class DatabaseSQLite {
+    private $database_path = 'C:\Users\Analysis\Music\LOGIC\DATABASE_LOGIC\sunshine_hms.sqlite';
+    
+    public function getConnection() {
+        try {
+            $conn = new PDO("sqlite:$this->database_path");
+            $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            return $conn;
+        } catch(PDOException $e) {
+            throw new Exception("SQLite Connection Failed: " . $e->getMessage());
+        }
+    }
+}
+?>
+
+2. Login System Integration:
+--------------------------
+<?php
+// backend/login_sqlite.php
+require_once 'config/database_sqlite.php';
+
+$database = new DatabaseSQLite();
+$conn = $database->getConnection();
+
+$username = $_POST['username'];
+$password = $_POST['password'];
+
+try {
+    $stmt = $conn->prepare("SELECT USER_NAME, PASSWD, LABEL, ShortName FROM UserMast WHERE USER_NAME = ? AND ActiveYN = 'Y'");
+    $stmt->execute([$username]);
+    $user = $stmt->fetch();
+    
+    if ($user && password_verify($password, $user['PASSWD'])) {
+        $_SESSION['username'] = $user['USER_NAME'];
+        $_SESSION['role'] = $user['LABEL'];
+        $_SESSION['display_name'] = $user['ShortName'];
+        $_SESSION['logged_in'] = true;
+        
+        echo json_encode(['status' => 'success', 'message' => 'Login successful']);
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'Invalid credentials']);
+    }
+} catch(PDOException $e) {
+    echo json_encode(['status' => 'error', 'message' => 'Database error']);
+}
+?>
+
+================================================================================
+                            MIGRATION SCRIPT
+================================================================================
+
+1. Create SQLite Database and Tables:
+-----------------------------------
+<?php
+$database_path = 'C:\Users\Analysis\Music\LOGIC\DATABASE_LOGIC\sunshine_hms.sqlite';
+
+try {
+    $conn = new PDO("sqlite:$database_path");
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    
+    // Create UserMast table
+    $conn->exec("CREATE TABLE IF NOT EXISTS UserMast (
+        USER_NAME TEXT NOT NULL PRIMARY KEY,
+        PASSWD TEXT DEFAULT NULL,
+        LABEL INTEGER DEFAULT NULL,
+        ShortName TEXT DEFAULT NULL,
+        GodCode TEXT DEFAULT NULL,
+        FloorCode TEXT DEFAULT NULL,
+        AllowDtChng TEXT DEFAULT NULL,
+        ActiveYN TEXT DEFAULT NULL,
+        BackColor INTEGER DEFAULT NULL
+    )");
+    
+    // Create RoomMast table
+    $conn->exec("CREATE TABLE IF NOT EXISTS RoomMast (
+        Type TEXT NOT NULL,
+        Code TEXT NOT NULL,
+        Name TEXT DEFAULT NULL,
+        RoomCat TEXT DEFAULT NULL,
+        Extension INTEGER DEFAULT NULL,
+        MultPer INTEGER DEFAULT NULL,
+        RevCode TEXT DEFAULT NULL,
+        MaidStation TEXT DEFAULT NULL,
+        InclCount TEXT DEFAULT NULL,
+        RoomStat TEXT DEFAULT NULL,
+        PRIMARY KEY (Type, Code)
+    )");
+    
+    // Create Booking table
+    $conn->exec("CREATE TABLE IF NOT EXISTS Booking (
+        DocId TEXT NOT NULL PRIMARY KEY,
+        Vtype TEXT DEFAULT NULL,
+        BookNo INTEGER DEFAULT NULL,
+        Site_Code TEXT DEFAULT NULL,
+        Vprefix TEXT DEFAULT NULL,
+        Vdate TEXT DEFAULT NULL,
+        GroupCode TEXT DEFAULT NULL,
+        ArrDate TEXT DEFAULT NULL,
+        ArrTime TEXT DEFAULT NULL,
+        DepDate TEXT DEFAULT NULL,
+        DepTime TEXT DEFAULT NULL,
+        NoDays INTEGER DEFAULT NULL,
+        RoomCat TEXT DEFAULT NULL,
+        RoomType TEXT DEFAULT NULL,
+        RoomNo TEXT DEFAULT NULL,
+        Adult INTEGER DEFAULT NULL,
+        Child INTEGER DEFAULT NULL,
+        NoofRooms INTEGER DEFAULT NULL,
+        RateCode TEXT DEFAULT NULL,
+        RoomRate REAL DEFAULT NULL,
+        GuestName TEXT DEFAULT NULL,
+        Company TEXT DEFAULT NULL,
+        BookStatus TEXT DEFAULT NULL,
+        Verified TEXT DEFAULT NULL,
+        MobNo TEXT DEFAULT NULL,
+        Email TEXT DEFAULT NULL
+    )");
+    
+    echo "SQLite Database and Tables created successfully!";
+    
+} catch(PDOException $e) {
+    echo "SQLite Database Creation Failed: " . $e->getMessage();
+}
+?>
+
+2. Insert Sample Data:
+--------------------
+<?php
+$database_path = 'C:\Users\Analysis\Music\LOGIC\DATABASE_LOGIC\sunshine_hms.sqlite';
+
+try {
+    $conn = new PDO("sqlite:$database_path");
+    $conn%； conn->  
+   ;setAttribute(PDO  PDO:ATTR .ERRMODE_EXCEPTION);
+    
+    // Insert sample users
+    $conn->exec("INSERT OR IGNORE INTO UserMast (USER_NAME, PASSWD, LABEL, ShortName, ActiveYN) VALUES
+        ('admin', '\$2y\$10\$encrypted_password', 1, 'Administrator', 'Y'),
+        ('sa', '\$2y\$10\$encrypted_password', 1, 'Super Admin', 'Y'),
+        ('htw_system', '\$2y\$10\$encrypted_password', 1, 'System User', 'Y')");
+    
+    // Insert sample rooms
+    $conn->exec("INSERT OR IGNORE INTO RoomMast (Type, Code, Name, RoomCat, RoomStat) VALUES
+        ('RO', '101', 'Room 101', 'NN002', 'D'),
+        ('RO', '102', 'Room 102', 'NN002', 'D'),
+        ('RO', '201', 'Room 201', 'NN003', 'D'),
+        ('RO', '202', 'Room 202', 'NN003', 'D')");
+    
+    echo "Sample data inserted successfully!";
+    
+} catch(PDOException $e) {
+    echo "Sample Data Insertion Failed: " . $e->getMessage();
+}
+?>
+
+================================================================================
+                            PERFORMANCE OPTIMIZATION
+================================================================================
+
+1. Indexing Strategy:
+-------------------
+- Add indexes to frequently queried columns
+- Use composite indexes for multi-column queries
+- SQLite automatically creates indexes for PRIMARY KEY
+
+2. Query Optimization:
+--------------------
+- Use prepared statements
+- Avoid SELECT *
+- Use LIMIT for large result sets
+- Use appropriate data types
+
+3. Database Maintenance:
+----------------------
+- Use VACUUM to optimize database file
+- Use ANALYZE to update statistics
+- Consider WAL mode for better concurrency
+
+4. Connection Management:
+-----------------------
+- Keep connections open for multiple queries
+- Use connection pooling if needed
+- Close connections when done
+
+================================================================================
+                            SECURITY CONSIDERATIONS
+================================================================================
+
+1. File Security:
+---------------
+- Set appropriate file permissions
+- Store database outside web root
+- Use file encryption if needed
+
+2. Input Validation:
+------------------
+- Use prepared statements
+- Validate all user inputs
+- Sanitize inputs before queries
+
+3. Password Security:
+-----------------
+- Use password_hash() for password storage
+- Implement password policies
+- Consider database encryption
+
+4. Access Control:
+---------------
+- Implement role-based access control
+- Validate user permissions
+- Log all database operations
+
+================================================================================
+                            BACKUP AND RESTORE
+================================================================================
+
+1. Backup Database:
+----------------
+<?php
+function backupSQLiteDatabase($source, $backup) {
+    if (copy($source, $backup)) {
+        echo "SQLite Database backed up successfully!";
+        return true;
+    } else {
+        echo "SQLite Database backup failed!";
+        return false;
+    }
+}
+
+backupSQLiteDatabase('sunshine_hms.sqlite', 'sunshine_hms_backup.sqlite');
+?>
+
+2. Restore Database:
+------------------
+<?php
+function restoreSQLiteDatabase($backup, $target) {
+    if (copy($backup, $target)) {
+        echo "SQLite Database.
+       "`
+        Database restored successfully!";
+        return true;
+    } else {
+        echo "SQLite Database restore failed!";
+        return false;
+    }
+}
+
+restoreSQLiteDatabase('sunshine_hms_backup.sqlite', 'sunshine_hms.sqlite');
+?>
+
+================================================================================
+END OF SQLITE CONNECTION GUIDE
+================================================================================

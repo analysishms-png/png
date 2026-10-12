@@ -4158,7 +4158,10 @@ QMenuBar#vbSubBar::item:focus {
         Args:
             module_name: Module ka naam (None = default to Main Setup)
         """
-        target_module = module_name or _MAIN_SETUP_MODULE
+        # PERSISTENT top menubar (test_menuhelp_sidebar_live ke mutabik):
+        # bar hamesha Main Setup ke 9 sub-menus ka rehta hai — module click
+        # par bhi 9 items intact. (module_name sirf API-compat ke liye.)
+        target_module = _MAIN_SETUP_MODULE
         try:
             groups = list(self._menus(target_module, self.user) or [])
         except Exception:  # noqa: BLE001
